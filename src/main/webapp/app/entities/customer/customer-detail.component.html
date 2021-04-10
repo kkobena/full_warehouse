@@ -1,0 +1,128 @@
+<div class="row justify-content-center">
+
+    <div class="col-4 master">
+        <h4 *ngIf="customer"><span jhiTranslate="warehouseApp.customer.detail.title">Customer</span> {{
+            customer.firstName +' '+ customer.lastName }}</h4>
+
+        <div class="table-responsive table-sm table-hover" *ngIf="sales && sales.length > 0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><span
+                                jhiTranslate="warehouseApp.sales.numberTransaction">numberTransaction</span></th>
+                        <th scope="col"><span jhiTranslate="warehouseApp.sales.updatedAt">Date</span></th>
+                        <th scope="col"><span jhiTranslate="warehouseApp.sales.netAmount">Montant</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr (click)="clickRow(sale)" *ngFor="let sale of sales; let first = first; let last = last"
+                        [ngClass]="{'active' : selectedRowIndex == sale.id }">
+                        <td>{{ sale.numberTransaction }}</td>
+                        <td>{{ sale.updatedAt | date:'dd/MM/yyyy'}}</td>
+                        <td style="text-align:right;">{{ sale.salesAmount | number}} </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+    <div class="col-8 master">
+        <div *ngIf="customer">
+            <jhi-alert-error></jhi-alert-error>
+
+            <div class="card" *ngIf="saleSelected" id="print-area">
+                <div id="invoice-content" class="card-body">
+                    <div class="invoice">
+                        <div class="invoice-header">
+                            <div class="invoice-company" *ngIf="magasin">
+                                <!-- <img id="invoice-logo" class="logo-image" src="" alt="diamond-layout" /> -->
+                                <div class="company-name">{{magasin?.name}}</div>
+                                <div *ngIf="magasin?.phone">{{magasin?.phone}}</div>
+                                <div *ngIf="magasin?.address">{{magasin?.address}}</div>
+                            </div>
+                            <div>
+                                <!--   <div class="invoice-title">INVOICE</div> -->
+                                <div class="invoice-details">
+                                    <div class="invoice-label">DATE</div>
+                                    <div class="invoice-value">{{saleSelected?.updatedAt | date:'dd/MM/yyyy' }}</div>
+
+                                    <div class="invoice-label"><span
+                                            jhiTranslate="warehouseApp.customer.detail.invoice">FACTURE</span> #</div>
+                                    <div class="invoice-value">{{saleSelected?.numberTransaction }}</div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invoice-to">
+                            <div class="bill-to"><span jhiTranslate="warehouseApp.customer.detail.billto">FACTURE
+                                    DE</span> </div>
+                            <div class="invoice-to-info">
+                                <div>{{saleSelected?.customer?.firstName +' '+saleSelected?.customer?.lastName }} </div>
+                                <div>{{saleSelected?.customer?.phone }} </div>
+                            </div>
+                        </div>
+                        <div class="invoice-items">
+                            <table>
+                                <thead>
+                                    <tr>
+
+                                        <th><span jhiTranslate="warehouseApp.produit.libelle">Libellé</span></th>
+                                        <th><span jhiTranslate="warehouseApp.salesLine.quantitySold">Qunatité</span>
+                                        </th>
+                                        <th><span
+                                                jhiTranslate="warehouseApp.salesLine.regularUnitPrice">Prix.Unitaire</span>
+                                        </th>
+                                        <th><span jhiTranslate="warehouseApp.salesLine.salesAmount">Montant</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        *ngFor="let saleLine of selectedRowSaleLines; let first = first; let last = last">
+                                        <td>{{saleLine.produitLibelle}}</td>
+                                        <td>{{saleLine.quantitySold | number}}</td>
+                                        <td>{{saleLine.regularUnitPrice | number}}</td>
+                                        <td>{{saleLine.salesAmount | number}}</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="invoice-summary">
+                            <div class="invoice-notes">
+                                <div>
+
+                                </div>
+                            </div>
+                            <div>
+                                <div class="invoice-details">
+                                    <!--  <div class="invoice-label">SUBTOTAL</div>
+                                    <div class="invoice-value">$332.00</div>
+                                    <div class="invoice-label">VAT</div>
+                                    <div class="invoice-value">0</div> -->
+                                    <div class="invoice-label">TOTAL</div>
+                                    <div class="invoice-value">{{saleSelected?.salesAmount | number}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="text-align:center;margin-top:1px;">
+                <button type="submit" (click)="previousState()" class="btn btn-info">
+                    <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+                </button>
+
+                <button *ngIf="saleSelected" type="button" (click)="print()" class="btn btn-primary">
+
+                    <span jhiTranslate="warehouseApp.customer.detail.print">Imprimer</span>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

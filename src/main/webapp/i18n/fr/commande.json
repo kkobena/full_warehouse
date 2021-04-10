@@ -1,0 +1,35 @@
+{
+  "warehouseApp": {
+    "commande": {
+      "home": {
+        "title": "Commandes",
+        "createLabel": "Nouvelle commande",
+        "createOrEditLabel": "Editer la commande",
+        "notFound": "Aucune commande trouvée"
+      },
+      "created": "Une nouvelle Commande a été créée avec l'identifiant {{ param }}",
+      "updated": "La Commande avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Commande avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la Commande {{ id }} ?"
+      },
+      "detail": {
+        "title": "Commande"
+      },
+      "orderRefernce": "Numéro",
+      "receiptDate": "Date",
+      "discountAmount": "Discount Amount",
+      "orderAmount": "Montant achat",
+      "grossAmount": "Montant brut",
+      "netAmount": "Montant net",
+      "taxAmount": "Montant tax",
+      "createdAt": "créé le",
+      "updatedAt": "Modifié le",
+      "orderStatus": "Status",
+      "paymentFournisseur": "Payment Fournisseur",
+      "orderLine": "Lignes de commande",
+      "dateDimension": "Date Dimension",
+      "close": "Cloturer"
+    }
+  }
+}

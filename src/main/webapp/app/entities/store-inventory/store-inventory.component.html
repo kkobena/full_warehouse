@@ -1,0 +1,79 @@
+<div class="row">
+    <div class="col-6">
+        <h2 id="page-heading">
+            <span jhiTranslate="warehouseApp.storeInventory.home.title">Store Inventories</span>
+
+            <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-store-inventory"
+                     type="button" (click)="init()">
+                <fa-icon icon="plus"></fa-icon>
+                <span jhiTranslate="warehouseApp.storeInventory.home.createLabel">
+            Create a new Store Inventory
+            </span>
+            </button>
+        </h2>
+
+        <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "timer" [fullScreen] = "false"><p style="color: white" > Traitement en cours... </p></ngx-spinner>
+        <div class="alert alert-warning" id="no-result" *ngIf="storeInventories?.length === 0">
+            <span jhiTranslate="warehouseApp.storeInventory.home.notFound">No storeInventories found</span>
+        </div>
+
+        <div class="table-responsive" id="entities" *ngIf="storeInventories && storeInventories.length > 0">
+            <table class="table table-striped" aria-describedby="page-heading">
+                <thead>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="reset.bind(this)">
+                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.updatedAt">Updated At</span></th>
+                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostBegin">Inventory Value Cost Begin</span>
+                    </th>
+                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountBegin">Inventory Amount Begin</span>
+                    </th>
+                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostAfter">Inventory Value Cost After</span>
+                    </th>
+                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountAfter">Inventory Amount After</span>
+                    </th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let storeInventory of storeInventories ;trackBy: trackId"
+                    (click)="clickRow(storeInventory)"   [ngClass]="{'active' : selectedRowIndex == storeInventory.id }">
+                    <td>{{ storeInventory.updatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ storeInventory.inventoryValueCostBegin | number}}</td>
+                    <td>{{ storeInventory.inventoryAmountBegin | number}}</td>
+                    <td>{{ storeInventory.inventoryValueCostAfter | number}}</td>
+                    <td>{{ storeInventory.inventoryAmountAfter | number}}</td>
+                    <td class="text-right">
+                        <div *ngIf="storeInventory.statut==='PROCESSING'" class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+
+                            </button>
+
+                            <button type="submit" (click)="delete(storeInventory)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class=" col-6">
+        <div>
+            <input class="form-control mr-sm-2" type="text" placeholder="Taper pour rechercher"
+                   (keyup)="onFilterTextBoxChanged($event)">
+        </div>
+        <hr>
+        <ag-grid-angular class="ag-theme-alpine"  [rowData]="rowData"
+                         [columnDefs]="columnDefs"
+                         [quickFilterText]="searchValue">
+        </ag-grid-angular>
+
+    </div>
+
+</div>

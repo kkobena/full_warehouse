@@ -1,0 +1,104 @@
+<div class="row">
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="col-6 master">
+
+        <h4 id="page-heading">
+            <span jhiTranslate="warehouseApp.sales.home.title">Sales</span>
+
+            <button id="jh-create-entity" class="btn btn-sm btn-primary float-right jh-create-entity create-sales"
+                [routerLink]="['/sales/new']">
+                <fa-icon icon="plus"></fa-icon>
+                <span jhiTranslate="warehouseApp.sales.home.createLabel">
+                    Create a new Sales
+                </span>
+            </button>
+        </h4>
+        <div class="alert alert-warning" id="no-result" *ngIf="sales?.length === 0">
+            <span jhiTranslate="warehouseApp.sales.home.notFound">No sales found</span>
+        </div>
+        <div class="table-responsive" id="entities" *ngIf="sales && sales.length > 0" style="overflow-y: scroll;max-height: 90%;">
+            <table class="table table-striped" aria-describedby="page-heading">
+                <thead>
+                    <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                        <th scope="col"><span>#</span>
+                        </th>
+                        <th scope="col" jhiSortBy="createdAt"><span jhiTranslate="warehouseApp.sales.createdAt">Created
+                                At</span>
+                            <fa-icon icon="sort"></fa-icon>
+                        </th>
+                        <th scope="col"><span jhiTranslate="warehouseApp.sales.salesAmount">Sales
+                                Amount</span>
+
+                        </th>
+                        <th style="text-align:center;" scope="col"><span jhiTranslate="warehouseApp.sales.customer">Customer</span>
+                        </th>
+
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr (click)="clickRow(sales)" *ngFor="let sales of sales ; let index = index;trackBy: trackId"    [ngClass]="{'active' : selectedRowIndex == sales.id }">
+                        <td>{{sales.numberTransaction}}</td>
+                        <td>{{ sales.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td style="text-align:right;">{{ sales.salesAmount |number }}</td>
+                        <td style="text-align:center;">
+                            <div *ngIf="sales.customer">
+                                <a [routerLink]="['/customer', sales.customer?.id, 'view']">{{ sales.customer?.firstName
+                                    }}
+                                    {{ sales.customer?.lastName }}</a>
+                            </div>
+                        </td>
+
+                        <td class="text-right">
+                            <div class="btn-group">
+                                <button *ngIf="showBtnDele" type="submit" [routerLink]="['/sales', sales.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                    <fa-icon icon="eye"></fa-icon>
+                                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                                </button>
+
+                                <button *ngIf="showBtnDele" type="submit" [routerLink]="['/sales', sales.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                    <fa-icon icon="pencil-alt"></fa-icon>
+                                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                                </button>
+
+                                <button *ngIf="showBtnDele" type="submit" (click)="delete(sales)"
+                                    class="btn btn-danger btn-sm">
+                                    <fa-icon icon="times"></fa-icon>
+
+                                </button>
+                                <button type="submit" (click)="print(sales)"
+                                        class="btn btn-secondary btn-sm">
+                                    <fa-icon [icon]="faPrint"></fa-icon>
+
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+<div class="col-6 master ag-theme-alpine">
+    <h4>
+        <span jhiTranslate="warehouseApp.salesLine.home.title">Produits vendus</span>
+    </h4>
+    <ag-grid-angular *ngIf="saleSelected" #productGrid style="width: 100%;height:95%;"
+        [rowData]="rowData"   [columnDefs]="columnDefs"
+       >
+    </ag-grid-angular>
+
+
+</div>
+
+
+
+
+
+
+</div>

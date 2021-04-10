@@ -1,0 +1,40 @@
+{
+  "warehouseApp": {
+    "produit": {
+      "home": {
+        "title": "Produits",
+        "createLabel": "Create a new Produit",
+        "createOrEditLabel": "Create or edit a Produit",
+        "notFound": "No Produits found"
+      },
+      "created": "A new Produit is created with identifier {{ param }}",
+      "updated": "A Produit is updated with identifier {{ param }}",
+      "deleted": "A Produit is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Produit {{ id }}?"
+      },
+      "detail": {
+        "title": "Produit"
+      },
+      "libelle": "Libelle",
+      "code": "Code",
+      "imageUrl": "Image Url",
+      "typeProduit": "Type Produit",
+      "quantity": "Quantity",
+      "itemQuantity": "Item quantity",
+      "costAmount": "Cost Amount",
+      "regularUnitPrice": "Regular Unit Price",
+      "netUnitPrice": "Net Unit Price",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "itemQty": "Item Qty",
+      "itemCostAmount": "Item Cost Amount",
+      "itemRegularUnitPrice": "Item Regular Unit Price",
+      "salesLine": "Sales Line",
+      "storeInventoryLine": "Store Inventory Line",
+      "orderLine": "Order Line",
+      "inventoryTransaction": "Inventory Transaction",
+      "categorie": "Categorie"
+    }
+  }
+}

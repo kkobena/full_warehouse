@@ -1,0 +1,35 @@
+{
+  "warehouseApp": {
+    "salesLine": {
+      "home": {
+        "title": "Produits vendus",
+        "createLabel": "Ajouter",
+        "createOrEditLabel": "Créer ou éditer un Sales Line",
+        "notFound": "Aucune ligne de vente trouvée"
+      },
+      "created": "Un nouveau Sales Line a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Sales Line avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "La Ligne avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la ligne {{ id }} ?"
+      },
+      "detail": {
+        "title": "Produits venduse"
+      },
+      "quantitySold": "Quantité",
+      "regularUnitPrice": "Prix Unitaire",
+      "discountUnitPrice": "Prix unitaire de remise",
+      "netUnitPrice": "Prix net unitaire",
+      "discountAmount": "Montant de la remise",
+      "salesAmount": "Montant",
+      "grossAmount": "Montant brut",
+      "netAmount": "Montant net",
+      "taxAmount": "Tax Amount",
+      "costAmount": "Montant du coût",
+      "createdAt": "Créé à",
+      "updatedAt": "Mis à jour à",
+      "sales": "Vente",
+      "produit": "Produit"
+    }
+  }
+}

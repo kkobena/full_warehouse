@@ -1,0 +1,30 @@
+{
+  "warehouseApp": {
+    "inventoryTransaction": {
+      "home": {
+        "title": "Inventory Transactions",
+        "createLabel": "Create a new Inventory Transaction",
+        "createOrEditLabel": "Create or edit a Inventory Transaction",
+        "notFound": "No Inventory Transactions found"
+      },
+      "created": "A new Inventory Transaction is created with identifier {{ param }}",
+      "updated": "A Inventory Transaction is updated with identifier {{ param }}",
+      "deleted": "A Inventory Transaction is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Inventory Transaction {{ id }}?"
+      },
+      "detail": {
+        "title": "Inventory Transaction"
+      },
+      "transactionType": "Transaction Type",
+      "amount": "Amount",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "quantity": "Quantity",
+      "quantityBefor": "Quantity Befor",
+      "quantityAfter": "Quantity After",
+      "produit": "Produit",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

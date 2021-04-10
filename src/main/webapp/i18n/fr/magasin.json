@@ -1,0 +1,26 @@
+{
+  "warehouseApp": {
+    "magasin": {
+      "home": {
+        "title": "Informations du magasin",
+        "createLabel": "Créer les informations du magasin",
+        "createOrEditLabel": "Editer les informations du magasin",
+        "notFound": "Aucun Magasin trouvé"
+      },
+      "created": "Un nouveau Magasin a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Magasin avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Magasin avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Magasin {{ id }} ?"
+      },
+      "detail": {
+        "title": "Informations du magasin"
+      },
+      "name": "Raison sociale",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "note": "Note",
+      "registre": "Registre"
+    }
+  }
+}

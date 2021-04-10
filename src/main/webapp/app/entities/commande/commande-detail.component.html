@@ -1,0 +1,67 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="commande">
+            <h2><span jhiTranslate="warehouseApp.commande.detail.title">Commande</span> {{ commande.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="warehouseApp.commande.orderRefernce">Order Refernce</span></dt>
+                <dd>
+                    <span>{{ commande.orderRefernce }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.receiptDate">Receipt Date</span></dt>
+                <dd>
+                    <span>{{ commande.receiptDate }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.discountAmount">Discount Amount</span></dt>
+                <dd>
+                    <span>{{ commande.discountAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.orderAmount">Order Amount</span></dt>
+                <dd>
+                    <span>{{ commande.orderAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.grossAmount">Gross Amount</span></dt>
+                <dd>
+                    <span>{{ commande.grossAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.netAmount">Net Amount</span></dt>
+                <dd>
+                    <span>{{ commande.netAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.taxAmount">Tax Amount</span></dt>
+                <dd>
+                    <span>{{ commande.taxAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{ commande.createdAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{ commande.updatedAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.commande.orderStatus">Order Status</span></dt>
+                <dd>
+                    <span jhiTranslate="{{ 'warehouseApp.OrderStatut.' + commande.orderStatus }}">{{ commande.orderStatus }}</span>
+                </dd>
+
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/commande', commande.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

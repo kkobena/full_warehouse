@@ -1,0 +1,26 @@
+{
+  "warehouseApp": {
+    "magasin": {
+      "home": {
+        "title": "Store Info",
+        "createLabel": "Create a new Magasin",
+        "createOrEditLabel": "Create or edit a Magasin",
+        "notFound": "No Magasins found"
+      },
+      "created": "A new Magasin is created with identifier {{ param }}",
+      "updated": "A Magasin is updated with identifier {{ param }}",
+      "deleted": "A Magasin is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Magasin {{ id }}?"
+      },
+      "detail": {
+        "title": "Magasin"
+      },
+      "name": "Compagny name",
+      "phone": "Phone",
+      "address": "Address",
+      "note": "Note",
+      "registre": "Registre"
+    }
+  }
+}

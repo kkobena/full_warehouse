@@ -1,0 +1,28 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <div class="modal-header">
+        <h5 class="modal-title">{{produit?.libelle }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div *ngIf="isNotValid" class="alert alert-dismissible alert-danger">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>La quantité à vendre ne doit pas être supérieure au stock </strong>
+            <strong *ngIf="produit?.typeProduit===detail">Veuillez faire un déconditionnement</strong>
+        </div>
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group">
+            <label class="form-control-label" for="field_name">Quantité</label>
+            <input type="number" class="form-control" name="quantitySold" id="field_name" formControlName="quantitySold"
+                (keyup)="onQuantitySoldBoxChanged($event)" />
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="cancel()" class="btn btn-danger" data-dismiss="modal">Fermer</button>
+
+        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || isNotValid"
+            class="btn btn-primary">
+            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

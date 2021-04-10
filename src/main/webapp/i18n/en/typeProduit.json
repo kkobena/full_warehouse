@@ -1,0 +1,9 @@
+{
+  "warehouseApp": {
+    "TypeProduit": {
+      "null": "",
+      "DETAIL": "Détail",
+      "PACKAGE": "Carton"
+    }
+  }
+}

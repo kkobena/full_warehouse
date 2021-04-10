@@ -1,0 +1,227 @@
+
+entity DateDimension {
+dateKey Integer required,
+fullDate LocalDate required,
+dayOfWeek Integer required,
+dayNumInMonth Integer required,
+dayNumOverall Integer required,
+dayName String required,
+dayAbbrev String required,
+weekdayFlag Boolean required,
+weekNumInYear Integer required,
+weekNumOverall Integer required, 
+weekBeginDate LocalDate required, 
+weekBeginDateKey Integer required, 
+month  Integer required, 
+monthNumOverall Integer required, 
+monthName  String required,
+monthAbbrev String required,
+quarter Integer required, 
+year Integer required, 
+yearmo Integer required, 
+fiscalMonth Integer required, 
+fiscalQuarter Integer required, 
+fiscalYear Integer required, 
+lastDayInMonthFlag Boolean required,
+sameDayYearAgoDate  LocalDate required
+
+}
+entity InventoryTransaction{
+transactionType TransactionType required,
+amount Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+quantity Integer required
+}
+enum TransactionType{
+SALE("Vente"),
+REAPPRO("Réapprovisionnement"),
+AJUSTEMENT("Ajustement"),
+INVENTAIRE("Inventaire"),
+SUPPRESSION("Suppression"),
+COMMANDE("Commande")
+
+}
+entity Categorie {
+	libelle String required
+}
+enum TypeProduit {
+    DETAIL("Détail"), PACKAGE("Carton")
+}
+// an ignored comment
+/** not an ignored comment */
+entity Produit {
+	libelle String required,
+    code String required,
+    imageUrl String ,
+	typeProduit TypeProduit required,
+	quantity Integer required,
+	costAmount Integer required,
+    regularUnitPrice Integer required
+    netUnitPrice Integer required,
+    createdAt Instant  required,
+updatedAt Instant  required,
+}
+
+
+
+entity Customer {
+	firstName String required
+    lastName String required
+    phone String required
+     email String ,
+     createdAt Instant  required,
+updatedAt Instant  required,
+}
+
+entity SalesLine{
+quantitySold Integer required,
+regularUnitPrice Integer required,
+discountUnitPrice Integer required,
+netUnitPrice Integer required,
+discountAmount  Integer required,
+salesAmount  Integer required,
+grossAmount Integer required,
+netAmount Integer required,
+taxAmount Integer required,
+costAmount Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+
+}
+entity Sales{
+discountAmount  Integer required,
+salesAmount  Integer required,
+grossAmount Integer required,
+netAmount Integer required,
+taxAmount Integer required,
+costAmount Integer required,
+statut SalesStatut required,
+createdAt Instant  required,
+updatedAt Instant  required,
+}
+entity Payment{
+netAmount Integer required,
+paidAmount Integer required,
+restToPay Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+}
+enum PaymentGroup {
+    CASH("Espèce"),
+    CREDIT("Crédit"),
+    MOBILE("Mobile"),
+    CB("Carte bancaire"),
+    CHEQUE("Chèque")
+}
+
+entity PaymentMode{
+libelle String required,
+code String required,
+group PaymentGroup required,
+}
+enum SalesStatut {
+	PROCESSING,
+    PENDING,
+    CLOSE,
+    PAID,
+    UNPAID
+}
+enum OrderStatut {
+	REQUESTED,
+    RECEIVED
+    PAID,
+    UNPAID
+}
+
+entity OrderLine {
+receiptDate LocalDate required
+quantityReceived Integer required,
+quantityRequested Integer required,
+quantityReturned Integer required,
+ discountAmount  Integer required,
+orderAmount  Integer required,
+grossAmount Integer required,
+netAmount Integer required,
+taxAmount Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+costAmount Integer required
+}
+entity Commande {
+    orderRefernce String ,
+    receiptDate LocalDate required,
+ discountAmount  Integer required,
+orderAmount  Integer required,
+grossAmount Integer required,
+netAmount Integer required,
+taxAmount Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+orderStatus OrderStatut
+}
+
+entity PaymentFournisseur{
+netAmount Integer required,
+paidAmount Integer required,
+restToPay Integer required,
+createdAt Instant  required,
+updatedAt Instant  required,
+}
+entity StoreInventoryLine{
+quantityOnHand Integer required,
+quantityInit Integer required,
+quantitySold Integer required,
+inventoryValueCost  Integer required,
+inventoryValueLatestSellingPrice Integer required,
+}
+entity StoreInventory{
+inventoryValueCostBegin  Long required,
+inventoryAmountBegin  Long required,
+createdAt Instant  required,
+updatedAt Instant  required,
+inventoryValueCostAfter  Long required,
+inventoryAmountAfter  Long required,
+}
+entity Menu{
+libelle String required,
+name  String required,
+}
+
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+	StoreInventory to StoreInventoryLine,
+	Commande to PaymentFournisseur,
+    Commande to OrderLine,
+    PaymentMode to PaymentFournisseur,
+     PaymentMode to Payment,
+     Sales to SalesLine,
+      Produit to SalesLine,
+       Produit to StoreInventoryLine,
+         Produit to OrderLine,
+           Produit to InventoryTransaction,
+            Categorie to Produit,
+            Customer to Sales,
+            
+            DateDimension to StoreInventory,
+	DateDimension to Commande,
+    DateDimension to PaymentFournisseur,
+     DateDimension to Payment,
+           DateDimension to InventoryTransaction,
+            DateDimension to Sales,
+               Customer to Sales
+	
+	
+}
+
+
+
+// Set pagination options
+paginate StoreInventory, PaymentMode, Categorie with infinite-scroll
+paginate Customer, Produit, Commande, Sales, PaymentFournisseur, Payment , OrderLine, StoreInventoryLine, InventoryTransaction, SalesLine with pagination
+
+// Use Data Transfer Objects (DTO)
+// dto * with mapstruct
+
+

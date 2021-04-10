@@ -1,0 +1,42 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <div class="modal-header">
+
+
+        <div class="modal-title"><h5>Ajouter un détail au produit</h5>
+            <h5> {{produit?.libelle}}</h5>
+        </div>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div *ngIf="isNotValid" class="alert alert-dismissible alert-danger">
+            <strong>Stock insuffisant </strong>
+
+        </div>
+
+            <div class="form-group ">
+                <label class="form-control-label"
+                       for="field_libelle">Nombre de cartons à déconditioner</label>
+                <input type="number" class="form-control" name="qtyMvt" id="field_libelle"
+                       formControlName="qtyMvt" (keyup)="onQuantitySoldBoxChanged($event)"/>
+                <div
+                    *ngIf="editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('qtyMvt')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || isNotValid" class="btn btn-primary">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
+        </button>
+    </div>
+</form>

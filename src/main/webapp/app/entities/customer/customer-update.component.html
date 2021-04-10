@@ -1,0 +1,95 @@
+<div class="row justify-content-center">
+    <div class="col-8 card">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-customer-heading" jhiTranslate="warehouseApp.customer.home.createOrEditLabel">Create or edit a
+                Customer</h2>
+
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
+                    <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
+                </div>
+                <input id="field_createdAt" style="display:none;" type="hidden" class="form-control" id="datetime-local"
+                    class="form-control" name="createdAt" formControlName="createdAt" placeholder="YYYY-MM-DD HH:mm" />
+            </div>
+
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.customer.firstName"
+                        for="field_firstName">First Name</label>
+                    <input type="text" class="form-control" name="firstName" id="field_firstName"
+                        formControlName="firstName" autocomplete="off" />
+                    <div
+                        *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('firstName')?.errors?.required"
+                            jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.customer.lastName"
+                        for="field_lastName">Last Name</label>
+                    <input type="text" class="form-control" name="lastName" id="field_lastName"
+                        formControlName="lastName" />
+                    <div
+                        *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('lastName')?.errors?.required"
+                            jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.customer.phone"
+                        for="field_phone">Phone</label>
+                    <input type="text" class="form-control" name="phone" id="field_phone" formControlName="phone"
+                        autocomplete="off" />
+                    <div
+                        *ngIf="editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('phone')?.errors?.required"
+                            jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.customer.email"
+                        for="field_email">Email</label>
+                    <input type="text" class="form-control" name="email" id="field_email" formControlName="email"
+                        autocomplete="off" />
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+                <label jhiTranslate="warehouseApp.customer.produits" for="field_produits">Produits</label>
+                <select class="form-control" id="field_produits" multiple name="produits" formControlName="produits">
+                    <option [ngValue]="getSelected(editForm.get('produits')!.value, produitOption)"
+                        *ngFor="let produitOption of produits; trackBy: trackById">{{ produitOption.libelle }}
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="text-center">
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving"
+                    class="btn btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

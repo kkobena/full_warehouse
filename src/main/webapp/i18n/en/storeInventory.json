@@ -1,0 +1,29 @@
+{
+  "warehouseApp": {
+    "storeInventory": {
+      "home": {
+        "title": "Store Inventories",
+        "createLabel": "Create a new Store Inventory",
+        "createOrEditLabel": "Create or edit a Store Inventory",
+        "notFound": "No Store Inventories found"
+      },
+      "created": "A new Store Inventory is created with identifier {{ param }}",
+      "updated": "A Store Inventory is updated with identifier {{ param }}",
+      "deleted": "A Store Inventory is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Store Inventory {{ id }}?"
+      },
+      "detail": {
+        "title": "Store Inventory"
+      },
+      "inventoryValueCostBegin": "Inventory Value Cost Begin",
+      "inventoryAmountBegin": "Inventory Amount Begin",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "inventoryValueCostAfter": "Inventory Value Cost After",
+      "inventoryAmountAfter": "Inventory Amount After",
+      "storeInventoryLine": "Store Inventory Line",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<form *ngIf="produit" name="imageForm" (ngSubmit)="uploadImage(produit?.id!)" method="post"
+    enctype="multipart/form-data">
+    <div class="modal-header">
+        <h4 class="modal-title">Ajouter une image à ce produit</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group">
+            <div class="input-group mb-3">
+                <label for="productimg">Sélectionner le fichier à envoyer</label>
+                <input type="file" class="form-control" (change)="onFileChanged($event)" id="productimg"
+                    name="productimg" accept="image/png, image/jpeg">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" class="btn btn-danger">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
+        </button>
+    </div>
+</form>

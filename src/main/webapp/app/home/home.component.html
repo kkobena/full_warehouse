@@ -1,0 +1,167 @@
+<div class="row">
+    <div class="col-lg-12">
+
+
+        <div [ngSwitch]="isAuthenticated()">
+            <div *ngSwitchCase="true">
+                <!--    <span id="home-logged-message" *ngIf="account" jhiTranslate="home.logged.message"
+                          [translateValues]="{ username: account.login }">You are logged in as user "{{ account.login
+                        }}".</span>-->
+                <div class="row">
+                    <div class="card md-3 mr-3 ml-5" style="width:20rem;">
+                        <div class="card-header bg-primary text-white"><span><fa-icon
+                            [icon]="faShoppingBasket"></fa-icon></span>&nbsp;&nbsp;<span>Chiffes d'affaires jour</span>
+                        </div>
+                        <div class="card-body bg-transparent card-item">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Montant des ventes
+                                    <span class="badge badge-primary badge-pill">{{dailyCa?.amount | number}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nombre de clients
+                                    <span
+                                        class="badge badge-primary badge-pill">{{dailyCa?.numberTransaction | number}}</span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card md-3 mr-3" style="width:20rem;">
+                        <div class="card-header text-white bg-secondary"><span><fa-icon
+                            [icon]="faShippingFast"></fa-icon></span>&nbsp;&nbsp;Chiffes
+                            d'affaires de la semaine
+                        </div>
+                        <div class="card-body bg-transparent card-item">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Montant des ventes
+                                    <span class="badge badge-primary badge-pill">{{weeklyCa?.amount | number}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nombre de clients
+                                    <span
+                                        class="badge badge-primary badge-pill">{{weeklyCa?.numberTransaction | number}}</span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card md-3 mr-3" style="width:20rem;">
+                        <div class="card-header text-white bg-success"><span><fa-icon [icon]="faShoppingCart"></fa-icon></span>&nbsp;&nbsp;Chiffes
+                            d'affaires du mois
+                        </div>
+                        <div class="card-body bg-transparent card-item">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Montant des ventes
+                                    <span class="badge badge-primary badge-pill">{{monthlyCa?.amount | number}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nombre de clients
+                                    <span
+                                        class="badge badge-primary badge-pill">{{monthlyCa?.numberTransaction | number}}</span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card md-3 mr-3" style="width:20rem;">
+                        <div class="card-header text-white bg-warning"><span><fa-icon
+                            [icon]="faCommentsDollar"></fa-icon></span>&nbsp;&nbsp;Chiffes
+                            d'affaires de l'année
+                        </div>
+                        <div class="card-body bg-transparent card-item">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Montant des ventes
+                                    <span class="badge badge-primary badge-pill">{{yearlyCa?.amount | number}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nombre de clients
+                                    <span
+                                        class="badge badge-primary badge-pill">{{yearlyCa?.numberTransaction | number}}</span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="card col-md-5 ml-5 ag-theme-card-item">
+                        <div class="card-header bg-primary text-white">
+
+                            <h5 style="font-width:9000;"><span>  <fa-icon
+                                [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
+                                Top {{TOP_MAX_RESULT}} des ventes en quantité du mois</h5>
+                        </div>
+                        <div class="card-body ag-theme-alpine " style="min-height:300px;">
+                            <ag-grid-angular style="width: 100%;height:100%;" [rowData]="rowQuantityMonthly"
+                                             [columnDefs]="columnDefs">
+                            </ag-grid-angular>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card col-md-5 ml-5 ag-theme-card-item">
+                        <div class="card-header bg-warning text-white">
+
+                            <h5 style="font-width:9000;"><span>
+                                <fa-icon
+                                    [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
+                            </span>
+                            Top {{TOP_MAX_RESULT}} des articles du mois</h5></div>
+                        <div class="card-body ag-theme-alpine" style="min-height:300px;">
+                            <ag-grid-angular style="width: 100%;height:100%;" [rowData]="rowAmountMonthly"
+                                             [columnDefs]="columnDefsMonthAmount">
+                            </ag-grid-angular>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="card col-md-5 ml-5  ag-theme-card-item">
+                        <div class="card-header bg-info text-white">
+
+                            <h5 style="font-width:9000;"><span><fa-icon
+                                [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span>  Top {{TOP_MAX_RESULT}}
+                            des ventes en quatité de l'année</h5></div>
+                        <div class="card-body ag-theme-alpine" style="min-height:300px;">
+                            <ag-grid-angular style="width: 100%;height:100%;" [rowData]="rowQuantityYear"
+                                             [columnDefs]="columnDefsYearQunatity">
+                            </ag-grid-angular>
+
+                        </div>
+
+                    </div>
+                    <div class="card col-md-5 ml-5  ag-theme-card-item">
+                        <div class="card-header bg-success text-white">
+
+                            <h5 style="font-width:9000;"><span> <fa-icon
+                                [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;</span>
+                            Top {{TOP_MAX_RESULT}} des articles de l'année</h5></div>
+                        <div class="card-body ag-theme-alpine" style="min-height:300px;">
+                            <ag-grid-angular style="width: 100%;height:100%;" [rowData]="rowAmountYear"
+                                             [columnDefs]="columnDefsYearAmount">
+                            </ag-grid-angular>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-warning" *ngSwitchCase="false">
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>

@@ -1,0 +1,51 @@
+{
+  "warehouseApp": {
+    "dateDimension": {
+      "home": {
+        "title": "DateDimensions",
+        "createLabel": "Créer un nouveau Date Dimension",
+        "createOrEditLabel": "Créer ou éditer un Date Dimension",
+        "notFound": "Aucun Date Dimension trouvé"
+      },
+      "created": "Un nouveau Date Dimension a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Date Dimension avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Date Dimension avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Date Dimension {{ id }} ?"
+      },
+      "detail": {
+        "title": "Date Dimension"
+      },
+      "dateKey": "Date Key",
+      "fullDate": "Full Date",
+      "dayOfWeek": "Day Of Week",
+      "dayNumInMonth": "Day Num In Month",
+      "dayNumOverall": "Day Num Overall",
+      "dayName": "Day Name",
+      "dayAbbrev": "Day Abbrev",
+      "weekdayFlag": "Weekday Flag",
+      "weekNumInYear": "Week Num In Year",
+      "weekNumOverall": "Week Num Overall",
+      "weekBeginDate": "Week Begin Date",
+      "weekBeginDateKey": "Week Begin Date Key",
+      "month": "Month",
+      "monthNumOverall": "Month Num Overall",
+      "monthName": "Month Name",
+      "monthAbbrev": "Month Abbrev",
+      "quarter": "Quarter",
+      "year": "Year",
+      "yearmo": "Yearmo",
+      "fiscalMonth": "Fiscal Month",
+      "fiscalQuarter": "Fiscal Quarter",
+      "fiscalYear": "Fiscal Year",
+      "lastDayInMonthFlag": "Last Day In Month Flag",
+      "sameDayYearAgoDate": "Same Day Year Ago Date",
+      "storeInventory": "Store Inventory",
+      "commande": "Commande",
+      "paymentFournisseur": "Payment Fournisseur",
+      "payment": "Payment",
+      "inventoryTransaction": "Inventory Transaction",
+      "sales": "Sales"
+    }
+  }
+}

@@ -1,0 +1,105 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="warehouseApp.salesLine.home.title">Sales Lines</span>
+
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-sales-line" [routerLink]="['/sales-line/new']">
+            <fa-icon icon="plus"></fa-icon>
+            <span  jhiTranslate="warehouseApp.salesLine.home.createLabel">
+            Create a new Sales Line
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="salesLines?.length === 0">
+        <span jhiTranslate="warehouseApp.salesLine.home.notFound">No salesLines found</span>
+    </div>
+
+    <div class="table-responsive" id="entities" *ngIf="salesLines && salesLines.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="quantitySold"><span jhiTranslate="warehouseApp.salesLine.quantitySold">Quantity Sold</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="regularUnitPrice"><span jhiTranslate="warehouseApp.salesLine.regularUnitPrice">Regular Unit Price</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="discountUnitPrice"><span jhiTranslate="warehouseApp.salesLine.discountUnitPrice">Discount Unit Price</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="netUnitPrice"><span jhiTranslate="warehouseApp.salesLine.netUnitPrice">Net Unit Price</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="discountAmount"><span jhiTranslate="warehouseApp.salesLine.discountAmount">Discount Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="salesAmount"><span jhiTranslate="warehouseApp.salesLine.salesAmount">Sales Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="grossAmount"><span jhiTranslate="warehouseApp.salesLine.grossAmount">Gross Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="netAmount"><span jhiTranslate="warehouseApp.salesLine.netAmount">Net Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="taxAmount"><span jhiTranslate="warehouseApp.salesLine.taxAmount">Tax Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="costAmount"><span jhiTranslate="warehouseApp.salesLine.costAmount">Cost Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdAt"><span jhiTranslate="warehouseApp.salesLine.createdAt">Created At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedAt"><span jhiTranslate="warehouseApp.salesLine.updatedAt">Updated At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="sales.id"><span jhiTranslate="warehouseApp.salesLine.sales">Sales</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="produit.id"><span jhiTranslate="warehouseApp.salesLine.produit">Produit</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let salesLine of salesLines ;trackBy: trackId">
+                    <td><a [routerLink]="['/sales-line', salesLine.id, 'view']">{{ salesLine.id }}</a></td>
+                    <td>{{ salesLine.quantitySold }}</td>
+                    <td>{{ salesLine.regularUnitPrice }}</td>
+                    <td>{{ salesLine.discountUnitPrice }}</td>
+                    <td>{{ salesLine.netUnitPrice }}</td>
+                    <td>{{ salesLine.discountAmount }}</td>
+                    <td>{{ salesLine.salesAmount }}</td>
+                    <td>{{ salesLine.grossAmount }}</td>
+                    <td>{{ salesLine.netAmount }}</td>
+                    <td>{{ salesLine.taxAmount }}</td>
+                    <td>{{ salesLine.costAmount }}</td>
+                    <td>{{ salesLine.createdAt | date:'medium' }}</td>
+                    <td>{{ salesLine.updatedAt | date:'medium' }}</td>
+                    <td>
+                        <div *ngIf="salesLine.sales">
+                            <a [routerLink]="['/sales', salesLine.sales?.id, 'view']" >{{ salesLine.sales?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="salesLine.produit">
+                            <a [routerLink]="['/produit', salesLine.produit?.id, 'view']" >{{ salesLine.produit?.id }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/sales-line', salesLine.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/sales-line', salesLine.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(salesLine)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="salesLines && salesLines.length > 0">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
+        </div>
+    </div>
+</div>

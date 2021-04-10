@@ -1,0 +1,158 @@
+<div class="row justify-content-center">
+    <div class="col-8 card">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-produit-heading" jhiTranslate="warehouseApp.produit.home.createOrEditLabel">Create or edit a
+                Produit</h2>
+
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
+                    <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
+                    <input id="field_createdAt" style="display:none;" type="hidden" class="form-control"
+                        id="datetime-local" class="form-control" name="createdAt" formControlName="createdAt"
+                        placeholder="YYYY-MM-DD HH:mm" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.libelle"
+                            for="field_libelle">Libelle</label>
+                        <input type="text" class="form-control" name="libelle" id="field_libelle"
+                            formControlName="libelle" />
+                        <div
+                            *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+                            <small class="form-text text-danger" *ngIf="editForm.get('libelle')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.costAmount"
+                            for="field_costAmount">Cost
+                            Amount</label>
+                        <input type="number" class="form-control" name="costAmount" id="field_costAmount"
+                            formControlName="costAmount" (blur)="handleCostInput($event)" />
+                        <div
+                            *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">
+                            <small class="form-text text-danger" *ngIf="editForm.get('costAmount')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger" [hidden]="!editForm.get('costAmount')?.errors?.number"
+                                jhiTranslate="entity.validation.number">
+                                This field should be a number.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.regularUnitPrice"
+                            for="field_regularUnitPrice">Regular Unit Price</label>
+                        <input type="number" (blur)="handleUnitPriceInput($event)" class="form-control"
+                            name="regularUnitPrice" id="field_regularUnitPrice" formControlName="regularUnitPrice" />
+                        <div
+                            *ngIf="editForm.get('regularUnitPrice')!.invalid && (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)">
+                            <small class="form-text text-danger"
+                                *ngIf="editForm.get('regularUnitPrice')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger"
+                                [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
+                                jhiTranslate="entity.validation.number">
+                                This field should be a number.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group  col-md-4">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemQty"
+                            for="field_itemQty">Item Qty</label>
+                        <input (keyup)="handleItemQty($event)" type="number" class="form-control" name="itemQty"
+                            id="field_itemQty" formControlName="itemQty" />
+                        <div
+                            *ngIf="editForm.get('itemQty')!.invalid && (editForm.get('itemQty')!.dirty || editForm.get('itemQty')!.touched)">
+                            <small class="form-text text-danger" *ngIf="editForm.get('itemQty')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger" *ngIf="editForm.get('itemQty')?.errors?.min"
+                                jhiTranslate="entity.validation.min" [translateValues]="{ min: 0 }">
+                                This field should be at least 0.
+                            </small>
+                            <small class="form-text text-danger" [hidden]="!editForm.get('itemQty')?.errors?.number"
+                                jhiTranslate="entity.validation.number">
+                                This field should be a number.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemCostAmount"
+                            for="field_itemCostAmount">Item
+                            Cost Amount</label>
+                        <input (blur)="handleItemCost($event)" type="number" class="form-control" name="itemCostAmount"
+                            id="field_itemCostAmount" formControlName="itemCostAmount" />
+                        <div
+                            *ngIf="editForm.get('itemCostAmount')!.invalid && (editForm.get('itemCostAmount')!.dirty || editForm.get('itemCostAmount')!.touched)">
+                            <small class="form-text text-danger"
+                                *ngIf="editForm.get('itemCostAmount')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger" *ngIf="editForm.get('itemCostAmount')?.errors?.min"
+                                jhiTranslate="entity.validation.min" [translateValues]="{ min: 0 }">
+                                This field should be at least 0.
+                            </small>
+                            <small class="form-text text-danger"
+                                [hidden]="!editForm.get('itemCostAmount')?.errors?.number"
+                                jhiTranslate="entity.validation.number">
+                                This field should be a number.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
+                            for="field_itemRegularUnitPrice">Item Regular Unit Price</label>
+                        <input (blur)="handleItemPrice($event)" type="number" class="form-control"
+                            name="itemRegularUnitPrice" id="field_itemRegularUnitPrice"
+                            formControlName="itemRegularUnitPrice" />
+                        <div
+                            *ngIf="editForm.get('itemRegularUnitPrice')!.invalid && (editForm.get('itemRegularUnitPrice')!.dirty || editForm.get('itemRegularUnitPrice')!.touched)">
+                            <small class="form-text text-danger"
+                                *ngIf="editForm.get('itemRegularUnitPrice')?.errors?.required"
+                                jhiTranslate="entity.validation.required">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger"
+                                *ngIf="editForm.get('itemRegularUnitPrice')?.errors?.min"
+                                jhiTranslate="entity.validation.min" [translateValues]="{ min: 0 }">
+                                This field should be at least 0.
+                            </small>
+                            <small class="form-text text-danger"
+                                [hidden]="!editForm.get('itemRegularUnitPrice')?.errors?.number"
+                                jhiTranslate="entity.validation.number">
+                                This field should be a number.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div style="text-align:center;">
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
+                    class="btn btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

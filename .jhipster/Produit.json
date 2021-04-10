@@ -1,0 +1,120 @@
+{
+  "name": "Produit",
+  "fields": [
+    {
+      "fieldName": "libelle",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "imageUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "typeProduit",
+      "fieldType": "TypeProduit",
+      "fieldValues": "DETAIL (Détail),PACKAGE (Carton)",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "quantity",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "costAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "regularUnitPrice",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "netUnitPrice",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "itemQty",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": 0
+    },
+    {
+      "fieldName": "itemCostAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": 0
+    },
+    {
+      "fieldName": "itemRegularUnitPrice",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": 0
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "salesLine",
+      "otherEntityRelationshipName": "produit",
+      "relationshipName": "salesLine"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "storeInventoryLine",
+      "otherEntityRelationshipName": "produit",
+      "relationshipName": "storeInventoryLine"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "orderLine",
+      "otherEntityRelationshipName": "produit",
+      "relationshipName": "orderLine"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "inventoryTransaction",
+      "otherEntityRelationshipName": "produit",
+      "relationshipName": "inventoryTransaction"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "categorie",
+      "otherEntityRelationshipName": "produit",
+      "relationshipName": "categorie",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20210224111127",
+  "javadoc": "not an ignored comment",
+  "entityTableName": "produit",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "searchEngine": false,
+  "databaseType": "sql"
+}

@@ -1,0 +1,236 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-sales-line-heading" jhiTranslate="warehouseApp.salesLine.home.createOrEditLabel">Create or edit a Sales Line</h2>
+
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.quantitySold" for="field_quantitySold">Quantity Sold</label>
+                    <input type="number" class="form-control" name="quantitySold" id="field_quantitySold"
+                           formControlName="quantitySold"/>
+                    <div *ngIf="editForm.get('quantitySold')!.invalid && (editForm.get('quantitySold')!.dirty || editForm.get('quantitySold')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('quantitySold')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('quantitySold')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.regularUnitPrice" for="field_regularUnitPrice">Regular Unit Price</label>
+                    <input type="number" class="form-control" name="regularUnitPrice" id="field_regularUnitPrice"
+                           formControlName="regularUnitPrice"/>
+                    <div *ngIf="editForm.get('regularUnitPrice')!.invalid && (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('regularUnitPrice')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('regularUnitPrice')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.discountUnitPrice" for="field_discountUnitPrice">Discount Unit Price</label>
+                    <input type="number" class="form-control" name="discountUnitPrice" id="field_discountUnitPrice"
+                           formControlName="discountUnitPrice"/>
+                    <div *ngIf="editForm.get('discountUnitPrice')!.invalid && (editForm.get('discountUnitPrice')!.dirty || editForm.get('discountUnitPrice')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('discountUnitPrice')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('discountUnitPrice')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.netUnitPrice" for="field_netUnitPrice">Net Unit Price</label>
+                    <input type="number" class="form-control" name="netUnitPrice" id="field_netUnitPrice"
+                           formControlName="netUnitPrice"/>
+                    <div *ngIf="editForm.get('netUnitPrice')!.invalid && (editForm.get('netUnitPrice')!.dirty || editForm.get('netUnitPrice')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('netUnitPrice')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('netUnitPrice')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.discountAmount" for="field_discountAmount">Discount Amount</label>
+                    <input type="number" class="form-control" name="discountAmount" id="field_discountAmount"
+                           formControlName="discountAmount"/>
+                    <div *ngIf="editForm.get('discountAmount')!.invalid && (editForm.get('discountAmount')!.dirty || editForm.get('discountAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('discountAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('discountAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.salesAmount" for="field_salesAmount">Sales Amount</label>
+                    <input type="number" class="form-control" name="salesAmount" id="field_salesAmount"
+                           formControlName="salesAmount"/>
+                    <div *ngIf="editForm.get('salesAmount')!.invalid && (editForm.get('salesAmount')!.dirty || editForm.get('salesAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('salesAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('salesAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.grossAmount" for="field_grossAmount">Gross Amount</label>
+                    <input type="number" class="form-control" name="grossAmount" id="field_grossAmount"
+                           formControlName="grossAmount"/>
+                    <div *ngIf="editForm.get('grossAmount')!.invalid && (editForm.get('grossAmount')!.dirty || editForm.get('grossAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('grossAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('grossAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.netAmount" for="field_netAmount">Net Amount</label>
+                    <input type="number" class="form-control" name="netAmount" id="field_netAmount"
+                           formControlName="netAmount"/>
+                    <div *ngIf="editForm.get('netAmount')!.invalid && (editForm.get('netAmount')!.dirty || editForm.get('netAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('netAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('netAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.taxAmount" for="field_taxAmount">Tax Amount</label>
+                    <input type="number" class="form-control" name="taxAmount" id="field_taxAmount"
+                           formControlName="taxAmount"/>
+                    <div *ngIf="editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('taxAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('taxAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.costAmount" for="field_costAmount">Cost Amount</label>
+                    <input type="number" class="form-control" name="costAmount" id="field_costAmount"
+                           formControlName="costAmount"/>
+                    <div *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('costAmount')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('costAmount')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.createdAt" for="field_createdAt">Created At</label>
+                    <div class="d-flex">
+                        <input id="field_createdAt" type="datetime-local" class="form-control" name="createdAt" formControlName="createdAt" placeholder="YYYY-MM-DD HH:mm"/>
+                    </div>
+                    <div *ngIf="editForm.get('createdAt')!.invalid && (editForm.get('createdAt')!.dirty || editForm.get('createdAt')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('createdAt')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('createdAt')?.errors?.ZonedDateTimelocal" jhiTranslate="entity.validation.ZonedDateTimelocal">
+                            This field should be a date and time.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.updatedAt" for="field_updatedAt">Updated At</label>
+                    <div class="d-flex">
+                        <input id="field_updatedAt" type="datetime-local" class="form-control" name="updatedAt" formControlName="updatedAt" placeholder="YYYY-MM-DD HH:mm"/>
+                    </div>
+                    <div *ngIf="editForm.get('updatedAt')!.invalid && (editForm.get('updatedAt')!.dirty || editForm.get('updatedAt')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('updatedAt')?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('updatedAt')?.errors?.ZonedDateTimelocal" jhiTranslate="entity.validation.ZonedDateTimelocal">
+                            This field should be a date and time.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.sales" for="field_sales">Sales</label>
+                    <select class="form-control" id="field_sales" name="sales" formControlName="sales">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="salesOption.id === editForm.get('sales')!.value?.id ? editForm.get('sales')!.value : salesOption" *ngFor="let salesOption of sales; trackBy: trackById">{{ salesOption.id }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.salesLine.produit" for="field_produit">Produit</label>
+                    <select class="form-control" id="field_produit" name="produit" formControlName="produit">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="produitOption.id === editForm.get('produit')!.value?.id ? editForm.get('produit')!.value : produitOption" *ngFor="let produitOption of produits; trackBy: trackById">{{ produitOption.id }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

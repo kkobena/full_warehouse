@@ -1,0 +1,12 @@
+{
+  "warehouseApp": {
+    "PaymentGroup": {
+      "null": "",
+      "CASH": "Espèce",
+      "CREDIT": "Crédit",
+      "MOBILE": "Mobile",
+      "CB": "Carte bancaire",
+      "CHEQUE": "Chèque"
+    }
+  }
+}

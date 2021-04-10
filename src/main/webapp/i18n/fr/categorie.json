@@ -1,0 +1,23 @@
+{
+  "warehouseApp": {
+    "categorie": {
+      "home": {
+        "title": "Catégories de produit",
+        "createLabel": "Créer",
+        "createOrEditLabel": "Créer ou éditer une nouvelle Catégorie",
+        "notFound": "Aucune Catégorie trouvée"
+      },
+      "created": "Une nouvelle Catégorie a été créée avec l'identifiant {{ param }}",
+      "updated": "La Catégorie avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Catégorie avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la Categorie {{ id }} ?"
+      },
+      "detail": {
+        "title": "Catégorie"
+      },
+      "libelle": "Libelle",
+      "produit": "Produit"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+<div>
+
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <h4 id="page-heading">
+                <span jhiTranslate="warehouseApp.commande.home.title">Commandes</span>
+
+                <button id="jh-create-entity"
+                    class="btn btn-primary btn-sm float-right jh-create-entity create-commande"
+                    [routerLink]="['/commande/new']">
+                    <fa-icon icon="plus"></fa-icon>
+                    <span jhiTranslate="warehouseApp.commande.home.createLabel">
+                        Create a new Commande
+                    </span>
+                </button>
+            </h4>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <jhi-alert></jhi-alert>
+
+            <div class="alert alert-warning" id="no-result" *ngIf="commandes?.length === 0">
+                <span jhiTranslate="warehouseApp.commande.home.notFound">No commandes found</span>
+            </div>
+            <div class="table-responsive" id="entities" *ngIf="commandes && commandes.length > 0">
+                <table class="table table-striped" aria-describedby="page-heading">
+                    <thead>
+                        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending"
+                            [callback]="loadPage.bind(this)">
+
+                            <th scope="col" jhiSortBy="orderRefernce"><span
+                                    jhiTranslate="warehouseApp.commande.orderRefernce">Order
+                                    Refernce</span>
+
+                            </th>
+                            <th scope="col" jhiSortBy="createdAt"><span
+                                    jhiTranslate="warehouseApp.commande.createdAt">Created
+                                    At</span>
+
+                            </th>
+
+                            <th scope="col"><span jhiTranslate="warehouseApp.commande.orderAmount">Order
+                                    Amount</span>
+
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr (click)="clickRow(commande)" *ngFor="let commande of commandes ;trackBy: trackId"
+                            [ngClass]="{'active' : selectedRowIndex == commande.id }">
+                            <td>{{ commande.orderRefernce }}</td>
+                            <td>{{ commande.createdAt | date:'dd/MM/yyyy' }}</td>
+                            <td style="text-align:right;">{{ commande.orderAmount | number }}</td>
+
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div *ngIf="commandes && commandes.length > 0">
+                <div class="row justify-content-center">
+                    <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+                </div>
+
+                <div class="row justify-content-center">
+                    <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage"
+                        [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)">
+                    </ngb-pagination>
+                </div>
+            </div>
+        </div>
+        <div class="col-8  ag-theme-alpine">
+            <h4>
+                <span jhiTranslate="warehouseApp.orderLine.home.title">Lignes de commande</span>
+            </h4>
+            <ag-grid-angular *ngIf="commandeSelected" #productGrid style="width: 100%;height:95%;" [modules]="modules"
+                [rowData]="rowData" rowSelection="multiple" [suppressRowClickSelection]="true" [columnDefs]="columnDefs"
+                [enterMovesDown]="false" [enterMovesDownAfterEdit]="true">
+            </ag-grid-angular>
+
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,35 @@
+{
+  "warehouseApp": {
+    "orderLine": {
+      "home": {
+        "title": "Order Lines",
+        "createLabel": "Create a new Order Line",
+        "createOrEditLabel": "Create or edit a Order Line",
+        "notFound": "No Order Lines found"
+      },
+      "created": "A new Order Line is created with identifier {{ param }}",
+      "updated": "A Order Line is updated with identifier {{ param }}",
+      "deleted": "A Order Line is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Order Line {{ id }}?"
+      },
+      "detail": {
+        "title": "Order Line"
+      },
+      "receiptDate": "Receipt Date",
+      "quantityReceived": "Quantity Received",
+      "quantityRequested": "Quantity Requested",
+      "quantityReturned": "Quantity Returned",
+      "discountAmount": "Discount Amount",
+      "orderAmount": "Order Amount",
+      "grossAmount": "Gross Amount",
+      "netAmount": "Net Amount",
+      "taxAmount": "Tax Amount",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "costAmount": "Cost Amount",
+      "commande": "Commande",
+      "produit": "Produit"
+    }
+  }
+}

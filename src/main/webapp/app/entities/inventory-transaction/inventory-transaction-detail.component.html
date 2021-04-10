@@ -1,0 +1,61 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="inventoryTransaction">
+            <h2><span jhiTranslate="warehouseApp.inventoryTransaction.detail.title">Inventory Transaction</span> {{ inventoryTransaction.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.transactionType">Transaction Type</span></dt>
+                <dd>
+                    <span jhiTranslate="{{ 'warehouseApp.TransactionType.' + inventoryTransaction.transactionType }}">{{ inventoryTransaction.transactionType }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.amount">Amount</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.amount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.createdAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.updatedAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.quantity">Quantity</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.quantity }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.quantityBefor">Quantity Befor</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.quantityBefor }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.quantityAfter">Quantity After</span></dt>
+                <dd>
+                    <span>{{ inventoryTransaction.quantityAfter }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.inventoryTransaction.produit">Produit</span></dt>
+                <dd>
+                    <div *ngIf="inventoryTransaction.produit">
+                        <a [routerLink]="['/produit', inventoryTransaction.produit?.id, 'view']">{{ inventoryTransaction.produit?.id }}</a>
+                    </div>
+                </dd>
+
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/inventory-transaction', inventoryTransaction.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

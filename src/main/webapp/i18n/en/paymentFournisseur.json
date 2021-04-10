@@ -1,0 +1,29 @@
+{
+  "warehouseApp": {
+    "paymentFournisseur": {
+      "home": {
+        "title": "Payment Fournisseurs",
+        "createLabel": "Create a new Payment Fournisseur",
+        "createOrEditLabel": "Create or edit a Payment Fournisseur",
+        "notFound": "No Payment Fournisseurs found"
+      },
+      "created": "A new Payment Fournisseur is created with identifier {{ param }}",
+      "updated": "A Payment Fournisseur is updated with identifier {{ param }}",
+      "deleted": "A Payment Fournisseur is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Payment Fournisseur {{ id }}?"
+      },
+      "detail": {
+        "title": "Payment Fournisseur"
+      },
+      "netAmount": "Net Amount",
+      "paidAmount": "Paid Amount",
+      "restToPay": "Rest To Pay",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "commande": "Commande",
+      "paymentMode": "Payment Mode",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

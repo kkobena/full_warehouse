@@ -1,0 +1,88 @@
+<div class="row">
+    <div class="col-5">
+        <h4 id="jhi-sales-heading"><span>Liste des produits</span>
+        </h4>
+        <div class="row mb-1">
+
+            <div class="col mb-1">
+                <ng-select [items]="customers" bindLabel="fullName" placeholder="Sélectionner le client"
+                           [(ngModel)]="customerSelected">
+                </ng-select>
+            </div>
+            <div class="col mb-1">
+                <input class="form-control mr-sm-2" type="text" placeholder="Taper pour pour filter les articles"
+                       (keyup)="onFilterTextBoxChanged($event)">
+            </div>
+        </div>
+        <hr>
+        <div class="row produit-row">
+            <div class="card mb-1 mr-1 ml-3 col-5 produit-card"
+                 *ngFor="let produit of produits ; let index = index;trackBy: trackId"
+                 [ngClass]="{'border-danger' : selectedRowIndex == produit.id }" (click)="clickRow(produit)">
+                <h6 class="card-header">{{produit.libelle}}</h6>
+                <div *ngIf="produit.data; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock><img [src]="imagesPath+produit.imageType+base64+produit.data"
+                                             alt="Image du produit "
+                                             height="200px">
+                </ng-template>
+                <ng-template #elseBlock>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none"
+                         width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img"
+                         preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180"
+                         style="font-size:1.125rem;text-anchor:middle">
+                        <rect width="100%" height="100%" fill="#868e96"></rect>
+                        <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image du produit</text>
+                    </svg>
+                </ng-template>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Stock
+                            <span class="badge badge-primary badge-pill">{{produit.quantity}}</span>
+                        </li>
+
+                    </ul>
+                </div>
+                <div style="text-align: center;padding-top:2px;" class="card-body"
+                     *ngIf="produit.quantity! >0 || produit.itemQuantity! >0">
+                    <button (click)="onAddPack(produit)" type="button" class="btn btn-warning btn-sm">Ajouter
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-7">
+        <h4 id="jhi-sales-heading"><span>Produits séléctionnés</span>
+            <button type="button" id="cancel-save" class="btn btn-secondary btn-sm ml-5" (click)="previousState()">
+                <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+            </button>
+            <button (click)="save()" type="button" id="save-entity" [disabled]="isSaving || !sale"
+                    class="btn btn-sm btn-primary">
+                <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+            </button>
+        </h4>
+        <hr>
+        <div *ngIf="customerSelected">
+            <span class="mr-2">Client sélectionné: </span><span
+            class="badge badge-info ml-2 mr-3">{{customerSelected.fullName}}</span>
+            <span class="mr-2">Téléphone: </span><span class="badge badge-info ml-2">{{customerSelected.phone}}</span>
+        </div>
+        <hr>
+        <div *ngIf="sale" style="text-align:right;font-weight: 800;color:#181d1f;">
+
+            <strong>Montant total de la vente : </strong><strong
+            class="ml-1 mr-3">{{sale.salesAmount | number}}</strong>
+        </div>
+        <hr>
+        <div class="ag-theme-alpine">
+            <ag-grid-angular *ngIf="sale" #productGrid style="width: 100%;height:70%;" [rowData]="rowData"
+                             [columnDefs]="columnDefs" [defaultColDef]="defaultColDef"
+                             [frameworkComponents]="frameworkComponents"
+                             [context]="context"
+                             (cellValueChanged)="onCellValueChanged($event)">
+            </ag-grid-angular>
+
+        </div>
+    </div>
+</div>

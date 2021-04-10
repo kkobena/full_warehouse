@@ -1,0 +1,52 @@
+{
+  "name": "PaymentMode",
+  "fields": [
+    {
+      "fieldName": "libelle",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "group",
+      "fieldType": "PaymentGroup",
+      "fieldValues": "CASH (Espèce),CREDIT (Crédit),MOBILE (Mobile),CB (Carte bancaire),CHEQUE (Chèque)",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "paymentFournisseur",
+      "otherEntityRelationshipName": "paymentMode",
+      "relationshipName": "paymentFournisseur"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "payment",
+      "otherEntityRelationshipName": "paymentMode",
+      "relationshipName": "payment"
+    }
+  ],
+  "changelogDate": "20210224111627",
+  "entityTableName": "payment_mode",
+  "dto": "no",
+  "pagination": "infinite-scroll",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*"
+}

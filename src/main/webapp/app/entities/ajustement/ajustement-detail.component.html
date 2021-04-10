@@ -1,0 +1,43 @@
+<div>
+    <div class=" master">
+        <h4 id="jhi-sales-heading"><span>Liste des produits</span>
+        </h4>
+        <div class="row mb-1">
+            <div class="col mb-1">
+
+                <ng-select id="produitBox" autofocus="true"  #produitbox [items]="produits" bindLabel="libelle" placeholder="Sélectionner un produit"
+                              [(ngModel)]="produitSelected"   [searchable]="true"
+                              (change)="onSelect(produitbox)"
+                >
+                </ng-select>
+
+
+            </div>
+            <div class="col mb-1">
+                <input #quantyBox class="form-control mr-sm-2" type="number"
+                       (keyup.enter)="onFilterTextBoxChanged($event)">
+            </div>
+        </div>
+        <hr>
+        <div class="master">
+            <h4 style="text-align: center;"><span>Produits ajustés</span>
+                <button type="button" id="cancel-save" class="btn btn-secondary btn-sm ml-5" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button (click)="save()" type="button" id="save-entity" [disabled]="isSaving" class="btn btn-sm btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span>Valider</span>
+                </button>
+            </h4>
+            <hr>
+
+
+            <div class="ag-theme-alpine" style="max-height:600px;min-height: 300px;height: 400px;">
+                <ag-grid-angular   style="width: 100%;height:100%;" [rowData]="rowData"
+                                 [columnDefs]="columnDefs" (cellValueChanged)="onCellValueChanged($event)">
+                </ag-grid-angular>
+
+            </div>
+        </div>
+    </div>
+
+</div>

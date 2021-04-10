@@ -1,0 +1,40 @@
+{
+  "warehouseApp": {
+    "produit": {
+      "home": {
+        "title": "Produits",
+        "createLabel": "Créer ",
+        "createOrEditLabel": "Créer ou éditer un produit",
+        "notFound": "Aucun Produit trouvé"
+      },
+      "created": "Un nouveau produit a été créé avec l'identifiant {{ param }}",
+      "updated": "Le produit avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le produit avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le produit {{ id }} ?"
+      },
+      "detail": {
+        "title": "Produit"
+      },
+      "libelle": "Libellé",
+      "code": "Code",
+      "imageUrl": "Image",
+      "typeProduit": "Type",
+      "quantity": "Stock",
+      "itemQuantity": "Stock détail",
+      "costAmount": "Prix achat",
+      "regularUnitPrice": "Prix unitaire",
+      "netUnitPrice": "Net Unit Price",
+      "createdAt": "Créé le",
+      "updatedAt": "Modifié le",
+      "itemQty": "Quantité détail",
+      "itemCostAmount": "Prix achat détail",
+      "itemRegularUnitPrice": "Prix unitaire détail",
+      "salesLine": "Sales Line",
+      "storeInventoryLine": "Store Inventory Line",
+      "orderLine": "Order Line",
+      "inventoryTransaction": "Inventory Transaction",
+      "categorie": "Catégorie"
+    }
+  }
+}

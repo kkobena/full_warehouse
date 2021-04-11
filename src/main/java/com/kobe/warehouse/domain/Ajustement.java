@@ -13,7 +13,7 @@ import java.time.Instant;
  * A Ajustement.
  */
 @Entity
-@Table(name = "ajustement")
+@Table(name = "ajustement",uniqueConstraints ={@UniqueConstraint(columnNames = {"ajust_id","produit_id"})})
 public class Ajustement implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,6 +43,7 @@ public class Ajustement implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     private Ajust ajust;
+
     public Integer getStockBefore() {
         return stockBefore;
     }

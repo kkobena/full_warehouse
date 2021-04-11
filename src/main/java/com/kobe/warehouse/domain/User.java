@@ -21,7 +21,7 @@ import java.util.Set;
  * A user.
  */
 @Entity
-@Table(name = "user")
+@Table(name = "user",uniqueConstraints = {@UniqueConstraint(columnNames = {"login","magasin_id"})})
 public class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,7 +33,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @NotNull
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(length = 50, nullable = false)
     private String login;
 
     @JsonIgnore
@@ -76,9 +76,19 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(name = "reset_key", length = 20)
     @JsonIgnore
     private String resetKey;
-
     @Column(name = "reset_date")
     private Instant resetDate = null;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+    }
 
     @JsonIgnore
     @ManyToMany

@@ -51,15 +51,15 @@ public class InventoryTransaction implements Serializable {
 	@NotNull
 	@Column(name = "quantity_after", nullable = false)
 	private Integer quantityAfter;
-
-	@ManyToOne
+    @ManyToOne(optional = false)
+    @NotNull
 	@JsonIgnoreProperties(value = "inventoryTransactions", allowSetters = true)
 	private Produit produit;
-
 	@ManyToOne(optional = false)
 	@JsonIgnoreProperties(value = "inventoryTransactions", allowSetters = true)
 	private DateDimension dateDimension;
 	@ManyToOne(optional = false)
+    @NotNull
 	private User user;
 	@NotNull
 	@Column(name = "cost_amount", nullable = false)
@@ -67,7 +67,9 @@ public class InventoryTransaction implements Serializable {
 	@NotNull
 	@Column(name = "regular_unit_price", nullable = false)
 	private Integer regularUnitPrice;
-	
+    @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
 	public User getUser() {
 		return user;
 	}
@@ -106,7 +108,15 @@ public class InventoryTransaction implements Serializable {
 		return this;
 	}
 
-	public void setAmount(Integer amount) {
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+    }
+
+    public void setAmount(Integer amount) {
 		this.amount = amount;
 	}
 

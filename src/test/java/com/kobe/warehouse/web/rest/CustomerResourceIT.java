@@ -265,26 +265,10 @@ public class CustomerResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
-    
-    @SuppressWarnings({"unchecked"})
-    public void getAllCustomersWithEagerRelationshipsIsEnabled() throws Exception {
-        when(customerRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
-        restCustomerMockMvc.perform(get("/api/customers?eagerload=true"))
-            .andExpect(status().isOk());
 
-        verify(customerRepositoryMock, times(1)).findAllWithEagerRelationships(any());
-    }
 
-    @SuppressWarnings({"unchecked"})
-    public void getAllCustomersWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(customerRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
-        restCustomerMockMvc.perform(get("/api/customers?eagerload=true"))
-            .andExpect(status().isOk());
-
-        verify(customerRepositoryMock, times(1)).findAllWithEagerRelationships(any());
-    }
 
     @Test
     @Transactional

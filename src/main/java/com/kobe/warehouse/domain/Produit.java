@@ -34,7 +34,6 @@ public class Produit implements Serializable {
 
 	@Column(name = "code", nullable = false)
 	private String code;
-
 	@Column(name = "image_url")
 	private String imageUrl;
     @Lob
@@ -70,29 +69,38 @@ public class Produit implements Serializable {
 	@Min(value = 0)
 	@Column(name = "item_qty", nullable = false)
 	private Integer itemQty;
-
+    @Column(name = "qty_appro", columnDefinition = "int default '0'")
+    private Integer qtyAppro;
+    @Column(name = "qty_seuil_mini", columnDefinition = "int default '0'")
+    private Integer qtySeuilMini;
+    @Column(name = "dateperemption", columnDefinition = "boolean default true")
+    private Boolean dateperemption;
+    @Column(name = "chiffre", columnDefinition = "boolean default true")
+    private Boolean chiffre;
 	@NotNull
 	@Min(value = 0)
 	@Column(name = "item_cost_amount", nullable = false)
 	private Integer itemCostAmount;
-
+    @Column(name = "exclude", columnDefinition = "boolean default false")
+    private boolean exclude;
 	@NotNull
 	@Min(value = 0)
 	@Column(name = "item_regular_unit_price", nullable = false)
 	private Integer itemRegularUnitPrice;
-
+    @NotNull
+    @Column(name = "prix_mnp", nullable = false)
+    private Integer prixMnp;
 	@OneToMany(mappedBy = "produit")
 	private Set<SalesLine> salesLines = new HashSet<>();
-
+    @NotNull
+    @Column(name = "deconditionnable", nullable = false)
+    private Boolean deconditionnable;
 	@OneToMany(mappedBy = "produit")
 	private Set<StoreInventoryLine> storeInventoryLines = new HashSet<>();
-
 	@OneToMany(mappedBy = "produit")
 	private Set<OrderLine> orderLines = new HashSet<>();
-
 	@OneToMany(mappedBy = "produit")
 	private Set<InventoryTransaction> inventoryTransactions = new HashSet<>();
-
 	@ManyToOne
 	@JsonIgnoreProperties(value = "produits", allowSetters = true)
 	private Categorie categorie;
@@ -101,8 +109,55 @@ public class Produit implements Serializable {
 	private Produit parent;
 	@OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
 	private List<Produit> produits = new ArrayList<>();
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+	private Set<StockProduit> stockProduits=new HashSet<>();
 	@ManyToOne(optional = false)
 	private User user;
+    @ManyToOne(optional = false)
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @NotNull
+    private Tva tva;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    private RemiseProduit remise;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    private Laboratoire laboratoire;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    private FormProduit forme;
+    @Column(name = "code_ean")
+    private String codeEan;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    private FamilleProduit famille;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    private GammeProduit gamme;
+
+    public Set<StockProduit> getStockProduits() {
+        return stockProduits;
+    }
+
+    public void setStockProduits(Set<StockProduit> stockProduits) {
+        this.stockProduits = stockProduits;
+    }
+
+    public Tva getTva() {
+        return tva;
+    }
+
+    public void setTva(Tva tva) {
+        this.tva = tva;
+    }
+
+    public RemiseProduit getRemise() {
+        return remise;
+    }
+
+    public void setRemise(RemiseProduit remise) {
+        this.remise = remise;
+    }
 
     public String getImageType() {
         return imageType;
@@ -469,9 +524,107 @@ public class Produit implements Serializable {
 		this.produits = produits;
 	}
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
+    public Integer getQtyAppro() {
+        return qtyAppro;
+    }
 
-	@Override
+    public void setQtyAppro(Integer qtyAppro) {
+        this.qtyAppro = qtyAppro;
+    }
+
+    public Integer getQtySeuilMini() {
+        return qtySeuilMini;
+    }
+
+    public void setQtySeuilMini(Integer qtySeuilMini) {
+        this.qtySeuilMini = qtySeuilMini;
+    }
+
+    public Boolean getDateperemption() {
+        return dateperemption;
+    }
+
+    public void setDateperemption(Boolean dateperemption) {
+        this.dateperemption = dateperemption;
+    }
+
+    public Boolean getChiffre() {
+        return chiffre;
+    }
+
+    public void setChiffre(Boolean chiffre) {
+        this.chiffre = chiffre;
+    }
+
+    public boolean isExclude() {
+        return exclude;
+    }
+
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
+    }
+
+    public Integer getPrixMnp() {
+        return prixMnp;
+    }
+
+    public void setPrixMnp(Integer prixMnp) {
+        this.prixMnp = prixMnp;
+    }
+
+    public Boolean getDeconditionnable() {
+        return deconditionnable;
+    }
+
+    public void setDeconditionnable(Boolean deconditionnable) {
+        this.deconditionnable = deconditionnable;
+    }
+
+    public Laboratoire getLaboratoire() {
+        return laboratoire;
+    }
+
+    public void setLaboratoire(Laboratoire laboratoire) {
+        this.laboratoire = laboratoire;
+    }
+
+    public FormProduit getForme() {
+        return forme;
+    }
+
+    public void setForme(FormProduit forme) {
+        this.forme = forme;
+    }
+
+    public String getCodeEan() {
+        return codeEan;
+    }
+
+    public void setCodeEan(String codeEan) {
+        this.codeEan = codeEan;
+    }
+
+    public FamilleProduit getFamille() {
+        return famille;
+    }
+
+    public void setFamille(FamilleProduit famille) {
+        this.famille = famille;
+    }
+
+    public GammeProduit getGamme() {
+        return gamme;
+    }
+
+    public void setGamme(GammeProduit gamme) {
+        this.gamme = gamme;
+    }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

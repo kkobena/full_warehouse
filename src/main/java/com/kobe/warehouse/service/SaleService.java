@@ -176,7 +176,7 @@ public class SaleService {
         sale.setNetAmount(0);
         sale.setDateDimension(Constants.DateDimension(LocalDate.now()));
         sale.setUser(getUser());
-        sale.setCustomer(fromId(dto.getCustomerId()));
+       // sale.setCustomer(fromId(dto.getCustomerId()));
         sale.setNumberTransaction(referenceService.buildNumSale());
         sale.setStatut(SalesStatut.PENDING);
         List<SalesLine> listSaleLine = createLineFromDTO(dto.getSalesLines(), sale);
@@ -328,7 +328,7 @@ public class SaleService {
         payment.setUpdatedAt(Instant.now());
         payment.setSales(sale);
         payment.setUser(getUser());
-        payment.setCustomer(sale.getCustomer());
+      //  payment.setCustomer(sale.getCustomer());
         payment.setDateDimension(sale.getDateDimension());
         payment.setNetAmount(sale.getSalesAmount());
         payment.setPaidAmount(sale.getSalesAmount());
@@ -356,7 +356,7 @@ public class SaleService {
         Optional<Sales> ptSale = salesRepository.findOneWithEagerSalesLines(saleId);
         Sales sales = ptSale.get();
         Map<String, Object> parameters = reportService.buildMagasinInfo();
-        reportService.buildCustomerInfo(parameters, sales.getCustomer());
+      //  reportService.buildCustomerInfo(parameters, sales.getCustomer());
         reportService.buildSaleInfo(parameters, sales);
         return reportService.buildReportToPDF(parameters, "warehouse_facture", sales.getSalesLines().stream().map(SaleLineDTO::new).collect(Collectors.toList()));
 

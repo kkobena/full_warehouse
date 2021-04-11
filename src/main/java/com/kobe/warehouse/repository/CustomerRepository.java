@@ -16,16 +16,4 @@ import java.util.Optional;
  */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-
-    @Query(value = "select distinct customer from Customer customer left join fetch customer.produits",
-        countQuery = "select count(distinct customer) from Customer customer")
-    Page<Customer> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query("select distinct customer from Customer customer left join fetch customer.produits")
-    List<Customer> findAllWithEagerRelationships();
-
-    @Query("select customer from Customer customer left join fetch customer.produits where customer.id =:id")
-    Optional<Customer> findOneWithEagerRelationships(@Param("id") Long id);
-    
-   
 }

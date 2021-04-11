@@ -17,6 +17,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
  */
 @Entity
 @Table(name = "sales",uniqueConstraints = { @UniqueConstraint(columnNames = { "number_transaction", "date_dimension_date_key" }) })
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Sales implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -67,10 +68,10 @@ public class Sales implements Serializable {
 	@OneToMany(mappedBy = "sales")
 	private Set<SalesLine> salesLines = new HashSet<>();
 
-	@ManyToOne(optional = false)
-	@JsonIgnoreProperties(value = "sales", allowSetters = true)
-	private Customer customer;
 
+    @ManyToOne
+    @JsonIgnoreProperties(value = "sales", allowSetters = true)
+    private Remise remise;
 	@ManyToOne(optional = false)
 	@JsonIgnoreProperties(value = "sales", allowSetters = true)
 	private DateDimension dateDimension;
@@ -79,12 +80,22 @@ public class Sales implements Serializable {
 	private User user;
 	@OneToMany(mappedBy = "sales")
 	private Set<Payment> payments = new HashSet<>();
-
+    @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
 	public String getNumberTransaction() {
 		return numberTransaction;
 	}
 
-	public void setNumberTransaction(String numberTransaction) {
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+    }
+
+    public void setNumberTransaction(String numberTransaction) {
 		this.numberTransaction = numberTransaction;
 	}
 
@@ -121,7 +132,15 @@ public class Sales implements Serializable {
 		return this;
 	}
 
-	public void setDiscountAmount(Integer discountAmount) {
+    public Remise getRemise() {
+        return remise;
+    }
+
+    public void setRemise(Remise remise) {
+        this.remise = remise;
+    }
+
+    public void setDiscountAmount(Integer discountAmount) {
 		this.discountAmount = discountAmount;
 	}
 
@@ -254,18 +273,6 @@ public class Sales implements Serializable {
 		this.salesLines = salesLines;
 	}
 
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public Sales customer(Customer customer) {
-		this.customer = customer;
-		return this;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
 
 	public DateDimension getDateDimension() {
 		return dateDimension;

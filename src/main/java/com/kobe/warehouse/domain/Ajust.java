@@ -27,6 +27,9 @@ public class Ajust implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
     private SalesStatut statut=SalesStatut.PENDING;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
     public Long getId() {
         return id;
     }
@@ -61,6 +64,14 @@ public class Ajust implements Serializable {
 
     public User getUser() {
         return user;
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
     }
 
     public void setUser(User user) {

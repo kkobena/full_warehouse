@@ -77,8 +77,8 @@ public class OrderLine implements Serializable {
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
     private Produit produit;
-   
-   
+
+
     public Long getId() {
         return id;
     }
@@ -268,9 +268,9 @@ public class OrderLine implements Serializable {
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
-  
 
-   
+
+
 
 	@Override
     public boolean equals(Object o) {

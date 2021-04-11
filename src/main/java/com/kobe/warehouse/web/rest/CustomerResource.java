@@ -53,7 +53,7 @@ public class CustomerResource {
 		this.saleService = saleService;
 	}
 
-	
+
 	@PostMapping("/customers")
 	public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) throws URISyntaxException {
 		log.debug("REST request to save Customer : {}", customer);
@@ -67,7 +67,7 @@ public class CustomerResource {
 				.body(result);
 	}
 
-	
+
 	@PutMapping("/customers")
 	public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer customer) throws URISyntaxException {
 		log.debug("REST request to update Customer : {}", customer);
@@ -80,31 +80,29 @@ public class CustomerResource {
 				.body(result);
 	}
 
-	
+
 	@GetMapping("/customers")
 	public ResponseEntity<List<Customer>> getAllCustomers(Pageable pageable,
 			@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
 		log.debug("REST request to get a page of Customers");
-		Page<Customer> page;
-		if (eagerload) {
-			page = customerRepository.findAllWithEagerRelationships(pageable);
-		} else {
-			page = customerRepository.findAll(pageable);
-		}
+		Page<Customer> page = customerRepository.findAll(pageable);
+
+
+
 		HttpHeaders headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 		return ResponseEntity.ok().headers(headers).body(page.getContent());
 	}
 
-	
+
 	@GetMapping("/customers/{id}")
 	public ResponseEntity<Customer> getCustomer(@PathVariable Long id) {
 		log.debug("REST request to get Customer : {}", id);
-		Optional<Customer> customer = customerRepository.findOneWithEagerRelationships(id);
+		Optional<Customer> customer = customerRepository.findById(id);
 		return ResponseUtil.wrapOrNotFound(customer);
 	}
 
-	
+
 	@DeleteMapping("/customers/{id}")
 	public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
 		log.debug("REST request to delete Customer : {}", id);
@@ -118,7 +116,7 @@ public class CustomerResource {
 	public ResponseEntity<List<SaleDTO>> customerPurchases(@RequestParam(value = "customerId", required = true) long id,
 			@RequestParam(value = "fromDate", required = false) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) LocalDate toDate) {
-		
+
 		List<SaleDTO> data = saleService.customerPurchases(id, fromDate, toDate);
 		return ResponseEntity.ok().body(data);
 	}

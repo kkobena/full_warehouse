@@ -1,5 +1,8 @@
 package com.kobe.warehouse.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -13,46 +16,35 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "customer")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Customer implements Serializable {
-
 	private static final long serialVersionUID = 1L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	@NotNull
 	@Column(name = "first_name", nullable = false)
 	private String firstName;
-
 	@NotNull
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
-
 	@NotNull
 	@Column(name = "phone", nullable = false)
 	private String phone;
-
 	@Column(name = "email")
 	private String email;
-
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
 	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt=Instant.now();
-
-	@OneToMany(mappedBy = "customer")
-	private Set<Sales> sales = new HashSet<>();
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "customer_produits", joinColumns = @JoinColumn(name = "customer_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "produits_id", referencedColumnName = "id"))
-	private Set<Produit> produits = new HashSet<>();
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "status", nullable = false)
+    private SalesStatut status=SalesStatut.ACTIVE;
 
 	@OneToMany(mappedBy = "customer")
 	private Set<Payment> payments = new HashSet<>();
-	@Transient
-	private int encours;
 
 	public Long getId() {
 		return id;
@@ -71,7 +63,15 @@ public class Customer implements Serializable {
 		return this;
 	}
 
-	public void setFirstName(String firstName) {
+    public SalesStatut getStatus() {
+        return status;
+    }
+
+    public void setStatus(SalesStatut status) {
+        this.status = status;
+    }
+
+    public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
@@ -84,7 +84,9 @@ public class Customer implements Serializable {
 		return this;
 	}
 
-	public void setLastName(String lastName) {
+
+
+    public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
@@ -146,43 +148,7 @@ public class Customer implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<Sales> getSales() {
-		return sales;
-	}
 
-	public Customer sales(Set<Sales> sales) {
-		this.sales = sales;
-		return this;
-	}
-
-	public Customer addSales(Sales sales) {
-		this.sales.add(sales);
-		sales.setCustomer(this);
-		return this;
-	}
-
-	public Customer removeSales(Sales sales) {
-		this.sales.remove(sales);
-		sales.setCustomer(null);
-		return this;
-	}
-
-	public void setSales(Set<Sales> sales) {
-		this.sales = sales;
-	}
-
-	public Set<Produit> getProduits() {
-		return produits;
-	}
-
-	public Customer produits(Set<Produit> produits) {
-		this.produits = produits;
-		return this;
-	}
-
-	public void setProduits(Set<Produit> produits) {
-		this.produits = produits;
-	}
 
 	public Set<Payment> getPayments() {
 		return payments;
@@ -198,14 +164,6 @@ public class Customer implements Serializable {
 	}
 
 
-
-	public int getEncours() {
-		return encours;
-	}
-
-	public void setEncours(int encours) {
-		this.encours = encours;
-	}
 
 	@Override
 	public boolean equals(Object o) {

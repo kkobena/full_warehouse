@@ -64,24 +64,32 @@ public class Commande implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "order_status")
     private OrderStatut orderStatus;
-
     @OneToMany(mappedBy = "commande")
     private Set<PaymentFournisseur> paymentFournisseurs = new HashSet<>();
-
     @OneToMany(mappedBy = "commande",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private Set<OrderLine> orderLines = new HashSet<>();
-
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "commandes", allowSetters = true)
     private DateDimension dateDimension;
-
     @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
+    @ManyToOne(optional = false)
+    @NotNull
     private User user;
     public User getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+    }
+
+    public void setUser(User user) {
 		this.user = user;
 	}
     public Long getId() {

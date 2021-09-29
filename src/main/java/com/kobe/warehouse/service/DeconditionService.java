@@ -3,10 +3,8 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.repository.DeconditionRepository;
-import com.kobe.warehouse.repository.InventoryTransactionRepository;
-import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
+import com.kobe.warehouse.repository.*;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.web.rest.errors.StockException;
@@ -29,19 +27,22 @@ import java.util.Optional;
 @Service
 @Transactional
 public class DeconditionService {
-
     private final Logger log = LoggerFactory.getLogger(DeconditionService.class);
-
     private final DeconditionRepository deconditionRepository;
     private final ProduitRepository produitRepository;
     private final UserRepository userRepository;
     private final InventoryTransactionRepository inventoryTransactionRepository;
+    private final StockProduitRepository stockProduitRepository;
 
-    public DeconditionService(UserRepository userRepository, InventoryTransactionRepository inventoryTransactionRepository, DeconditionRepository deconditionRepository, ProduitRepository produitRepository) {
+    public DeconditionService(UserRepository userRepository,
+                              InventoryTransactionRepository inventoryTransactionRepository,
+                              DeconditionRepository deconditionRepository,
+                              ProduitRepository produitRepository, StockProduitRepository stockProduitRepository) {
         this.deconditionRepository = deconditionRepository;
         this.produitRepository = produitRepository;
         this.userRepository = userRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
+        this.stockProduitRepository = stockProduitRepository;
     }
 
     private User getUser() {
@@ -50,77 +51,67 @@ public class DeconditionService {
         return user.orElseGet(null);
     }
 
-    /**
-     * Save a decondition.
-     *
-     * @param deconditionDTO the entity to save.
-     * @return the persisted entity.
-     */
+
+
+    private void createDecondition(Produit produit, int beforeStock, int afterStock, int mvtQty, User user, TransactionType transactionType, TypeDeconditionnement typeDeconditionnement){
+        Decondition decondition = new Decondition();
+        decondition.setProduit(produit);
+        decondition.setDateMtv(Instant.now());
+        decondition.setQtyMvt(mvtQty);
+        decondition.setStockBefore(beforeStock);
+        decondition.setStockAfter(afterStock);
+        decondition.setDateDimension(Constants.DateDimension(LocalDate.now()));
+        decondition.setUser(user);
+        decondition.setTypeDeconditionnement(typeDeconditionnement);
+        deconditionRepository.save(decondition);
+        createInventory(decondition,
+            transactionType,
+            beforeStock,afterStock, user);
+    }
+
     public void save(DeconditionDTO deconditionDTO) throws Exception {
         Produit parent = produitRepository.getOne(deconditionDTO.getProduitId());
-        int stock = parent.getQuantity();
+        StockProduit stockProduit = parent.getStockProduitPointOfSale();
+        int stock = stockProduit.getQtyStock();// code a revoir avec la gestion de multi stock
         User user = getUser();
         if (stock >= deconditionDTO.getQtyMvt()) {
-            parent.setQuantity(stock - deconditionDTO.getQtyMvt());
-            //  Produit detail = produitRepository.findFirstByParentId(parent.getId());
+            stockProduit.setQtyStock(stock - deconditionDTO.getQtyMvt());
+            stockProduit.setQtyVirtual(stockProduit.getQtyStock());
+            stockProduit.setUpdatedAt(Instant.now());
             Produit detail = parent.getProduits().get(0);
-            int stockBefore = detail.getQuantity();
-            detail.setQuantity((deconditionDTO.getQtyMvt() * parent.getItemQty()) + detail.getQuantity());
-            produitRepository.save(detail);
-            produitRepository.save(parent);
-
-            Decondition decondition = new Decondition();
-            decondition.setProduit(parent);
-            decondition.setDateMtv(Instant.now());
-            decondition.setQtyMvt(deconditionDTO.getQtyMvt());
-            decondition.setStockBefore(stock);
-            decondition.setStockAfter(parent.getQuantity());
-            decondition.setDateDimension(Constants.DateDimension(LocalDate.now()));
-            decondition.setUser(user);
-            deconditionRepository.save(decondition);
-            createInventory(decondition,
-                TransactionType.DECONDTION_OUT,
-                stock, user);
-            decondition = new Decondition();
-            decondition.setProduit(detail);
-            decondition.setDateMtv(Instant.now());
-            decondition.setQtyMvt(deconditionDTO.getQtyMvt()*parent.getItemQty());
-            decondition.setStockBefore(stockBefore);
-            decondition.setStockAfter(detail.getQuantity());
-            decondition.setDateDimension(Constants.DateDimension(LocalDate.now()));
-            decondition.setUser(user);
-            deconditionRepository.save(decondition);
-            createInventory(decondition,
-                TransactionType.DECONDTION_IN,
-                stockBefore, user);
-        }else{
+            StockProduit stockDetail = detail.getStockProduitPointOfSale();
+            int stockDetailInit = stockDetail.getQtyStock();
+            int stockDetailFinal = (deconditionDTO.getQtyMvt() * parent.getItemQty()) + stockDetailInit;
+            stockDetail.setQtyStock(stockDetailFinal);
+            stockDetail.setQtyVirtual(stockProduit.getQtyStock());
+            stockDetail.setUpdatedAt(Instant.now());
+            stockProduitRepository.save(stockDetail);
+            stockProduitRepository.save(stockProduit);
+            createDecondition(parent,stock,stockProduit.getQtyStock(),deconditionDTO.getQtyMvt(),user,TransactionType.DECONDTION_OUT,TypeDeconditionnement.DECONDTION_OUT);
+            createDecondition(detail,stockDetailInit,stockDetailFinal, (deconditionDTO.getQtyMvt() * parent.getItemQty()),user,TransactionType.DECONDTION_IN,TypeDeconditionnement.DECONDTION_IN);
+        } else {
             throw new Exception("Stock insuffisant");
         }
 
-
     }
 
-    private void createInventory(Decondition decondition, TransactionType transactionType, int quantityBefor, User user) {
-
+    private void createInventory(Decondition decondition, TransactionType transactionType, int quantityBefor, int quantityFinal, User user) {
         DateDimension dateD = Constants.DateDimension(LocalDate.now());
         Produit p = decondition.getProduit();
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setCreatedAt(Instant.now());
-        inventoryTransaction.setUpdatedAt(inventoryTransaction.getCreatedAt());
         inventoryTransaction.setProduit(p);
         inventoryTransaction.setUser(user);
+        inventoryTransaction.setMagasin(user.getMagasin());
         inventoryTransaction.setAmount(decondition.getQtyMvt() * p.getCostAmount());
         inventoryTransaction.setQuantity(decondition.getQtyMvt());
         inventoryTransaction.setTransactionType(transactionType);
         inventoryTransaction.setDateDimension(dateD);
         inventoryTransaction.setQuantityBefor(quantityBefor);
-        inventoryTransaction.setQuantityAfter(p.getQuantity());
+         inventoryTransaction.setQuantityAfter(quantityFinal);
         inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());
         inventoryTransaction.setCostAmount(p.getCostAmount());
         inventoryTransactionRepository.save(inventoryTransaction);
-
-
-
     }
 
     /**

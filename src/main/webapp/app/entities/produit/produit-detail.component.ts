@@ -8,16 +8,11 @@ import { IProduit } from 'app/shared/model/produit.model';
 import { InventoryTransactionService } from '../inventory-transaction/inventory-transaction.service';
 import { ProduitService } from './produit.service';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
+import { SelectItem } from 'primeng/api';
 @Component({
   selector: 'jhi-produit-detail',
   styles: [
     `
-      .master {
-        padding: 14px 12px;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgb(0 0 0 / 16%);
-        justify-content: space-between;
-      }
       .ag-theme-alpine {
         max-height: 700px;
         height: 500px;
@@ -30,12 +25,16 @@ import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 export class ProduitDetailComponent implements OnInit {
   produit: IProduit | null = null;
   rowData: any = [];
+  typeMouvement: SelectItem[] = [];
+  selectedTypeMouvement = null;
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
   predicate!: string;
   ascending!: boolean;
   ngbPaginationPage = 1;
+  startDate = '';
+  endDate = '';
   public columnDefs: any[];
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -81,6 +80,8 @@ export class ProduitDetailComponent implements OnInit {
         flex: 1,
       },
     ];
+    this.typeMouvement.push({ label: 'TOUT', value: null });
+    this.populate();
   }
 
   ngOnInit(): void {
@@ -107,10 +108,23 @@ export class ProduitDetailComponent implements OnInit {
     this.inventoryTransactionService
       .query({
         produitId: this.produit?.id,
+        startDate: this.startDate,
+        endDate: this.endDate,
+        type: this.selectedTypeMouvement,
       })
       .subscribe(
         (res: HttpResponse<IInventoryTransaction[]>) => this.onSuccess(res.body, res.headers),
         () => this.onError()
       );
+  }
+  filtreTypeMouvement(event: any): void {
+    this.selectedTypeMouvement = event.value;
+    this.loadPage();
+  }
+  async populate(): Promise<void> {
+    const result = await this.inventoryTransactionService.allTypeTransaction();
+    result.forEach(e => {
+      this.typeMouvement.push({ label: e.name, value: e.value });
+    });
   }
 }

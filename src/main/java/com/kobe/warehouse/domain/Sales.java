@@ -16,12 +16,22 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
  * A Sales.
  */
 @Entity
-@Table(name = "sales",uniqueConstraints = { @UniqueConstraint(columnNames = { "number_transaction", "date_dimension_date_key" }) })
+@Table(name = "sales",
+    uniqueConstraints =
+        { @UniqueConstraint(columnNames = { "number_transaction", "date_dimension_date_key" }), @UniqueConstraint(columnNames = { "ticket_number"})  }
+   , indexes = {
+    @Index(columnList = "statut", name = "vente_statut_index"),
+    @Index(columnList = "number_transaction", name = "vente_number_transaction_index"),
+    @Index(columnList = "created_at", name = "vente_created_at_index"),
+    @Index(columnList = "updated_at", name = "vente_updated_at_index"),
+    @Index(columnList = "effective_update_date", name = "vente_effective_update_index"),
+    @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
+    @Index(columnList = "ticket_number", name = "vente_ticket_number_index")
+}
+)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Sales implements Serializable {
-
 	private static final long serialVersionUID = 1L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -31,46 +41,55 @@ public class Sales implements Serializable {
 	@NotNull
 	@Column(name = "discount_amount", nullable = false)
 	private Integer discountAmount;
-
 	@NotNull
 	@Column(name = "sales_amount", nullable = false)
-	private Integer salesAmount=0;
-
+	private Integer salesAmount;
 	@NotNull
 	@Column(name = "gross_amount", nullable = false)
-	private Integer grossAmount=0;
-
+	private Integer grossAmount;
 	@NotNull
 	@Column(name = "net_amount", nullable = false)
 	private Integer netAmount;
-
 	@NotNull
 	@Column(name = "tax_amount", nullable = false)
 	private Integer taxAmount;
-
 	@NotNull
 	@Column(name = "cost_amount", nullable = false)
-	private Integer costAmount=0;
-
-	@NotNull
+	private Integer costAmount;
+    @NotNull
+    @Column(name = "amount_to_be_paid", nullable = false)
+	private Integer amountToBePaid;
+    @NotNull
+    @Column(name = "payroll_amount", nullable = false)
+    private Integer payrollAmount;
+    @NotNull
+    @Column(name = "rest_to_pay", nullable = false)
+    private Integer restToPay;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false)
+    private Integer amountToBeTakenIntoAccount;
+    @Column(name = "marge_ug")
+    private Integer margeUg = 0;
+    @Column(name = "montant_ttc_ug")
+    private Integer montantttcUg = 0;
+    @Column(name = "montant_net_ug")
+    private Integer montantnetUg = 0;
+    @Column(name = "montant_tva_ug")
+    private Integer montantTvaUg = 0;
+    @Column(name = "marge")
+    private Integer marge = 0;
+    @NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "statut", nullable = false)
 	private SalesStatut statut;
-
 	@NotNull
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
-
 	@NotNull
 	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt;
-
 	@OneToMany(mappedBy = "sales")
 	private Set<SalesLine> salesLines = new HashSet<>();
-
-
     @ManyToOne
-    @JsonIgnoreProperties(value = "sales", allowSetters = true)
     private Remise remise;
 	@ManyToOne(optional = false)
 	@JsonIgnoreProperties(value = "sales", allowSetters = true)
@@ -78,14 +97,141 @@ public class Sales implements Serializable {
 	@NotNull
 	@ManyToOne(optional = false)
 	private User user;
+    @NotNull
+    @ManyToOne(optional = false)
+    private User seller;
 	@OneToMany(mappedBy = "sales")
 	private Set<Payment> payments = new HashSet<>();
     @ManyToOne(optional = false)
     @NotNull
     private Magasin magasin;
-	public String getNumberTransaction() {
+    @ManyToOne
+    private Sales canceledSale;
+    @NotNull
+    @Column(name = "effective_update_date", nullable = false)
+    private Instant effectiveUpdateDate;
+    @Column(name = "to_ignore", nullable = false)
+    private boolean toIgnore=false;
+    @NotNull
+    @Column(name = "ticket_number", nullable = false)
+    private String ticketNumber;
+    @Column(name = "copy")
+    private Boolean copy = false;
+    @Column(name = "imported")
+    private boolean imported = false;
+
+
+    public Boolean getCopy() {
+        return copy;
+    }
+
+    public Sales setCopy(Boolean copy) {
+        this.copy = copy;
+        return this;
+    }
+
+    public boolean isImported() {
+        return imported;
+    }
+
+    public Sales setImported(boolean imported) {
+        this.imported = imported;
+        return this;
+    }
+
+    public Integer getMargeUg() {
+        return margeUg;
+    }
+
+    public Sales setMargeUg(Integer margeUg) {
+        this.margeUg = margeUg;
+        return this;
+    }
+
+    public Integer getMontantttcUg() {
+        return montantttcUg;
+    }
+
+    public Sales setMontantttcUg(Integer montantttcUg) {
+        this.montantttcUg = montantttcUg;
+        return this;
+    }
+
+    public Integer getMontantnetUg() {
+        return montantnetUg;
+    }
+
+    public Sales setMontantnetUg(Integer montantnetUg) {
+        this.montantnetUg = montantnetUg;
+        return this;
+    }
+
+    public Integer getMontantTvaUg() {
+        return montantTvaUg;
+    }
+
+    public Sales setMontantTvaUg(Integer montantTvaUg) {
+        this.montantTvaUg = montantTvaUg;
+        return this;
+    }
+
+    public Integer getMarge() {
+        return marge;
+    }
+
+    public Sales setMarge(Integer marge) {
+        this.marge = marge;
+        return this;
+    }
+
+    public Integer getRestToPay() {
+        return restToPay;
+    }
+
+    public Sales setRestToPay(Integer restToPay) {
+        this.restToPay = restToPay;
+        return this;
+    }
+
+    public String getNumberTransaction() {
 		return numberTransaction;
 	}
+
+    public Integer getAmountToBeTakenIntoAccount() {
+        return amountToBeTakenIntoAccount;
+    }
+
+    public Sales setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
+    }
+
+    public boolean isToIgnore() {
+        return toIgnore;
+    }
+
+    public Sales setToIgnore(boolean toIgnore) {
+        this.toIgnore = toIgnore;
+        return this;
+    }
+
+    public String getTicketNumber() {
+        return ticketNumber;
+    }
+
+    public Sales setTicketNumber(String ticketNumber) {
+        this.ticketNumber = ticketNumber;
+        return this;
+    }
+
+    public Sales getCanceledSale() {
+        return canceledSale;
+    }
+
+    public Sales setCanceledSale(Sales canceledSale) {
+        this.canceledSale = canceledSale;
+        return this;
+    }
 
     public Magasin getMagasin() {
         return magasin;
@@ -131,6 +277,33 @@ public class Sales implements Serializable {
 		this.discountAmount = discountAmount;
 		return this;
 	}
+
+    public Instant getEffectiveUpdateDate() {
+        return effectiveUpdateDate;
+    }
+
+    public Sales setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+        this.effectiveUpdateDate = effectiveUpdateDate;
+        return this;
+    }
+
+    public Integer getAmountToBePaid() {
+        return amountToBePaid;
+    }
+
+    public Sales setAmountToBePaid(Integer amountToBePaid) {
+        this.amountToBePaid = amountToBePaid;
+        return this;
+    }
+
+    public Integer getPayrollAmount() {
+        return payrollAmount;
+    }
+
+    public Sales setPayrollAmount(Integer payrollAmount) {
+        this.payrollAmount = payrollAmount;
+        return this;
+    }
 
     public Remise getRemise() {
         return remise;
@@ -283,11 +456,18 @@ public class Sales implements Serializable {
 		return this;
 	}
 
-	public void setDateDimension(DateDimension dateDimension) {
+    public User getSeller() {
+        return seller;
+    }
+
+    public Sales setSeller(User seller) {
+        this.seller = seller;
+        return this;
+    }
+
+    public void setDateDimension(DateDimension dateDimension) {
 		this.dateDimension = dateDimension;
 	}
-	// jhipster-needle-entity-add-getters-setters - JHipster will add getters and
-	// setters here
 
 	@Override
 	public boolean equals(Object o) {

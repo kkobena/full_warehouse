@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.MagasinRepository;
+import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Magasin}.
@@ -92,10 +94,10 @@ public class MagasinResource {
 	 *         of magasins in body.
 	 */
 	@GetMapping("/magasins")
-	public ResponseEntity<Magasin> getAllMagasins() {
+	public ResponseEntity<MagasinDTO> getAllMagasins() {
 		log.debug("REST request to get all Magasins");
-		Optional<Magasin> magasin;
-		List<Magasin> magasins = magasinRepository.findAll();
+		Optional<MagasinDTO> magasin;
+		List<MagasinDTO> magasins = magasinRepository.findAll().stream().map(MagasinDTO::new).collect(Collectors.toList());
 		if (!magasins.isEmpty()) {
 			magasin = Optional.of(magasins.get(0));
 			return ResponseUtil.wrapOrNotFound(magasin);
@@ -111,9 +113,9 @@ public class MagasinResource {
 	 *         the magasin, or with status {@code 404 (Not Found)}.
 	 */
 	@GetMapping("/magasins/{id}")
-	public ResponseEntity<Magasin> getMagasin(@PathVariable Long id) {
+	public ResponseEntity<MagasinDTO> getMagasin(@PathVariable Long id) {
 		log.debug("REST request to get Magasin : {}", id);
-		Optional<Magasin> magasin = magasinRepository.findById(id);
+		Optional<MagasinDTO> magasin = magasinRepository.findById(id).map(MagasinDTO::new);
 		return ResponseUtil.wrapOrNotFound(magasin);
 	}
 

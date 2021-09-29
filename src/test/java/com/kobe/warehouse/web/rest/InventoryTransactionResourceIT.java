@@ -76,7 +76,6 @@ public class InventoryTransactionResourceIT {
             .transactionType(DEFAULT_TRANSACTION_TYPE)
             .amount(DEFAULT_AMOUNT)
             .createdAt(DEFAULT_CREATED_AT)
-            .updatedAt(DEFAULT_UPDATED_AT)
             .quantity(DEFAULT_QUANTITY)
             .quantityBefor(DEFAULT_QUANTITY_BEFOR)
             .quantityAfter(DEFAULT_QUANTITY_AFTER);
@@ -93,7 +92,6 @@ public class InventoryTransactionResourceIT {
             .transactionType(UPDATED_TRANSACTION_TYPE)
             .amount(UPDATED_AMOUNT)
             .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT)
             .quantity(UPDATED_QUANTITY)
             .quantityBefor(UPDATED_QUANTITY_BEFOR)
             .quantityAfter(UPDATED_QUANTITY_AFTER);
@@ -122,7 +120,6 @@ public class InventoryTransactionResourceIT {
         assertThat(testInventoryTransaction.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
         assertThat(testInventoryTransaction.getAmount()).isEqualTo(DEFAULT_AMOUNT);
         assertThat(testInventoryTransaction.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
-        assertThat(testInventoryTransaction.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
         assertThat(testInventoryTransaction.getQuantity()).isEqualTo(DEFAULT_QUANTITY);
         assertThat(testInventoryTransaction.getQuantityBefor()).isEqualTo(DEFAULT_QUANTITY_BEFOR);
         assertThat(testInventoryTransaction.getQuantityAfter()).isEqualTo(DEFAULT_QUANTITY_AFTER);
@@ -209,12 +206,6 @@ public class InventoryTransactionResourceIT {
     @Transactional
     public void checkUpdatedAtIsRequired() throws Exception {
         int databaseSizeBeforeTest = inventoryTransactionRepository.findAll().size();
-        // set the field null
-        inventoryTransaction.setUpdatedAt(null);
-
-        // Create the InventoryTransaction, which fails.
-
-
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
@@ -300,7 +291,7 @@ public class InventoryTransactionResourceIT {
             .andExpect(jsonPath("$.[*].quantityBefor").value(hasItem(DEFAULT_QUANTITY_BEFOR)))
             .andExpect(jsonPath("$.[*].quantityAfter").value(hasItem(DEFAULT_QUANTITY_AFTER)));
     }
-    
+
     @Test
     @Transactional
     public void getInventoryTransaction() throws Exception {
@@ -344,7 +335,6 @@ public class InventoryTransactionResourceIT {
             .transactionType(UPDATED_TRANSACTION_TYPE)
             .amount(UPDATED_AMOUNT)
             .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT)
             .quantity(UPDATED_QUANTITY)
             .quantityBefor(UPDATED_QUANTITY_BEFOR)
             .quantityAfter(UPDATED_QUANTITY_AFTER);
@@ -361,7 +351,6 @@ public class InventoryTransactionResourceIT {
         assertThat(testInventoryTransaction.getTransactionType()).isEqualTo(UPDATED_TRANSACTION_TYPE);
         assertThat(testInventoryTransaction.getAmount()).isEqualTo(UPDATED_AMOUNT);
         assertThat(testInventoryTransaction.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
-        assertThat(testInventoryTransaction.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
         assertThat(testInventoryTransaction.getQuantity()).isEqualTo(UPDATED_QUANTITY);
         assertThat(testInventoryTransaction.getQuantityBefor()).isEqualTo(UPDATED_QUANTITY_BEFOR);
         assertThat(testInventoryTransaction.getQuantityAfter()).isEqualTo(UPDATED_QUANTITY_AFTER);

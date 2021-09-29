@@ -5,8 +5,9 @@ import { map } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
 import { IProduit } from 'app/shared/model/produit.model';
+import { IResponseDto } from '../../shared/util/response-dto';
 
 type EntityResponseType = HttpResponse<IProduit>;
 type EntityArrayResponseType = HttpResponse<IProduit[]>;
@@ -14,6 +15,7 @@ type EntityArrayResponseType = HttpResponse<IProduit[]>;
 @Injectable({ providedIn: 'root' })
 export class ProduitService {
   public resourceUrl = SERVER_API_URL + 'api/produits';
+  public importationResourceUrl = SERVER_API_URL + 'api/importation';
 
   constructor(protected http: HttpClient) {}
 
@@ -38,7 +40,7 @@ export class ProduitService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http
       .get<IProduit[]>(this.resourceUrl, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
@@ -73,7 +75,26 @@ export class ProduitService {
     }
     return res;
   }
-  uploadFile(file: any, id: number): Observable<HttpResponse<IProduit>> {
-    return this.http.post<IProduit>(`${this.resourceUrl}/${id}/img`, file, { observe: 'response' });
+
+  queryDetails(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http.get<IProduit[]>(this.resourceUrl + '/criteria', { params: options, observe: 'response' });
+  }
+
+  uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {
+    return this.http.post<IResponseDto>(`${this.importationResourceUrl}/importcsv`, file, { observe: 'response' });
+  }
+  uploadJsonData(file: any): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.importationResourceUrl}/importjson`, file, { observe: 'response' });
+  }
+
+  findImortation(): Observable<HttpResponse<IResponseDto>> {
+    return this.http.get<IResponseDto>(`${this.importationResourceUrl}/result`, { observe: 'response' });
+  }
+  updateDetail(produit: IProduit): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(produit);
+    return this.http
+      .put<IProduit>(`${this.resourceUrl}/detail`, copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 }

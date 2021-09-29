@@ -11,6 +11,7 @@ import { ProduitService } from './produit.service';
 import { ProduitComponent } from './produit.component';
 import { ProduitDetailComponent } from './produit-detail.component';
 import { ProduitUpdateComponent } from './produit-update.component';
+import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
 
 @Injectable({ providedIn: 'root' })
 export class ProduitResolve implements Resolve<IProduit> {
@@ -72,6 +73,19 @@ export const produitRoute: Routes = [
   {
     path: ':id/edit',
     component: ProduitUpdateComponent,
+    resolve: {
+      produit: ProduitResolve,
+    },
+    data: {
+      authorities: [Authority.USER],
+      pageTitle: 'warehouseApp.produit.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+
+  {
+    path: ':id/detail',
+    component: DetailProduitFormComponent,
     resolve: {
       produit: ProduitResolve,
     },

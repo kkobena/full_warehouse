@@ -88,6 +88,7 @@ Custom alerts for notification
 .alerts {
   .alert {
     text-overflow: ellipsis;
+
     pre {
       background: none;
       border: none;
@@ -96,22 +97,28 @@ Custom alerts for notification
       padding: 0;
       margin: 0;
     }
+
     .popover pre {
       font-size: 10px;
     }
   }
+
   .jhi-toast {
     position: fixed;
     width: 100%;
+
     &.left {
       left: 5px;
     }
+
     &.right {
       right: 5px;
     }
+
     &.top {
       top: 55px;
     }
+
     &.bottom {
       bottom: 55px;
     }
@@ -138,6 +145,7 @@ entity detail page css
     dt {
       margin-bottom: 15px;
     }
+
     dd {
       border-bottom: 1px solid #eee;
       padding-left: 180px;
@@ -163,4 +171,103 @@ ui bootstrap tweaks
   white-space: nowrap;
 }
 
-/* jhipster-needle-scss-add-main JHipster will add new css style */
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.2rem 1rem;
+}
+
+.p-toolbar {
+  padding: 5px;
+}
+
+.p-autocomplete {
+  width: 100%;
+}
+
+.invoice {
+  padding: 0;
+}
+
+.invoice,
+.invoice .invoice-items {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body .ui-inputtext {
+  width: 100% !important;
+}
+
+body .ui-dropdown {
+  width: 100% !important;
+}
+
+#field_tel {
+  width: 100% !important;
+}
+
+.p-md-7 {
+  width: 58.3333%;
+  margin: 0.5px;
+}
+
+.jumbotron {
+  padding: 1rem 1rem;
+}
+.p-inputtext {
+  padding: 0.5rem 1rem;
+}
+
+.p-button {
+  padding: 0.45rem 1rem;
+}
+.form-switch {
+  padding-left: 2.5em;
+}
+.form-check {
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5em;
+  margin-bottom: 0.125rem;
+}
+.form-switch .form-check-input:checked {
+  background-position: right center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23a2b7cd'/%3e%3c/svg%3e");
+}
+.form-check-input:checked[type='checkbox'] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+.form-switch .form-check-input {
+  width: 2em;
+  margin-left: -2.5em;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+  background-position: left center;
+  border-radius: 2em;
+  transition: background-position 0.15s ease-in-out;
+}
+.form-check-input:checked {
+  background-color: #446e9b;
+  border-color: #446e9b;
+}
+.form-check-input[type='checkbox'] {
+  border-radius: 0.25em;
+}
+.form-check .form-check-input {
+  float: left;
+  margin-left: -1.5em;
+}
+.form-check-input {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+}

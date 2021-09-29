@@ -1,23 +1,35 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
-import { combineLatest, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { JhiEventManager } from 'ng-jhipster';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
 import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
-import { ProduitImageDialogueComponent } from './produit-image-dialogue.component';
 import { faCut, faFileUpload, faImage, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { ConfirmationService, MenuItem, MessageService, SelectItem } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
+import { IProduitCriteria, ProduitCriteria } from '../../shared/model/produit-criteria.model';
+import { RayonService } from '../rayon/rayon.service';
+import { FamilleProduitService } from '../famille-produit/famille-produit.service';
+import { SERVER_API_URL } from '../../app.constants';
+import { Statut } from '../../shared/model/enumerations/statut.model';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 
 @Component({
   selector: 'jhi-produit',
   styles: [
     `
+      .p-datatable td {
+        font-size: 0.6rem;
+      }
+
       .table tr th {
         font-size: 0.9rem;
       }
@@ -26,16 +38,61 @@ import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
       .btn-group-sm > .btn {
         font-size: 1rem;
       }
+
+      .secondColumn {
+        color: blue;
+      }
+
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .invoice-table tr {
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .invoice-table td:first-child {
+        text-align: left;
+      }
+
+      .invoice-table td {
+        padding: 0.1rem;
+      }
+
+      .p-datatable .p-datatable-header {
+        text-align: center;
+      }
+
+      table .number {
+        text-align: right !important;
+      }
+
+      .p-button.p-button-icon-only.p-button-rounded {
+        height: 2rem;
+      }
+
+      .p-button.p-button-icon-only {
+        width: 2rem;
+      }
     `,
   ],
   templateUrl: './produit.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
 })
 export class ProduitComponent implements OnInit, OnDestroy {
   faFileUpload = faFileUpload;
   faImage = faImage;
   faCut = faCut;
+
   faPlusCircle = faPlusCircle;
-  produits?: IProduit[];
+  produits!: IProduit[];
+  selectedCriteria = 0;
+  selectedRayon = 0;
+  selectedFamille = 0;
+  filtesProduits: SelectItem[] = [];
+  rayons: SelectItem[] = [];
+  familles: SelectItem[] = [];
   eventSubscriber?: Subscription;
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
@@ -43,28 +100,110 @@ export class ProduitComponent implements OnInit, OnDestroy {
   predicate!: string;
   ascending!: boolean;
   ngbPaginationPage = 1;
-  search!: string;
-  package = 'PACKAGE';
-  detail = 'DETAIL';
+  search: string;
+  package = TypeProduit.PACKAGE;
+  detail = TypeProduit.DETAIL;
+  fileDialog = false;
+  jsonDialog = false;
+  responseDialog = false;
+  displayDialog = false;
+  responsedto!: IResponseDto;
+  isSaving = false;
+  stockFileJsonDialog = false;
+  splitbuttons: MenuItem[];
+  criteria: IProduitCriteria;
+  public resourceUrl = SERVER_API_URL;
 
   constructor(
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected eventManager: JhiEventManager,
-    protected modalService: NgbModal
-  ) {}
+    protected modalService: NgbModal,
+    protected confirmationService: ConfirmationService,
+    private dialogService: DialogService,
+    private messageService: MessageService,
+    protected rayonService: RayonService,
+    protected familleService: FamilleProduitService
+  ) {
+    this.criteria = new ProduitCriteria();
+    this.criteria.status = Statut.ENABLE;
+    this.splitbuttons = [
+      {
+        label: 'Fiche à partir csv',
+        icon: 'pi pi-file-excel',
+        command: () => {
+          this.fileDialog = true;
+        },
+      },
+      {
+        label: 'Fiche à partir json',
+        icon: 'pi pi-file-o',
+        command: () => {
+          this.jsonDialog = true;
+        },
+      },
+      {
+        label: 'Mise à jour du stock à partir json',
+        icon: 'pi pi-filter',
+        command: () => {
+          this.stockFileJsonDialog = true;
+        },
+      },
+    ];
+    this.filtesProduits = [
+      { label: 'Produits actifs', value: 0 },
+      { label: 'Produits désactifs', value: 1 },
+      { label: 'Déconditionnables', value: 2 },
+      { label: 'Déconditionnés', value: 3 },
+      { label: 'Tous', value: 10 },
+    ];
+    this.familles.push({ label: 'TOUT', value: null });
+    this.rayons.push({ label: 'TOUT', value: null });
+    this.search = '';
+    this.populate();
+  }
+
+  showFileDialog(): void {
+    this.fileDialog = true;
+  }
+
+  async populate(): Promise<void> {
+    const familleProduitsResponse = await this.familleService.queryPromise({ search: '' });
+    familleProduitsResponse.forEach(e => {
+      this.familles.push({ label: e.libelle, value: e.id });
+    });
+    const rayonsResponse = await this.rayonService.queryPromise({ search: '' });
+    rayonsResponse.forEach(e => {
+      this.rayons.push({ label: e.libelle, value: e.id });
+    });
+  }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
+    let statut = 'ENABLE';
+    if (this.criteria) {
+      if (this.criteria.status) {
+        if (this.criteria.status === Statut.DISABLE) {
+          statut = 'DISABLE';
+        } else if (this.criteria.status === Statut.DELETED) {
+          statut = 'DELETED';
+        }
+      }
+    }
 
     this.produitService
       .query({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         sort: this.sort(),
-        withdetail: true,
         search: this.search || '',
+        storageId: this.criteria.storageId,
+        rayonId: this.criteria.rayonId,
+        deconditionne: this.criteria.deconditionne,
+        deconditionnable: this.criteria.deconditionnable,
+        status: statut,
+        familleId: this.criteria.familleId,
       })
       .subscribe(
         (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
@@ -140,11 +279,6 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.ngbPaginationPage = this.page ?? 1;
   }
 
-  addImage(produit: IProduit): void {
-    const modalRef = this.modalService.open(ProduitImageDialogueComponent, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.produit = produit;
-  }
-
   addDetail(produit: IProduit): void {
     const modalRef = this.modalService.open(DetailFormDialogComponent, {
       size: 'lg',
@@ -180,5 +314,109 @@ export class ProduitComponent implements OnInit, OnDestroy {
       });
       modalRef.componentInstance.produit = produit;
     }
+  }
+
+  onUpload(event: any): void {
+    const formData: FormData = new FormData();
+    const file = event.files[0];
+    formData.append('importcsv', file, file.name);
+    this.uploadFileResponse(this.produitService.uploadFile(formData));
+  }
+
+  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe(
+      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) this.responsedto = responseDto;
+    this.responseDialog = true;
+    this.fileDialog = false;
+    this.loadPage(0);
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
+  }
+
+  cancel(): void {
+    this.displayDialog = false;
+    this.fileDialog = false;
+    this.jsonDialog = false;
+  }
+
+  onSearch(event: any): void {
+    this.search = event.target.value;
+    this.loadPage(0);
+  }
+
+  filtreRayon(event: any): void {
+    this.criteria.rayonId = event.value;
+    this.loadPage(0);
+  }
+
+  filtreFamilleProduit(event: any): void {
+    this.criteria.familleId = event.value;
+    this.loadPage(0);
+  }
+
+  filtreClik(event: any): void {
+    if (this.selectedCriteria === 2) {
+      this.criteria.deconditionnable = true;
+      this.criteria.deconditionne = undefined;
+      this.criteria.status = Statut.ENABLE;
+    } else if (this.selectedCriteria === 3) {
+      this.criteria.deconditionnable = undefined;
+      this.criteria.deconditionne = true;
+      this.criteria.status = Statut.ENABLE;
+    } else if (this.selectedCriteria === 1) {
+      this.criteria.status = Statut.DISABLE;
+      this.criteria.deconditionnable = undefined;
+      this.criteria.deconditionne = undefined;
+    } else if (this.selectedCriteria === 0) {
+      this.criteria.status = Statut.ENABLE;
+      this.criteria.deconditionnable = undefined;
+      this.criteria.deconditionne = undefined;
+    } else if (this.selectedCriteria === 10) {
+      this.criteria = {};
+    }
+    this.loadPage(0);
+  }
+
+  protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
+    result.subscribe(
+      () => this.onPocesJsonSuccess(),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onPocesJsonSuccess(): void {
+    this.jsonDialog = false;
+    this.responseDialog = true;
+    setInterval(() => {
+      this.produitService.findImortation().subscribe(
+        res => {
+          if (res.body) {
+            this.responsedto = res.body;
+            if (this.responsedto.completed) {
+              setTimeout(() => {}, 5000);
+            }
+          }
+        },
+        () => {
+          setTimeout(() => {}, 5000);
+        }
+      );
+    }, 10000);
+  }
+
+  onUploadJson(event: any): void {
+    const formData: FormData = new FormData();
+    const file = event.files[0];
+    formData.append('importjson', file, file.name);
+    this.uploadJsonDataResponse(this.produitService.uploadJsonData(formData));
   }
 }

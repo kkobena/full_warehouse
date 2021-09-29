@@ -12,59 +12,61 @@ import java.time.Instant;
  * A SalesLine.
  */
 @Entity
-@Table(name = "sales_line",uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id","sales_id"})})
+@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
     @Column(name = "quantity_sold", nullable = false)
     private Integer quantitySold;
-
+    @NotNull
+    @Column(name = "quantity_requested", nullable = false)
+    private Integer quantityRequested;
+    @NotNull
+    @Column(name = "quantity_ug", nullable = false)
+    private Integer quantityUg=0;
+    @NotNull
+    @Column(name = "quantity_avoir", nullable = false)
+    private Integer quantiyAvoir=0;
+    @NotNull
+    @Column(name = "montant_tva_ug", nullable = false)
+    private Integer montantTvaUg = 0;
     @NotNull
     @Column(name = "regular_unit_price", nullable = false)
     private Integer regularUnitPrice;
-
     @NotNull
     @Column(name = "discount_unit_price", nullable = false)
     private Integer discountUnitPrice;
-
     @NotNull
     @Column(name = "net_unit_price", nullable = false)
     private Integer netUnitPrice;
-
     @NotNull
     @Column(name = "discount_amount", nullable = false)
     private Integer discountAmount;
-
     @NotNull
     @Column(name = "sales_amount", nullable = false)
     private Integer salesAmount;
-
     @NotNull
     @Column(name = "gross_amount", nullable = false)
     private Integer grossAmount;
-
     @NotNull
     @Column(name = "net_amount", nullable = false)
     private Integer netAmount;
-
     @NotNull
     @Column(name = "tax_amount", nullable = false)
     private Integer taxAmount;
-
+    @NotNull
+    @Column(name = "tax_value", nullable = false)
+    private Integer taxValue;
     @NotNull
     @Column(name = "cost_amount", nullable = false)
     private Integer costAmount;
-
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
@@ -76,8 +78,86 @@ public class SalesLine implements Serializable {
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "salesLines", allowSetters = true)
     private Produit produit;
+    @NotNull
+    @Column(name = "effective_update_date", nullable = false)
+    private Instant effectiveUpdateDate;
+    @Column(name = "to_ignore", nullable = false)
+    private boolean toIgnore = false;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false)
+    private Integer amountToBeTakenIntoAccount;
 
- 
+    public Integer getTaxValue() {
+        return taxValue;
+    }
+
+    public SalesLine setTaxValue(Integer taxValue) {
+        this.taxValue = taxValue;
+        return this;
+    }
+
+    public Integer getQuantityUg() {
+        return quantityUg;
+    }
+
+    public SalesLine setQuantityUg(Integer quantityUg) {
+        this.quantityUg = quantityUg;
+        return this;
+    }
+
+    public Integer getQuantityRequested() {
+        return quantityRequested;
+    }
+
+    public SalesLine setQuantityRequested(Integer quantityRequested) {
+        this.quantityRequested = quantityRequested;
+        return this;
+    }
+
+    public Integer getQuantiyAvoir() {
+        return quantiyAvoir;
+    }
+
+    public SalesLine setQuantiyAvoir(Integer quantiyAvoir) {
+        this.quantiyAvoir = quantiyAvoir;
+        return this;
+    }
+
+    public Integer getMontantTvaUg() {
+        return montantTvaUg;
+    }
+
+    public SalesLine setMontantTvaUg(Integer montantTvaUg) {
+        this.montantTvaUg = montantTvaUg;
+        return this;
+    }
+
+    public Integer getAmountToBeTakenIntoAccount() {
+        return amountToBeTakenIntoAccount;
+    }
+
+    public SalesLine setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
+    }
+
+    public boolean isToIgnore() {
+        return toIgnore;
+    }
+
+    public SalesLine setToIgnore(boolean toIgnore) {
+        this.toIgnore = toIgnore;
+        return this;
+    }
+
+    public Instant getEffectiveUpdateDate() {
+        return effectiveUpdateDate;
+    }
+
+    public SalesLine setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+        this.effectiveUpdateDate = effectiveUpdateDate;
+        return this;
+    }
+
     public Long getId() {
         return id;
     }

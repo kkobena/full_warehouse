@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "formeProduit": {
+      "home": {
+        "title": "Forme de produit",
+        "createLabel": "Nouvelle ",
+        "createOrEditLabel": "Créer ou éditer une nouvelle forme de produit",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Une nouvelle Forme a été créée avec l'identifiant {{ param }}",
+      "updated": "La Forme avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Forme avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la Forme {{ id }} ?"
+      },
+      "detail": {
+        "title": "Forme"
+      }
+    }
+  }
+}

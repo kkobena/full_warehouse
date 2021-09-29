@@ -24,7 +24,8 @@ public class PaymentDTO {
 	private Integer salesAmount;
 	private Integer salesNetAmount;
 	private String userFullName;
-	
+    private Integer reelPaidAmount;
+    private String paymentCode;
 	public Integer getSalesAmount() {
 		return salesAmount;
 	}
@@ -145,7 +146,25 @@ public class PaymentDTO {
 		this.salesId = salesId;
 	}
 
-	public PaymentDTO(Payment payment) {
+    public Integer getReelPaidAmount() {
+        return reelPaidAmount;
+    }
+
+    public PaymentDTO setReelPaidAmount(Integer reelPaidAmount) {
+        this.reelPaidAmount = reelPaidAmount;
+        return this;
+    }
+
+    public String getPaymentCode() {
+        return paymentCode;
+    }
+
+    public PaymentDTO setPaymentCode(String paymentCode) {
+        this.paymentCode = paymentCode;
+        return this;
+    }
+
+    public PaymentDTO(Payment payment) {
 		super();
 		this.id = payment.getId();
 		this.netAmount = payment.getNetAmount();
@@ -158,7 +177,7 @@ public class PaymentDTO {
 		this.userId = user.getId();
 		this.userFullName = user.getFirstName()+" " + user.getLastName();
 		Customer customer=payment.getCustomer();
-		this.customer = payment.getCustomer();
+		this.customer = customer;
 		Sales sales=payment.getSales();
 		this.saleNumberTransaction = sales.getNumberTransaction();
 		this.salesId = sales.getId();
@@ -166,4 +185,6 @@ public class PaymentDTO {
 		this.salesNetAmount=sales.getNetAmount();
 	}
 
+    public PaymentDTO() {
+    }
 }

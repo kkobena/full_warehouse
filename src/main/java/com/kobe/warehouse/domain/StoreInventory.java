@@ -19,38 +19,29 @@ import java.util.Set;
 public class StoreInventory implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
     @Column(name = "inventory_value_cost_begin", nullable = false)
     private Long inventoryValueCostBegin;
-
     @NotNull
     @Column(name = "inventory_amount_begin", nullable = false)
     private Long inventoryAmountBegin;
-
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
     @NotNull
     @Column(name = "inventory_value_cost_after", nullable = false)
     private Long inventoryValueCostAfter;
-
     @NotNull
     @Column(name = "inventory_amount_after", nullable = false)
     private Long inventoryAmountAfter;
-
     @OneToMany(mappedBy = "storeInventory")
     private Set<StoreInventoryLine> storeInventoryLines = new HashSet<>();
-
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "storeInventories", allowSetters = true)
     private DateDimension dateDimension;
@@ -59,18 +50,30 @@ public class StoreInventory implements Serializable {
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
-    private SalesStatut statut=SalesStatut.PROCESSING;
+    private SalesStatut statut = SalesStatut.PROCESSING;
+    @NotNull
+    @ManyToOne(optional = false)
+    private Magasin magasin;
 
     public User getUser() {
-		return user;
-	}
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public Long getId() {
         return id;
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public StoreInventory setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+        return this;
     }
 
     public void setId(Long id) {

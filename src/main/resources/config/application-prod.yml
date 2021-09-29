@@ -1,6 +1,10 @@
 file:
   report: ./reports
   images: ./images
+  import:
+    json: ./json
+    csv: ./csv
+    excel: ./excel
 logging:
   file:
     name: warehouse.log
@@ -38,7 +42,7 @@ spring:
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   flyway:
     enabled: false

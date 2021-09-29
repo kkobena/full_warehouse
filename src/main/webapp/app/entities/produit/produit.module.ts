@@ -7,21 +7,22 @@ import { ProduitDetailComponent } from './produit-detail.component';
 import { ProduitUpdateComponent } from './produit-update.component';
 import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
 import { produitRoute } from './produit.route';
-import { ProduitImageDialogueComponent } from './produit-image-dialogue.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
+import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 @NgModule({
-  imports: [WarehouseSharedModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
+  imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
   declarations: [
     ProduitComponent,
     ProduitDetailComponent,
     ProduitUpdateComponent,
     ProduitDeleteDialogComponent,
-    ProduitImageDialogueComponent,
     DetailFormDialogComponent,
     DeconditionDialogComponent,
+    DetailProduitFormComponent,
   ],
-  entryComponents: [ProduitDeleteDialogComponent, ProduitImageDialogueComponent, DetailFormDialogComponent, DeconditionDialogComponent],
+  entryComponents: [ProduitDeleteDialogComponent, DetailFormDialogComponent, DeconditionDialogComponent],
 })
 export class WarehouseProduitModule {}

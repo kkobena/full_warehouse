@@ -1,6 +1,8 @@
 package com.kobe.warehouse.domain;
 
 
+import org.hibernate.annotations.JoinFormula;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -12,31 +14,49 @@ import java.io.Serializable;
 @Entity
 @Table(name = "magasin")
 public class Magasin implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
     @Column(name = "name", nullable = false, unique = true)
     private String name;
-
     @NotNull
     @Column(name = "phone", nullable = false)
     private String phone;
-
     @Column(name = "address")
     private String address;
-
     @Column(name = "note")
     private String note;
-
     @Column(name = "registre")
     private String registre;
+    @Column(name = "compte_contribuable")
+    private String compteContribuable;
+    @Column(name = "num_comptable")
+    private String numComptable;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type=0 AND s.magasin_id=id LIMIT 1)")
+    private Storage primaryStorage;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type=2 AND s.magasin_id=id LIMIT 1)")
+    private Storage pointOfSale;
 
-   
+    public Storage getPointOfSale() {
+        return pointOfSale;
+    }
+
+    public void setPointOfSale(Storage pointOfSale) {
+        this.pointOfSale = pointOfSale;
+    }
+
+    public Storage getPrimaryStorage() {
+        return primaryStorage;
+    }
+
+    public void setPrimaryStorage(Storage primaryStorage) {
+        this.primaryStorage = primaryStorage;
+    }
+
     public Long getId() {
         return id;
     }
@@ -104,6 +124,22 @@ public class Magasin implements Serializable {
     public Magasin registre(String registre) {
         this.registre = registre;
         return this;
+    }
+
+    public String getCompteContribuable() {
+        return compteContribuable;
+    }
+
+    public void setCompteContribuable(String compteContribuable) {
+        this.compteContribuable = compteContribuable;
+    }
+
+    public String getNumComptable() {
+        return numComptable;
+    }
+
+    public void setNumComptable(String numComptable) {
+        this.numComptable = numComptable;
     }
 
     public void setRegistre(String registre) {

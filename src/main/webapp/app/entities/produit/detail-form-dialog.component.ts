@@ -81,7 +81,7 @@ export class DetailFormDialogComponent implements OnInit {
     this.isSaving = true;
     const produit = this.createFromForm();
     if (produit.id !== undefined && produit.id !== null) {
-      this.subscribeToSaveResponse(this.produitService.update(produit));
+      this.subscribeToSaveResponse(this.produitService.updateDetail(produit));
     } else {
       this.subscribeToSaveResponse(this.produitService.create(produit));
     }

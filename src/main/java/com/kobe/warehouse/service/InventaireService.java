@@ -65,7 +65,7 @@ public class InventaireService {
         long inventoryValueCostAfter = 0, inventoryAmountAfter = 0;
         StoreInventory storeInventory = storeInventoryRepository.getOne(id);
         DateDimension dateDimension = storeInventory.getDateDimension();
-        storeInventory.setStatut(SalesStatut.CLOSE);
+        storeInventory.setStatut(SalesStatut.CLOSED);
         storeInventory.setUpdatedAt(Instant.now());
         List<StoreInventoryLine> storeInventoryLines = storeInventoryLineRepository.findAllByStoreInventoryId(id);
         for (StoreInventoryLine line : storeInventoryLines) {
@@ -73,7 +73,7 @@ public class InventaireService {
             inventoryAmountAfter += (line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
             inventoryTransactionService.buildInventoryTransaction(line, dateDimension, storeInventory.getUpdatedAt(), userService.getUser());
             Produit produit = line.getProduit();
-            produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
+           // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
             produitRepository.save(produit);
         }
         storeInventory.setInventoryValueCostAfter(inventoryValueCostAfter);
@@ -87,7 +87,7 @@ public class InventaireService {
         storeInventoryLine.setProduit(produit);
         storeInventoryLine.setQuantitySold(quantitySold);
         storeInventoryLine.setStoreInventory(storeInventory);
-        storeInventoryLine.setQuantityInit(produit.getQuantity());
+      //  storeInventoryLine.setQuantityInit(produit.getQuantity());
         storeInventoryLine.setQuantityOnHand(0);
         storeInventoryLine.setUpdated(false);
         storeInventoryLine.setInventoryValueCost(produit.getCostAmount());

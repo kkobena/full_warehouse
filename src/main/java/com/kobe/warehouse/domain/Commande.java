@@ -28,35 +28,27 @@ public class Commande implements Serializable {
 
     @Column(name = "order_refernce")
     private String orderRefernce;
-
     @NotNull
     @Column(name = "receipt_date", nullable = false)
     private LocalDate receiptDate;
-
     @NotNull
     @Column(name = "discount_amount", nullable = false)
     private Integer discountAmount;
-
     @NotNull
     @Column(name = "order_amount", nullable = false)
     private Integer orderAmount;
-
     @NotNull
     @Column(name = "gross_amount", nullable = false)
     private Integer grossAmount;
-
     @NotNull
     @Column(name = "net_amount", nullable = false)
     private Integer netAmount;
-
     @NotNull
     @Column(name = "tax_amount", nullable = false)
     private Integer taxAmount;
-
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;

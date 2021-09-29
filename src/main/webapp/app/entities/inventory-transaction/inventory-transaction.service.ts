@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.model';
+import { ITypeTransaction } from '../../shared/model/type-transactin.model';
 
 type EntityResponseType = HttpResponse<IInventoryTransaction>;
 type EntityArrayResponseType = HttpResponse<IInventoryTransaction[]>;
@@ -74,5 +75,9 @@ export class InventoryTransactionService {
       });
     }
     return res;
+  }
+
+  async allTypeTransaction(): Promise<ITypeTransaction[]> {
+    return this.http.get<ITypeTransaction[]>(SERVER_API_URL + 'api/typeMvtProduit').toPromise();
   }
 }

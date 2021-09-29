@@ -1,0 +1,71 @@
+
+        <div>
+
+            <h3>Liste des types étiquettes</h3>
+
+
+            <div class="alert alert-warning" id="no-result" *ngIf="entites?.length === 0">
+                <span>Aucune donnée trouvée</span>
+            </div>
+            <p-table *ngIf="entites && entites.length > 0" styleClass="ui-table-cars" [value]="entites"
+                [paginator]="true" [rows]="itemsPerPage" dataKey="id" selectionMode="single" [(selection)]="selectedEl"
+                [lazy]="true" [totalRecords]="totalItems" [loading]="loading" (onLazyLoad)="lazyLoading($event)">
+                <ng-template pTemplate="header">
+                    <tr>
+
+                        <th scope="col"><span>Libellé</span> </th>
+
+                    </tr>
+                </ng-template>
+
+
+                <ng-template pTemplate="body" let-elRow let-columns="columns">
+                    <tr [pSelectableRow]="elRow" [pEditableRow]="elRow">
+                        <td>{{ elRow.libelle }}</td>
+
+
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+
+    <!-- formulaire de creation et d edition-->
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+        <p-dialog header="Créer ou éditer un type de risque" [(visible)]="displayDialog" [focusOnShow]="false"
+            [responsive]="true" showEffect="fade" [modal]="true" [style]="{width: '400px'}">
+
+            <div class="form-group" [hidden]="!editForm.get('id')!.value">
+
+                <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
+            </div>
+
+            <div class="ui-g form-group">
+
+                <label for="field_libelle">Libellé</label>
+                <div class="ui-g-12" style="margin-bottom:10px">
+                    <textarea pInputTextarea class="form-control" name="libelle" id="field_libelle"
+                        formControlName="libelle" style="width: 100%;">
+            </textarea>
+                </div>
+                <div
+                    *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+                    <small class="form-text text-danger" style="color: red;"
+                        *ngIf="editForm.get('libelle')?.errors?.required">
+                        Ce champ est obligatoire.
+                    </small>
+
+                </div>
+
+            </div>
+
+            <p-footer>
+
+                <button type="submit" [disabled]="editForm.invalid || isSaving" pButton icon="pi pi-check"
+                    (click)="save()" label="Enregistrer"></button>
+                <button type="button" class="ui-button-danger" pButton icon="pi pi-times" (click)="cancel()"
+                    label="Annuler"></button>
+
+            </p-footer>
+        </p-dialog>
+    </form>

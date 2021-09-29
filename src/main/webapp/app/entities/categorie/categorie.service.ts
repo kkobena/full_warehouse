@@ -35,4 +35,13 @@ export class CategorieService {
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+  async queryPromise(req?: any): Promise<ICategorie[]> {
+    const options = createRequestOption(req);
+    return await this.http
+      .get<ICategorie[]>(this.resourceUrl, { params: options })
+      .toPromise();
+  }
+  async findPromise(id: number): Promise<ICategorie> {
+    return await this.http.get<ICategorie>(`${this.resourceUrl}/${id}`).toPromise();
+  }
 }

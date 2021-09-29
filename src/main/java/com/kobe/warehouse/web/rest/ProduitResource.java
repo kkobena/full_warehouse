@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.dto.ProduitCriteria;
+import com.kobe.warehouse.service.dto.ResponseDTO;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,12 +66,14 @@ public class ProduitResource {
     private String applicationName;
     private final UserRepository userRepository;
     private final ProduitRepository produitRepository;
+    private final ProduitService produitService;
 
     public ProduitResource(ProduitRepository produitRepository,
-                           UserRepository userRepository
+                           UserRepository userRepository, ProduitService produitService
     ) {
         this.produitRepository = produitRepository;
         this.userRepository = userRepository;
+        this.produitService = produitService;
 
     }
 
@@ -81,28 +87,20 @@ public class ProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/produits")
-    public ResponseEntity<Produit> createProduit(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
+    public ResponseEntity<Void> createProduit(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
         log.debug("REST request to save Produit : {}", produitDTO);
         if (produitDTO.getId() != null) {
             throw new BadRequestAlertException("A new produit cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Produit produit = ProduitDTO.fromDTO(produitDTO);
-        Optional<User> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(login -> userRepository.findOneByLogin(login));
-        if (user.isPresent()) {
-            produit.setUser(user.get());
-        }
-        Produit result = produitRepository.save(produit);
-        return ResponseEntity
-            .created(new URI("/api/produits/" + result.getId())).headers(HeaderUtil
-                .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        produitService.save(produitDTO);
+        return ResponseEntity.ok().build();
+
     }
 
     /**
      * {@code PUT  /produits} : Updates an existing produit.
      *
-     * @param produit the produit to update.
+     * @param produitDTO the produit to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      * the updated produit, or with status {@code 400 (Bad Request)} if the
      * produit is not valid, or with status
@@ -111,31 +109,13 @@ public class ProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/produits")
-    public ResponseEntity<Produit> updateProduit(@Valid @RequestBody Produit produit) throws URISyntaxException {
-        log.debug("REST request to update Produit : {}", produit);
-        if (produit.getId() == null) {
+    public ResponseEntity<Void> updateProduit(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
+        log.debug("REST request to update Produit : {}", produitDTO);
+        if (produitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Produit produit2 = produitRepository.getOne(produit.getId());
-        produit2.setCostAmount(produit.getCostAmount());
-        produit2.setRegularUnitPrice(produit.getRegularUnitPrice());
-        produit2.setItemCostAmount(produit.getItemCostAmount());
-        produit2.setItemQty(produit.getItemQty());
-        produit2.setItemRegularUnitPrice(produit.getItemRegularUnitPrice());
-        produit2.setLibelle(produit.getLibelle().trim().toUpperCase());
-        Optional<User> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(login -> userRepository.findOneByLogin(login));
-        if (user.isPresent()) {
-            produit2.setUser(user.get());
-        }
-        if (produit2.getTypeProduit() == TypeProduit.PACKAGE) {
-            Produit detailProduit = produit2.getProduits().get(0);
-            produitRepository.save(Produit.detailFromParent(produit2, detailProduit));
-        }
-        Produit result = produitRepository.save(produit2);
-        return ResponseEntity.ok().headers(
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, produit.getId().toString()))
-            .body(result);
+        produitService.update(produitDTO);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -148,31 +128,27 @@ public class ProduitResource {
     @Transactional(readOnly = true)
     @GetMapping("/produits")
     public ResponseEntity<List<ProduitDTO>> getAllProduits(
-        @RequestParam(name = "search", required = false, defaultValue = "") String search,
-        @RequestParam(name = "withdetail", required = false, defaultValue = "false") boolean withdetail,
-        @RequestParam(name = "typeProduit", required = false, defaultValue = "PACKAGE") TypeProduit typeProduit,
-        Pageable pageable) {
-        Page<Produit> page;
-        if (StringUtils.isNotBlank(search)) {
-            if (withdetail) {
-                page = produitRepository.findAll(
-                    produitRepository.specialisationCritereRecherche(String.format("%%%s%%", search)), pageable);
-            } else {
-                page = produitRepository
-                    .findAll(produitRepository.specialisationCritereRecherche(String.format("%%%s%%", search))
-                        .and(produitRepository.specialisationTypeProduit(typeProduit)), pageable);
-            }
-        } else {
-            if (withdetail) {
-                page = produitRepository.findAll(pageable);
-            } else {
-                page = produitRepository.findAll(produitRepository.specialisationTypeProduit(typeProduit), pageable);
-            }
-        }
-
+        @RequestParam(required = false, name = "search") String search,
+        @RequestParam(required = false, name = "storageId") Long storageId,
+        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
+        @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
+        @RequestParam(required = false, name = "status") Status status,
+        @RequestParam(required = false, name = "familleId") Long familleId,
+        Pageable pageable
+    ) {
+        Page<ProduitDTO> page = produitService.findAll(new ProduitCriteria()
+                .setSearch(search)
+                .setStatus(status)
+                .setDeconditionnable(deconditionnable)
+                .setDeconditionne(deconditionne)
+                .setFamilleId(familleId)
+                .setRayonId(rayonId)
+                .setStorageId(storageId)
+            , pageable);
         HttpHeaders headers = PaginationUtil
             .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent().stream().map(ProduitDTO::new).collect(Collectors.toList()));
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**
@@ -184,9 +160,9 @@ public class ProduitResource {
      */
     @Transactional(readOnly = true)
     @GetMapping("/produits/{id}")
-    public ResponseEntity<Produit> getProduit(@PathVariable Long id) {
+    public ResponseEntity<ProduitDTO> getProduit(@PathVariable Long id) {
         log.debug("REST request to get Produit : {}", id);
-        Optional<Produit> produit = produitRepository.findById(id);
+        Optional<ProduitDTO> produit = produitRepository.findById(id).map(ProduitDTO::new);
         return ResponseUtil.wrapOrNotFound(produit);
     }
 
@@ -205,23 +181,13 @@ public class ProduitResource {
             .build();
     }
 
-    @PostMapping("/produits/{id}/img")
-    public ResponseEntity<Produit> uploadFile(@RequestPart("productimg") MultipartFile file,
-                                              @PathVariable(name = "id", required = true) Long id) throws URISyntaxException, IOException {
-        Optional<Produit> produit = produitRepository.findById(id);
-        Produit result = null;
-        if (produit.isPresent()) {
-            result = produit.get();
-            result.setImageUrl(file.getOriginalFilename());
-            result.setData(Base64.getEncoder().encodeToString(file.getBytes()));
-            result.setImageType(FilenameUtils.getExtension(file.getOriginalFilename()));
-            produitRepository.save(result);
-
+    @PutMapping("/produits/detail")
+    public ResponseEntity<Void> updateDetail(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
+        log.debug("REST request to update Produit : {}", produitDTO);
+        if (produitDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-
-        return ResponseEntity.ok().headers(
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        produitService.updateDetail(produitDTO);
+        return ResponseEntity.ok().build();
     }
-
 }

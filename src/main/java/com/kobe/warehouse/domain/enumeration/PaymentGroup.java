@@ -8,7 +8,8 @@ public enum PaymentGroup {
     CREDIT("Crédit"),
     MOBILE("Mobile"),
     CB("Carte bancaire"),
-    CHEQUE("Chèque");
+    CHEQUE("Chèque"),
+    VIREMENT("Virement");
 
     private final String value;
 

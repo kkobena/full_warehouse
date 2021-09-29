@@ -57,7 +57,7 @@ public class CommandeService {
 		int orderAmount = 0;
 		for (ProduitDTO produitDTO2 : produitDTO) {
 			Produit produit = produitRepository.getOne(produitDTO2.getId());
-			int quantityBefor = produit.getQuantity();
+			int quantityBefor =0;// produit.getQuantity();
 			int quantityAfter = produitDTO2.getQuantityReceived() + quantityBefor;
 			OrderLine orderLine = new OrderLine();
 			orderLine.setReceiptDate(LocalDate.now());
@@ -75,7 +75,7 @@ public class CommandeService {
 			orderLine.setOrderAmount(produitDTO2.getQuantityReceived() * produitDTO2.getCostAmount());
 			commande.addOrderLine(orderLine);
 			orderAmount += orderLine.getOrderAmount();
-			produit.setQuantity(quantityAfter);
+			//produit.setQuantity(quantityAfter);
 			produit.setCostAmount(produitDTO2.getCostAmount());
 			produit.setUpdatedAt(orderLine.getCreatedAt());
 			produitRepository.save(produit);

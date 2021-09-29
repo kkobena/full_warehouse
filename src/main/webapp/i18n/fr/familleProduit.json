@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "familleProduit": {
+      "home": {
+        "title": "Famille de produit",
+        "createLabel": "Nouvelle famille",
+        "createOrEditLabel": "Créer ou éditer une nouvelle famille de produit",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Une nouvelle famille a été créée avec l'identifiant {{ param }}",
+      "updated": "La famille avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La famille avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la famille {{ id }} ?"
+      },
+      "detail": {
+        "title": "Famille de produit"
+      }
+    }
+  }
+}

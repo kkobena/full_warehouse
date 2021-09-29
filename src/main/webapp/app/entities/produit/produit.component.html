@@ -1,14 +1,125 @@
+<p-toast position="center"></p-toast>
+<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
+        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
+                (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>
+<p-dialog header="Importer un fichier" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
+                      accept=".txt,.csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onUpload($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+
+    </p-footer>
+</p-dialog>
+
+<p-dialog header="Importer un fichier csv" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
+                      accept=".txt,.csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onUpload($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+
+    </p-footer>
+</p-dialog>
+
+<p-dialog header="Importer un fichier json" [(visible)]="jsonDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer"
+                      cancelLabel="Annuler"
+                      accept=".json" [customUpload]="true" (uploadHandler)="onUploadJson($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+    </p-footer>
+</p-dialog>
+<p-dialog header="Mise du stock à partir d'un fichier json" [(visible)]="stockFileJsonDialog" [focusOnShow]="false"
+          [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="stockjson" uploadLabel="Enrégistrer" cancelLabel="Annuler"
+                      accept=".txt,.csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onUpload($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+
+    </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Message" [(visible)]="responseDialog" [focusOnShow]="false" [responsive]="true" showEffect="fade"
+          [modal]="true" [style]="{width: '500px'}">
+    <div class="ui-g form-group">
+        <p>Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px;"> {{responsedto?.size}}
+            /{{responsedto?.totalSize}}</span>
+        </p>
+    </div>
+</p-dialog>
 <div>
-    <h2 id="page-heading">
+    <h3 id="page-heading">
         <span jhiTranslate="warehouseApp.produit.home.title">Produits</span>
-        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-produit"
-                [routerLink]="['/produit/new']">
-            <fa-icon icon="plus"></fa-icon>
-            <span jhiTranslate="warehouseApp.produit.home.createLabel">
+    </h3>
+    <p-toolbar>
+        <div class="p-toolbar-group-left p-md-8">
+            <div class="row">
+                <div class="col">
+                    <p-dropdown [options]="filtesProduits" [(ngModel)]="selectedCriteria" [filter]="false"
+                                (onChange)="filtreClik($event)" placeholder="Filtrer par critère"
+                                styleClass="dropdown-width">
+                    </p-dropdown>
+                </div>
+
+                <div class="col">
+                    <p-dropdown [options]="rayons" (onChange)="filtreRayon($event)" [(ngModel)]="selectedRayon"
+                                [filter]="true" placeholder="Séléctionner un rayon " styleClass="dropdown-width">
+                    </p-dropdown>
+
+                </div>
+                <div class="col">
+                    <p-dropdown [options]="familles" (onChange)="filtreFamilleProduit($event)"
+                                [(ngModel)]="selectedFamille" [filter]="true" placeholder="Séléctionner une famille"
+                                styleClass="dropdown-width">
+                    </p-dropdown>
+                </div>
+                <div class="col">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input type="text" pInputText placeholder="Taper pour rechercher"
+                                       (keyup.enter)="onSearch($event)">
+                            </span>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="p-toolbar-group-right">
+            <p-splitButton label="Importation" icon="pi pi-upload" [model]="splitbuttons"
+                           styleClass="p-button-raised p-button-help mr-2 mb-2"></p-splitButton>
+            <button pButton pRipple type="button"
+                    class="p-button-raised  mb-2 p-button-success " [routerLink]="['/produit/new']">
+                <i class="pi pi-plus"></i>
+                <span jhiTranslate="warehouseApp.produit.home.createLabel">
                 Create a new Produit
             </span>
-        </button>
-    </h2>
+            </button>
+        </div>
+    </p-toolbar>
 
     <jhi-alert-error></jhi-alert-error>
 
@@ -17,44 +128,45 @@
     <div class="alert alert-warning" id="no-result" *ngIf="produits?.length === 0">
         <span jhiTranslate="warehouseApp.produit.home.notFound">No produits found</span>
     </div>
+    <hr>
+    <p-table [value]="produits" dataKey="id" styleClass="p-datatable-gridlines ">
+        <ng-template pTemplate="header">
+            <th style="width:3%"></th>
+            <th style="width:8%">Cip</th>
+            <th style="width:11%">Code EAN</th>
+            <th style="width:24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+            </th>
+            <th style="text-align:right;width:6%"><span
+                jhiTranslate="warehouseApp.produit.quantity">Quantity</span>
+            </th>
 
-    <div class="table-responsive" id="entities" *ngIf="produits && produits.length > 0">
-        <table class="table table-striped" aria-describedby="page-heading">
-            <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
-                <th>#</th>
+            <th style="text-align:right;width:8%"><span
+                jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span>
+            </th>
+            <th style="text-align:right;width:8%"><span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
 
-
-                <th scope="col" jhiSortBy="libelle"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
-
-                </th>
-
-                <th scope="col" jhiSortBy="quantity" style="text-align:right;"><span
-                    jhiTranslate="warehouseApp.produit.quantity">Quantity</span>
-
-                </th>
-
-                <th scope="col" style="text-align:right;"><span jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span>
-                </th>
-                <th scope="col" style="text-align:right;"><span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
-
-                </th>
-                <th scope="col" style="text-align:right;"><span jhiTranslate="warehouseApp.produit.itemQty">Item
-                            Qty</span>
-
-                </th>
-
-                <th scope="col"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let produit of produits; let index = index ;trackBy: trackId">
-                <td>{{index+1}}</td>
+            </th>
+            <th style="text-align:right;width:6%">Qté.Reap</th>
+            <th style="text-align:right;width:6%">Qté Mini</th>
+            <th style="width:7%;text-align: center;">Status</th>
+            <th style="width:13%"></th>
+        </ng-template>
+        <ng-template pTemplate="body" let-produit let-expanded="expanded">
+            <tr>
+                <td>
+                    <button type="button" pButton pRipple [pRowToggler]="produit"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+                <td>{{ produit.codeCip }}</td>
+                <td>{{ produit.codeEan }}</td>
                 <td>{{ produit.libelle }}</td>
-                <td style="text-align:right;">{{ produit.quantity |number }}</td>
+                <td style="text-align:right;">{{ produit.totalQuantity |number }}</td>
                 <td style="text-align:right;">{{ produit.costAmount |number }}</td>
                 <td style="text-align:right;">{{ produit.regularUnitPrice |number }}</td>
-                <td style="text-align:right;"><span *ngIf="produit.typeProduit===package">{{ produit.itemQty |number }}</span>  </td>
+                <td style="text-align:right;">{{ produit.qtyAppro |number }}</td>
+                <td style="text-align:right;">{{ produit.qtySeuilMini |number }}</td>
+                <td></td>
                 <td class="text-right">
                     <div class="btn-group">
                         <button type="submit" [routerLink]="['/produit', produit.id, 'view']"
@@ -63,39 +175,226 @@
 
                         </button>
 
-                        <button *ngIf="produit.typeProduit===package" type="submit" [routerLink]="['/produit', produit.id, 'edit']"
-                                class="btn btn-primary btn-sm"  data-toggle="tooltip" data-placement="left" title="Tooltip on bottom">
+                        <button *ngIf="produit.typeProduit==='PACKAGE'" type="submit"
+                                [routerLink]="['/produit', produit.id, 'edit']"
+                                class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="left"
+                                title="Tooltip on bottom">
                             <fa-icon icon="pencil-alt"></fa-icon>
 
                         </button>
-                        <button *ngIf="produit.typeProduit===detail" type="submit" (click)="editDetail(produit)"
-                                class="btn btn-primary btn-sm"  data-toggle="tooltip" data-placement="left" title="Tooltip on bottom">
+                        <button *ngIf="produit.typeProduit==='DETAIL'" type="submit" (click)="editDetail(produit)"
+                                class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="left"
+                                title="Tooltip on bottom">
                             <fa-icon icon="pencil-alt"></fa-icon>
 
                         </button>
-                        <button *ngIf="produit.typeProduit===package && produit.produits?.length==0" type="submit"  (click)="addDetail(produit)"
+                        <button *ngIf="produit.deconditionnable && produit.produits?.length==0" type="submit"
+                                (click)="addDetail(produit)"
                                 class="btn btn-warning btn-sm">
                             <fa-icon [icon]="faPlusCircle"></fa-icon>
                         </button>
-                        <button *ngIf="produit.typeProduit===package" type="button" (click)="decondition(produit)"
+                        <button *ngIf="produit.deconditionnable" type="button" (click)="decondition(produit)"
                                 class="btn btn-secondary btn-sm">
-                            <fa-icon [icon]="faCut" ></fa-icon>
+                            <fa-icon [icon]="faCut"></fa-icon>
                         </button>
-                        <button type="submit" (click)="addImage(produit)" class="btn btn-success btn-sm">
-                           <fa-icon [icon]="faImage" ></fa-icon>
-                           <!-- <span class="d-none d-md-inline" jhiTranslate="entity.action.addimage">Add image</span>-->
+                        <button type="submit" [routerLink]="['/produit', produit.id, 'detail']" class="btn btn-success btn-sm">
+                           <i class="pi pi-list"></i>
+                            <!-- <span class="d-none d-md-inline" jhiTranslate="entity.action.addimage">Add image</span>-->
                         </button>
-
                         <button type="submit" (click)="delete(produit)" class="btn btn-danger btn-sm">
                             <fa-icon icon="times"></fa-icon>
-
                         </button>
                     </div>
                 </td>
             </tr>
-            </tbody>
-        </table>
-    </div>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-elRow>
+            <tr>
+                <td colspan="11">
+                    <div class="row">
+                        <div class="card col-md-6">
+                            <div class="card-header bg-info text-white">INFORMATIONS GENERALES</div>
+                            <div class="card-body">
+                                <table class="invoice-table table-secondary table table-striped">
+                                    <tbody>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            PMP
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.prixMnp |number}}
+                                        </td>
+
+                                        <td class="firstColumn">
+                                            Etiquette
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.typeEtyquetteLibelle
+                                            }}
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Date dernière vente
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.lastDateOfSale |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Date dernière entrée en stock
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.lastOrderDate | date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Date de création
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Date dernière inventaire
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.lastInventoryDate |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Date péremption
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.perimeAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Tva
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.tvaTaux }}
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Quantité détail
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.itemQty
+                                            }}
+                                        </td>
+
+                                        <td class="firstColumn">
+                                            Forme
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.formeLibelle }}
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Famille
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.familleLibelle }}
+
+                                        </td>
+                                        <td class="firstColumn">
+                                            Laboratoire
+                                        </td>
+                                        <td class="secondColumn">{{elRow?.laboratoireLibelle }}
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card col-md-6">
+                            <div class="card-header bg-success text-white">INFORMATIONS COMPLEMENTAIRES</div>
+                            <div class="card-body">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title bg-info text-white">Repartition du stock</h5>
+                                        <table class="table-info table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th style="width:60%;">Rayon</th>
+                                                <th style="width:10%;">Stock</th>
+                                                <th style="text-align:right;width:30%;" pTooltip="Repartir le stock">
+                                                    <button pButton icon="pi pi-plus"
+                                                            class="p-button-rounded p-button-primary"></button>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr *ngFor="let stock of elRow?.stockProduits; let i = index">
+                                                <td>{{stock.rayonLibelle}}</td>
+                                                <td>{{stock.qtyStock | number}}</td>
+                                                <td style="text-align: right;">
+                                                    <button pButton pRipple icon="pi pi-pencil"
+                                                            class="p-button-rounded p-button-success p-mr-2"
+                                                    ></button>
+                                                    <button pButton pRipple icon="pi pi-trash"
+                                                            class="p-button-rounded p-button-danger"
+                                                    ></button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                                <div class="card mt-1">
+                                    <div class="card-body">
+                                        <h5 class="card-title bg-info text-white">Gestion des grossistes du produit</h5>
+                                        <table class="table-primary table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th style="width:36%">Grossiste</th>
+                                                <th style="width:15%">Cip</th>
+                                                <th style="width:12%">Prix.A</th>
+                                                <th style="width:12%">Prix.U</th>
+                                                <th style="width: 25%;text-align:right;">
+                                                    <button pTooltip="Ajouter un fournisseur"
+                                                            pButton icon="pi pi-plus"
+                                                            class="p-button-rounded p-button-primary"></button>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr
+                                                *ngFor="let four of elRow?.fournisseurProduits; let i = index">
+                                                <td>{{four.fournisseurLibelle}}</td>
+                                                <td>{{four.codeCip}}</td>
+                                                <td>{{four.prixAchat | number}}</td>
+                                                <td>{{four.prixUni | number}}</td>
+                                                <td style="text-align: right;">
+                                                    <p-inputSwitch [(ngModel)]="four.principal"
+                                                                   pTooltip="Changer en fournisseur principal">
+                                                    </p-inputSwitch>
+                                                    <button pButton pRipple icon="pi pi-pencil"
+                                                            pTooltip="Editer"
+                                                            class="p-button-rounded p-button-success p-mr-2 p-ml-2 p-mb-3"></button>
+
+                                                    <button pButton pRipple icon="pi pi-trash"
+                                                            pTooltip="Supprimer"
+                                                            class="p-button-rounded p-button-danger p-mb-3"></button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </td>
+            </tr>
+
+        </ng-template>
+    </p-table>
 
     <div *ngIf="produits && produits.length > 0">
         <div class="row justify-content-center">
@@ -107,5 +406,7 @@
                             [maxSize]="5" [rotate]="true" [boundaryLinks]="true"
                             (pageChange)="loadPage($event)"></ngb-pagination>
         </div>
+
+
     </div>
 </div>

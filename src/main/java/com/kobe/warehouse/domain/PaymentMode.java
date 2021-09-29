@@ -35,14 +35,6 @@ public class PaymentMode implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "payment_group", nullable = false)
     private PaymentGroup group;
-
-    @OneToMany(mappedBy = "paymentMode")
-    private Set<PaymentFournisseur> paymentFournisseurs = new HashSet<>();
-
-    @OneToMany(mappedBy = "paymentMode")
-    private Set<Payment> payments = new HashSet<>();
-
-
     public Long getId() {
         return id;
     }
@@ -89,57 +81,6 @@ public class PaymentMode implements Serializable {
     public void setGroup(PaymentGroup group) {
         this.group = group;
     }
-
-    public Set<PaymentFournisseur> getPaymentFournisseurs() {
-        return paymentFournisseurs;
-    }
-
-    public PaymentMode paymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
-        this.paymentFournisseurs = paymentFournisseurs;
-        return this;
-    }
-
-    public PaymentMode addPaymentFournisseur(PaymentFournisseur paymentFournisseur) {
-        this.paymentFournisseurs.add(paymentFournisseur);
-        paymentFournisseur.setPaymentMode(this);
-        return this;
-    }
-
-    public PaymentMode removePaymentFournisseur(PaymentFournisseur paymentFournisseur) {
-        this.paymentFournisseurs.remove(paymentFournisseur);
-        paymentFournisseur.setPaymentMode(null);
-        return this;
-    }
-
-    public void setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
-        this.paymentFournisseurs = paymentFournisseurs;
-    }
-
-    public Set<Payment> getPayments() {
-        return payments;
-    }
-
-    public PaymentMode payments(Set<Payment> payments) {
-        this.payments = payments;
-        return this;
-    }
-
-    public PaymentMode addPayment(Payment payment) {
-        this.payments.add(payment);
-        payment.setPaymentMode(this);
-        return this;
-    }
-
-    public PaymentMode removePayment(Payment payment) {
-        this.payments.remove(payment);
-        payment.setPaymentMode(null);
-        return this;
-    }
-
-    public void setPayments(Set<Payment> payments) {
-        this.payments = payments;
-    }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {

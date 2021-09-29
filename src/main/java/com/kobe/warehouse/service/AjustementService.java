@@ -67,7 +67,7 @@ public class AjustementService {
     public AjustementDTO save(AjustementDTO ajustementDTO) {
         Ajust ajust = createAjsut(ajustementDTO.getAjustId());
         Produit produit = produitRepository.getOne(ajustementDTO.getProduitId());
-        int stock = produit.getQuantity();
+        int stock =0;// produit.getQuantity();
         Ajustement ajustement = new Ajustement();
         ajustement.setAjust(ajust);
         ajustement.setProduit(produit);
@@ -82,19 +82,19 @@ public class AjustementService {
         Ajust ajust=ajustRepository.getOne(idAjsut);
         List<Ajustement> ajustements=ajustementRepository.findAllByAjustId(idAjsut);
         save(ajustements);
-        ajust.setStatut(SalesStatut.CLOSE);
+        ajust.setStatut(SalesStatut.CLOSED);
 
     }
     private void save(List<Ajustement> ajustements) {
         User user = getUser();
         for (Ajustement ajustement : ajustements) {
             Produit produit = ajustement.getProduit();
-            int stock = produit.getQuantity();
+            int stock =0;// produit.getQuantity();
             TransactionType transactionType = TransactionType.AJUSTEMENT_OUT;
             if (ajustement.getQtyMvt() > 0) {
                 transactionType = TransactionType.AJUSTEMENT_IN;
             }
-            produit.setQuantity(stock + ajustement.getQtyMvt());
+        //    produit.setQuantity(stock + ajustement.getQtyMvt());
             produitRepository.save(produit);
             createInventory(ajustement,
                 transactionType,
@@ -108,7 +108,7 @@ public class AjustementService {
     public AjustementDTO update(AjustementDTO ajustementDTO) {
         Ajustement ajustement = ajustementRepository.getOne(ajustementDTO.getId());
         Produit produit = ajustement.getProduit();
-        int stock = produit.getQuantity();
+        int stock =0;// produit.getQuantity();
         ajustement.setDateMtv(Instant.now());
         ajustement.setQtyMvt(ajustementDTO.getQtyMvt());
         ajustement.setStockBefore(stock);
@@ -123,7 +123,6 @@ public class AjustementService {
         Produit p = ajustement.getProduit();
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setCreatedAt(Instant.now());
-        inventoryTransaction.setUpdatedAt(inventoryTransaction.getCreatedAt());
         inventoryTransaction.setProduit(p);
         inventoryTransaction.setUser(user);
         inventoryTransaction.setAmount(ajustement.getQtyMvt() * p.getCostAmount());
@@ -131,7 +130,7 @@ public class AjustementService {
         inventoryTransaction.setTransactionType(transactionType);
         inventoryTransaction.setDateDimension(dateD);
         inventoryTransaction.setQuantityBefor(quantityBefor);
-        inventoryTransaction.setQuantityAfter(p.getQuantity());
+      //  inventoryTransaction.setQuantityAfter(p.getQuantity());
         inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());
         inventoryTransaction.setCostAmount(p.getCostAmount());
         inventoryTransactionRepository.save(inventoryTransaction);
@@ -152,7 +151,7 @@ public class AjustementService {
     @Transactional(readOnly = true)
     public List<Ajustement> findAllSaved() {
         log.debug("Request to get all Ajustements");
-        return ajustementRepository.findAllByAjustStatut(SalesStatut.CLOSE, Sort.by(Sort.Direction.DESC,"dateMtv"));
+        return ajustementRepository.findAllByAjustStatut(SalesStatut.CLOSED, Sort.by(Sort.Direction.DESC,"dateMtv"));
     }
 
 

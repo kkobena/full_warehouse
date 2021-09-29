@@ -17,6 +17,7 @@
         "title": "Catégorie"
       },
       "libelle": "Libelle",
+      "code": "Code",
       "produit": "Produit"
     }
   }

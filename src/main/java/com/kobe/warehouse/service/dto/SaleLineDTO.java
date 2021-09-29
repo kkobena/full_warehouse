@@ -7,36 +7,104 @@ import com.kobe.warehouse.domain.SalesLine;
 
 public class SaleLineDTO {
 	private Long id;
-
 	private Integer quantitySold;
-
+    private Integer quantityRequested;
 	private Integer regularUnitPrice;
-
 	private Integer discountUnitPrice;
-
 	private Integer netUnitPrice;
-
 	private Integer discountAmount;
-
 	private Integer salesAmount;
-
 	private Integer grossAmount;
-
 	private Integer netAmount;
-
 	private Integer taxAmount;
-
 	private Integer costAmount;
-
 	private Instant createdAt;
-
 	private Instant updatedAt;
 	private String produitLibelle;
 	private Long produitId;
 	private Long saleId;
 	private Integer quantityStock;
+    private Integer quantiyAvoir;
+    private Integer montantTvaUg = 0;
+    private Integer quantityUg;
+    private Integer amountToBeTakenIntoAccount;
+    private boolean toIgnore ;
+    private Instant effectiveUpdateDate;
+    private Integer taxValue;
 
-	public Long getId() {
+    public Integer getTaxValue() {
+        return taxValue;
+    }
+
+    public SaleLineDTO setTaxValue(Integer taxValue) {
+        this.taxValue = taxValue;
+        return this;
+    }
+
+    public Integer getAmountToBeTakenIntoAccount() {
+        return amountToBeTakenIntoAccount;
+    }
+
+    public SaleLineDTO setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
+    }
+
+    public boolean isToIgnore() {
+        return toIgnore;
+    }
+
+    public SaleLineDTO setToIgnore(boolean toIgnore) {
+        this.toIgnore = toIgnore;
+        return this;
+    }
+
+    public Instant getEffectiveUpdateDate() {
+        return effectiveUpdateDate;
+    }
+
+    public SaleLineDTO setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+        this.effectiveUpdateDate = effectiveUpdateDate;
+        return this;
+    }
+
+    public Integer getQuantityUg() {
+        return quantityUg;
+    }
+
+    public SaleLineDTO setQuantityUg(Integer quantityUg) {
+        this.quantityUg = quantityUg;
+        return this;
+    }
+
+    public Integer getQuantityRequested() {
+        return quantityRequested;
+    }
+
+    public SaleLineDTO setQuantityRequested(Integer quantityRequested) {
+        this.quantityRequested = quantityRequested;
+        return this;
+    }
+
+    public Integer getQuantiyAvoir() {
+        return quantiyAvoir;
+    }
+
+    public SaleLineDTO setQuantiyAvoir(Integer quantiyAvoir) {
+        this.quantiyAvoir = quantiyAvoir;
+        return this;
+    }
+
+    public Integer getMontantTvaUg() {
+        return montantTvaUg;
+    }
+
+    public SaleLineDTO setMontantTvaUg(Integer montantTvaUg) {
+        this.montantTvaUg = montantTvaUg;
+        return this;
+    }
+
+    public Long getId() {
 		return id;
 	}
 
@@ -195,7 +263,7 @@ public class SaleLineDTO {
 		this.produitLibelle = produit.getLibelle();
 		this.produitId = produit.getId();
 		this.saleId = salesLine.getSales().getId();
-		this.quantityStock = produit.getQuantity();
+
 	}
 
 }

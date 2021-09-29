@@ -69,7 +69,43 @@ import { RouterModule } from '@angular/router';
         path: 'ajustement',
         loadChildren: () => import('./ajustement/ajustement.module').then(m => m.WarehouseAjustementModule),
       },
-      /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
+      {
+        path: 'tva',
+        loadChildren: () => import('./tva/tva.module').then(m => m.WarehouseTvaModule),
+      },
+      {
+        path: 'forme-produit',
+        loadChildren: () => import('./forme-produit/forme-produit.module').then(m => m.WarehouseFormeProduitModule),
+      },
+      {
+        path: 'famille-produit',
+        loadChildren: () => import('./famille-produit/forme-produit.module').then(m => m.WarehouseFamilleProduitModule),
+      },
+      {
+        path: 'rayon',
+        loadChildren: () => import('./rayon/rayon.module').then(m => m.WarehouseRayonModule),
+      },
+      {
+        path: 'fournisseur',
+        loadChildren: () => import('./fournisseur/fournisseur.module').then(m => m.WarehouseFournisseurModule),
+      },
+      {
+        path: 'groupe-fournisseur',
+        loadChildren: () => import('./groupe-fournisseur/groupe-fournisseur.module').then(m => m.WarehouseGroupeFournisseurModule),
+      },
+
+      {
+        path: 'laboratoire',
+        loadChildren: () => import('./laboratoire-produit/laboratoire-produit.module').then(m => m.WarehouseLaboratoireProduitModule),
+      },
+      {
+        path: 'gamme-produit',
+        loadChildren: () => import('./gamme-produit/gamme-produit.module').then(m => m.WarehouseGammeProduitModule),
+      },
+      {
+        path: 'type-etiquette',
+        loadChildren: () => import('./type-etiquette/type-etiquette.module').then(m => m.WarehouseTypeEtiquetteModule),
+      },
     ]),
   ],
 })

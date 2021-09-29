@@ -20,20 +20,8 @@
                  *ngFor="let produit of produits ; let index = index;trackBy: trackId"
                  [ngClass]="{'border-danger' : selectedRowIndex == produit.id }" (click)="clickRow(produit)">
                 <h6 class="card-header">{{produit.libelle}}</h6>
-                <div *ngIf="produit.data; then thenBlock else elseBlock"></div>
-                <ng-template #thenBlock><img [src]="imagesPath+produit.imageType+base64+produit.data"
-                                             alt="Image du produit "
-                                             height="200px">
-                </ng-template>
-                <ng-template #elseBlock>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none"
-                         width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img"
-                         preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180"
-                         style="font-size:1.125rem;text-anchor:middle">
-                        <rect width="100%" height="100%" fill="#868e96"></rect>
-                        <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image du produit</text>
-                    </svg>
-                </ng-template>
+
+
                 <div class="card-body">
                     <ul class="list-group">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -53,7 +41,7 @@
         </div>
     </div>
     <div class="col-7">
-        <h4 id="jhi-sales-heading"><span>Produits séléctionnés</span>
+        <h4><span>Produits séléctionnés</span>
             <button type="button" id="cancel-save" class="btn btn-secondary btn-sm ml-5" (click)="previousState()">
                 <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
             </button>

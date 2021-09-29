@@ -92,10 +92,7 @@ public class ProduitResourceIT {
     public static Produit createEntity(EntityManager em) {
         Produit produit = new Produit()
             .libelle(DEFAULT_LIBELLE)
-            .code(DEFAULT_CODE)
-            .imageUrl(DEFAULT_IMAGE_URL)
             .typeProduit(DEFAULT_TYPE_PRODUIT)
-            .quantity(DEFAULT_QUANTITY)
             .costAmount(DEFAULT_COST_AMOUNT)
             .regularUnitPrice(DEFAULT_REGULAR_UNIT_PRICE)
             .netUnitPrice(DEFAULT_NET_UNIT_PRICE)
@@ -115,10 +112,7 @@ public class ProduitResourceIT {
     public static Produit createUpdatedEntity(EntityManager em) {
         Produit produit = new Produit()
             .libelle(UPDATED_LIBELLE)
-            .code(UPDATED_CODE)
-            .imageUrl(UPDATED_IMAGE_URL)
             .typeProduit(UPDATED_TYPE_PRODUIT)
-            .quantity(UPDATED_QUANTITY)
             .costAmount(UPDATED_COST_AMOUNT)
             .regularUnitPrice(UPDATED_REGULAR_UNIT_PRICE)
             .netUnitPrice(UPDATED_NET_UNIT_PRICE)
@@ -150,10 +144,7 @@ public class ProduitResourceIT {
         assertThat(produitList).hasSize(databaseSizeBeforeCreate + 1);
         Produit testProduit = produitList.get(produitList.size() - 1);
         assertThat(testProduit.getLibelle()).isEqualTo(DEFAULT_LIBELLE);
-        assertThat(testProduit.getCode()).isEqualTo(DEFAULT_CODE);
-        assertThat(testProduit.getImageUrl()).isEqualTo(DEFAULT_IMAGE_URL);
         assertThat(testProduit.getTypeProduit()).isEqualTo(DEFAULT_TYPE_PRODUIT);
-        assertThat(testProduit.getQuantity()).isEqualTo(DEFAULT_QUANTITY);
         assertThat(testProduit.getCostAmount()).isEqualTo(DEFAULT_COST_AMOUNT);
         assertThat(testProduit.getRegularUnitPrice()).isEqualTo(DEFAULT_REGULAR_UNIT_PRICE);
         assertThat(testProduit.getNetUnitPrice()).isEqualTo(DEFAULT_NET_UNIT_PRICE);
@@ -207,12 +198,6 @@ public class ProduitResourceIT {
     @Transactional
     public void checkCodeIsRequired() throws Exception {
         int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setCode(null);
-
-        // Create the Produit, which fails.
-
-
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(produit)))
@@ -245,12 +230,6 @@ public class ProduitResourceIT {
     @Transactional
     public void checkQuantityIsRequired() throws Exception {
         int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setQuantity(null);
-
-        // Create the Produit, which fails.
-
-
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(produit)))
@@ -437,7 +416,7 @@ public class ProduitResourceIT {
             .andExpect(jsonPath("$.[*].itemCostAmount").value(hasItem(DEFAULT_ITEM_COST_AMOUNT)))
             .andExpect(jsonPath("$.[*].itemRegularUnitPrice").value(hasItem(DEFAULT_ITEM_REGULAR_UNIT_PRICE)));
     }
-    
+
     @Test
     @Transactional
     public void getProduit() throws Exception {
@@ -485,10 +464,7 @@ public class ProduitResourceIT {
         em.detach(updatedProduit);
         updatedProduit
             .libelle(UPDATED_LIBELLE)
-            .code(UPDATED_CODE)
-            .imageUrl(UPDATED_IMAGE_URL)
             .typeProduit(UPDATED_TYPE_PRODUIT)
-            .quantity(UPDATED_QUANTITY)
             .costAmount(UPDATED_COST_AMOUNT)
             .regularUnitPrice(UPDATED_REGULAR_UNIT_PRICE)
             .netUnitPrice(UPDATED_NET_UNIT_PRICE)
@@ -508,10 +484,7 @@ public class ProduitResourceIT {
         assertThat(produitList).hasSize(databaseSizeBeforeUpdate);
         Produit testProduit = produitList.get(produitList.size() - 1);
         assertThat(testProduit.getLibelle()).isEqualTo(UPDATED_LIBELLE);
-        assertThat(testProduit.getCode()).isEqualTo(UPDATED_CODE);
-        assertThat(testProduit.getImageUrl()).isEqualTo(UPDATED_IMAGE_URL);
         assertThat(testProduit.getTypeProduit()).isEqualTo(UPDATED_TYPE_PRODUIT);
-        assertThat(testProduit.getQuantity()).isEqualTo(UPDATED_QUANTITY);
         assertThat(testProduit.getCostAmount()).isEqualTo(UPDATED_COST_AMOUNT);
         assertThat(testProduit.getRegularUnitPrice()).isEqualTo(UPDATED_REGULAR_UNIT_PRICE);
         assertThat(testProduit.getNetUnitPrice()).isEqualTo(UPDATED_NET_UNIT_PRICE);

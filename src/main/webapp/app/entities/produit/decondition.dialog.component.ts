@@ -66,7 +66,7 @@ export class DeconditionDialogComponent implements OnInit {
   }
   onQuantitySoldBoxChanged(event: any): void {
     const qty = event.target.value;
-    const oldStock = this.produit!.quantity;
+    const oldStock = this.produit!.totalQuantity;
     if (oldStock! < Number(qty)) {
       this.isNotValid = true;
     } else {

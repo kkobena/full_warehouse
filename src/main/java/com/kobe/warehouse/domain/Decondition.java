@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -45,7 +46,10 @@ public class Decondition implements Serializable {
     @NotNull
     @JsonIgnoreProperties(value = "deconditions", allowSetters = true)
     private Produit produit;
-
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "type_deconditionnement", nullable = false)
+    private TypeDeconditionnement typeDeconditionnement;
     @ManyToOne(optional = false)
     @NotNull
     private DateDimension dateDimension;
@@ -64,6 +68,15 @@ public class Decondition implements Serializable {
 
     public Decondition qtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;
+        return this;
+    }
+
+    public TypeDeconditionnement getTypeDeconditionnement() {
+        return typeDeconditionnement;
+    }
+
+    public Decondition setTypeDeconditionnement(TypeDeconditionnement typeDeconditionnement) {
+        this.typeDeconditionnement = typeDeconditionnement;
         return this;
     }
 

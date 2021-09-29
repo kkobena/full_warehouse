@@ -1,25 +1,64 @@
 <div class="row justify-content-center">
-    <div class="col-10 master">
+    <div class="col-12">
         <div *ngIf="produit">
-            <h3 class="ml-5"> {{ produit.libelle }}
+            <h5 class="text-center font-weight-bold"> {{ produit.libelle }}
+            </h5>
+            <hr>
+            <p-toolbar>
+                <div class="form-inline col-11 justify-content-center">
+                    <div class="form-group">
+                        <label for="startDate" class="col-sm-1 col-form-label">Du</label>
+                        <div class="col-sm-3">
+                            <p-inputMask mask="99/99/9999" id="startDate" [(ngModel)]="startDate"
+                                         placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-1 col-form-label">Au</label>
+                        <div class="col-sm-3">
+                            <p-inputMask id="endDate" mask="99/99/9999" [(ngModel)]="endDate" placeholder="99/99/9999"
+                                         slotChar="dd/mm/yyyy"></p-inputMask>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="col-sm-1 col-form-label">Types</label>
+                        <div class="col-sm-3">
+                        <p-dropdown [options]="typeMouvement" (onChange)="filtreTypeMouvement($event)"
+                                    [(ngModel)]="selectedTypeMouvement" [filter]="false" placeholder="Filtrer par type"
+                                    styleClass="dropdown-width">
+                        </p-dropdown></div>
+                    </div>
 
-                <button type="submit" (click)="previousState()" class="btn btn-sm btn-info ml-4">
-                    <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
-                </button>
-            </h3>
+                    <div class="form-group">
 
+                        <button type="submit" (click)="loadPage()" class="btn btn-sm btn-success mr-2">
+                            <i class="pi pi-check"></i>
+                            Rechercher
+                        </button>
+
+                    </div>
+                    <div class="form-group">
+
+                        <button type="submit" (click)="previousState()" class="btn btn-sm btn-info">
+                            <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+                            jhiTranslate="entity.action.back">Back</span>
+                        </button>
+
+                    </div>
+                </div>
+
+
+            </p-toolbar>
             <hr>
 
-            <jhi-alert-error></jhi-alert-error>
-
-            <div class="row-md  ag-theme-alpine" >
-                <ag-grid-angular   style="width: 100%;height: 100%;" [rowData]="rowData"
-                    [columnDefs]="columnDefs">
+            <div class="row-md  ag-theme-alpine">
+                <ag-grid-angular style="width: 100%;height: 100%;" [rowData]="rowData"
+                                 [columnDefs]="columnDefs">
                 </ag-grid-angular>
 
             </div>
 
-            
+
         </div>
     </div>
 </div>

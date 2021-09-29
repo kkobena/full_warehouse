@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
 import javax.persistence.*;
@@ -42,10 +42,11 @@ public class Customer implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private SalesStatut status=SalesStatut.ACTIVE;
-
 	@OneToMany(mappedBy = "customer")
 	private Set<Payment> payments = new HashSet<>();
-
+    @NotNull
+    @Column(name = "code", nullable = false,unique = true)
+    private String code;
 	public Long getId() {
 		return id;
 	}
@@ -84,7 +85,14 @@ public class Customer implements Serializable {
 		return this;
 	}
 
+    public String getCode() {
+        return code;
+    }
 
+    public Customer setCode(String code) {
+        this.code = code;
+        return this;
+    }
 
     public void setLastName(String lastName) {
 		this.lastName = lastName;

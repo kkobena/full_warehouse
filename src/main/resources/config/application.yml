@@ -58,6 +58,11 @@ management:
             enabled: true
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
   application:
     name: warehouse
   profiles:
@@ -156,3 +161,4 @@ jhipster:
     contact-email:
     license: unlicensed
     license-url:
+legacy-url: http://localhost:8080/laborex

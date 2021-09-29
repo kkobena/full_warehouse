@@ -9,6 +9,7 @@ import { ISales, Sales } from 'app/shared/model/sales.model';
 import { Observable } from 'rxjs';
 import { SalesLineService } from '../sales-line/sales-line.service';
 import { SalesService } from './sales.service';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 
 @Component({
   selector: 'jhi-pack-dialogue',
@@ -19,7 +20,7 @@ export class PackDialogueComponent implements OnInit {
   isSaving = false;
   sale?: ISales;
   customer?: ICustomer;
-  detail = 'DETAIL';
+  detail = TypeProduit.DETAIL;
   isNotValid = false;
   editForm = this.fb.group({
     quantitySold: [null, [Validators.required, Validators.min(1)]],

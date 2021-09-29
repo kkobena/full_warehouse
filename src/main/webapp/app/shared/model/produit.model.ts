@@ -3,14 +3,14 @@ import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
 import { IOrderLine } from 'app/shared/model/order-line.model';
 import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.model';
-import { ICategorie } from 'app/shared/model/categorie.model';
 import { TypeProduit } from 'app/shared/model/enumerations/type-produit.model';
+import { IStockProduit } from './stock-produit.model';
+import { IFournisseurProduit } from './fournisseur-produit.model';
 
 export interface IProduit {
   id?: number;
   libelle?: string;
-  code?: string;
-  imageUrl?: string;
+  codeCip?: string;
   typeProduit?: TypeProduit;
   itemQuantity?: number;
   quantity?: number;
@@ -26,20 +26,50 @@ export interface IProduit {
   storeInventoryLines?: IStoreInventoryLine[];
   orderLines?: IOrderLine[];
   inventoryTransactions?: IInventoryTransaction[];
-  categorie?: ICategorie;
   quantityReceived?: number;
   produitId?: number;
   produits?: IProduit[];
-  data?: string;
-  imageType?: string;
+  qtyAppro?: number;
+  qtySeuilMini?: number;
+  chiffre?: boolean;
+  dateperemption?: boolean;
+  exclude?: boolean;
+  deconditionnable?: boolean;
+  prixMnp?: number;
+  codeEan?: string;
+  stockProduits?: IStockProduit[];
+  fournisseurProduits?: IFournisseurProduit[];
+  fournisseurProduit?: IFournisseurProduit;
+  stockProduit?: IStockProduit;
+  laboratoireLibelle?: string;
+  laboratoireId?: number;
+  formeLibelle?: string;
+  formeId?: number;
+  typeEtyquetteLibelle?: string;
+  typeEtyquetteId?: number;
+  familleLibelle?: string;
+  familleId?: number;
+  gammeLibelle?: string;
+  gammeId?: number;
+  tvaTaux?: string;
+  tvaId?: number;
+  remiseId?: number;
+  tauxRemise?: number;
+  totalQuantity?: number;
+  perimeAt?: Moment;
+  lastDateOfSale?: Moment;
+  lastOrderDate?: Moment;
+  lastInventoryDate?: Moment;
+  qtyStatus?: string;
+  fournisseurId?: number;
+  rayonId?: number;
+  expirationDate?: string;
 }
 
 export class Produit implements IProduit {
   constructor(
     public id?: number,
     public libelle?: string,
-    public code?: string,
-    public imageUrl?: string,
     public typeProduit?: TypeProduit,
     public quantity?: number,
     public costAmount?: number,
@@ -54,12 +84,45 @@ export class Produit implements IProduit {
     public storeInventoryLines?: IStoreInventoryLine[],
     public orderLines?: IOrderLine[],
     public inventoryTransactions?: IInventoryTransaction[],
-    public categorie?: ICategorie,
     public itemQuantity?: number,
     public quantityReceived?: number,
     public produitId?: number,
     public produits?: IProduit[],
-    public data?: string,
-    public imageType?: string
+    public qtyAppro?: number,
+    public qtySeuilMini?: number,
+    public chiffre?: boolean,
+    public dateperemption?: boolean,
+    public exclude?: boolean,
+    public deconditionnable?: boolean,
+    public prixMnp?: number,
+    public codeEan?: string,
+    public stockProduits?: IStockProduit[],
+    public fournisseurProduits?: IFournisseurProduit[],
+    public fournisseurProduit?: IFournisseurProduit,
+    public stockProduit?: IStockProduit,
+    public laboratoireLibelle?: string,
+    public laboratoireId?: number,
+    public formeLibelle?: string,
+    public formeId?: number,
+    public typeEtyquetteLibelle?: string,
+    public typeEtyquetteId?: number,
+    public familleLibelle?: string,
+    public familleId?: number,
+    public gammeLibelle?: string,
+    public gammeId?: number,
+    public tvaTaux?: string,
+    public tvaId?: number,
+    public remiseId?: number,
+    public tauxRemise?: number,
+    public totalQuantity?: number,
+    public perimeAt?: Moment,
+    public lastDateOfSale?: Moment,
+    public lastOrderDate?: Moment,
+    public lastInventoryDate?: Moment,
+    public qtyStatus?: string,
+    public codeCip?: string,
+    fournisseurId?: number,
+    public rayonId?: number,
+    public expirationDate?: string
   ) {}
 }

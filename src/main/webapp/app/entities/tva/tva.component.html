@@ -1,0 +1,96 @@
+<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
+        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
+                (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>
+
+<div>
+
+
+    <h2 id="page-heading">
+        <span jhiTranslate="warehouseApp.tva.home.title">Liste des Tvas</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity"
+                (click)='addNewEntity()'>
+            <fa-icon icon="plus"></fa-icon>
+            <span>
+                Nouvelle Tva
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="tvas?.length === 0">
+        <span>Aucune tva trouvée</span>
+    </div>
+    <p-table *ngIf="tvas && tvas.length > 0" styleClass="ui-table-cars" [value]="tvas" [paginator]="true"
+             [rows]="itemsPerPage" dataKey="id" selectionMode="single" [(selection)]="selectedTva" [lazy]="true"
+             [totalRecords]="totalItems" [loading]="loading" (onLazyLoad)="lazyLoading($event)">
+        <ng-template pTemplate="header">
+            <tr>
+                <th scope="col"><span>Taux</span></th>
+
+                <th scope="col"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-tva let-columns="columns">
+            <tr [pSelectableRow]="tva" [pEditableRow]="tva">
+                <td>{{ tva.taux }}</td>
+
+                <td style="text-align: center;">
+                    <button type="submit" (click)="delete(tva)" class="btn btn-danger btn-sm">
+                        <fa-icon icon="times"></fa-icon>
+
+                    </button>
+
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+
+
+    <!-- formulaire de creation et d edition-->
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+        <p-dialog header="Créer ou éditer une Tva" [(visible)]="displayDialog" [focusOnShow]="false" [responsive]="true"
+                  showEffect="fade" [modal]="true" [style]="{width: '400px'}">
+
+            <div class="form-group" [hidden]="!editForm.get('id')!.value">
+
+                <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+            </div>
+            <div class="ui-g form-group">
+
+                <label for="field_taux">Taux tva</label>
+                <div class="ui-g-12" style="margin-bottom:10px">
+                    <input type="text" pInputText class="form-control" name="taux" id="field_taux"
+                           formControlName="taux" style="width: 100%;" autocomplete="off" pKeyFilter="int"/>
+
+                </div>
+                <div
+                    *ngIf="editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)">
+                    <small class="form-text text-danger" style="color: red;"
+                           *ngIf="editForm.get('taux')?.errors?.required">
+                        Ce champ est obligatoire.
+                    </small>
+                    <small class="form-text text-danger" style="color: red;"
+                           [hidden]="!editForm.get('taux')?.errors?.number">
+                        Ce champ doit être un nombre.
+                    </small>
+                </div>
+
+            </div>
+            <p-footer>
+                <button pButton pRipple [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
+                        class="p-button-success p-mr-2" type="submit" label="Enregistrer"></button>
+                <button type="button" class="p-button-danger p-mr-2" pButton pRipple icon="pi pi-times"
+                        (click)="cancel()" label="Annuler"></button>
+
+            </p-footer>
+        </p-dialog>
+    </form>
+</div>

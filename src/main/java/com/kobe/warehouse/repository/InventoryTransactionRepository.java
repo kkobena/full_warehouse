@@ -1,17 +1,16 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.InventoryTransaction;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -20,34 +19,53 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long> {
+public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction> {
 
-	List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
+    List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
 
-	default InventoryTransaction buildInventoryTransaction(OrderLine orderLine, User user) {
-		InventoryTransaction inventoryTransaction = new InventoryTransaction();
-		inventoryTransaction.setCreatedAt(orderLine.getCreatedAt());
-		inventoryTransaction.setUpdatedAt(orderLine.getCreatedAt());
-		inventoryTransaction.setProduit(orderLine.getProduit());
-		inventoryTransaction.setUser(user);
-		inventoryTransaction.dateDimension(Constants.DateDimension(LocalDate.now()));
-		inventoryTransaction.setAmount(orderLine.getOrderAmount());
-		inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
-		inventoryTransaction.setTransactionType(TransactionType.COMMANDE);
-		return inventoryTransaction;
-	}
+    default InventoryTransaction buildInventoryTransaction(OrderLine orderLine, User user) {
+        InventoryTransaction inventoryTransaction = new InventoryTransaction();
+        inventoryTransaction.setCreatedAt(orderLine.getCreatedAt());
+        inventoryTransaction.setProduit(orderLine.getProduit());
+        inventoryTransaction.setUser(user);
+        inventoryTransaction.dateDimension(Constants.DateDimension(LocalDate.now()));
+        inventoryTransaction.setAmount(orderLine.getOrderAmount());
+        inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
+        inventoryTransaction.setTransactionType(TransactionType.COMMANDE);
+        return inventoryTransaction;
+    }
 
-	default InventoryTransaction buildInventoryTransaction(SalesLine salesLine, User user) {
-		InventoryTransaction inventoryTransaction = new InventoryTransaction();
-		inventoryTransaction.setCreatedAt(Instant.now());
-		inventoryTransaction.setUpdatedAt(inventoryTransaction.getCreatedAt());
-		inventoryTransaction.setProduit(salesLine.getProduit());
-		inventoryTransaction.setUser(user);
-		inventoryTransaction.setAmount(salesLine.getSalesAmount());
-		inventoryTransaction.setQuantity(salesLine.getQuantitySold());
-		inventoryTransaction.setTransactionType(TransactionType.SALE);
-		return inventoryTransaction;
-	}
+    default InventoryTransaction buildInventoryTransaction(SalesLine salesLine, User user) {
+        InventoryTransaction inventoryTransaction = new InventoryTransaction();
+        inventoryTransaction.setCreatedAt(Instant.now());
+        inventoryTransaction.setProduit(salesLine.getProduit());
+        inventoryTransaction.setUser(user);
+        inventoryTransaction.setAmount(salesLine.getSalesAmount());
+        inventoryTransaction.setQuantity(salesLine.getQuantitySold());
+        inventoryTransaction.setTransactionType(TransactionType.SALE);
+        return inventoryTransaction;
+    }
+
     @Query("SELECT coalesce(sum(e.quantity),0 ) from InventoryTransaction e WHERE e.transactionType=?1 AND e.produit.id=?2")
-	 Long quantitySold(TransactionType transactionType,Long produitId);
+    Long quantitySold(TransactionType transactionType, Long produitId);
+
+    default Specification<InventoryTransaction> specialisationProduitId(Long produitId) {
+        return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.produit).get(Produit_.id), produitId);
+    }
+
+    default Specification<InventoryTransaction> specialisationDateMvt(Instant startDate, Instant endDate) {
+        return (root, query, cb) -> cb.between(root.get(InventoryTransaction_.createdAt), startDate, endDate);
+    }
+
+    default Specification<InventoryTransaction> specialisationDateGreaterThanOrEqualTo(Instant startDate) {
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(InventoryTransaction_.createdAt), startDate);
+    }
+
+    default Specification<InventoryTransaction> specialisationDateLessThanOrEqualTo(Instant endDate) {
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(InventoryTransaction_.createdAt), endDate);
+    }
+
+    default Specification<InventoryTransaction> specialisationTypeTransaction(TransactionType typeTransaction) {
+        return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.transactionType), typeTransaction);
+    }
 }

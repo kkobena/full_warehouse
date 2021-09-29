@@ -4,15 +4,24 @@
     "browsehappy": "Vous utilisez un <strong>ancien</strong> navigateur. Veuillez <a href=\"http://browsehappy.com/?locale=fr\">mettre à jour votre navigateur</a> pour une meilleure expérience.",
     "menu": {
       "home": "Accueil",
+      "referentiel": "Reférentiels",
       "menuGestionStock": "Gestion Stock",
       "menuCommande": "Commande",
       "menuInventaire": "Inventaire",
       "menuClient": "Client",
       "menuFacturation": "Facturation",
       "menuGestionCourrante": "Gestion courrante",
+      "gammeProduit": "Gamme de produit",
+      "laboratoire": "Laboratoire",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Facturation",
+        "tva": "Tva",
+        "gammeProduit": "Gamme de produit",
+        "laboratoire": "Laboratoire",
+        "rayon": "Rayon",
+        "formeProduit": "Forme de produit",
+        "familleProduit": "Famille de produit",
         "dateDimension": "Date Dimension",
         "inventoryTransaction": "Suivi article",
         "categorie": "Catégorie",
@@ -30,6 +39,8 @@
         "menu": "Gestion du menu",
         "magasin": "Infos magasin",
         "salesJournal": "Journal des ventes",
+        "fournisseur": "Fournisseurs",
+        "groupeFournisseur": "Groupe fournisseurs",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -121,7 +132,8 @@
       "delete": "Supprimer",
       "open": "Ouvrir",
       "save": "Sauvegarder",
-      "view": "Voir"
+      "view": "Voir",
+      "basculer": "Basculer"
     },
     "detail": {
       "field": "Champs",

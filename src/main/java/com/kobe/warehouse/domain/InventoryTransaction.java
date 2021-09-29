@@ -14,7 +14,10 @@ import com.kobe.warehouse.domain.enumeration.TransactionType;
  * A InventoryTransaction.
  */
 @Entity
-@Table(name = "inventory_transaction")
+@Table(name = "inventory_transaction", indexes = {
+    @Index(columnList = "transaction_type", name = "transaction_type_index"),
+    @Index(columnList = "created_at", name = "createdAt_index")
+})
 public class InventoryTransaction implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -22,32 +25,22 @@ public class InventoryTransaction implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	@NotNull
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.ORDINAL)
 	@Column(name = "transaction_type", nullable = false)
 	private TransactionType transactionType;
-
 	@NotNull
 	@Column(name = "amount", nullable = false)
 	private Integer amount;
-
 	@NotNull
 	@Column(name = "created_at", nullable = false)
-	private Instant createdAt;
-
-	@NotNull
-	@Column(name = "updated_at", nullable = false)
-	private Instant updatedAt;
-
+	private Instant createdAt=Instant.now();
 	@NotNull
 	@Column(name = "quantity", nullable = false)
 	private Integer quantity;
-
 	@NotNull
 	@Column(name = "quantity_befor", nullable = false)
 	private Integer quantityBefor;
-
 	@NotNull
 	@Column(name = "quantity_after", nullable = false)
 	private Integer quantityAfter;
@@ -131,19 +124,6 @@ public class InventoryTransaction implements Serializable {
 
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
-	}
-
-	public Instant getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public InventoryTransaction updatedAt(Instant updatedAt) {
-		this.updatedAt = updatedAt;
-		return this;
-	}
-
-	public void setUpdatedAt(Instant updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 
 	public Integer getQuantity() {
@@ -244,12 +224,5 @@ public class InventoryTransaction implements Serializable {
 		return 31;
 	}
 
-	// prettier-ignore
-	@Override
-	public String toString() {
-		return "InventoryTransaction{" + "id=" + getId() + ", transactionType='" + getTransactionType() + "'"
-				+ ", amount=" + getAmount() + ", createdAt='" + getCreatedAt() + "'" + ", updatedAt='" + getUpdatedAt()
-				+ "'" + ", quantity=" + getQuantity() + ", quantityBefor=" + getQuantityBefor() + ", quantityAfter="
-				+ getQuantityAfter() + "}";
-	}
+
 }

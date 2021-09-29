@@ -15,6 +15,10 @@
 file:
   report: ./reports
   images: ./images
+  import:
+    json: ./json
+    csv: ./csv
+    excel: ./excel
 logging:
   file:
     name: warehouse.log
@@ -54,9 +58,9 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev
@@ -70,13 +74,16 @@ spring:
   thymeleaf:
     cache: false
   flyway:
-    enabled: false
+    enabled: true
     schemas: warehouse
     baseline-on-migrate: true
     create-schemas: false
     installed-by: root
 server:
   port: 8080
+  servlet:
+    session:
+      timeout: 1800s
 
 # ===================================================================
 # JHipster specific properties

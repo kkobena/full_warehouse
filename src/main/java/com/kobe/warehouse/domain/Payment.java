@@ -14,33 +14,28 @@ import java.time.Instant;
 @Entity
 @Table(name = "payment")
 public class Payment implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
     @Column(name = "net_amount", nullable = false)
     private Integer netAmount;
-
     @NotNull
     @Column(name = "paid_amount", nullable = false)
     private Integer paidAmount;
-
+    @NotNull
+    @Column(name = "reel_paid_amount", nullable = false)
+    private Integer reelPaidAmount;
     @NotNull
     @Column(name = "rest_to_pay", nullable = false)
     private Integer restToPay;
-
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private PaymentMode paymentMode;
@@ -51,15 +46,33 @@ public class Payment implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     private User user;
-    @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Customer customer;
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Sales sales;
-    
-    
+    @NotNull
+    @Column(name = "effective_update_date", nullable = false)
+    private Instant effectiveUpdateDate;
+    public Payment setReelPaidAmount(Integer reelPaidAmount) {
+        this.reelPaidAmount = reelPaidAmount;
+        return this;
+    }
+
+    public Integer getReelPaidAmount() {
+        return reelPaidAmount;
+    }
+
+    public Instant getEffectiveUpdateDate() {
+        return effectiveUpdateDate;
+    }
+
+    public Payment setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+        this.effectiveUpdateDate = effectiveUpdateDate;
+        return this;
+    }
+
     public Sales getSales() {
 		return sales;
 	}
@@ -75,7 +88,7 @@ public class Payment implements Serializable {
 	public void setUser(User user) {
 		this.user = user;
 	}
-   
+
     public Long getId() {
         return id;
     }
@@ -174,7 +187,7 @@ public class Payment implements Serializable {
     public void setDateDimension(DateDimension dateDimension) {
         this.dateDimension = dateDimension;
     }
- 
+
 
     public Customer getCustomer() {
 		return customer;

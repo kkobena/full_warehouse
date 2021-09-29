@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.Customer;
-import com.kobe.warehouse.domain.DateDimension;
-import com.kobe.warehouse.domain.InventoryTransaction;
-import com.kobe.warehouse.domain.Payment;
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.InventoryTransactionRepository;
-import com.kobe.warehouse.repository.PaymentRepository;
-import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.SalesLineRepository;
-import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -50,24 +40,31 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 @Service
 @Transactional
 public class SaleService {
-    @Autowired
-    private EntityManager em;
-    @Autowired
-    private SalesRepository salesRepository;
-    @Autowired
-    private ProduitRepository produitRepository;
-    @Autowired
-    private SalesLineRepository salesLineRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ReferenceService referenceService;
-    @Autowired
-    private InventoryTransactionRepository inventoryTransactionRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private ReportService reportService;
+    private final EntityManager em;
+    private final SalesRepository salesRepository;
+    private final ProduitRepository produitRepository;
+    private final SalesLineRepository salesLineRepository;
+    private final UserRepository userRepository;
+    private final ReferenceService referenceService;
+    private final InventoryTransactionRepository inventoryTransactionRepository;
+    private final PaymentRepository paymentRepository;
+    private final ReportService reportService;
+    private final UninsuredCustomerRepository uninsuredCustomerRepository;
+    private final PaymentModeRepository paymentModeRepository;
+
+    public SaleService(EntityManager em, SalesRepository salesRepository, ProduitRepository produitRepository, SalesLineRepository salesLineRepository, UserRepository userRepository, ReferenceService referenceService, InventoryTransactionRepository inventoryTransactionRepository, PaymentRepository paymentRepository, ReportService reportService, UninsuredCustomerRepository uninsuredCustomerRepository, PaymentModeRepository paymentModeRepository) {
+        this.em = em;
+        this.salesRepository = salesRepository;
+        this.produitRepository = produitRepository;
+        this.salesLineRepository = salesLineRepository;
+        this.userRepository = userRepository;
+        this.referenceService = referenceService;
+        this.inventoryTransactionRepository = inventoryTransactionRepository;
+        this.paymentRepository = paymentRepository;
+        this.reportService = reportService;
+        this.uninsuredCustomerRepository = uninsuredCustomerRepository;
+        this.paymentModeRepository = paymentModeRepository;
+    }
 
     @Transactional(readOnly = true)
     public List<SaleDTO> customerPurchases(Long customerId) {
@@ -100,7 +97,6 @@ public class SaleService {
             predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")),
                 java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
         }
-
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(e -> new SaleDTO(e)).collect(Collectors.toList());
@@ -176,7 +172,7 @@ public class SaleService {
         sale.setNetAmount(0);
         sale.setDateDimension(Constants.DateDimension(LocalDate.now()));
         sale.setUser(getUser());
-       // sale.setCustomer(fromId(dto.getCustomerId()));
+        // sale.setCustomer(fromId(dto.getCustomerId()));
         sale.setNumberTransaction(referenceService.buildNumSale());
         sale.setStatut(SalesStatut.PENDING);
         List<SalesLine> listSaleLine = createLineFromDTO(dto.getSalesLines(), sale);
@@ -209,6 +205,12 @@ public class SaleService {
         return user.orElseGet(null);
     }
 
+    private User getUserFormImport() {
+        Optional<User> user = SecurityUtils.getCurrentUserLogin()
+            .flatMap(login -> userRepository.findOneByLogin(login));
+        return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).get());
+    }
+
     private Customer fromId(Long id) {
         Customer cust = new Customer();
         cust.setId(id);
@@ -222,7 +224,7 @@ public class SaleService {
             InventoryTransaction inventoryTransaction = inventoryTransactionRepository
                 .buildInventoryTransaction(salesLine, user);
             Produit p = salesLine.getProduit();
-            int quantityBefor = p.getQuantity();
+            int quantityBefor = 0;// p.getQuantity();
             int quantityAfter = quantityBefor - salesLine.getQuantitySold();
             inventoryTransaction.setDateDimension(dateD);
             inventoryTransaction.setQuantityBefor(quantityBefor);
@@ -230,7 +232,7 @@ public class SaleService {
             inventoryTransaction.setRegularUnitPrice(salesLine.getRegularUnitPrice());
             inventoryTransaction.setCostAmount(salesLine.getCostAmount());
             inventoryTransactionRepository.save(inventoryTransaction);
-            p.setQuantity(quantityAfter);
+            // p.setQuantity(quantityAfter);
             produitRepository.save(p);
         }
 
@@ -238,25 +240,23 @@ public class SaleService {
 
     public Sales createSaleLine(SaleLineDTO saleLine) throws StockException {
         Sales sale = salesRepository.getOne(saleLine.getSaleId());
-        SalesLine salesLine ;
+        SalesLine salesLine;
         Optional<SalesLine> optionalSalesLine = salesLineRepository.findBySalesIdAndProduitId(saleLine.getSaleId(), saleLine.getProduitId());
         if (optionalSalesLine.isPresent()) {
             salesLine = optionalSalesLine.get();
             Produit produit = produitRepository.getOne(saleLine.getProduitId());
-            if((salesLine.getQuantitySold()+saleLine.getQuantitySold())>produit.getQuantity()){
+            if ((salesLine.getQuantitySold() + saleLine.getQuantitySold()) > 0/*produit.getQuantity()*/) {
                 throw new StockException();
-            }else{
-                salesLine.setQuantitySold(salesLine.getQuantitySold()+saleLine.getQuantitySold());
+            } else {
+                salesLine.setQuantitySold(salesLine.getQuantitySold() + saleLine.getQuantitySold());
                 salesLine.setSalesAmount(salesLine.getQuantitySold() * saleLine.getRegularUnitPrice());
-                sale.setCostAmount( sale.getCostAmount()  +(salesLine.getQuantitySold() * produit.getCostAmount()));
+                sale.setCostAmount(sale.getCostAmount() + (salesLine.getQuantitySold() * produit.getCostAmount()));
                 sale.setSalesAmount(sale.getSalesAmount() + salesLine.getSalesAmount());
             }
         } else {
             salesLine = createSaleLineFromDTO(saleLine, sale);
             sale.addSalesLine(salesLine);
         }
-
-
         salesLineRepository.save(salesLine);
         salesRepository.save(sale);
         return sale;
@@ -317,7 +317,7 @@ public class SaleService {
         salesLine.setGrossAmount(0);
         salesLine.setTaxAmount(0);
         salesLine.setDiscountUnitPrice(0);
-        sales.costAmount( sales.getCostAmount()+(saleLine.getQuantitySold() * produit.getCostAmount()));
+        sales.costAmount(sales.getCostAmount() + (saleLine.getQuantitySold() * produit.getCostAmount()));
         sales.setSalesAmount(sales.getSalesAmount() + salesLine.getSalesAmount());
         return salesLine;
     }
@@ -328,7 +328,7 @@ public class SaleService {
         payment.setUpdatedAt(Instant.now());
         payment.setSales(sale);
         payment.setUser(getUser());
-      //  payment.setCustomer(sale.getCustomer());
+        //  payment.setCustomer(sale.getCustomer());
         payment.setDateDimension(sale.getDateDimension());
         payment.setNetAmount(sale.getSalesAmount());
         payment.setPaidAmount(sale.getSalesAmount());
@@ -342,10 +342,9 @@ public class SaleService {
         ptSale.ifPresent(p -> {
             createInventory(p.getSalesLines());
             paymentRepository.save(buildPayment(p));
-            p.setStatut(SalesStatut.CLOSE);
+            p.setStatut(SalesStatut.CLOSED);
             p.setUpdatedAt(Instant.now());
             salesRepository.save(p);
-
         });
         return dto;
 
@@ -356,20 +355,126 @@ public class SaleService {
         Optional<Sales> ptSale = salesRepository.findOneWithEagerSalesLines(saleId);
         Sales sales = ptSale.get();
         Map<String, Object> parameters = reportService.buildMagasinInfo();
-      //  reportService.buildCustomerInfo(parameters, sales.getCustomer());
+        // reportService.buildCustomerInfo(parameters, sales.getCustomer());
         reportService.buildSaleInfo(parameters, sales);
         return reportService.buildReportToPDF(parameters, "warehouse_facture", sales.getSalesLines().stream().map(SaleLineDTO::new).collect(Collectors.toList()));
 
     }
 
-    public void  deleteSaleLineById(Long id){
-        SalesLine salesLine=salesLineRepository.getOne(id);
-        Sales sales=salesLine.getSales();
+    public void deleteSaleLineById(Long id) {
+        SalesLine salesLine = salesLineRepository.getOne(id);
+        Sales sales = salesLine.getSales();
         sales.removeSalesLine(salesLine);
-        sales.setCostAmount(sales.getCostAmount()-salesLine.getCostAmount());
+        sales.setCostAmount(sales.getCostAmount() - salesLine.getCostAmount());
         sales.setSalesAmount(sales.getSalesAmount() - salesLine.getSalesAmount());
         sales.setUpdatedAt(Instant.now());
         salesRepository.save(sales);
         salesLineRepository.delete(salesLine);
+    }
+
+    public CashSale fromDTOOldCashSale(SaleDTO dto) {
+        CashSale c = new CashSale();
+        c.setAmountToBePaid(dto.getAmountToBePaid());
+        c.setDateDimension(DateDimension(dto.getDateDimensionId()));
+        c.setCopy(dto.getCopy());
+        c.setAmountToBeTakenIntoAccount(dto.getAmountToBeTakenIntoAccount());
+        c.setImported(true);
+        c.setMarge(dto.getMarge());
+        c.setCostAmount(dto.getCostAmount());
+        c.setCreatedAt(dto.getCreatedAt());
+        c.setUpdatedAt(dto.getUpdatedAt());
+        c.setEffectiveUpdateDate(dto.getEffectiveUpdateDate());
+        c.setDiscountAmount(dto.getDiscountAmount());
+        c.setNetAmount(dto.getNetAmount());
+        c.setGrossAmount(dto.getGrossAmount());
+        c.setPayrollAmount(dto.getPayrollAmount());
+        c.setSalesAmount(dto.getSalesAmount());
+        c.setMargeUg(dto.getMargeUg());
+        c.setToIgnore(dto.isToIgnore());
+        c.setTicketNumber(dto.getTicketNumber());
+        c.setNumberTransaction(dto.getNumberTransaction());
+        c.setTaxAmount(dto.getTaxAmount());
+        c.setMontantnetUg(dto.getMontantnetUg());
+        c.setMargeUg(dto.getMargeUg());
+        c.setMontantTvaUg(dto.getMontantTvaUg());
+        c.setMontantttcUg(dto.getMontantttcUg());
+        c.setStatut(SalesStatut.CLOSED);
+        c.setSalesAmount(dto.getSalesAmount());
+        c.setRestToPay(dto.getRestToPay());
+        if (StringUtils.isNotEmpty(dto.getUserFullName())) {
+            userRepository.findOneByLogin(dto.getUserFullName()).ifPresentOrElse(u -> c.setUser(u), () -> c.setUser(getUserFormImport()));
+        } else {
+            c.setUser(getUserFormImport());
+        }
+        if (StringUtils.isNotEmpty(dto.getSellerUserName())) {
+            userRepository.findOneByLogin(dto.getSellerUserName()).ifPresentOrElse(u -> c.setSeller(u), () -> c.setSeller(getUserFormImport()));
+        } else {
+            c.setSeller(getUserFormImport());
+        }
+        if (StringUtils.isNotEmpty(dto.getCustomerNum())) {
+            uninsuredCustomerRepository.findOneByCode(dto.getCustomerNum()).ifPresent(e -> c.setUninsuredCustomer(e));
+        }
+        c.setMagasin(c.getUser().getMagasin());
+        return c;
+    }
+
+    private DateDimension DateDimension(int dateKey) {
+        DateDimension dateDimension = new DateDimension();
+        dateDimension.setDateKey(dateKey);
+        return dateDimension;
+
+    }
+
+    public SalesLine buildSaleLineFromDTO(SaleLineDTO dto) {
+        Produit produit = produitRepository.findOneByLibelle(dto.getProduitLibelle().trim()).orElseThrow();
+        SalesLine salesLine = new SalesLine();
+        salesLine.setCreatedAt(dto.getCreatedAt());
+        salesLine.setUpdatedAt(dto.getUpdatedAt());
+        salesLine.costAmount(dto.getCostAmount());
+        salesLine.setProduit(produit);
+        salesLine.setNetAmount(dto.getNetAmount());
+        salesLine.setSalesAmount(dto.getSalesAmount());
+        salesLine.setNetAmount(dto.getSalesAmount());
+        salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setDiscountAmount(dto.getDiscountAmount());
+        salesLine.setGrossAmount(dto.getGrossAmount());
+        salesLine.setTaxAmount(dto.getTaxAmount());
+        salesLine.setDiscountUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setQuantitySold(dto.getQuantitySold());
+        salesLine.setQuantityRequested(dto.getQuantityRequested());
+        salesLine.setQuantiyAvoir(dto.getQuantiyAvoir());
+        salesLine.setQuantityUg(dto.getQuantityUg());
+        salesLine.setMontantTvaUg(dto.getMontantTvaUg());
+        salesLine.setToIgnore(dto.isToIgnore());
+        salesLine.setTaxValue(dto.getTaxValue());
+        salesLine.setAmountToBeTakenIntoAccount(dto.getAmountToBeTakenIntoAccount());
+        salesLine.setEffectiveUpdateDate(dto.getEffectiveUpdateDate());
+        return salesLine;
+
+    }
+
+    public Payment buildPaymentFromDTO(PaymentDTO dto, Sales s) {
+        Payment payment = new Payment();
+        payment.setCreatedAt(dto.getCreatedAt());
+        payment.setUpdatedAt(dto.getUpdatedAt());
+        payment.setEffectiveUpdateDate(dto.getUpdatedAt());
+        if (s instanceof CashSale) {
+            CashSale cashSale = (CashSale) s;
+            payment.setCustomer(cashSale.getUninsuredCustomer());
+        } else if (s instanceof ThirdPartySales) {
+            ThirdPartySales t = (ThirdPartySales) s;
+            payment.setCustomer(t.getAssuredCustomer());
+        }
+        payment.setNetAmount(dto.getNetAmount());
+        payment.setPaidAmount(dto.getPaidAmount());
+        payment.setReelPaidAmount(dto.getReelPaidAmount());
+        payment.setRestToPay(dto.getRestToPay());
+        payment.setUser(s.getUser());
+        PaymentMode paymentMode = paymentModeRepository.findOneByCode(dto.getPaymentCode()).orElse(paymentModeRepository.getOne(1l));
+        payment.setPaymentMode(paymentMode);
+        payment.setSales(s);
+        payment.setDateDimension(s.getDateDimension());
+        return payment;
     }
 }

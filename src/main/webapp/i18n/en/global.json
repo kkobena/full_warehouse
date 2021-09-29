@@ -4,6 +4,7 @@
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
       "home": "Home",
+      "referentiel": "Referencial",
       "menuGestionStock": "Stock management",
       "menuCommande": "Commande",
       "menuInventaire": "Inventory",
@@ -13,6 +14,7 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Facturation",
+        "tva": "Tva",
         "dateDimension": "Date Dimension",
         "inventoryTransaction": "Item tracking",
         "categorie": "Category",

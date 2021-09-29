@@ -4,5 +4,5 @@ package com.kobe.warehouse.domain.enumeration;
  * The SalesStatut enumeration.
  */
 public enum SalesStatut {
-    PROCESSING, PENDING, CLOSE, PAID, UNPAID,ACTIVE,DESABLED
+    PROCESSING, PENDING, CLOSED, PAID, UNPAID,ACTIVE,DESABLED,CANCELED
 }

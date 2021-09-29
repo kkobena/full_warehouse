@@ -75,7 +75,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   trackId(index: number, item: IPayment): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
   }
 
@@ -87,7 +86,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(PaymentDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.payment = payment;
   }
-
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     if (this.predicate !== 'id') {

@@ -4,7 +4,10 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage_;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,10 @@ import java.util.stream.Collectors;
 public class CustomizedRayonRepository implements CustomizedRayonService {
 	@PersistenceContext
 	private EntityManager em;
+    @Autowired
+    private StorageService storageService;
+    @Autowired
+    private RayonRepository rayonRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -76,12 +83,12 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
 
 	@Override
 	public RayonDTO save(RayonDTO dto) {
-		return new RayonDTO(em.merge(buildRayonFromRayonDTO(dto)));
+		return new RayonDTO(em.merge(buildRayonFromRayonDTO(dto,storageService.getDefaultConnectedUserMainStorage())));
 	}
 
 	@Override
 	public RayonDTO update(RayonDTO dto) {
-		Rayon rayon = em.find(Rayon.class, dto.getId());
+		Rayon rayon = rayonRepository.getOne(dto.getId());
 		return new RayonDTO(em.merge(buildRayonFromRayonDTO(dto, rayon)));
 	}
 

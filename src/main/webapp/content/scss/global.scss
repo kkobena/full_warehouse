@@ -271,3 +271,54 @@ body .ui-dropdown {
   -webkit-print-color-adjust: exact;
   color-adjust: exact;
 }
+
+@media (min-width: 576px) {
+  .st-editTable {
+    height: 250px;
+  }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+  .st-editTable {
+    height: 300px;
+  }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+  .st-editTable {
+    height: 300px;
+  }
+}
+
+// X-Large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+  .st-editTable {
+    height: 350px;
+  }
+}
+
+// XX-Large devices (larger desktops, 1400px and up)
+@media (min-width: 1400px) {
+  .st-editTable {
+    height: 440px;
+  }
+}
+
+.stockless {
+  color: red;
+}
+.ngCombo {
+  padding: 0px !important;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  // margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

@@ -3,7 +3,7 @@
     "ajustement": {
       "home": {
         "title": "Ajustements",
-        "createLabel": "Créer un nouveau Ajustement",
+        "createLabel": "Faire un ajustement",
         "createOrEditLabel": "Créer ou éditer un Ajustement",
         "notFound": "Aucun Ajustement trouvé"
       },

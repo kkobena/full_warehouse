@@ -63,6 +63,12 @@ public class InventoryTransaction implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     private Magasin magasin;
+    @ManyToOne
+    private Ajustement ajustement;
+    @ManyToOne
+    private SalesLine saleLine;
+    @ManyToOne
+    private OrderLine orderLine;
 	public User getUser() {
 		return user;
 	}
@@ -224,5 +230,30 @@ public class InventoryTransaction implements Serializable {
 		return 31;
 	}
 
+    public Ajustement getAjustement() {
+        return ajustement;
+    }
 
+    public InventoryTransaction setAjustement(Ajustement ajustement) {
+        this.ajustement = ajustement;
+        return this;
+    }
+
+    public SalesLine getSaleLine() {
+        return saleLine;
+    }
+
+    public InventoryTransaction setSaleLine(SalesLine saleLine) {
+        this.saleLine = saleLine;
+        return this;
+    }
+
+    public OrderLine getOrderLine() {
+        return orderLine;
+    }
+
+    public InventoryTransaction setOrderLine(OrderLine orderLine) {
+        this.orderLine = orderLine;
+        return this;
+    }
 }

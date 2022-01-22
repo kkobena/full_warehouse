@@ -4,6 +4,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 
 import java.time.Instant;
 
@@ -13,9 +14,9 @@ public class StockProduitDTO {
     private Integer qtyStock;
     private int qtyVirtual;
     private int qtyUG;
-    private Long rayonId;
-    private String rayonLibelle;
-    private String rayonCode;
+    private Long storageId;
+    private String storageName;
+    private String storageType;
     private Long produitId;
     private Instant createdAt;
     private Instant updatedAt;
@@ -57,33 +58,32 @@ public class StockProduitDTO {
         return this;
     }
 
-    public Long getRayonId() {
-        return rayonId;
+    public Long getStorageId() {
+        return storageId;
     }
 
-    public StockProduitDTO setRayonId(Long rayonId) {
-        this.rayonId = rayonId;
+    public StockProduitDTO setStorageId(Long storageId) {
+        this.storageId = storageId;
         return this;
     }
 
-    public String getRayonLibelle() {
-        return rayonLibelle;
+    public String getStorageName() {
+        return storageName;
     }
 
-    public StockProduitDTO setRayonLibelle(String rayonLibelle) {
-        this.rayonLibelle = rayonLibelle;
+    public StockProduitDTO setStorageName(String storageName) {
+        this.storageName = storageName;
         return this;
     }
 
-    public String getRayonCode() {
-        return rayonCode;
+    public String getStorageType() {
+        return storageType;
     }
 
-    public StockProduitDTO setRayonCode(String rayonCode) {
-        this.rayonCode = rayonCode;
+    public StockProduitDTO setStorageType(String storageType) {
+        this.storageType = storageType;
         return this;
     }
-
 
     public Long getProduitId() {
         return produitId;
@@ -126,10 +126,10 @@ public class StockProduitDTO {
         this.qtyStock = s.getQtyStock();
         this.qtyVirtual = s.getQtyVirtual();
         this.qtyUG = s.getQtyUG();
-        Rayon r = s.getRayon();
-        this.rayonId = r.getId();
-        this.rayonLibelle = r.getLibelle();
-        this.rayonCode = r.getCode();
+        Storage r = s.getStorage();
+        this.storageId = r.getId();
+        this.storageName = r.getName();
+        this.storageType= r.getStorageType().getValue();
         Produit p = s.getProduit();
         this.produitId = p.getId();
         this.createdAt = p.getCreatedAt();

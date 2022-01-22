@@ -47,7 +47,7 @@
                         Amount</label> <span style="font-weight: 900;color: red;">*</span>
                     <input type="text" pInputText pKeyFilter="int" class="form-control" name="costAmount"
                            id="field_costAmount"
-                           formControlName="costAmount" (blur)="handleCostInput($event)" autocomplete="off"/>
+                           formControlName="costAmount" (keyup)="handleCostInput($event)" autocomplete="off"/>
                     <div
                         *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">
                         <small class="form-text text-danger" *ngIf="editForm.get('costAmount')?.errors?.required"
@@ -64,7 +64,7 @@
                     <label class="form-control-label" jhiTranslate="warehouseApp.produit.regularUnitPrice"
                            for="field_regularUnitPrice">Regular Unit Price</label> <span
                     style="font-weight: 900;color: red;">*</span>
-                    <input type="text" pInputText pKeyFilter="int" (blur)="handleUnitPriceInput($event)"
+                    <input type="text" pInputText pKeyFilter="int" (keyup)="handleUnitPriceInput($event)"
                            class="form-control"
                            name="regularUnitPrice" id="field_regularUnitPrice" formControlName="regularUnitPrice"
                            autocomplete="off"/>
@@ -212,7 +212,7 @@
                     <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemCostAmount"
                            for="field_itemCostAmount">Item
                         Cost Amount</label>
-                    <input (blur)="handleItemCost($event)" type="text" pInputText pKeyFilter="int" class="form-control" name="itemCostAmount"
+                    <input (keyup)="handleItemCost($event)" type="text" pInputText pKeyFilter="int" class="form-control" name="itemCostAmount"
                            id="field_itemCostAmount" formControlName="itemCostAmount" autocomplete="off"/>
 
                 </div>
@@ -220,7 +220,7 @@
                 <div *ngIf="isDeconditionnable" class="form-group col-md-3">
                     <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
                            for="field_itemRegularUnitPrice">Item Regular Unit Price</label>
-                    <input (blur)="handleItemPrice($event)" type="text" pInputText pKeyFilter="int" class="form-control"
+                    <input (keyup)="handleItemPrice($event)" type="text" pInputText pKeyFilter="int" class="form-control"
                            name="itemRegularUnitPrice" id="field_itemRegularUnitPrice"
                            formControlName="itemRegularUnitPrice" autocomplete="off"/>
 

@@ -36,14 +36,13 @@ public class Rayon implements Serializable {
 	@NotNull
 	@Column(name = "libelle", nullable = false)
 	private String libelle;
-	@OneToMany(mappedBy = "rayon")
-	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	private Set<StockProduit> stockProduits = new HashSet<>();
+
 	@ManyToOne(optional = false)
 	@NotNull
 	private Storage storage;
 	@Column(name = "exclude",columnDefinition = "boolean default false")
 	private boolean exclude;
+
 	public Long getId() {
 		return id;
 	}
@@ -109,31 +108,6 @@ public class Rayon implements Serializable {
 		this.libelle = libelle;
 	}
 
-	public Set<StockProduit> getStockProduits() {
-		return stockProduits;
-	}
-
-	public Rayon stockProduits(Set<StockProduit> stockProduits) {
-		this.stockProduits = stockProduits;
-		return this;
-	}
-
-	public Rayon addStockProduit(StockProduit stockProduit) {
-		this.stockProduits.add(stockProduit);
-		stockProduit.setRayon(this);
-		return this;
-	}
-
-	public Rayon removeStockProduit(StockProduit stockProduit) {
-		this.stockProduits.remove(stockProduit);
-		stockProduit.setRayon(null);
-		return this;
-	}
-
-	public void setStockProduits(Set<StockProduit> stockProduits) {
-		this.stockProduits = stockProduits;
-	}
-
     public Storage getStorage() {
         return storage;
     }
@@ -161,7 +135,8 @@ public class Rayon implements Serializable {
 		return id != null && id.equals(((Rayon) o).id);
 	}
 
-	@Override
+
+    @Override
 	public int hashCode() {
 		return 31;
 	}
@@ -174,7 +149,7 @@ public class Rayon implements Serializable {
             ", updatedAt=" + updatedAt +
             ", code='" + code + '\'' +
             ", libelle='" + libelle + '\'' +
-            ", stockProduits=" + stockProduits +
+
 
             ", exclude=" + exclude +
             '}';

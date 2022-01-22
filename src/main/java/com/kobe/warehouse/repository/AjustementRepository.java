@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data  repository for the Ajustement entity.
@@ -15,5 +16,6 @@ import java.util.List;
 public interface AjustementRepository extends JpaRepository<Ajustement, Long> {
     List<Ajustement> findAllByAjustId(Long id);
 
-    List<Ajustement> findAllByAjustStatut(SalesStatut statut,Sort sort);
+    Optional<Ajustement> findFirstByAjustIdAndProduitId(Long ajustId, Long produitId);
+
 }

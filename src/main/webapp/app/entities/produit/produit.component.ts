@@ -3,7 +3,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
@@ -14,13 +14,16 @@ import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ConfirmationService, MenuItem, MessageService, SelectItem } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IProduitCriteria, ProduitCriteria } from '../../shared/model/produit-criteria.model';
 import { RayonService } from '../rayon/rayon.service';
 import { FamilleProduitService } from '../famille-produit/famille-produit.service';
 import { SERVER_API_URL } from '../../app.constants';
 import { Statut } from '../../shared/model/enumerations/statut.model';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
+import { ErrorService } from '../../shared/error.service';
+import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
 
 @Component({
   selector: 'jhi-produit',
@@ -67,18 +70,10 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
       table .number {
         text-align: right !important;
       }
-
-      .p-button.p-button-icon-only.p-button-rounded {
-        height: 2rem;
-      }
-
-      .p-button.p-button-icon-only {
-        width: 2rem;
-      }
     `,
   ],
   templateUrl: './produit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
 })
 export class ProduitComponent implements OnInit, OnDestroy {
   faFileUpload = faFileUpload;
@@ -112,7 +107,9 @@ export class ProduitComponent implements OnInit, OnDestroy {
   stockFileJsonDialog = false;
   splitbuttons: MenuItem[];
   criteria: IProduitCriteria;
+  onErrorOccur = false;
   public resourceUrl = SERVER_API_URL;
+  ref!: DynamicDialogRef;
 
   constructor(
     protected produitService: ProduitService,
@@ -124,7 +121,8 @@ export class ProduitComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private messageService: MessageService,
     protected rayonService: RayonService,
-    protected familleService: FamilleProduitService
+    protected familleService: FamilleProduitService,
+    protected errorService: ErrorService
   ) {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -216,21 +214,6 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.registerChangeInProduits();
   }
 
-  protected handleNavigation(): void {
-    combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
-      const page = params.get('page');
-      const pageNumber = page !== null ? +page : 1;
-      const sort = (params.get('sort') ?? data['defaultSort']).split(',');
-      const predicate = sort[0];
-      const ascending = sort[1] === 'asc';
-      if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
-        this.predicate = predicate;
-        this.ascending = ascending;
-        this.loadPage(pageNumber, true);
-      }
-    }).subscribe();
-  }
-
   ngOnDestroy(): void {
     if (this.eventSubscriber) {
       this.eventManager.destroy(this.eventSubscriber);
@@ -257,26 +240,6 @@ export class ProduitComponent implements OnInit, OnDestroy {
       result.push('libelle');
     }
     return result;
-  }
-
-  protected onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    if (navigate) {
-      this.router.navigate(['/produit'], {
-        queryParams: {
-          page: this.page,
-          size: this.itemsPerPage,
-          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-        },
-      });
-    }
-    this.produits = data || [];
-    this.ngbPaginationPage = this.page;
-  }
-
-  protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
   }
 
   addDetail(produit: IProduit): void {
@@ -323,29 +286,11 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.uploadFileResponse(this.produitService.uploadFile(formData));
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) this.responsedto = responseDto;
-    this.responseDialog = true;
-    this.fileDialog = false;
-    this.loadPage(0);
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
-  }
-
   cancel(): void {
     this.displayDialog = false;
     this.fileDialog = false;
     this.jsonDialog = false;
+    this.onErrorOccur = false;
   }
 
   onSearch(event: any): void {
@@ -363,7 +308,14 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.loadPage(0);
   }
 
-  filtreClik(event: any): void {
+  onUploadJson(event: any): void {
+    const formData: FormData = new FormData();
+    const file = event.files[0];
+    formData.append('importjson', file, file.name);
+    this.uploadJsonDataResponse(this.produitService.uploadJsonData(formData));
+  }
+
+  filtreClik(): void {
     if (this.selectedCriteria === 2) {
       this.criteria.deconditionnable = true;
       this.criteria.deconditionne = undefined;
@@ -384,6 +336,122 @@ export class ProduitComponent implements OnInit, OnDestroy {
       this.criteria = {};
     }
     this.loadPage(0);
+  }
+
+  onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
+    const isChecked = e.checked;
+    if (four) {
+      this.produitService.updateDefaultFournisseur(four.id!, isChecked).subscribe(
+        () => {},
+        error => this.onActionError(four, error)
+      );
+    }
+  }
+
+  onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
+    if (four) {
+      this.produitService.deleteFournisseur(four.id!).subscribe(
+        () => {
+          if (produit && produit.fournisseurProduits) {
+            produit.fournisseurProduits = produit.fournisseurProduits.filter(e => e.id !== four.id);
+          }
+        },
+        error => this.onCommonError(error)
+      );
+    }
+  }
+
+  addFournisseur(produit: IProduit): void {
+    this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
+      data: {
+        produit,
+      },
+      header: 'Ajouter un fournisseur au produit ' + produit.libelle,
+      width: '40%',
+    });
+    this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
+      if (resp) {
+        produit.fournisseurProduits?.push(resp);
+      }
+    });
+  }
+
+  editFournisseur(produit: IProduit, fournisseurProduit: IFournisseurProduit | null): void {
+    this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
+      data: {
+        produit,
+        entity: fournisseurProduit,
+      },
+      header: 'Modification du produit ' + produit.libelle,
+      width: '40%',
+    });
+    this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
+      if (resp) {
+        const newFours = produit.fournisseurProduits?.filter(e => e.id !== resp.id);
+        if (newFours) {
+          newFours.push(resp);
+          produit.fournisseurProduits = newFours;
+        }
+      }
+    });
+  }
+
+  confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous detacher ce fournisseur de ce produit ?',
+      header: 'Retrait de fournisseur ',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.onDeleteProduitFournisseur(four, produit);
+      },
+      key: 'deleteFournisseur',
+    });
+  }
+
+  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe(
+      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) this.responsedto = responseDto;
+    this.responseDialog = true;
+    this.fileDialog = false;
+    this.loadPage(0);
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
+  }
+
+  protected onActionError(el: IFournisseurProduit, error: any): void {
+    if (error.error) {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
+        translatedErrorMessage => {
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        },
+        () => {
+          this.onErrorOccur = true;
+        }
+      );
+    }
+    el.principal = false;
+  }
+
+  protected onCommonError(error: any): void {
+    if (error.error) {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
+        translatedErrorMessage => {
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        },
+        () => {
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.title });
+        }
+      );
+    }
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
@@ -413,10 +481,38 @@ export class ProduitComponent implements OnInit, OnDestroy {
     }, 10000);
   }
 
-  onUploadJson(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importjson', file, file.name);
-    this.uploadJsonDataResponse(this.produitService.uploadJsonData(formData));
+  protected onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    if (navigate) {
+      this.router.navigate(['/produit'], {
+        queryParams: {
+          page: this.page,
+          size: this.itemsPerPage,
+          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
+        },
+      });
+    }
+    this.produits = data || [];
+    this.ngbPaginationPage = this.page;
+  }
+
+  protected handleNavigation(): void {
+    combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
+      const page = params.get('page');
+      const pageNumber = page !== null ? +page : 1;
+      const sort = (params.get('sort') ?? data['defaultSort']).split(',');
+      const predicate = sort[0];
+      const ascending = sort[1] === 'asc';
+      if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
+        this.predicate = predicate;
+        this.ascending = ascending;
+        this.loadPage(pageNumber, true);
+      }
+    }).subscribe();
+  }
+
+  protected onError(): void {
+    this.ngbPaginationPage = this.page ?? 1;
   }
 }

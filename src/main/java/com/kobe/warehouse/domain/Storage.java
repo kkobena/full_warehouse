@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.StorageType;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "storage")
@@ -34,6 +35,11 @@ public class Storage implements Serializable {
         this.id = id;
     }
 
+    public Storage id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public StorageType getStorageType() {
         return storageType;
     }
@@ -52,6 +58,19 @@ public class Storage implements Serializable {
 
     public Magasin getMagasin() {
         return magasin;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Storage storage = (Storage) o;
+        return id.equals(storage.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public void setMagasin(Magasin magasin) {

@@ -8,6 +8,7 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.service.RayonService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import org.apache.commons.csv.CSVFormat;
@@ -35,17 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RayonServiceImpl implements RayonService {
     private final Logger log = LoggerFactory.getLogger(RayonServiceImpl.class);
     private final RayonRepository rayonRepository;
-    private final StorageRepository storageRepository;
-    private final MagasinRepository magasinRepository;
+   private final StorageService storageService;
     private final CustomizedRayonService customizedRayonService;
-    public RayonServiceImpl(RayonRepository rayonRepository,
-                            CustomizedRayonService customizedRayonService,
-                            MagasinRepository magasinRepository,StorageRepository storageRepository
-    ) {
+
+    public RayonServiceImpl(RayonRepository rayonRepository, StorageService storageService, CustomizedRayonService customizedRayonService) {
         this.rayonRepository = rayonRepository;
+        this.storageService = storageService;
         this.customizedRayonService = customizedRayonService;
-        this.magasinRepository = magasinRepository;
-        this.storageRepository=storageRepository;
     }
 
     /**
@@ -57,14 +54,14 @@ public class RayonServiceImpl implements RayonService {
     @Override
     public RayonDTO save(RayonDTO rayonDTO) {
         log.debug("Request to save Rayon : {}", rayonDTO);
-        rayonDTO.setStorageId(getPointOfSale().getId());
+
         return customizedRayonService.save(rayonDTO);
     }
 
     @Override
     public RayonDTO update(RayonDTO rayonDTO) {
         log.debug("Request to save Rayon : {}", rayonDTO);
-        rayonDTO.setStorageId(getPointOfSale().getId());
+
         return customizedRayonService.update(rayonDTO);
     }
 
@@ -79,7 +76,7 @@ public class RayonServiceImpl implements RayonService {
     public Page<RayonDTO> findAll(Long storageId, String query, Pageable pageable) {
         log.debug("Request to get all Rayons");
         if (storageId == null || storageId == 0) {
-            storageId = getStorageByMagasinIdAndType(1L,StorageType.POINT_DE_VENTE).getId();
+            storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         }
         log.debug("====================================>> storageId {}",storageId);
         return customizedRayonService.listRayonsByStorageId(storageId, query, pageable);
@@ -111,7 +108,7 @@ public class RayonServiceImpl implements RayonService {
 
     @Override
     public ResponseDTO importation(InputStream inputStream, Long storageId) {
-        final Long storageId2=(storageId == null || storageId == 0)?getPointOfSale().getId():storageId;
+        final Long storageId2=(storageId == null || storageId == 0)?storageService.getDefaultConnectedUserMainStorage().getId():storageId;
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
@@ -142,8 +139,8 @@ public class RayonServiceImpl implements RayonService {
     @Override
     public ResponseDTO cloner(List<RayonDTO> rayonIds, Long storageId) {
         int count = 0;
-      //  Storage storage = customizedRayonService.fromId(storageId);
-        Storage storage=getPointOfSale();
+
+        Storage storage=storageService.getOne(storageId);
         for (RayonDTO rayonDTO : rayonIds) {
             Rayon rayon = customizedRayonService.buildRayonFromRayonDTO(rayonDTO);
             rayon.setStorage(storage);
@@ -153,12 +150,5 @@ public class RayonServiceImpl implements RayonService {
         return new ResponseDTO().size(count);
     }
 
-    private Storage getPointOfSale() {
-        return magasinRepository.getOne(1l).getPointOfSale();
-    }
-    private Storage getStorageByMagasinIdAndType(Long magasinId,StorageType storageType) {
-        return storageRepository.findFirstByMagasinIdAndStorageType(magasinId,storageType);
 
-
-    }
 }

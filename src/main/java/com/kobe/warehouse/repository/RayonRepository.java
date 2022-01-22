@@ -14,4 +14,7 @@ public interface RayonRepository extends JpaRepository<Rayon, Long> {
     Page<Rayon> findAllByStorageId(Long storageId, Pageable pageable);
 
     Optional<Rayon> findFirstByLibelleEquals(String libelle);
+
+    Optional<Rayon> findFirstByLibelleAndStorageId(String libelle,Long storageId);
+
 }

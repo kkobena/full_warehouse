@@ -1,52 +1,44 @@
 <div class="row justify-content-center">
     <div class="col-12">
         <div *ngIf="produit">
-            <h5 class="text-center font-weight-bold"> {{ produit.libelle }}
-            </h5>
-            <hr>
+           <!-- <h5 class="text-lg-left font-weight-bold"> {{ produit.libelle }}
+            </h5>-->
+<!--            <hr>-->
             <p-toolbar>
-                <div class="form-inline col-11 justify-content-center">
-                    <div class="form-group">
-                        <label for="startDate" class="col-sm-1 col-form-label">Du</label>
-                        <div class="col-sm-3">
-                            <p-inputMask mask="99/99/9999" id="startDate" [(ngModel)]="startDate"
-                                         placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate" class="col-sm-1 col-form-label">Au</label>
-                        <div class="col-sm-3">
-                            <p-inputMask id="endDate" mask="99/99/9999" [(ngModel)]="endDate" placeholder="99/99/9999"
-                                         slotChar="dd/mm/yyyy"></p-inputMask>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate" class="col-sm-1 col-form-label">Types</label>
-                        <div class="col-sm-3">
-                        <p-dropdown [options]="typeMouvement" (onChange)="filtreTypeMouvement($event)"
-                                    [(ngModel)]="selectedTypeMouvement" [filter]="false" placeholder="Filtrer par type"
-                                    styleClass="dropdown-width">
-                        </p-dropdown></div>
-                    </div>
+                <div class="p-toolbar-group-left row">
+                          <label class="mr-2 ml-2" for="produitBox">Produits</label>      <ng-select id="produitBox" autofocus="true"  #produitbox [items]="produits" bindLabel="libelle" placeholder="Sélectionner un produit"
+                                           [(ngModel)]="produit"   [searchable]="true"
+                                           (change)="onSelect(produitbox)" [clearable]="false"
+                                >
+                                </ng-select>
+                    <label class="ml-2" for="startDate">Du</label>
+                    <p-inputMask  class="ml-2" mask="99/99/9999" id="startDate" [(ngModel)]="startDate"
+                                             placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
+                    <label class="ml-2" for="endDate">Au</label>
+                                <p-inputMask class="ml-2" id="endDate" mask="99/99/9999" [(ngModel)]="endDate" placeholder="99/99/9999"
+                                             slotChar="dd/mm/yyyy"></p-inputMask>
 
-                    <div class="form-group">
+                    <label class="ml-2" for="type">Type</label>
+                                <p-dropdown class="ml-2" id="type" [options]="typeMouvement" (onChange)="filtreTypeMouvement($event)"
+                                            [(ngModel)]="selectedTypeMouvement" [filter]="false" placeholder="Filtrer par type"
+                                            styleClass="dropdown-width">
+                                </p-dropdown>
 
-                        <button type="submit" (click)="loadPage()" class="btn btn-sm btn-success mr-2">
-                            <i class="pi pi-check"></i>
-                            Rechercher
-                        </button>
-
-                    </div>
-                    <div class="form-group">
-
-                        <button type="submit" (click)="previousState()" class="btn btn-sm btn-info">
-                            <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-                            jhiTranslate="entity.action.back">Back</span>
-                        </button>
-
-                    </div>
                 </div>
+                <div class="p-toolbar-group-right"> <button type="submit" (click)="loadPage()" class="btn btn-sm btn-success mr-1">
+                    <i class="pi pi-check"></i>
+                    Rechercher
+                </button>
+                    <button type="submit" (click)="previousState()" class="btn btn-sm btn-danger mr-1">
+                        <fa-icon icon="print"></fa-icon>&nbsp;<span
+                        jhiTranslate="entity.action.print">Imprimer</span>
+                    </button>
 
+                    <button type="submit" (click)="previousState()" class="btn btn-sm btn-info">
+                        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+                        jhiTranslate="entity.action.back">Back</span>
+                    </button>
+                </div>
 
             </p-toolbar>
             <hr>

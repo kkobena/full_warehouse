@@ -59,3 +59,4 @@ INSERT IGNORE INTO `groupe_fournisseur` (`id`,`libelle`,`odre`) VALUES (5,'AUTRE
 INSERT IGNORE INTO type_etiquette(id,libelle) VALUES (1,'CIP'), (2,'CIP_PRIX'),
                                               (3,'CIP_DESIGNATION'), (4,'CIP_PRIX_DESIGNATION'),(5,'POSITION');
 INSERT IGNORE INTO form_produit(id,libelle) VALUES(1,'Comprimés'),(2,'Sachets');
+INSERT IGNORE INTO `app_configuration` (`name`,`value`,`description`) VALUES ('APP_GESTION_STOCK','0','Parametre qui permet de gestion du stock ; deux valeurs sont autorisées: 0 ==> pour un seul stockage et 1===> pour un stockage multiple');

@@ -82,7 +82,7 @@ public class InventoryTransactionService {
         Instant dtStart = null;
         Instant dtEnd = null;
         Specification<InventoryTransaction> specification = null;
-        if (type != null) {
+        if (type != null && type!=-1) {
             TransactionType transactionType = TransactionType.values()[type];
             specification = Specification.where(inventoryTransactionRepository.specialisationTypeTransaction(transactionType));
         }

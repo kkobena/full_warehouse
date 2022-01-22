@@ -13,4 +13,6 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
     List<Storage> findAllByMagasinId(Long magasinId);
 
     Storage findFirstByMagasinIdAndStorageType(Long magasinId, StorageType storageType);
+
+    Storage findFirstByStorageType(StorageType storageType);
 }

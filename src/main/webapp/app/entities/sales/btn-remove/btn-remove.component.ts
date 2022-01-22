@@ -8,7 +8,6 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
       <fa-icon icon="times"></fa-icon>
     </button>
   `,
-  styleUrls: ['./btn-remove.component.scss'],
 })
 export class BtnRemoveComponent implements ICellRendererAngularComp {
   params!: any;

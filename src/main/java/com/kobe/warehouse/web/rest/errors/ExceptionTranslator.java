@@ -198,8 +198,14 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> stockExceptionFailure(StockException ex, NativeWebRequest request) {
-        StockException problem = new StockException();
-        return create(problem, request, HeaderUtil.createFailureAlert(applicationName,  true, problem.getEntityName(), problem.getErrorKey(), problem.getMessage()));
+        return create(ex, request, HeaderUtil.createFailureAlert(applicationName,  true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
-
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleDefaultFournisseurException(DefaultFournisseurException ex, NativeWebRequest request) {
+        return create(ex, request, HeaderUtil.createFailureAlert(applicationName,  true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    }
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleGenericErrorException(GenericError ex, NativeWebRequest request) {
+        return create(ex, request, HeaderUtil.createFailureAlert(applicationName,  true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    }
 }

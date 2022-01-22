@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { IAjustement } from 'app/shared/model/ajustement.model';
+import { IAjust } from '../../shared/model/ajust.model';
 
 type EntityResponseType = HttpResponse<IAjustement>;
 type EntityArrayResponseType = HttpResponse<IAjustement[]>;
@@ -29,6 +30,14 @@ export class AjustementService {
       .get<IAjustement[]>(this.resourceUrl, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
+
+  queryAjustement(req?: any): Observable<HttpResponse<IAjust[]>> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<IAjust[]>(this.resourceUrl + '/ajust', { params: options, observe: 'response' })
+      .pipe(map((res: HttpResponse<IAjust[]>) => this.convertAjustDateArrayFromServer(res)));
+  }
+
   queryAll(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
@@ -58,6 +67,16 @@ export class AjustementService {
     }
     return res;
   }
+
+  protected convertAjustDateArrayFromServer(res: HttpResponse<IAjust[]>): HttpResponse<IAjust[]> {
+    if (res.body) {
+      res.body.forEach((ajustement: IAjust) => {
+        ajustement.dateMtv = ajustement.dateMtv ? moment(ajustement.dateMtv) : undefined;
+      });
+    }
+    return res;
+  }
+
   create(ajustement: any): Observable<EntityResponseType> {
     return this.http
       .post<IAjustement>(this.resourceUrl, ajustement, { observe: 'response' })
@@ -70,7 +89,12 @@ export class AjustementService {
       .put<IAjustement>(this.resourceUrl, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
-  save(id: number): Observable<HttpResponse<{}>> {
-    return this.http.post<IAjustement>(this.resourceUrl + '/save', { ajustId: id, produitId: 0 }, { observe: 'response' });
+
+  save(dto: any): Observable<HttpResponse<{}>> {
+    return this.http.post<IAjustement>(this.resourceUrl + '/save', dto, { observe: 'response' });
+  }
+
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 }

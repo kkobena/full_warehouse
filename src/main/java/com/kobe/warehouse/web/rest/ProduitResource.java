@@ -162,7 +162,7 @@ public class ProduitResource {
     @GetMapping("/produits/{id}")
     public ResponseEntity<ProduitDTO> getProduit(@PathVariable Long id) {
         log.debug("REST request to get Produit : {}", id);
-        Optional<ProduitDTO> produit = produitRepository.findById(id).map(ProduitDTO::new);
+        Optional<ProduitDTO> produit = produitService.findOne(id);
         return ResponseUtil.wrapOrNotFound(produit);
     }
 

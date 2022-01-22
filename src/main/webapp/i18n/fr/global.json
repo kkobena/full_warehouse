@@ -13,6 +13,7 @@
       "menuGestionCourrante": "Gestion courrante",
       "gammeProduit": "Gamme de produit",
       "laboratoire": "Laboratoire",
+      "motifAjustement": "Motifs ajustement",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Facturation",
@@ -41,6 +42,7 @@
         "salesJournal": "Journal des ventes",
         "fournisseur": "Fournisseurs",
         "groupeFournisseur": "Groupe fournisseurs",
+        "motifAjustement": "Motifs ajustement",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -133,7 +135,8 @@
       "open": "Ouvrir",
       "save": "Sauvegarder",
       "view": "Voir",
-      "basculer": "Basculer"
+      "basculer": "Basculer",
+      "print": "Imprimer"
     },
     "detail": {
       "field": "Champs",

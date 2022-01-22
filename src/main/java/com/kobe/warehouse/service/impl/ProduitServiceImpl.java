@@ -1,33 +1,27 @@
 package com.kobe.warehouse.service.impl;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.StoreInventoryLine;
+import com.kobe.warehouse.repository.CustomizedProductService;
+import com.kobe.warehouse.repository.MagasinRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.ResponseDTO;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -40,17 +34,14 @@ public class ProduitServiceImpl implements ProduitService {
     private final MagasinRepository magasinRepository;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
+    private final RayonRepository rayonRepository;
 
 
-    public ProduitServiceImpl(ProduitRepository produitRepository,
-                              CustomizedProductService customizedProductService,
-                              MagasinRepository magasinRepository
-
-    ) {
+    public ProduitServiceImpl(MagasinRepository magasinRepository, ProduitRepository produitRepository, CustomizedProductService customizedProductService, RayonRepository rayonRepository) {
+        this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
-        this.magasinRepository = magasinRepository;
-
+        this.rayonRepository = rayonRepository;
     }
 
     /**
@@ -63,7 +54,8 @@ public class ProduitServiceImpl implements ProduitService {
     public void save(ProduitDTO produitDTO) {
         log.debug("Request to save Produit : {}", produitDTO);
         try {
-            customizedProductService.save(produitDTO);
+
+            customizedProductService.save(produitDTO,rayonRepository.getOne(produitDTO.getRayonId()));
         } catch (Exception e) {
             log.debug("Request to save Produit : {}", e);
 
@@ -94,7 +86,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public Optional<ProduitDTO> findOne(Long id) {
         log.debug("Request to get Produit : {}", id);
-        return produitRepository.findById(id).map(ProduitDTO::new);
+        return customizedProductService.findOneById(id);
     }
 
     /**

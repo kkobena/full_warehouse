@@ -10,6 +10,9 @@ export interface IStockProduit {
   magasinId?: number;
   produitLibelle?: string;
   produitId?: number;
+  storageId?: number;
+  storageName?: string;
+  storageType?: string;
 }
 
 export class StockProduit implements IStockProduit {
@@ -24,6 +27,9 @@ export class StockProduit implements IStockProduit {
     public rayonId?: number,
     public produitLibelle?: string,
     public magasinId?: number,
-    public produitId?: number
+    public produitId?: number,
+    public storageId?: number,
+    public storageName?: string,
+    public storageType?: string
   ) {}
 }

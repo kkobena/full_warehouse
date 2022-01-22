@@ -1,0 +1,22 @@
+{
+  "warehouseApp": {
+    "motifAjustement": {
+      "home": {
+        "title": "Motifs ajustement",
+        "createLabel": "Créer un nouveau motif",
+        "createOrEditLabel": "Créer ou éditer un motif",
+        "notFound": "Aucun motif trouvé"
+      },
+      "created": "Un nouveau motif a été créé avec l'identifiant {{ param }}",
+      "updated": "Le motif avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le motif avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le motif {{ id }} ?"
+      },
+      "detail": {
+        "title": "Motifs ajustement"
+      },
+      "libelle": "Libellé"
+    }
+  }
+}

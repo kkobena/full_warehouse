@@ -1,9 +1,11 @@
 package com.kobe.warehouse.repository;
 
 
+import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.*;
 import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
@@ -24,8 +26,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -39,13 +40,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Autowired
     private FournisseurProduitRepository fournisseurProduitRepository;
     @Autowired
-    private RayonRepository rayonRepository;
-    @Autowired
-    private FournisseurRepository fournisseurRepository;
-    @Autowired
     private LogsService logsService;
     @Autowired
     private ProduitRepository produitRepository;
+    @Autowired
+    private RayonProduitRepository rayonProduitRepository;
+    @Autowired
+    private StorageService storageService;
+    @Autowired
+    private RayonRepository rayonRepository;
 
     private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Produit> root, ProduitCriteria produitCriteria) {
         List<Predicate> predicates = new ArrayList<>();
@@ -63,11 +66,14 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
             SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
             if (produitCriteria.getStorageId() != null) {
-                predicates.add(cb.equal(st.get(StockProduit_.rayon).get(Rayon_.storage).get(Storage_.id),
+                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
                     produitCriteria.getMagasinId()));
             }
             if (produitCriteria.getRayonId() != null) {
-                predicates.add(cb.equal(st.get(StockProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+                SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
+                predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id),
+                    produitCriteria.getRayonId()));
+
             }
         }
 
@@ -118,13 +124,13 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
 
-    private long findAllCount(ProduitCriteria produitCriteria) throws Exception {
+    private long findAllCount(ProduitCriteria produitCriteria) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Produit> root = cq.from(Produit.class);
         cq.select(cb.countDistinct(root));
         List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = em.createQuery(cq);
         Long v = q.getSingleResult();
         return v != null ? v : 0;
@@ -140,7 +146,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         root.fetch(Produit_.stockProduits, JoinType.LEFT);
         cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
         List<Predicate> predicates = rechercheProduitPredicate(cb, root, produitCriteria);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Produit> q = em.createQuery(cq);
         return q.getResultList().stream().map(ProduitDTO::new).collect(Collectors.toList());
     }
@@ -159,15 +165,19 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (!ObjectUtils.isEmpty(produitCriteria.getStatus())) {
             predicates.add(cb.equal(root.get(Produit_.status), produitCriteria.getStatus()));
         }
-        if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
+        if (produitCriteria.getStorageId() != null) {
             SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
-            if (produitCriteria.getMagasinId() != null) {
-                predicates.add(cb.equal(st.get(StockProduit_.rayon).get(Rayon_.storage).get(Storage_.id),
-                    produitCriteria.getMagasinId()));
+            if (produitCriteria.getStorageId() != null) {
+                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
+                    produitCriteria.getStorageId()));
             }
+        }
+        if (produitCriteria.getRayonId() != null) {
+            SetJoin<Produit, RayonProduit> st = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
+            predicates.add(cb.equal(st.get(RayonProduit_.rayon).get(Rayon_.id),
+                produitCriteria.getRayonId()));
 
         }
-
         return predicates;
     }
 
@@ -176,18 +186,21 @@ public class CustomizedProductRepository implements CustomizedProductService {
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
         long total = findAllCount(produitCriteria);
         List<ProduitDTO> list = new ArrayList<>();
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
         if (total > 0) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
             Root<Produit> root = cq.from(Produit.class);
             cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
             List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
-            cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+            cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<Produit> q = em.createQuery(cq);
             q.setFirstResult(pageable.getPageNumber());
             q.setMaxResults(pageable.getPageSize());
             q.getResultList().forEach(p -> {
-                ProduitDTO dto = new ProduitDTO(p);
+                ProduitDTO dto = new ProduitDTO(p, magasin,
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null));
                 SalesLine lignesVente = lastSale(produitCriteria);
                 if (lignesVente != null) {
                     dto.setLastDateOfSale(lignesVente.getUpdatedAt());
@@ -209,8 +222,20 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
-    public void save(ProduitDTO dto) throws Exception {
-        Produit produit = ProduitDTO.fromDTO(dto);
+    public Optional<ProduitDTO> findOneById(Long produitId) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+        return produitRepository.findById(produitId).map(p -> new ProduitDTO(p, magasin,
+            p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                .findFirst().orElse(null))
+
+        );
+
+    }
+
+    @Override
+    public void save(ProduitDTO dto, Rayon rayon) throws Exception {
+        Produit produit = ProduitDTO.fromDTO(dto, rayon);
         produit = produitRepository.save(produit);
         stockProduitRepository.saveAll(produit.getStockProduits());
         logsService.create(TransactionType.CREATE_PRODUCT, String.format("Création du produit %s", new Object[]{produit.getLibelle()}), produit.getId());
@@ -218,10 +243,54 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     public void update(ProduitDTO dto) throws Exception {
-        final Produit produit = buildProduitFromProduitDTO(dto, em.find(Produit.class, dto.getId()));
-        produit.getFournisseurProduits().stream().filter(f -> f.isPrincipal()).findFirst().ifPresent(f->em.merge(f));
+        Produit produitToUpdate = em.find(Produit.class, dto.getId());
+        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produitToUpdate.getId());
+        boolean mustUpdateRayon = false;
+        if (rayonProduits.isEmpty()) {
+            mustUpdateRayon = true;
+        } else {
+            Optional<RayonProduit> optionalRayonProduit = rayonProduits.stream().filter(rayonProduit -> rayonProduit.getRayon().getStorage().getStorageType().name().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())).findFirst();
+            if (optionalRayonProduit.isPresent()) {
+                RayonProduit rayonProduit = optionalRayonProduit.get();
+                if (!dto.getRayonId().equals(rayonProduit.getRayon().getId())) {
+                    mustUpdateRayon = true;
+                }
+            }
+        }
+        if (mustUpdateRayon) {
+            updateProduitDetails(produitToUpdate.getProduits(), dto);
+        }
+        Produit produit = buildProduitFromProduitDTO(dto, produitToUpdate);
+        buildRayonProduits(produit, dto, rayonProduits);
+        produit.getFournisseurProduits().stream().filter(f -> f.isPrincipal()).findFirst().ifPresent(f -> em.merge(f));
         em.merge(produit);
         logsService.create(TransactionType.UPDATE_PRODUCT, String.format("Modification du produit %s", new Object[]{produit.getLibelle()}), produit.getId());
+    }
+
+    private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {
+        for (Produit p : produits) {
+            Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(p.getId());
+            buildRayonProduits(p, produitDTO, rayonProduits);
+            produitRepository.save(p);
+        }
+    }
+
+    private void buildRayonProduits(Produit produitToUpdate, ProduitDTO produitDTO, Set<RayonProduit> rayonProduits) {
+        Set<RayonProduit> newSet = new HashSet<>();
+        if (!rayonProduits.isEmpty()) {
+            for (RayonProduit r : rayonProduits) {
+                if (r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL) {
+                    newSet.add(r.setRayon(rayonFromId(produitDTO.getRayonId())));
+                } else {
+                    newSet.add(r);
+                }
+            }
+        } else {
+            newSet.add(new RayonProduit().setProduit(produitToUpdate)
+                .setRayon(rayonFromId(produitDTO.getRayonId()))
+            );
+        }
+        produitToUpdate.setRayonProduits(newSet);
     }
 
     @Override
@@ -346,6 +415,18 @@ public class CustomizedProductRepository implements CustomizedProductService {
         fournisseurProduit.setCodeCip(dto.getCodeCip());
         fournisseurProduit.setPrixAchat(dto.getCostAmount());
         fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
+        return fournisseurProduit;
+    }
+
+    @Override
+    public FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
+        fournisseurProduit.setUpdatedAt(Instant.now());
+        fournisseurProduit.setCodeCip(dto.getCodeCip());
+        fournisseurProduit.setPrixAchat(dto.getCostAmount());
+        fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
+        fournisseurProduit.setProduit(produit);
         return fournisseurProduit;
     }
 

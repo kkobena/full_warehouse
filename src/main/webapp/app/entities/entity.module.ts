@@ -106,6 +106,10 @@ import { RouterModule } from '@angular/router';
         path: 'type-etiquette',
         loadChildren: () => import('./type-etiquette/type-etiquette.module').then(m => m.WarehouseTypeEtiquetteModule),
       },
+      {
+        path: 'motif-ajustement',
+        loadChildren: () => import('./modif-ajustement/modif-ajustement.module').then(m => m.ModifAjustementModule),
+      },
     ]),
   ],
 })

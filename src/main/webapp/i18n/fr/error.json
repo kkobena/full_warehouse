@@ -10,6 +10,10 @@
     },
     "concurrencyFailure": "Un autre utilisateur a modifié ces données en même temps que vous. Vos changements n'ont pas été sauvegardés.",
     "validation": "Erreur de validation côté serveur.",
-    "stock": "Stock insuffisant."
+    "stock": "Stock insuffisant.",
+    "principal": "Il existe déjà un fournisseur principal. Désactiver pour continuer",
+    "duplicateCodeCip": "le code  est déjà associé à un produit pour ce grossiste",
+    "duplicateProvider": "Le produit est déjà rattaché au fournisseur séléctionné",
+    "codeCip": "le code  est déjà associé à un produit "
   }
 }

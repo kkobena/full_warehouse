@@ -32,7 +32,7 @@ import org.hibernate.annotations.JoinFormula;
 
     }
 )
-public class Produit implements Serializable {
+public class    Produit implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,7 +58,7 @@ public class Produit implements Serializable {
     @NotNull
     @Min(value = 0)
     @Column(name = "item_qty", nullable = false)
-    private Integer itemQty=1;
+    private Integer itemQty = 1;
     @Column(name = "qty_appro", columnDefinition = "int default '0'")
     private Integer qtyAppro;
     @Column(name = "qty_seuil_mini", columnDefinition = "int default '0'")
@@ -66,20 +66,20 @@ public class Produit implements Serializable {
     @Column(name = "dateperemption", columnDefinition = "boolean default false")
     private Boolean dateperemption;
     @Column(name = "chiffre", columnDefinition = "boolean default true")
-    private Boolean chiffre=true;
+    private Boolean chiffre = true;
     @NotNull
     @Min(value = 0)
     @Column(name = "item_cost_amount", nullable = false)
-    private Integer itemCostAmount=0;
+    private Integer itemCostAmount = 0;
     @Column(name = "scheduled", columnDefinition = "boolean default false COMMENT 'pour les produits avec une obligation ordonnance'")
-    private Boolean scheduled=false;
+    private Boolean scheduled = false;
     @NotNull
     @Min(value = 0)
     @Column(name = "item_regular_unit_price", nullable = false)
-    private Integer itemRegularUnitPrice=0;
+    private Integer itemRegularUnitPrice = 0;
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
-    private Integer prixMnp=0;
+    private Integer prixMnp = 0;
     @OneToMany(mappedBy = "produit")
     private Set<SalesLine> salesLines = new HashSet<>();
     @NotNull
@@ -128,24 +128,40 @@ public class Produit implements Serializable {
     private Status status = Status.ENABLE;
     @Column(name = "perime_at")
     private LocalDate perimeAt;
-    public Set<StockProduit> getStockProduits() {
-        return stockProduits;
-    }
     @OneToMany(mappedBy = "produit", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinFormula("(SELECT o.id FROM fournisseur_produit o WHERE o.principal=1 AND o.produit_id=id LIMIT 1)")
     private FournisseurProduit fournisseurProduitPrincipal;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinFormula("(SELECT o.id FROM stock_produit o,rayon r WHERE o.rayon_id=r.id AND r.storage_id=2 AND o.produit_id=id LIMIT  1)")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinFormula("(SELECT o.id FROM stock_produit o WHERE  o.storage_id=2 AND o.produit_id=id LIMIT  1)")
     private StockProduit stockProduitPointOfSale;
-
+    @OneToMany(mappedBy = "produit",fetch = FetchType.EAGER,  cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    private Set<RayonProduit> rayonProduits = new HashSet<>();
     public FournisseurProduit getFournisseurProduitPrincipal() {
         return fournisseurProduitPrincipal;
     }
 
+    public Set<StockProduit> getStockProduits() {
+        return stockProduits;
+    }
+
     public Produit setFournisseurProduitPrincipal(FournisseurProduit fournisseurProduitPrincipal) {
         this.fournisseurProduitPrincipal = fournisseurProduitPrincipal;
+        return this;
+    }
+
+    public Set<RayonProduit> getRayonProduits() {
+        return rayonProduits;
+    }
+
+    public Produit setRayonProduits(Set<RayonProduit> rayonProduits) {
+        this.rayonProduits = rayonProduits;
+        return this;
+    }
+
+    public Produit id(Long id) {
+        this.id = id;
         return this;
     }
 

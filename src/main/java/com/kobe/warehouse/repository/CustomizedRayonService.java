@@ -47,7 +47,16 @@ public interface CustomizedRayonService {
 		return rayon;
 
 	}
+    default Rayon buildRayonFromRayonDTO(RayonDTO dto,Storage storage) {
+        Rayon rayon = new Rayon();
+        rayon.setCode(dto.getCode());
+        rayon.setLibelle(dto.getLibelle());
+        rayon.setUpdatedAt(Instant.now());
+        rayon.setCreatedAt(Instant.now());
+        rayon.setStorage(storage);
+        return rayon;
 
+    }
 	default Storage fromId(Long id) {
         Storage storage = new Storage();
         storage.setId(id);

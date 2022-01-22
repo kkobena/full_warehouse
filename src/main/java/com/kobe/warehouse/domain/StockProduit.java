@@ -17,7 +17,7 @@ import java.util.HashSet;
 @Entity
 @Table(name = "stock_produit",
 uniqueConstraints=
-@UniqueConstraint(columnNames={"rayon_id", "produit_id"})
+@UniqueConstraint(columnNames={"storage_id", "produit_id"})
 		)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 
@@ -45,11 +45,19 @@ public class StockProduit implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
-    private Rayon rayon;
+    private Produit produit;
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
-    private Produit produit;
+    private Storage storage;
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public StockProduit setStorage(Storage storage) {
+        this.storage = storage;
+        return this;
+    }
 
     public Long getId() {
         return id;
@@ -122,19 +130,6 @@ public class StockProduit implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Rayon getRayon() {
-        return rayon;
-    }
-
-    public StockProduit rayon(Rayon rayon) {
-        this.rayon = rayon;
-        return this;
-    }
-
-    public void setRayon(Rayon rayon) {
-        this.rayon = rayon;
     }
 
     public Produit getProduit() {

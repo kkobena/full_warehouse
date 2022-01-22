@@ -12,6 +12,7 @@ import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
 @NgModule({
   imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
   declarations: [
@@ -22,7 +23,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     DetailFormDialogComponent,
     DeconditionDialogComponent,
     DetailProduitFormComponent,
+    FormProduitFournisseurComponent,
   ],
-  entryComponents: [ProduitDeleteDialogComponent, DetailFormDialogComponent, DeconditionDialogComponent],
+  entryComponents: [ProduitDeleteDialogComponent, DetailFormDialogComponent, DeconditionDialogComponent, FormProduitFournisseurComponent],
 })
 export class WarehouseProduitModule {}

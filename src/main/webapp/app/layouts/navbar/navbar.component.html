@@ -175,6 +175,15 @@
                             <span jhiTranslate="global.menu.laboratoire">Laboratoire</span>
                         </a>
                     </li>
+
+                    <li>
+                        <a class="dropdown-item" routerLink="motif-ajustement" routerLinkActive="active"
+                           [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="pi pi-map"></i>
+                            <span jhiTranslate="global.menu.motifAjustement">Motif ajustement</span>
+                        </a>
+                    </li>
+
                 </ul>
             </li>
 

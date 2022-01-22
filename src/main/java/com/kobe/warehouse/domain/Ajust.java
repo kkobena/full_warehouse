@@ -29,13 +29,24 @@ public class Ajust implements Serializable {
     private SalesStatut statut=SalesStatut.PENDING;
     @ManyToOne(optional = false)
     @NotNull
-    private Magasin magasin;
+    private Storage storage;
+    @Column(name = "commentaire")
+    private String commentaire;
     public Long getId() {
         return id;
     }
 
     public SalesStatut getStatut() {
         return statut;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public Ajust setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
     }
 
     public void setStatut(SalesStatut statut) {
@@ -66,12 +77,13 @@ public class Ajust implements Serializable {
         return user;
     }
 
-    public Magasin getMagasin() {
-        return magasin;
+    public Storage getStorage() {
+        return storage;
     }
 
-    public void setMagasin(Magasin magasin) {
-        this.magasin = magasin;
+    public Ajust setStorage(Storage storage) {
+        this.storage = storage;
+        return this;
     }
 
     public void setUser(User user) {

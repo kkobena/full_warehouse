@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FamilleProduitService } from './famille-produit.service';
-import { Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -32,13 +31,6 @@ export class FamilleProduitComponent implements OnInit {
   customUpload = true;
   displayDialog?: boolean;
 
-  editForm = this.fb.group({
-    id: [],
-    code: [null, [Validators.required]],
-    libelle: [null, [Validators.required]],
-    categorieId: [null, [Validators.required]],
-  });
-
   constructor(
     protected entityService: FamilleProduitService,
     protected activatedRoute: ActivatedRoute,
@@ -46,7 +38,7 @@ export class FamilleProduitComponent implements OnInit {
     private messageService: MessageService,
     private dialogService: DialogService,
     protected modalService: ConfirmationService,
-    private fb: FormBuilder,
+
     protected categorieService: CategorieService
   ) {}
 
@@ -54,23 +46,6 @@ export class FamilleProduitComponent implements OnInit {
     this.activatedRoute.data.subscribe(() => {
       this.loadPage();
     });
-  }
-
-  protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/famille-produit'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
-    this.entites = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.loading = false;
   }
 
   loadPage(page?: number, search?: String): void {
@@ -156,7 +131,22 @@ export class FamilleProduitComponent implements OnInit {
       this.loadPage(0);
     }
   }
+  protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/famille-produit'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+      },
+    });
+    this.entites = data || [];
+    this.loading = false;
+  }
 
+  protected onError(): void {
+    this.loading = false;
+  }
   search(event: any): void {
     this.loadPage(0, event.target.value);
   }

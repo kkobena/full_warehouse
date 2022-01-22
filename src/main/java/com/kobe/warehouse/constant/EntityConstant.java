@@ -9,4 +9,13 @@ public final class EntityConstant {
     public static final String KEY_THEME="KEY_THEME";
     public static final String AUTRES_FOURNISSEURS="AUTRES";
     public static final long SANS_EMPLACEMENT=1l;
+    public static final long DEFAULT_STORAGE=1l;
+    public static final long POINT_of_STORAGE=2l;
+    public static final long DEFAULT_MAGASIN=1l;
+    public static final String APP_GESTION_STOCK="APP_GESTION_STOCK";
+    public static final long RESERVE_STORAGE=3l;
+    public static final String SANS_EMPLACEMENT_LIBELLE="SANS EMPLACEMENT";
+
+
+
 }

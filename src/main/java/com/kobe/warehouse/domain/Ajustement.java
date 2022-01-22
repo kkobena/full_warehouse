@@ -13,7 +13,7 @@ import java.time.Instant;
  * A Ajustement.
  */
 @Entity
-@Table(name = "ajustement",uniqueConstraints ={@UniqueConstraint(columnNames = {"ajust_id","produit_id"})})
+@Table(name = "ajustement", uniqueConstraints = {@UniqueConstraint(columnNames = {"ajust_id", "produit_id"})})
 public class Ajustement implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,6 +43,17 @@ public class Ajustement implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     private Ajust ajust;
+    @ManyToOne
+    private MotifAjustement motifAjustement;
+
+    public MotifAjustement getMotifAjustement() {
+        return motifAjustement;
+    }
+
+    public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
+        this.motifAjustement = motifAjustement;
+        return this;
+    }
 
     public Integer getStockBefore() {
         return stockBefore;
@@ -107,7 +118,6 @@ public class Ajustement implements Serializable {
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
-
 
 
     @Override

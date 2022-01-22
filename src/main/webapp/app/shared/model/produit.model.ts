@@ -6,6 +6,7 @@ import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.mo
 import { TypeProduit } from 'app/shared/model/enumerations/type-produit.model';
 import { IStockProduit } from './stock-produit.model';
 import { IFournisseurProduit } from './fournisseur-produit.model';
+import { IRayonProduit } from './rayon-produit.model';
 
 export interface IProduit {
   id?: number;
@@ -64,6 +65,8 @@ export interface IProduit {
   fournisseurId?: number;
   rayonId?: number;
   expirationDate?: string;
+  displayField?: string;
+  rayonProduits?: IRayonProduit[];
 }
 
 export class Produit implements IProduit {
@@ -123,6 +126,8 @@ export class Produit implements IProduit {
     public codeCip?: string,
     fournisseurId?: number,
     public rayonId?: number,
-    public expirationDate?: string
+    public expirationDate?: string,
+    public displayField?: string,
+    public rayonProduits?: IRayonProduit[]
   ) {}
 }

@@ -18,6 +18,7 @@ export class ErrorComponent implements OnInit, OnDestroy {
     this.route.data.subscribe(routeData => {
       if (routeData.errorMessage) {
         this.errorKey = routeData.errorMessage;
+
         this.getErrorMessageTranslation();
         this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => this.getErrorMessageTranslation());
       }

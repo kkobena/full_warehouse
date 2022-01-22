@@ -29,9 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -46,9 +44,8 @@ public class ImportationProduitService {
     private final LaboratoireRepository laboratoireRepository;
     private final FormProduitRepository formProduitRepository;
     private final RemiseProduitRepository remiseProduitRepository;
-    private final MagasinRepository magasinRepository;
+    private final StorageService storageService;
     private final ProduitRepository produitRepository;
-    private final CustomizedProductService customizedProductService;
     private final TransactionTemplate transactionTemplate;
     private final StockProduitRepository stockProduitRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;
@@ -64,9 +61,8 @@ public class ImportationProduitService {
                                      LaboratoireRepository laboratoireRepository,
                                      FormProduitRepository formProduitRepository,
                                      RemiseProduitRepository remiseProduitRepository,
-                                     MagasinRepository magasinRepository,
                                      ProduitRepository produitRepository,
-                                     CustomizedProductService customizedProductService,
+                                     StorageService storageService,
                                      StockProduitRepository stockProduitRepository,
                                      FournisseurProduitRepository fournisseurProduitRepository,
                                      ImportationRepository importationRepository
@@ -80,18 +76,21 @@ public class ImportationProduitService {
         this.laboratoireRepository = laboratoireRepository;
         this.formProduitRepository = formProduitRepository;
         this.remiseProduitRepository = remiseProduitRepository;
-        this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
-        this.customizedProductService = customizedProductService;
         this.transactionTemplate = transactionTemplate;
         this.stockProduitRepository = stockProduitRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.importationRepository = importationRepository;
+        this.storageService = storageService;
     }
 
     @Async
     public void updateStocFromJSON(InputStream input, User user) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        Storage storage = this.storageService.getDefaultConnectedUserMainStorage();
+        if (storage == null) {
+            storage = this.storageService.getDefaultMagasinMainStorage();
+        }
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
         List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {
@@ -104,7 +103,7 @@ public class ImportationProduitService {
         saveImportation(importation);
         for (ProduitDTO p : list) {
             try {
-                processImportation(p, errorSize, size);
+                processImportation(p, storage, errorSize, size);
                 updateImportation(errorSize.get(), size.get());
             } catch (Exception e) {
                 log.debug("updateStocFromJSON ===>> {}", e);
@@ -114,13 +113,14 @@ public class ImportationProduitService {
         updateImportation(errorSize.get(), size.get());
     }
 
-    void processImportation(final ProduitDTO p, AtomicInteger errorSize, AtomicInteger size) {
+    void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize, AtomicInteger size) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
-                    StockProduit stockProduit = buidStockProduit(p);
+                    StockProduit stockProduit = buidStockProduit(p, storage);
                     Produit produit = buildProduit(p);
+                    produit.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
                     produit = produitRepository.save(produit);
                     stockProduit.setProduit(produit);
                     stockProduitRepository.save(stockProduit);
@@ -133,7 +133,8 @@ public class ImportationProduitService {
                     if (!p.getProduits().isEmpty()) {
                         ProduitDTO detail = p.getProduits().stream().findFirst().get();
                         Produit produitDetail = buildDeatilProduit(detail, produit);
-                        StockProduit stockProduitDetail = buidStockProduit(detail);
+                        produitDetail.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produitDetail)));
+                        StockProduit stockProduitDetail = buidStockProduit(detail, storage);
                         produitDetail = produitRepository.save(produitDetail);
                         stockProduitDetail.setProduit(produitDetail);
                         stockProduitRepository.save(stockProduitDetail);
@@ -191,6 +192,17 @@ public class ImportationProduitService {
         produit.setTypeEtyquette(parent.getTypeEtyquette());
         produit.setForme(parent.getForme());
         return produit;
+    }
+
+    private RayonProduit fromRayonLibelle(String libelle, Storage storage) {
+        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle, storage.getId());
+        Rayon rayon;
+        if (optionalRayon.isEmpty()) {
+            rayon = rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get();
+        } else {
+            rayon = optionalRayon.get();
+        }
+        return new RayonProduit().setRayon(rayon);
     }
 
     private Produit buildProduit(ProduitDTO produitDTO) {
@@ -258,16 +270,16 @@ public class ImportationProduitService {
 
     }
 
-    private StockProduit buidStockProduit(ProduitDTO p) {
+    private StockProduit buidStockProduit(ProduitDTO p, Storage storage) {
         return new StockProduit()
             .qtyStock(p.getTotalQuantity())
             .qtyUG(p.getQtyUG()).
-                qtyVirtual(p.getTotalQuantity())
+            qtyVirtual(p.getTotalQuantity())
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
-            .rayon(rayonRepository.
-                findFirstByLibelleEquals(p.getRayonLibelle()).orElse(new Rayon().id(EntityConstant.SANS_EMPLACEMENT)));
+            .setStorage(storage);
     }
+
 
     private FournisseurProduit buildFournisseurProduit(FournisseurProduitDTO p) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();

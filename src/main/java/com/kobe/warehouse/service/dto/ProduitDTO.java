@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -41,8 +39,8 @@ public class ProduitDTO {
     private Instant lastOrderDate;
     private Instant lastInventoryDate;
     private Integer prixMnp = 0;
-    public String codeCip;
-    private Long parentId,fournisseurId;
+    public String codeCip = "";
+    private Long parentId, fournisseurId;
     private String parentLibelle;
     private Long laboratoireId;
     private String laboratoireLibelle;
@@ -66,9 +64,9 @@ public class ProduitDTO {
     private Boolean dateperemption = false;
     private Boolean chiffre = true;
     private int totalQuantity, qtyReserve;
-    private Boolean deconditionnable  = false;
+    private Boolean deconditionnable = false;
     private String codeEan, rayonLibelle;
-    private Long remiseId, rayonId;
+    private Long remiseId, rayonId, storageId;
     private float tauxRemise;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -76,6 +74,17 @@ public class ProduitDTO {
     private int status;
     private int saleOfPointStock, saleOfPointVirtualStock;
     private String expirationDate;
+    private String displayField;
+    private List<RayonProduitDTO> rayonProduits = new ArrayList<>();
+
+    public String getDisplayField() {
+        return displayField;
+    }
+
+    public ProduitDTO setDisplayField(String displayField) {
+        this.displayField = displayField;
+        return this;
+    }
 
     public int getSaleOfPointStock() {
         return saleOfPointStock;
@@ -96,6 +105,15 @@ public class ProduitDTO {
 
     public ProduitDTO setExpirationDate(String expirationDate) {
         this.expirationDate = expirationDate;
+        return this;
+    }
+
+    public Long getStorageId() {
+        return storageId;
+    }
+
+    public ProduitDTO setStorageId(Long storageId) {
+        this.storageId = storageId;
         return this;
     }
 
@@ -140,6 +158,106 @@ public class ProduitDTO {
         return this;
     }
 
+
+    public ProduitDTO(Produit produit, Magasin magasin, StockProduit stockProduitPointOfSale) {
+        this.id = produit.getId();
+        this.libelle = produit.getLibelle();
+        this.typeProduit = produit.getTypeProduit();
+        this.costAmount = produit.getCostAmount();
+        this.regularUnitPrice = produit.getRegularUnitPrice();
+        this.netUnitPrice = produit.getNetUnitPrice();
+        this.createdAt = produit.getCreatedAt();
+        this.updatedAt = produit.getUpdatedAt();
+        this.itemQty = produit.getItemQty();
+        this.itemCostAmount = produit.getItemCostAmount();
+        this.itemRegularUnitPrice = produit.getItemRegularUnitPrice();
+        Produit parent = produit.getParent();
+        if (parent != null) {
+            this.produitId = parent.getId();
+            this.produitLibelle = parent.getLibelle();
+        }
+        this.produits = produit.getProduits().stream().map(ProduitDTO::new).collect(Collectors.toList());
+        this.fournisseurProduits = produit.getFournisseurProduits().stream().map(FournisseurProduitDTO::new).collect(Collectors.toSet());
+        this.chiffre = produit.getChiffre();
+        this.createdAt = produit.getCreatedAt();
+        System.out.println("========================================<" + produit.getFournisseurProduitPrincipal());
+        this.prixMnp = produit.getPrixMnp();
+        FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
+        System.out.println("fournisseurProduitPrincipal ==+++++++++++++++++" + fournisseurProduitPrincipal);
+        if (fournisseurProduitPrincipal != null) {
+            this.codeCip = fournisseurProduitPrincipal.getCodeCip();
+            this.fournisseurProduit = new FournisseurProduitDTO(fournisseurProduitPrincipal);
+            this.fournisseurId = this.fournisseurProduit.getFournisseurId();
+        }
+        Laboratoire laboratoire = produit.getLaboratoire();
+        if (laboratoire != null) {
+            this.laboratoireId = laboratoire.getId();
+            this.laboratoireLibelle = laboratoire.getLibelle();
+        }
+        FormProduit formProduit = produit.getForme();
+        if (formProduit != null) {
+            this.formeId = formProduit.getId();
+            this.formeLibelle = formProduit.getLibelle();
+        }
+        TypeEtiquette typeEtiquette = produit.getTypeEtyquette();
+        if (typeEtiquette != null) {
+            this.typeEtyquetteId = typeEtiquette.getId();
+            this.typeEtyquetteLibelle = typeEtiquette.getLibelle();
+        }
+        FamilleProduit familleProduit = produit.getFamille();
+        if (familleProduit != null) {
+            this.familleId = familleProduit.getId();
+            this.familleLibelle = familleProduit.getLibelle();
+        }
+        GammeProduit gammeProduit = produit.getGamme();
+        if (gammeProduit != null) {
+            this.gammeId = gammeProduit.getId();
+            this.gammeLibelle = gammeProduit.getLibelle();
+        }
+        Tva tva = produit.getTva();
+        if (tva != null) {
+            this.tvaId = tva.getId();
+            this.tvaTaux = tva.getTaux();
+        }
+        this.stockProduits = produit.getStockProduits().stream().filter(s -> s.getStorage().getMagasin().getId().equals(magasin.getId())).map(StockProduitDTO::new).collect(Collectors.toSet());
+        if (stockProduitPointOfSale != null) {
+            this.stockProduit = new StockProduitDTO(stockProduitPointOfSale);
+            this.saleOfPointStock = stockProduitPointOfSale.getQtyStock();
+
+        }
+        this.rayonProduits = produit.getRayonProduits().stream().map(RayonProduitDTO::new).collect(Collectors.toList());
+        Optional<RayonProduitDTO> rayon = rayonProduits.stream().filter(r -> (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue()) && r.getMagasinId().equals(magasin.getId()))).findFirst();
+
+        if (rayon.isPresent()) {
+            RayonProduitDTO rayonProduitDTO = rayon.get();
+            System.out.println("rayon =====>>>>" + rayonProduitDTO);
+            this.rayonId = rayonProduitDTO.getRayonId();
+            this.rayonLibelle = rayonProduitDTO.getLibelleRayon();
+
+        }
+
+
+        this.totalQuantity = this.stockProduits.stream().collect(Collectors.summingInt(StockProduitDTO::getQtyStock));
+        this.qtyAppro = produit.getQtyAppro();
+        this.qtySeuilMini = produit.getQtySeuilMini();
+        this.dateperemption = produit.getDateperemption();
+        this.chiffre = produit.getChiffre();
+        this.deconditionnable = produit.getDeconditionnable();
+        this.codeEan = produit.getCodeEan();
+        RemiseProduit remiseProduit = produit.getRemise();
+        if (remiseProduit != null) {
+            this.remiseId = remiseProduit.getId();
+            this.tauxRemise = remiseProduit.getRemiseValue();
+        }
+        this.perimeAt = produit.getPerimeAt();
+        if (produit.getPerimeAt() != null) {
+            this.expirationDate = produit.getPerimeAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        this.status = produit.getStatus().ordinal();
+
+
+    }
+
     public ProduitDTO(Produit produit) {
         this.id = produit.getId();
         this.libelle = produit.getLibelle();
@@ -162,9 +280,10 @@ public class ProduitDTO {
         this.fournisseurProduits = produit.getFournisseurProduits().stream().map(FournisseurProduitDTO::new).collect(Collectors.toSet());
         this.chiffre = produit.getChiffre();
         this.createdAt = produit.getCreatedAt();
-        // System.out.println(produit.getFournisseurProduitPrincipal());
+        System.out.println("========================================<" + produit.getFournisseurProduitPrincipal());
         this.prixMnp = produit.getPrixMnp();
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
+        System.out.println("fournisseurProduitPrincipal ==+++++++++++++++++" + fournisseurProduitPrincipal);
         if (fournisseurProduitPrincipal != null) {
             this.codeCip = fournisseurProduitPrincipal.getCodeCip();
             this.fournisseurProduit = new FournisseurProduitDTO(fournisseurProduitPrincipal);
@@ -205,9 +324,14 @@ public class ProduitDTO {
         if (stockProduitPointOfSale != null) {
             this.stockProduit = new StockProduitDTO(stockProduitPointOfSale);
             this.saleOfPointStock = stockProduitPointOfSale.getQtyStock();
-            Rayon rayon = stockProduitPointOfSale.getRayon();
+
+        }
+        try {
+            Rayon rayon = produit.getRayonProduits().stream().filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().get().getRayon();
             this.rayonId = rayon.getId();
             this.rayonLibelle = rayon.getLibelle();
+        } catch (Exception e) {
+
         }
         this.totalQuantity = this.stockProduits.stream().collect(Collectors.summingInt(StockProduitDTO::getQtyStock));
         this.qtyAppro = produit.getQtyAppro();
@@ -222,12 +346,16 @@ public class ProduitDTO {
             this.tauxRemise = remiseProduit.getRemiseValue();
         }
         this.perimeAt = produit.getPerimeAt();
-        if(produit.getPerimeAt()!=null){
-            this.expirationDate=produit.getPerimeAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        if (produit.getPerimeAt() != null) {
+            this.expirationDate = produit.getPerimeAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
         this.status = produit.getStatus().ordinal();
+        this.displayField = this.codeCip.concat(" ").concat(this.libelle).concat(" ")
+            .concat(this.regularUnitPrice + "");
+
 
     }
+
     public static FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
         fournisseurProduit.setCreatedAt(Instant.now());
@@ -241,40 +369,42 @@ public class ProduitDTO {
     }
 
 
-    public static StockProduit stockProduitFromProduitDTO(ProduitDTO dto) {
+    public static StockProduit stockProduitFromProduitDTO(Storage storage) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(0);
         stockProduit.setQtyVirtual(0);
         stockProduit.setCreatedAt(Instant.now());
         stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
         stockProduit.setQtyUG(0);
-        stockProduit.setRayon(rayonFromId(dto.getRayonId()));
+        stockProduit.setStorage(storage);
         return stockProduit;
     }
-    public static StockProduit stockProduitFromDTO(StockProduitDTO dto, Rayon rayon) {
+
+    public static StockProduit stockProduitFromDTO(StockProduitDTO dto, Storage storage) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(dto.getQtyStock());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
         stockProduit.setCreatedAt(Instant.now());
         stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
         stockProduit.setQtyUG(dto.getQtyUG());
-        stockProduit.setRayon(rayon);
+        stockProduit.setStorage(storage);
         return stockProduit;
     }
 
-    public static Produit fromDTO(ProduitDTO produitDTO) {
+    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
         Produit produit = new Produit();
+        produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setTypeProduit(TypeProduit.PACKAGE);
         produit.setCreatedAt(Instant.now());
         produit.setUpdatedAt(produit.getCreatedAt());
         produit.setCostAmount(produitDTO.getCostAmount());
-        if ( produitDTO.getDeconditionnable() ) {
+        if (produitDTO.getDeconditionnable()) {
             produit.setItemCostAmount(produitDTO.getItemCostAmount());
             produit.setItemQty(produitDTO.getItemQty());
             produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-        }else{
+        } else {
             produit.setItemCostAmount(produitDTO.getCostAmount());
             produit.setItemQty(1);
             produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
@@ -285,8 +415,8 @@ public class ProduitDTO {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        if(StringUtils.isNotEmpty(produitDTO.getExpirationDate())){
-            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(),DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
+            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
 
         produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
@@ -296,8 +426,9 @@ public class ProduitDTO {
         produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
         produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtyquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-        produit.addStockProduit(stockProduitFromProduitDTO(produitDTO));
+        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+
         return produit;
     }
 
@@ -425,6 +556,15 @@ public class ProduitDTO {
             return null;
         }
         Rayon entity = new Rayon();
+        entity.setId(id);
+        return entity;
+    }
+
+    public static Storage storageFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Storage entity = new Storage();
         entity.setId(id);
         return entity;
     }
@@ -924,9 +1064,14 @@ public class ProduitDTO {
             //  dto.setStockProduit( new StockProduitDTO(stockProduitPointOfSale));
             dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
             dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
-            Rayon rayon = stockProduitPointOfSale.getRayon();
-            dto.setRayonId(rayon.getId());
-            dto.setRayonLibelle(rayon.getLibelle());
+            try {
+                Rayon rayon = produit.getRayonProduits().stream().filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().get().getRayon();
+                dto.setRayonId(rayon.getId());
+                dto.setRayonLibelle(rayon.getLibelle());
+            } catch (Exception e) {
+
+            }
+
         }
         dto.setCodeEan(produit.getCodeEan());
         RemiseProduit remiseProduit = produit.getRemise();
@@ -940,5 +1085,14 @@ public class ProduitDTO {
 
         }
         return dto;
+    }
+
+    public List<RayonProduitDTO> getRayonProduits() {
+        return rayonProduits;
+    }
+
+    public ProduitDTO setRayonProduits(List<RayonProduitDTO> rayonProduits) {
+        this.rayonProduits = rayonProduits;
+        return this;
     }
 }

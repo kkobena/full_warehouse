@@ -2,12 +2,10 @@ package com.kobe.warehouse.repository;
 
 
 import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,13 +14,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomizedProductService {
     List<ProduitDTO> findAll(ProduitCriteria produitCriteria) throws Exception;
 
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception;
 
-    void save(ProduitDTO dto) throws Exception;
+    Optional<ProduitDTO> findOneById(Long ProduitId);
+
+    void save(ProduitDTO dto, Rayon rayon) throws Exception;
 
     void save(Produit dto) throws Exception;
 
@@ -72,7 +73,7 @@ public interface CustomizedProductService {
         stockProduit.setUpdatedAt(Instant.now());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
         stockProduit.setQtyUG(dto.getQtyUG());
-        stockProduit.setRayon(rayonFromId(dto.getRayonId()));
+        stockProduit.setStorage(storageFromId(dto.getStorageId()));
         return stockProduit;
     }
 
@@ -83,8 +84,18 @@ public interface CustomizedProductService {
         stockProduit.setUpdatedAt(Instant.now());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
         stockProduit.setQtyUG(dto.getQtyUG());
-        stockProduit.setRayon(rayonFromId(dto.getRayonId()));
+        stockProduit.setStorage(storageFromId(dto.getStorageId()));
         return stockProduit;
+    }
+
+    default Storage storageFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Storage storage = new Storage();
+        storage.setId(id);
+        return storage;
+
     }
 
     default Rayon rayonFromId(Long id) {
@@ -192,7 +203,7 @@ public interface CustomizedProductService {
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCostAmount(produitDTO.getCostAmount());
-        if (produitDTO.getDeconditionnable() ) {
+        if (produitDTO.getDeconditionnable()) {
             produit.setItemCostAmount(produitDTO.getItemCostAmount());
             produit.setItemQty(produitDTO.getItemQty());
             produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
@@ -207,7 +218,7 @@ public interface CustomizedProductService {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        if(StringUtils.isNotEmpty(produitDTO.getExpirationDate())){
+        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
         produit.setRemise(remiseProduitFromId(produitDTO.getRemiseId()));
@@ -218,12 +229,13 @@ public interface CustomizedProductService {
         produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtyquetteId()));
         produit.setForme(formeFromId(produitDTO.getFormeId()));
         //   produit.addStockProduit(stockProduitFromProduitDTO(produitDTO));
-        produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+        produit.addFournisseurProduit(fournisseurProduitProduit(produit, produitDTO));
         return produit;
     }
 
     FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto);
 
+    FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto);
 
     StockProduit stockProduitFromProduitDTO(ProduitDTO dto);
 
@@ -245,7 +257,7 @@ public interface CustomizedProductService {
         produit.setCostAmount(produitDTO.getCostAmount());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         //   produit.addStockProduit(stockProduitFromProduitDTO(produitDTO));
-      //  produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+        //  produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
         return produit;
     }
 

@@ -142,11 +142,6 @@
             </button>
         </div>
     </p-toolbar>
-
-    <!--  <jhi-alert-error></jhi-alert-error>
-
-      <jhi-alert></jhi-alert>-->
-
     <div class="alert alert-warning" id="no-result" *ngIf="produits?.length === 0">
         <span jhiTranslate="warehouseApp.produit.home.notFound">No produits found</span>
     </div>
@@ -340,10 +335,8 @@
                                         <tr>
                                             <th style="width: 15%;">Code rayon</th>
                                             <th style="width: 45%;">Libelle rayon</th>
-                                            <th style="width:30%;">Stockage</th>
-
-
-                                            <th style="width:10%; text-align:right;display: none;">
+                                            <th style="width:30%;" *ngIf="!isMono">Stockage</th>
+                                            <th style="width:10%; text-align:right;" *ngIf="!isMono">
                                                 <button pTooltip="Ajouter un rayon"
                                                         pButton icon="pi pi-plus"
                                                         class="p-button-rounded p-button-primary"></button>
@@ -353,15 +346,13 @@
                                         <tbody>
                                         <tr
                                             *ngFor="let rayon of elRow?.rayonProduits; let i = index">
-
                                             <td>{{rayon.codeRayon}}</td>
                                             <td>{{rayon.libelleRayon}}</td>
-                                            <td>{{rayon.libelleStorage}}</td>
-                                            <td style="text-align: right;display: none;">
-
+                                            <td *ngIf="!isMono">{{rayon.libelleStorage}}</td>
+                                            <td *ngIf="!isMono">
                                                 <button pButton pRipple icon="pi pi-trash"
                                                         pTooltip="Supprimer"
-                                                        class="p-button-rounded p-button-danger p-mb-3"></button>
+                                                        class="p-button-rounded p-button-danger p-button-sm  p-mb-3"></button>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -372,92 +363,87 @@
                         </div>
 
 
-                        <div class="card col-md-6">
+                        <div class="card col-md-6 ml-1">
                             <div class="card-header bg-success text-white">INFORMATIONS COMPLEMENTAIRES</div>
                             <div class="card-body">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Repartition du stock</h5>
-                                        <table class="table table-striped">
-                                            <thead>
-                                            <tr>
-                                                <th style="width:60%;">Stockage</th>
-                                                <th style="width:10%;">Stock</th>
-                                                <th style="text-align:right;width:30%;" pTooltip="Repartir le stock">
-                                                    <button pButton icon="pi pi-plus"
-                                                            class="p-button-rounded p-button-primary"></button>
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr *ngFor="let stock of elRow?.stockProduits; let i = index">
-                                                <td>{{stock.storageName}}</td>
-                                                <td>{{stock.qtyStock | number}}</td>
-                                                <td style="text-align: right;">
-                                                    <button pButton pRipple icon="pi pi-pencil"
-                                                            class="p-button-rounded p-button-success p-mr-2"
-                                                    ></button>
-                                                    <button pButton pRipple icon="pi pi-trash"
-                                                            class="p-button-rounded p-button-danger"
-                                                    ></button>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
+                                <div *ngIf="!isMono">
+                                <h5 class="card-title">Repartition du stock</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:60%;">Stockage</th>
+                                        <th style="width:10%;">Stock</th>
+                                        <th style="text-align:right;width:30%;" pTooltip="Repartir le stock">
+                                            <button pButton icon="pi pi-plus"
+                                                    class="p-button-rounded p-button-primary"></button>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr *ngFor="let stock of elRow?.stockProduits; let i = index">
+                                        <td>{{stock.storageName}}</td>
+                                        <td>{{stock.qtyStock | number}}</td>
+                                        <td style="text-align: right;">
+                                            <button pButton pRipple icon="pi pi-pencil"
+                                                    class="p-button-rounded p-button-success p-mr-2"
+                                            ></button>
+                                            <button pButton pRipple icon="pi pi-trash"
+                                                    class="p-button-rounded p-button-danger"
+                                            ></button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table></div>
 
-                                    </div>
-                                </div>
-                                <div class="card mt-1">
-                                    <div class="card-body">
-                                        <h5 class="card-title bg-info text-white">Gestion des grossistes du produit</h5>
-                                        <table class="table table-striped">
-                                            <thead>
-                                            <tr>
-                                                <th style="width:30%">Grossiste</th>
-                                                <th style="width:15%">Cip</th>
-                                                <th style="width:12%">Prix.A</th>
-                                                <th style="width:12%">Prix.U</th>
-                                                <th style="width: 31%;text-align:right;">
-                                                    <button pTooltip="Ajouter un fournisseur"
-                                                            (click)="addFournisseur(elRow)"
-                                                            pButton icon="pi pi-plus"
-                                                            class="p-button-rounded p-button-sm  p-button-primary"></button>
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr
-                                                *ngFor="let four of elRow?.fournisseurProduits; let i = index">
-                                                <td>{{four.fournisseurLibelle}}</td>
-                                                <td>{{four.codeCip}}</td>
-                                                <td>{{four.prixAchat | number}}</td>
-                                                <td>{{four.prixUni | number}}</td>
-                                                <td style="text-align: right;">
-                                                    <p-inputSwitch [(ngModel)]="four.principal"
-                                                                   pTooltip="Changer en fournisseur principal"
+                                <hr>
+                                <div class="mt-1">
+                                    <h5 class="card-title bg-info text-white">Gestion des grossistes du produit</h5>
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:30%">Grossiste</th>
+                                            <th style="width:15%">Cip</th>
+                                            <th style="width:12%">Prix.A</th>
+                                            <th style="width:12%">Prix.U</th>
+                                            <th style="width: 31%;text-align:right;">
+                                                <button pTooltip="Ajouter un fournisseur"
+                                                        (click)="addFournisseur(elRow)"
+                                                        pButton icon="pi pi-plus"
+                                                        class="p-button-rounded p-button-sm  p-button-primary"></button>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr
+                                            *ngFor="let four of elRow?.fournisseurProduits; let i = index">
+                                            <td>{{four.fournisseurLibelle}}</td>
+                                            <td>{{four.codeCip}}</td>
+                                            <td>{{four.prixAchat | number}}</td>
+                                            <td>{{four.prixUni | number}}</td>
+                                            <td style="text-align: right;">
+                                                <p-inputSwitch [(ngModel)]="four.principal"
+                                                               pTooltip="Changer en fournisseur principal"
 
-                                                                   (onChange)="onChangeDefaultProduitFournisseur($event,four)">
-                                                    </p-inputSwitch>
-                                                    <button pButton pRipple icon="pi pi-pencil"
-                                                            pTooltip="Editer"  (click)="editFournisseur(elRow,four)"
-                                                            class="p-button-rounded p-button-success p-button-sm p-mr-2 p-ml-2 p-mb-3"></button>
+                                                               (onChange)="onChangeDefaultProduitFournisseur($event,four)">
+                                                </p-inputSwitch>
+                                                <button pButton pRipple icon="pi pi-pencil"
+                                                        pTooltip="Editer" (click)="editFournisseur(elRow,four)"
+                                                        class="p-button-rounded p-button-success p-button-sm p-mr-2 p-ml-2 p-mb-3"></button>
 
-                                                    <button pButton pRipple icon="pi pi-trash"
-                                                            (click)="confirmDeleteProduitFournisseur(four,elRow)"
-                                                            pTooltip="Supprimer"
-                                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3"></button>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
+                                                <button pButton pRipple icon="pi pi-trash"
+                                                        (click)="confirmDeleteProduitFournisseur(four,elRow)"
+                                                        pTooltip="Supprimer"
+                                                        class="p-button-rounded p-button-danger p-button-sm  p-mb-3"></button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
 
-                                    </div>
                                 </div>
                             </div>
-                        </div>
 
 
-                    </div>
+                        </div></div>
                 </td>
             </tr>
 

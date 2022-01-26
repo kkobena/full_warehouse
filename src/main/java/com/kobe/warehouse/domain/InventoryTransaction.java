@@ -69,6 +69,8 @@ public class InventoryTransaction implements Serializable {
     private SalesLine saleLine;
     @ManyToOne
     private OrderLine orderLine;
+    @ManyToOne
+    private RepartitionStockProduit repartitionStockProduit;
 	public User getUser() {
 		return user;
 	}
@@ -254,6 +256,15 @@ public class InventoryTransaction implements Serializable {
 
     public InventoryTransaction setOrderLine(OrderLine orderLine) {
         this.orderLine = orderLine;
+        return this;
+    }
+
+    public RepartitionStockProduit getRepartitionStockProduit() {
+        return repartitionStockProduit;
+    }
+
+    public InventoryTransaction setRepartitionStockProduit(RepartitionStockProduit repartitionStockProduit) {
+        this.repartitionStockProduit = repartitionStockProduit;
         return this;
     }
 }

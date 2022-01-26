@@ -15,6 +15,7 @@ public class RayonProduitDTO {
     private Long magasinId;
     private Long rayonId;
     private Long id;
+    private Long produitId;
 
 
     public RayonProduitDTO(RayonProduit produit) {
@@ -29,7 +30,17 @@ public class RayonProduitDTO {
         this.magasinId = thatmagasin.getId();
         this.rayonId = rayon.getId();
         this.id = produit.getId();
+        this.produitId = produit.getProduit().getId();
 
+    }
+
+    public Long getProduitId() {
+        return produitId;
+    }
+
+    public RayonProduitDTO setProduitId(Long produitId) {
+        this.produitId = produitId;
+        return this;
     }
 
     public Long getRayonId() {

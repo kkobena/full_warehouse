@@ -51,8 +51,9 @@ public class SaleService {
     private final ReportService reportService;
     private final UninsuredCustomerRepository uninsuredCustomerRepository;
     private final PaymentModeRepository paymentModeRepository;
+    private final StorageService storageService;
 
-    public SaleService(EntityManager em, SalesRepository salesRepository, ProduitRepository produitRepository, SalesLineRepository salesLineRepository, UserRepository userRepository, ReferenceService referenceService, InventoryTransactionRepository inventoryTransactionRepository, PaymentRepository paymentRepository, ReportService reportService, UninsuredCustomerRepository uninsuredCustomerRepository, PaymentModeRepository paymentModeRepository) {
+    public SaleService(EntityManager em, SalesRepository salesRepository, ProduitRepository produitRepository, SalesLineRepository salesLineRepository, UserRepository userRepository, ReferenceService referenceService, InventoryTransactionRepository inventoryTransactionRepository, PaymentRepository paymentRepository, ReportService reportService, UninsuredCustomerRepository uninsuredCustomerRepository, PaymentModeRepository paymentModeRepository, StorageService storageService) {
         this.em = em;
         this.salesRepository = salesRepository;
         this.produitRepository = produitRepository;
@@ -64,6 +65,7 @@ public class SaleService {
         this.reportService = reportService;
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
         this.paymentModeRepository = paymentModeRepository;
+        this.storageService = storageService;
     }
 
     @Transactional(readOnly = true)

@@ -9,6 +9,7 @@ import { createRequestOption, createRequestOptions } from 'app/shared/util/reque
 import { IProduit } from 'app/shared/model/produit.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
+import { IRayonProduit } from '../../shared/model/rayon-produit.model';
 
 type EntityResponseType = HttpResponse<IProduit>;
 type EntityArrayResponseType = HttpResponse<IProduit[]>;
@@ -18,6 +19,7 @@ export class ProduitService {
   public resourceUrl = SERVER_API_URL + 'api/produits';
   public importationResourceUrl = SERVER_API_URL + 'api/importation';
   public fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
+  public rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
 
   constructor(protected http: HttpClient) {}
 
@@ -79,6 +81,7 @@ export class ProduitService {
   updateDefaultFournisseur(id: number, checked: boolean): Observable<HttpResponse<{}>> {
     return this.http.put<{}>(`${this.fournisseurProduitUrl}/${id}/${checked}`, {}, { observe: 'response' });
   }
+
   deleteFournisseur(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.fournisseurProduitUrl}/${id}`, { observe: 'response' });
   }
@@ -86,9 +89,19 @@ export class ProduitService {
   createProduitFournisseur(produitFournisseur: IFournisseurProduit): Observable<HttpResponse<IFournisseurProduit>> {
     return this.http.post<IFournisseurProduit>(this.fournisseurProduitUrl, produitFournisseur, { observe: 'response' });
   }
+
   updateProduitFournisseur(produitFournisseur: IFournisseurProduit): Observable<HttpResponse<IFournisseurProduit>> {
     return this.http.put<IFournisseurProduit>(this.fournisseurProduitUrl, produitFournisseur, { observe: 'response' });
   }
+
+  deleteRayon(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.rayonProduitUrl}/${id}`, { observe: 'response' });
+  }
+
+  createRayon(rayonProduit: IRayonProduit): Observable<HttpResponse<IRayonProduit>> {
+    return this.http.post<IRayonProduit>(this.rayonProduitUrl, rayonProduit, { observe: 'response' });
+  }
+
   protected convertDateFromClient(produit: IProduit): IProduit {
     const copy: IProduit = Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,

@@ -50,6 +50,7 @@ public class StockProduit implements Serializable {
     @NotNull
     private Storage storage;
 
+
     public Storage getStorage() {
         return storage;
     }

@@ -31,11 +31,11 @@
                 <dt><span jhiTranslate="warehouseApp.payment.paymentMode">Payment Mode</span></dt>
                 <dd>
                     <div *ngIf="payment.paymentMode">
-                        <a [routerLink]="['/payment-mode', payment.paymentMode?.id, 'view']">{{ payment.paymentMode?.id }}</a>
+                        <span>{{ payment.paymentMode.libelle }}</span>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="warehouseApp.payment.dateDimension">Date Dimension</span></dt>
-               
+
             </dl>
 
             <button type="submit"

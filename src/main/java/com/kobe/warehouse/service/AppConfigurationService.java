@@ -22,9 +22,14 @@ public class AppConfigurationService {
         if (appConfiguration.isEmpty()) return true;
         return Integer.valueOf(appConfiguration.get().getValue().trim()) == 0;
     }
-    @Cacheable(EntityConstant.APP_GESTION_STOCK)
-    public Optional<AppConfiguration> findOneById(String id){
+
+    public Optional<AppConfiguration> findOneById(String id) {
         return appConfigurationRepository.findById(id);
     }
 
+    @Cacheable(EntityConstant.APP_GESTION_STOCK)
+    public Optional<AppConfiguration> findStockParam() {
+        return appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
+    }
+//canForceStock param
 }

@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { ISales } from 'app/shared/model/sales.model';
+import { ISalesLine } from '../../shared/model/sales-line.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -17,17 +18,17 @@ export class SalesService {
 
   constructor(protected http: HttpClient) {}
 
-  create(sales: ISales): Observable<EntityResponseType> {
+  createComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
-      .post<ISales>(this.resourceUrl, copy, { observe: 'response' })
+      .post<ISales>(`${this.resourceUrl}/comptant`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  update(sales: ISales): Observable<EntityResponseType> {
+  updateComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
-      .put<ISales>(this.resourceUrl, copy, { observe: 'response' })
+      .put<ISales>(`${this.resourceUrl}/comptant`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
@@ -46,6 +47,45 @@ export class SalesService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  save(sales: ISales): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http
+      .put<ISales>(this.resourceUrl + '/save', copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  print(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/${id}`, { responseType: 'blob' });
+  }
+
+  addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
+    const copy = this.convertItemDateFromClient(salesLine);
+    return this.http
+      .post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, copy, { observe: 'response' })
+      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+  }
+
+  updateItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
+    const copy = this.convertItemDateFromClient(salesLine);
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/update-item/comptant`, copy, { observe: 'response' })
+      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+  }
+
+  addItemAssurance(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
+    const copy = this.convertItemDateFromClient(salesLine);
+    return this.http
+      .post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, copy, { observe: 'response' })
+      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+  }
+
+  updateItemAssurance(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
+    const copy = this.convertItemDateFromClient(salesLine);
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/update-item/assurance`, copy, { observe: 'response' })
+      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
 
   protected convertDateFromClient(sales: ISales): ISales {
@@ -73,14 +113,30 @@ export class SalesService {
     }
     return res;
   }
-  save(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .put<ISales>(this.resourceUrl + '/save', copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+
+  protected convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
+    const copy: ISalesLine = Object.assign({}, salesLine, {
+      createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
+    });
+    return copy;
   }
 
-  print(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/${id}`, { responseType: 'blob' });
+  protected convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
+    if (res.body) {
+      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
+      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
+    }
+    return res;
+  }
+
+  protected convertItemDateArrayFromServer(res: HttpResponse<ISalesLine[]>): HttpResponse<ISalesLine[]> {
+    if (res.body) {
+      res.body.forEach((salesLine: ISalesLine) => {
+        salesLine.createdAt = salesLine.createdAt ? moment(salesLine.createdAt) : undefined;
+        salesLine.updatedAt = salesLine.updatedAt ? moment(salesLine.updatedAt) : undefined;
+      });
+    }
+    return res;
   }
 }

@@ -15,6 +15,11 @@ public final class EntityConstant {
     public static final String APP_GESTION_STOCK="APP_GESTION_STOCK";
     public static final long RESERVE_STORAGE=3l;
     public static final String SANS_EMPLACEMENT_LIBELLE="SANS EMPLACEMENT";
+    public static final String POINT_DE_VENTE_CACHE="POINT_DE_VENTE";
+    public static final String PRINCIPAL_CACHE="PRINCIPAL";
+    public static final String CAN_SORCE_STOCK="CAN_SORCE_STOCK";
+
+
 
 
 

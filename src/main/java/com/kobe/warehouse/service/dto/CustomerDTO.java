@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Payment;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
     @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD")
 })

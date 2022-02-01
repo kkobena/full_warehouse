@@ -64,8 +64,8 @@
                     <td>{{ payment.updatedAt | date:'medium' }}</td>
                     <td>
                         <div *ngIf="payment.paymentMode">
-                            <a [routerLink]="['/payment-mode', payment.paymentMode?.id, 'view']">{{
-                                payment.paymentMode?.id }}</a>
+                            <a [routerLink]="['/payment-mode', payment.paymentMode?.code, 'view']">{{
+                                payment.paymentMode?.code }}</a>
                         </div>
                     </td>
 

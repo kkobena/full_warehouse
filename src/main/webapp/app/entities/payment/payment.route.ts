@@ -10,7 +10,6 @@ import { IPayment, Payment } from 'app/shared/model/payment.model';
 import { PaymentService } from './payment.service';
 import { PaymentComponent } from './payment.component';
 import { PaymentDetailComponent } from './payment-detail.component';
-import { PaymentUpdateComponent } from './payment-update.component';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentResolve implements Resolve<IPayment> {
@@ -48,30 +47,6 @@ export const paymentRoute: Routes = [
   {
     path: ':id/view',
     component: PaymentDetailComponent,
-    resolve: {
-      payment: PaymentResolve,
-    },
-    data: {
-      authorities: [Authority.USER],
-      pageTitle: 'warehouseApp.payment.home.title',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'new',
-    component: PaymentUpdateComponent,
-    resolve: {
-      payment: PaymentResolve,
-    },
-    data: {
-      authorities: [Authority.USER],
-      pageTitle: 'warehouseApp.payment.home.title',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/edit',
-    component: PaymentUpdateComponent,
     resolve: {
       payment: PaymentResolve,
     },

@@ -11,6 +11,7 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,16 +52,16 @@ public class StorageService {
         return storageRepository.getOne(EntityConstant.RESERVE_STORAGE);
     }
 
-    private User getUser() {
+    public User getUser() {
         Optional<User> user = SecurityUtils.getCurrentUserLogin()
             .flatMap(login -> userRepository.findOneByLogin(login));
         return user.orElseGet(null);
     }
-
+    @Cacheable(EntityConstant.PRINCIPAL_CACHE)
     public Storage getDefaultConnectedUserMainStorage() {
         return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
-
+    @Cacheable(EntityConstant.POINT_DE_VENTE_CACHE)
     public Storage getDefaultConnectedUserPointOfSaleStorage() {
         if (appConfigurationService.isMono())
             return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);

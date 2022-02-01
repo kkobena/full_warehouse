@@ -9,23 +9,22 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.*;
 
 import javax.persistence.Column;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"),
     @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO")
 })
 public class SaleDTO implements Serializable {
     private Long id;
     private Integer discountAmount;
-    private Customer customer;
     private String numberTransaction;
     private Long customerId;
     private Integer salesAmount;
     private String userFullName;
-    private Integer grossAmount;
+    private Integer htAmount;
     private Integer netAmount;
     private Integer taxAmount;
     private Integer costAmount;
@@ -53,7 +52,71 @@ public class SaleDTO implements Serializable {
     private Integer montantnetUg = 0;
     private Integer montantTvaUg = 0;
     private Integer marge = 0;
+    private NatureVente natureVente;
+    private TypePrescription typePrescription;
+    private PaymentStatus paymentStatus;
+    private CustomerDTO customer;
+    private UserDTO cassier, seller;
 
+    public UserDTO getCassier() {
+        return cassier;
+    }
+
+    public SaleDTO setCassier(UserDTO cassier) {
+        this.cassier = cassier;
+        return this;
+    }
+
+    public UserDTO getSeller() {
+        return seller;
+    }
+
+    public SaleDTO setSeller(UserDTO seller) {
+        this.seller = seller;
+        return this;
+    }
+
+    public NatureVente getNatureVente() {
+        return natureVente;
+    }
+
+    public SaleDTO setNatureVente(NatureVente natureVente) {
+        this.natureVente = natureVente;
+        return this;
+    }
+
+    public Integer getHtAmount() {
+        return htAmount;
+    }
+
+    public SaleDTO setHtAmount(Integer htAmount) {
+        this.htAmount = htAmount;
+        return this;
+    }
+
+    public TypePrescription getTypePrescription() {
+        return typePrescription;
+    }
+
+    public SaleDTO setTypePrescription(TypePrescription typePrescription) {
+        this.typePrescription = typePrescription;
+        return this;
+    }
+
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public SaleDTO setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+        return this;
+    }
+
+    public SaleDTO setCustomer(CustomerDTO customer) {
+        this.customer = customer;
+        return this;
+    }
 
     public Boolean getCopy() {
         return copy;
@@ -151,12 +214,8 @@ public class SaleDTO implements Serializable {
         this.discountAmount = discountAmount;
     }
 
-    public Customer getCustomer() {
+    public CustomerDTO getCustomer() {
         return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
     }
 
     public Long getCustomerId() {
@@ -175,13 +234,6 @@ public class SaleDTO implements Serializable {
         this.salesAmount = salesAmount;
     }
 
-    public Integer getGrossAmount() {
-        return grossAmount;
-    }
-
-    public void setGrossAmount(Integer grossAmount) {
-        this.grossAmount = grossAmount;
-    }
 
     public Integer getNetAmount() {
         return netAmount;
@@ -343,19 +395,18 @@ public class SaleDTO implements Serializable {
     }
 
     public SaleDTO(Sales sale) {
-        super();
+
         this.id = sale.getId();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales) {
             ThirdPartySales thirdPartySales = (ThirdPartySales) sale;
-            this.customer = thirdPartySales.getAssuredCustomer();
+            this.customer = new CustomerDTO(thirdPartySales.getAssuredCustomer());
         } else if (sale instanceof CashSale) {
             CashSale cashSale = (CashSale) sale;
-            this.customer = cashSale.getUninsuredCustomer();
+            this.customer = new CustomerDTO(cashSale.getUninsuredCustomer());
         }
-
         this.salesAmount = sale.getSalesAmount();
-        this.grossAmount = sale.getGrossAmount();
+        this.htAmount = sale.getHtAmount();
         this.netAmount = sale.getNetAmount();
         this.taxAmount = sale.getTaxAmount();
         this.costAmount = sale.getCostAmount();
@@ -367,6 +418,10 @@ public class SaleDTO implements Serializable {
         User user = sale.getUser();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
         this.numberTransaction = sale.getNumberTransaction();
+        this.natureVente = sale.getNatureVente();
+        this.typePrescription = sale.getTypePrescription();
+        this.seller = new UserDTO(sale.getSeller());
+        this.cassier = new UserDTO(sale.getCassier());
     }
 
     public List<SaleLineDTO> getSalesLines() {

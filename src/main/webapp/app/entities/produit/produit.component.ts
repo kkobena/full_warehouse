@@ -410,7 +410,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
       accept: () => {
         this.onDeleteProduitFournisseur(four, produit);
       },
-      key: 'deleteFournisseur',
+      key: 'deleteItem',
     });
   }
 

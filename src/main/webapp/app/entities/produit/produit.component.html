@@ -148,6 +148,7 @@
     <hr>
     <p-table [value]="produits" dataKey="id" styleClass="p-datatable-gridlines ">
         <ng-template pTemplate="header">
+            <tr>
             <th style="width:3%"></th>
             <th style="width:8%">Cip</th>
             <th style="width:11%">Code EAN</th>
@@ -166,7 +167,7 @@
             <th style="text-align:right;width:6%">Qté.Reap</th>
             <th style="text-align:right;width:6%">Qté Mini</th>
             <th style="width:7%;text-align: center;">Status</th>
-            <th style="width:13%"></th>
+            <th style="width:13%"></th></tr>
         </ng-template>
         <ng-template pTemplate="body" let-produit let-expanded="expanded">
             <tr>

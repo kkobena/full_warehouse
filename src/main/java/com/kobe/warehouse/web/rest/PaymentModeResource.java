@@ -56,12 +56,12 @@ public class PaymentModeResource {
     @PostMapping("/payment-modes")
     public ResponseEntity<PaymentMode> createPaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to save PaymentMode : {}", paymentMode);
-        if (paymentMode.getId() != null) {
+        if (paymentMode.getCode() != null) {
             throw new BadRequestAlertException("A new paymentMode cannot already have an ID", ENTITY_NAME, "idexists");
         }
         PaymentMode result = paymentModeRepository.save(paymentMode);
-        return ResponseEntity.created(new URI("/api/payment-modes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/payment-modes/" + result.getCode()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getCode()))
             .body(result);
     }
 
@@ -77,12 +77,12 @@ public class PaymentModeResource {
     @PutMapping("/payment-modes")
     public ResponseEntity<PaymentMode> updatePaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to update PaymentMode : {}", paymentMode);
-        if (paymentMode.getId() == null) {
+        if (paymentMode.getCode() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         PaymentMode result = paymentModeRepository.save(paymentMode);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentMode.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentMode.getCode()))
             .body(result);
     }
 

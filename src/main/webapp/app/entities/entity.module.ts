@@ -32,10 +32,7 @@ import { RouterModule } from '@angular/router';
         path: 'payment',
         loadChildren: () => import('./payment/payment.module').then(m => m.WarehousePaymentModule),
       },
-      {
-        path: 'payment-mode',
-        loadChildren: () => import('./payment-mode/payment-mode.module').then(m => m.WarehousePaymentModeModule),
-      },
+
       {
         path: 'order-line',
         loadChildren: () => import('./order-line/order-line.module').then(m => m.WarehouseOrderLineModule),
@@ -43,10 +40,6 @@ import { RouterModule } from '@angular/router';
       {
         path: 'commande',
         loadChildren: () => import('./commande/commande.module').then(m => m.WarehouseCommandeModule),
-      },
-      {
-        path: 'payment-fournisseur',
-        loadChildren: () => import('./payment-fournisseur/payment-fournisseur.module').then(m => m.WarehousePaymentFournisseurModule),
       },
 
       {

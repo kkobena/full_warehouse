@@ -20,7 +20,7 @@ public final class Constants {
 	public static final String ANONYMOUS_USER = "anonymoususer";
 	public static final int REFERENCE_TYPE_COMMANDE = 1;
 	public static final int REFERENCE_TYPE_VENTE = 0;
-	public static final long MODE_ESP = 1;
+	public static final String MODE_ESP = "CASH";
 
 	private Constants() {
 	}
@@ -40,9 +40,9 @@ public final class Constants {
 
 	}
 
-	public static PaymentMode getPaymentMode(Long id) {
+	public static PaymentMode getPaymentMode(String code) {
 		PaymentMode paymentMode = new PaymentMode();
-		paymentMode.setId(id);
+		paymentMode.setCode(code);
 		return paymentMode;
 
 	}

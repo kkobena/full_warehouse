@@ -16,12 +16,14 @@ export interface ISalesLine {
   costAmount?: number;
   createdAt?: Moment;
   updatedAt?: Moment;
-  sales?: ISales;
+  sales?: ISales | null;
   produit?: IProduit;
   produitLibelle?: string;
   produitId?: number;
   saleId?: number;
   quantityStock?: number;
+  quantityRequested?: number;
+  code?: string;
 }
 
 export class SalesLine implements ISalesLine {
@@ -39,11 +41,13 @@ export class SalesLine implements ISalesLine {
     public costAmount?: number,
     public createdAt?: Moment,
     public updatedAt?: Moment,
-    public sales?: ISales,
+    public sales?: ISales | null,
     public produit?: IProduit,
     public produitLibelle?: string,
     public produitId?: number,
     public saleId?: number,
-    public quantityStock?: number
+    public quantityStock?: number,
+    public quantityRequested?: number,
+    public code?: string
   ) {}
 }

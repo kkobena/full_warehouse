@@ -50,7 +50,7 @@ public class ConfigurationResource {
     }
     @GetMapping("/app/param-gestion-stock")
     public ResponseEntity<AppConfiguration> getParamGestionStock() {
-        Optional<AppConfiguration> appConfiguration = appConfigurationService.findOneById(EntityConstant.APP_GESTION_STOCK);
+        Optional<AppConfiguration> appConfiguration = appConfigurationService.findStockParam();
         return ResponseUtil.wrapOrNotFound(appConfiguration);
     }
 

@@ -1,6 +1,4 @@
 INSERT IGNORE INTO magasin (id, address, name, note, phone, registre) VALUES (1, '17 rue de bruxelle', 'Easy shop', 'Bienvenue !', '075759146', '');
-INSERT IGNORE INTO `payment_mode` (`id`, `code`, `libelle`, `payment_group`) VALUES (1, 'CASH', 'Espèce', 0);
-
 INSERT IGNORE  INTO authority (name) VALUES ('ROLE_ADMIN');
 INSERT IGNORE INTO authority (name) VALUES ('ROLE_USER');
 INSERT IGNORE INTO magasin (id, address, name, note, phone, registre) VALUES (1, '', '', 'Bienvenue !', '', '');
@@ -60,3 +58,11 @@ INSERT IGNORE INTO type_etiquette(id,libelle) VALUES (1,'CIP'), (2,'CIP_PRIX'),
                                               (3,'CIP_DESIGNATION'), (4,'CIP_PRIX_DESIGNATION'),(5,'POSITION');
 INSERT IGNORE INTO form_produit(id,libelle) VALUES(1,'Comprimés'),(2,'Sachets');
 INSERT IGNORE INTO `app_configuration` (`name`,`value`,`description`) VALUES ('APP_GESTION_STOCK','0','Parametre qui permet de gestion du stock ; deux valeurs sont autorisées: 0 ==> pour un seul stockage et 1===> pour un stockage multiple');
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'CASH', 'ESPECE', 0);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'OM', 'ORANGE', 2);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'MTN', 'MTN', 2);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'MOOV', 'MOOV', 2);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'WAVE', 'WAVE', 2);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'CB', 'CARTE BANCAIRE', 3);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'VIREMENT', 'VIREMENT', 4);
+INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'CH', 'CHEQUE', 5);

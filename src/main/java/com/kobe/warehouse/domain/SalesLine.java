@@ -39,31 +39,31 @@ public class SalesLine implements Serializable {
     private Integer regularUnitPrice;
     @NotNull
     @Column(name = "discount_unit_price", nullable = false)
-    private Integer discountUnitPrice;
+    private Integer discountUnitPrice=0;
     @NotNull
     @Column(name = "net_unit_price", nullable = false)
-    private Integer netUnitPrice;
+    private Integer netUnitPrice=0;
     @NotNull
     @Column(name = "discount_amount", nullable = false)
-    private Integer discountAmount;
+    private Integer discountAmount=0;
+    @NotNull
+    @Column(name = "discount_amount_hors_ug", nullable = false)
+    private Integer discountAmountHorsUg=0;
+    @NotNull
+    @Column(name = "discount_amount_ug", nullable = false)
+    private Integer discountAmountUg=0;
     @NotNull
     @Column(name = "sales_amount", nullable = false)
-    private Integer salesAmount;
-    @NotNull
-    @Column(name = "gross_amount", nullable = false)
-    private Integer grossAmount;
+    private Integer salesAmount=0;
     @NotNull
     @Column(name = "net_amount", nullable = false)
-    private Integer netAmount;
-    @NotNull
-    @Column(name = "tax_amount", nullable = false)
-    private Integer taxAmount;
+    private Integer netAmount=0;
     @NotNull
     @Column(name = "tax_value", nullable = false)
-    private Integer taxValue;
+    private Integer taxValue=0;
     @NotNull
     @Column(name = "cost_amount", nullable = false)
-    private Integer costAmount;
+    private Integer costAmount=0;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -85,6 +85,24 @@ public class SalesLine implements Serializable {
     private boolean toIgnore = false;
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
     private Integer amountToBeTakenIntoAccount;
+
+    public Integer getDiscountAmountHorsUg() {
+        return discountAmountHorsUg;
+    }
+
+    public SalesLine setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
+        this.discountAmountHorsUg = discountAmountHorsUg;
+        return this;
+    }
+
+    public Integer getDiscountAmountUg() {
+        return discountAmountUg;
+    }
+
+    public SalesLine setDiscountAmountUg(Integer discountAmountUg) {
+        this.discountAmountUg = discountAmountUg;
+        return this;
+    }
 
     public Integer getTaxValue() {
         return taxValue;
@@ -244,18 +262,7 @@ public class SalesLine implements Serializable {
         this.salesAmount = salesAmount;
     }
 
-    public Integer getGrossAmount() {
-        return grossAmount;
-    }
 
-    public SalesLine grossAmount(Integer grossAmount) {
-        this.grossAmount = grossAmount;
-        return this;
-    }
-
-    public void setGrossAmount(Integer grossAmount) {
-        this.grossAmount = grossAmount;
-    }
 
     public Integer getNetAmount() {
         return netAmount;
@@ -270,18 +277,7 @@ public class SalesLine implements Serializable {
         this.netAmount = netAmount;
     }
 
-    public Integer getTaxAmount() {
-        return taxAmount;
-    }
 
-    public SalesLine taxAmount(Integer taxAmount) {
-        this.taxAmount = taxAmount;
-        return this;
-    }
-
-    public void setTaxAmount(Integer taxAmount) {
-        this.taxAmount = taxAmount;
-    }
 
     public Integer getCostAmount() {
         return costAmount;
@@ -344,6 +340,7 @@ public class SalesLine implements Serializable {
         return this;
     }
 
+
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
@@ -376,9 +373,8 @@ public class SalesLine implements Serializable {
             ", netUnitPrice=" + getNetUnitPrice() +
             ", discountAmount=" + getDiscountAmount() +
             ", salesAmount=" + getSalesAmount() +
-            ", grossAmount=" + getGrossAmount() +
+
             ", netAmount=" + getNetAmount() +
-            ", taxAmount=" + getTaxAmount() +
             ", costAmount=" + getCostAmount() +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +

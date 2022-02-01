@@ -14,7 +14,7 @@ public class SaleLineDTO {
 	private Integer netUnitPrice;
 	private Integer discountAmount;
 	private Integer salesAmount;
-	private Integer grossAmount;
+	private Integer htAmount;
 	private Integer netAmount;
 	private Integer taxAmount;
 	private Integer costAmount;
@@ -160,13 +160,7 @@ public class SaleLineDTO {
 		this.salesAmount = salesAmount;
 	}
 
-	public Integer getGrossAmount() {
-		return grossAmount;
-	}
 
-	public void setGrossAmount(Integer grossAmount) {
-		this.grossAmount = grossAmount;
-	}
 
 	public Integer getNetAmount() {
 		return netAmount;
@@ -253,9 +247,7 @@ public class SaleLineDTO {
 		this.netUnitPrice = salesLine.getNetUnitPrice();
 		this.discountAmount = salesLine.getDiscountAmount();
 		this.salesAmount = salesLine.getSalesAmount();
-		this.grossAmount = salesLine.getGrossAmount();
 		this.netAmount = salesLine.getNetAmount();
-		this.taxAmount = salesLine.getTaxAmount();
 		this.costAmount = salesLine.getCostAmount();
 		this.createdAt = salesLine.getCreatedAt();
 		this.updatedAt = salesLine.getUpdatedAt();
@@ -263,6 +255,7 @@ public class SaleLineDTO {
 		this.produitLibelle = produit.getLibelle();
 		this.produitId = produit.getId();
 		this.saleId = salesLine.getSales().getId();
+
 
 	}
 

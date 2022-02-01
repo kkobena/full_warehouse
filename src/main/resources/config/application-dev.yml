@@ -72,7 +72,7 @@ spring:
   thymeleaf:
     cache: false
   flyway:
-    enabled: false
+    enabled: true
     schemas: warehouse
     baseline-on-migrate: true
     create-schemas: false

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ import javax.persistence.criteria.Root;
 
 import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.repository.*;
-import com.kobe.warehouse.service.dto.PaymentDTO;
+import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.security.SecurityUtils;
-import com.kobe.warehouse.service.dto.SaleDTO;
-import com.kobe.warehouse.service.dto.SaleLineDTO;
 
 @Service
 @Transactional
@@ -52,8 +52,10 @@ public class SaleService {
     private final UninsuredCustomerRepository uninsuredCustomerRepository;
     private final PaymentModeRepository paymentModeRepository;
     private final StorageService storageService;
+    private final StockProduitRepository stockProduitRepository;
+    private final AppConfigurationService appConfigurationService;
 
-    public SaleService(EntityManager em, SalesRepository salesRepository, ProduitRepository produitRepository, SalesLineRepository salesLineRepository, UserRepository userRepository, ReferenceService referenceService, InventoryTransactionRepository inventoryTransactionRepository, PaymentRepository paymentRepository, ReportService reportService, UninsuredCustomerRepository uninsuredCustomerRepository, PaymentModeRepository paymentModeRepository, StorageService storageService) {
+    public SaleService(EntityManager em, SalesRepository salesRepository, ProduitRepository produitRepository, SalesLineRepository salesLineRepository, UserRepository userRepository, ReferenceService referenceService, InventoryTransactionRepository inventoryTransactionRepository, PaymentRepository paymentRepository, ReportService reportService, UninsuredCustomerRepository uninsuredCustomerRepository, PaymentModeRepository paymentModeRepository, StorageService storageService, StockProduitRepository stockProduitRepository, AppConfigurationService appConfigurationService) {
         this.em = em;
         this.salesRepository = salesRepository;
         this.produitRepository = produitRepository;
@@ -66,6 +68,8 @@ public class SaleService {
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
         this.paymentModeRepository = paymentModeRepository;
         this.storageService = storageService;
+        this.stockProduitRepository = stockProduitRepository;
+        this.appConfigurationService = appConfigurationService;
     }
 
     @Transactional(readOnly = true)
@@ -96,8 +100,7 @@ public class SaleService {
         predicates.add(cb.equal(root.get("customer").get("id"), customerId));
         predicates.add(cb.notEqual(root.get("statut"), SalesStatut.PENDING));
         if (fromDate != null) {
-            predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")),
-                java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
+            predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")), java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
         }
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
         TypedQuery<Sales> q = em.createQuery(cq);
@@ -122,14 +125,12 @@ public class SaleService {
     private void predicates(String query, LocalDate fromDate, LocalDate toDate, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root) {
         if (!StringUtils.isEmpty(query)) {
             query = "%" + query.toUpperCase() + "%";
-            predicates.add(cb.or(cb.like(cb.upper(root.get("customer").get("firstName")), query),
-                cb.like(cb.upper(root.get("customer").get("lastName")), query)));
+            predicates.add(cb.or(cb.like(cb.upper(root.get("customer").get("firstName")), query), cb.like(cb.upper(root.get("customer").get("lastName")), query)));
         }
 
         predicates.add(cb.notEqual(root.get("statut"), SalesStatut.PENDING));
         if (fromDate != null) {
-            predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")),
-                java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
+            predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")), java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
         }
     }
 
@@ -169,7 +170,7 @@ public class SaleService {
         sale.setCreatedAt(Instant.now());
         sale.setUpdatedAt(Instant.now());
         sale.setDiscountAmount(0);
-        sale.setGrossAmount(0);
+
         sale.setTaxAmount(0);
         sale.setNetAmount(0);
         sale.setDateDimension(Constants.DateDimension(LocalDate.now()));
@@ -202,14 +203,12 @@ public class SaleService {
     }
 
     private User getUser() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(login -> userRepository.findOneByLogin(login));
+        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
         return user.orElseGet(null);
     }
 
     private User getUserFormImport() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(login -> userRepository.findOneByLogin(login));
+        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
         return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).get());
     }
 
@@ -223,8 +222,7 @@ public class SaleService {
         User user = getUser();
         DateDimension dateD = Constants.DateDimension(LocalDate.now());
         for (SalesLine salesLine : listSaleLine) {
-            InventoryTransaction inventoryTransaction = inventoryTransactionRepository
-                .buildInventoryTransaction(salesLine, user);
+            InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
             Produit p = salesLine.getProduit();
             int quantityBefor = 0;// p.getQuantity();
             int quantityAfter = quantityBefor - salesLine.getQuantitySold();
@@ -274,33 +272,13 @@ public class SaleService {
         salesLine.setRegularUnitPrice(saleLine.getRegularUnitPrice());
         Sales sales = salesLine.getSales();
         sales.setSalesAmount((sales.getSalesAmount() - oldAmont) + salesLine.getSalesAmount());
-        sales.setCostAmount((sales.getCostAmount() - (oldQty * salesLine.getCostAmount()))
-            + (salesLine.getQuantitySold() * salesLine.getCostAmount()));
+        sales.setCostAmount((sales.getCostAmount() - (oldQty * salesLine.getCostAmount())) + (salesLine.getQuantitySold() * salesLine.getCostAmount()));
         salesLineRepository.save(salesLine);
         salesRepository.save(sales);
         return saleLine;
 
     }
 
-    private SalesLine createSaleLineFromDTO(SaleLineDTO saleLine) {
-        Produit produit = produitRepository.getOne(saleLine.getProduitId());
-        SalesLine salesLine = new SalesLine();
-        salesLine.setCreatedAt(Instant.now());
-        salesLine.setUpdatedAt(Instant.now());
-        salesLine.costAmount(produit.getCostAmount());
-        salesLine.setProduit(produit);
-        salesLine.setNetAmount(0);
-        salesLine.setSalesAmount(saleLine.getQuantitySold() * saleLine.getRegularUnitPrice());
-        salesLine.setNetAmount(salesLine.getSalesAmount());
-        salesLine.setNetUnitPrice(saleLine.getRegularUnitPrice());
-        salesLine.setQuantitySold(saleLine.getQuantitySold());
-        salesLine.setRegularUnitPrice(saleLine.getRegularUnitPrice());
-        salesLine.setDiscountAmount(0);
-        salesLine.setGrossAmount(0);
-        salesLine.setTaxAmount(0);
-        salesLine.setDiscountUnitPrice(0);
-        return salesLine;
-    }
 
     private SalesLine createSaleLineFromDTO(SaleLineDTO saleLine, Sales sales) {
         Produit produit = produitRepository.getOne(saleLine.getProduitId());
@@ -316,8 +294,6 @@ public class SaleService {
         salesLine.setQuantitySold(saleLine.getQuantitySold());
         salesLine.setRegularUnitPrice(saleLine.getRegularUnitPrice());
         salesLine.setDiscountAmount(0);
-        salesLine.setGrossAmount(0);
-        salesLine.setTaxAmount(0);
         salesLine.setDiscountUnitPrice(0);
         sales.costAmount(sales.getCostAmount() + (saleLine.getQuantitySold() * produit.getCostAmount()));
         sales.setSalesAmount(sales.getSalesAmount() + salesLine.getSalesAmount());
@@ -374,7 +350,7 @@ public class SaleService {
         salesLineRepository.delete(salesLine);
     }
 
-    public CashSale fromDTOOldCashSale(SaleDTO dto) {
+    public CashSale fromDTOOldCashSale(CashSaleDTO dto) {
         CashSale c = new CashSale();
         c.setAmountToBePaid(dto.getAmountToBePaid());
         c.setDateDimension(DateDimension(dto.getDateDimensionId()));
@@ -388,7 +364,6 @@ public class SaleService {
         c.setEffectiveUpdateDate(dto.getEffectiveUpdateDate());
         c.setDiscountAmount(dto.getDiscountAmount());
         c.setNetAmount(dto.getNetAmount());
-        c.setGrossAmount(dto.getGrossAmount());
         c.setPayrollAmount(dto.getPayrollAmount());
         c.setSalesAmount(dto.getSalesAmount());
         c.setMargeUg(dto.getMargeUg());
@@ -440,8 +415,6 @@ public class SaleService {
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         salesLine.setDiscountAmount(dto.getDiscountAmount());
-        salesLine.setGrossAmount(dto.getGrossAmount());
-        salesLine.setTaxAmount(dto.getTaxAmount());
         salesLine.setDiscountUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantitySold(dto.getQuantitySold());
         salesLine.setQuantityRequested(dto.getQuantityRequested());
@@ -478,5 +451,187 @@ public class SaleService {
         payment.setSales(s);
         payment.setDateDimension(s.getDateDimension());
         return payment;
+    }
+
+
+    private void computeCashSaleAmountToPaid(CashSale c) {
+        c.setAmountToBePaid(c.getNetAmount());
+        c.setRestToPay(c.getAmountToBePaid());
+        c.setAmountToBeTakenIntoAccount(0);
+    }
+
+    private void computeCashSaleEagerAmount(CashSale c, SalesLine saleLine) {
+        c.setSalesAmount(c.getSalesAmount() + saleLine.getSalesAmount());
+
+
+    }
+
+    private void computeCashSaleLazyAmount(Sales c, SalesLine saleLine) {
+        c.setCostAmount(c.getCostAmount() + (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
+        c.setMarge(c.getMarge() + (c.getSalesAmount() - c.getCostAmount()));
+
+    }
+
+    private void processDiscountCashSale(CashSale c, SalesLine saleLine) {
+        c.setDiscountAmount(c.getDiscountAmount() + saleLine.getDiscountAmount());
+        c.setDiscountAmountUg(c.getDiscountAmountUg() + saleLine.getDiscountAmountUg());
+        c.setDiscountAmountHorsUg(c.getDiscountAmountHorsUg() + saleLine.getDiscountAmountHorsUg());
+        c.setNetAmount(c.getSalesAmount() - c.getDiscountAmount());
+
+    }
+
+    private void computeUgTvaAmount(Sales c, SalesLine saleLine) {
+        if (saleLine.getQuantityUg().compareTo(0) == 0) return;
+        int htc = saleLine.getQuantityUg() * saleLine.getRegularUnitPrice();
+        int costAmount = saleLine.getQuantityUg() * saleLine.getCostAmount();
+        if (saleLine.getTaxValue().compareTo(0) == 0) {
+            c.setHtAmountUg(c.getHtAmountUg() + htc);
+            c.setMontantttcUg(c.getMontantttcUg() + htc);
+        } else {
+            Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+            int htAmont = (int) Math.ceil(htc / valeurTva);
+            int montantTva = htc - htAmont;
+            c.setMontantTvaUg(c.getMontantTvaUg() + montantTva);
+            c.setHtAmountUg(c.getHtAmountUg() + htAmont);
+        }
+        c.setMargeUg(c.getMargeUg() + (htc - costAmount));
+        c.setNetUgAmount(c.getMontantttcUg() - saleLine.getDiscountAmountUg());
+
+    }
+
+    private void computeTvaAmount(Sales c, SalesLine saleLine) {
+        if (saleLine.getTaxValue().compareTo(0) == 0) {
+            c.setHtAmount(c.getHtAmount() + saleLine.getSalesAmount());
+        } else {
+            Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+            int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
+            int montantTva = saleLine.getSalesAmount() - htAmont;
+            c.setTaxAmount(c.getTaxAmount() + montantTva);
+            c.setHtAmount(c.getHtAmount() + htAmont);
+        }
+
+    }
+
+    public CashSaleDTO createCashSale(CashSaleDTO dto) {
+        SalesLine saleLine = newSaleLine(dto.getSalesLines().get(0));
+        UninsuredCustomer uninsuredCustomer = dto.getCustomer() != null ? uninsuredCustomerRepository.getOne(dto.getCustomer().getId()) : null;
+        CashSale c = new CashSale();
+        c.setDateDimension(DateDimension(dto.getDateDimensionId()));
+        c.setUninsuredCustomer(uninsuredCustomer);
+        c.setNatureVente(dto.getNatureVente());
+        c.setTypePrescription(dto.getTypePrescription());
+        User user = this.storageService.getUser();
+        User caissier = user;
+        if (user.getId().compareTo(dto.getCassier().getId()) != 0) {
+            caissier = this.userRepository.getOne(dto.getCassier().getId());
+        }
+        if (caissier.getId().compareTo(dto.getSeller().getId()) != 0) {
+            c.setSeller(caissier);
+        } else {
+            c.setSeller(this.userRepository.getOne(dto.getSeller().getId()));
+        }
+        c.setImported(false);
+        c.setUser(user);
+        c.setCassier(caissier);
+        c.getSalesLines().add(saleLine);
+        c.setCopy(dto.getCopy());
+        c.setCreatedAt(dto.getCreatedAt());
+        c.setUpdatedAt(dto.getUpdatedAt());
+        c.setEffectiveUpdateDate(dto.getEffectiveUpdateDate());
+        c.setPayrollAmount(0);
+        c.setToIgnore(dto.isToIgnore());
+        c.setTicketNumber(dto.getTicketNumber());
+        c.setNumberTransaction(dto.getNumberTransaction());
+        c.setStatut(SalesStatut.ACTIVE);
+        c.setMagasin(c.getCassier().getMagasin());
+        computeCashSaleEagerAmount(c, saleLine);
+        processDiscountCashSale(c, saleLine);
+        computeCashSaleAmountToPaid(c);
+        computeCashSaleLazyAmount(c, saleLine);
+        computeTvaAmount(c, saleLine);
+        computeUgTvaAmount(c, saleLine);
+        CashSale sale = this.salesRepository.saveAndFlush(c);
+        saleLine.setSales(c);
+        this.salesLineRepository.saveAndFlush(saleLine);
+        return new CashSaleDTO(sale);
+    }
+
+    private SalesLine newSaleLine(SaleLineDTO dto) {
+        return createSaleLineFromDTO(dto);
+
+    }
+
+    private void processProductDiscount(RemiseProduit remiseProduit, SalesLine salesLine) {
+        if (remiseProduit == null) return;
+        if (remiseProduit.isEnable() && remiseProduit.getPeriod().isAfter(LocalDateTime.now())) {
+            int discount = (int) Math.ceil(salesLine.getSalesAmount() * remiseProduit.getRemiseValue());// getRemiseValue set /100 a la creation;
+            salesLine.setDiscountAmount(discount);
+            salesLine.setDiscountAmountHorsUg(discount);
+            if (salesLine.getQuantityUg() > 0) {
+                int discountHUg = (int) Math.ceil(((salesLine.getQuantityRequested() - salesLine.getQuantityUg()) * salesLine.getRegularUnitPrice()) * remiseProduit.getRemiseValue());
+                salesLine.setDiscountAmountHorsUg(discountHUg);
+                discountHUg = (int) Math.ceil((salesLine.getQuantityUg() * salesLine.getRegularUnitPrice()) * remiseProduit.getRemiseValue());
+                salesLine.setDiscountAmountUg(discountHUg);
+            }
+        }
+
+    }
+
+    private void processUg(SalesLine salesLine, SaleLineDTO dto) {
+        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        if (stockProduit.getQtyUG() > 0) {
+            if (salesLine.getQuantityRequested() >= stockProduit.getQtyUG()) {
+                salesLine.setQuantityUg(stockProduit.getQtyUG());
+            } else {
+                salesLine.setQuantityUg(dto.getQuantityRequested());
+            }
+
+        }
+    }
+
+    private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
+        if (dto.getSaleId() != null) {
+            Optional<SalesLine> salesLineOp = salesLineRepository.findBySalesIdAndProduitId(dto.getSaleId(), dto.getProduitId());
+            if (salesLineOp.isPresent()) {
+                SalesLine salesLine = salesLineOp.get();
+                salesLine.setUpdatedAt(Instant.now());
+                salesLine.setSalesAmount((salesLine.getQuantityRequested() + dto.getQuantityRequested()) * dto.getRegularUnitPrice());
+                salesLine.setNetAmount(salesLine.getSalesAmount());
+                salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
+                salesLine.setQuantitySold(salesLine.getQuantitySold() + dto.getQuantitySold());
+                salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
+                salesLine.setQuantityRequested(salesLine.getQuantityRequested() + dto.getQuantityRequested());
+                processUg(salesLine, dto);
+                processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
+                return salesLine;
+            }
+            return createSaleLineFromDTO(dto);
+        } else {
+            return createSaleLineFromDTO(dto);
+        }
+
+    }
+
+    private SalesLine createSaleLineFromDTO(SaleLineDTO dto) {
+        Produit produit = produitRepository.getOne(dto.getProduitId());
+        //   StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        Tva tva = produit.getTva();
+        SalesLine salesLine = new SalesLine();
+        salesLine.setTaxValue(tva.getTaux());
+        salesLine.setCreatedAt(Instant.now());
+        salesLine.setUpdatedAt(Instant.now());
+        salesLine.costAmount(produit.getCostAmount());
+        salesLine.setProduit(produit);
+        salesLine.setSalesAmount(dto.getQuantityRequested() * dto.getRegularUnitPrice());
+        salesLine.setNetAmount(salesLine.getSalesAmount());
+        salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setQuantitySold(dto.getQuantitySold());
+        salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setQuantityRequested(dto.getQuantityRequested());
+        salesLine.setDiscountAmount(0);
+        salesLine.setDiscountUnitPrice(0);
+        processUg(salesLine, dto);
+        processProductDiscount(produit.getRemise(), salesLine);
+        return salesLine;
     }
 }

@@ -15,7 +15,7 @@ public class PaymentDTO {
 	private Integer restToPay;
 	private Instant createdAt;
 	private Instant updatedAt;
-	private PaymentMode paymentMode;
+	private PaymentModeDTO paymentMode;
 	private Long userId;
 	private Customer customer;
 	private String saleNumberTransaction;
@@ -26,6 +26,7 @@ public class PaymentDTO {
 	private String userFullName;
     private Integer reelPaidAmount;
     private String paymentCode;
+
 	public Integer getSalesAmount() {
 		return salesAmount;
 	}
@@ -90,15 +91,16 @@ public class PaymentDTO {
 		this.updatedAt = updatedAt;
 	}
 
-	public PaymentMode getPaymentMode() {
-		return paymentMode;
-	}
+    public PaymentModeDTO getPaymentMode() {
+        return paymentMode;
+    }
 
-	public void setPaymentMode(PaymentMode paymentMode) {
-		this.paymentMode = paymentMode;
-	}
+    public PaymentDTO setPaymentMode(PaymentModeDTO paymentMode) {
+        this.paymentMode = paymentMode;
+        return this;
+    }
 
-	public Long getUserId() {
+    public Long getUserId() {
 		return userId;
 	}
 
@@ -172,7 +174,7 @@ public class PaymentDTO {
 		this.restToPay = payment.getRestToPay();
 		this.createdAt = payment.getCreatedAt();
 		this.updatedAt = payment.getUpdatedAt();
-		this.paymentMode = payment.getPaymentMode();
+		this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
 		User user = payment.getUser();
 		this.userId = user.getId();
 		this.userFullName = user.getFirstName()+" " + user.getLastName();

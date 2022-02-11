@@ -18,6 +18,8 @@ public final class EntityConstant {
     public static final String POINT_DE_VENTE_CACHE="POINT_DE_VENTE";
     public static final String PRINCIPAL_CACHE="PRINCIPAL";
     public static final String CAN_SORCE_STOCK="CAN_SORCE_STOCK";
+    public static final String APP_QTY_MAX="APP_QTY_MAX";
+
 
 
 

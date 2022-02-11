@@ -238,7 +238,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         Produit produit = ProduitDTO.fromDTO(dto, rayon);
         produit = produitRepository.save(produit);
         stockProduitRepository.saveAll(produit.getStockProduits());
-        logsService.create(TransactionType.CREATE_PRODUCT, String.format("Création du produit %s", new Object[]{produit.getLibelle()}), produit.getId());
+        logsService.create(TransactionType.CREATE_PRODUCT, String.format("Création du produit %s", new Object[]{produit.getLibelle()}), produit.getId().toString());
     }
 
     @Override
@@ -264,7 +264,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         buildRayonProduits(produit, dto, rayonProduits);
         produit.getFournisseurProduits().stream().filter(f -> f.isPrincipal()).findFirst().ifPresent(f -> em.merge(f));
         em.merge(produit);
-        logsService.create(TransactionType.UPDATE_PRODUCT, String.format("Modification du produit %s", new Object[]{produit.getLibelle()}), produit.getId());
+        logsService.create(TransactionType.UPDATE_PRODUCT, String.format("Modification du produit %s", new Object[]{produit.getLibelle()}), produit.getId().toString());
     }
 
     private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {
@@ -440,6 +440,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
     public void updateDetail(ProduitDTO dto) throws Exception {
         final Produit produit = buildDetailProduitFromProduitDTO(dto, em.find(Produit.class, dto.getId()));
         em.merge(produit);
-        logsService.create(TransactionType.UPDATE_PRODUCT, String.format("Modification du produit %s", new Object[]{produit.getLibelle()}), produit.getId());
+        logsService.create(TransactionType.UPDATE_PRODUCT, String.format("Modification du produit %s", new Object[]{produit.getLibelle()}), produit.getId().toString());
     }
 }

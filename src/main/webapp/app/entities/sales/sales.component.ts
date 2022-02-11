@@ -20,15 +20,16 @@ import { saveAs } from 'file-saver';
       .table tr:hover {
         cursor: pointer;
       }
+
       .active {
         background-color: #95caf9 !important;
       }
+
       .master {
-        /*padding: 14px 12px;
- border-radius: 12px;*/
         box-shadow: 0 2px 2px rgb(0 0 0 / 16%);
         justify-content: space-between;
       }
+
       .ag-theme-alpine {
         max-height: 700px;
         height: 600px;
@@ -53,6 +54,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   public columnDefs: any[];
   rowData: any = [];
   faPrint = faPrint;
+
   constructor(
     protected salesService: SalesService,
     protected activatedRoute: ActivatedRoute,
@@ -143,9 +145,15 @@ export class SalesComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(SalesDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.sales = sales;
   }
+
   print(sales: ISales): void {
-    this.salesService.print(sales.id!).subscribe(blod => saveAs(blod));
+    // this.salesService.print(sales.id!).subscribe(blod => saveAs(blod));
+    this.salesService.print(sales.id!).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
+
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     if (this.predicate !== 'updatedAt') {
@@ -180,14 +188,17 @@ export class SalesComponent implements OnInit, OnDestroy {
 
     this.loadLines();
   }
+
   protected onLineSuccess(data: ISalesLine[] | null): void {
     this.rowData = data || [];
   }
+
   formatNumber(number: any): string {
     return Math.floor(number.value)
       .toString()
       .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1  ');
   }
+
   loadLines(): void {
     this.saleLineService.queryBySale(this.saleSelected?.id).subscribe(
       (res: HttpResponse<ISalesLine[]>) => this.onLineSuccess(res.body),

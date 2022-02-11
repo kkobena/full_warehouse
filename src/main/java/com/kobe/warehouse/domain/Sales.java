@@ -16,9 +16,7 @@ import com.kobe.warehouse.domain.enumeration.*;
  * A Sales.
  */
 @Entity
-@Table(name = "sales",
-    uniqueConstraints =
-        {@UniqueConstraint(columnNames = {"number_transaction", "date_dimension_date_key"}), @UniqueConstraint(columnNames = {"ticket_number"})}
+@Table(name = "sales"
     , indexes = {
     @Index(columnList = "statut", name = "vente_statut_index"),
     @Index(columnList = "number_transaction", name = "vente_number_transaction_index"),
@@ -26,15 +24,12 @@ import com.kobe.warehouse.domain.enumeration.*;
     @Index(columnList = "updated_at", name = "vente_updated_at_index"),
     @Index(columnList = "effective_update_date", name = "vente_effective_update_index"),
     @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
-    @Index(columnList = "ticket_number", name = "vente_ticket_number_index"),
     @Index(columnList = "payment_status", name = "vente_payment_status_index"),
-    @Index(columnList = "nature_vente", name = "vente_nature_vente_index"),
-    @Index(columnList = "categorie", name = "vente_categorie_index"),
-
+    @Index(columnList = "nature_vente", name = "vente_nature_vente_index")
 }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Sales implements Serializable {
+public class Sales implements Serializable , Cloneable{
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,55 +38,54 @@ public class Sales implements Serializable {
     @Column(name = "number_transaction", nullable = false)
     private String numberTransaction;
     @NotNull
-    @Column(name = "discount_amount", nullable = false)
-    private Integer discountAmount;
+    @Column(name = "discount_amount", nullable = false,columnDefinition = "int default '0'")
+    private Integer discountAmount=0;
     @NotNull
-    @Column(name = "sales_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer salesAmount=0;
+    @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer salesAmount = 0;
     @NotNull
-    @Column(name = "ht_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer htAmount=0;//montant net
+    @Column(name = "ht_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer htAmount = 0;//montant net
     @NotNull
-    @Column(name = "net_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer netAmount=0;
+    @Column(name = "net_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer netAmount = 0;
     @NotNull
-    @Column(name = "tax_amount", nullable = false)
-    private Integer taxAmount=0;
+    @Column(name = "tax_amount", nullable = false,columnDefinition = "int default '0'")
+    private Integer taxAmount = 0;
     @NotNull
-    @Column(name = "cost_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer costAmount=0;
+    @Column(name = "cost_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer costAmount = 0;
     @NotNull
-    @Column(name = "amount_to_be_paid", nullable = false,columnDefinition = "int default '0'")
-    private Integer amountToBePaid;
+    @Column(name = "amount_to_be_paid", nullable = false, columnDefinition = "int default '0'")
+    private Integer amountToBePaid=0;
     @NotNull
-    @Column(name = "payroll_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer payrollAmount=0;
+    @Column(name = "payroll_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer payrollAmount = 0;//montant paye
     @NotNull
-    @Column(name = "rest_to_pay", nullable = false,columnDefinition = "int default '0'")
-    private Integer restToPay=0;
-    @Column(name = "amount_to_be_taken_into_account", nullable = false,columnDefinition = "int default '0'")
-    private Integer amountToBeTakenIntoAccount;
+    @Column(name = "rest_to_pay", nullable = false, columnDefinition = "int default '0'")
+    private Integer restToPay = 0;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false, columnDefinition = "int default '0'")
+    private Integer amountToBeTakenIntoAccount=0;
     @Column(name = "marge_ug")
     private Integer margeUg = 0;
-    @Column(name = "montant_ttc_ug",columnDefinition = "int default '0'")
+    @Column(name = "montant_ttc_ug", columnDefinition = "int default '0'")
     private Integer montantttcUg = 0;
-    @Column(name = "montant_net_ug",columnDefinition = "int default '0'")
+    @Column(name = "montant_net_ug", columnDefinition = "int default '0'")
     private Integer montantnetUg = 0;
-    @Column(name = "montant_tva_ug",columnDefinition = "int default '0'")
-    private Integer montantTvaUg = 0;  @NotNull
-    @Column(name = "discount_amount_hors_ug", nullable = false,columnDefinition = "int default '0'")
-    private Integer discountAmountHorsUg=0;
+    @Column(name = "montant_tva_ug", columnDefinition = "int default '0'")
+    private Integer montantTvaUg = 0;
     @NotNull
-    @Column(name = "discount_amount_ug", nullable = false,columnDefinition = "int default '0'")
-    private Integer discountAmountUg=0;
+    @Column(name = "discount_amount_hors_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountAmountHorsUg = 0;
     @NotNull
-    @Column(name = "net_ug_amount", nullable = false,columnDefinition = "int default '0'")
-    private Integer netUgAmount=0;
-    @Column(name = "marge",columnDefinition = "int default '0'")
-    private Integer marge = 0;
+    @Column(name = "discount_amount_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountAmountUg = 0;
     @NotNull
-    @Column(name = "ht_amount_ug", nullable = false,columnDefinition = "int default '0'")
-    private Integer htAmountUg=0;
+    @Column(name = "net_ug_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer netUgAmount = 0;
+    @NotNull
+    @Column(name = "ht_amount_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer htAmountUg = 0;
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
@@ -128,14 +122,11 @@ public class Sales implements Serializable {
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private Instant effectiveUpdateDate;
-    @Column(name = "to_ignore", nullable = false,columnDefinition = "boolean default false")
+    @Column(name = "to_ignore", nullable = false, columnDefinition = "boolean default false")
     private boolean toIgnore = false;
-    @NotNull
-    @Column(name = "ticket_number", nullable = false)
-    private String ticketNumber;
-    @Column(name = "copy",nullable = false,columnDefinition = "boolean default false")
+    @Column(name = "copy", nullable = false, columnDefinition = "boolean default false")
     private Boolean copy = false;
-    @Column(name = "imported",nullable = false,columnDefinition = "boolean default false")
+    @Column(name = "imported", nullable = false, columnDefinition = "boolean default false")
     private boolean imported = false;
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -150,8 +141,45 @@ public class Sales implements Serializable {
     @Column(name = "type_prescription", nullable = false, length = 15)
     private TypePrescription typePrescription;
     @NotNull
-    @Column(name = "differe",nullable = false,columnDefinition = "boolean default false")
+    @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
     private boolean differe = false;
+    @NotNull
+    @Column(name = "caisse_num",  length = 100)
+    private String caisseNum;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut_caisse", nullable = false)
+    private SalesStatut statutCaisse;
+    @NotNull
+    @Column(name = "caisse_end_num",  length = 100)
+    private String caisseEndNum;
+
+    public String getCaisseNum() {
+        return caisseNum;
+    }
+
+    public String getCaisseEndNum() {
+        return caisseEndNum;
+    }
+
+    public Sales setCaisseEndNum(String caisseEndNum) {
+        this.caisseEndNum = caisseEndNum;
+        return this;
+    }
+
+    public Sales setCaisseNum(String caisseNum) {
+        this.caisseNum = caisseNum;
+        return this;
+    }
+
+    public SalesStatut getStatutCaisse() {
+        return statutCaisse;
+    }
+
+    public Sales setStatutCaisse(SalesStatut statutCaisse) {
+        this.statutCaisse = statutCaisse;
+        return this;
+    }
 
     public Integer getNetUgAmount() {
         return netUgAmount;
@@ -288,14 +316,6 @@ public class Sales implements Serializable {
         return this;
     }
 
-    public Integer getMarge() {
-        return marge;
-    }
-
-    public Sales setMarge(Integer marge) {
-        this.marge = marge;
-        return this;
-    }
 
     public Integer getRestToPay() {
         return restToPay;
@@ -328,14 +348,6 @@ public class Sales implements Serializable {
         return this;
     }
 
-    public String getTicketNumber() {
-        return ticketNumber;
-    }
-
-    public Sales setTicketNumber(String ticketNumber) {
-        this.ticketNumber = ticketNumber;
-        return this;
-    }
 
     public Sales getCanceledSale() {
         return canceledSale;
@@ -594,11 +606,51 @@ public class Sales implements Serializable {
         return 31;
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "Sales{" + "id=" + getId() + ", discountAmount=" + getDiscountAmount() + ", salesAmount="
-            + ", taxAmount=" + getTaxAmount() + ", costAmount=" + getCostAmount() + ", statut='" + getStatut() + "'"
-            + ", createdAt='" + getCreatedAt() + "'" + ", updatedAt='" + getUpdatedAt() + "'" + "}";
+        final StringBuffer sb = new StringBuffer("Sales{");
+        sb.append("id=").append(id);
+        sb.append(", numberTransaction='").append(numberTransaction).append('\'');
+        sb.append(", discountAmount=").append(discountAmount);
+        sb.append(", salesAmount=").append(salesAmount);
+        sb.append(", htAmount=").append(htAmount);
+        sb.append(", netAmount=").append(netAmount);
+        sb.append(", taxAmount=").append(taxAmount);
+        sb.append(", costAmount=").append(costAmount);
+        sb.append(", amountToBePaid=").append(amountToBePaid);
+        sb.append(", payrollAmount=").append(payrollAmount);
+        sb.append(", restToPay=").append(restToPay);
+        sb.append(", amountToBeTakenIntoAccount=").append(amountToBeTakenIntoAccount);
+        sb.append(", margeUg=").append(margeUg);
+        sb.append(", montantttcUg=").append(montantttcUg);
+        sb.append(", montantnetUg=").append(montantnetUg);
+        sb.append(", montantTvaUg=").append(montantTvaUg);
+        sb.append(", discountAmountHorsUg=").append(discountAmountHorsUg);
+        sb.append(", discountAmountUg=").append(discountAmountUg);
+        sb.append(", netUgAmount=").append(netUgAmount);
+        sb.append(", htAmountUg=").append(htAmountUg);
+        sb.append(", statut=").append(statut);
+        sb.append(", createdAt=").append(createdAt);
+        sb.append(", updatedAt=").append(updatedAt);
+        sb.append(", remise=").append(remise);
+        sb.append(", dateDimension=").append(dateDimension);
+        sb.append(", effectiveUpdateDate=").append(effectiveUpdateDate);
+        sb.append(", toIgnore=").append(toIgnore);
+        sb.append(", copy=").append(copy);
+        sb.append(", imported=").append(imported);
+        sb.append(", paymentStatus=").append(paymentStatus);
+        sb.append(", natureVente=").append(natureVente);
+        sb.append(", typePrescription=").append(typePrescription);
+        sb.append(", differe=").append(differe);
+        sb.append(", caisseNum='").append(caisseNum).append('\'');
+        sb.append(", statutCaisse=").append(statutCaisse);
+        sb.append(", caisseEndNum='").append(caisseEndNum).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

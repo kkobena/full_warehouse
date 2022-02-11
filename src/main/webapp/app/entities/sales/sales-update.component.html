@@ -7,14 +7,15 @@
 
 </p-confirmDialog>
 
-<p-confirmDialog [style]="{width: '40vw'}" #forcerStock key="forcerStock" [baseZIndex]="10000">
+<p-confirmDialog [style]="{width: '40vw'}" #forcerStock key="forcerStock" [baseZIndex]="10000" appendTo="body">
     <p-footer>
         <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
                 (click)="forcerStock.reject()"></button>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="forcerStock.accept()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="forcerStock.accept()"
+                #forcerStockBtn></button>
     </p-footer>
-
 </p-confirmDialog>
+
 <div class="card-group">
     <div class="card">
         <div class="card-header sale-card-header">TYPE VENTE</div>
@@ -31,8 +32,6 @@
         </div>
 
     </div>
-
-
     <div class="card">
         <div class="card-header sale-card-header">OPERATEUR</div>
         <div class="card-body sale-card">
@@ -40,7 +39,7 @@
                        placeholder="Sélectionner un opérateur"
                        [(ngModel)]="userSeller" [searchable]="false"
                        (keyup)="searchUser($event)"
-                       (change)="onSelectUser(user)"
+                       (change)="onSelectUser()"
             >
             </ng-select>
         </div>
@@ -50,7 +49,7 @@
         <div class="card-body sale-card">
             <p-button icon="pi pi-search" styleClass="p-button-secondary" label="VENTE EN ATTENTE"></p-button>
 
-            <p-button icon="pi pi-times" styleClass="p-button-danger" label="RETOUR"></p-button>
+            <p-button icon="pi pi-times" styleClass="p-button-danger" label="RETOUR" (click)="previousState()"></p-button>
         </div>
     </div>
 </div>
@@ -120,7 +119,10 @@
                            [(ngModel)]="produitSelected" [searchable]="true"
                            (keyup)="searchFn($event)"
                            [searchFn]="produitComponentSearch"
-                           (change)="onSelect(produitbox)"
+                           (change)="onSelect()"
+                           [notFoundText]="notFoundText"
+                           [openOnEnter]="false"
+                           (keydown)="onSelectKeyDow($event)"
                 >
 
                     <ng-template ng-option-tmp let-item="item" let-index="index">
@@ -146,20 +148,20 @@
             <div class="p-inputgroup">
                 <span class="p-inputgroup-addon">Qté</span>
                 <input pInputText #quantyBox [(ngModel)]="quantiteSaisie" type="number"
-                       (keyup.enter)="onQuantityBoxAction($event)"/>
+                       (keydown.enter)="onQuantityBoxAction($event)"/>
             </div>
         </div>
     </div>
 
-    <div [class]="rayonClass">
+    <div [class]="rayonClass" *ngIf="produitSelected">
         RAYONS:
-        <p-tag severity="warning">
-            SANS EMPLACEMENT
+        <p-tag severity="warning" *ngFor=" let rayon of produitSelected?.rayonProduits">
+            {{rayon.libelleRayon}}
         </p-tag>
     </div>
-    <div class="col-1" *ngIf="showStock">
+    <div class="col-1" *ngIf="showStock && produitSelected">
         STOCK:
-        <p-tag [severity]="stockSeverity" [rounded]="true">{{100 |number}}</p-tag>
+        <p-tag [severity]="stockSeverity" [rounded]="true">{{produitSelected?.totalQuantity |number}}</p-tag>
 
     </div>
     <div class="col-3" *ngIf="remiseProduits.length>0">
@@ -173,16 +175,18 @@
 <p-divider></p-divider>
 <div class="row">
     <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
-        <p-table [value]="salesLines" dataKey="id" [paginator]="true" [rows]="5"
+        <p-table #produitTable [value]="salesLines" dataKey="id" [paginator]="true" [rows]="5"
                  [showCurrentPageReport]="true"
                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                 [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single">
+                 [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
+                 [globalFilterFields]="['code','produitLibelle']">
             <ng-template pTemplate="caption">
                 <span class="mr-lg-5">PRODUITS DE LA VENTE</span>
 
                 <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
-    <input type="text" pInputText [(ngModel)]="tableSearchValue" placeholder="TAPEZ POUR FILTRER">
+    <input type="text" pInputText [(ngModel)]="tableSearchValue" placeholder="TAPEZ POUR FILTRER"
+           (input)="produitTable.filterGlobal($event.target.value, 'contains')">
 </span>
 
             </ng-template>
@@ -209,7 +213,7 @@
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input style="width: 100px;" pInputText type="number"
-                                       [(ngModel)]="saleLine.quantityRequested" required>
+                                       required (keydown.enter)="updateItemQtyRequested(saleLine,$event)">
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{saleLine.quantityRequested |number}}
@@ -221,7 +225,7 @@
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input style="width: 100px;" pInputText type="number"
-                                       [(ngModel)]="saleLine.quantitySold" required>
+                                       required (keydown.enter)="updateItemQtySold(saleLine,$event)">
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{saleLine.quantitySold |number}}
@@ -232,7 +236,8 @@
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input style="width: 100px;" pInputText type="number"
-                                       [(ngModel)]="saleLine.regularUnitPrice" required>
+                                       (keydown.enter)="updateItemPrice(saleLine,$event)"
+                                       required>
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{saleLine.regularUnitPrice |number}}
@@ -253,36 +258,36 @@
 
             </ng-template>
             <ng-template pTemplate="footer">
-                <tr>
-                    <td colspan="2" class="p-text-left">TATAUX</td>
-                    <td>5 Produits</td>
-                    <td style="text-align: right">10</td>
-                    <td style="text-align: right">10</td>
-                    <td style="text-align: right">10</td>
-                    <td style="text-align: right">10</td>
+                <tr *ngIf="salesLines.length>0">
+                    <td colspan="3" class="p-text-left">TOTAUX</td>
+                    <td style="text-align: right">{{totalQtyProduit() |number}} </td>
+                    <td style="text-align: right">{{totalQtyServi() |number}}</td>
+                    <td style="text-align: right" colspan="2">{{totalTtc() |number}}</td>
                     <td></td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
-    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1">
+    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
         <ul class="list-group mt-1">
-            <li class="list-group-item"><span class="h6">TOTAL VENTE</span> <span
-                class="float-right sale-amount text-success">{{10000|number}} Fca</span></li>
-            <li class="list-group-item"><span class="h6">TOTAL TVA</span><span
+            <li class="list-group-item" *ngIf="sale"><span class="h6">TOTAL VENTE</span> <span
+                class="float-right sale-amount text-success">{{sale?.salesAmount |number}}  Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.taxAmount!>0"><span class="h6">TOTAL TVA</span><span
+                class="float-right sale-amount ">{{sale?.taxAmount!|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.discountAmount!>0"><span
+                class="h6">TOTAL REMISE</span><span
+                class="float-right sale-amount ">{{sale?.discountAmount|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.categorie==='VO'"><span
+                class="h6">PAR TIER-PAYANT</span><span
                 class="float-right sale-amount ">{{10000|number}} Fca</span></li>
-            <li class="list-group-item"><span class="h6">TOTAL REMISE</span><span
-                class="float-right sale-amount ">{{10000|number}} Fca</span></li>
-            <li class="list-group-item"><span class="h6">PAR TIER-PAYANT</span><span
-                class="float-right sale-amount ">{{10000|number}} Fca</span></li>
-            <li class="list-group-item"><span class="h6">NET A PAYER</span><span
-                class="float-right sale-amount text-danger ">{{10000|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale"><span class="h6">NET A PAYER</span><span
+                class="float-right sale-amount text-danger ">{{sale?.amountToBePaid|number}} Fca</span></li>
             <li class="list-group-item"><span class="h6">DERNIERE MONNAIE</span><span
-                class="float-right sale-amount text-info">{{10000|number}} Fca</span></li>
+                class="float-right sale-amount text-info">{{derniereMonnaie|number}} Fca</span></li>
             <li class="list-group-item"><span class="h6">MONNAIE</span><span
-                class="float-right sale-amount text-info">{{10000|number}} Fca</span></li>
+                class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
             <li class="list-group-item">
-                <p-button icon="pi pi-search" styleClass="p-button-danger" label="TERMINER"></p-button>
+                <p-button icon="pi pi-check" styleClass="p-button-danger" label="TERMINER"></p-button>
 
                 <p-button icon="pi pi-times" styleClass="p-button-secondary" label="EN ATTENTE"></p-button>
             </li>

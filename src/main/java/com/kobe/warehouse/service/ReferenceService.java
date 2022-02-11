@@ -63,4 +63,25 @@ public class ReferenceService {
 			return reference.getNum();
 		}
 	}
+
+    public String buildNumPreventeSale() {
+        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(),
+            Constants.REFERENCE_PREVENTE_VENTE);
+        if (op.isPresent()) {
+            Reference reference = op.get();
+            reference.setNumberTransac(reference.getNumberTransac() + 1);
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            referenceRepository.save(reference);
+            return reference.getNum();
+
+        }else {
+            Reference reference =new Reference();
+            reference.setType(Constants.REFERENCE_PREVENTE_VENTE);
+            reference.setMvtDate(LocalDate.now());
+            reference.setNumberTransac(1);
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            referenceRepository.save(reference);
+            return reference.getNum();
+        }
+    }
 }

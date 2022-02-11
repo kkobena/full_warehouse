@@ -20,6 +20,7 @@ public final class Constants {
 	public static final String ANONYMOUS_USER = "anonymoususer";
 	public static final int REFERENCE_TYPE_COMMANDE = 1;
 	public static final int REFERENCE_TYPE_VENTE = 0;
+    public static final int REFERENCE_PREVENTE_VENTE = 2;
 	public static final String MODE_ESP = "CASH";
 
 	private Constants() {

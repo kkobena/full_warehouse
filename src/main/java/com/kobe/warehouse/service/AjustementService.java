@@ -171,7 +171,6 @@ public class AjustementService {
         inventoryTransaction.setCreatedAt(Instant.now());
         inventoryTransaction.setProduit(p);
         inventoryTransaction.setUser(user);
-        inventoryTransaction.setAmount(ajustement.getQtyMvt() * p.getCostAmount());
         inventoryTransaction.setQuantity(ajustement.getQtyMvt());
         inventoryTransaction.setTransactionType(transactionType);
         inventoryTransaction.setDateDimension(dateD);

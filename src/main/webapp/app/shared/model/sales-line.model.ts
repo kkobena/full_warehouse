@@ -1,6 +1,7 @@
 import { Moment } from 'moment';
 import { ISales } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
+import { SalesStatut } from './enumerations/sales-statut.model';
 
 export interface ISalesLine {
   id?: number;
@@ -24,6 +25,7 @@ export interface ISalesLine {
   quantityStock?: number;
   quantityRequested?: number;
   code?: string;
+  forceStock?: boolean;
 }
 
 export class SalesLine implements ISalesLine {
@@ -48,6 +50,9 @@ export class SalesLine implements ISalesLine {
     public saleId?: number,
     public quantityStock?: number,
     public quantityRequested?: number,
-    public code?: string
-  ) {}
+    public code?: string,
+    public forceStock?: boolean
+  ) {
+    this.forceStock = this.forceStock || false;
+  }
 }

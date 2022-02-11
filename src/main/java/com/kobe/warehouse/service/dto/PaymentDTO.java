@@ -26,6 +26,8 @@ public class PaymentDTO {
 	private String userFullName;
     private Integer reelPaidAmount;
     private String paymentCode;
+    private Integer montantVerse=0;
+
 
 	public Integer getSalesAmount() {
 		return salesAmount;
@@ -166,12 +168,20 @@ public class PaymentDTO {
         return this;
     }
 
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public PaymentDTO setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
+    }
+
     public PaymentDTO(Payment payment) {
 		super();
 		this.id = payment.getId();
 		this.netAmount = payment.getNetAmount();
 		this.paidAmount = payment.getPaidAmount();
-		this.restToPay = payment.getRestToPay();
 		this.createdAt = payment.getCreatedAt();
 		this.updatedAt = payment.getUpdatedAt();
 		this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());

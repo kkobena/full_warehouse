@@ -27,6 +27,9 @@ import { UserService } from '../../core/user/user.service';
 import { AccountService } from '../../core/auth/account.service';
 import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
+import { ConfigurationService } from '../../shared/configuration.service';
+import { DeconditionService } from '../decondition/decondition.service';
+import { Decondition, IDecondition } from '../../shared/model/decondition.model';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -47,7 +50,7 @@ export class SalesUpdateComponent implements OnInit {
   showTiersPayantCard = false;
   showAyantDroitCard = false;
   showClientSearchCard = false;
-  showStock = false;
+  showStock = true;
   canUpdatePu = true;
   isDiffere = false;
   showInfosBancaire = false;
@@ -90,7 +93,9 @@ export class SalesUpdateComponent implements OnInit {
   @ViewChild('quantyBox', { static: false })
   quantyBox?: ElementRef;
   @ViewChild('produitbox', { static: false })
-  produitbox?: ElementRef;
+  produitbox?: any;
+  @ViewChild('forcerStockBtn', { static: false })
+  forcerStockBtn?: ElementRef;
   clientSearchValue?: string;
   clientBoxHeader = 'INFORMATION DU CLIENT';
   stockSeverity = 'success';
@@ -120,7 +125,27 @@ export class SalesUpdateComponent implements OnInit {
   montantMoovDiv = false;
   montantWaveDiv = false;
   montantChequeDiv = false;
-  qtyMaxToSel = 100;
+  qtyMaxToSel = 999999;
+  derniereMonnaie = 0;
+  monnaie = 0;
+  check = true; // mis pour le focus produit et dialogue button
+  readonly notFoundText = 'Aucun produit';
+  @ViewChild('montantCashInput', { static: false })
+  montantCashInput?: ElementRef;
+  @ViewChild('montantOMInput', { static: false })
+  montantOMInput?: ElementRef;
+  @ViewChild('montantMTNInput', { static: false })
+  montantMTNInput?: ElementRef;
+  @ViewChild('montantMOOVInput', { static: false })
+  montantMOOVInput?: ElementRef;
+  @ViewChild('montantWAVEInput', { static: false })
+  montantWAVEInput?: ElementRef;
+  @ViewChild('montantCbInput', { static: false })
+  montantCbInput?: ElementRef;
+  @ViewChild('montantVirInput', { static: false })
+  montantVirInput?: ElementRef;
+  @ViewChild('montantChInput', { static: false })
+  montantChInput?: ElementRef;
 
   constructor(
     protected salesService: SalesService,
@@ -132,7 +157,9 @@ export class SalesUpdateComponent implements OnInit {
     protected userService: UserService,
     private accountService: AccountService,
     protected confirmationService: ConfirmationService,
-    protected errorService: ErrorService
+    protected errorService: ErrorService,
+    protected configurationService: ConfigurationService,
+    protected decondtionService: DeconditionService
   ) {
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
@@ -196,6 +223,7 @@ export class SalesUpdateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllUsers();
+    this.maxToSale();
     this.accountService.identity().subscribe(account => {
       if (account) {
         this.userCaissier = account;
@@ -209,7 +237,7 @@ export class SalesUpdateComponent implements OnInit {
       this.manageShowInfosComplementaireReglementCard();
       this.manageShowInfosBancaire();
       this.manageReglementInputParentClass();
-      this.manageAmontDiv();
+      this.manageAmontDiv(null);
     });
 
     this.modeReglements = [
@@ -223,30 +251,7 @@ export class SalesUpdateComponent implements OnInit {
       { code: 'CH', libelle: 'CHEQUE' },
     ];
     this.modeReglementSelected = ['CASH'];
-    this.modeReglementEmitter.next(1);
-    this.sale = {
-      id: 1,
-      salesAmount: 500,
-      netAmount: 400,
-      taxAmount: 100,
-      discountAmount: 100,
-      salesLines: [
-        {
-          id: 1,
-          salesAmount: 100,
-          netAmount: 30,
-          regularUnitPrice: 100,
-          produitLibelle: '22222222222222222222',
-          code: '000000000',
-          quantitySold: 2,
-          quantityRequested: 2,
-        },
-      ],
-    };
-    if (this.sale.salesLines) {
-      this.salesLines = this.sale.salesLines;
-    }
-
+    this.modeReglementEmitter.next('CASH');
     this.naturesVentes = [
       { code: 'COMPTANT', name: 'COMPTANT' } /* , {code: 'ASSURANCE', name: 'ASSURANCE'}, {
       code: 'CARNET',
@@ -292,7 +297,7 @@ export class SalesUpdateComponent implements OnInit {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => (this.users = res.body || []));
   }
 
-  manageAmontDiv(): void {
+  manageAmontDiv(modeRegle: string | null): void {
     this.montantCashDiv = this.modeReglementSelected.find(e => e === 'CASH');
     this.montantCbDiv = this.modeReglementSelected.find(e => e === 'CB');
     this.montantVirementDiv = this.modeReglementSelected.find(e => e === 'VIREMENT');
@@ -301,6 +306,13 @@ export class SalesUpdateComponent implements OnInit {
     this.montantMoovDiv = this.modeReglementSelected.find(e => e === 'MOOV');
     this.montantWaveDiv = this.modeReglementSelected.find(e => e === 'WAVE');
     this.montantChequeDiv = this.modeReglementSelected.find(e => e === 'CH');
+
+    if (modeRegle) {
+      setTimeout(() => {
+        this.manageReglementOnClickFocus(modeRegle);
+      }, 300);
+    }
+
     this.resetReglementInput();
   }
 
@@ -407,8 +419,8 @@ export class SalesUpdateComponent implements OnInit {
     }
   }
 
-  onSelectUser(event: any): void {
-    this.userCaissier = event;
+  onSelectUser(): void {
+    this.produitbox.focus();
   }
 
   searchFn(event: any): void {
@@ -434,12 +446,166 @@ export class SalesUpdateComponent implements OnInit {
     return false;
   }
 
-  onSelect(event: any): void {
-    this.event = event;
+  onSelect(): void {
     if (this.quantyBox) {
       this.quantyBox.nativeElement.focus();
       this.quantyBox.nativeElement.select();
     }
+    if (this.produitSelected?.totalQuantity! > 0) {
+      this.stockSeverity = 'success';
+    } else {
+      this.stockSeverity = 'danger';
+    }
+  }
+
+  onSelectKeyDow(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && this.produitSelected) {
+      if (this.quantyBox) {
+        this.quantyBox.nativeElement.focus();
+        this.quantyBox.nativeElement.select();
+      }
+      if (this.produitSelected.totalQuantity! > 0) {
+        this.stockSeverity = 'success';
+      } else {
+        this.stockSeverity = 'danger';
+      }
+    } else if (event.key === 'Enter' && this.sale && this.salesLines.length > 0) {
+      this.manageReglementFocus();
+    }
+  }
+
+  montantCashInputAssignment(): void {
+    if (this.montantCashInput) {
+      this.montantCashInput.nativeElement.focus();
+      this.montantCashInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantCashInput.nativeElement.select();
+    }
+  }
+
+  montantCbInputAssignment(): void {
+    console.error(this.montantCbInput);
+    if (this.montantCbInput) {
+      this.montantCbInput.nativeElement.focus();
+      this.montantCbInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantCbInput.nativeElement.select();
+    }
+  }
+
+  montantOMInputAssignment(): void {
+    if (this.montantOMInput) {
+      this.montantOMInput.nativeElement.focus();
+      this.montantOMInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantOMInput.nativeElement.select();
+    }
+  }
+
+  montantVirementInputAssignment(): void {
+    if (this.montantVirInput) {
+      this.montantVirInput.nativeElement.focus();
+      this.montantVirInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantVirInput.nativeElement.select();
+    }
+  }
+
+  montantMtnInputAssignment(): void {
+    console.error(this.montantMTNInput);
+    if (this.montantMTNInput) {
+      this.montantMTNInput.nativeElement.focus();
+      this.montantMTNInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantMTNInput.nativeElement.select();
+    }
+  }
+
+  montantMOOVInputAssignment(): void {
+    if (this.montantMOOVInput) {
+      this.montantMOOVInput.nativeElement.focus();
+      this.montantMOOVInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantMOOVInput.nativeElement.select();
+    }
+  }
+
+  montantWAVEInputAssignment(): void {
+    if (this.montantWAVEInput) {
+      this.montantWAVEInput.nativeElement.focus();
+      this.montantWAVEInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantWAVEInput.nativeElement.select();
+    }
+  }
+
+  montantCHInputAssignment(): void {
+    if (this.montantChInput) {
+      this.montantChInput.nativeElement.focus();
+      this.montantChInput.nativeElement.value = this.sale?.amountToBePaid;
+      this.montantChInput.nativeElement.select();
+    }
+  }
+
+  manageReglementFocus(): void {
+    const cashInput = this.modeReglementSelected.find(mode => mode === 'CASH');
+    if (cashInput) {
+      this.montantCashInputAssignment();
+    } else {
+      const cb = this.modeReglementSelected.find(mode => mode === 'CB');
+      const om = this.modeReglementSelected.find(mode => mode === 'OM');
+      const VIREMENT = this.modeReglementSelected.find(mode => mode === 'VIREMENT');
+      const MTN = this.modeReglementSelected.find(mode => mode === 'MTN');
+      const MOOV = this.modeReglementSelected.find(mode => mode === 'MOOV');
+      const WAVE = this.modeReglementSelected.find(mode => mode === 'WAVE');
+      const CH = this.modeReglementSelected.find(mode => mode === 'CH');
+      if (cb) {
+        this.montantCbInputAssignment();
+      } else if (om) {
+        this.montantOMInputAssignment();
+      } else if (VIREMENT) {
+        this.montantVirementInputAssignment();
+      } else if (MTN) {
+        this.montantMtnInputAssignment();
+      } else if (MOOV) {
+        this.montantMOOVInputAssignment();
+      } else if (WAVE) {
+        this.montantWAVEInputAssignment();
+      } else if (CH) {
+        this.montantCHInputAssignment();
+      }
+    }
+  }
+
+  manageReglementOnClickFocus(modeSelected: string): void {
+    const selectedMode = this.modeReglementSelected.find(mode => mode === modeSelected);
+
+    if (selectedMode === 'CASH') {
+      this.montantCashInputAssignment();
+    } else if (selectedMode === 'CB') {
+      console.error(selectedMode);
+      this.montantCbInputAssignment();
+    } else if (selectedMode === 'OM') {
+      this.montantOMInputAssignment();
+    } else if (selectedMode === 'VIREMENT') {
+      this.montantVirementInputAssignment();
+    } else if (selectedMode === 'MTN') {
+      this.montantMtnInputAssignment();
+    } else if (selectedMode === 'MOOV') {
+      this.montantMOOVInputAssignment();
+    } else if (selectedMode === 'WAVE') {
+      this.montantWAVEInputAssignment();
+    } else if (selectedMode === 'CH') {
+      this.montantCHInputAssignment();
+    }
+  }
+
+  onModeReglementChange(event: any): void {
+    let modeRegle = event.originalEvent.target.innerText;
+    this.manageShowInfosComplementaireReglementCard();
+    this.manageShowInfosBancaire();
+    this.manageReglementInputParentClass();
+    if (modeRegle === 'ORANGE') {
+      modeRegle = 'OM';
+    } else if (modeRegle === 'CHEQUE') {
+      modeRegle = 'CH';
+    } else if (modeRegle === 'ESPECE') {
+      modeRegle = 'CASH';
+    }
+    this.manageAmontDiv(modeRegle);
   }
 
   onDiffereChange(e: any): void {
@@ -452,10 +618,6 @@ export class SalesUpdateComponent implements OnInit {
       }
     }
     this.manageShowInfosComplementaireReglementCard();
-  }
-
-  onModeReglementChange(option: any): void {
-    this.modeReglementEmitter.next(1);
   }
 
   trackId(index: number, item: IProduit): number {
@@ -477,7 +639,7 @@ export class SalesUpdateComponent implements OnInit {
       .query({
         page: 0,
         size: 5,
-        withdetail: true,
+        withdetail: false,
         search: this.searchValue,
       })
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
@@ -487,19 +649,43 @@ export class SalesUpdateComponent implements OnInit {
     this.selectedRowIndex = item.id;
   }
 
+  totalItemQty(): number {
+    if (this.produitSelected) {
+      return this.salesLines.find(e => e.produitId === this.produitSelected!.id)?.quantityRequested || 0;
+    }
+    return 0;
+  }
+
   onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
-    if (this.produitSelected !== null && this.produitSelected !== undefined && qytMvt !== 0) {
+    if (qytMvt <= 0) return;
+    if (this.produitSelected !== null && this.produitSelected !== undefined) {
       const currentStock = this.produitSelected.totalQuantity;
-      if (currentStock) {
-        if (currentStock < qytMvt) {
-          // TODO forcer le stock à la vente
-          if (this.canForceStock) {
-            this.confirmForceStock(qytMvt, ' La quantité saisie est supérieure à la quantité stock du produit. Voullez-vous continuer ?');
+      const qtyAlreadyRequested = this.totalItemQty();
+      const inStock = currentStock! >= qytMvt + qtyAlreadyRequested;
+      if (!inStock) {
+        if (this.canForceStock && qytMvt > this.qtyMaxToSel) {
+          this.confirmForceStock(qytMvt, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
+        } else if (this.canForceStock && qytMvt <= this.qtyMaxToSel) {
+          if (this.produitSelected.produitId) {
+            // s il  boite ch
+            this.produitService.find(this.produitSelected.produitId).subscribe(res => {
+              const prod = res.body;
+              if (prod && prod.totalQuantity! > 0) {
+                // si quantite CH
+                this.confirmDeconditionnement(null, prod, qytMvt);
+              } else {
+                this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
+              }
+            });
           } else {
-            this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
+            this.confirmForceStock(qytMvt, ' La quantité saisie est supérieure à la quantité stock du produit. Voullez-vous continuer ?');
           }
-        } else if (qytMvt >= this.qtyMaxToSel) {
+        } else {
+          this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
+        }
+      } else {
+        if (qytMvt >= this.qtyMaxToSel) {
           if (this.canForceStock) {
             this.confirmForceStock(qytMvt, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
           } else {
@@ -561,10 +747,84 @@ export class SalesUpdateComponent implements OnInit {
     }
   }
 
-  removeLine(data: any): void {
-    this.saleItemService.delete(data.id).subscribe(() => {
-      this.refresh();
+  removeLine(salesLine: ISalesLine): void {
+    this.salesService.deleteItem(salesLine.id!).subscribe(() => {
+      if (this.sale) {
+        this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+      }
     });
+  }
+
+  updateItemQtyRequested(salesLine: ISalesLine, event: any): void {
+    //TODO verifie en back que qtyRequested <=Current product stock
+    // le process de forcing du stock
+    // Deconditionner net yet implemented
+
+    const newQty = Number(event.target.value);
+    if (newQty <= 0) return;
+    salesLine.quantityRequested = newQty;
+    if (newQty > this.qtyMaxToSel) {
+      this.onUpdateConfirmForceStock(salesLine, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
+    } else {
+      this.processQtyRequested(salesLine);
+    }
+  }
+
+  protected processQtyRequested(salesLine: ISalesLine): void {
+    this.salesService.updateItemQtyRequested(salesLine).subscribe(
+      () => {
+        if (this.sale) {
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        }
+        this.check = true;
+      },
+      error => {
+        this.check = false;
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
+        this.onStockError(salesLine, error);
+      }
+    );
+  }
+
+  updateItemQtySold(salesLine: ISalesLine, event: any): void {
+    const newQty = Number(event.target.value);
+    if (newQty < 0) return;
+    if (newQty > salesLine.quantityRequested!) {
+      this.openInfoDialog(
+        `La quantité saisie  ${newQty}  ne doit pas être supérieure à la quantité demandée ${salesLine.quantityRequested}`,
+        'alert alert-danger'
+      );
+      return;
+    }
+    salesLine.quantitySold = newQty;
+    this.salesService.updateItemQtySold(salesLine).subscribe(
+      () => {
+        if (this.sale) {
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        }
+      },
+      () => {
+        this.onSaveError();
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
+      }
+    );
+  }
+
+  updateItemPrice(salesLine: ISalesLine, event: any): void {
+    const newPrice = Number(event.target.value);
+    if (newPrice <= 0) return;
+    salesLine.regularUnitPrice = newPrice;
+    this.salesService.updateItemPrice(salesLine).subscribe(
+      () => {
+        if (this.sale) {
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        }
+      },
+      () => {
+        this.onSaveError();
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
+      }
+    );
   }
 
   formatNumber(number: any): string {
@@ -592,8 +852,11 @@ export class SalesUpdateComponent implements OnInit {
       message: ' Voullez-vous detacher  ce produit ?',
       header: 'RUPPRESSION DE PRODUIT ',
       icon: 'pi pi-info-circle',
-      accept: () => console.error(item),
-
+      accept: () => this.removeLine(item),
+      reject: () => {
+        this.check = true;
+        this.updateProduitQtyBox();
+      },
       key: 'deleteItem',
     });
   }
@@ -603,8 +866,81 @@ export class SalesUpdateComponent implements OnInit {
       message,
       header: 'FORCER LE STOCK',
       icon: 'pi pi-info-circle',
-      accept: () => this.onAddProduit(qytMvt),
+      accept: () => {
+        this.onAddProduit(qytMvt);
+      },
+      reject: () => {
+        this.check = true;
+        this.updateProduitQtyBox();
+      },
       key: 'forcerStock',
+    });
+    this.forcerStockBtn?.nativeElement.focus();
+  }
+
+  confirmDeconditionnement(item: ISalesLine | null, produit: IProduit, qytMvt: number): void {
+    this.confirmationService.confirm({
+      message: 'Stock détail insuffisant . Voullez-vous faire un déconditionnement ?',
+      header: 'DECONDITIONNEMENT A LA VENTE',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        const qtyDetail = produit.itemQty;
+        if (qtyDetail) {
+          const qtyDecondtionner = Math.round(qytMvt / qtyDetail);
+          this.decondtionService.create(this.createDecondition(qtyDecondtionner, produit.id!)).subscribe(
+            res => {
+              if (item) {
+                this.processQtyRequested(item);
+              } else {
+                this.onAddProduit(qytMvt);
+              }
+            },
+            error => {
+              if (error.error && (error.error.status === 500 || error.error.status === 400)) {
+                this.openInfoDialog('Erreur applicatif', 'alert alert-danger');
+              } else {
+                this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
+                  translatedErrorMessage => {
+                    this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+                  },
+                  () => this.openInfoDialog(error.error.title, 'alert alert-danger')
+                );
+              }
+            }
+          );
+        }
+      },
+      reject: () => {
+        this.check = true;
+        this.updateProduitQtyBox();
+      },
+      key: 'forcerStock',
+    });
+    this.forcerStockBtn?.nativeElement.focus();
+  }
+
+  onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {
+    this.confirmationService.confirm({
+      message,
+      header: 'FORCER LE STOCK ',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.processQtyRequested(salesLine);
+      },
+      reject: () => {
+        this.check = true;
+        this.updateProduitQtyBox();
+      },
+      key: 'forcerStock',
+    });
+    this.forcerStockBtn?.nativeElement.focus();
+  }
+
+  maxToSale(): void {
+    this.configurationService.find('APP_QTY_MAX').subscribe(res => {
+      if (res.body) {
+        this.qtyMaxToSel = Number(res.body.value);
+      }
     });
   }
 
@@ -613,11 +949,32 @@ export class SalesUpdateComponent implements OnInit {
     this.salesLines = [];
     this.modeReglementSelected = [];
     this.modeReglementSelected = ['CASH'];
-    this.modeReglementEmitter.next(1);
+    this.modeReglementEmitter.next('CASH');
     this.naturesVente = { code: 'COMPTANT', name: 'COMPTANT' };
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.userSeller = this.userCaissier;
-    this.produitbox?.nativeElement.focus();
+    this.check = true;
+    this.updateProduitQtyBox();
+  }
+
+  totalQtyProduit(): number {
+    return this.salesLines.reduce((sum, current) => sum + current.quantityRequested!, 0);
+  }
+
+  totalQtyServi(): number {
+    return this.salesLines.reduce((sum, current) => sum + current.quantitySold!, 0);
+  }
+
+  totalTtc(): number {
+    return this.salesLines.reduce((sum, current) => sum + current.salesAmount!, 0);
+  }
+
+  private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
+    return {
+      ...new Decondition(),
+      qtyMvt: qtyDeconditione,
+      produitId,
+    };
   }
 
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
@@ -627,7 +984,27 @@ export class SalesUpdateComponent implements OnInit {
     );
   }
 
+  protected updateProduitQtyBox(): void {
+    if (this.quantyBox) {
+      this.quantyBox.nativeElement.value = 1;
+    }
+    if (this.check) {
+      this.produitbox?.focus();
+    } else {
+      this.forcerStockBtn?.nativeElement.focus();
+    }
+
+    this.produitSelected = null;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
+    result.subscribe(
+      (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      () => this.onSaveError()
+    );
+  }
+
+  protected subscribeToUpdateItemPriceOrQuantityResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe(
       (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
       () => this.onSaveError()
@@ -648,16 +1025,18 @@ export class SalesUpdateComponent implements OnInit {
       cassier: this.userCaissier!,
       seller: this.userSeller!,
       type: 'VNO',
+      categorie: 'VNO',
     };
   }
 
-  private createSalesLine(produit: IProduit, quantitySold: number): ISalesLine {
+  private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
     return {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
       saleId: this.sale?.id,
-      quantitySold,
+      quantitySold: quantityRequested,
+      quantityRequested,
       sales: this.sale,
     };
   }
@@ -676,12 +1055,13 @@ export class SalesUpdateComponent implements OnInit {
   protected onSaveSuccess(sale: ISales | null): void {
     this.isSaving = false;
     this.sale = sale!;
-    this.rowData = this.sale.salesLines;
+    this.salesLines = this.sale.salesLines!;
+    this.updateProduitQtyBox();
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    const message = 'Une erruer est survenue';
+    const message = 'Une erreur est survenue';
     this.openInfoDialog(message, 'alert alert-danger');
   }
 
@@ -711,10 +1091,41 @@ export class SalesUpdateComponent implements OnInit {
   protected onSaleComptantResponseSuccess(sale: ISales | null): void {
     this.isSaving = false;
     this.sale = sale;
-    if (sale && sale.salesLines) this.salesLines = sale?.salesLines;
+    if (sale && sale.salesLines) {
+      this.salesLines = sale?.salesLines;
+      this.updateProduitQtyBox();
+    }
   }
 
-  protected onActionError(el: ISalesLine, error: any): void {
+  protected onStockError(salesLine: ISalesLine, error: any): void {
+    if (error.error) {
+      if (error.error.errorKey === 'stock') {
+        if (this.canForceStock) {
+          salesLine.forceStock = true;
+          this.onUpdateConfirmForceStock(
+            salesLine,
+            'La quantité saisie est supérieure à la quantité stock du produit. Voullez-vous continuer ?'
+          );
+        } else {
+          this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
+            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+          });
+        }
+      } else if (error.error.errorKey === 'stockChInsufisant') {
+        this.produitService.find(Number(error.error.title)).subscribe(res => {
+          const prod = res.body;
+          if (prod && prod.totalQuantity! > 0) {
+            // si quantite CH
+            this.confirmDeconditionnement(salesLine, prod, salesLine.quantityRequested!);
+          } else {
+            this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
+          }
+        });
+      }
+    }
+  }
+
+  protected onStockOutError(error: any): void {
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
         this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
@@ -723,13 +1134,22 @@ export class SalesUpdateComponent implements OnInit {
   }
 
   protected onCommonError(error: any): void {
-    if (error.error) {
+    if (error.error && (error.error.status === 500 || error.error.status === 400)) {
+      this.openInfoDialog('Erreur applicatif', 'alert alert-danger');
+    } else {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
         translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        () => this.openInfoDialog(error.title, 'alert alert-danger')
+        () => this.openInfoDialog(error.error.title, 'alert alert-danger')
       );
     }
+  }
+
+  private printTest(): void {
+    this.salesService.print(this.sale?.id!).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 }

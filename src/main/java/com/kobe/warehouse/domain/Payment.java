@@ -25,12 +25,6 @@ public class Payment implements Serializable {
     @Column(name = "paid_amount", nullable = false)
     private Integer paidAmount;
     @NotNull
-    @Column(name = "reel_paid_amount", nullable = false)
-    private Integer reelPaidAmount;
-    @NotNull
-    @Column(name = "rest_to_pay", nullable = false)
-    private Integer restToPay;
-    @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
     @NotNull
@@ -49,19 +43,34 @@ public class Payment implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Customer customer;
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Sales sales;
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private Instant effectiveUpdateDate;
-    public Payment setReelPaidAmount(Integer reelPaidAmount) {
-        this.reelPaidAmount = reelPaidAmount;
+    @NotNull
+    @Column(name = "montant_verse", nullable = false)
+    private Integer montantVerse=0;
+    @ManyToOne
+    private Ticket ticket;
+
+    public Ticket getTicket() {
+        return ticket;
+    }
+
+    public Payment setTicket(Ticket ticket) {
+        this.ticket = ticket;
         return this;
     }
 
-    public Integer getReelPaidAmount() {
-        return reelPaidAmount;
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public Payment setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
     }
 
     public Instant getEffectiveUpdateDate() {
@@ -122,20 +131,6 @@ public class Payment implements Serializable {
     public void setPaidAmount(Integer paidAmount) {
         this.paidAmount = paidAmount;
     }
-
-    public Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public Payment restToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-        return this;
-    }
-
-    public void setRestToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -220,7 +215,6 @@ public class Payment implements Serializable {
             "id=" + getId() +
             ", netAmount=" + getNetAmount() +
             ", paidAmount=" + getPaidAmount() +
-            ", restToPay=" + getRestToPay() +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             "}";

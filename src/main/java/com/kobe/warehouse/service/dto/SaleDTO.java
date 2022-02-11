@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,17 +47,65 @@ public class SaleDTO implements Serializable {
     private Integer restToPay;
     private String customerNum;
     private Boolean copy = false;
-    private boolean imported = false;
+    private boolean imported = false, differe;
     private Integer margeUg = 0;
     private Integer montantttcUg = 0;
     private Integer montantnetUg = 0;
     private Integer montantTvaUg = 0;
     private Integer marge = 0;
+    private int montantRendue;
     private NatureVente natureVente;
     private TypePrescription typePrescription;
     private PaymentStatus paymentStatus;
     private CustomerDTO customer;
     private UserDTO cassier, seller;
+    private List<TicketDTO> tickets = new ArrayList<>();
+    private String caisseEndNum, caisseNum, categorie;
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public SaleDTO setCategorie(String categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+
+    public String getCaisseEndNum() {
+        return caisseEndNum;
+    }
+
+    public SaleDTO setCaisseEndNum(String caisseEndNum) {
+        this.caisseEndNum = caisseEndNum;
+        return this;
+    }
+
+    public String getCaisseNum() {
+        return caisseNum;
+    }
+
+    public SaleDTO setCaisseNum(String caisseNum) {
+        this.caisseNum = caisseNum;
+        return this;
+    }
+
+    public boolean isDiffere() {
+        return differe;
+    }
+
+    public SaleDTO setDiffere(boolean differe) {
+        this.differe = differe;
+        return this;
+    }
+
+    public int getMontantRendue() {
+        return montantRendue;
+    }
+
+    public SaleDTO setMontantRendue(int montantRendue) {
+        this.montantRendue = montantRendue;
+        return this;
+    }
 
     public UserDTO getCassier() {
         return cassier;
@@ -403,17 +452,23 @@ public class SaleDTO implements Serializable {
             this.customer = new CustomerDTO(thirdPartySales.getAssuredCustomer());
         } else if (sale instanceof CashSale) {
             CashSale cashSale = (CashSale) sale;
-            this.customer = new CustomerDTO(cashSale.getUninsuredCustomer());
+            if (cashSale.getUninsuredCustomer() != null) {
+                this.customer = new CustomerDTO(cashSale.getUninsuredCustomer());
+            }
+            this.categorie = "VNO";
+        } else {
+            this.categorie = "VO";
         }
         this.salesAmount = sale.getSalesAmount();
         this.htAmount = sale.getHtAmount();
         this.netAmount = sale.getNetAmount();
         this.taxAmount = sale.getTaxAmount();
         this.costAmount = sale.getCostAmount();
+        this.amountToBePaid = sale.getAmountToBePaid();
         this.statut = sale.getStatut();
         this.createdAt = sale.getCreatedAt();
         this.updatedAt = sale.getUpdatedAt();
-        this.salesLines = sale.getSalesLines().stream().map(SaleLineDTO::new).collect(Collectors.toList());
+        this.salesLines = sale.getSalesLines().stream().map(SaleLineDTO::new).sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt,Comparator.reverseOrder())).collect(Collectors.toList());
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).collect(Collectors.toList());
         User user = sale.getUser();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
@@ -422,6 +477,15 @@ public class SaleDTO implements Serializable {
         this.typePrescription = sale.getTypePrescription();
         this.seller = new UserDTO(sale.getSeller());
         this.cassier = new UserDTO(sale.getCassier());
+    }
+
+    public List<TicketDTO> getTickets() {
+        return tickets;
+    }
+
+    public SaleDTO setTickets(List<TicketDTO> tickets) {
+        this.tickets = tickets;
+        return this;
     }
 
     public List<SaleLineDTO> getSalesLines() {

@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.repository.CustomerRepository;
+import com.kobe.warehouse.service.SaleDataService;
 import com.kobe.warehouse.service.SaleService;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -46,9 +47,9 @@ public class CustomerResource {
 	private String applicationName;
 
 	private final CustomerRepository customerRepository;
-	private final SaleService saleService;
+	private final SaleDataService saleService;
 
-	public CustomerResource(CustomerRepository customerRepository, SaleService saleService) {
+	public CustomerResource(CustomerRepository customerRepository, SaleDataService saleService) {
 		this.customerRepository = customerRepository;
 		this.saleService = saleService;
 	}

@@ -29,6 +29,8 @@ export interface ISales {
   user?: IUser;
   cassier?: IUser;
   type?: string;
+  amountToBePaid?: number;
+  categorie?: string;
 }
 
 export class Sales implements ISales {
@@ -55,8 +57,10 @@ export class Sales implements ISales {
     public seller?: IUser,
     public user?: IUser,
     public cassier?: IUser,
-    public type?: string
+    public type?: string,
+    public amountToBePaid?: number,
+    public categorie?: string
   ) {
-    this.statut = this.statut || SalesStatut.PENDING;
+    this.statut = this.statut || SalesStatut.ACTIVE;
   }
 }

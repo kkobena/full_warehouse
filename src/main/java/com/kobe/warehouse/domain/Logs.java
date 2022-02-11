@@ -33,7 +33,8 @@ public class Logs implements Serializable {
     private User user;
     @NotNull
     @Column(name = "indentity_key", nullable = false)
-    private Long indentityKey;
+    private String indentityKey;
+
 
     public Long getId() {
         return id;
@@ -80,11 +81,11 @@ public class Logs implements Serializable {
         return this;
     }
 
-    public Long getIndentityKey() {
+    public String getIndentityKey() {
         return indentityKey;
     }
 
-    public Logs setIndentityKey(Long indentityKey) {
+    public Logs setIndentityKey(String indentityKey) {
         this.indentityKey = indentityKey;
         return this;
     }

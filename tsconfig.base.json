@@ -26,6 +26,7 @@
     "strictInjectionParameters": true,
     "fullTemplateTypeCheck": true,
     "strictTemplates": true,
-    "preserveWhitespaces": true
+    "preserveWhitespaces": true,
+    "strictDomEventTypes": false
   }
 }

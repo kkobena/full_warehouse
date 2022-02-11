@@ -52,7 +52,6 @@ public class InventoryTransactionService {
         inventoryTransaction.setCreatedAt(now);
         inventoryTransaction.setProduit(storeInventoryLine.getProduit());
         inventoryTransaction.setUser(user);
-        inventoryTransaction.setAmount(storeInventoryLine.getInventoryValueCost());
         inventoryTransaction.setQuantity(storeInventoryLine.getUpdated() ? storeInventoryLine.getQuantityOnHand() : storeInventoryLine.getQuantityInit());
         inventoryTransaction.setTransactionType(TransactionType.INVENTAIRE);
         inventoryTransaction.setQuantityAfter(inventoryTransaction.getQuantity());

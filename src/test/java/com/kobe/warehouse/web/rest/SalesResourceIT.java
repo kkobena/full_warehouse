@@ -81,7 +81,6 @@ public class SalesResourceIT {
         Sales sales = new Sales()
             .discountAmount(DEFAULT_DISCOUNT_AMOUNT)
             .salesAmount(DEFAULT_SALES_AMOUNT)
-            .grossAmount(DEFAULT_GROSS_AMOUNT)
             .netAmount(DEFAULT_NET_AMOUNT)
             .taxAmount(DEFAULT_TAX_AMOUNT)
             .costAmount(DEFAULT_COST_AMOUNT)
@@ -100,7 +99,6 @@ public class SalesResourceIT {
         Sales sales = new Sales()
             .discountAmount(UPDATED_DISCOUNT_AMOUNT)
             .salesAmount(UPDATED_SALES_AMOUNT)
-            .grossAmount(UPDATED_GROSS_AMOUNT)
             .netAmount(UPDATED_NET_AMOUNT)
             .taxAmount(UPDATED_TAX_AMOUNT)
             .costAmount(UPDATED_COST_AMOUNT)
@@ -131,7 +129,6 @@ public class SalesResourceIT {
         Sales testSales = salesList.get(salesList.size() - 1);
         assertThat(testSales.getDiscountAmount()).isEqualTo(DEFAULT_DISCOUNT_AMOUNT);
         assertThat(testSales.getSalesAmount()).isEqualTo(DEFAULT_SALES_AMOUNT);
-        assertThat(testSales.getGrossAmount()).isEqualTo(DEFAULT_GROSS_AMOUNT);
         assertThat(testSales.getNetAmount()).isEqualTo(DEFAULT_NET_AMOUNT);
         assertThat(testSales.getTaxAmount()).isEqualTo(DEFAULT_TAX_AMOUNT);
         assertThat(testSales.getCostAmount()).isEqualTo(DEFAULT_COST_AMOUNT);
@@ -185,25 +182,6 @@ public class SalesResourceIT {
         int databaseSizeBeforeTest = salesRepository.findAll().size();
         // set the field null
         sales.setSalesAmount(null);
-
-        // Create the Sales, which fails.
-
-
-        restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
-            .andExpect(status().isBadRequest());
-
-        List<Sales> salesList = salesRepository.findAll();
-        assertThat(salesList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkGrossAmountIsRequired() throws Exception {
-        int databaseSizeBeforeTest = salesRepository.findAll().size();
-        // set the field null
-        sales.setGrossAmount(null);
 
         // Create the Sales, which fails.
 
@@ -352,7 +330,7 @@ public class SalesResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getSales() throws Exception {
@@ -397,7 +375,6 @@ public class SalesResourceIT {
         updatedSales
             .discountAmount(UPDATED_DISCOUNT_AMOUNT)
             .salesAmount(UPDATED_SALES_AMOUNT)
-            .grossAmount(UPDATED_GROSS_AMOUNT)
             .netAmount(UPDATED_NET_AMOUNT)
             .taxAmount(UPDATED_TAX_AMOUNT)
             .costAmount(UPDATED_COST_AMOUNT)
@@ -416,7 +393,6 @@ public class SalesResourceIT {
         Sales testSales = salesList.get(salesList.size() - 1);
         assertThat(testSales.getDiscountAmount()).isEqualTo(UPDATED_DISCOUNT_AMOUNT);
         assertThat(testSales.getSalesAmount()).isEqualTo(UPDATED_SALES_AMOUNT);
-        assertThat(testSales.getGrossAmount()).isEqualTo(UPDATED_GROSS_AMOUNT);
         assertThat(testSales.getNetAmount()).isEqualTo(UPDATED_NET_AMOUNT);
         assertThat(testSales.getTaxAmount()).isEqualTo(UPDATED_TAX_AMOUNT);
         assertThat(testSales.getCostAmount()).isEqualTo(UPDATED_COST_AMOUNT);

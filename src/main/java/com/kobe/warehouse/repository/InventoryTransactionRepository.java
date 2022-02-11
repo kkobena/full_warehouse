@@ -29,7 +29,6 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
         inventoryTransaction.setProduit(orderLine.getProduit());
         inventoryTransaction.setUser(user);
         inventoryTransaction.dateDimension(Constants.DateDimension(LocalDate.now()));
-        inventoryTransaction.setAmount(orderLine.getOrderAmount());
         inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
         inventoryTransaction.setTransactionType(TransactionType.COMMANDE);
         return inventoryTransaction;
@@ -40,9 +39,12 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
         inventoryTransaction.setCreatedAt(Instant.now());
         inventoryTransaction.setProduit(salesLine.getProduit());
         inventoryTransaction.setUser(user);
-        inventoryTransaction.setAmount(salesLine.getSalesAmount());
-        inventoryTransaction.setQuantity(salesLine.getQuantitySold());
+        inventoryTransaction.setMagasin(user.getMagasin());
+        inventoryTransaction.setQuantity(salesLine.getQuantityRequested());
+        inventoryTransaction.setCostAmount(salesLine.getCostAmount());
+        inventoryTransaction.setRegularUnitPrice(salesLine.getRegularUnitPrice());
         inventoryTransaction.setTransactionType(TransactionType.SALE);
+        inventoryTransaction.setSaleLine(salesLine);
         return inventoryTransaction;
     }
 

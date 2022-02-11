@@ -13,7 +13,7 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
-public class SalesLine implements Serializable {
+public class SalesLine implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -26,44 +26,44 @@ public class SalesLine implements Serializable {
     @Column(name = "quantity_requested", nullable = false)
     private Integer quantityRequested;
     @NotNull
-    @Column(name = "quantity_ug", nullable = false)
-    private Integer quantityUg=0;
+    @Column(name = "quantity_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer quantityUg = 0;
     @NotNull
-    @Column(name = "quantity_avoir", nullable = false)
-    private Integer quantiyAvoir=0;
+    @Column(name = "quantity_avoir", nullable = false, columnDefinition = "int default '0'")
+    private Integer quantiyAvoir = 0;
     @NotNull
-    @Column(name = "montant_tva_ug", nullable = false)
+    @Column(name = "montant_tva_ug", nullable = false, columnDefinition = "int default '0'")
     private Integer montantTvaUg = 0;
     @NotNull
-    @Column(name = "regular_unit_price", nullable = false)
+    @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
     @NotNull
-    @Column(name = "discount_unit_price", nullable = false)
-    private Integer discountUnitPrice=0;
+    @Column(name = "discount_unit_price", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountUnitPrice = 0;
     @NotNull
-    @Column(name = "net_unit_price", nullable = false)
-    private Integer netUnitPrice=0;
+    @Column(name = "net_unit_price", nullable = false, columnDefinition = "int default '0'")
+    private Integer netUnitPrice = 0;
     @NotNull
-    @Column(name = "discount_amount", nullable = false)
-    private Integer discountAmount=0;
+    @Column(name = "discount_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountAmount = 0;
     @NotNull
-    @Column(name = "discount_amount_hors_ug", nullable = false)
-    private Integer discountAmountHorsUg=0;
+    @Column(name = "discount_amount_hors_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountAmountHorsUg = 0;
     @NotNull
-    @Column(name = "discount_amount_ug", nullable = false)
-    private Integer discountAmountUg=0;
+    @Column(name = "discount_amount_ug", nullable = false, columnDefinition = "int default '0'")
+    private Integer discountAmountUg = 0;
     @NotNull
-    @Column(name = "sales_amount", nullable = false)
-    private Integer salesAmount=0;
+    @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer salesAmount = 0;
     @NotNull
-    @Column(name = "net_amount", nullable = false)
-    private Integer netAmount=0;
+    @Column(name = "net_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer netAmount = 0;
     @NotNull
-    @Column(name = "tax_value", nullable = false)
-    private Integer taxValue=0;
+    @Column(name = "tax_value", nullable = false, columnDefinition = "int default '0'")
+    private Integer taxValue = 0;
     @NotNull
-    @Column(name = "cost_amount", nullable = false)
-    private Integer costAmount=0;
+    @Column(name = "cost_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer costAmount = 0;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -83,8 +83,8 @@ public class SalesLine implements Serializable {
     private Instant effectiveUpdateDate;
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
-    @Column(name = "amount_to_be_taken_into_account", nullable = false)
-    private Integer amountToBeTakenIntoAccount;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false, columnDefinition = "int default '0'")
+    private Integer amountToBeTakenIntoAccount = 0;
 
     public Integer getDiscountAmountHorsUg() {
         return discountAmountHorsUg;
@@ -263,7 +263,6 @@ public class SalesLine implements Serializable {
     }
 
 
-
     public Integer getNetAmount() {
         return netAmount;
     }
@@ -276,7 +275,6 @@ public class SalesLine implements Serializable {
     public void setNetAmount(Integer netAmount) {
         this.netAmount = netAmount;
     }
-
 
 
     public Integer getCostAmount() {
@@ -346,6 +344,7 @@ public class SalesLine implements Serializable {
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -379,5 +378,29 @@ public class SalesLine implements Serializable {
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+            return null;
+           /* return new SalesLine()
+                .setQuantityRequested(this.quantityRequested)
+                .quantitySold(this.quantitySold)
+                .setQuantityUg(this.quantityUg)
+                .setQuantiyAvoir(this.quantiyAvoir)
+                .setMontantTvaUg(this.montantTvaUg)
+                .regularUnitPrice(this.regularUnitPrice)
+                .discountUnitPrice(this.discountUnitPrice)
+                .netUnitPrice(this.netUnitPrice)
+                .salesAmount(this.salesAmount)
+                .setQuantityUg(this.quantityUg)
+                .discountAmount(this.discountAmount)
+                .setDiscountAmountUg(this.discountAmountUg)
+                .setDiscountAmountHorsUg(this.discountAmountHorsUg);*/
+        }
     }
 }

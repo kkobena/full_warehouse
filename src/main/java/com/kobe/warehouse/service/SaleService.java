@@ -323,7 +323,7 @@ public class SaleService {
         payment.setNetAmount(dto.getNetAmount());
         payment.setPaidAmount(dto.getPaidAmount());
         payment.setUser(s.getUser());
-        PaymentMode paymentMode = paymentModeRepository.findOneByCode(dto.getPaymentCode()).orElse(paymentModeRepository.getOne(1l));
+        PaymentMode paymentMode = paymentModeRepository.findById(dto.getPaymentCode()).orElse(paymentModeRepository.getOne("CASH"));
         payment.setPaymentMode(paymentMode);
         payment.setSales(s);
         payment.setDateDimension(s.getDateDimension());
@@ -611,6 +611,7 @@ public class SaleService {
             Optional<SalesLine> salesLineOp = this.salesLineRepository.findBySalesIdAndProduitId(dto.getSaleId(), dto.getProduitId());
             if (salesLineOp.isPresent()) {
                 SalesLine salesLine = salesLineOp.get();
+                SalesLine OldSalesLine = (SalesLine) salesLine.clone();
                 salesLine.setUpdatedAt(Instant.now());
                 salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
                 salesLine.setSalesAmount((salesLine.getQuantityRequested() + dto.getQuantityRequested()) * dto.getRegularUnitPrice());
@@ -622,6 +623,9 @@ public class SaleService {
                 processUg(salesLine, dto);
                 processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
                 salesLine = this.salesLineRepository.save(salesLine);
+                CashSale cashSale = (CashSale) salesLine.getSales();
+                upddateCashSaleAmounts(cashSale, salesLine, OldSalesLine);
+                this.cashSaleRepository.save(cashSale);
                 return salesLine;
             }
             return this.salesLineRepository.save(createSaleLineFromDTO(dto));
@@ -665,11 +669,24 @@ public class SaleService {
         return salesLine;
     }
 
+    private Set<Payment> buildPaymentFromFromPaymentDTO(CashSale sales, SaleDTO saleDTO) {
+        User user = this.storageService.getUser();
+        Set<Payment> payments = new HashSet<>();
+        saleDTO.getPayments().forEach(paymentDTO -> {
+            Payment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, null);
+            payment.setStatut(SalesStatut.PENDING);
+            this.paymentRepository.save(payment);
+            payments.add(payment);
+        });
+        return payments;
+    }
+
     private Set<Payment> buildPaymentFromFromPaymentDTO(CashSale sales, SaleDTO saleDTO, Ticket ticket) {
         User user = this.storageService.getUser();
         Set<Payment> payments = new HashSet<>();
         saleDTO.getPayments().forEach(paymentDTO -> {
             Payment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, ticket);
+            this.paymentRepository.save(payment);
             payments.add(payment);
         });
         return payments;
@@ -684,17 +701,22 @@ public class SaleService {
         payment.setUser(user);
         payment.setCustomer(sales.getUninsuredCustomer());
         payment.setDateDimension(sales.getDateDimension());
-        ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentDTO.getPaymentCode());
-        switch (modePaimentCode) {
-            case CB:
-                payment.setMontantVerse(paymentDTO.getMontantVerse());
-                break;
+        if (paymentDTO.getPaymentMode() != null) {
+            PaymentMode paymentMode = this.paymentModeRepository.getOne(paymentDTO.getPaymentMode().getCode());
+            ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
+            switch (modePaimentCode) {
+                case CASH:
+                    payment.setMontantVerse(paymentDTO.getMontantVerse());
+                    break;
+            }
+            payment.setPaymentMode(paymentMode);
         }
+
         payment.setNetAmount(sales.getAmountToBePaid());
         payment.setPaidAmount(paymentDTO.getPaidAmount());
-        payment.setPaymentMode(newPaymentMode(modePaimentCode));
+
         payment.setTicket(ticket);
-        return this.paymentRepository.save(payment);
+        return payment;
     }
 
     private PaymentMode newPaymentMode(ModePaimentCode modePaimentCode) {
@@ -757,6 +779,18 @@ public class SaleService {
             response.setMessage(ticket.getCode());
 
         });
+        return response;
+    }
+
+    /*
+    Sauvegarder l etat de la vente
+     */
+    public ResponseDTO putCashSaleOnHold(CashSaleDTO dto) {
+        ResponseDTO response = new ResponseDTO();
+        CashSale cashSale = cashSaleRepository.getOne(dto.getId());
+        buildPaymentFromFromPaymentDTO(cashSale, dto);
+        salesRepository.save(cashSale);
+        response.setSuccess(true);
         return response;
     }
 

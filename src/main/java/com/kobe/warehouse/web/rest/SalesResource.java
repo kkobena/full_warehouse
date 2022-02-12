@@ -156,6 +156,15 @@ public class SalesResource {
         SaleDTO result = saleService.save(sale);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, sale.getId().toString())).body(result);
     }
+    @PutMapping("/sales/comptant/put-on-hold")
+    public ResponseEntity<ResponseDTO> putCashSaleOnHold(@Valid @RequestBody CashSaleDTO sale) throws URISyntaxException {
+
+        if (sale.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        ResponseDTO result = saleService.putCashSaleOnHold(sale);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, sale.getId().toString())).body(result);
+    }
 
     @GetMapping("/sales/print/{id}")
     public ResponseEntity<Resource> print(@PathVariable Long id, HttpServletRequest request) throws IOException {

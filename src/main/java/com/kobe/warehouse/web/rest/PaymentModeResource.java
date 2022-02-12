@@ -107,7 +107,7 @@ public class PaymentModeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the paymentMode, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/payment-modes/{id}")
-    public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable Long id) {
+    public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable String id) {
         log.debug("REST request to get PaymentMode : {}", id);
         Optional<PaymentMode> paymentMode = paymentModeRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(paymentMode);
@@ -120,7 +120,7 @@ public class PaymentModeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/payment-modes/{id}")
-    public ResponseEntity<Void> deletePaymentMode(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePaymentMode(@PathVariable String id) {
         log.debug("REST request to delete PaymentMode : {}", id);
         paymentModeRepository.deleteById(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();

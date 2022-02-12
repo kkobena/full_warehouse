@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -54,9 +55,21 @@ public class Payment implements Serializable {
     private Integer montantVerse=0;
     @ManyToOne
     private Ticket ticket;
-
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private SalesStatut statut=SalesStatut.CLOSED;
     public Ticket getTicket() {
         return ticket;
+    }
+
+    public SalesStatut getStatut() {
+        return statut;
+    }
+
+    public Payment setStatut(SalesStatut statut) {
+        this.statut = statut;
+        return this;
     }
 
     public Payment setTicket(Ticket ticket) {

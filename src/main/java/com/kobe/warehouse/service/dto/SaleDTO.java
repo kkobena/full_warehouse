@@ -42,7 +42,7 @@ public class SaleDTO implements Serializable {
     private String ticketNumber;
     private Integer payrollAmount;
     private Integer amountToBePaid;
-    private Integer amountToBeTakenIntoAccount;
+    private Integer amountToBeTakenIntoAccount,montantVerse,montantRendu;
     private Remise remise;
     private Integer restToPay;
     private String customerNum;
@@ -68,6 +68,24 @@ public class SaleDTO implements Serializable {
 
     public SaleDTO setCategorie(String categorie) {
         this.categorie = categorie;
+        return this;
+    }
+
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public SaleDTO setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
+    }
+
+    public Integer getMontantRendu() {
+        return montantRendu;
+    }
+
+    public SaleDTO setMontantRendu(Integer montantRendu) {
+        this.montantRendu = montantRendu;
         return this;
     }
 

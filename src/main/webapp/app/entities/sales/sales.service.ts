@@ -8,6 +8,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../shared/model/sales-line.model';
+import { IResponseDto } from '../../shared/util/response-dto';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -31,12 +32,14 @@ export class SalesService {
       .put<ISales>(`${this.resourceUrl}/comptant`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
+
   closeComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
       .put<ISales>(`${this.resourceUrl}/comptant/close`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
+
   find(id: number): Observable<EntityResponseType> {
     return this.http
       .get<ISales>(`${this.resourceUrl}/${id}`, { observe: 'response' })
@@ -54,11 +57,9 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  save(sales: ISales): Observable<EntityResponseType> {
+  saveComptant(sales: ISales): Observable<HttpResponse<IResponseDto>> {
     const copy = this.convertDateFromClient(sales);
-    return this.http
-      .put<ISales>(this.resourceUrl + '/save', copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<IResponseDto>(this.resourceUrl + 'comptant/save', copy, { observe: 'response' });
   }
 
   print(id: number): Observable<Blob> {
@@ -71,27 +72,32 @@ export class SalesService {
       .post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, copy, { observe: 'response' })
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
+
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
       .post<ISales>(this.resourceUrl, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
+
   updateItemPrice(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     return this.http
       .put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, { observe: 'response' })
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
+
   updateItemQtyRequested(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     return this.http
       .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' })
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
+
   updateItemQtySold(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     return this.http
       .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, { observe: 'response' })
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
+
   addItemAssurance(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     const copy = this.convertItemDateFromClient(salesLine);
     return this.http
@@ -104,8 +110,13 @@ export class SalesService {
       .put<ISalesLine>(`${this.resourceUrl}/update-item/assurance`, salesLine, { observe: 'response' })
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
+
   deleteItem(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/delete-item/${id}`, { observe: 'response' });
+  }
+  putCurrentCashSaleOnHold(sales: ISales): Observable<HttpResponse<IResponseDto>> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
   }
   protected convertDateFromClient(sales: ISales): ISales {
     const copy: ISales = Object.assign({}, sales, {

@@ -1,7 +1,6 @@
 import { Moment } from 'moment';
 import { ISales } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
-import { SalesStatut } from './enumerations/sales-statut.model';
 
 export interface ISalesLine {
   id?: number;

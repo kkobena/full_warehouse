@@ -1,5 +1,6 @@
 import { Moment } from 'moment';
 import { IPaymentMode } from 'app/shared/model/payment-mode.model';
+
 export interface IPayment {
   id?: number;
   netAmount?: number;
@@ -8,6 +9,7 @@ export interface IPayment {
   createdAt?: Moment;
   updatedAt?: Moment;
   paymentMode?: IPaymentMode;
+  montantVerse?: number;
 }
 
 export class Payment implements IPayment {
@@ -18,6 +20,7 @@ export class Payment implements IPayment {
     public restToPay?: number,
     public createdAt?: Moment,
     public updatedAt?: Moment,
-    public paymentMode?: IPaymentMode
+    public paymentMode?: IPaymentMode,
+    public montantVerse?: number
   ) {}
 }

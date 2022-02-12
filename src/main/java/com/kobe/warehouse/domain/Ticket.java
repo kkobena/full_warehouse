@@ -21,13 +21,16 @@ Ticket implements Serializable {
     private String code;
     @NotNull
     @Column(name = "montant_attendu", nullable = false)
-    private Integer montantAttendu;
+    private Integer montantAttendu=0;
     @NotNull
     @Column(name = "montant_paye", nullable = false)
-    private Integer montantPaye;
+    private Integer montantPaye=0;
     @NotNull
     @Column(name = "montant_rendu", nullable = false)
-    private Integer montantRendu;
+    private Integer montantRendu=0;
+    @NotNull
+    @Column(name = "montant_verse", nullable = false)
+    private Integer montantVerse=0;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant created;
@@ -119,6 +122,15 @@ Ticket implements Serializable {
 
     public Ticket setPayments(Set<Payment> payments) {
         this.payments = payments;
+        return this;
+    }
+
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public Ticket setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
         return this;
     }
 

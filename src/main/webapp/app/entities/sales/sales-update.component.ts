@@ -21,8 +21,8 @@ import { INatureVente } from '../../shared/model/nature-vente.model';
 import { ITypePrescription } from '../../shared/model/prescription-vente.model';
 import { IUser, User } from '../../core/user/user.model';
 import { IRemiseProduit } from '../../shared/model/remise-produit.model';
-import { IPaymentMode } from '../../shared/model/payment-mode.model';
-import { IPayment } from '../../shared/model/payment.model';
+import { IPaymentMode, PaymentMode } from '../../shared/model/payment-mode.model';
+import { IPayment, Payment } from '../../shared/model/payment.model';
 import { UserService } from '../../core/user/user.service';
 import { AccountService } from '../../core/auth/account.service';
 import { ConfirmationService } from 'primeng/api';
@@ -30,6 +30,7 @@ import { ErrorService } from '../../shared/error.service';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { DeconditionService } from '../decondition/decondition.service';
 import { Decondition, IDecondition } from '../../shared/model/decondition.model';
+import { IResponseDto } from '../../shared/util/response-dto';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -53,6 +54,7 @@ export class SalesUpdateComponent implements OnInit {
   showStock = true;
   canUpdatePu = true;
   isDiffere = false;
+  printTicket = true;
   showInfosBancaire = false;
   showModeReglementCard = true;
   canForceStock = true;
@@ -112,6 +114,7 @@ export class SalesUpdateComponent implements OnInit {
   montantMoov?: number | null = null;
   montantWave?: number | null = null;
   montantCheque?: number | null = null;
+  entryAmount?: number | null = null;
   commentaire?: string;
   telephone?: string;
   referenceBancaire?: string;
@@ -270,10 +273,8 @@ export class SalesUpdateComponent implements OnInit {
     this.naturesVente = { code: 'COMPTANT', name: 'COMPTANT' };
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.activatedRoute.data.subscribe(({ sales }) => {
-      if (!sales.id) {
-        const today = moment().startOf('day');
-        sales.createdAt = today;
-        sales.updatedAt = today;
+      if (sales.id) {
+        this.buildPaymentFromSale(sales);
       }
       if (!this.showStock) {
         if (this.remiseProduits.length === 0) {
@@ -310,7 +311,7 @@ export class SalesUpdateComponent implements OnInit {
     if (modeRegle) {
       setTimeout(() => {
         this.manageReglementOnClickFocus(modeRegle);
-      }, 300);
+      }, 100);
     }
 
     this.resetReglementInput();
@@ -393,13 +394,36 @@ export class SalesUpdateComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving = true;
-    this.subscribeToFinalyseResponse(this.salesService.save(this.sale!));
+    if (this.sale) {
+      this.isSaving = true;
+      this.sale.payments = this.buildPayment();
+      const entryAmount = this.getEntryAmount();
+      if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+        this.sale.montantRendu = this.monnaie;
+        this.sale.montantVerse = this.montantCash ?? 0;
+        if (!this.isDiffere && entryAmount < this.sale.amountToBePaid!) {
+          this.openInfoDialog("Le montant n'est pas correct", 'alert alert-warnning');
+        } else {
+          this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
+        }
+      }
+    }
+  }
+
+  putCurrentSaleOnHold(): void {
+    if (this.sale) {
+      this.isSaving = true;
+      this.sale.payments = this.buildPayment();
+      if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+        this.sale.type = 'VNO';
+        this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnHold(this.sale));
+      }
+    }
   }
 
   saveAntPrint(): void {
     this.isSaving = true;
-    this.subscribeToFinalyseResponse(this.salesService.save(this.sale!));
+    //  this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale!));
   }
 
   searchUser(event: any): void {
@@ -470,73 +494,177 @@ export class SalesUpdateComponent implements OnInit {
         this.stockSeverity = 'danger';
       }
     } else if (event.key === 'Enter' && this.sale && this.salesLines.length > 0) {
-      this.manageReglementFocus();
+      this.montantCashInputAssignment2();
+    }
+  }
+
+  montantCashInputAssignment2(): void {
+    if (this.montantCashInput) {
+      this.montantCashInput.nativeElement.focus();
+      this.montantCash = this.sale?.amountToBePaid;
+      setTimeout(() => {
+        this.montantCashInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantCashInputAssignment(): void {
     if (this.montantCashInput) {
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantCash = restTopay;
+        } else {
+          this.montantCash = 0;
+        }
+      } else {
+        this.montantCash = this.sale?.amountToBePaid;
+      }
       this.montantCashInput.nativeElement.focus();
-      this.montantCashInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantCashInput.nativeElement.select();
+      setTimeout(() => {
+        this.montantCashInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantCbInputAssignment(): void {
-    console.error(this.montantCbInput);
     if (this.montantCbInput) {
       this.montantCbInput.nativeElement.focus();
-      this.montantCbInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantCbInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantCb = restTopay;
+        } else {
+          this.montantCb = 0;
+        }
+      } else {
+        this.montantCb = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantCbInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantOMInputAssignment(): void {
     if (this.montantOMInput) {
       this.montantOMInput.nativeElement.focus();
-      this.montantOMInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantOMInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantOrange = restTopay;
+        } else {
+          this.montantOrange = 0;
+        }
+      } else {
+        this.montantOrange = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantOMInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantVirementInputAssignment(): void {
     if (this.montantVirInput) {
       this.montantVirInput.nativeElement.focus();
-      this.montantVirInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantVirInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantVirement = restTopay;
+        } else {
+          this.montantVirement = 0;
+        }
+      } else {
+        this.montantVirement = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantVirInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantMtnInputAssignment(): void {
-    console.error(this.montantMTNInput);
     if (this.montantMTNInput) {
       this.montantMTNInput.nativeElement.focus();
-      this.montantMTNInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantMTNInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantMtn = restTopay;
+        } else {
+          this.montantMtn = 0;
+        }
+      } else {
+        this.montantMtn = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantMTNInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantMOOVInputAssignment(): void {
     if (this.montantMOOVInput) {
       this.montantMOOVInput.nativeElement.focus();
-      this.montantMOOVInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantMOOVInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantMoov = restTopay;
+        } else {
+          this.montantMoov = 0;
+        }
+      } else {
+        this.montantMoov = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantMOOVInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantWAVEInputAssignment(): void {
     if (this.montantWAVEInput) {
       this.montantWAVEInput.nativeElement.focus();
-      this.montantWAVEInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantWAVEInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantWave = restTopay;
+        } else {
+          this.montantWave = 0;
+        }
+      } else {
+        this.montantWave = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantWAVEInput?.nativeElement.select();
+      }, 50);
     }
   }
 
   montantCHInputAssignment(): void {
     if (this.montantChInput) {
       this.montantChInput.nativeElement.focus();
-      this.montantChInput.nativeElement.value = this.sale?.amountToBePaid;
-      this.montantChInput.nativeElement.select();
+      this.entryAmount = this.getEntryAmount();
+      if (this.entryAmount) {
+        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+        if (restTopay && restTopay > 0) {
+          this.montantCheque = restTopay;
+        } else {
+          this.montantCheque = 0;
+        }
+      } else {
+        this.montantCheque = this.sale?.amountToBePaid;
+      }
+      setTimeout(() => {
+        this.montantChInput?.nativeElement.select();
+      }, 50);
     }
   }
 
@@ -572,11 +700,9 @@ export class SalesUpdateComponent implements OnInit {
 
   manageReglementOnClickFocus(modeSelected: string): void {
     const selectedMode = this.modeReglementSelected.find(mode => mode === modeSelected);
-
     if (selectedMode === 'CASH') {
       this.montantCashInputAssignment();
     } else if (selectedMode === 'CB') {
-      console.error(selectedMode);
       this.montantCbInputAssignment();
     } else if (selectedMode === 'OM') {
       this.montantOMInputAssignment();
@@ -632,6 +758,29 @@ export class SalesUpdateComponent implements OnInit {
   onFilterTextBoxChanged(event: any): void {
     this.searchValue = event.target.value;
     this.loadProduits();
+  }
+
+  computeMonnaie(): void {
+    const thatentryAmount = this.getEntryAmount();
+    const thatMonnaie = thatentryAmount - this.sale?.amountToBePaid!;
+    this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
+  }
+
+  getEntryAmount(): number {
+    return (
+      this.montantCash! +
+      this.montantCb! +
+      this.montantCheque! +
+      this.montantVirement! +
+      this.montantOrange! +
+      this.montantWave! +
+      this.montantMoov! +
+      this.montantMtn!
+    );
+  }
+
+  onReglementInputChange(): void {
+    this.computeMonnaie();
   }
 
   loadProduits(): void {
@@ -716,6 +865,7 @@ export class SalesUpdateComponent implements OnInit {
         }
       }
     }
+    this.computeMonnaie();
   }
 
   onAddPack(item: IProduit): void {
@@ -954,6 +1104,17 @@ export class SalesUpdateComponent implements OnInit {
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.userSeller = this.userCaissier;
     this.check = true;
+    this.derniereMonnaie = this.monnaie;
+    this.monnaie = 0;
+    this.payments = [];
+    this.montantCheque = null;
+    this.montantCash = null;
+    this.montantVirement = null;
+    this.montantCb = null;
+    this.montantWave = null;
+    this.montantMoov = null;
+    this.montantMtn = null;
+    this.montantOrange = null;
     this.updateProduitQtyBox();
   }
 
@@ -967,6 +1128,79 @@ export class SalesUpdateComponent implements OnInit {
 
   totalTtc(): number {
     return this.salesLines.reduce((sum, current) => sum + current.salesAmount!, 0);
+  }
+
+  buildPayment(): IPayment[] {
+    console.error(this.montantCash);
+    if (this.montantCash && this.montantCash > 0) {
+      this.payments.push(this.createPayment(this.montantCash, 'CASH'));
+    }
+    if (this.montantCb && this.montantCb > 0) {
+      this.payments.push(this.createPayment(this.montantCb, 'CB'));
+    }
+    if (this.montantVirement && this.montantVirement > 0) {
+      this.payments.push(this.createPayment(this.montantVirement, 'VIREMENT'));
+    }
+    if (this.montantCheque && this.montantCheque > 0) {
+      this.payments.push(this.createPayment(this.montantCheque, 'CH'));
+    }
+    if (this.montantOrange && this.montantOrange > 0) {
+      this.payments.push(this.createPayment(this.montantOrange, 'OM'));
+    }
+    if (this.montantWave && this.montantWave > 0) {
+      this.payments.push(this.createPayment(this.montantWave, 'WAVE'));
+    }
+    if (this.montantMtn && this.montantMtn > 0) {
+      this.payments.push(this.createPayment(this.montantMtn, 'MTN'));
+    }
+    if (this.montantMoov && this.montantMoov > 0) {
+      this.payments.push(this.createPayment(this.montantMoov, 'MOOV'));
+    }
+    return this.payments;
+  }
+
+  buildPaymentFromSale(sale: ISales): void {
+    sale.payments?.forEach(payment => {
+      if (payment.paymentMode) {
+        const code = payment.paymentMode.code;
+        this.modeReglementSelected.push(code);
+        if (code === 'CASH') {
+          this.montantCash = payment.netAmount;
+        } else if (code === 'OM') {
+          this.montantOrange = payment.netAmount;
+        } else if (code === 'CB') {
+          this.montantCb = payment.netAmount;
+        } else if (code === 'CH') {
+          this.montantCheque = payment.netAmount;
+        } else if (code === 'VIREMENT') {
+          this.montantVirement = payment.netAmount;
+        } else if (code === 'WAVE') {
+          this.montantWave = payment.netAmount;
+        } else if (code === 'MOOV') {
+          this.montantMoov = payment.netAmount;
+        } else if (code === 'MTN') {
+          this.montantMtn = payment.netAmount;
+        }
+      }
+    });
+    this.modeReglementEmitter.next(1);
+  }
+
+  private createPayment(montant: number, code: string): Payment {
+    return {
+      ...new Payment(),
+      netAmount: this.sale?.amountToBePaid,
+      paidAmount: montant,
+      paymentMode: this.createPaymentMode(code),
+      montantVerse: this.montantCash ?? 0,
+    };
+  }
+
+  private createPaymentMode(code: string): PaymentMode {
+    return {
+      ...new PaymentMode(),
+      code,
+    };
   }
 
   private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
@@ -1056,6 +1290,7 @@ export class SalesUpdateComponent implements OnInit {
     this.isSaving = false;
     this.sale = sale!;
     this.salesLines = this.sale.salesLines!;
+    this.computeMonnaie();
     this.updateProduitQtyBox();
   }
 
@@ -1065,14 +1300,27 @@ export class SalesUpdateComponent implements OnInit {
     this.openInfoDialog(message, 'alert alert-danger');
   }
 
-  protected onFinalyseSuccess(sale: ISales | null): void {
+  protected onFinalyseSuccess(sale: IResponseDto | null): void {
     this.isSaving = false;
-    this.print(sale);
+    if (this.printTicket) {
+      this.printTest();
+    }
+    this.restAll();
   }
 
-  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<ISales>>): void {
+  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.subscribe(
-      (res: HttpResponse<ISales>) => this.onFinalyseSuccess(res.body),
+      (res: HttpResponse<IResponseDto>) => this.onFinalyseSuccess(res.body),
+      () => this.onSaveError()
+    );
+  }
+
+  protected subscribeToPutOnHoldResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe(
+      () => {
+        this.isSaving = false;
+        this.restAll();
+      },
       () => this.onSaveError()
     );
   }

@@ -31,6 +31,8 @@ export interface ISales {
   type?: string;
   amountToBePaid?: number;
   categorie?: string;
+  montantVerse?: number;
+  montantRendu?: number;
 }
 
 export class Sales implements ISales {
@@ -59,7 +61,9 @@ export class Sales implements ISales {
     public cassier?: IUser,
     public type?: string,
     public amountToBePaid?: number,
-    public categorie?: string
+    public categorie?: string,
+    public montantVerse?: number,
+    public montantRendu?: number
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
   }

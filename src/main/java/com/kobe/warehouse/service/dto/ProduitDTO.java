@@ -180,14 +180,14 @@ public class ProduitDTO {
         this.fournisseurProduits = produit.getFournisseurProduits().stream().map(FournisseurProduitDTO::new).collect(Collectors.toSet());
         this.chiffre = produit.getChiffre();
         this.createdAt = produit.getCreatedAt();
-        System.out.println("========================================<" + produit.getFournisseurProduitPrincipal());
         this.prixMnp = produit.getPrixMnp();
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
-        System.out.println("fournisseurProduitPrincipal ==+++++++++++++++++" + fournisseurProduitPrincipal);
         if (fournisseurProduitPrincipal != null) {
             this.codeCip = fournisseurProduitPrincipal.getCodeCip();
             this.fournisseurProduit = new FournisseurProduitDTO(fournisseurProduitPrincipal);
             this.fournisseurId = this.fournisseurProduit.getFournisseurId();
+            this.costAmount = fournisseurProduitPrincipal.getPrixAchat();
+            this.regularUnitPrice = fournisseurProduitPrincipal.getPrixUni();
         }
         Laboratoire laboratoire = produit.getLaboratoire();
         if (laboratoire != null) {
@@ -230,7 +230,6 @@ public class ProduitDTO {
 
         if (rayon.isPresent()) {
             RayonProduitDTO rayonProduitDTO = rayon.get();
-            System.out.println("rayon =====>>>>" + rayonProduitDTO);
             this.rayonId = rayonProduitDTO.getRayonId();
             this.rayonLibelle = rayonProduitDTO.getLibelleRayon();
 

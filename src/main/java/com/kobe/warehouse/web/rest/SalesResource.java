@@ -196,7 +196,7 @@ public class SalesResource {
         return ResponseEntity.created(new URI("/api/sales/" + result.getId())).headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString())).body(result);
     }
 
-    @PutMapping("/sales/comptant/close")
+    @PutMapping("/sales/comptant/save")
     public ResponseEntity<ResponseDTO> closeCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO) throws URISyntaxException {
 
         if (cashSaleDTO.getId() == null) {

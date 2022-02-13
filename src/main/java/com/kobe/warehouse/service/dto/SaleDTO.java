@@ -495,6 +495,9 @@ public class SaleDTO implements Serializable {
         this.typePrescription = sale.getTypePrescription();
         this.seller = new UserDTO(sale.getSeller());
         this.cassier = new UserDTO(sale.getCassier());
+        this.differe=sale.isDiffere();
+        this.caisseEndNum=sale.getCaisseEndNum();
+        this.caisseNum=sale.getCaisseNum();
     }
 
     public List<TicketDTO> getTickets() {

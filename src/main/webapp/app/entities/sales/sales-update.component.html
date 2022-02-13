@@ -1,3 +1,25 @@
+<p-dialog (onHide)="onHideClientErrorDialog($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
+          [(visible)]="displayErrorModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+          [resizable]="false">
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>  <span class="ml-3"><strong>Veuilez ajouter un client à la vente</strong></span>
+    <ng-template pTemplate="footer">
+        <button type="button" #clientSearchModalBtn (click)="cancelErrorModal()" class="btn btn-danger"
+                data-dismiss="modal">Fermer
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
+          [(visible)]="displayErrorEntryAmountModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+          [resizable]="false">
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>  <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
+    <ng-template pTemplate="footer">
+        <button type="button" #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()" class="btn btn-danger"
+                data-dismiss="modal">Fermer
+        </button>
+    </ng-template>
+</p-dialog>
+
 <p-confirmDialog [style]="{width: '40vw'}" #deleteItem key="deleteItem" [baseZIndex]="10000">
     <p-footer>
         <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
@@ -49,12 +71,13 @@
         <div class="card-body sale-card">
             <p-button icon="pi pi-search" styleClass="p-button-secondary" label="VENTE EN ATTENTE"></p-button>
 
-            <p-button icon="pi pi-times" styleClass="p-button-danger" label="RETOUR" (click)="previousState()"></p-button>
+            <p-button icon="pi pi-times" styleClass="p-button-danger" label="RETOUR"
+                      (click)="previousState()"></p-button>
         </div>
     </div>
 </div>
 
-<div class="card-group mt-1" *ngIf="showClientSearchCard">
+<div class="card-group mt-1" *ngIf="showClientSearch()">
     <div class="card " style="max-width:20rem;">
         <div class="card-header sale-card-header">
             RECHERCHE CLIENT
@@ -63,7 +86,7 @@
         <span class="p-input-icon-left sale-p-input-icon-left">
     <i class="pi pi-search"></i>
     <input type="text" pInputText #clientSearchBox [(ngModel)]="clientSearchValue"
-           placeholder="Taper pour rechercher un client" class="sale-p-inputtext">
+           placeholder="Taper pour rechercher un client" class="sale-p-inputtext" (keydown.enter)="loadUninsuredCustomers()">
 </span></div>
     </div>
     <div class="card">
@@ -76,8 +99,11 @@
                     </span>
         </div>
         <div class="card-body sale-card">
-            <span class="col-sm-6 h6">KOBENA YEDONSEIH ELIORA</span>
-            <span class="col-sm-6 h6">MATRICULE/SS: ************</span>
+            <span class="col-sm-6 h6">{{customerSelected?.fullName}}</span>
+            <span class="col-sm-6 h6" *ngIf="customerSelected && customerSelected.num;else uninsuredCustomer">{{customerSelected?.num}}</span>
+            <ng-template #uninsuredCustomer>
+                <span class="col-sm-6 h6" >{{customerSelected?.phone}}</span>
+            </ng-template>
         </div>
 
     </div>
@@ -287,9 +313,11 @@
             <li class="list-group-item"><span class="h6">MONNAIE</span><span
                 class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
             <li class="list-group-item">
-                <p-button icon="pi pi-check" styleClass="p-button-danger" label="TERMINER" [disabled]="!sale" ></p-button>
+                <p-button icon="pi pi-check" styleClass="p-button-danger" label="TERMINER" [disabled]="!sale"
+                          (click)="save()"></p-button>
 
-                <p-button icon="pi pi-times" [disabled]="!sale" styleClass="p-button-secondary" label="EN ATTENTE" (click)="putCurrentSaleOnHold()"></p-button>
+                <p-button icon="pi pi-times" [disabled]="!sale" styleClass="p-button-secondary" label="EN ATTENTE"
+                          (click)="putCurrentSaleOnHold()"></p-button>
             </li>
         </ul>
 
@@ -303,48 +331,61 @@
         </p-inputSwitch></span><span class="float-right mr-1">Est-elle une différé ?</span></div>
         <div class="card-body sale-card">
             <p-selectButton [multiple]="true" [options]="modeReglements" [(ngModel)]="modeReglementSelected"
-                            optionLabel="libelle" optionValue="code" (onChange)="onModeReglementChange($event)"></p-selectButton>
+                            optionLabel="libelle" optionValue="code"
+                            (onChange)="onModeReglementChange($event)"></p-selectButton>
         </div>
     </div>
     <div class="card" *ngIf="showModeReglementCard">
-        <div class="card-header sale-card-header"><span class="float-left mr-1">Voullez-vous un ticket de caisse ?</span><span class="float-left"><p-inputSwitch
-            [(ngModel)]="printTicket" >
-
-        </p-inputSwitch></span></div>
+        <div class="card-header sale-card-header"><span
+            class="float-left mr-1">Voulez-vous votre ticket de caisse ?</span><span class="float-left"><p-inputSwitch
+            [(ngModel)]="printTicket">
+        </p-inputSwitch></span>
+            <span class="float-left mr-1 ml-3">Voulez-vous une facture ?</span><span class="float-left"><p-inputSwitch
+                [(ngModel)]="printInvoice">
+        </p-inputSwitch></span>
+        </div>
         <div class="card-body sale-card">
             <div [ngClass]="reglementInputParentClass">
                 <div [ngClass]="reglementInputClass" *ngIf="montantCashDiv">
                     <span class="p-inputgroup-addon">CASH</span>
-                    <input pInputText #montantCashInput [(ngModel)]="montantCash" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantCashInput [(ngModel)]="montantCash" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantOrangeDiv">
                     <span class="p-inputgroup-addon">OM</span>
-                    <input pInputText #montantOMInput [(ngModel)]="montantOrange" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantOMInput [(ngModel)]="montantOrange" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantMtnDiv">
                     <span class="p-inputgroup-addon">MTN</span>
-                    <input pInputText #montantMTNInput [(ngModel)]="montantMtn" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantMTNInput [(ngModel)]="montantMtn" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
 
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantMoovDiv">
                     <span class="p-inputgroup-addon">MOOV</span>
-                    <input pInputText #montantMOOVInput [(ngModel)]="montantMoov" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantMOOVInput [(ngModel)]="montantMoov" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantWaveDiv">
                     <span class="p-inputgroup-addon">WAVE</span>
-                    <input pInputText #montantWAVEInput [(ngModel)]="montantWave" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantWAVEInput [(ngModel)]="montantWave" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantCbDiv">
                     <span class="p-inputgroup-addon">CB</span>
-                    <input pInputText #montantCbInput [(ngModel)]="montantCb" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantCbInput [(ngModel)]="montantCb" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantVirementDiv">
                     <span class="p-inputgroup-addon">VIREMENT</span>
-                    <input pInputText #montantVirInput [(ngModel)]="montantVirement" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantVirInput [(ngModel)]="montantVirement" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
                 <div [ngClass]="reglementInputClass" *ngIf="montantChequeDiv">
                     <span class="p-inputgroup-addon">CHEQUE</span>
-                    <input pInputText #montantChInput [(ngModel)]="montantCheque" type="number" (input)="onReglementInputChange()" min="0"/>
+                    <input pInputText #montantChInput [(ngModel)]="montantCheque" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
                 </div>
             </div>
 

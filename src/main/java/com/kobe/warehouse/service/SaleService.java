@@ -9,14 +9,17 @@ import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.*;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.*;
-import com.kobe.warehouse.web.rest.SalesResource;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
+import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
+import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -719,12 +723,6 @@ public class SaleService {
         return payment;
     }
 
-    private PaymentMode newPaymentMode(ModePaimentCode modePaimentCode) {
-        PaymentMode paymentMode = new PaymentMode();
-        paymentMode.setCode(modePaimentCode.name());
-        return paymentMode;
-
-    }
 
     private Ticket buildTicket(SaleDTO saleDTO, Sales sales) {
         Ticket ticket = new Ticket();
@@ -735,6 +733,8 @@ public class SaleService {
         ticket.setMontantAttendu(sales.getAmountToBePaid());
         ticket.setMontantPaye(saleDTO.getPayrollAmount());
         ticket.setMontantRendu(saleDTO.getMontantRendue());
+        ticket.setRestToPay(saleDTO.getRestToPay());
+        ticket.setMontantVerse(saleDTO.getMontantVerse());
         if (sales instanceof CashSale) {
             CashSale cashSale = (CashSale) sales;
             ticket.setCustomer(cashSale.getUninsuredCustomer());
@@ -744,6 +744,7 @@ public class SaleService {
             ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
             ticket.setCustomer(thirdPartySales.getAssuredCustomer());
         }
+        ticket.setTva(buildTvaData(sales.getSalesLines()));
         return ticket;
 
     }
@@ -759,26 +760,30 @@ public class SaleService {
 
     }
 
-    public ResponseDTO save(CashSaleDTO dto) {
+    public ResponseDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException {
         ResponseDTO response = new ResponseDTO();
         User user = this.storageService.getUser();
         DateDimension dateD = Constants.DateDimension(LocalDate.now());
-        Optional<CashSale> ptSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getId());
-        ptSale.ifPresent(p -> {
-            p.getSalesLines().forEach(salesLine -> createInventory(salesLine, user, dateD));
-            p.setStatut(SalesStatut.CLOSED);
-            p.setUpdatedAt(Instant.now());
-            if (p.getRestToPay() == 0) {
-                p.setPaymentStatus(PaymentStatus.PAYE);
-            } else {
-                p.setPaymentStatus(PaymentStatus.IMPAYE);
-            }
-            buildReference(p);
-            Ticket ticket = buildTicket(dto, p);
-            salesRepository.save(p);
-            response.setMessage(ticket.getCode());
+        CashSale p = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
+        p.getSalesLines().forEach(salesLine -> createInventory(salesLine, user, dateD));
+        p.setStatut(SalesStatut.CLOSED);
+        p.setDiffere(dto.isDiffere());
 
-        });
+        if (!p.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid()) throw new PaymentAmountException();
+        if (p.isDiffere() && p.getUninsuredCustomer() == null) throw new SaleNotFoundCustomerException();
+        p.setUpdatedAt(Instant.now());
+        p.setEffectiveUpdateDate(p.getUpdatedAt());
+        if (p.getRestToPay() == 0) {
+            p.setPaymentStatus(PaymentStatus.PAYE);
+        } else {
+            p.setPaymentStatus(PaymentStatus.IMPAYE);
+        }
+        buildReference(p);
+        Ticket ticket = buildTicket(dto, p);
+        salesRepository.save(p);
+        response.setMessage(ticket.getCode());
+        response.setSuccess(true);
+        response.setSize(p.getId().intValue());
         return response;
     }
 
@@ -792,6 +797,32 @@ public class SaleService {
         salesRepository.save(cashSale);
         response.setSuccess(true);
         return response;
+    }
+
+    private String buildTvaData(Set<SalesLine> salesLines) {
+        if (salesLines != null && salesLines.size() > 0) {
+            JSONArray array = new JSONArray();
+            salesLines.stream().filter(saleLine -> saleLine.getTaxValue() > 0).collect(Collectors.groupingBy(SalesLine::getTaxValue)).forEach((k, v) -> {
+                JSONObject json = new JSONObject();
+
+                int totalTva = 0;
+                for (SalesLine item : v) {
+                    Double valeurTva = 1 + (Double.valueOf(k) / 100);
+                    int htAmont = (int) Math.ceil(item.getSalesAmount() / valeurTva);
+                    totalTva += (item.getSalesAmount() - htAmont);
+                }
+                try {
+                    json.put("tva", k);
+                    json.put("amount", totalTva);
+                    array.put(json);
+                } catch (JSONException e) {
+                    log.debug("{}", e);
+                }
+
+            });
+            if (array.length() > 0) return array.toString();
+        }
+        return null;
     }
 
     private void createInventory(SalesLine salesLine, User user, DateDimension dateD) {
@@ -809,7 +840,7 @@ public class SaleService {
         }
         FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
-            String desc = String.format("Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %d", fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "", p.getLibelle(), fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null, salesLine.getRegularUnitPrice(), salesLine.getSales().getNumberTransaction());
+            String desc = String.format("Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s", fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "", p.getLibelle(), fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null, salesLine.getRegularUnitPrice(), salesLine.getSales().getNumberTransaction());
             this.logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
         }
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));

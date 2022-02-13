@@ -12,6 +12,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { PackDialogueComponent } from './pack-dialogue.component';
 import { DetailDialogueComponent } from './detail-dialogue.component';
 import { BtnRemoveComponent } from './btn-remove/btn-remove.component';
+import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsured-customer-list.component';
 @NgModule({
   imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([BtnRemoveComponent]), RouterModule.forChild(salesRoute)],
   declarations: [
@@ -22,6 +23,7 @@ import { BtnRemoveComponent } from './btn-remove/btn-remove.component';
     PackDialogueComponent,
     DetailDialogueComponent,
     BtnRemoveComponent,
+    UninsuredCustomerListComponent,
   ],
   entryComponents: [SalesDeleteDialogComponent, PackDialogueComponent, DetailDialogueComponent],
 })

@@ -75,7 +75,20 @@ export class CustomerUpdateComponent implements OnInit {
       this.subscribeToSaveResponse(this.customerService.create(customer));
     }
   }
+  trackById(index: number, item: IProduit): any {
+    return item.id;
+  }
 
+  getSelected(selectedVals: IProduit[], option: IProduit): IProduit {
+    if (selectedVals) {
+      for (let i = 0; i < selectedVals.length; i++) {
+        if (option.id === selectedVals[i].id) {
+          return selectedVals[i];
+        }
+      }
+    }
+    return option;
+  }
   private createFromForm(): ICustomer {
     return {
       ...new Customer(),
@@ -103,20 +116,5 @@ export class CustomerUpdateComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
-  }
-
-  trackById(index: number, item: IProduit): any {
-    return item.id;
-  }
-
-  getSelected(selectedVals: IProduit[], option: IProduit): IProduit {
-    if (selectedVals) {
-      for (let i = 0; i < selectedVals.length; i++) {
-        if (option.id === selectedVals[i].id) {
-          return selectedVals[i];
-        }
-      }
-    }
-    return option;
   }
 }

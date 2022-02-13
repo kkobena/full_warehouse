@@ -13,6 +13,9 @@ public final class ErrorConstants {
     public static final URI EMAIL_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/email-already-used");
     public static final URI LOGIN_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/login-already-used");
     public static final URI ERR_STOCK_INSUFFISANT = URI.create(PROBLEM_BASE_URL + "/error.stockInsuffisant");
+    public static final URI ERR_WRONG_ENTRY_AMOUNT = URI.create(PROBLEM_BASE_URL + "/error.wrongEntryAmount");
+    public static final URI ERR_CUSTOMER_NOT_FOUND = URI.create(PROBLEM_BASE_URL + "/error.customerNotFound");
+    public static final URI ERR_CUSTOMER_EXIST = URI.create(PROBLEM_BASE_URL + "/error.customerExist");
 
     private ErrorConstants() {
     }

@@ -9,6 +9,16 @@ public class AssuredCustomerDTO extends CustomerDTO{
     private RemiseClient remise;
     private String sexe;
     private LocalDate datNaiss;
+    private String num;
+
+    public String getNum() {
+        return num;
+    }
+
+    public AssuredCustomerDTO setNum(String num) {
+        this.num = num;
+        return this;
+    }
 
     public RemiseClient getRemise() {
         return remise;

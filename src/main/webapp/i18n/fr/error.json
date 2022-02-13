@@ -14,6 +14,9 @@
     "principal": "Il existe déjà un fournisseur principal. Désactiver pour continuer",
     "duplicateCodeCip": "le code  est déjà associé à un produit pour ce grossiste",
     "duplicateProvider": "Le produit est déjà rattaché au fournisseur séléctionné",
-    "codeCip": "le code  est déjà associé à un produit "
+    "codeCip": "le code  est déjà associé à un produit ",
+    "customerExist": "Ce client existe déjà",
+    "wrongEntryAmount": "Le montant  saisi n'est pas correct",
+    "wrongEntryAmount": "Veuilez ajouter un client à la vente"
   }
 }

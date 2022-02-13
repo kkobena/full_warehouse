@@ -11,7 +11,6 @@ import { SalesDeleteDialogComponent } from './sales-delete-dialog.component';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { SalesLineService } from '../sales-line/sales-line.service';
 import { faPrint } from '@fortawesome/free-solid-svg-icons';
-import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'jhi-sales',

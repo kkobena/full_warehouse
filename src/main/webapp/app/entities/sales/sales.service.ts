@@ -59,7 +59,7 @@ export class SalesService {
 
   saveComptant(sales: ISales): Observable<HttpResponse<IResponseDto>> {
     const copy = this.convertDateFromClient(sales);
-    return this.http.put<IResponseDto>(this.resourceUrl + 'comptant/save', copy, { observe: 'response' });
+    return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
   }
 
   print(id: number): Observable<Blob> {

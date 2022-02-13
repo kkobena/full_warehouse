@@ -23,14 +23,18 @@ public class Customer implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	@NotNull
+    @NotEmpty
 	@Column(name = "first_name", nullable = false)
 	private String firstName;
 	@NotNull
+    @NotEmpty
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
 	@NotNull
+    @NotEmpty
 	@Column(name = "phone", nullable = false)
 	private String phone;
+    @Email
 	@Column(name = "email")
 	private String email;
 	@Column(name = "created_at", nullable = false)

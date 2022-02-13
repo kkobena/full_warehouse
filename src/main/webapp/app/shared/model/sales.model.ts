@@ -33,6 +33,11 @@ export interface ISales {
   categorie?: string;
   montantVerse?: number;
   montantRendu?: number;
+  restToPay?: number;
+  payrollAmount?: number;
+  differe?: boolean;
+  caisseEndNum?: string;
+  caisseNum?: string;
 }
 
 export class Sales implements ISales {
@@ -63,8 +68,14 @@ export class Sales implements ISales {
     public amountToBePaid?: number,
     public categorie?: string,
     public montantVerse?: number,
-    public montantRendu?: number
+    public montantRendu?: number,
+    public restToPay?: number,
+    public payrollAmount?: number,
+    public differe?: boolean,
+    public caisseEndNum?: string,
+    public caisseNum?: string
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
+    this.differe = this.differe || false;
   }
 }

@@ -8,6 +8,8 @@ import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
 import { AgGridModule } from 'ag-grid-angular';
 import { AlertInfoComponent } from './alert/alert-info.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { UninsuredCustomerFormComponent } from 'app/entities/customer/uninsured-customer-form/uninsured-customer-form.component';
+
 @NgModule({
   imports: [WarehouseSharedLibsModule, NgSelectModule, AgGridModule.withComponents([])],
   declarations: [
@@ -17,12 +19,14 @@ import { NgSelectModule } from '@ng-select/ng-select';
     AlertErrorComponent,
     LoginModalComponent,
     HasAnyAuthorityDirective,
+    UninsuredCustomerFormComponent,
   ],
-  entryComponents: [LoginModalComponent, AlertInfoComponent],
+  entryComponents: [LoginModalComponent, AlertInfoComponent, UninsuredCustomerFormComponent],
   exports: [
     WarehouseSharedLibsModule,
     FindLanguageFromKeyPipe,
     AlertComponent,
+    UninsuredCustomerFormComponent,
     AlertErrorComponent,
     LoginModalComponent,
     HasAnyAuthorityDirective,

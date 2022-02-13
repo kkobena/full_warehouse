@@ -771,6 +771,8 @@ public class SaleService {
 
         if (!p.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid()) throw new PaymentAmountException();
         if (p.isDiffere() && p.getUninsuredCustomer() == null) throw new SaleNotFoundCustomerException();
+        p.setPayrollAmount(dto.getPayrollAmount());
+        p.setRestToPay(dto.getRestToPay());
         p.setUpdatedAt(Instant.now());
         p.setEffectiveUpdateDate(p.getUpdatedAt());
         if (p.getRestToPay() == 0) {

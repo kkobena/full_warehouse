@@ -1,7 +1,7 @@
 <p-dialog (onHide)="onHideClientErrorDialog($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
           [(visible)]="displayErrorModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
           [resizable]="false">
-    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>  <span class="ml-3"><strong>Veuilez ajouter un client à la vente</strong></span>
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuilez ajouter un client à la vente</strong></span>
     <ng-template pTemplate="footer">
         <button type="button" #clientSearchModalBtn (click)="cancelErrorModal()" class="btn btn-danger"
                 data-dismiss="modal">Fermer
@@ -12,7 +12,7 @@
 <p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
           [(visible)]="displayErrorEntryAmountModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
           [resizable]="false">
-    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>  <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
     <ng-template pTemplate="footer">
         <button type="button" #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()" class="btn btn-danger"
                 data-dismiss="modal">Fermer
@@ -81,13 +81,20 @@
     <div class="card " style="max-width:20rem;">
         <div class="card-header sale-card-header">
             RECHERCHE CLIENT
+            <span class="float-right">
+
+                 <button pButton pRipple icon="pi pi-plus" pTooltip="Ajouter nouveau client"
+                         class="p-button-rounded p-button-warning" (click)="addUninsuredCustomer()"></button>
+                    </span>
         </div>
         <div class="card-body sale-card">
         <span class="p-input-icon-left sale-p-input-icon-left">
     <i class="pi pi-search"></i>
     <input type="text" pInputText #clientSearchBox [(ngModel)]="clientSearchValue"
-           placeholder="Taper pour rechercher un client" class="sale-p-inputtext" (keydown.enter)="loadUninsuredCustomers()">
-</span></div>
+           placeholder="Taper pour rechercher un client" class="sale-p-inputtext"
+           (keydown.enter)="loadUninsuredCustomers()">
+</span>
+        </div>
     </div>
     <div class="card">
         <div class="card-header sale-card-header">
@@ -95,14 +102,15 @@
             <span class="float-right">
                         <button pButton pRipple icon="pi pi-pencil"
                                 pTooltip="Modifier"
-                                class="p-button-rounded p-button-success p-button-sm"></button>
+                                class="p-button-rounded p-button-success p-button-sm" *ngIf="customerSelected" (click)="editUninsuredCustomer()"></button>
                     </span>
         </div>
         <div class="card-body sale-card">
             <span class="col-sm-6 h6">{{customerSelected?.fullName}}</span>
-            <span class="col-sm-6 h6" *ngIf="customerSelected && customerSelected.num;else uninsuredCustomer">{{customerSelected?.num}}</span>
+            <span class="col-sm-6 h6"
+                  *ngIf="customerSelected && customerSelected.num;else uninsuredCustomer">{{customerSelected?.num}}</span>
             <ng-template #uninsuredCustomer>
-                <span class="col-sm-6 h6" >{{customerSelected?.phone}}</span>
+                <span class="col-sm-6 h6">{{customerSelected?.phone}}</span>
             </ng-template>
         </div>
 

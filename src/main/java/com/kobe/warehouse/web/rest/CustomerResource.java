@@ -116,7 +116,7 @@ public class CustomerResource {
     }
 
     @GetMapping("/customers/purchases")
-    public ResponseEntity<List<SaleDTO>> customerPurchases(@RequestParam(value = "customerId", required = true) long id,
+    public ResponseEntity<List<SaleDTO>> customerPurchases(@RequestParam(value = "customerId") long id,
                                                            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
                                                            @RequestParam(value = "toDate", required = false) LocalDate toDate) {
 

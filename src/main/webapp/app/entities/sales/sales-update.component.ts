@@ -15,7 +15,6 @@ import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
 import { SalesLineService } from '../sales-line/sales-line.service';
 import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
 import { saveAs } from 'file-saver';
-import { BtnRemoveComponent } from './btn-remove/btn-remove.component';
 import { INatureVente } from '../../shared/model/nature-vente.model';
 import { ITypePrescription } from '../../shared/model/prescription-vente.model';
 import { IUser, User } from '../../core/user/user.model';
@@ -87,12 +86,7 @@ export class SalesUpdateComponent implements OnInit {
   sale?: ISales | null = null;
   salesLines: ISalesLine[] = [];
   quantiteSaisie = 1;
-  columnDefs: any[];
-  rowData: any = [];
   base64!: string;
-  defaultColDef: any;
-  frameworkComponents: any;
-  context: any;
   event: any;
   @ViewChild('clientSearchBox', { static: false })
   clientSearchBox?: ElementRef;
@@ -178,60 +172,6 @@ export class SalesUpdateComponent implements OnInit {
     this.base64 = ';base64,';
     this.selectedRowIndex = 0;
     this.searchValue = '';
-    this.columnDefs = [
-      {
-        headerName: 'Libellé',
-        field: 'produitLibelle',
-        sortable: true,
-        filter: 'agTextColumnFilter',
-        minWidth: 300,
-        flex: 2,
-      },
-      {
-        headerName: 'Quantité',
-        width: 100,
-        field: 'quantitySold',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-      },
-
-      {
-        headerName: 'Prix unitaire',
-        width: 150,
-        field: 'regularUnitPrice',
-        type: ['rightAligned', 'numericColumn'],
-        editable: true,
-        cellEditorParams: {
-          color: 'red',
-        },
-        valueFormatter: this.formatNumber,
-      },
-      {
-        headerName: 'Montant',
-        width: 100,
-        field: 'salesAmount',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: this.formatNumber,
-      },
-      {
-        field: ' ',
-        cellRenderer: 'btnCellRenderer',
-        width: 50,
-      },
-    ];
-    this.defaultColDef = {
-      // flex: 1,
-      // cellClass: 'align-right',
-      enableCellChangeFlash: true,
-      //   resizable: true,
-      /* valueFormatter: function (params) {
-         return formatNumber(params.value);
-       },*/
-    };
-    this.frameworkComponents = {
-      btnCellRenderer: BtnRemoveComponent,
-    };
-    this.context = { componentParent: this };
   }
 
   ngOnInit(): void {
@@ -407,9 +347,7 @@ export class SalesUpdateComponent implements OnInit {
     if (this.sale) {
       this.isSaving = true;
       this.sale.differe = this.isDiffere;
-      console.error(this.sale);
       this.sale.payments = this.buildPayment();
-      console.error(this.sale.payments);
       const thatentryAmount = this.getEntryAmount();
       console.error(thatentryAmount);
       this.computeMonnaie();
@@ -436,7 +374,6 @@ export class SalesUpdateComponent implements OnInit {
           }
           this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
         }
-        console.error('end', this.customerSelected);
       }
     }
   }
@@ -953,6 +890,18 @@ export class SalesUpdateComponent implements OnInit {
       }
     });
   }
+  editUninsuredCustomer(): void {
+    this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
+      data: { entity: this.customerSelected },
+      header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      width: '50%',
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.customerSelected = resp;
+      }
+    });
+  }
 
   print(sale: ISales | null): void {
     if (sale !== null && sale !== undefined) {
@@ -1260,7 +1209,7 @@ export class SalesUpdateComponent implements OnInit {
           // TODO open listable
           // TODO ajouter un bouton pour creer directement client
           // TODO modification des infos du client
-          // TODO CLOTURE DE VENTE BUG payrollAmount
+
           this.clientSearchValue = null;
         } else {
           this.addUninsuredCustomer();

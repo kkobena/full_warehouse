@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { WarehouseGroupeTiersPayantModule } from 'app/entities/groupe-tiers-payant/groupe-tiers-payant.module';
 
 @NgModule({
   imports: [
@@ -102,6 +103,10 @@ import { RouterModule } from '@angular/router';
       {
         path: 'motif-ajustement',
         loadChildren: () => import('./modif-ajustement/modif-ajustement.module').then(m => m.ModifAjustementModule),
+      },
+      {
+        path: 'groupe-tiers-payant',
+        loadChildren: () => import('./groupe-tiers-payant/groupe-tiers-payant.module').then(m => m.WarehouseGroupeTiersPayantModule),
       },
     ]),
   ],

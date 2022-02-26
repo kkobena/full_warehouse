@@ -5,6 +5,7 @@
     "menu": {
       "home": "Accueil",
       "referentiel": "Reférentiels",
+      "tiersPayant": "Tiers-payants",
       "menuGestionStock": "Gestion Stock",
       "menuCommande": "Commande",
       "menuInventaire": "Inventaire",
@@ -43,6 +44,8 @@
         "fournisseur": "Fournisseurs",
         "groupeFournisseur": "Groupe fournisseurs",
         "motifAjustement": "Motifs ajustement",
+        "groupeTiersPayant": "Groupe tiers-payant",
+        "tiersPayant": "Tiers-payants",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

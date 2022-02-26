@@ -17,6 +17,7 @@
     "codeCip": "le code  est déjà associé à un produit ",
     "customerExist": "Ce client existe déjà",
     "wrongEntryAmount": "Le montant  saisi n'est pas correct",
-    "wrongEntryAmount": "Veuilez ajouter un client à la vente"
+    "wrongEntryAmount": "Veuilez ajouter un client à la vente",
+    "groupeTiersPayantExistant": "Il existe dejà  un groupe avec le même nom"
   }
 }

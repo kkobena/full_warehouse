@@ -54,6 +54,17 @@ public interface AssuredCustomerService {
         });
     }
 
+    default AssuredCustomer fromDto(AssuredCustomerDTO dto, AssuredCustomer assuredCustomer) {
+        assuredCustomer.setDatNaiss(dto.getDatNaiss());
+        assuredCustomer.setSexe(dto.getSexe());
+        assuredCustomer.setFirstName(dto.getFirstName());
+        assuredCustomer.setLastName(dto.getLastName());
+        assuredCustomer.setEmail(dto.getEmail());
+        assuredCustomer.setPhone(dto.getPhone());
+        assuredCustomer.setUpdatedAt(Instant.now());
+        return assuredCustomer;
+    }
+
     void createFromDto(AssuredCustomerDTO dto);
 
     void updateFromDto(AssuredCustomerDTO dto);

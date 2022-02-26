@@ -9,11 +9,9 @@ import { ICustomer } from 'app/shared/model/customer.model';
 
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
-import { CustomerDeleteDialogComponent } from './customer-delete-dialog.component';
 import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
 import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ISales } from '../../shared/model/sales.model';
 
 @Component({
   selector: 'jhi-customer',

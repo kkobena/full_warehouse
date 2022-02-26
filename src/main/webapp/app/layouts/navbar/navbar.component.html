@@ -203,6 +203,37 @@
                 </ul>
             </li>
 
+            <li *jhiHasAnyAuthority="'ROLE_USER'" ngbDropdown class="nav-item dropdown pointer" display="dynamic"
+                routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);">
+                    <span>
+                        <i class="pi pi-palette"></i>
+                        <span jhiTranslate="global.menu.tiersPayant">
+                           Tiers-payants
+                        </span>
+                    </span>
+                </a>
+                <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
+                    <li>
+                        <a class="dropdown-item" routerLink="groupe-tiers-payant" routerLinkActive="active"
+                           [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="pi pi-book"></i>
+                            <span jhiTranslate="global.menu.entities.groupeTiersPayant">Groupe tiers-payants</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="tiers-payant" routerLinkActive="active"
+                           [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="pi pi-link"></i>
+                            <span jhiTranslate="global.menu.entities.tiersPayant">Tiers-payants</span>
+
+                        </a>
+                    </li>
+
+
+                </ul>
+            </li>
+
 
 
 

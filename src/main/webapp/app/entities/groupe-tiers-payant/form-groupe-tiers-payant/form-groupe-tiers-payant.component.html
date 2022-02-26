@@ -1,0 +1,66 @@
+<p-toast position="center"></p-toast>
+
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <div class="modal-body">
+        <div class="form-group" [hidden]="true">
+            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label"
+                       for="field_name">Libellé</label>
+                <input type="text" pInputText class="form-control" name="name" id="field_name"
+                       formControlName="name" autocomplete="off"/>
+
+                <div
+                    *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label"
+                       for="field_adresse">Adresse</label>
+                <input type="text" pInputText class="form-control" name="v" id="field_adresse"
+                       formControlName="adresse" autocomplete="off"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label"
+                       for="field_telephone">Téléphone</label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="telephone" id="field_telephone"
+                       formControlName="telephone" autocomplete="off"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label"
+                       for="field_telephoneFixe">Téléphone fixe</label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="telephoneFixe" id="field_telephoneFixe"
+                       formControlName="telephoneFixe" autocomplete="off"/>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
+                class="btn btn-primary">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
+        </button>
+    </div>
+</form>
+
+

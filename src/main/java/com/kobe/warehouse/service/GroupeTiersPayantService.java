@@ -96,4 +96,8 @@ public class GroupeTiersPayantService {
 
         return new ResponseDTO().size(count.get());
     }
+
+    public Optional<GroupeTiersPayant> getOne(Long id) {
+        return this.groupeTiersPayantRepository.findById(id);
+    }
 }

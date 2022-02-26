@@ -1,11 +1,7 @@
 package com.kobe.warehouse.domain;
 
 
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -20,8 +16,50 @@ public class AssuredCustomer extends Customer implements Serializable {
     private String sexe;
     @Column(name = "dat_naiss")
     private LocalDate datNaiss;
-    @OneToMany(mappedBy = "assuredCustomer")
-    private Set<ThirdPartySales> sales = new HashSet<>();
+    @ManyToOne
+    private AssuredCustomer assurePrincipal;
+    @Column(name = "num_ayant_droit", length = 100)
+    private String numAyantDroit;
+    @OneToMany(mappedBy = "assurePrincipal", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private Set<AssuredCustomer> ayantDroits = new HashSet<>();
+    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
+
+    public AssuredCustomer getAssurePrincipal() {
+        return assurePrincipal;
+    }
+
+    public AssuredCustomer setAssurePrincipal(AssuredCustomer assurePrincipal) {
+        this.assurePrincipal = assurePrincipal;
+        return this;
+    }
+
+    public Set<AssuredCustomer> getAyantDroits() {
+        return ayantDroits;
+    }
+
+    public Set<ClientTiersPayant> getClientTiersPayants() {
+        return clientTiersPayants;
+    }
+
+    public AssuredCustomer setClientTiersPayants(Set<ClientTiersPayant> clientTiersPayants) {
+        this.clientTiersPayants = clientTiersPayants;
+        return this;
+    }
+
+    public AssuredCustomer setAyantDroits(Set<AssuredCustomer> ayantDroits) {
+        this.ayantDroits = ayantDroits;
+        return this;
+    }
+
+    public String getNumAyantDroit() {
+        return numAyantDroit;
+    }
+
+    public AssuredCustomer setNumAyantDroit(String numAyantDroit) {
+        this.numAyantDroit = numAyantDroit;
+        return this;
+    }
 
     public RemiseClient getRemise() {
         return remise;
@@ -47,12 +85,6 @@ public class AssuredCustomer extends Customer implements Serializable {
         this.datNaiss = datNaiss;
     }
 
-    public Set<ThirdPartySales> getSales() {
-        return sales;
-    }
 
-    public void setSales(Set<ThirdPartySales> sales) {
-        this.sales = sales;
-    }
 }
 

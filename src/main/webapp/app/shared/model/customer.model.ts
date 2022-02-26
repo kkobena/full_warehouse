@@ -19,6 +19,7 @@ export interface ICustomer {
   type?: string;
   code?: string;
   num?: string;
+  categorie?: string;
 }
 
 export class Customer implements ICustomer {
@@ -37,6 +38,7 @@ export class Customer implements ICustomer {
     public fullName?: string,
     public type?: string,
     public code?: string,
-    public num?: string
+    public num?: string,
+    public categorie?: string
   ) {}
 }

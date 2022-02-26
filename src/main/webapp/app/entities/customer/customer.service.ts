@@ -47,6 +47,9 @@ export class CustomerService {
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+  lock(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/lock/${id}`, { observe: 'response' });
+  }
 
   createUninsuredCustomer(customer: ICustomer): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(customer);
@@ -67,6 +70,7 @@ export class CustomerService {
       .get<ICustomer[]>(`${this.resourceUrl}/uninsured`, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
+
   protected convertDateFromClient(customer: ICustomer): ICustomer {
     const copy: ICustomer = Object.assign({}, customer, {
       createdAt: customer.createdAt && customer.createdAt.isValid() ? customer.createdAt.toJSON() : undefined,

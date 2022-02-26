@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.Status;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -44,7 +45,7 @@ public class Customer implements Serializable {
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private SalesStatut status = SalesStatut.ACTIVE;
+    private Status status = Status.ENABLE;
     @OneToMany(mappedBy = "customer")
     private Set<Payment> payments = new HashSet<>();
     @NotNull
@@ -68,11 +69,11 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public SalesStatut getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(SalesStatut status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

@@ -44,8 +44,8 @@ public class UninsuredCustomerService {
     }
 
     public UninsuredCustomerDTO update(UninsuredCustomerDTO dto) throws CustomerAlreadyExistException {
-        List<UninsuredCustomer> uninsuredCustomers = fetch(dto);
-        if (uninsuredCustomers.size() > 1) throw new CustomerAlreadyExistException();
+        Optional<UninsuredCustomer> uninsuredCustomerOptional = findOne(dto);
+        if(uninsuredCustomerOptional.isPresent() && uninsuredCustomerOptional.get().getId()!= dto.getId()) throw new CustomerAlreadyExistException();
         var uninsuredCustomer = this.uninsuredCustomerRepository.getOne(dto.getId());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
         uninsuredCustomer.setFirstName(dto.getFirstName());
@@ -84,8 +84,5 @@ public class UninsuredCustomerService {
         return this.uninsuredCustomerRepository.findOne(specification);
     }
 
-    public List<UninsuredCustomer> fetch(UninsuredCustomerDTO dto) {
-        Specification<UninsuredCustomer> specification = Specification.where(this.uninsuredCustomerRepository.specialisationCheckExist(dto.getFirstName(), dto.getLastName(), dto.getPhone()));
-        return this.uninsuredCustomerRepository.findAll(specification);
-    }
+
 }

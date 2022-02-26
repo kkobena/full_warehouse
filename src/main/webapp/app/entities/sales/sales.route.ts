@@ -11,6 +11,8 @@ import { SalesService } from './sales.service';
 import { SalesComponent } from './sales.component';
 import { SalesDetailComponent } from './sales-detail.component';
 import { SalesUpdateComponent } from './sales-update.component';
+import { PresaleComponent } from './presale/presale.component';
+import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
 
 @Injectable({ providedIn: 'root' })
 export class SalesResolve implements Resolve<ISales> {
@@ -58,7 +60,7 @@ export const salesRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
-    path: 'new',
+    path: ':isPresale/new',
     component: SalesUpdateComponent,
     resolve: {
       sales: SalesResolve,
@@ -70,8 +72,32 @@ export const salesRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
-    path: ':id/edit',
+    path: ':id/:isPresale/edit',
     component: SalesUpdateComponent,
+    resolve: {
+      sales: SalesResolve,
+    },
+    data: {
+      authorities: [Authority.USER],
+      pageTitle: 'warehouseApp.sales.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'presale',
+    component: PresaleComponent,
+    resolve: {
+      sales: SalesResolve,
+    },
+    data: {
+      authorities: [Authority.USER],
+      pageTitle: 'warehouseApp.sales.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'ventes-en-cours',
+    component: VenteEnCoursComponent,
     resolve: {
       sales: SalesResolve,
     },

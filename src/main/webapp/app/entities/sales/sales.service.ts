@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
@@ -47,7 +47,7 @@ export class SalesService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http
       .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
@@ -117,6 +117,26 @@ export class SalesService {
   putCurrentCashSaleOnHold(sales: ISales): Observable<HttpResponse<IResponseDto>> {
     const copy = this.convertDateFromClient(sales);
     return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
+  }
+
+  queryPrevente(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+  deletePrevente(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/prevente/${id}`, { observe: 'response' });
+  }
+
+  printInvoice(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id}`, { responseType: 'blob' });
+  }
+  cancelComptant(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id}`, { observe: 'response' });
+  }
+  cancelAssurance(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id}`, { observe: 'response' });
   }
   protected convertDateFromClient(sales: ISales): ISales {
     const copy: ISales = Object.assign({}, sales, {

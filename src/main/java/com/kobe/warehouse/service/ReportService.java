@@ -10,17 +10,16 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.web.rest.errors.FileStorageException;
+import com.lowagie.text.DocumentException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-
 public class ReportService {
 	@Autowired
     ResourceLoader resourceLoader;
@@ -38,8 +36,10 @@ public class ReportService {
 	@Autowired
 	private UserRepository userRepository;
     private final Path fileStorageLocation;
+    private final FileStorageProperties fileStorageProperties;
 
     public ReportService(FileStorageProperties fileStorageProperties) {
+        this.fileStorageProperties=fileStorageProperties;
         this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir())
             .toAbsolutePath().normalize();
 
@@ -124,4 +124,42 @@ public class ReportService {
 		return result;
 
 	}
+
+    public String buildReportToPDF(Map<String, Object> parameters, String reportName) {
+        String destFilePath=this.fileStorageLocation.
+            resolve(reportName+"_"+LocalDateTime.now().
+                format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))+".pdf").toFile().getAbsolutePath();
+        try {
+         //   JasperReport jasperReport = getReport(reportName);
+            System.out.println("fii      ==============================="+fileStorageProperties.getReportsDir()+"/"+reportName + ".jasper");
+            String jasperPrint = JasperFillManager.fillReportToFile(fileStorageProperties.getReportsDir()+"/"+reportName + ".jasper", parameters, new JREmptyDataSource());
+            System.out.println("========================="+jasperPrint);
+            JasperExportManager.exportReportToPdfFile(jasperPrint, destFilePath);
+
+        } catch (JRException e) {
+            e.printStackTrace(System.err);
+
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+        }
+        return destFilePath;
+    }
+    public String buildInvoiceToPDF( String reportName,String content)  {
+        String destFilePath=this.fileStorageLocation.
+            resolve(reportName+"_"+LocalDateTime.now().
+                format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))+".pdf").toFile().getAbsolutePath();
+        try {
+
+            OutputStream outputStream = new FileOutputStream(destFilePath);
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(content);
+            renderer.layout();
+            renderer.createPDF(outputStream);
+            outputStream.close();
+        }catch (IOException  | DocumentException e){
+            e.printStackTrace(System.err);
+        }
+
+        return destFilePath;
+    }
 }

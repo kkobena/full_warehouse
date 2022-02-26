@@ -1,16 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, Data } from '@angular/router';
-import { Subscription, combineLatest } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { SalesService } from './sales.service';
-import { SalesDeleteDialogComponent } from './sales-delete-dialog.component';
-import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { SalesLineService } from '../sales-line/sales-line.service';
 import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
+import * as moment from 'moment';
+import { IUser, User } from '../../core/user/user.model';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { UserService } from '../../core/user/user.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 
 @Component({
   selector: 'jhi-sales',
@@ -19,189 +20,253 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons';
       .table tr:hover {
         cursor: pointer;
       }
-
-      .active {
-        background-color: #95caf9 !important;
-      }
-
-      .master {
-        box-shadow: 0 2px 2px rgb(0 0 0 / 16%);
-        justify-content: space-between;
-      }
-
-      .ag-theme-alpine {
-        max-height: 700px;
-        height: 600px;
-        min-height: 500px;
-      }
     `,
   ],
   templateUrl: './sales.component.html',
+  providers: [ConfirmationService],
 })
-export class SalesComponent implements OnInit, OnDestroy {
-  sales?: ISales[];
-  eventSubscriber?: Subscription;
+export class SalesComponent implements OnInit {
+  typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
+  typeVenteSelected = '';
   totalItems = 0;
+  loading!: boolean;
+  canEdit = false;
+  page = 0;
   itemsPerPage = ITEMS_PER_PAGE;
-  page!: number;
-  predicate!: string;
-  ascending!: boolean;
-  ngbPaginationPage = 1;
+  sales: ISales[] = [];
+  selectedEl?: ISales;
+  users: IUser[] = [];
+  user?: IUser | null;
+  search = '';
+  global = true;
   showBtnDele: boolean;
   saleSelected?: ISales;
-  selectedRowIndex?: number;
-  public columnDefs: any[];
-  rowData: any = [];
   faPrint = faPrint;
+  fromDate: Date = new Date();
+  toDate: Date = new Date();
+  isLargeScreen = true;
+  fromHour = '01:00';
+  toHour = '23:59';
+  hous = [
+    '01:00',
+    '01:30',
+    '02:00',
+    '02:30',
+    '03:00',
+    '04:00',
+    '04:30',
+    '05:00',
+    '05:30',
+    '06:00',
+    '06:30',
+    '07:30',
+    '07:30',
+    '08:00',
+    '08:30',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00',
+    '18:30',
+    '19:00',
+    '19:30',
+    '20:00',
+    '20:30',
+    '21:00',
+    '21:30',
+    '22:00',
+    '22:30',
+    '23:00',
+    '23:59',
+    '00:00',
+    '00:30',
+  ];
+  splitbuttons: MenuItem[];
+  primngtranslate: Subscription;
 
   constructor(
     protected salesService: SalesService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
-    protected modalService: NgbModal,
-    protected saleLineService: SalesLineService
+    protected confirmationService: ConfirmationService,
+    protected saleLineService: SalesLineService,
+    protected userService: UserService,
+    public translate: TranslateService,
+    public primeNGConfig: PrimeNGConfig
   ) {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     this.showBtnDele = false;
-    this.columnDefs = [
-      { headerName: 'Libellé', field: 'produitLibelle', minWidth: 200, flex: 2 },
-
+    this.splitbuttons = [
       {
-        headerName: 'Quantité vendue',
-        width: 150,
-        field: 'quantitySold',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: this.formatNumber,
-      },
-      {
-        headerName: 'Prix unitaire',
-        width: 150,
-        field: 'regularUnitPrice',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: this.formatNumber,
-      },
-      {
-        headerName: 'Montant vente',
-        width: 150,
-        field: 'salesAmount',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: this.formatNumber,
+        label: 'Fiche à partir csv',
+        icon: 'pi pi-file-pdf',
+        command: () => console.error('print all record'),
       },
     ];
   }
 
-  loadPage(page?: number, dontNavigate?: boolean): void {
-    const pageToLoad: number = page || this.page || 1;
+  ngOnInit(): void {
+    const width = window.innerWidth;
+    if (width < 1800) {
+      this.isLargeScreen = false;
+    }
+    this.typeVenteSelected = 'TOUT';
+    this.loadAllUsers();
+    this.loadPage();
+  }
 
+  searchUser(event: any): void {
+    const key = event.key;
+    if (
+      key !== 'ArrowDown' &&
+      key !== 'ArrowUp' &&
+      key !== 'ArrowRight' &&
+      key !== 'ArrowLeft' &&
+      key !== 'NumLock' &&
+      key !== 'CapsLock' &&
+      key !== 'Control' &&
+      key !== 'PageUp' &&
+      key !== 'PageDown'
+    ) {
+      this.loadAllUsers();
+    }
+  }
+
+  loadAllUsers(): void {
+    this.userService.query().subscribe((res: HttpResponse<User[]>) => {
+      this.users.push({ id: null, fullName: 'TOUT' });
+      if (res.body) {
+        this.users.push(...res.body);
+      }
+      this.user = { id: null, fullName: 'TOUT' };
+    });
+  }
+
+  onSelectUser(): void {
+    this.loadPage();
+  }
+
+  onTypeVenteChange(): void {
+    this.loadPage();
+  }
+
+  loadPage(page?: number): void {
+    const pageToLoad: number = page || this.page;
+    this.loading = true;
     this.salesService
       .query({
-        page: pageToLoad - 1,
+        page: pageToLoad,
         size: this.itemsPerPage,
-        sort: this.sort(),
+        search: this.search,
+        type: this.typeVenteSelected,
+        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+        fromHour: this.fromHour,
+        toHour: this.toHour,
+        global: this.global,
+        userId: this.user?.id,
       })
       .subscribe(
-        (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
+        (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         () => this.onError()
       );
   }
 
-  ngOnInit(): void {
-    this.handleNavigation();
-    this.registerChangeInSales();
-  }
-
-  protected handleNavigation(): void {
-    combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
-      const page = params.get('page');
-      const pageNumber = page !== null ? +page : 1;
-      const sort = (params.get('sort') ?? data['defaultSort']).split(',');
-      const predicate = sort[0];
-      const ascending = sort[1] === 'asc';
-      if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
-        this.predicate = predicate;
-        this.ascending = ascending;
-        this.loadPage(pageNumber, true);
-      }
-    }).subscribe();
-  }
-
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
+  lazyLoading(event: LazyLoadEvent): void {
+    if (event) {
+      this.page = event.first! / event.rows!;
+      this.loading = true;
+      this.salesService
+        .query({
+          page: this.page,
+          size: event.rows,
+          search: this.search,
+          type: this.typeVenteSelected,
+          fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+          toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+          fromHour: this.fromHour,
+          toHour: this.toHour,
+          global: this.global,
+          userId: this.user ? this.user.id : null,
+        })
+        .subscribe(
+          (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
+          () => this.onError()
+        );
     }
   }
 
-  trackId(index: number, item: ISales): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
-  }
-
-  registerChangeInSales(): void {
-    this.eventSubscriber = this.eventManager.subscribe('salesListModification', () => this.loadPage());
-  }
-
-  delete(sales: ISales): void {
-    const modalRef = this.modalService.open(SalesDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.sales = sales;
-  }
-
-  print(sales: ISales): void {
-    // this.salesService.print(sales.id!).subscribe(blod => saveAs(blod));
-    this.salesService.print(sales.id!).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
-    });
-  }
-
-  sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'updatedAt') {
-      result.push('updatedAt');
-    }
-    return result;
-  }
-
-  protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
+  protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    if (navigate) {
-      this.router.navigate(['/sales'], {
-        queryParams: {
-          page: this.page,
-          size: this.itemsPerPage,
-          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-        },
-      });
-    }
+    this.router.navigate(['/sales'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+        search: this.search,
+        type: this.typeVenteSelected,
+        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+        fromHour: this.fromHour,
+        toHour: this.toHour,
+        global: this.global,
+        userId: this.user ? this.user.id : null,
+      },
+    });
     this.sales = data || [];
-    this.ngbPaginationPage = this.page;
+    this.loading = false;
   }
 
   protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
+    this.loading = false;
   }
 
-  clickRow(sale: ISales): void {
-    this.selectedRowIndex = sale.id;
-    this.saleSelected = sale;
-
-    this.loadLines();
+  onSearch(): void {
+    this.loadPage();
   }
 
-  protected onLineSuccess(data: ISalesLine[] | null): void {
-    this.rowData = data || [];
+  delete(sale: ISales): void {
+    if (sale) {
+      if (sale.categorie === 'VNO') {
+        this.salesService.cancelComptant(sale.id!).subscribe(() => this.loadPage());
+      } else {
+        this.salesService.cancelAssurance(sale.id!).subscribe(() => this.loadPage());
+      }
+    }
   }
 
-  formatNumber(number: any): string {
-    return Math.floor(number.value)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1  ');
+  confirmRemove(sale: ISales): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment annuler cette vente ?',
+      header: 'ANNULATION DE PRE-VENTE',
+      icon: 'pi pi-info-circle',
+      accept: () => this.delete(sale),
+      key: 'deleteVente',
+    });
   }
 
-  loadLines(): void {
-    this.saleLineService.queryBySale(this.saleSelected?.id).subscribe(
-      (res: HttpResponse<ISalesLine[]>) => this.onLineSuccess(res.body),
-      () => this.onError()
-    );
+  print(sales: ISales): void {
+    this.salesService.printInvoice(sales.id!).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 }

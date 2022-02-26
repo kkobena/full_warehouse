@@ -467,11 +467,11 @@ public class SaleDTO implements Serializable {
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales) {
             ThirdPartySales thirdPartySales = (ThirdPartySales) sale;
-            this.customer = new CustomerDTO(thirdPartySales.getAssuredCustomer());
+            this.customer = new CustomerDTO(thirdPartySales.getCustomer());
         } else if (sale instanceof CashSale) {
             CashSale cashSale = (CashSale) sale;
-            if (cashSale.getUninsuredCustomer() != null) {
-                this.customer = new CustomerDTO(cashSale.getUninsuredCustomer());
+            if (cashSale.getCustomer() != null) {
+                this.customer = new CustomerDTO(cashSale.getCustomer());
             }
             this.categorie = "VNO";
         } else {
@@ -498,6 +498,7 @@ public class SaleDTO implements Serializable {
         this.differe=sale.isDiffere();
         this.caisseEndNum=sale.getCaisseEndNum();
         this.caisseNum=sale.getCaisseNum();
+      //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
     }
 
     public List<TicketDTO> getTickets() {
@@ -513,16 +514,17 @@ public class SaleDTO implements Serializable {
         return salesLines;
     }
 
-    public void setSalesLines(List<SaleLineDTO> salesLines) {
+    public SaleDTO setSalesLines(List<SaleLineDTO> salesLines) {
         this.salesLines = salesLines;
+        return this;
     }
 
     public List<PaymentDTO> getPayments() {
         return payments;
     }
 
-    public void setPayments(List<PaymentDTO> payments) {
+    public SaleDTO setPayments(List<PaymentDTO> payments) {
         this.payments = payments;
+        return this;
     }
-
 }

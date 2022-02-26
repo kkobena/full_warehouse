@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Closeable;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -11,8 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "ticket")
-public class
-Ticket implements Serializable {
+public class  Ticket implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
     @NotNull
     @Size(max = 50)
@@ -42,19 +42,28 @@ Ticket implements Serializable {
     private User user;
     @ManyToOne
     private Sales sale;
-    @OneToMany(mappedBy = "ticket", fetch = FetchType.EAGER)
-    private Set<Payment> payments = new HashSet<>();
+
     @ManyToOne
     private Customer customer;
     @Column(length = 100)
     private String tva;
-
+    @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean canceled = false;
     public String getTva() {
         return tva;
     }
 
     public Ticket setTva(String tva) {
         this.tva = tva;
+        return this;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
+    public Ticket setCanceled(Boolean canceled) {
+        this.canceled = canceled;
         return this;
     }
 
@@ -139,14 +148,7 @@ Ticket implements Serializable {
         return this;
     }
 
-    public Set<Payment> getPayments() {
-        return payments;
-    }
 
-    public Ticket setPayments(Set<Payment> payments) {
-        this.payments = payments;
-        return this;
-    }
 
     public Integer getMontantVerse() {
         return montantVerse;
@@ -168,5 +170,16 @@ Ticket implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(code);
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+            return null;
+
+        }
     }
 }

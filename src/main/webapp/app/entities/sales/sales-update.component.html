@@ -69,10 +69,11 @@
     <div class="card bg-light">
 
         <div class="card-body sale-card">
-            <p-button icon="pi pi-search" styleClass="p-button-secondary" label="VENTE EN ATTENTE"></p-button>
+            <p-button icon="pi pi-search" styleClass="p-button-info" label="VENTE EN ATTENTE"></p-button>
 
-            <p-button icon="pi pi-times" styleClass="p-button-danger" label="RETOUR"
+            <p-button icon="pi pi-arrow-left" styleClass="p-button-danger" label="RETOUR"
                       (click)="previousState()"></p-button>
+
         </div>
     </div>
 </div>
@@ -84,7 +85,7 @@
             <span class="float-right">
 
                  <button pButton pRipple icon="pi pi-plus" pTooltip="Ajouter nouveau client"
-                         class="p-button-rounded p-button-warning" (click)="addUninsuredCustomer()"></button>
+                         class="p-button-rounded p-button-primary" (click)="addUninsuredCustomer()"></button>
                     </span>
         </div>
         <div class="card-body sale-card">
@@ -219,7 +220,7 @@
 
                 <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
-    <input type="text" pInputText [(ngModel)]="tableSearchValue" placeholder="TAPEZ POUR FILTRER"
+    <input type="text" pInputText  placeholder="TAPEZ POUR FILTRER"
            (input)="produitTable.filterGlobal($event.target.value, 'contains')">
 </span>
 
@@ -334,7 +335,7 @@
 <div class="card-group">
     <div class="card" *ngIf="showModeReglementCard">
         <div class="card-header sale-card-header">MODE REGLEMENT <span class="float-right"><p-inputSwitch
-            [(ngModel)]="isDiffere" (onChange)="onDiffereChange($event)">
+            [(ngModel)]="isDiffere" (onChange)="onDiffereChange()">
 
         </p-inputSwitch></span><span class="float-right mr-1">Est-elle une différé ?</span></div>
         <div class="card-body sale-card">

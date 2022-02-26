@@ -123,7 +123,6 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';')
                 .withFirstRecordAsHeader()
                 .parse(br);
-
             records.forEach(record -> {
                 GroupeFournisseur groupeFournisseur = new GroupeFournisseur();
                 groupeFournisseur.setLibelle(record.get(0));

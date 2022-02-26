@@ -307,13 +307,42 @@ body .ui-dropdown {
   .st-editTable {
     height: 350px;
   }
+  .sale-toolbar .toobar-input-search {
+    width: 170px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
 }
 
 // XX-Large devices (larger desktops, 1400px and up)
-@media (min-width: 1400px) {
+@media (min-width: 1500px) {
   .st-editTable {
     height: 440px;
   }
+  /*  .sale-toolbar .toobar-input-search {
+    width: 180px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 115px;
+  }*/
+}
+
+@media (min-width: 1700px) {
+  .sale-toolbar .toobar-input-search {
+    width: 200px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
+  /* .sale-toolbar .toobar-input-search {
+    width: 250px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 150px;
+  }*/
 }
 
 .stockless {
@@ -380,14 +409,34 @@ input[type='number'] {
   font-weight: bold;
   font-size: 1.2rem;
 }
+
 *.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
   color: #333;
   background-color: #eee;
   font-weight: 777;
 }
+
 .sale-products-table .p-datatable .p-datatable-tbody > tr > td {
   padding: 0rem 1rem;
 }
+
 .sale-montant-block .list-group-item {
   padding: 0.25rem 1.25rem;
 }
+
+.p-divider.p-divider-vertical {
+  margin: 0 0.4rem;
+  padding: 1rem 0;
+}
+/*
+.sale .p-button .p-button-icon-left {
+  margin-right:2px;
+}
+.sale .p-button .p-button-icon-right {
+  margin-right: 2px;
+}
+.sale .p-button{
+padding-left:0.5rem;
+  padding-right:0.5rem;
+}
+*/

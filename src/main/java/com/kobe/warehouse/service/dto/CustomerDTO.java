@@ -7,8 +7,10 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.UninsuredCustomer;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
@@ -22,9 +24,19 @@ public class CustomerDTO {
     private String email;
     private String fullName;
     private int encours;
+    private String categorie;
     private List<SaleDTO> sales = new ArrayList<>();
     private Set<Payment> payments = new HashSet<>();
     private String code;
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public CustomerDTO setCategorie(String categorie) {
+        this.categorie = categorie;
+        return this;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -111,6 +123,13 @@ public class CustomerDTO {
         this.id = customer.getId();
         this.fullName = customer.getFirstName() + " " + customer.getLastName();
         this.code = customer.getCode();
+        if (customer instanceof AssuredCustomer) {
+            this.categorie = "ASSURE";
+
+
+        } else if (customer instanceof UninsuredCustomer) {
+            this.categorie = "STANDARD";
+        }
 
     }
 

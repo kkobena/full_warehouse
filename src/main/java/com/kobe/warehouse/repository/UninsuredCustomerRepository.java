@@ -28,7 +28,5 @@ public interface UninsuredCustomerRepository extends JpaRepository<UninsuredCust
         return (root, query, cb) -> cb.and(cb.equal(cb.upper(root.get(UninsuredCustomer_.firstName)), firstName), cb.equal(cb.upper(root.get(UninsuredCustomer_.lastName)), lastName), cb.equal(cb.upper(root.get(UninsuredCustomer_.phone)), phone));
     }
 
-    default Specification<UninsuredCustomer> specialisationPhone(String phone) {
-        return (root, query, cb) -> cb.equal(root.get(UninsuredCustomer_.phone), phone);
-    }
+
 }

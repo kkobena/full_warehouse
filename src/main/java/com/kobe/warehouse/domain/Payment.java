@@ -13,8 +13,9 @@ import java.time.Instant;
  * A Payment.
  */
 @Entity
-@Table(name = "payment")
-public class Payment implements Serializable {
+@Table(name = "payment", indexes = {
+    @Index(columnList = "ticket_code", name = "ticket_code_index")})
+public class Payment implements Serializable , Cloneable{
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,18 +54,27 @@ public class Payment implements Serializable {
     @NotNull
     @Column(name = "montant_verse", nullable = false)
     private Integer montantVerse=0;
-    @ManyToOne
-    private Ticket ticket;
+    @Size(max = 50)
+    @Column(name = "ticket_code", length = 50)
+    private String ticketCode;
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
     private SalesStatut statut=SalesStatut.CLOSED;
-    public Ticket getTicket() {
-        return ticket;
-    }
 
+    @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean canceled = false;
     public SalesStatut getStatut() {
         return statut;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
+    public Payment setCanceled(Boolean canceled) {
+        this.canceled = canceled;
+        return this;
     }
 
     public Payment setStatut(SalesStatut statut) {
@@ -72,8 +82,12 @@ public class Payment implements Serializable {
         return this;
     }
 
-    public Payment setTicket(Ticket ticket) {
-        this.ticket = ticket;
+    public String getTicketCode() {
+        return ticketCode;
+    }
+
+    public Payment setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
         return this;
     }
 
@@ -231,5 +245,16 @@ public class Payment implements Serializable {
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+            return null;
+
+        }
     }
 }

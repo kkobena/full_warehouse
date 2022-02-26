@@ -153,9 +153,43 @@ public class Sales implements Serializable , Cloneable{
     @NotNull
     @Column(name = "caisse_end_num",  length = 100)
     private String caisseEndNum;
-
+    @ManyToOne
+    private Customer customer;
+    @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean canceled = false;
     public String getCaisseNum() {
         return caisseNum;
+    }
+    @OneToMany(mappedBy = "sale")
+    private Set<Ticket> tickets = new HashSet<>();
+    @Column(length = 100)
+    private String tvaEmbeded;
+
+    public String getTvaEmbeded() {
+        return tvaEmbeded;
+    }
+
+    public Sales setTvaEmbeded(String tvaEmbeded) {
+        this.tvaEmbeded = tvaEmbeded;
+        return this;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
+    public Set<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public Sales setTickets(Set<Ticket> tickets) {
+        this.tickets = tickets;
+        return this;
+    }
+
+    public Sales setCanceled(Boolean canceled) {
+        this.canceled = canceled;
+        return this;
     }
 
     public String getCaisseEndNum() {
@@ -169,6 +203,15 @@ public class Sales implements Serializable , Cloneable{
 
     public Sales setCaisseNum(String caisseNum) {
         this.caisseNum = caisseNum;
+        return this;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public Sales setCustomer(Customer customer) {
+        this.customer = customer;
         return this;
     }
 
@@ -650,7 +693,13 @@ public class Sales implements Serializable , Cloneable{
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+            return null;
+
+        }
     }
 }

@@ -1,11 +1,55 @@
 <div class="modal-body">
+    <p-table #customerTable [value]="customers" dataKey="id" [paginator]="true" [rows]="10"
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+             [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
+             [globalFilterFields]="['firstName','lastName','fullName','phone','code']">
+        <ng-template pTemplate="caption">
+            <span class="mr-lg-5">LA LISTE DES CLIENTS</span>
 
+            <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER" [(ngModel)]="searchString"
+           (input)="loadCustomers()">
+</span>
+
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:5%">
+                    #
+                </th>
+                <th style="width:100px">CODE</th>
+                <th>NOM</th>
+                <th>PRENOM(S)</th>
+                <th>TELEPHONE</th>
+                <th style="width:100px"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
+            <tr (dblclick)="onDbleClick(customer)">
+                <td style="text-align: left;">{{rowIndex + 1}}</td>
+                <td>{{customer.code}}</td>
+                <td>{{customer.firstName}}</td>
+                <td>{{customer.lastName}}</td>
+                <td>{{customer.phone}}</td>
+
+                <td style="text-align: right;">
+                    <button pButton pRipple icon="pi pi-check"
+                            pTooltip="Séléctionner"
+                            class="p-button-rounded p-button-info p-button-sm  p-mb-3" (click)="onSelect(customer)"></button>
+                </td>
+            </tr>
+
+        </ng-template>
+
+    </p-table>
 
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
-        <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="cancel()">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
     </button>
 
 

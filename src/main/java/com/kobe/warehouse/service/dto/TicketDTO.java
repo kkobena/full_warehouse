@@ -117,7 +117,6 @@ public class TicketDTO {
         User user = ticket.getUser();
         this.user = user.getFirstName() + " " + user.getLastName();
         this.sale = new SaleDTO(ticket.getSale());
-        this.payments = ticket.getPayments().stream().map(PaymentDTO::new).collect(Collectors.toSet());
         if (ticket.getCustomer() != null) {
             this.customer = new CustomerDTO(ticket.getCustomer());
         }

@@ -387,20 +387,7 @@ public class SalesLine implements Serializable, Cloneable {
         } catch (CloneNotSupportedException e) {
             e.printStackTrace(System.err);
             return null;
-           /* return new SalesLine()
-                .setQuantityRequested(this.quantityRequested)
-                .quantitySold(this.quantitySold)
-                .setQuantityUg(this.quantityUg)
-                .setQuantiyAvoir(this.quantiyAvoir)
-                .setMontantTvaUg(this.montantTvaUg)
-                .regularUnitPrice(this.regularUnitPrice)
-                .discountUnitPrice(this.discountUnitPrice)
-                .netUnitPrice(this.netUnitPrice)
-                .salesAmount(this.salesAmount)
-                .setQuantityUg(this.quantityUg)
-                .discountAmount(this.discountAmount)
-                .setDiscountAmountUg(this.discountAmountUg)
-                .setDiscountAmountHorsUg(this.discountAmountHorsUg);*/
+
         }
     }
 }

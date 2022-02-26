@@ -49,6 +49,8 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
 			List<Predicate> predicates = produitPredicate(cb, root, storageId, query);
 			cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 			TypedQuery<Rayon> q = em.createQuery(cq);
+            q.setFirstResult(pageable.getPageNumber());
+            q.setMaxResults(pageable.getPageSize());
 			list = q.getResultList().stream().map(o -> buildRayonDTOFromRayon(o)).collect(Collectors.toList());
 		}
 		return new PageImpl<>(list, pageable, total);

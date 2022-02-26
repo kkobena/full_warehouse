@@ -34,6 +34,22 @@
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
                     <li>
+                        <a class="dropdown-item" routerLink="sales/presale" routerLinkActive="active"
+                           [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon [icon]="faShoppingBasket" [fixedWidth]="true"></fa-icon>
+                            <span>Préventes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="sales/ventes-en-cours" routerLinkActive="active"
+                           [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon [icon]="faShoppingBasket" [fixedWidth]="true"></fa-icon>
+                            <span>Ventes en cours</span>
+                        </a>
+                    </li>
+
+
+                    <li>
                         <a class="dropdown-item" routerLink="sales" routerLinkActive="active"
                             [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
                             <fa-icon [icon]="faShoppingBasket" [fixedWidth]="true"></fa-icon>

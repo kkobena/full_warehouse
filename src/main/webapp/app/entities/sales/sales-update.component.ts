@@ -31,6 +31,7 @@ import { Decondition, IDecondition } from '../../shared/model/decondition.model'
 import { IResponseDto } from '../../shared/util/response-dto';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { UninsuredCustomerFormComponent } from '../customer/uninsured-customer-form/uninsured-customer-form.component';
+import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsured-customer-list.component';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -48,6 +49,7 @@ type SelectableEntity = ICustomer | IProduit;
 })
 export class SalesUpdateComponent implements OnInit {
   isSaving = false;
+  isPresale = false;
   showTiersPayantCard = false;
   showAyantDroitCard = false;
   showClientSearchCard = false;
@@ -103,7 +105,6 @@ export class SalesUpdateComponent implements OnInit {
   rayonClass = 'col-2';
   reglementInputClass = 'p-inputgroup';
   reglementInputParentClass = '';
-  tableSearchValue?: string;
   montantCash?: number | null = null;
   montantCb?: number | null = null;
   montantVirement?: number | null = null;
@@ -224,6 +225,11 @@ export class SalesUpdateComponent implements OnInit {
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
+        this.sale = sales;
+        this.salesLines = sales.salesLines;
+        this.customerSelected = sales.customer;
+        this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
+        this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
         this.buildPaymentFromSale(sales);
       }
       if (!this.showStock) {
@@ -241,6 +247,12 @@ export class SalesUpdateComponent implements OnInit {
       }
 
       this.loadProduits();
+    });
+    this.activatedRoute.paramMap.subscribe(params => {
+      if (params.has('isPresale')) {
+        this.isPresale = params.get('isPresale') === 'true';
+        console.error(this.isPresale);
+      }
     });
   }
 
@@ -346,33 +358,39 @@ export class SalesUpdateComponent implements OnInit {
   save(): void {
     if (this.sale) {
       this.isSaving = true;
-      this.sale.differe = this.isDiffere;
-      this.sale.payments = this.buildPayment();
-      const thatentryAmount = this.getEntryAmount();
-      console.error(thatentryAmount);
-      this.computeMonnaie();
-      const restToPay = this.sale?.amountToBePaid! - thatentryAmount;
-      if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
-        this.sale.type = 'VNO';
-        this.sale.montantRendu = this.monnaie;
-        this.sale.montantVerse = this.montantCash ?? 0;
-        if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid!) {
-          // this.openInfoDialog("Le montant  saisi n'est pas correct", 'alert alert-warning');
-          this.displayErrorEntryAmountModal = true;
-          this.errorEntryAmountBtn?.nativeElement.focus();
-        } else if (this.isDiffere && !this.customerSelected) {
-          this.displayErrorModal = true;
-          this.clientSearchModalBtn?.nativeElement.focus();
-          // this.openInfoDialog("Veuilez ajouter un client à la vente", 'alert alert-warning');
-        } else {
-          if (restToPay <= 0) {
-            this.sale.payrollAmount = this.sale.amountToBePaid;
-            this.sale.restToPay = 0;
+      console.error(this.isPresale);
+      if (this.isPresale === false) {
+        this.sale.differe = this.isDiffere;
+        this.sale.payments = this.buildPayment();
+        const thatentryAmount = this.getEntryAmount();
+        this.computeMonnaie();
+        const restToPay = this.sale?.amountToBePaid! - thatentryAmount;
+        if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+          this.sale.type = 'VNO';
+          this.sale.montantRendu = this.monnaie;
+          this.sale.montantVerse = this.montantCash ?? 0;
+          if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid!) {
+            // this.openInfoDialog("Le montant  saisi n'est pas correct", 'alert alert-warning');
+            this.displayErrorEntryAmountModal = true;
+            this.errorEntryAmountBtn?.nativeElement.focus();
+          } else if (this.isDiffere && !this.customerSelected) {
+            this.displayErrorModal = true;
+            this.clientSearchModalBtn?.nativeElement.focus();
+            // this.openInfoDialog("Veuilez ajouter un client à la vente", 'alert alert-warning');
           } else {
-            this.sale.payrollAmount = thatentryAmount;
-            this.sale.restToPay = restToPay;
+            if (restToPay <= 0) {
+              this.sale.payrollAmount = this.sale.amountToBePaid;
+              this.sale.restToPay = 0;
+            } else {
+              this.sale.payrollAmount = thatentryAmount;
+              this.sale.restToPay = restToPay;
+            }
+            this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
           }
-          this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
+        }
+      } else if (this.isPresale === true) {
+        if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+          this.putCurrentSaleOnHold();
         }
       }
     }
@@ -423,7 +441,7 @@ export class SalesUpdateComponent implements OnInit {
       key !== 'PageUp' &&
       key !== 'PageDown'
     ) {
-      this.loadProduits();
+      this.loadAllUsers();
     }
   }
 
@@ -726,7 +744,7 @@ export class SalesUpdateComponent implements OnInit {
     return false;
   }
 
-  onDiffereChange(e: any): void {
+  onDiffereChange(): void {
     if (!this.customerSelected) {
       setTimeout(() => {
         this.clientSearchBox?.nativeElement.focus();
@@ -878,6 +896,20 @@ export class SalesUpdateComponent implements OnInit {
     }
   }
 
+  openUninsuredCustomerListTable(customers: ICustomer[] | []): void {
+    this.ref = this.dialogService.open(UninsuredCustomerListComponent, {
+      data: { customers },
+      header: 'CLIENTS NON ASSURES',
+      width: '80%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.customerSelected = resp;
+      }
+    });
+  }
+
   addUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
       data: { entity: null },
@@ -890,6 +922,7 @@ export class SalesUpdateComponent implements OnInit {
       }
     });
   }
+
   editUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
       data: { entity: this.customerSelected },
@@ -921,10 +954,6 @@ export class SalesUpdateComponent implements OnInit {
   }
 
   updateItemQtyRequested(salesLine: ISalesLine, event: any): void {
-    //TODO verifie en back que qtyRequested <=Current product stock
-    // le process de forcing du stock
-    // Deconditionner net yet implemented
-
     const newQty = Number(event.target.value);
     if (newQty <= 0) return;
     salesLine.quantityRequested = newQty;
@@ -1053,7 +1082,7 @@ export class SalesUpdateComponent implements OnInit {
         if (qtyDetail) {
           const qtyDecondtionner = Math.round(qytMvt / qtyDetail);
           this.decondtionService.create(this.createDecondition(qtyDecondtionner, produit.id!)).subscribe(
-            res => {
+            () => {
               if (item) {
                 this.processQtyRequested(item);
               } else {
@@ -1206,9 +1235,11 @@ export class SalesUpdateComponent implements OnInit {
       this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe(res => {
         const uninsuredCustomers = res.body;
         if (uninsuredCustomers && uninsuredCustomers.length > 0) {
-          // TODO open listable
-          // TODO ajouter un bouton pour creer directement client
-          // TODO modification des infos du client
+          if (uninsuredCustomers.length === 1) {
+            this.customerSelected = uninsuredCustomers[0];
+          } else {
+            this.openUninsuredCustomerListTable(uninsuredCustomers);
+          }
 
           this.clientSearchValue = null;
         } else {
@@ -1333,7 +1364,7 @@ export class SalesUpdateComponent implements OnInit {
     this.openInfoDialog(message, 'alert alert-danger');
   }
 
-  protected onFinalyseSuccess(sale: IResponseDto | null): void {
+  protected onFinalyseSuccess(response: IResponseDto | null): void {
     this.isSaving = false;
     if (this.printTicket) {
       this.onPrintInvoice(); // TODO a remplacer par le code impression ticket de caisse

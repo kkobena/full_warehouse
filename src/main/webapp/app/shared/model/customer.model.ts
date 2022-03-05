@@ -16,6 +16,10 @@ export interface ICustomer {
   encours?: number;
   payments?: IPayment[];
   fullName?: string;
+  type?: string;
+  code?: string;
+  num?: string;
+  categorie?: string;
 }
 
 export class Customer implements ICustomer {
@@ -31,6 +35,10 @@ export class Customer implements ICustomer {
     public produits?: IProduit[],
     public payments?: IPayment[],
     public encours?: number,
-    public fullName?: string
+    public fullName?: string,
+    public type?: string,
+    public code?: string,
+    public num?: string,
+    public categorie?: string
   ) {}
 }

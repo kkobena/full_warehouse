@@ -208,4 +208,9 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     public ResponseEntity<Problem> handleGenericErrorException(GenericError ex, NativeWebRequest request) {
         return create(ex, request, HeaderUtil.createFailureAlert(applicationName,  true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleDefaultPaymentAmountException(PaymentAmountException ex, NativeWebRequest request) {
+        return create(ex, request, HeaderUtil.createFailureAlert(applicationName,  true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    }
+
 }

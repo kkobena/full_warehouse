@@ -9,14 +9,5 @@ import java.util.Set;
 @Entity
 public class UninsuredCustomer extends Customer implements Serializable {
     private static final long serialVersionUID = 1L;
-    @OneToMany(mappedBy = "uninsuredCustomer")
-    private Set<CashSale> cashSales = new HashSet<>();
 
-    public Set<CashSale> getCashSales() {
-        return cashSales;
-    }
-
-    public void setCashSales(Set<CashSale> cashSales) {
-        this.cashSales = cashSales;
-    }
 }

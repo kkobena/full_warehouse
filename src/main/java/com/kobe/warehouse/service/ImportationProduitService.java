@@ -87,7 +87,7 @@ public class ImportationProduitService {
     @Async
     public void updateStocFromJSON(InputStream input, User user) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        Storage storage = this.storageService.getDefaultConnectedUserMainStorage();
+        Storage storage = this.storageService.getDefaultMagasinMainStorage();
         if (storage == null) {
             storage = this.storageService.getDefaultMagasinMainStorage();
         }

@@ -68,7 +68,6 @@ public class PaymentResourceIT {
         Payment payment = new Payment()
             .netAmount(DEFAULT_NET_AMOUNT)
             .paidAmount(DEFAULT_PAID_AMOUNT)
-            .restToPay(DEFAULT_REST_TO_PAY)
             .createdAt(DEFAULT_CREATED_AT)
             .updatedAt(DEFAULT_UPDATED_AT);
         return payment;
@@ -83,7 +82,6 @@ public class PaymentResourceIT {
         Payment payment = new Payment()
             .netAmount(UPDATED_NET_AMOUNT)
             .paidAmount(UPDATED_PAID_AMOUNT)
-            .restToPay(UPDATED_REST_TO_PAY)
             .createdAt(UPDATED_CREATED_AT)
             .updatedAt(UPDATED_UPDATED_AT);
         return payment;
@@ -110,7 +108,6 @@ public class PaymentResourceIT {
         Payment testPayment = paymentList.get(paymentList.size() - 1);
         assertThat(testPayment.getNetAmount()).isEqualTo(DEFAULT_NET_AMOUNT);
         assertThat(testPayment.getPaidAmount()).isEqualTo(DEFAULT_PAID_AMOUNT);
-        assertThat(testPayment.getRestToPay()).isEqualTo(DEFAULT_REST_TO_PAY);
         assertThat(testPayment.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
         assertThat(testPayment.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
     }
@@ -173,24 +170,6 @@ public class PaymentResourceIT {
         assertThat(paymentList).hasSize(databaseSizeBeforeTest);
     }
 
-    @Test
-    @Transactional
-    public void checkRestToPayIsRequired() throws Exception {
-        int databaseSizeBeforeTest = paymentRepository.findAll().size();
-        // set the field null
-        payment.setRestToPay(null);
-
-        // Create the Payment, which fails.
-
-
-        restPaymentMockMvc.perform(post("/api/payments").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(payment)))
-            .andExpect(status().isBadRequest());
-
-        List<Payment> paymentList = paymentRepository.findAll();
-        assertThat(paymentList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -247,7 +226,7 @@ public class PaymentResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getPayment() throws Exception {
@@ -288,7 +267,6 @@ public class PaymentResourceIT {
         updatedPayment
             .netAmount(UPDATED_NET_AMOUNT)
             .paidAmount(UPDATED_PAID_AMOUNT)
-            .restToPay(UPDATED_REST_TO_PAY)
             .createdAt(UPDATED_CREATED_AT)
             .updatedAt(UPDATED_UPDATED_AT);
 
@@ -303,7 +281,6 @@ public class PaymentResourceIT {
         Payment testPayment = paymentList.get(paymentList.size() - 1);
         assertThat(testPayment.getNetAmount()).isEqualTo(UPDATED_NET_AMOUNT);
         assertThat(testPayment.getPaidAmount()).isEqualTo(UPDATED_PAID_AMOUNT);
-        assertThat(testPayment.getRestToPay()).isEqualTo(UPDATED_REST_TO_PAY);
         assertThat(testPayment.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
         assertThat(testPayment.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
     }

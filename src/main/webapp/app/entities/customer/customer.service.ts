@@ -47,6 +47,29 @@ export class CustomerService {
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+  lock(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/lock/${id}`, { observe: 'response' });
+  }
+
+  createUninsuredCustomer(customer: ICustomer): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(customer);
+    return this.http
+      .post<ICustomer>(`${this.resourceUrl}/uninsured`, copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  updateUninsuredCustomer(customer: ICustomer): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(customer);
+    return this.http
+      .put<ICustomer>(`${this.resourceUrl}/uninsured`, copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+  queryUninsuredCustomers(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<ICustomer[]>(`${this.resourceUrl}/uninsured`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
 
   protected convertDateFromClient(customer: ICustomer): ICustomer {
     const copy: ICustomer = Object.assign({}, customer, {

@@ -1,12 +1,15 @@
 package com.kobe.warehouse.domain;
+
 import com.kobe.warehouse.domain.enumeration.Status;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.*;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * A Remise.
@@ -36,6 +39,17 @@ public class Remise implements Serializable {
     @NotNull
     @Column(name = "code",unique = true,nullable = false)
     private String code;
+    @FutureOrPresent
+    private LocalDateTime period;
+
+    public LocalDateTime getPeriod() {
+        return period;
+    }
+
+    public Remise setPeriod(LocalDateTime period) {
+        this.period = period;
+        return this;
+    }
 
     public String getCode() {
         return code;

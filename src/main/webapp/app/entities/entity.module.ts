@@ -32,10 +32,7 @@ import { RouterModule } from '@angular/router';
         path: 'payment',
         loadChildren: () => import('./payment/payment.module').then(m => m.WarehousePaymentModule),
       },
-      {
-        path: 'payment-mode',
-        loadChildren: () => import('./payment-mode/payment-mode.module').then(m => m.WarehousePaymentModeModule),
-      },
+
       {
         path: 'order-line',
         loadChildren: () => import('./order-line/order-line.module').then(m => m.WarehouseOrderLineModule),
@@ -43,10 +40,6 @@ import { RouterModule } from '@angular/router';
       {
         path: 'commande',
         loadChildren: () => import('./commande/commande.module').then(m => m.WarehouseCommandeModule),
-      },
-      {
-        path: 'payment-fournisseur',
-        loadChildren: () => import('./payment-fournisseur/payment-fournisseur.module').then(m => m.WarehousePaymentFournisseurModule),
       },
 
       {
@@ -109,6 +102,14 @@ import { RouterModule } from '@angular/router';
       {
         path: 'motif-ajustement',
         loadChildren: () => import('./modif-ajustement/modif-ajustement.module').then(m => m.ModifAjustementModule),
+      },
+      {
+        path: 'groupe-tiers-payant',
+        loadChildren: () => import('./groupe-tiers-payant/groupe-tiers-payant.module').then(m => m.WarehouseGroupeTiersPayantModule),
+      },
+      {
+        path: 'tiers-payant',
+        loadChildren: () => import('./tiers-payant/tiers-payant.module').then(m => m.WarehouseTiersPayantModule),
       },
     ]),
   ],

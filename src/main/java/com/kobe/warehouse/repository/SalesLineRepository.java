@@ -17,4 +17,6 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
     List<SalesLine> findBySalesIdOrderByProduitLibelle(Long salesId);
 
     Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId);
+
+    Optional<List<SalesLine>> findAllBySalesId(Long salesId);
 }

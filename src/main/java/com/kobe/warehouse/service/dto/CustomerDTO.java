@@ -7,10 +7,12 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.UninsuredCustomer;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
     @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD")
 })
@@ -22,55 +24,81 @@ public class CustomerDTO {
     private String email;
     private String fullName;
     private int encours;
+    private String categorie;
     private List<SaleDTO> sales = new ArrayList<>();
     private Set<Payment> payments = new HashSet<>();
+    private String code;
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public CustomerDTO setCategorie(String categorie) {
+        this.categorie = categorie;
+        return this;
+    }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public String getCode() {
+        return code;
+    }
+
+    public CustomerDTO setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+    public CustomerDTO setFirstName(String firstName) {
         this.firstName = firstName;
+        return this;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public CustomerDTO setLastName(String lastName) {
         this.lastName = lastName;
+        return this;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public void setPhone(String phone) {
+    public CustomerDTO setPhone(String phone) {
         this.phone = phone;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public CustomerDTO setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public int getEncours() {
         return encours;
     }
 
-    public void setEncours(int encours) {
+    public CustomerDTO setEncours(int encours) {
         this.encours = encours;
+        return this;
     }
 
     public List<SaleDTO> getSales() {
         return sales;
     }
 
-    public void setSales(List<SaleDTO> sales) {
+    public CustomerDTO setSales(List<SaleDTO> sales) {
         this.sales = sales;
+        return this;
     }
 
     public Set<Payment> getPayments() {
@@ -94,6 +122,14 @@ public class CustomerDTO {
         this.encours = 0;
         this.id = customer.getId();
         this.fullName = customer.getFirstName() + " " + customer.getLastName();
+        this.code = customer.getCode();
+        if (customer instanceof AssuredCustomer) {
+            this.categorie = "ASSURE";
+
+
+        } else if (customer instanceof UninsuredCustomer) {
+            this.categorie = "STANDARD";
+        }
 
     }
 

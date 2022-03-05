@@ -12,7 +12,6 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface PaymentModeRepository extends JpaRepository<PaymentMode, Long> {
+public interface PaymentModeRepository extends JpaRepository<PaymentMode, String> {
 
-    Optional<PaymentMode> findOneByCode(String code);
 }

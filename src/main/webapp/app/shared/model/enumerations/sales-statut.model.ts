@@ -8,4 +8,5 @@ export const enum SalesStatut {
   DISABLE = 'DISABLE',
   DELETED = 'DELETED',
   CLOSED = 'CLOSED',
+  ACTIVE = 'ACTIVE',
 }

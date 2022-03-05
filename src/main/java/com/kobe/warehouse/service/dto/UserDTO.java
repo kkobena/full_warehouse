@@ -38,7 +38,7 @@ public class UserDTO {
     private boolean activated = false;
 
     @Size(min = 2, max = 10)
-    private String langKey="fr";
+    private String langKey = "fr";
 
     private String createdBy;
 
@@ -49,9 +49,19 @@ public class UserDTO {
     private Instant lastModifiedDate;
 
     private Set<String> authorities;
+    private String fullName;
 
     public UserDTO() {
 
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public UserDTO setFullName(String fullName) {
+        this.fullName = fullName;
+        return this;
     }
 
     public UserDTO(User user) {
@@ -70,6 +80,7 @@ public class UserDTO {
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)
             .collect(Collectors.toSet());
+        this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
     }
 
     public Long getId() {
@@ -129,8 +140,8 @@ public class UserDTO {
     }
 
     public String getLangKey() {
-        if(langKey==null){
-            langKey="fr";
+        if (langKey == null) {
+            langKey = "fr";
         }
         return langKey;
     }

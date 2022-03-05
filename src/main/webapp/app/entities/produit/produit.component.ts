@@ -24,6 +24,8 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
 import { ErrorService } from '../../shared/error.service';
 import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
+import { ConfigurationService } from '../../shared/configuration.service';
+import { IConfiguration } from '../../shared/model/configuration.model';
 
 @Component({
   selector: 'jhi-produit',
@@ -110,6 +112,8 @@ export class ProduitComponent implements OnInit, OnDestroy {
   onErrorOccur = false;
   public resourceUrl = SERVER_API_URL;
   ref!: DynamicDialogRef;
+  configuration?: IConfiguration | null;
+  isMono = true;
 
   constructor(
     protected produitService: ProduitService,
@@ -122,7 +126,8 @@ export class ProduitComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     protected rayonService: RayonService,
     protected familleService: FamilleProduitService,
-    protected errorService: ErrorService
+    protected errorService: ErrorService,
+    protected configurationService: ConfigurationService
   ) {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -210,6 +215,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.findConfigStock();
     this.handleNavigation();
     this.registerChangeInProduits();
   }
@@ -404,7 +410,15 @@ export class ProduitComponent implements OnInit, OnDestroy {
       accept: () => {
         this.onDeleteProduitFournisseur(four, produit);
       },
-      key: 'deleteFournisseur',
+      key: 'deleteItem',
+    });
+  }
+
+  findConfigStock(): void {
+    this.configurationService.findStockConfig().subscribe(res => {
+      if (res.body) {
+        this.isMono = Number(res.body.value) === 0;
+      }
     });
   }
 
@@ -464,18 +478,20 @@ export class ProduitComponent implements OnInit, OnDestroy {
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
     this.responseDialog = true;
-    setInterval(() => {
+    const interval = setInterval(() => {
       this.produitService.findImortation().subscribe(
         res => {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
               setTimeout(() => {}, 5000);
+              clearInterval(interval);
             }
           }
         },
         () => {
           setTimeout(() => {}, 5000);
+          clearInterval(interval);
         }
       );
     }, 10000);

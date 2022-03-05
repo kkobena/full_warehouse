@@ -13,6 +13,7 @@ import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
+import { FormRayonProduitComponent } from './form-rayon-produit/form-rayon-produit.component';
 @NgModule({
   imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
   declarations: [
@@ -24,7 +25,14 @@ import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form
     DeconditionDialogComponent,
     DetailProduitFormComponent,
     FormProduitFournisseurComponent,
+    FormRayonProduitComponent,
   ],
-  entryComponents: [ProduitDeleteDialogComponent, DetailFormDialogComponent, DeconditionDialogComponent, FormProduitFournisseurComponent],
+  entryComponents: [
+    ProduitDeleteDialogComponent,
+    DetailFormDialogComponent,
+    DeconditionDialogComponent,
+    FormProduitFournisseurComponent,
+    FormRayonProduitComponent,
+  ],
 })
 export class WarehouseProduitModule {}

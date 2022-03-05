@@ -30,9 +30,6 @@ public class InventoryTransaction implements Serializable {
 	@Column(name = "transaction_type", nullable = false)
 	private TransactionType transactionType;
 	@NotNull
-	@Column(name = "amount", nullable = false)
-	private Integer amount;
-	@NotNull
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt=Instant.now();
 	@NotNull
@@ -69,6 +66,10 @@ public class InventoryTransaction implements Serializable {
     private SalesLine saleLine;
     @ManyToOne
     private OrderLine orderLine;
+    @ManyToOne
+    private RepartitionStockProduit repartitionStockProduit;
+    @ManyToOne
+    private Decondition  decondition;
 	public User getUser() {
 		return user;
 	}
@@ -77,7 +78,16 @@ public class InventoryTransaction implements Serializable {
 		this.user = user;
 	}
 
-	public Long getId() {
+    public Decondition getDecondition() {
+        return decondition;
+    }
+
+    public InventoryTransaction setDecondition(Decondition decondition) {
+        this.decondition = decondition;
+        return this;
+    }
+
+    public Long getId() {
 		return id;
 	}
 
@@ -98,28 +108,16 @@ public class InventoryTransaction implements Serializable {
 		this.transactionType = transactionType;
 	}
 
-	public Integer getAmount() {
-		return amount;
-	}
-
-	public InventoryTransaction amount(Integer amount) {
-		this.amount = amount;
-		return this;
-	}
-
     public Magasin getMagasin() {
         return magasin;
     }
 
-    public void setMagasin(Magasin magasin) {
+    public InventoryTransaction setMagasin(Magasin magasin) {
         this.magasin = magasin;
+        return this;
     }
 
-    public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-
-	public Instant getCreatedAt() {
+    public Instant getCreatedAt() {
 		return createdAt;
 	}
 
@@ -254,6 +252,15 @@ public class InventoryTransaction implements Serializable {
 
     public InventoryTransaction setOrderLine(OrderLine orderLine) {
         this.orderLine = orderLine;
+        return this;
+    }
+
+    public RepartitionStockProduit getRepartitionStockProduit() {
+        return repartitionStockProduit;
+    }
+
+    public InventoryTransaction setRepartitionStockProduit(RepartitionStockProduit repartitionStockProduit) {
+        this.repartitionStockProduit = repartitionStockProduit;
         return this;
     }
 }

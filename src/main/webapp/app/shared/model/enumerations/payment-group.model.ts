@@ -8,4 +8,5 @@ export const enum PaymentGroup {
   CB = 'Carte bancaire',
 
   CHEQUE = 'Chèque',
+  VIREMENT = 'Virement',
 }

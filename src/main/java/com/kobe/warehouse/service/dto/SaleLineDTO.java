@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import java.time.Instant;
 
+import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 
@@ -14,13 +15,13 @@ public class SaleLineDTO {
 	private Integer netUnitPrice;
 	private Integer discountAmount;
 	private Integer salesAmount;
-	private Integer grossAmount;
+	private Integer htAmount;
 	private Integer netAmount;
 	private Integer taxAmount;
 	private Integer costAmount;
 	private Instant createdAt;
 	private Instant updatedAt;
-	private String produitLibelle;
+	private String produitLibelle,code;
 	private Long produitId;
 	private Long saleId;
 	private Integer quantityStock;
@@ -31,6 +32,25 @@ public class SaleLineDTO {
     private boolean toIgnore ;
     private Instant effectiveUpdateDate;
     private Integer taxValue;
+    private boolean forceStock;//mis pour forcer le stock a la vente
+
+    public boolean isForceStock() {
+        return forceStock;
+    }
+
+    public SaleLineDTO setForceStock(boolean forceStock) {
+        this.forceStock = forceStock;
+        return this;
+    }
+
+    public Integer getHtAmount() {
+        return htAmount;
+    }
+
+    public SaleLineDTO setHtAmount(Integer htAmount) {
+        this.htAmount = htAmount;
+        return this;
+    }
 
     public Integer getTaxValue() {
         return taxValue;
@@ -160,13 +180,7 @@ public class SaleLineDTO {
 		this.salesAmount = salesAmount;
 	}
 
-	public Integer getGrossAmount() {
-		return grossAmount;
-	}
 
-	public void setGrossAmount(Integer grossAmount) {
-		this.grossAmount = grossAmount;
-	}
 
 	public Integer getNetAmount() {
 		return netAmount;
@@ -228,7 +242,16 @@ public class SaleLineDTO {
 
 	}
 
-	public Integer getQuantityStock() {
+    public String getCode() {
+        return code;
+    }
+
+    public SaleLineDTO setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+    public Integer getQuantityStock() {
 		return quantityStock;
 	}
 
@@ -248,21 +271,25 @@ public class SaleLineDTO {
 		super();
 		this.id = salesLine.getId();
 		this.quantitySold = salesLine.getQuantitySold();
+        this.quantityRequested=salesLine.getQuantityRequested();
 		this.regularUnitPrice = salesLine.getRegularUnitPrice();
 		this.discountUnitPrice = salesLine.getDiscountUnitPrice();
 		this.netUnitPrice = salesLine.getNetUnitPrice();
 		this.discountAmount = salesLine.getDiscountAmount();
 		this.salesAmount = salesLine.getSalesAmount();
-		this.grossAmount = salesLine.getGrossAmount();
 		this.netAmount = salesLine.getNetAmount();
-		this.taxAmount = salesLine.getTaxAmount();
 		this.costAmount = salesLine.getCostAmount();
 		this.createdAt = salesLine.getCreatedAt();
 		this.updatedAt = salesLine.getUpdatedAt();
 		Produit produit = salesLine.getProduit();
+      FournisseurProduit fournisseurProduit= produit.getFournisseurProduitPrincipal();
+      if(fournisseurProduit!=null){
+          this.code=fournisseurProduit.getCodeCip();
+      }
 		this.produitLibelle = produit.getLibelle();
 		this.produitId = produit.getId();
 		this.saleId = salesLine.getSales().getId();
+
 
 	}
 

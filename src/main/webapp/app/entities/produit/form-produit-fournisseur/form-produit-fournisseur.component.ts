@@ -47,7 +47,7 @@ export class FormProduitFournisseurComponent implements OnInit {
   save(): void {
     this.isSaving = true;
     const produitFournisseur = this.createFromForm();
-    if (produitFournisseur.id !== undefined) {
+    if (produitFournisseur.id !== undefined && produitFournisseur.id) {
       this.subscribeToSaveResponse(this.produitService.updateProduitFournisseur(produitFournisseur));
     } else {
       this.subscribeToSaveResponse(this.produitService.createProduitFournisseur(produitFournisseur));

@@ -16,7 +16,7 @@ public class LogsService {
         this.logsRepository = logsRepository;
         this.userService = userService;
     }
-    public  void create(TransactionType transactionType,String comments,Long indentityKey){
+    public  void create(TransactionType transactionType,String comments,String indentityKey){
         Logs logs=new Logs();
         logs.setComments(comments);
         logs.setIndentityKey(indentityKey);

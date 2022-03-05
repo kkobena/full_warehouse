@@ -66,6 +66,8 @@ import { TreeTableModule } from 'primeng/treetable';
 import { VirtualScrollerModule } from 'primeng/virtualscroller';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   exports: [
@@ -142,6 +144,8 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
     NgbModule,
     KeyFilterModule,
     DynamicDialogModule,
+    DividerModule,
+    TagModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

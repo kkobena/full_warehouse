@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -12,8 +13,9 @@ import java.time.Instant;
  * A Payment.
  */
 @Entity
-@Table(name = "payment")
-public class Payment implements Serializable {
+@Table(name = "payment", indexes = {
+    @Index(columnList = "ticket_code", name = "ticket_code_index")})
+public class Payment implements Serializable , Cloneable{
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,12 +26,6 @@ public class Payment implements Serializable {
     @NotNull
     @Column(name = "paid_amount", nullable = false)
     private Integer paidAmount;
-    @NotNull
-    @Column(name = "reel_paid_amount", nullable = false)
-    private Integer reelPaidAmount;
-    @NotNull
-    @Column(name = "rest_to_pay", nullable = false)
-    private Integer restToPay;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -49,19 +45,59 @@ public class Payment implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Customer customer;
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Sales sales;
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private Instant effectiveUpdateDate;
-    public Payment setReelPaidAmount(Integer reelPaidAmount) {
-        this.reelPaidAmount = reelPaidAmount;
+    @NotNull
+    @Column(name = "montant_verse", nullable = false)
+    private Integer montantVerse=0;
+    @Size(max = 50)
+    @Column(name = "ticket_code", length = 50)
+    private String ticketCode;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private SalesStatut statut=SalesStatut.CLOSED;
+
+    @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean canceled = false;
+    public SalesStatut getStatut() {
+        return statut;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
+    public Payment setCanceled(Boolean canceled) {
+        this.canceled = canceled;
         return this;
     }
 
-    public Integer getReelPaidAmount() {
-        return reelPaidAmount;
+    public Payment setStatut(SalesStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public String getTicketCode() {
+        return ticketCode;
+    }
+
+    public Payment setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
+        return this;
+    }
+
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public Payment setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
     }
 
     public Instant getEffectiveUpdateDate() {
@@ -122,20 +158,6 @@ public class Payment implements Serializable {
     public void setPaidAmount(Integer paidAmount) {
         this.paidAmount = paidAmount;
     }
-
-    public Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public Payment restToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-        return this;
-    }
-
-    public void setRestToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -220,9 +242,19 @@ public class Payment implements Serializable {
             "id=" + getId() +
             ", netAmount=" + getNetAmount() +
             ", paidAmount=" + getPaidAmount() +
-            ", restToPay=" + getRestToPay() +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+            return null;
+
+        }
     }
 }

@@ -93,9 +93,7 @@ public class SalesLineResourceIT {
             .netUnitPrice(DEFAULT_NET_UNIT_PRICE)
             .discountAmount(DEFAULT_DISCOUNT_AMOUNT)
             .salesAmount(DEFAULT_SALES_AMOUNT)
-            .grossAmount(DEFAULT_GROSS_AMOUNT)
             .netAmount(DEFAULT_NET_AMOUNT)
-            .taxAmount(DEFAULT_TAX_AMOUNT)
             .costAmount(DEFAULT_COST_AMOUNT)
             .createdAt(DEFAULT_CREATED_AT)
             .updatedAt(DEFAULT_UPDATED_AT);
@@ -115,9 +113,7 @@ public class SalesLineResourceIT {
             .netUnitPrice(UPDATED_NET_UNIT_PRICE)
             .discountAmount(UPDATED_DISCOUNT_AMOUNT)
             .salesAmount(UPDATED_SALES_AMOUNT)
-            .grossAmount(UPDATED_GROSS_AMOUNT)
             .netAmount(UPDATED_NET_AMOUNT)
-            .taxAmount(UPDATED_TAX_AMOUNT)
             .costAmount(UPDATED_COST_AMOUNT)
             .createdAt(UPDATED_CREATED_AT)
             .updatedAt(UPDATED_UPDATED_AT);
@@ -149,9 +145,7 @@ public class SalesLineResourceIT {
         assertThat(testSalesLine.getNetUnitPrice()).isEqualTo(DEFAULT_NET_UNIT_PRICE);
         assertThat(testSalesLine.getDiscountAmount()).isEqualTo(DEFAULT_DISCOUNT_AMOUNT);
         assertThat(testSalesLine.getSalesAmount()).isEqualTo(DEFAULT_SALES_AMOUNT);
-        assertThat(testSalesLine.getGrossAmount()).isEqualTo(DEFAULT_GROSS_AMOUNT);
         assertThat(testSalesLine.getNetAmount()).isEqualTo(DEFAULT_NET_AMOUNT);
-        assertThat(testSalesLine.getTaxAmount()).isEqualTo(DEFAULT_TAX_AMOUNT);
         assertThat(testSalesLine.getCostAmount()).isEqualTo(DEFAULT_COST_AMOUNT);
         assertThat(testSalesLine.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
         assertThat(testSalesLine.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
@@ -291,24 +285,7 @@ public class SalesLineResourceIT {
         assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
     }
 
-    @Test
-    @Transactional
-    public void checkGrossAmountIsRequired() throws Exception {
-        int databaseSizeBeforeTest = salesLineRepository.findAll().size();
-        // set the field null
-        salesLine.setGrossAmount(null);
 
-        // Create the SalesLine, which fails.
-
-
-        restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
-            .andExpect(status().isBadRequest());
-
-        List<SalesLine> salesLineList = salesLineRepository.findAll();
-        assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -329,24 +306,7 @@ public class SalesLineResourceIT {
         assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
     }
 
-    @Test
-    @Transactional
-    public void checkTaxAmountIsRequired() throws Exception {
-        int databaseSizeBeforeTest = salesLineRepository.findAll().size();
-        // set the field null
-        salesLine.setTaxAmount(null);
 
-        // Create the SalesLine, which fails.
-
-
-        restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
-            .andExpect(status().isBadRequest());
-
-        List<SalesLine> salesLineList = salesLineRepository.findAll();
-        assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -429,7 +389,7 @@ public class SalesLineResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getSalesLine() throws Exception {
@@ -481,9 +441,8 @@ public class SalesLineResourceIT {
             .netUnitPrice(UPDATED_NET_UNIT_PRICE)
             .discountAmount(UPDATED_DISCOUNT_AMOUNT)
             .salesAmount(UPDATED_SALES_AMOUNT)
-            .grossAmount(UPDATED_GROSS_AMOUNT)
             .netAmount(UPDATED_NET_AMOUNT)
-            .taxAmount(UPDATED_TAX_AMOUNT)
+
             .costAmount(UPDATED_COST_AMOUNT)
             .createdAt(UPDATED_CREATED_AT)
             .updatedAt(UPDATED_UPDATED_AT);
@@ -503,9 +462,7 @@ public class SalesLineResourceIT {
         assertThat(testSalesLine.getNetUnitPrice()).isEqualTo(UPDATED_NET_UNIT_PRICE);
         assertThat(testSalesLine.getDiscountAmount()).isEqualTo(UPDATED_DISCOUNT_AMOUNT);
         assertThat(testSalesLine.getSalesAmount()).isEqualTo(UPDATED_SALES_AMOUNT);
-        assertThat(testSalesLine.getGrossAmount()).isEqualTo(UPDATED_GROSS_AMOUNT);
         assertThat(testSalesLine.getNetAmount()).isEqualTo(UPDATED_NET_AMOUNT);
-        assertThat(testSalesLine.getTaxAmount()).isEqualTo(UPDATED_TAX_AMOUNT);
         assertThat(testSalesLine.getCostAmount()).isEqualTo(UPDATED_COST_AMOUNT);
         assertThat(testSalesLine.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
         assertThat(testSalesLine.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);

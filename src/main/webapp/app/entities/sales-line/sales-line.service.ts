@@ -14,20 +14,20 @@ type EntityArrayResponseType = HttpResponse<ISalesLine[]>;
 @Injectable({ providedIn: 'root' })
 export class SalesLineService {
   public resourceUrl = SERVER_API_URL + 'api/sales-lines';
-
+  public saleUrl = SERVER_API_URL + 'api/sales';
   constructor(protected http: HttpClient) {}
 
   create(salesLine: ISalesLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(salesLine);
     return this.http
-      .post<ISalesLine>(this.resourceUrl, copy, { observe: 'response' })
+      .post<ISalesLine>(`${this.saleUrl}/add-item`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   update(salesLine: ISalesLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(salesLine);
     return this.http
-      .put<ISalesLine>(this.resourceUrl, copy, { observe: 'response' })
+      .put<ISalesLine>(`${this.saleUrl}/update-item`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 

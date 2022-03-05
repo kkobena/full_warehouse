@@ -213,6 +213,7 @@ body .ui-dropdown {
 .jumbotron {
   padding: 1rem 1rem;
 }
+
 .p-inputtext {
   padding: 0.5rem 1rem;
 }
@@ -220,22 +221,27 @@ body .ui-dropdown {
 .p-button {
   padding: 0.45rem 1rem;
 }
+
 .form-switch {
   padding-left: 2.5em;
 }
+
 .form-check {
   display: block;
   min-height: 1.5rem;
   padding-left: 1.5em;
   margin-bottom: 0.125rem;
 }
+
 .form-switch .form-check-input:checked {
   background-position: right center;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23a2b7cd'/%3e%3c/svg%3e");
 }
+
 .form-check-input:checked[type='checkbox'] {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
 }
+
 .form-switch .form-check-input {
   width: 2em;
   margin-left: -2.5em;
@@ -244,17 +250,21 @@ body .ui-dropdown {
   border-radius: 2em;
   transition: background-position 0.15s ease-in-out;
 }
+
 .form-check-input:checked {
   background-color: #446e9b;
   border-color: #446e9b;
 }
+
 .form-check-input[type='checkbox'] {
   border-radius: 0.25em;
 }
+
 .form-check .form-check-input {
   float: left;
   margin-left: -1.5em;
 }
+
 .form-check-input {
   width: 1em;
   height: 1em;
@@ -297,21 +307,52 @@ body .ui-dropdown {
   .st-editTable {
     height: 350px;
   }
+  .sale-toolbar .toobar-input-search {
+    width: 170px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
 }
 
 // XX-Large devices (larger desktops, 1400px and up)
-@media (min-width: 1400px) {
+@media (min-width: 1500px) {
   .st-editTable {
     height: 440px;
   }
+  /*  .sale-toolbar .toobar-input-search {
+    width: 180px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 115px;
+  }*/
+}
+
+@media (min-width: 1700px) {
+  .sale-toolbar .toobar-input-search {
+    width: 200px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
+  /* .sale-toolbar .toobar-input-search {
+    width: 250px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 150px;
+  }*/
 }
 
 .stockless {
   color: red;
 }
+
 .ngCombo {
   padding: 0px !important;
 }
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -321,4 +362,84 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
+}
+
+.sale-p-inputtext {
+  width: 100%;
+}
+
+.sale-p-input-icon-left {
+  width: 100%;
+}
+
+.sale-card {
+  padding: 0.25rem;
+}
+
+.sale-card-header {
+  padding: 0.1rem 1.25rem;
+}
+
+.sale-list-group-item {
+  padding: 0.1rem 0.1rem;
+}
+
+.p-inputgroup .ng-select {
+  width: 100%;
+}
+
+.sale-products-table .p-datatable .p-datatable-header {
+  padding: 0.16rem 1rem;
+}
+
+.sale-products-table .p-datatable .p-datatable-thead > tr > th {
+  padding: 0.16rem 0.857rem;
+}
+
+.avoir {
+  color: red !important;
+}
+
+.sale-amount {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.sale-amount-net-topay {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+*.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  color: #333;
+  background-color: #eee;
+  font-weight: 777;
+}
+
+.sale-products-table .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0rem 1rem;
+}
+
+.sale-montant-block .list-group-item {
+  padding: 0.25rem 1.25rem;
+}
+
+.p-divider.p-divider-vertical {
+  margin: 0 0.4rem;
+  padding: 1rem 0;
+}
+/*
+.sale .p-button .p-button-icon-left {
+  margin-right:2px;
+}
+.sale .p-button .p-button-icon-right {
+  margin-right: 2px;
+}
+.sale .p-button{
+padding-left:0.5rem;
+  padding-right:0.5rem;
+}
+*/
+:host ::ng-deep .p-message-close-icon {
+  color: #2c1e30;
 }

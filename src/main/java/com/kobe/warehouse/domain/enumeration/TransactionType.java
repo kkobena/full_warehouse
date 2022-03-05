@@ -20,7 +20,11 @@ public enum TransactionType {
     DELETE_PRODUCT("Supression  produit"),
     DISABLE_PRODUCT("Désactivation  produit"),
     ENABLE_PRODUCT("Activation  produit"),
-    MODIFICATION_PRIX_PRODUCT("Modification prix  produit")
+    MODIFICATION_PRIX_PRODUCT("Modification prix  produit"),
+    MOUVEMENT_STOCK_IN("Déplacement de stock entrant"),
+    MOUVEMENT_STOCK_OUT("Déplacement de stock sortant"),
+    FORCE_STOCK("Vente en avoir"),
+    MODIFICATION_PRIX_PRODUCT_A_LA_VENTE("Modification prix  produit à la vente"),
     ;
 
     private final String value;

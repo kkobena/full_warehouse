@@ -56,12 +56,12 @@ public class PaymentModeResource {
     @PostMapping("/payment-modes")
     public ResponseEntity<PaymentMode> createPaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to save PaymentMode : {}", paymentMode);
-        if (paymentMode.getId() != null) {
+        if (paymentMode.getCode() != null) {
             throw new BadRequestAlertException("A new paymentMode cannot already have an ID", ENTITY_NAME, "idexists");
         }
         PaymentMode result = paymentModeRepository.save(paymentMode);
-        return ResponseEntity.created(new URI("/api/payment-modes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/payment-modes/" + result.getCode()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getCode()))
             .body(result);
     }
 
@@ -77,12 +77,12 @@ public class PaymentModeResource {
     @PutMapping("/payment-modes")
     public ResponseEntity<PaymentMode> updatePaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to update PaymentMode : {}", paymentMode);
-        if (paymentMode.getId() == null) {
+        if (paymentMode.getCode() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         PaymentMode result = paymentModeRepository.save(paymentMode);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentMode.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentMode.getCode()))
             .body(result);
     }
 
@@ -107,7 +107,7 @@ public class PaymentModeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the paymentMode, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/payment-modes/{id}")
-    public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable Long id) {
+    public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable String id) {
         log.debug("REST request to get PaymentMode : {}", id);
         Optional<PaymentMode> paymentMode = paymentModeRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(paymentMode);
@@ -120,7 +120,7 @@ public class PaymentModeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/payment-modes/{id}")
-    public ResponseEntity<Void> deletePaymentMode(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePaymentMode(@PathVariable String id) {
         log.debug("REST request to delete PaymentMode : {}", id);
         paymentModeRepository.deleteById(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();

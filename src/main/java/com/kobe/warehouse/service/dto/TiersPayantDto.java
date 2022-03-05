@@ -6,33 +6,66 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class TiersPayantDto implements Serializable {
-    private  Long id;
-    private  String name;
-    private  String fullName;
-    private  Integer nbreBons;
-    private  Long montantMaxParFcture;
-    private  Integer nbreFacture;
-    private  String codeOrganisme;
-    private  String codeRegroupement;
-    private  Long consoMensuelle;
-    private  Boolean plafondAbsolu;
-    private  String adresse;
-    private  String telephone;
-    private  String telephoneFixe;
-    private  String email;
-    private  Boolean toBeExclude;
-    private  Long plafondConso;
-    private  Long plafondClient;
-    private  TiersPayantStatut statut;
-    private  TiersPayantCategorie categorie;
-    private  Long remiseForfaitaire;
-    private  Integer nbreBordereaux;
-    private  Instant created;
-    private  Instant updated;
+    private Long id;
+    private String name;
+    private String fullName;
+    private Integer nbreBons;
+    private Long montantMaxParFcture;
+    private Integer nbreFacture;
+    private String codeOrganisme;
+    private String codeRegroupement;
+    private Long consoMensuelle;
+    private Boolean plafondAbsolu;
+    private String adresse;
+    private String telephone;
+    private String telephoneFixe;
+    private String email;
+    private Boolean toBeExclude;
+    private Long plafondConso;
+    private Long plafondClient;
+    private TiersPayantStatut statut;
+    private TiersPayantCategorie categorie;
+    private Long remiseForfaitaire;
+    private Integer nbreBordereaux;
+    private Instant created;
+    private Instant updated;
     private GroupeTiersPayant groupeTiersPayant;
+    private String groupeTiersPayantName;
+    private Long groupeTiersPayantId;
+
+    public String getGroupeTiersPayantName() {
+        return groupeTiersPayantName;
+    }
+
+    public Long getGroupeTiersPayantId() {
+        return groupeTiersPayantId;
+    }
+
+    public TiersPayantDto setGroupeTiersPayantId(Long groupeTiersPayantId) {
+        this.groupeTiersPayantId = groupeTiersPayantId;
+        return this;
+    }
+
+    public TiersPayantDto setGroupeTiersPayantName(String groupeTiersPayantName) {
+        this.groupeTiersPayantName = groupeTiersPayantName;
+        return this;
+    }
+
+    private List<AssuredCustomerDTO> clients = new ArrayList<>();
+
+    public List<AssuredCustomerDTO> getClients() {
+        return clients;
+    }
+
+    public TiersPayantDto setClients(List<AssuredCustomerDTO> clients) {
+        this.clients = clients;
+        return this;
+    }
 
     public GroupeTiersPayant getGroupeTiersPayant() {
         return groupeTiersPayant;

@@ -478,18 +478,20 @@ export class ProduitComponent implements OnInit, OnDestroy {
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
     this.responseDialog = true;
-    setInterval(() => {
+    const interval = setInterval(() => {
       this.produitService.findImortation().subscribe(
         res => {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
               setTimeout(() => {}, 5000);
+              clearInterval(interval);
             }
           }
         },
         () => {
           setTimeout(() => {}, 5000);
+          clearInterval(interval);
         }
       );
     }, 10000);

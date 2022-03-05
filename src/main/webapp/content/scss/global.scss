@@ -440,3 +440,6 @@ padding-left:0.5rem;
   padding-right:0.5rem;
 }
 */
+:host ::ng-deep .p-message-close-icon {
+  color: #2c1e30;
+}

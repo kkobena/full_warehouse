@@ -100,4 +100,8 @@ public class GroupeTiersPayantService {
     public Optional<GroupeTiersPayant> getOne(Long id) {
         return this.groupeTiersPayantRepository.findById(id);
     }
+
+    public Optional<GroupeTiersPayant> getOneByName(String name) {
+        return this.groupeTiersPayantRepository.findOneByName(name);
+    }
 }

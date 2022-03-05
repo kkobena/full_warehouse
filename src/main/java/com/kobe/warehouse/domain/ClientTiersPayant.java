@@ -48,8 +48,29 @@ public class ClientTiersPayant implements Serializable {
     @NotNull
     @Column(name = "taux", nullable = false)
     private Integer taux;
-
+    @Column(name = "conso_mensuelle")
+    private Long consoMensuelle;
     private transient double tauxValue;
+    @Column(name = "plafond_absolu")
+    private Boolean plafondAbsolu = false;
+
+    public Boolean getPlafondAbsolu() {
+        return plafondAbsolu;
+    }
+
+    public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
+        this.plafondAbsolu = plafondAbsolu;
+        return this;
+    }
+
+    public Long getConsoMensuelle() {
+        return consoMensuelle;
+    }
+
+    public ClientTiersPayant setConsoMensuelle(Long consoMensuelle) {
+        this.consoMensuelle = consoMensuelle;
+        return this;
+    }
 
     public Long getId() {
         return id;

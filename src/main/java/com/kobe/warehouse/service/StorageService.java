@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
@@ -74,5 +75,13 @@ public class StorageService {
 
     public Magasin getConnectedUserMagasin() {
         return getUser().getMagasin();
+    }
+
+    public User getUserFormImport() {
+        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
+        return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).get());
+    }
+    public Magasin getImportationMagasin() {
+        return getUserFormImport().getMagasin();
     }
 }

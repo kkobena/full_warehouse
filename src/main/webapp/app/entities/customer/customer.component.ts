@@ -59,7 +59,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
-
     this.customerService
       .query({
         page: pageToLoad - 1,

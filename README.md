@@ -237,3 +237,163 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [definitelytyped]: https://definitelytyped.org/
 
 https://github.com/ng-select/ng-select
+
+## requete pour le fichier csv d'importation de la table tiers-payant de prestige 2
+
+SELECT p.str_FULLNAME,p.str_NAME,p.str_TELEPHONE,p.str_MOBILE,p.str_ADRESSE,
+p.str_REGISTRE_COMMERCE,p.int_NBRE_EXEMPLAIRE_BORD,p.b_IsAbsolute,
+p.dbl_PLAFOND_CREDIT,p.b_CANBEUSE,p.int_MONTANTFAC,p.dbl_REMISE_FORFETAIRE,r.str_CODE_RISQUE,t.str_CODE_TYPE_TIERS_PAYANT
+FROM t_tiers_payant p , t_risque r,t_type_tiers_payant t WHERE p.lg_RISQUE_ID=r.lg_RISQUE_ID
+AND t.lg_TYPE_TIERS_PAYANT_ID=p.lg_TYPE_TIERS_PAYANT_ID
+
+# @Transactional(timeout=3600)
+
+#Coût moyen achat
+Average Cost = Total Cost of Goods(Achats) ÷ Total Quantity of Goods
+Available for Sale Available for Sale
+
+Current Ratio = Current Assets(Actifs) ÷ Current Liabilities(Passifs)
+#Taux de rotation des stock
+Inventory Turnover Ratio = Cost of Goods Sold ÷ Average Inventory(moyen stock pour une période donnée
+
+# inventory balance (solde de stock calculé à la fin du ternier jour iuvrable du mois)
+
+#Cost of goods sold (Coût des marchandises vendues)
+Beginning inventory(date fin dernier invententaire) + Purchases during the period - Ending inventory = Cost of goods sold
+
+#Inventory Turnover (Rotation des stocks)
+Annual cost of goods sold(montant des vente annuelle) ÷ Inventory(valorisation en vente du stock actuel) = Inventory turnover
+
+#exemple de calcul Inventory Turnover
+$8,150,000 Cost of Goods Sold
+--------------------------------------------   =   5 Turns Per Year===>> 365/5 (nbre stock en main journalier)
+$1,630,000 Inventory
+
+#Average inventory calculation
+(Beginning inventory + Ending inventory) / 2
+#exemple
+
+#January ending inventory $185,000
+#February ending inventory	$213,000
+#March ending inventory $142,000
+#Total	$540,000
+#Average inventory = Total / 3 \$180,000
+
+#Days of Inventory
+365 ÷ (Annualized cost of goods sold ÷ Inventory)
+
+365 ÷ ($1,000,000 ÷ $200,000) = 73 Days of inventory
+
+#stock replenishment (réapprovisionnement de stock)
+#ROP(reorder point) FORMULE
+(Usage x Lead Time) + Safety Stock = ROP
+
+usage=consommation
+
+Lead time =delais de livraison
+
+Safety stock =stock de secutité
+
+#Lead time
+
+1 week = 0.25 = 25%
+
+4 weeks = 1.00 = 100%
+
+2 weeks = 0.50 = 50%
+
+5 weeks = 1.25 = 125%
+
+3 weeks = 0.75 = 75%
+
+6 weeks = 1.50 = 150%
+
+#Example 1:
+Assume:
+
+• Usage rate of 1,200 items per month
+
+• Lead time of 3 weeks
+
+Step-by-Step Calculation:
+
+• Calculate weekly usage. Assume a 4-week month. 1,200
+
+items ÷ 4 weeks = 300 items per week ➜ therefore Bin 1
+or working stock should contain at least 300 items
+
+• Calculate working reserve: Given 3 weeks of lead time,
+working reserve should be 1,200 items x 0.75 = 900 items
+
+• Calculate safety stock, use 50 percent of working reserve
+as a guideline (900 items x 50% = 450 items)
+
+• Calculate ROP: (1,200 items x 0.75) + 450 items = ROP
+1,350 items
+
+#Example 2:
+Assume:
+
+• Usage rate of 1,200 items per month
+
+• Lead time of 1 week
+
+Step-by-Step Calculation:
+
+• Calculate weekly usage. Assume a 4-week month. 1,200
+items ÷ 4 weeks = 300 items per week ➜ therefore Bin 1
+
+or working stock should contain at least 300 items
+• Calculate working reserve: Given 1 week of lead time,
+working reserve should be 1,200 items x 0.25 = 300 items
+
+• Calculate safety stock, use 50 percent of working reserve
+as a guideline (300 items x 50% = 150 items)
+
+• Calculate ROP: (1,200 items x 0.25) + 150 items = ROP
+450 items
+
+#Economic Order Quantity (EOQ) Formula
+
+# REQUETE POUR EXPORTER LES FOURNISSEURS EN CSV
+
+SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code, f.libelle AS groupeFournisseur_libelle,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile, g.str_TELEPHONE AS phone ,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
+
+#REQUETE FAMILLE PRODUIT
+SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile, g.str_TELEPHONE AS phone
+,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur, f.libelle AS groupeFournisseur_libelle
+FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
+
+#GAMME DE PRODUITS
+
+select g.libelle AS libelle from gamme_produit g;
+
+#LABORATOIRE PRODUITS
+
+select l.libelle AS libelle from laboratoire l;
+
+# REQUETE POUR EXPORTER LES RAYONS EN CSV
+
+SELECT r.str_LIBELLEE AS libelle,r.str_CODE AS code, r.bool_ACCOUNT AS exclude FROM t_zone_geographique r
+WHERE r.str_STATUT='enable' AND r.str_LIBELLEE <> 'Default';
+
+#REQUETE POUR EXPORTER LES GROUPE DE TIERSPAYANTS
+
+SELECT g.str_LIBELLE as name,g.str_ADRESSE as adresse,g.str_TELEPHONE as telephone FROM t_groupe_tierspayant g;
+
+const interval = setInterval(() => {
+this.entityService.findImortation().subscribe(
+res => {
+if (res.body) {
+this.responsedto = res.body;
+this.jsonFileUploadProgress = Math.round(this.responsedto.size!\*100/this.responsedto.totalSize!);
+if (this.responsedto.completed) {
+this.jsonFileUploadStatutProgress = this.jsonFileUploadStatutCompleted;
+this.loadPage();
+clearInterval(interval);
+}
+}
+},
+() => clearInterval(interval)
+);
+}, 100);

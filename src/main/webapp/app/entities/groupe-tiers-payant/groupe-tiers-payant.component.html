@@ -50,7 +50,7 @@
     <div class="alert alert-warning mt-2" id="no-result" *ngIf="entites?.length === 0">
         <span>Aucune donnée trouvée</span>
     </div>
-    <p-table *ngIf="entites && entites.length > 0" styleClass="mt-2" [value]="entites">
+    <p-table *ngIf="entites && entites.length > 0" styleClass="mt-2" [value]="entites" [paginator]="true" [rows]="10">
         <ng-template pTemplate="header">
             <tr>
                 <th scope="col"><span>Libellé</span></th>

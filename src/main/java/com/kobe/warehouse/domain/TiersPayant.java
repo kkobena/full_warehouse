@@ -28,8 +28,6 @@ public class TiersPayant implements Serializable {
     private Integer nbreBons;
     @Column(name = "montant_max_sur_fact")
     private Long montantMaxParFcture;
-    @Column(name = "nbre_facture")
-    private Integer nbreFacture;
     @Column(name = "code_organisme", length = 100)
     private String codeOrganisme;
     @Column(name = "code_regroupement", length = 100)
@@ -37,7 +35,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "conso_mensuelle")
     private Long consoMensuelle;
     @Column(name = "plafond_absolu")
-    private Boolean plafondAbsolu = true;
+    private Boolean plafondAbsolu = false;
     @Column(name = "adresse", length = 200)
     private String adresse;
     @Column(name = "telephone", length = 15)
@@ -50,8 +48,6 @@ public class TiersPayant implements Serializable {
     private Boolean toBeExclude = Boolean.FALSE;
     @Column(name = "plafond_conso")
     private Long plafondConso;
-    @Column(name = "plafond_client")
-    private Long plafondClient;
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
@@ -68,9 +64,20 @@ public class TiersPayant implements Serializable {
     private GroupeTiersPayant groupeTiersPayant;
     @Column(name = "created", nullable = false)
     private Instant created;
-
     @Column(name = "updated", nullable = false)
     private Instant updated = Instant.now();
+    @NotNull
+    @ManyToOne(optional = false)
+    private User updatedBy;
+
+    public User getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public TiersPayant setUpdatedBy(User updatedBy) {
+        this.updatedBy = updatedBy;
+        return this;
+    }
 
     public Instant getCreated() {
         return created;
@@ -135,14 +142,7 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Integer getNbreFacture() {
-        return nbreFacture;
-    }
 
-    public TiersPayant setNbreFacture(Integer nbreFacture) {
-        this.nbreFacture = nbreFacture;
-        return this;
-    }
 
     public String getCodeOrganisme() {
         return codeOrganisme;
@@ -234,14 +234,7 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Long getPlafondClient() {
-        return plafondClient;
-    }
 
-    public TiersPayant setPlafondClient(Long plafondClient) {
-        this.plafondClient = plafondClient;
-        return this;
-    }
 
     public TiersPayantStatut getStatut() {
         return statut;

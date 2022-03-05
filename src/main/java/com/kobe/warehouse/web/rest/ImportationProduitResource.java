@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.service.ImportationProduitService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -21,16 +22,16 @@ import java.util.Optional;
 @RequestMapping("/api/importation")
 public class ImportationProduitResource {
     private final ImportationProduitService importationProduitService;
-    private final UserService userService;
+    private final StorageService storageService;
 
-    public ImportationProduitResource(ImportationProduitService importationProduitService,UserService userService) {
+    public ImportationProduitResource(ImportationProduitService importationProduitService, StorageService storageService) {
         this.importationProduitService = importationProduitService;
-        this.userService=userService;
+        this.storageService = storageService;
     }
 
     @PostMapping("importjson")
     public ResponseEntity<Void> uploadFile(@RequestPart("importjson") MultipartFile file) throws URISyntaxException, IOException {
-        User user=userService.getUser();
+        User user=storageService.getUserFormImport();
         importationProduitService.updateStocFromJSON(file.getInputStream(),user);
         return ResponseEntity.ok().build();
     }

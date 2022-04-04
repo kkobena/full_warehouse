@@ -1,10 +1,12 @@
 package com.kobe.warehouse.service.dto;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.AssuredCustomer;
@@ -16,6 +18,7 @@ import com.kobe.warehouse.domain.UninsuredCustomer;
 @JsonSubTypes({@JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
     @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD")
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomerDTO {
     private Long id;
     private String firstName;
@@ -28,6 +31,25 @@ public class CustomerDTO {
     private List<SaleDTO> sales = new ArrayList<>();
     private Set<Payment> payments = new HashSet<>();
     private String code;
+    private Instant updatedAt, createdAt;
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public CustomerDTO setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public CustomerDTO setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 
     public String getCategorie() {
         return categorie;
@@ -123,9 +145,10 @@ public class CustomerDTO {
         this.id = customer.getId();
         this.fullName = customer.getFirstName() + " " + customer.getLastName();
         this.code = customer.getCode();
+        this.updatedAt = customer.getUpdatedAt();
+        this.createdAt = customer.getCreatedAt();
         if (customer instanceof AssuredCustomer) {
             this.categorie = "ASSURE";
-
 
         } else if (customer instanceof UninsuredCustomer) {
             this.categorie = "STANDARD";

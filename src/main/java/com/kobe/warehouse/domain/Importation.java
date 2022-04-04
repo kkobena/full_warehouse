@@ -2,13 +2,24 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
+import com.kobe.warehouse.service.dto.GenericDTO;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
+@TypeDef(
+    name = "json", typeClass = JsonStringType.class
+)
 @Table(name = "importation",
     indexes = {
         @Index(columnList = "importation_status", name = "importation_status_index"),
@@ -42,7 +53,18 @@ public class Importation implements Serializable {
     private Instant created=Instant.now();
     @Column(name = "updated_at")
     private Instant updated;
+    @Type(type = "json")
+    @Column(columnDefinition = "json", name = "ligne_en_erreur")
+    private Set<Object> ligneEnErreur=new HashSet<>();
 
+    public Set<Object> getLigneEnErreur() {
+        return ligneEnErreur;
+    }
+
+    public Importation setLigneEnErreur(Set<Object> ligneEnErreur) {
+        this.ligneEnErreur = ligneEnErreur;
+        return this;
+    }
 
     public Long getId() {
         return id;

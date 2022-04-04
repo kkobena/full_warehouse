@@ -1,3 +1,6 @@
+<ngx-spinner name="salespinner" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"
+             [fullScreen]="false">
+</ngx-spinner>
 <p-dialog (onHide)="onHideClientErrorDialog($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
           [(visible)]="displayErrorModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
           [resizable]="false">
@@ -42,7 +45,8 @@
     <div class="card">
         <div class="card-header sale-card-header">TYPE VENTE</div>
         <div class="card-body sale-card">
-            <p-selectButton [options]="naturesVentes" [(ngModel)]="naturesVente"
+            <p-selectButton [options]="naturesVentes" [(ngModel)]="naturesVente" optionDisabled="disabled"
+                            (onChange)="onNatureVenteChange($event)"
                             optionLabel="name"></p-selectButton>
         </div>
     </div>
@@ -69,9 +73,9 @@
     <div class="card bg-light">
 
         <div class="card-body sale-card">
-            <p-button icon="pi pi-search" styleClass="p-button-info" label="VENTE EN ATTENTE"></p-button>
+            <p-button icon="pi pi-search" styleClass="p-button-info p-button-sm" label="VENTE EN ATTENTE"></p-button>
 
-            <p-button icon="pi pi-arrow-left" styleClass="p-button-danger" label="RETOUR"
+            <p-button icon="pi pi-arrow-left" styleClass="p-button-danger p-button-sm" label="RETOUR"
                       (click)="previousState()"></p-button>
 
         </div>
@@ -79,68 +83,174 @@
 </div>
 
 <div class="card-group mt-1" *ngIf="showClientSearch()">
-    <div class="card " style="max-width:20rem;">
+    <div class="card " style="max-width:15rem;">
         <div class="card-header sale-card-header">
             RECHERCHE CLIENT
             <span class="float-right">
 
-                 <button pButton pRipple icon="pi pi-plus" pTooltip="Ajouter nouveau client"
-                         class="p-button-rounded p-button-primary" (click)="addUninsuredCustomer()"></button>
+                 <button pButton pRipple icon="pi pi-user" pTooltip="Ajouter nouveau client"
+                         class="p-button-rounded p-button-primary p-button-sm" (click)="addNewCustomer()"></button>
                     </span>
         </div>
-        <div class="card-body sale-card">
+        <div class="card-body sale-card alert-secondary">
         <span class="p-input-icon-left sale-p-input-icon-left">
     <i class="pi pi-search"></i>
     <input type="text" pInputText #clientSearchBox [(ngModel)]="clientSearchValue"
            placeholder="Taper pour rechercher un client" class="sale-p-inputtext"
-           (keydown.enter)="loadUninsuredCustomers()">
+           (keydown.enter)="loadsCustomer()">
 </span>
         </div>
     </div>
-    <div class="card">
+    <div class="card" style="max-width:35rem;"
+         *ngIf="customerSelected && naturesVente?.code!=='COMPTANT';else uninsuredCustomer">
         <div class="card-header sale-card-header">
             {{clientBoxHeader}}
-            <span class="float-right">
-                        <button pButton pRipple icon="pi pi-pencil"
-                                pTooltip="Modifier"
-                                class="p-button-rounded p-button-success p-button-sm" *ngIf="customerSelected" (click)="editUninsuredCustomer()"></button>
+
+            <span class="float-right" *ngIf="customerSelected">
+                <button pButton pRipple type="button" icon="pi pi-user" label="EDITER LE CLIENT"
+                        class="p-button-danger p-button-sm"
+                        (click)="editCustomer()"></button>
+                <button pButton pRipple type="button" icon="pi pi-users" label="AJOUTER UN AYANT DROIT"
+                        class=" p-button-secondary p-button-sm"></button>
+
                     </span>
         </div>
         <div class="card-body sale-card">
-            <span class="col-sm-6 h6">{{customerSelected?.fullName}}</span>
-            <span class="col-sm-6 h6"
-                  *ngIf="customerSelected && customerSelected.num;else uninsuredCustomer">{{customerSelected?.num}}</span>
-            <ng-template #uninsuredCustomer>
-                <span class="col-sm-6 h6">{{customerSelected?.phone}}</span>
-            </ng-template>
-        </div>
+            <div class="row">
+                <div class="col-12 row">
+                    <div class="col-lg-7 row">
+                        <div class="col-3"><label
+                            style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
 
-    </div>
-    <div class="card" *ngIf="showAyantDroitCard">
-        <div class="card-header sale-card-header">
-            AYANT DROIT <span class="float-right">
+                        <div class="col-9">
+                            <span style="font-weight: 800;">{{customerSelected?.fullName}}</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 row" style="padding: 0;">
+                        <div class="col-6"><label
+                            style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+
+                        <div class="col-6" style="padding: 0;">
+                            <span style="font-weight: 800;">{{customerSelected?.num}}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12" *ngIf="showAyantDroit()">
+                    <p-divider align="center">
+                        <b>AJOUTER AYANT DROIT SI DIFFERENT DE L'ASSURE<span class="float-right ml-2">
+
                         <button pButton pRipple icon="pi pi-pencil"
                                 pTooltip="Modifier"
                                 class="p-button-rounded p-button-success p-button-sm"></button>
-                    </span>
-        </div>
-        <div class="card-body sale-card">
-            <span class="col-sm-6 h6">KOBENA YEDONSEIH ELIORA</span>
-            <span class="col-sm-6 h6">MATRICULE/SS: ************</span>
-        </div>
-    </div>
-    <div class="card" *ngIf="showTiersPayantCard">
-        <div class="card-header sale-card-header">
-            TIERS-PAYANT <span class="float-right">
-                        <button pButton pRipple icon="pi pi-plus"
-                                pTooltip="Ajouter"
-                                class="p-button-rounded p-button-primary p-button-sm"></button>
-                    </span>
-        </div>
-        <div class="card-body sale-card">
+                    </span></b>
+                    </p-divider>
+                    <div class="col-12 row">
+                        <div class="col-lg-7 row">
+                            <div class="col-3"><label
+                                style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
+
+                            <div class="col-9">
+                                <span style="font-weight: 800;">{{ayantDroit?.fullName}}</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 row" style="padding: 0;">
+                            <div class="col-6"><label
+                                style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+
+                            <div class="col-6" style="padding: 0;">
+                                <span style="font-weight: 800;">{{ayantDroit?.num}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
 
         </div>
+
     </div>
+    <ng-template #uninsuredCustomer>
+        <div class="card" *ngIf="customerSelected && naturesVente?.code==='COMPTANT'">
+            <div class="card-header sale-card-header">
+                {{clientBoxHeader}}
+                <span class="float-right" *ngIf="customerSelected">
+                <button pButton pRipple type="button" icon="pi pi-user" label="EDITER LE CLIENT"
+                        class="p-button-danger p-button-sm"
+                        (click)="editCustomer()"></button>
+                <button pButton pRipple type="button" icon="pi pi-users" label="AJOUTER UN AYANT DROIT"
+                        class=" p-button-secondary p-button-sm"></button>
+
+                    </span>
+            </div>
+            <div class="card-body sale-card">
+                <div class="row">
+                    <div class="col-12  row">
+                        <div class="col-7 row">
+                            <label class="col-sm-5">Nom/Prénom(s):</label>
+                            <div class="col-sm-6">
+                                <span>{{customerSelected?.fullName}}</span>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <label class="col-sm-5 col-form-label ">Téléphone:</label>
+                            <div class="col-sm-6">
+                                <span class="badge badge-primary mt-2 ">{{customerSelected?.phone}}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </ng-template>
+    <div class="card" *ngIf="showTiersPayant()">
+        <div class="card-header sale-card-header">
+            TIERS-PAYANT <span class="float-right">
+
+             <button pButton pRipple type="button" icon="pi pi-plus" label="AJOUTER UN TIERS-PAYANT"
+                     class=" p-button-secondary p-button-sm" *ngIf="showOrHideTiersPayantBtn"></button>
+                    </span>
+        </div>
+        <div class="card-body sale-card tiersPayant" #tierspayntDiv>
+            <div *ngFor="let tiersPayant of getTiersPayants(); let i = index" class="row sale-tiers-payant-control ">
+                <div class="col-12 form-inline">
+                    <div class="col-5 form-group row">
+                        <div class="col-2" style="padding-left: 10px;">
+                            <label>TP<span
+                                style="color: red;">{{tiersPayant.priorite}}</span>:</label>
+                        </div>
+                        <div class="col-10"><span>{{tiersPayant.tiersPayantFullName}}</span></div>
+
+                    </div>
+
+                    <div class="col-4 form-group">
+                        <div class="p-inputgroup">
+                            <span class="p-inputgroup-addon">N°Bon</span>
+                            <input pInputText [(ngModel)]="tiersPayant.numBon"
+                                   pKeyFilter="alphanum" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <label>Taux :<span
+                            style="color: red;" class="ml-1">{{tiersPayant.taux}}</span></label>
+                    </div>
+                    <div class="col-1">
+                        <button pButton type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-danger p-button mt-2"
+                                (click)="removeTiersPayantFromIndex(i)"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <div class="row mt-1 bg-light">
@@ -220,7 +330,7 @@
 
                 <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
-    <input type="text" pInputText  placeholder="TAPEZ POUR FILTRER"
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER"
            (input)="produitTable.filterGlobal($event.target.value, 'contains')">
 </span>
 

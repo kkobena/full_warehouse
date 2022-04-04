@@ -19,7 +19,29 @@ public class ClientTiersPayantDTO {
     private Instant updated;
     private PrioriteTiersPayant priorite;
     private TiersPayantStatut statut;
+    private int  categorie;
     private Integer taux;
+    private Boolean plafondAbsolu;
+    private TiersPayantDto tiersPayant;
+    public TiersPayantDto getTiersPayant() {
+        return tiersPayant;
+    }
+
+    public int getCategorie() {
+        return categorie;
+    }
+
+    public ClientTiersPayantDTO setCategorie(int categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+
+    public ClientTiersPayantDTO setTiersPayant(TiersPayantDto tiersPayant) {
+        this.tiersPayant = tiersPayant;
+        return this;
+    }
+
+
 
     public Long getId() {
         return id;
@@ -132,6 +154,15 @@ public class ClientTiersPayantDTO {
         return this;
     }
 
+    public Boolean getPlafondAbsolu() {
+        return plafondAbsolu;
+    }
+
+    public ClientTiersPayantDTO setPlafondAbsolu(Boolean plafondAbsolu) {
+        this.plafondAbsolu = plafondAbsolu;
+        return this;
+    }
+
     public ClientTiersPayantDTO(ClientTiersPayant c) {
         this.id = c.getId();
         TiersPayant tiersPayant = c.getTiersPayant();
@@ -143,7 +174,11 @@ public class ClientTiersPayantDTO {
         this.created = c.getCreated();
         this.updated = c.getUpdated();
         this.priorite = c.getPriorite();
+        this.categorie=c.getPriorite().getValue();
         this.statut = c.getStatut();
         this.taux = c.getTaux();
+        this.plafondAbsolu = c.getPlafondAbsolu();
+        this.tiersPayantId = tiersPayant.getId();
+        this.tiersPayant = new TiersPayantDto().setName(tiersPayant.getName()).setId(tiersPayant.getId()).setFullName(tiersPayant.getFullName());
     }
 }

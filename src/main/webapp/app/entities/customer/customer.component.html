@@ -1,3 +1,18 @@
+<p-dialog header="Importer un fichier json" [(visible)]="jsonDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer"
+                      cancelLabel="Annuler"
+                      accept=".json" [customUpload]="true" (uploadHandler)="onUploadJson($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+    </p-footer>
+</p-dialog>
+
+
 <p-confirmDialog [style]="{width: '40vw'}" #deleteCustomer key="deleteCustomer" [baseZIndex]="10000">
     <p-footer>
         <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
@@ -20,10 +35,17 @@
     </h4>
     <p-toolbar>
         <div class="p-toolbar-group-left">
-            <p-dropdown [options]="type" [(ngModel)]="typeSelected" [filter]="false"
+            <p-dropdown [options]="types" [(ngModel)]="typeSelected" [filter]="false"
                         (onChange)="onTypeChange()" placeholder="Filtrer par type"
+                        styleClass="dropdown-width mr-1">
+            </p-dropdown>
+            <p-divider layout="vertical"></p-divider>
+            <p-dropdown [options]="statuts" [(ngModel)]="statutSelected" [filter]="false" optionValue="value"
+                        optionLabel="label"
+                        (onChange)="onTypeChange()"
                         styleClass="dropdown-width">
             </p-dropdown>
+
             <p-divider layout="vertical"></p-divider>
             <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
@@ -41,7 +63,7 @@
         ></p-splitButton>
         <p-button icon="pi pi-user-plus"
                   styleClass="p-button-raised   p-button-danger "
-                  label="Nouveau client assuré"
+                  label="Nouveau client assuré" (click)="addAssureCustomer()"
         >
         </p-button>
                   <p-button icon="pi pi-user-plus"
@@ -55,6 +77,10 @@
     <div class="alert alert-warning mt-2" *ngIf="customers?.length === 0">
         <span>Aucune donnée trouvée</span>
     </div>
+    <ngx-spinner name="importation" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"
+                 [fullScreen]="false">
+    </ngx-spinner>
+
     <p-table *ngIf="customers && customers.length > 0" [value]="customers" dataKey="id"
              styleClass="p-datatable-gridlines mt-2"
              dataKey="id" [paginator]="true"
@@ -103,11 +129,22 @@
 
                         <button *ngIf="customer.categorie==='ASSURE'" type="button"
                                 class="btn btn-primary btn-sm" data-placement="left"
-                                pTooltip="Editer">
+                                pTooltip="Editer" (click)="editAssureCustomer(customer)">
                             <fa-icon icon="pencil-alt"></fa-icon>
 
                         </button>
-                        <button *ngIf="customer.categorie==='STANDARD'" type="button" (click)="addUninsuredCustomer()"
+                        <button *ngIf="customer.categorie==='ASSURE'" type="button"
+                                class="btn btn-success btn-sm" data-placement="left"
+                                pTooltip="Ajouter un ayant droit" (click)="addAyantDroit(customer)">
+                            <fa-icon icon="users"></fa-icon>
+                        </button>
+                        <!--   <button *ngIf="customer.categorie==='ASSURE'" type="button"
+                                   class="btn btn-secondary btn-sm" data-placement="left"
+                                   pTooltip="Gerer les complémentaires" (click)="editAssureCustomer(customer)">
+                               <fa-icon icon="hospital-user"></fa-icon>
+                           </button>-->
+                        <button *ngIf="customer.categorie==='STANDARD'" type="button"
+                                (click)="editUninsuredCustomer(customer)"
                                 class="btn btn-primary btn-sm" pTooltip="Editer" data-placement="left"
                         >
                             <fa-icon icon="pencil-alt"></fa-icon>
@@ -128,7 +165,171 @@
         </ng-template>
         <ng-template pTemplate="rowexpansion" let-customer>
             <tr>
+                <td colspan="8">
+                    <div class="row" *ngIf="customer.type==='ASSURE';else standard">
 
+                        <div class="card col-md-5 mr-2">
+                            <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
+                            <div class="card-body">
+                                <table class="invoice-table table table-striped">
+                                    <tbody>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Date de naissance
+                                        </td>
+                                        <td class="secondColumn">{{customer?.datNaiss |date:'dd/MM/yyyy' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Date de création
+                                        </td>
+                                        <td class="secondColumn">{{customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Dernière modification
+                                        </td>
+                                        <td class="secondColumn">{{customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Sexe
+                                        </td>
+                                        <td class="secondColumn">{{customer?.sexe }}
+                                        </td>
+
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row col-md-7">
+                            <div class="card col-12 mb-2" *ngIf="customer?.ayantDroits.length>0">
+                                <div class="card-header bg-primary text-white">AYANTS DROITS</div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:40%;">Nom et prenom(s)</th>
+                                            <th style="width: 20%;">N° Sécu</th>
+                                            <th style="width:17%;">Date de naissance</th>
+                                            <th style="width:8%;">Sexe</th>
+                                            <th style="width:15%; text-align:right;">
+                                                <button pTooltip="Ajouter un ayant droit"
+                                                        pButton icon="pi pi-plus"
+                                                        class="p-button-rounded p-button-primary" (click)="addAyantDroit(customer)"></button>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr *ngFor="let ayantDroit of customer?.ayantDroits; let i = index">
+                                            <td>{{ayantDroit?.fullName}}</td>
+                                            <td>{{ayantDroit?.numAyantDroit}}</td>
+                                            <td>{{ayantDroit?.datNaiss |date:'dd/MM/yyyy'}}</td>
+                                            <td>{{ayantDroit?.sexe}}</td>
+                                            <td class="text-right">
+                                                <div class="btn-group">
+                                                    <button pButton pRipple icon="pi pi-pencil"
+                                                            pTooltip="Editer"
+                                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1" (click)="editAyantDroit(customer,ayantDroit)" ></button>
+                                                    <button pButton pRipple icon="pi pi-trash"
+                                                            pTooltip="Supprimer"
+                                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 " (click)="confirmRemoveAyantDroit(ayantDroit)"></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card col-12">
+                                <div class="card-header bg-primary text-white">TIERS-PAYANTS</div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:29%;">Tiers-payant</th>
+                                            <th style="width: 12%;">N° Sécu</th>
+                                            <th style="width:10%;">Catégorie</th>
+                                            <th style="width:15%;">Plafond encours</th>
+                                            <th style="width:15%;">Plafond vente</th>
+<!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                                            <th style="width:10%; text-align:right;" *ngIf="displayTiersPayantAction">
+                                                <button pTooltip="Ajouter un tiers-payant"
+                                                        pButton icon="pi pi-plus"
+                                                        class="p-button-rounded p-button-primary"></button>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr *ngFor="let tierspayant of customer?.tiersPayants; let i = index">
+                                            <td>{{tierspayant?.tiersPayantFullName}}</td>
+                                            <td>{{tierspayant?.num}}</td>
+                                            <td>{{tierspayant?.priorite}}</td>
+                                            <td>{{tierspayant?.plafondConso |number}}</td>
+                                            <td>{{tierspayant?.plafondJournalier |number}}</td>
+<!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
+                                            <td class="text-right" *ngIf="displayTiersPayantAction">
+                                                <div class="btn-group">
+                                                    <button pButton pRipple icon="pi pi-pencil"
+                                                            pTooltip="Editer les infos du tierspayant"
+                                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"></button>
+                                                    <button pButton pRipple icon="pi pi-trash"
+                                                            pTooltip="Supprimer"
+                                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <ng-template #standard>
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
+                            <div class="card-body">
+                                <table class="invoice-table table table-striped">
+                                    <tbody>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Date de naissance
+                                        </td>
+                                        <td class="secondColumn">{{customer?.datNaiss |date:'dd/MM/yyyy' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Date de création
+                                        </td>
+                                        <td class="secondColumn">{{customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td class="firstColumn">
+                                            Dernière modification
+                                        </td>
+                                        <td class="secondColumn">{{customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
+                                        </td>
+                                        <td class="firstColumn">
+                                            Sexe
+                                        </td>
+                                        <td class="secondColumn">{{customer?.sexe }}
+                                        </td>
+
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+                    </ng-template>
+                </td>
             </tr>
         </ng-template>
 

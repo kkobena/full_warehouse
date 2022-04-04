@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
 
 @Component({
-  selector: 'jhi-uninsured-customer-list',
-  templateUrl: './uninsured-customer-list.component.html',
+  selector: 'jhi-assured-customer-list',
+  templateUrl: './assured-customer-list.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
 })
-export class UninsuredCustomerListComponent implements OnInit {
+export class AssuredCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
 
@@ -33,7 +33,7 @@ export class UninsuredCustomerListComponent implements OnInit {
 
   loadCustomers(): void {
     this.customerService
-      .queryUninsuredCustomers({
+      .queryAssuredCustomer({
         search: this.searchString,
       })
       .subscribe(res => (this.customers = res.body!));

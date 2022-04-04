@@ -1,0 +1,203 @@
+<p-toast position="center"></p-toast>
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <div class="modal-body form-client">
+        <div class="form-group" [hidden]="true">
+            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label class="form-control-label"
+                       for="field_firstName">Nom </label> <span style="font-weight: 900;color: red;">*</span>
+                <input type="text" class="form-control" name="firstName" id="field_firstName"
+                       formControlName="firstName" autocomplete="off"/>
+                <div
+                    *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('firstName')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <label class="form-control-label"
+                       for="field_lastName">Prénom(s) <span style="font-weight: 900;color: red;">*</span>
+                </label>
+                <input type="text" pInputText class="form-control" name="lastName"
+                       id="field_lastName"
+                       formControlName="lastName" autocomplete="off"/>
+                <div
+                    *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('lastName')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label class="form-control-label"
+                       for="field_num">Numéro de sécurité <span style="font-weight: 900;color: red;">*</span>
+                </label>
+                <input type="text" pInputText class="form-control" name="num"
+                       id="field_num"
+                       formControlName="num" autocomplete="off"/>
+                <div
+                    *ngIf="editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('num')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label class="form-control-label"
+                       for="tiersPayantId">Taux<span style="font-weight: 900;color: red;">*</span></label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="taux" id="field_taux"
+                       formControlName="taux" autocomplete="off"/>
+                <div
+                    *ngIf="editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('taux')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label class="form-control-label"
+                       for="tiersPayantId">Tiers-payant<span
+                    style="font-weight: 900;color: red;">*</span></label>
+                <ng-select [items]="tiersPayants" styleClass="form-control" bindLabel="fullName" appendTo="body"
+                           name="tiersPayantId" id="tiersPayantId" formControlName="tiersPayantId"
+                           placeholder="Sélectionner un Tiers-payant"
+                           [(ngModel)]="selectedTiersPayant">
+                </ng-select>
+                <div
+                    *ngIf="editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)">
+                    <small class="form-text text-danger" *ngIf="editForm.get('tiersPayantId')?.errors?.required"
+                           jhiTranslate="entity.validation.required">
+                        This field is required.
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label class="form-control-label"
+                       for="field_phone">Téléphone</label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="phone"
+                       id="field_phone"
+                       formControlName="phone" autocomplete="off"/>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label class="form-control-label">Date de naissance</label>
+                <p-calendar inputId="datNaiss" formControlName="datNaiss"
+                            styleClass="form-control form-date-input"
+                            appendTo="body" [maxDate]="maxDate" [showButtonBar]="true" [selectOtherMonths]="true"></p-calendar>
+            </div>
+
+            <div class="form-group col-md-2">
+                <label class="form-control-label"
+                       for="plafondJournalier">Plafond de vente</label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="plafondJournalier"
+                       id="plafondJournalier"
+                       formControlName="plafondJournalier" autocomplete="off"/>
+            </div>
+
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label class="form-control-label"
+                       for="plafondConso">Plafond consommation</label>
+                <input type="text" pInputText pKeyFilter="int" class="form-control" name="plafondConso"
+                       id="plafondConso"
+                       formControlName="plafondConso" autocomplete="off"/>
+            </div>
+            <div class="form-group col-md-3">
+                <label class="form-control-label">Le plofond est-il absolu ?</label>
+<!--                <p-inputSwitch class="form-control" formControlName="plafondAbsolu"-->
+<!--                               ></p-inputSwitch>-->
+                <p-selectButton [options]="plafonds" formControlName="plafondAbsolu"  optionLabel="label" optionValue="value"></p-selectButton>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label class="form-control-label">E-mail</label>
+                <input type="email" pInputText class="form-control" name="email"
+                       id="email"
+                       formControlName="email" autocomplete="off"/>
+            </div>
+
+            <div class="form-group col-md-3">
+                <h5 class="form-control-label">Sexe</h5>
+                <p-radioButton name="sexe" formControlName="sexe" value="M" label="Masculin"
+                               labelStyleClass="mr-3"></p-radioButton>
+                <p-radioButton name="sexe" formControlName="sexe" value="F" label="Feminin"></p-radioButton>
+            </div>
+        </div>
+        <p-divider align="left">
+            <span class="p-tag">Complementaires</span>
+
+        </p-divider>
+        <div *ngIf="validSize" style="text-align: right;">
+            <button pButton type="button"
+                    icon="pi pi-plus" class="p-button-rounded p-button-success p-button-sm"
+                    (click)="addTiersPayant()"></button>
+        </div>
+        <div formArrayName="tiersPayants" *ngFor="let tiersPayant of editFormGroups.controls; let i = index">
+            <ng-container [formGroupName]="i">
+                <input type="hidden" class="form-control" formControlName="id"/>
+                <div class="form-row" style="border-bottom: 1px solid #ddd;">
+                    <div class="form-group col-md-4">
+                        <label class="form-control-label">Tiers-payant<span
+                            style="font-weight: 900;color: red;">*</span></label>
+                        <p-autoComplete formControlName="tiersPayantId" [forceSelection]="true" name="tiersPayantId"
+                                        [suggestions]="tiersPayants"
+                                        (completeMethod)="searchTiersPayant($event)" field="fullName"
+                                        (onSelect)="onSelectTiersPayant($event)" [minLength]="minLength"
+                                        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"
+                                         placeholder="Taper pour rechercher"  appendTo="body">
+                        </p-autoComplete>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="form-control-label">Numéro de sécurité <span style="font-weight: 900;color: red;">*</span>
+                        </label>
+                        <input type="text" pInputText class="form-control" name="num"
+                               formControlName="num" autocomplete="off"/>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="form-control-label">Taux <span style="font-weight: 900;color: red;">*</span>
+                        </label>
+                        <input type="text" pInputText pKeyFilter="int" class="form-control" name="taux"
+                               formControlName="taux" autocomplete="off"/>
+
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="form-control-label">Ordre <span style="font-weight: 900;color: red;">*</span>
+                        </label>
+                        <p-dropdown styleClass="form-control ngCombo" [options]="catgories" formControlName="priorite" optionValue="value" optionLabel="label"></p-dropdown>
+
+                    </div>
+                    <div class="form-group col-md-1 pt-4">
+                        <button (click)="removeTiersPayant(i)" pButton type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-danger"></button>
+                    </div>
+
+                </div>
+            </ng-container>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
+                class="btn btn-primary">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
+        </button>
+    </div>
+</form>

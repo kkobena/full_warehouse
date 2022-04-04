@@ -321,6 +321,7 @@ body .ui-dropdown {
   .st-editTable {
     height: 440px;
   }
+
   /*  .sale-toolbar .toobar-input-search {
     width: 180px;
   }
@@ -428,6 +429,7 @@ input[type='number'] {
   margin: 0 0.4rem;
   padding: 1rem 0;
 }
+
 /*
 .sale .p-button .p-button-icon-left {
   margin-right:2px;
@@ -442,4 +444,37 @@ padding-left:0.5rem;
 */
 :host ::ng-deep .p-message-close-icon {
   color: #2c1e30;
+}
+
+.form-date-input {
+  padding: 0;
+}
+
+.form-client .p-divider.p-divider-horizontal {
+  margin: 0;
+}
+
+.sale-tiers-payant-control label {
+  margin-bottom: 0;
+  line-height: 1px;
+  font-weight: 700;
+}
+
+.sale-card .form-group {
+  /* margin-bottom: 0;*/
+}
+
+.tiersPayant div {
+  padding-right: 2px;
+  /*padding-left: 4px;*/
+}
+.tiersPayant input {
+  width: 150px !important;
+}
+.tiersPayant .p-inputgroup-addon {
+  width: 55px !important;
+  min-width: 55px !important;
+}
+body {
+  line-height: 1 !important;
 }

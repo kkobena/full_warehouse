@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ActivatedRoute } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 import { ICustomer } from 'app/shared/model/customer.model';
@@ -10,7 +10,6 @@ import { CustomerService } from 'app/entities/customer/customer.service';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ProduitService } from '../produit/produit.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { PackDialogueComponent } from './pack-dialogue.component';
 import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
 import { SalesLineService } from '../sales-line/sales-line.service';
 import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
@@ -23,7 +22,7 @@ import { IPaymentMode, PaymentMode } from '../../shared/model/payment-mode.model
 import { IPayment, Payment } from '../../shared/model/payment.model';
 import { UserService } from '../../core/user/user.service';
 import { AccountService } from '../../core/auth/account.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, PrimeNGConfig } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { DeconditionService } from '../decondition/decondition.service';
@@ -32,6 +31,11 @@ import { IResponseDto } from '../../shared/util/response-dto';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { UninsuredCustomerFormComponent } from '../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsured-customer-list.component';
+import { FormAssuredCustomerComponent } from '../customer/form-assured-customer/form-assured-customer.component';
+import { TranslateService } from '@ngx-translate/core';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
+import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -51,7 +55,6 @@ export class SalesUpdateComponent implements OnInit {
   isSaving = false;
   isPresale = false;
   showTiersPayantCard = false;
-  showAyantDroitCard = false;
   showClientSearchCard = false;
   displayErrorModal = false;
   displayErrorEntryAmountModal = false;
@@ -81,6 +84,7 @@ export class SalesUpdateComponent implements OnInit {
   searchValue?: string;
   imagesPath!: string;
   customerSelected: ICustomer | null = null;
+  ayantDroit: ICustomer | null = null;
   selectedRowIndex?: number;
   produitsSelected?: IProduit[] = [];
   remiseProduits: IRemiseProduit[] = [];
@@ -99,7 +103,7 @@ export class SalesUpdateComponent implements OnInit {
   @ViewChild('forcerStockBtn', { static: false })
   forcerStockBtn?: ElementRef;
   clientSearchValue?: string | null = null;
-  clientBoxHeader = 'INFORMATION DU CLIENT';
+  clientBoxHeader = 'INFO CLIENT';
   stockSeverity = 'success';
   produitClass = 'col-6 row';
   rayonClass = 'col-2';
@@ -152,8 +156,13 @@ export class SalesUpdateComponent implements OnInit {
   clientSearchModalBtn?: ElementRef;
   @ViewChild('errorEntryAmountBtn', { static: false })
   errorEntryAmountBtn?: ElementRef;
+  @ViewChild('tierspayntDiv', { static: false })
+  tierspayntDiv?: ElementRef;
   ref!: DynamicDialogRef;
-
+  primngtranslate: Subscription;
+  tiersPayants: IClientTiersPayant[] = [];
+  showOrHideTiersPayantBtn = false;
+  tiersPayantsOriginal = 0;
   constructor(
     protected salesService: SalesService,
     protected customerService: CustomerService,
@@ -167,12 +176,19 @@ export class SalesUpdateComponent implements OnInit {
     protected errorService: ErrorService,
     protected configurationService: ConfigurationService,
     protected decondtionService: DeconditionService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    public translate: TranslateService,
+    public primeNGConfig: PrimeNGConfig,
+    private spinner: NgxSpinnerService
   ) {
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
     this.selectedRowIndex = 0;
     this.searchValue = '';
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
   }
 
   ngOnInit(): void {
@@ -207,10 +223,13 @@ export class SalesUpdateComponent implements OnInit {
     this.modeReglementSelected = ['CASH'];
     this.modeReglementEmitter.next('CASH');
     this.naturesVentes = [
-      { code: 'COMPTANT', name: 'COMPTANT' } /* , {code: 'ASSURANCE', name: 'ASSURANCE'}, {
-      code: 'CARNET',
-      name: 'CARNET'
-    }*/,
+      { code: 'COMPTANT', name: 'COMPTANT', disabled: false },
+      { code: 'ASSURANCE', name: 'ASSURANCE', disabled: false },
+      {
+        code: 'CARNET',
+        name: 'CARNET',
+        disabled: false,
+      },
     ];
 
     this.typePrescriptions = [
@@ -221,7 +240,7 @@ export class SalesUpdateComponent implements OnInit {
       },
       { code: 'DEPOT', name: 'DEPÔT' },
     ];
-    this.naturesVente = { code: 'COMPTANT', name: 'COMPTANT' };
+    this.naturesVente = { code: 'COMPTANT', name: 'COMPTANT', disabled: false };
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
@@ -251,9 +270,24 @@ export class SalesUpdateComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(params => {
       if (params.has('isPresale')) {
         this.isPresale = params.get('isPresale') === 'true';
-        console.error(this.isPresale);
       }
     });
+  }
+
+  getTiersPayants(): IClientTiersPayant[] {
+    this.tiersPayantsOriginal = this.customerSelected?.tiersPayants?.length!;
+    this.tiersPayants = this.customerSelected?.tiersPayants!;
+    return this.tiersPayants;
+  }
+
+  removeTiersPayant(tiersPayant: IClientTiersPayant): void {
+    const newTiersp = this.tiersPayants.filter(e => e.id !== tiersPayant.id);
+    this.tiersPayants = newTiersp;
+  }
+
+  removeTiersPayantFromIndex(index: number): void {
+    this.tiersPayants.splice(index, 1);
+    this.showTiersPayantBtn();
   }
 
   loadAllUsers(): void {
@@ -358,7 +392,6 @@ export class SalesUpdateComponent implements OnInit {
   save(): void {
     if (this.sale) {
       this.isSaving = true;
-      console.error(this.isPresale);
       if (this.isPresale === false) {
         this.sale.differe = this.isDiffere;
         this.sale.payments = this.buildPayment();
@@ -736,12 +769,38 @@ export class SalesUpdateComponent implements OnInit {
     this.manageAmontDiv(modeRegle);
   }
 
-  showClientSearch(): boolean {
-    if (this.isDiffere && this.sale) {
+  showAyantDroit(): boolean {
+    if (this.naturesVente?.code === 'ASSURANCE' && this.ayantDroit) {
       return true;
     }
-
     return false;
+  }
+
+  showTiersPayant(): boolean {
+    if ((this.naturesVente?.code === 'ASSURANCE' || this.naturesVente?.code === 'CARNET') && this.customerSelected) {
+      return true;
+    }
+    return false;
+  }
+
+  showTiersPayantBtn(): void {
+    this.showOrHideTiersPayantBtn = this.tiersPayants.length !== this.tiersPayantsOriginal;
+  }
+
+  showClientSearch(): boolean {
+    if ((this.isDiffere && this.sale) || this.naturesVente?.code !== 'COMPTANT') {
+      return true;
+    }
+    return false;
+  }
+
+  firstRefBonFocus(): void {
+    this.tierspayntDiv?.nativeElement.querySelector('input#tierspayant_0')?.focus();
+  }
+
+  lastRefBonFocus(): void {
+    const refBonInputs = this.tierspayntDiv?.nativeElement.querySelector('input#ref-bon');
+    refBonInputs?.slice(-1)?.focus();
   }
 
   onDiffereChange(): void {
@@ -876,26 +935,6 @@ export class SalesUpdateComponent implements OnInit {
     this.computeMonnaie();
   }
 
-  onAddPack(item: IProduit): void {
-    if (this.customerSelected === null || this.customerSelected === undefined) {
-      const message = ' Veuillez choisir le client';
-      this.openInfoDialog(message, 'alert alert-info');
-    } else {
-      const modalRef = this.modalService.open(PackDialogueComponent, {
-        backdrop: 'static',
-        centered: true,
-        size: '50%',
-      });
-      modalRef.componentInstance.produit = item;
-      modalRef.componentInstance.sale = this.sale;
-      modalRef.componentInstance.customer = this.customerSelected;
-      modalRef.result.then(res => {
-        this.sale = res;
-        this.subscribeToSaveResponse(this.salesService.find(res.id));
-      });
-    }
-  }
-
   openUninsuredCustomerListTable(customers: ICustomer[] | []): void {
     this.ref = this.dialogService.open(UninsuredCustomerListComponent, {
       data: { customers },
@@ -910,10 +949,59 @@ export class SalesUpdateComponent implements OnInit {
     });
   }
 
+  openAssuredCustomerListTable(customers: ICustomer[] | []): void {
+    this.ref = this.dialogService.open(AssuredCustomerListComponent, {
+      data: { customers },
+      header: 'CLIENTS  ASSURES',
+      width: '95%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.customerSelected = resp;
+        setTimeout(() => {
+          this.firstRefBonFocus();
+        }, 100);
+      }
+    });
+  }
+
+  addNewCustomer(): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.addUninsuredCustomer();
+    } else {
+      this.addAssuredCustomer();
+    }
+  }
+
+  editCustomer(): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.editUninsuredCustomer();
+    } else {
+      this.editAssuredCustomer();
+    }
+  }
+
+  loadsCustomer(): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.loadUninsuredCustomers();
+    } else {
+      this.loadAssuredCustomers();
+    }
+  }
+
+  openCustomerListTable(customers: ICustomer[] | []): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.openUninsuredCustomerListTable(customers);
+    } else {
+      this.openAssuredCustomerListTable(customers);
+    }
+  }
+
   addUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
       data: { entity: null },
-      header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ",
       width: '50%',
     });
     this.ref.onClose.subscribe((resp: ICustomer) => {
@@ -923,10 +1011,39 @@ export class SalesUpdateComponent implements OnInit {
     });
   }
 
+  addAssuredCustomer(): void {
+    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
+      data: { entity: null },
+      header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
+      width: '80%',
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.customerSelected = resp;
+      }
+    });
+  }
+
+  editAssuredCustomer(): void {
+    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
+      data: { entity: this.customerSelected },
+      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
+      width: '80%',
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.customerSelected = resp;
+        if (this.ayantDroit && this.ayantDroit.id === this.customerSelected.id) {
+          this.ayantDroit = this.customerSelected;
+        }
+      }
+    });
+  }
+
   editUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
       data: { entity: this.customerSelected },
-      header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '50%',
     });
     this.ref.onClose.subscribe((resp: ICustomer) => {
@@ -1232,21 +1349,72 @@ export class SalesUpdateComponent implements OnInit {
 
   loadUninsuredCustomers(): void {
     if (this.clientSearchValue) {
-      this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe(res => {
-        const uninsuredCustomers = res.body;
-        if (uninsuredCustomers && uninsuredCustomers.length > 0) {
-          if (uninsuredCustomers.length === 1) {
-            this.customerSelected = uninsuredCustomers[0];
-          } else {
-            this.openUninsuredCustomerListTable(uninsuredCustomers);
-          }
+      this.spinner.show('salespinner');
+      this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe(
+        res => {
+          this.spinner.hide('salespinner');
+          const uninsuredCustomers = res.body;
+          if (uninsuredCustomers && uninsuredCustomers.length > 0) {
+            if (uninsuredCustomers.length === 1) {
+              this.customerSelected = uninsuredCustomers[0];
+            } else {
+              this.openUninsuredCustomerListTable(uninsuredCustomers);
+            }
 
-          this.clientSearchValue = null;
-        } else {
-          this.addUninsuredCustomer();
-          this.clientSearchValue = null;
+            this.clientSearchValue = null;
+          } else {
+            this.addUninsuredCustomer();
+            this.clientSearchValue = null;
+          }
+        },
+        () => {
+          this.spinner.hide('salespinner');
         }
-      });
+      );
+    }
+  }
+
+  loadAssuredCustomers(): void {
+    if (this.clientSearchValue) {
+      this.spinner.show('salespinner');
+      this.customerService.queryAssuredCustomer({ search: this.clientSearchValue }).subscribe(
+        res => {
+          this.spinner.hide('salespinner');
+          const assuredCustomers = res.body;
+          if (assuredCustomers && assuredCustomers.length > 0) {
+            if (assuredCustomers.length === 1) {
+              this.customerSelected = assuredCustomers[0];
+              setTimeout(() => {
+                this.firstRefBonFocus();
+              }, 100);
+            } else {
+              this.openAssuredCustomerListTable(assuredCustomers);
+            }
+
+            this.clientSearchValue = null;
+          } else {
+            this.addAssuredCustomer();
+            this.clientSearchValue = null;
+          }
+        },
+        () => {
+          this.spinner.hide('salespinner');
+        }
+      );
+    }
+  }
+
+  onNatureVenteChange(event: any): void {
+    const selectNature = event.value;
+
+    if (selectNature.code !== 'COMPTANT' && this.sale && this.customerSelected) {
+      const nature = (element: INatureVente) => {
+        if (element.code === 'COMPTANT') return true;
+        return false;
+      };
+      this.naturesVentes.find(nature)!.disabled = true;
+
+      //TODO si vente en cours et vente est de type VO, alors message si la nvelle est COMPTANT, ON ne peut transformer une VO en VNO
     }
   }
 

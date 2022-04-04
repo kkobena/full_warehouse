@@ -81,7 +81,6 @@ export class ProduitComponent implements OnInit, OnDestroy {
   faFileUpload = faFileUpload;
   faImage = faImage;
   faCut = faCut;
-
   faPlusCircle = faPlusCircle;
   produits!: IProduit[];
   selectedCriteria = 0;

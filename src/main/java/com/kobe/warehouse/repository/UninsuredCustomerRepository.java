@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.UninsuredCustomer_;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.Status;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,8 +21,8 @@ public interface UninsuredCustomerRepository extends JpaRepository<UninsuredCust
         );
     }
 
-    default Specification<UninsuredCustomer> specialisation() {
-        return (root, query, cb) -> cb.equal(root.get(UninsuredCustomer_.status), SalesStatut.ACTIVE);
+    default Specification<UninsuredCustomer> specialisation(Status status) {
+        return (root, query, cb) -> cb.equal(root.get(UninsuredCustomer_.status), status);
     }
 
     default Specification<UninsuredCustomer> specialisationCheckExist(String firstName, String lastName, String phone) {

@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { CustomerService } from '../../customer/customer.service';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ICustomer } from 'app/shared/model/customer.model';
+import { CustomerService } from 'app/entities/customer/customer.service';
 
 @Component({
-  selector: 'jhi-uninsured-customer-list',
-  templateUrl: './uninsured-customer-list.component.html',
+  selector: 'jhi-ayant-droit-customer-list',
+  templateUrl: './ayant-droit-customer-list.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
 })
-export class UninsuredCustomerListComponent implements OnInit {
+export class AyantDroitCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
+  assureId?: number | null;
 
   constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig, protected customerService: CustomerService) {}
 
   ngOnInit(): void {
     this.customers = this.config.data.customers;
+    this.assureId = this.config.data.assureId;
   }
 
   onDbleClick(customer: ICustomer): void {
@@ -32,10 +34,6 @@ export class UninsuredCustomerListComponent implements OnInit {
   }
 
   loadCustomers(): void {
-    this.customerService
-      .queryUninsuredCustomers({
-        search: this.searchString,
-      })
-      .subscribe(res => (this.customers = res.body!));
+    this.customerService.queryAyantDroits(this.assureId!).subscribe(res => (this.customers = res.body!));
   }
 }

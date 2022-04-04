@@ -1,12 +1,13 @@
 package com.kobe.warehouse.domain;
 
 
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeAssure;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -31,7 +32,6 @@ public class Customer implements Serializable {
     @NotEmpty
     @Column(name = "last_name", nullable = false)
     private String lastName;
-    @NotEmpty
     @Column(name = "phone")
     private String phone;
     @Email
@@ -39,7 +39,6 @@ public class Customer implements Serializable {
     private String email;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
     @NotNull
@@ -51,6 +50,19 @@ public class Customer implements Serializable {
     @NotNull
     @Column(name = "code", nullable = false, unique = true)
     private String code;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_assure", nullable = false,length = 15)
+    private TypeAssure typeAssure ;
+
+    public TypeAssure getTypeAssure() {
+        return typeAssure;
+    }
+
+    public Customer setTypeAssure(TypeAssure typeAssure) {
+        this.typeAssure = typeAssure;
+        return this;
+    }
 
     public Long getId() {
         return id;

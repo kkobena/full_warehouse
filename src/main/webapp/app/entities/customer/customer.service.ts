@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { ICustomer } from 'app/shared/model/customer.model';
+import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 
 type EntityResponseType = HttpResponse<ICustomer>;
 type EntityArrayResponseType = HttpResponse<ICustomer[]>;
@@ -20,14 +21,14 @@ export class CustomerService {
   create(customer: ICustomer): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(customer);
     return this.http
-      .post<ICustomer>(this.resourceUrl, copy, { observe: 'response' })
+      .post<ICustomer>(this.resourceUrl + '/assured', copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   update(customer: ICustomer): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(customer);
     return this.http
-      .put<ICustomer>(this.resourceUrl, copy, { observe: 'response' })
+      .put<ICustomer>(this.resourceUrl + '/assured', copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
@@ -47,6 +48,11 @@ export class CustomerService {
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+
+  deleteAssuredCustomer(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/assured/${id}`, { observe: 'response' });
+  }
+
   lock(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/lock/${id}`, { observe: 'response' });
   }
@@ -64,10 +70,63 @@ export class CustomerService {
       .put<ICustomer>(`${this.resourceUrl}/uninsured`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
+
   queryUninsuredCustomers(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
       .get<ICustomer[]>(`${this.resourceUrl}/uninsured`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+
+  createAyantDroit(customer: ICustomer): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(customer);
+    return this.http
+      .post<ICustomer>(this.resourceUrl + '/ayant-droit', copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  updateAyantDroit(customer: ICustomer): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(customer);
+    return this.http
+      .put<ICustomer>(this.resourceUrl + '/ayant-droit', copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  uploadJsonData(file: any): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/importjson`, file, {
+      observe: 'response',
+      headers: new HttpHeaders({ timeout: `${7600000}` }),
+    });
+  }
+
+  purchases(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<ICustomer[]>(`${this.resourceUrl}/purchases`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+
+  queryAssuredCustomer(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<ICustomer[]>(`${this.resourceUrl}/assured`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+
+  queryVente(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http
+      .get<ICustomer[]>(`${this.resourceUrl}/ventes`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+
+  fetchCustomersTiersPayant(id: number): Observable<HttpResponse<IClientTiersPayant[]>> {
+    return this.http.get<IClientTiersPayant[]>(`${this.resourceUrl}/tiers-payant/${id}`, { observe: 'response' });
+  }
+
+  queryAyantDroits(id: number): Observable<EntityArrayResponseType> {
+    return this.http
+      .get<ICustomer[]>(`${this.resourceUrl}/ayant-droit/${id}`, { observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
@@ -95,19 +154,5 @@ export class CustomerService {
       });
     }
     return res;
-  }
-
-  purchases(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http
-      .get<ICustomer[]>(`${this.resourceUrl}/purchases`, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-  }
-
-  queryVente(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http
-      .get<ICustomer[]>(`${this.resourceUrl}/ventes`, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 }

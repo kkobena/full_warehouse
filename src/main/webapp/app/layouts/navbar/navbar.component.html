@@ -43,7 +43,7 @@
                     <li>
                         <a class="dropdown-item" routerLink="sales/ventes-en-cours" routerLinkActive="active"
                            [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
-                            <fa-icon [icon]="faShoppingBasket" [fixedWidth]="true"></fa-icon>
+                            <fa-icon [icon]="faShippingFast" [fixedWidth]="true"></fa-icon>
                             <span>Ventes en cours</span>
                         </a>
                     </li>
@@ -52,7 +52,8 @@
                     <li>
                         <a class="dropdown-item" routerLink="sales" routerLinkActive="active"
                             [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
-                            <fa-icon [icon]="faShoppingBasket" [fixedWidth]="true"></fa-icon>
+                            <fa-icon [icon]="faShoppingBag" [fixedWidth]="true"></fa-icon>
+
                             <span jhiTranslate="global.menu.entities.sales">Sales</span>
                         </a>
                     </li>

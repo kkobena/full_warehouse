@@ -40,6 +40,7 @@ export class NavbarComponent implements OnInit {
   faThList = faThList;
   faShippingFast = faShippingFast;
   faShoppingBasket = faShoppingBasket;
+
   constructor(
     private loginService: LoginService,
     private languageService: JhiLanguageService,

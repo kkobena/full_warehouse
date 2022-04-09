@@ -1,29 +1,37 @@
 <div class="modal-body">
-    <p-table  [value]="customers" dataKey="id" [paginator]="true" [rows]="10"
+    <p-toolbar styleClass="mb-1">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="addAyantDroit()"></button>
+
+        </ng-template>
+
+    </p-toolbar>
+    <p-table  [value]="customers" dataKey="id" #ayantDroitTable
              [showCurrentPageReport]="true"
              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-             [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
-             [globalFilterFields]="['firstName','lastName','fullName','phone','code']">
+             selectionMode="single"
+             [globalFilterFields]="['firstName','lastName','fullName','numAyantDroit','code','num']">
         <ng-template pTemplate="caption">
-            <span class="mr-lg-5">LA LISTE DES CLIENTS</span>
+            <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
 
             <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
-    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER" [(ngModel)]="searchString"
-           (input)="loadCustomers()">
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER"
+           (input)="ayantDroitTable.filterGlobal($event.target.value, 'contains')">
 </span>
 
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th style="width:5%">
+                <th style="width:3%">
                     #
                 </th>
-                <th style="width:100px">CODE</th>
+                <th style="width:7%">CODE</th>
                 <th>NOM</th>
                 <th>PRENOM(S)</th>
-                <th>TELEPHONE</th>
-                <th style="width:100px"></th>
+                <th>Numéro de securité</th>
+                <th style="width:7%"></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
@@ -32,12 +40,13 @@
                 <td>{{customer.code}}</td>
                 <td>{{customer.firstName}}</td>
                 <td>{{customer.lastName}}</td>
-                <td>{{customer.phone}}</td>
+                <td>{{customer.numAyantDroit}}</td>
 
                 <td style="text-align: right;">
                     <button pButton pRipple icon="pi pi-check"
                             pTooltip="Séléctionner"
-                            class="p-button-rounded p-button-info p-button-sm  p-mb-3" (click)="onSelect(customer)"></button>
+                            class="p-button-rounded p-button-info p-button-sm  p-mb-3"
+                            (click)="onSelect(customer)"></button>
                 </td>
             </tr>
 
@@ -54,3 +63,4 @@
 
 
 </div>
+

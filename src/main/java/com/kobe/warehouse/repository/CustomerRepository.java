@@ -3,6 +3,8 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -24,8 +26,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
             );
     }
 
-    default Specification<Customer> specialisation() {
-        return (root, query, cb) -> cb.equal(root.get(Customer_.status), SalesStatut.ACTIVE);
+    default Specification<Customer> specialisation(Status status) {
+        return (root, query, cb) ->cb.and(cb.equal(root.get(Customer_.status), status),cb.equal(root.get(Customer_.typeAssure), TypeAssure.PRINCIPAL)) ;
     }
 
     default Specification<Customer> specialisationCheckExist(String firstName, String lastName, String phone) {
@@ -33,6 +35,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     }
 
     default Specification<Customer> specialisationDesabled() {
-        return (root, query, cb) -> cb.equal(root.get(Customer_.status), SalesStatut.DESABLED);
+        return (root, query, cb) -> cb.equal(root.get(Customer_.status), Status.DISABLE);
     }
 }

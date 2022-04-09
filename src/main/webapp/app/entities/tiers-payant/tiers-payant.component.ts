@@ -16,7 +16,7 @@ import { ErrorService } from '../../shared/error.service';
 @Component({
   selector: 'jhi-tiers-payant',
   templateUrl: './tiers-payant.component.html',
-  styleUrls: ['./tiers-payant.component.scss'],
+
   providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
 })
 export class TiersPayantComponent implements OnInit {

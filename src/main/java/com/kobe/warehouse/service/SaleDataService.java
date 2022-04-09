@@ -79,7 +79,7 @@ public class SaleDataService {
         if (fromDate != null) {
             predicates.add(cb.between(cb.function("DATE", Date.class, root.get("updatedAt")), Date.valueOf(fromDate), Date.valueOf(toDate)));
         }
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(e -> new SaleDTO(e)).collect(Collectors.toList());
     }
@@ -94,7 +94,7 @@ public class SaleDataService {
         cq.select(root).distinct(true).orderBy(cb.desc(root.get("updatedAt")));
         List<Predicate> predicates = new ArrayList<>();
         predicates(query, fromDate, toDate, predicates, cb, root);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(e -> new SaleDTO(e)).collect(Collectors.toList());
     }
@@ -108,8 +108,6 @@ public class SaleDataService {
         root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
         root.fetch(Sales_.TICKETS, JoinType.LEFT);
         cq.select(root).distinct(true);
-        List<Predicate> predicates = new ArrayList<>();
-
         cq.where(cb.equal(root.get(Sales_.id),id));
         TypedQuery<Sales> q = em.createQuery(cq);
         Sales sales=q.getSingleResult();
@@ -119,7 +117,7 @@ public class SaleDataService {
 
     private void predicates(String query, LocalDate fromDate, LocalDate toDate, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root) {
         if (!StringUtils.isEmpty(query)) {
-            query = "%" + query.toUpperCase() + "%";
+            query =  query.toUpperCase() + "%";
             predicates.add(cb.or(cb.like(cb.upper(root.get("customer").get("firstName")), query), cb.like(cb.upper(root.get("customer").get("lastName")), query)));
         }
 

@@ -22,7 +22,7 @@ public class AssuredCustomer extends Customer implements Serializable {
     private String numAyantDroit;
     @OneToMany(mappedBy = "assurePrincipal", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<AssuredCustomer> ayantDroits = new HashSet<>();
-    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST,CascadeType.MERGE})
     private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
     public AssuredCustomer getAssurePrincipal() {

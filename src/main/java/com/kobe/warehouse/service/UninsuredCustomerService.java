@@ -1,10 +1,12 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.UninsuredCustomer;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.CustomerAlreadyExistException;
+import com.kobe.warehouse.web.rest.errors.GenericError;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
@@ -37,6 +39,7 @@ public class UninsuredCustomerService {
         uninsuredCustomer.setLastName(dto.getLastName());
         uninsuredCustomer.setPhone(dto.getPhone());
         uninsuredCustomer.setEmail(dto.getEmail());
+        uninsuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
         uninsuredCustomer.setCode(RandomStringUtils.randomNumeric(6));
         var cust = this.uninsuredCustomerRepository.save(uninsuredCustomer);
         return uninsuredCustomerFromEntity(cust);
@@ -45,7 +48,8 @@ public class UninsuredCustomerService {
 
     public UninsuredCustomerDTO update(UninsuredCustomerDTO dto) throws CustomerAlreadyExistException {
         Optional<UninsuredCustomer> uninsuredCustomerOptional = findOne(dto);
-        if(uninsuredCustomerOptional.isPresent() && uninsuredCustomerOptional.get().getId()!= dto.getId()) throw new CustomerAlreadyExistException();
+        if (uninsuredCustomerOptional.isPresent() && uninsuredCustomerOptional.get().getId() != dto.getId())
+            throw new CustomerAlreadyExistException();
         var uninsuredCustomer = this.uninsuredCustomerRepository.getOne(dto.getId());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
         uninsuredCustomer.setFirstName(dto.getFirstName());
@@ -70,7 +74,7 @@ public class UninsuredCustomerService {
     }
 
     public List<UninsuredCustomerDTO> fetch(String query) {
-        Specification<UninsuredCustomer> specification = Specification.where(this.uninsuredCustomerRepository.specialisation());
+        Specification<UninsuredCustomer> specification = Specification.where(this.uninsuredCustomerRepository.specialisation(Status.ENABLE));
         if (StringUtils.isNotEmpty(query)) {
             query = query.toUpperCase() + "%";
             specification = specification.and(this.uninsuredCustomerRepository.specialisationQueryString(query));
@@ -84,5 +88,14 @@ public class UninsuredCustomerService {
         return this.uninsuredCustomerRepository.findOne(specification);
     }
 
+    public void deleteCustomerById(Long id) throws GenericError {
+        try {
+            this.uninsuredCustomerRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new GenericError("deleteCustomer", "Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
+        }
+
+
+    }
 
 }

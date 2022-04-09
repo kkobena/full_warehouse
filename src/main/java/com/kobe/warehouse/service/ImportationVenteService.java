@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Scope("singleton")
+
 public class ImportationVenteService {
     private final Logger log = LoggerFactory.getLogger(ImportationVenteService.class);
     private final TransactionTemplate transactionTemplate;
@@ -101,7 +103,7 @@ public class ImportationVenteService {
     public void init() {
         try {
             updateVNOFromLegacy();
-        } catch (IOException e) {
+        } catch (Throwable e) {
             log.debug(" {}", e);
         }
 

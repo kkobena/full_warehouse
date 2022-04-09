@@ -15,6 +15,8 @@ import { BtnRemoveComponent } from './btn-remove/btn-remove.component';
 import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsured-customer-list.component';
 import { PresaleComponent } from './presale/presale.component';
 import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
+import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
+
 @NgModule({
   imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([BtnRemoveComponent]), RouterModule.forChild(salesRoute)],
   declarations: [
@@ -28,6 +30,7 @@ import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component
     UninsuredCustomerListComponent,
     PresaleComponent,
     VenteEnCoursComponent,
+    AssuredCustomerListComponent,
   ],
   entryComponents: [SalesDeleteDialogComponent, PackDialogueComponent, DetailDialogueComponent],
 })

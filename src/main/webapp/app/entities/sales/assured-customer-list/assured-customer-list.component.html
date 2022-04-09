@@ -1,9 +1,9 @@
 <div class="modal-body">
-    <p-table  [value]="customers" dataKey="id" [paginator]="true" [rows]="10"
+    <p-table [value]="customers" dataKey="id" [paginator]="true" [rows]="5"
              [showCurrentPageReport]="true"
              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-             [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
-             [globalFilterFields]="['firstName','lastName','fullName','phone','code']">
+             [rowsPerPageOptions]="[5,8,10]" selectionMode="single"
+             [globalFilterFields]="['firstName','lastName','fullName','numAyantDroit','code','num']">
         <ng-template pTemplate="caption">
             <span class="mr-lg-5">LA LISTE DES CLIENTS</span>
 
@@ -16,14 +16,15 @@
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th style="width:5%">
+                <th style="width:3%">
                     #
                 </th>
-                <th style="width:100px">CODE</th>
-                <th>NOM</th>
-                <th>PRENOM(S)</th>
-                <th>TELEPHONE</th>
-                <th style="width:100px"></th>
+                <th style="width:7%">CODE</th>
+                <th style="width:13%">NOM</th>
+                <th style="width:25%">PRENOM(S)</th>
+                <th style="width:13%">Numéro de securité</th>
+                <th style="width:34%">Tiers-payant</th>
+                <th style="width:5%"></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
@@ -32,12 +33,23 @@
                 <td>{{customer.code}}</td>
                 <td>{{customer.firstName}}</td>
                 <td>{{customer.lastName}}</td>
-                <td>{{customer.phone}}</td>
+                <td>{{customer.num}}</td>
+                <td>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            *ngFor="let tiersPayant of customer.tiersPayants; let i = index">
+                            {{tiersPayant.tiersPayantFullName}}
+                            <span class="badge badge-primary badge-pill"> {{tiersPayant.priorite}}</span>
+                        </li>
+                    </ul>
+
+                </td>
 
                 <td style="text-align: right;">
                     <button pButton pRipple icon="pi pi-check"
                             pTooltip="Séléctionner"
-                            class="p-button-rounded p-button-info p-button-sm  p-mb-3" (click)="onSelect(customer)"></button>
+                            class="p-button-rounded p-button-info p-button-sm  p-mb-3"
+                            (click)="onSelect(customer)"></button>
                 </td>
             </tr>
 

@@ -78,7 +78,7 @@ spring:
     create-schemas: false
     installed-by: root
 server:
-  port: 8080
+  port: 9080
   servlet:
     session:
       timeout: 1800s

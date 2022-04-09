@@ -176,6 +176,25 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ClientTiersPayant{");
+        sb.append("id=").append(id);
+        sb.append(", num='").append(num).append('\'');
+        sb.append(", plafondConso=").append(plafondConso);
+        sb.append(", plafondJournalier=").append(plafondJournalier);
+        sb.append(", created=").append(created);
+        sb.append(", updated=").append(updated);
+        sb.append(", priorite=").append(priorite);
+        sb.append(", statut=").append(statut);
+        sb.append(", taux=").append(taux);
+        sb.append(", consoMensuelle=").append(consoMensuelle);
+        sb.append(", tauxValue=").append(tauxValue);
+        sb.append(", plafondAbsolu=").append(plafondAbsolu);
+        sb.append('}');
+        return sb.toString();
+    }
+
     public ClientTiersPayant() {
     }
 }

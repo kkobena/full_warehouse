@@ -60,10 +60,10 @@ export class FormTiersPayantComponent implements OnInit {
   }
 
   populate(): void {
-    this.groupeTiersPayantService.query().subscribe((res: HttpResponse<ITiersPayant[]>) => {
+    this.groupeTiersPayantService.query().subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
       this.groupeTiersPayants = res.body || [];
       if (this.entity) {
-        this.selectedGroupe = this.groupeTiersPayants.find(e => e.id === this.entity?.groupeTiersPayantId) || null;
+        this.selectedGroupe = this.entity?.groupeTiersPayant || null;
       }
     });
   }
@@ -104,12 +104,13 @@ export class FormTiersPayantComponent implements OnInit {
       this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
     }
   }
+
   private updateForm(tiersPayant: ITiersPayant): void {
     this.editForm.patchValue({
       id: tiersPayant.id,
       name: tiersPayant.name,
       fullName: tiersPayant.fullName,
-      groupeTiersPayantId: tiersPayant.groupeTiersPayantId,
+      groupeTiersPayantId: tiersPayant.groupeTiersPayant,
       codeOrganisme: tiersPayant.codeOrganisme,
       codeRegroupement: tiersPayant.codeRegroupement,
       telephone: tiersPayant.telephone,
@@ -141,7 +142,7 @@ export class FormTiersPayantComponent implements OnInit {
       codeOrganisme: this.editForm.get(['codeOrganisme'])!.value,
       codeRegroupement: this.editForm.get(['codeRegroupement'])!.value,
       telephone: this.editForm.get(['telephone'])!.value,
-      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId'])!.value,
+      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId'])!.value.id,
     };
   }
 }

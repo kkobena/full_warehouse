@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { ICustomer } from 'app/shared/model/customer.model';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from 'app/entities/customer/customer.service';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ProduitService } from '../produit/produit.service';
@@ -36,6 +36,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
+import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { FormAyantDroitComponent } from '../customer/form-ayant-droit/form-ayant-droit.component';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -163,6 +165,7 @@ export class SalesUpdateComponent implements OnInit {
   tiersPayants: IClientTiersPayant[] = [];
   showOrHideTiersPayantBtn = false;
   tiersPayantsOriginal = 0;
+
   constructor(
     protected salesService: SalesService,
     protected customerService: CustomerService,
@@ -799,7 +802,7 @@ export class SalesUpdateComponent implements OnInit {
   }
 
   lastRefBonFocus(): void {
-    const refBonInputs = this.tierspayntDiv?.nativeElement.querySelector('input#ref-bon');
+    const refBonInputs = this.tierspayntDiv?.nativeElement.querySelector('input.ref-bon');
     refBonInputs?.slice(-1)?.focus();
   }
 
@@ -1079,22 +1082,6 @@ export class SalesUpdateComponent implements OnInit {
     } else {
       this.processQtyRequested(salesLine);
     }
-  }
-
-  protected processQtyRequested(salesLine: ISalesLine): void {
-    this.salesService.updateItemQtyRequested(salesLine).subscribe(
-      () => {
-        if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
-        }
-        this.check = true;
-      },
-      error => {
-        this.check = false;
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
-        this.onStockError(salesLine, error);
-      }
-    );
   }
 
   updateItemQtySold(salesLine: ISalesLine, event: any): void {
@@ -1416,6 +1403,68 @@ export class SalesUpdateComponent implements OnInit {
 
       //TODO si vente en cours et vente est de type VO, alors message si la nvelle est COMPTANT, ON ne peut transformer une VO en VNO
     }
+  }
+
+  loadAyantDoits(): void {
+    this.ref = this.dialogService.open(AyantDroitCustomerListComponent, {
+      data: { assure: this.customerSelected },
+      header: 'LISTE DES AYANT DROITS DU CLIENT',
+      width: '80%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        if (resp.id !== null && resp.id !== undefined) {
+          this.ayantDroit = resp;
+        } else {
+          this.addAyantDroit();
+        }
+      }
+    });
+  }
+
+  addAyantDroit(): void {
+    this.ref = this.dialogService.open(FormAyantDroitComponent, {
+      data: { entity: null, assure: this.customerSelected },
+      header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
+      width: '50%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.ayantDroit = resp;
+      }
+    });
+  }
+
+  onEditAyantDroit(): void {
+    this.ref = this.dialogService.open(FormAyantDroitComponent, {
+      data: { entity: this.ayantDroit, assure: this.customerSelected },
+      header: 'FORMULAIRE DE MODIFICATION ',
+      width: '50%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.ayantDroit = resp;
+      }
+    });
+  }
+
+  protected processQtyRequested(salesLine: ISalesLine): void {
+    this.salesService.updateItemQtyRequested(salesLine).subscribe(
+      () => {
+        if (this.sale) {
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        }
+        this.check = true;
+      },
+      error => {
+        this.check = false;
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
+        this.onStockError(salesLine, error);
+      }
+    );
   }
 
   private createPayment(montant: number, code: string): Payment {

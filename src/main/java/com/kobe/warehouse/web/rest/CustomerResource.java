@@ -146,7 +146,7 @@ public class CustomerResource {
         return ResponseEntity.ok().body(dtoList);
     }
 
-    @GetMapping("/customers/tiers-payant/{id}")
+    @GetMapping("/customers/tiers-payants/{id}")
     public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Long id) {
         List<ClientTiersPayantDTO> dtoList = this.customerDataService.fetchCustomersTiersPayant(id);
         return ResponseEntity.ok().body(dtoList);

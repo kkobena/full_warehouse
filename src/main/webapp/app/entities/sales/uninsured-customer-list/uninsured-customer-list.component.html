@@ -1,5 +1,5 @@
 <div class="modal-body">
-    <p-table #customerTable [value]="customers" dataKey="id" [paginator]="true" [rows]="10"
+    <p-table  [value]="customers" dataKey="id" [paginator]="true" [rows]="10"
              [showCurrentPageReport]="true"
              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
              [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
@@ -27,7 +27,7 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
-            <tr (dblclick)="onDbleClick(customer)">
+            <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer;">
                 <td style="text-align: left;">{{rowIndex + 1}}</td>
                 <td>{{customer.code}}</td>
                 <td>{{customer.firstName}}</td>

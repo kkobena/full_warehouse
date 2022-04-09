@@ -121,12 +121,12 @@ export class CustomerService {
   }
 
   fetchCustomersTiersPayant(id: number): Observable<HttpResponse<IClientTiersPayant[]>> {
-    return this.http.get<IClientTiersPayant[]>(`${this.resourceUrl}/tiers-payant/${id}`, { observe: 'response' });
+    return this.http.get<IClientTiersPayant[]>(`${this.resourceUrl}/tiers-payants/${id}`, { observe: 'response' });
   }
 
   queryAyantDroits(id: number): Observable<EntityArrayResponseType> {
     return this.http
-      .get<ICustomer[]>(`${this.resourceUrl}/ayant-droit/${id}`, { observe: 'response' })
+      .get<ICustomer[]>(`${this.resourceUrl}/ayant-droits/${id}`, { observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 

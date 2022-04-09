@@ -16,7 +16,6 @@ import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsu
 import { PresaleComponent } from './presale/presale.component';
 import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
 import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
-import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/ayant-droit-customer-list.component';
 
 @NgModule({
   imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([BtnRemoveComponent]), RouterModule.forChild(salesRoute)],

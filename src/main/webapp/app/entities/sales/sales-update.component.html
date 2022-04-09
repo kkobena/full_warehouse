@@ -41,7 +41,10 @@
     </p-footer>
 </p-confirmDialog>
 
+
 <div class="card-group">
+
+
     <div class="card">
         <div class="card-header sale-card-header">TYPE VENTE</div>
         <div class="card-body sale-card">
@@ -70,6 +73,7 @@
             </ng-select>
         </div>
     </div>
+
     <div class="card bg-light">
 
         <div class="card-body sale-card">
@@ -84,7 +88,7 @@
 
 <div class="card-group mt-1" *ngIf="showClientSearch()">
     <div class="card " style="max-width:15rem;">
-        <div class="card-header sale-card-header">
+        <div class="card-header sale-card-header" >
             RECHERCHE CLIENT
             <span class="float-right">
 
@@ -111,10 +115,14 @@
                         class="p-button-danger p-button-sm"
                         (click)="editCustomer()"></button>
                 <button pButton pRipple type="button" icon="pi pi-users" label="AJOUTER UN AYANT DROIT"
-                        class=" p-button-secondary p-button-sm"></button>
+                        class=" p-button-secondary p-button-sm"  (click)="loadAyantDoits()"></button>
 
                     </span>
+
+
         </div>
+
+
         <div class="card-body sale-card">
             <div class="row">
                 <div class="col-12 row">
@@ -130,23 +138,23 @@
                         <div class="col-6"><label
                             style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
 
-                        <div class="col-6" style="padding: 0;">
+                        <div class="col-6" style="padding: 0;" #btn>
                             <span style="font-weight: 800;">{{customerSelected?.num}}</span>
                         </div>
                     </div>
                 </div>
 
 
-                <div class="col-12" *ngIf="showAyantDroit()">
+                <div class="col-12 assure" *ngIf="showAyantDroit()" style="padding-right: 3px;">
                     <p-divider align="center">
-                        <b>AJOUTER AYANT DROIT SI DIFFERENT DE L'ASSURE<span class="float-right ml-2">
+                        <span class="ayan-droit">AJOUTER AYANT DROIT SI DIFFERENT DE L'ASSURE<span class="float-right ml-2">
 
                         <button pButton pRipple icon="pi pi-pencil"
-                                pTooltip="Modifier"
+                                pTooltip="Modifier" (click)="onEditAyantDroit()"
                                 class="p-button-rounded p-button-success p-button-sm"></button>
-                    </span></b>
+                    </span></span>
                     </p-divider>
-                    <div class="col-12 row">
+                    <div class="col-12 row" style="padding-right: 0px;padding-left: 2px;">
                         <div class="col-lg-7 row">
                             <div class="col-3"><label
                                 style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
@@ -156,11 +164,11 @@
                             </div>
                         </div>
                         <div class="col-lg-5 row" style="padding: 0;">
-                            <div class="col-6"><label
-                                style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+                            <div class="col-5" style="padding: 0;"><label
+                                style="padding-left:1px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
 
-                            <div class="col-6" style="padding: 0;">
-                                <span style="font-weight: 800;">{{ayantDroit?.num}}</span>
+                            <div class="col-7" style="padding: 0;">
+                                <span style="font-weight: 800;">{{ayantDroit?.numAyantDroit}}</span>
                             </div>
                         </div>
                     </div>
@@ -231,7 +239,7 @@
                     <div class="col-4 form-group">
                         <div class="p-inputgroup">
                             <span class="p-inputgroup-addon">N°Bon</span>
-                            <input pInputText [(ngModel)]="tiersPayant.numBon"
+                            <input id="{{'tierspayant_'+i}}" pInputText [(ngModel)]="tiersPayant.numBon" class=""
                                    pKeyFilter="alphanum" autocomplete="off"/>
                         </div>
                     </div>

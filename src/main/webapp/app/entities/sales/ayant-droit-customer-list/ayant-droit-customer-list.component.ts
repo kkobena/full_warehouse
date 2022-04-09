@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ICustomer } from 'app/shared/model/customer.model';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from 'app/entities/customer/customer.service';
 
 @Component({
@@ -12,13 +12,19 @@ import { CustomerService } from 'app/entities/customer/customer.service';
 export class AyantDroitCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
-  assureId?: number | null;
+  assure?: ICustomer | null;
 
-  constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig, protected customerService: CustomerService) {}
+  constructor(
+    public ref: DynamicDialogRef,
+    public ref2: DynamicDialogRef,
+    public config: DynamicDialogConfig,
+    private dialogService: DialogService,
+    protected customerService: CustomerService
+  ) {}
 
   ngOnInit(): void {
-    this.customers = this.config.data.customers;
-    this.assureId = this.config.data.assureId;
+    this.assure = this.config.data.assure;
+    this.loadCustomers();
   }
 
   onDbleClick(customer: ICustomer): void {
@@ -34,6 +40,10 @@ export class AyantDroitCustomerListComponent implements OnInit {
   }
 
   loadCustomers(): void {
-    this.customerService.queryAyantDroits(this.assureId!).subscribe(res => (this.customers = res.body!));
+    this.customerService.queryAyantDroits(this.assure?.id!).subscribe(res => (this.customers = res.body!));
+  }
+
+  addAyantDroit(): void {
+    this.ref.close(new Customer());
   }
 }

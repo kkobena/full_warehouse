@@ -1,0 +1,30 @@
+{
+  "warehouseApp": {
+    "inventoryTransaction": {
+      "home": {
+        "title": "Mouvement article",
+        "createLabel": "Créer un nouveau Inventory Transaction",
+        "createOrEditLabel": "Créer ou éditer un Inventory Transaction",
+        "notFound": "Aucun mouvement trouvé"
+      },
+      "created": "Un nouveau Inventory Transaction a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Inventory Transaction avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Inventory Transaction avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Inventory Transaction {{ id }} ?"
+      },
+      "detail": {
+        "title": "Mouvement article"
+      },
+      "transactionType": "Type de mouvement",
+      "amount": "Amount",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "quantity": "Quantity",
+      "quantityBefor": "Quantity Befor",
+      "quantityAfter": "Quantity After",
+      "produit": "Produit",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

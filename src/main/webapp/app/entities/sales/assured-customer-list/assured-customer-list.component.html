@@ -1,0 +1,68 @@
+<div class="modal-body">
+    <p-table [value]="customers" dataKey="id" [paginator]="true" [rows]="5"
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+             [rowsPerPageOptions]="[5,8,10]" selectionMode="single"
+             [globalFilterFields]="['firstName','lastName','fullName','numAyantDroit','code','num']">
+        <ng-template pTemplate="caption">
+            <span class="mr-lg-5">LA LISTE DES CLIENTS</span>
+
+            <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER" [(ngModel)]="searchString"
+           (input)="loadCustomers()">
+</span>
+
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:3%">
+                    #
+                </th>
+                <th style="width:7%">CODE</th>
+                <th style="width:13%">NOM</th>
+                <th style="width:25%">PRENOM(S)</th>
+                <th style="width:13%">Numéro de securité</th>
+                <th style="width:34%">Tiers-payant</th>
+                <th style="width:5%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
+            <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer;">
+                <td style="text-align: left;">{{rowIndex + 1}}</td>
+                <td>{{customer.code}}</td>
+                <td>{{customer.firstName}}</td>
+                <td>{{customer.lastName}}</td>
+                <td>{{customer.num}}</td>
+                <td>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            *ngFor="let tiersPayant of customer.tiersPayants; let i = index">
+                            {{tiersPayant.tiersPayantFullName}}
+                            <span class="badge badge-primary badge-pill"> {{tiersPayant.priorite}}</span>
+                        </li>
+                    </ul>
+
+                </td>
+
+                <td style="text-align: right;">
+                    <button pButton pRipple icon="pi pi-check"
+                            pTooltip="Séléctionner"
+                            class="p-button-rounded p-button-info p-button-sm  p-mb-3"
+                            (click)="onSelect(customer)"></button>
+                </td>
+            </tr>
+
+        </ng-template>
+
+    </p-table>
+
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="cancel()">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
+    </button>
+
+
+</div>

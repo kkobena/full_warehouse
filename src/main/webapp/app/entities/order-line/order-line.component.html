@@ -1,0 +1,105 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="warehouseApp.orderLine.home.title">Order Lines</span>
+
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-order-line" [routerLink]="['/order-line/new']">
+            <fa-icon icon="plus"></fa-icon>
+            <span  jhiTranslate="warehouseApp.orderLine.home.createLabel">
+            Create a new Order Line
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="orderLines?.length === 0">
+        <span jhiTranslate="warehouseApp.orderLine.home.notFound">No orderLines found</span>
+    </div>
+
+    <div class="table-responsive" id="entities" *ngIf="orderLines && orderLines.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="receiptDate"><span jhiTranslate="warehouseApp.orderLine.receiptDate">Receipt Date</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="quantityReceived"><span jhiTranslate="warehouseApp.orderLine.quantityReceived">Quantity Received</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="quantityRequested"><span jhiTranslate="warehouseApp.orderLine.quantityRequested">Quantity Requested</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="quantityReturned"><span jhiTranslate="warehouseApp.orderLine.quantityReturned">Quantity Returned</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="discountAmount"><span jhiTranslate="warehouseApp.orderLine.discountAmount">Discount Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="orderAmount"><span jhiTranslate="warehouseApp.orderLine.orderAmount">Order Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="grossAmount"><span jhiTranslate="warehouseApp.orderLine.grossAmount">Gross Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="netAmount"><span jhiTranslate="warehouseApp.orderLine.netAmount">Net Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="taxAmount"><span jhiTranslate="warehouseApp.orderLine.taxAmount">Tax Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdAt"><span jhiTranslate="warehouseApp.orderLine.createdAt">Created At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedAt"><span jhiTranslate="warehouseApp.orderLine.updatedAt">Updated At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="costAmount"><span jhiTranslate="warehouseApp.orderLine.costAmount">Cost Amount</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="commande.id"><span jhiTranslate="warehouseApp.orderLine.commande">Commande</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="produit.id"><span jhiTranslate="warehouseApp.orderLine.produit">Produit</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let orderLine of orderLines ;trackBy: trackId">
+                    <td><a [routerLink]="['/order-line', orderLine.id, 'view']">{{ orderLine.id }}</a></td>
+                    <td>{{ orderLine.receiptDate | date:'mediumDate' }}</td>
+                    <td>{{ orderLine.quantityReceived }}</td>
+                    <td>{{ orderLine.quantityRequested }}</td>
+                    <td>{{ orderLine.quantityReturned }}</td>
+                    <td>{{ orderLine.discountAmount }}</td>
+                    <td>{{ orderLine.orderAmount }}</td>
+                    <td>{{ orderLine.grossAmount }}</td>
+                    <td>{{ orderLine.netAmount }}</td>
+                    <td>{{ orderLine.taxAmount }}</td>
+                    <td>{{ orderLine.createdAt | date:'medium' }}</td>
+                    <td>{{ orderLine.updatedAt | date:'medium' }}</td>
+                    <td>{{ orderLine.costAmount }}</td>
+                    <td>
+                        <div *ngIf="orderLine.commande">
+                            <a [routerLink]="['/commande', orderLine.commande?.id, 'view']" >{{ orderLine.commande?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="orderLine.produit">
+                            <a [routerLink]="['/produit', orderLine.produit?.id, 'view']" >{{ orderLine.produit?.id }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/order-line', orderLine.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/order-line', orderLine.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(orderLine)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="orderLines && orderLines.length > 0">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
+        </div>
+    </div>
+</div>

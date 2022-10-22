@@ -1,0 +1,86 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="salesLine">
+            <h2><span jhiTranslate="warehouseApp.salesLine.detail.title">Sales Line</span> {{ salesLine.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="warehouseApp.salesLine.quantitySold">Quantity Sold</span></dt>
+                <dd>
+                    <span>{{ salesLine.quantitySold }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.regularUnitPrice">Regular Unit Price</span></dt>
+                <dd>
+                    <span>{{ salesLine.regularUnitPrice }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.discountUnitPrice">Discount Unit Price</span></dt>
+                <dd>
+                    <span>{{ salesLine.discountUnitPrice }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.netUnitPrice">Net Unit Price</span></dt>
+                <dd>
+                    <span>{{ salesLine.netUnitPrice }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.discountAmount">Discount Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.discountAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.salesAmount">Sales Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.salesAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.grossAmount">Gross Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.grossAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.netAmount">Net Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.netAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.taxAmount">Tax Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.taxAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.costAmount">Cost Amount</span></dt>
+                <dd>
+                    <span>{{ salesLine.costAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{ salesLine.createdAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{ salesLine.updatedAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.sales">Sales</span></dt>
+                <dd>
+                    <div *ngIf="salesLine.sales">
+                        <a [routerLink]="['/sales', salesLine.sales?.id, 'view']">{{ salesLine.sales?.id }}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.salesLine.produit">Produit</span></dt>
+                <dd>
+                    <div *ngIf="salesLine.produit">
+                        <a [routerLink]="['/produit', salesLine.produit?.id, 'view']">{{ salesLine.produit?.id }}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/sales-line', salesLine.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

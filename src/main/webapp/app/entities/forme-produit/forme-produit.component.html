@@ -1,0 +1,116 @@
+<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
+        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
+                (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>
+    <div>
+
+        <h2 id="page-heading">
+            <span jhiTranslate="warehouseApp.formeProduit.home.title">Liste des formes de produit</span>
+            <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity"
+                    (click)='addNewEntity()'>
+                <fa-icon icon="plus"></fa-icon>
+                <span>
+                Nouvelle forme
+            </span>
+            </button>
+        </h2>
+
+        <jhi-alert-error></jhi-alert-error>
+
+        <jhi-alert></jhi-alert>
+
+
+        <div class="alert alert-warning" id="no-result" *ngIf="entites?.length === 0">
+            <span >Aucune donnée trouvée</span>
+        </div>
+        <p-table *ngIf="entites && entites.length > 0" styleClass="ui-table-cars"
+                 [value]="entites" [paginator]="true"
+                 [rows]="itemsPerPage" dataKey="id" selectionMode="single"
+                 [(selection)]="selectedEl"
+                 [lazy]="true"
+                 [totalRecords]="totalItems"
+                 [loading]="loading"
+                 (onLazyLoad)="lazyLoading($event)"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col"><span >Libellé</span> </th>
+                   <th scope="col"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-elRow let-columns="columns">
+                <tr [pSelectableRow]="elRow" [pEditableRow]="elRow">
+                    <td>{{ elRow.libelle }}</td>
+                     <td>
+                        <button   type="submit"
+                                class="btn btn-primary btn-sm"  style="margin-right: .5em"
+                                (click)="onEdit(elRow)"   >
+
+                            <fa-icon icon="pencil-alt"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+
+                        <button
+                                 type="submit"
+                                class="btn btn-danger btn-sm"
+                                (click)="delete(elRow)">
+
+                            <fa-icon icon="times"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+    </div>
+
+<!-- formulaire de creation et d edition-->
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+<p-dialog
+header="Créer ou éditer une de produit"
+ [(visible)]="displayDialog"
+ [focusOnShow]="false" [responsive]="true"
+  showEffect="fade" [modal]="true"
+   [style]="{width: '400px'}"
+   >
+
+    <div class="form-group" [hidden]="!editForm.get('id')!.value">
+
+        <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
+    </div>
+    <jhi-alert-error></jhi-alert-error>
+
+    <div class="p-fluid p-formgrid p-grid">
+
+            <label for="field_libelle">Libellé</label>
+            <div class="p-field p-col" style="margin-bottom:10px">
+                <textarea  pInputTextarea class="form-control" name="libelle" id="field_libelle"
+                formControlName="libelle" style="width: 100%;">
+            </textarea>
+            </div>
+            <div *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+                <small class="form-text text-danger" style="color: red;"
+                       *ngIf="editForm.get('libelle')?.errors?.required" >
+                  Ce champ est obligatoire.
+                </small>
+
+            </div>
+
+        </div>
+
+   <p-footer>
+
+        <button  class="p-button-success p-mr-2 p-button-raised" type="submit" [disabled]="editForm.invalid || isSaving" pButton pRipple icon="pi pi-check" label="Enregistrer"></button>
+        <button type="button" class="p-button-danger p-mr-2 p-button-raised" pButton pRipple   icon="pi pi-times" (click)="cancel()" label="Annuler"></button>
+
+</p-footer>
+</p-dialog>
+</form>
+
+
+
+

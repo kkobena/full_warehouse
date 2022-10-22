@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "groupeTiersPayant": {
+      "home": {
+        "title": "Groupe tiers-payant",
+        "createLabel": "Nouveau groupe",
+        "createOrEditLabel": "Créer ou éditer un nouveau groupe",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Un nouveau groupe ",
+      "updated": "Le  groupe  avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "Le  groupe  avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la groupe  {{ id }} ?"
+      },
+      "detail": {
+        "title": "Groupe tiers-payant"
+      }
+    }
+  }
+}

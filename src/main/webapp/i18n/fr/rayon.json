@@ -1,0 +1,24 @@
+{
+  "warehouseApp": {
+    "rayon": {
+      "home": {
+        "title": "Rayons",
+        "createLabel": "Créer",
+        "createOrEditLabel": "Créer ou éditer",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Un nouveaurayon a été créé avec l'identifiant {{ param }}",
+      "updated": "Le rayon avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "Le rayon avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le rayon {{ id }} ?"
+      },
+      "detail": {
+        "title": "Rayons"
+      },
+      "code": "Code",
+      "libelle": "libelle",
+      "storageLibelle": "storageLibelle"
+    }
+  }
+}

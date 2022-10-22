@@ -1,0 +1,28 @@
+{
+  "warehouseApp": {
+    "decondition": {
+      "home": {
+        "title": "Deconditions",
+        "createLabel": "Create a new Decondition",
+        "createOrEditLabel": "Create or edit a Decondition",
+        "notFound": "No Deconditions found"
+      },
+      "created": "A new Decondition is created with identifier {{ param }}",
+      "updated": "A Decondition is updated with identifier {{ param }}",
+      "deleted": "A Decondition is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Decondition {{ id }}?"
+      },
+      "detail": {
+        "title": "Decondition"
+      },
+      "qtyMvt": "Qty Mvt",
+      "dateMtv": "Date Mtv",
+      "stockBefore": "Stock Before",
+      "stockAfter": "Stock After",
+      "user": "User",
+      "produit": "Produit",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

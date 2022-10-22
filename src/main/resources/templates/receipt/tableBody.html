@@ -1,0 +1,15 @@
+<tbody>
+<tr th:each="itm : ${sale_items}" th:class="${itmStat.last}?'last-item':''">
+    <td th:if="${itm.quantityRequested ge 1000}" class="text-center"
+        th:text="${#numbers.formatInteger(itm.quantityRequested,3,'WHITESPACE')}+'x'"></td>
+    <td th:if="${itm.quantityRequested lt 1000}" class="text-center" th:text="${itm.quantityRequested}+' '"></td>
+    <td class="text-left" th:text="${itm.produitLibelle}"></td>
+    <td th:if="${itm.regularUnitPrice ge 1000}" class="unit"
+        th:text="${#numbers.formatInteger(itm.regularUnitPrice,3,'WHITESPACE')}"></td>
+    <td th:if="${itm.regularUnitPrice lt 1000}" class="unit" th:text="${itm.regularUnitPrice}"></td>
+    <td th:if="${itm.salesAmount ge 1000}" class="total"
+        th:text="${#numbers.formatInteger(itm.salesAmount,3,'WHITESPACE')}"></td>
+    <td th:if="${itm.salesAmount lt 1000}" class="total" th:text="${itm.salesAmount}"></td>
+
+</tr>
+</tbody>

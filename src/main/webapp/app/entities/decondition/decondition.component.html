@@ -1,0 +1,66 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="warehouseApp.decondition.home.title">Deconditions</span>
+
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-decondition" [routerLink]="['/decondition/new']">
+            <fa-icon icon="plus"></fa-icon>
+            <span  jhiTranslate="warehouseApp.decondition.home.createLabel">
+            Create a new Decondition
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="deconditions?.length === 0">
+        <span jhiTranslate="warehouseApp.decondition.home.notFound">No deconditions found</span>
+    </div>
+
+    <div class="table-responsive" id="entities" *ngIf="deconditions && deconditions.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="qtyMvt"><span jhiTranslate="warehouseApp.decondition.qtyMvt">Qty Mvt</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dateMtv"><span jhiTranslate="warehouseApp.decondition.dateMtv">Date Mtv</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="stockBefore"><span jhiTranslate="warehouseApp.decondition.stockBefore">Stock Before</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="stockAfter"><span jhiTranslate="warehouseApp.decondition.stockAfter">Stock After</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="user.login"><span jhiTranslate="warehouseApp.decondition.user">User</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="produit.id"><span jhiTranslate="warehouseApp.decondition.produit">Produit</span> <fa-icon icon="sort"></fa-icon></th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let decondition of deconditions ;trackBy: trackId">
+                    <td><a [routerLink]="['/decondition', decondition.id, 'view']">{{ decondition.id }}</a></td>
+                    <td>{{ decondition.qtyMvt }}</td>
+                    <td>{{ decondition.dateMtv | date:'medium' }}</td>
+                    <td>{{ decondition.stockBefore }}</td>
+                    <td>{{ decondition.stockAfter }}</td>
+                    <td>
+                        {{ decondition.user?.login }}
+                    </td>
+                    <td>
+                        <div *ngIf="decondition.produit">
+                            <a [routerLink]="['/produit', decondition.produit?.id, 'view']" >{{ decondition.produit?.id }}</a>
+                        </div>
+                    </td>
+
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="deconditions && deconditions.length > 0">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
+        </div>
+    </div>
+</div>

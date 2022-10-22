@@ -1,0 +1,293 @@
+<h6 id="page-heading" style="text-align:left;font-weight: 700;"><span
+    jhiTranslate="warehouseApp.commande.home.createOrEditLabel"></span>
+</h6>
+<ngx-spinner name="commandeEnCourspinner" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"
+             [fullScreen]="false"></ngx-spinner>
+<p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
+    <p-footer>
+        <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+                type="button"></button>
+        <button (click)="deleteItem.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    </p-footer>
+
+</p-confirmDialog>
+
+<p-confirmDialog #stayThere [baseZIndex]="10000" [style]="{width: '40vw'}" key="stayThere">
+    <p-footer>
+        <button (click)="stayThere.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+                type="button"></button>
+        <button (click)="stayThere.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    </p-footer>
+
+</p-confirmDialog>
+
+<p-dialog header="Importer un fichier" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
+                      accept=".csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onImporterReponseCommande($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+
+    </p-footer>
+</p-dialog>
+
+
+
+
+<p-toolbar styleClass="commande-toolbar">
+    <div class="p-toolbar-group-left p-md-8" style=" width: 65%;">
+        <div class="row" style="width: 100%;">
+            <div class="col-4">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">Grossistes</span>
+                    <ng-select #fournisseurBox (change)="onProviderSelect()" [(ngModel)]="selectedProvider" [clearOnBackspace]="clearOnBackspace"
+                               [disabled]="fournisseurDisabled" [items]="fournisseurs"
+                               [minTermLength]="minTermLength"
+                               [openOnEnter]="false" [searchable]="true" [selectOnTab]="selectOnTab"
+                               autofocus="true"
+                               bindLabel="libelle" placeholder="Sélectionner le fournisseur"
+                    >
+                    </ng-select>
+                </div>
+
+            </div>
+
+            <div class="col-6 commande-produit-component">
+
+
+                <div class="p-inputgroup">
+
+                    <span class="p-inputgroup-addon">Produits</span>
+                    <ng-select #produitbox (change)="onSelect()" (keyup)="searchFn($event)" [(ngModel)]="produitSelected"
+                               [clearOnBackspace]="clearOnBackspace"
+                               [items]="produits!" [minTermLength]="minTermLength"
+                               [notFoundText]="notFoundText"
+                               [openOnEnter]="false"
+                               [searchFn]="produitComponentSearch"
+                               [searchable]="true"
+                               bindLabel="libelle"
+
+                               id="produitBox"
+                               placeholder="Sélectionner un produit"
+                    >
+                        <ng-template let-index="index" let-item="item" ng-option-tmp>
+                            <div *ngIf="item.totalQuantity>0">
+                        <span
+                            style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
+                                <span class="float-right"><span>{{item.regularUnitPrice |number}}</span>&nbsp;<span>(&nbsp; {{item.totalQuantity |number}}
+                                    &nbsp;)</span></span>
+                            </div>
+                            <div *ngIf="item.totalQuantity<0">
+                                <span class="text-danger"
+                                      style="width:20%; display:inline-block">{{item.codeCip}}</span><span
+                                class="text-danger"> {{item.libelle}}</span> <span
+                                class="float-right text-danger"><span>{{item.regularUnitPrice |number}}</span>&nbsp;<span>(&nbsp; {{item.totalQuantity |number}}
+                                &nbsp;)</span></span>
+                            </div>
+                            <div *ngIf="item.totalQuantity===0">
+                                <span class="text-info"
+                                      style="width:20%; display:inline-block">{{item.codeCip}}</span><span
+                                class="text-info"> {{item.libelle}}</span> <span
+                                class="float-right text-info"><span>{{item.regularUnitPrice |number}}</span>&nbsp;<span>(&nbsp; {{item.totalQuantity |number}}
+                                &nbsp;)</span></span>
+                            </div>
+                        </ng-template>
+                    </ng-select>
+
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">Qté</span>
+                    <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)" [(ngModel)]="quantiteSaisie" pInputText
+                           type="number"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-toolbar-group-right" style="margin-top: 2px;">
+        <button (click)="onQuantity()" *ngIf="produitSelected" class="p-button-raised   mr-1 p-button-success" icon="pi pi-plus" label="Ajouter"
+                pButton pRipple type="button"></button>
+        <button [hidden]="true" class="p-button-raised   mr-1 p-button-info " icon="pi pi-search" label="Voir détail" pButton
+                pRipple type="button"></button>
+
+        <button (click)="previousState()" class="p-button-raised p-button-secondary " id="cancel-save" pButton pRipple
+                type="button">
+            <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+    </div>
+</p-toolbar>
+
+<p-table #commandeTable *ngIf="commande" [(selection)]="selectedEl" [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]" [rows]="10"
+         [showCurrentPageReport]="true" [value]="orderLines" dataKey="id"
+         styleClass="commande-order-line-table"
+>
+    <ng-template pTemplate="caption">
+
+        <div class="row" style="margin: 0">
+            <div class="col-2" style="margin: 0; padding-left: 3px;padding-right: 3px;">
+                <input (keyup.enter)="onFilterCommandeLines()"  [(ngModel)]="search"   [style]="{'width':'98%'}" pInputText placeholder="Taper pour rechercher"
+                       type="text">
+            </div>
+            <div class="col-2 text-left" style="margin: 0; padding-left: 3px;padding-right: 3px;"
+             >
+                <ng-select [(ngModel)]="selectedFilter" [items]="filtres!" bindLabel="label" bindValue="value" (change)="onFilterCommandeLines()">
+
+                </ng-select>
+            </div>
+            <div class="col-8 text-right" style=" padding-left: 3px;padding-right: 3px;">
+                <span class="p-buttonset">
+
+                      <button (click)="exportCSV()" class="p-button-raised p-button-success" pButton pRipple
+                              type="button"><fa-icon
+                          icon="file-csv"></fa-icon>&nbsp;<span>CSV</span></button>
+<button (click)="exportPdf()" class="p-button-warning p-button-raised" pButton pRipple
+        type="button">  <fa-icon
+    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+
+    <button (click)="onCloseCurrentCommande()" class="p-button-primary p-button-raised" pButton pRipple
+            type="button">  <fa-icon
+        icon="lock"></fa-icon>&nbsp;<span>Cloturer </span></button>
+
+        <button (click)="onMettreAttente()" class="p-button-secondary p-button-raised" pButton pRipple
+                type="button">
+            <fa-icon icon="clock"></fa-icon>&nbsp;<span>Mettre en attente </span></button>
+
+
+                      <p-splitButton [model]="commandebuttons" icon="pi pi-shopping-cart" label="Actions"
+                                     styleClass="p-button-raised p-button-help"></p-splitButton>
+
+
+                    <button (click)="deleteSelectedOrderLine()" *ngIf="selectedEl!.length>0" class="p-button-raised p-button-danger" pButton
+                            pRipple
+                            type="button">
+                    <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="entity.action.delete">Supprimer</span>
+                </button>
+                </span>
+
+
+            </div>
+
+        </div>
+
+
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width:3%">
+                #
+            </th>
+            <th style="width:8%">CODE</th>
+            <th style="width:30%">LIBELLE</th>
+            <th style="width:6%">STOCK.INIT</th>
+            <th style="width:7%">P.ACHAT</th>
+            <th style="width:9%">P.ACHAT.MACHINE</th>
+            <th style="width:6%">P.U</th>
+            <th style="width:6%">P.U.MACHINE</th>
+            <th style="width:7%">QUANTITE</th>
+            <th style="width:7%">TOTAL.ACHAT</th>
+            <th style="width:8%"></th>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
+        <tr [ngClass]="orderLineTableColor(orderLine)">
+            <td style="text-align: left;">{{rowIndex + 1}}</td>
+            <td *ngIf="orderLine.provisionalCode===false;else codeCip">{{orderLine.produitCip}}</td>
+            <ng-template #codeCip>
+                <td class="table-info" pEditableColumn>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input (focus)="$event.target.select()" (keydown.enter)="onUpdateCip(orderLine,$event)" [value]="orderLine.produitCip" pInputText
+                                   required style="width: 100%;"
+                                   type="text">
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{orderLine.produitCip}}
+                        </ng-template>
+                    </p-cellEditor>
+
+                </td>
+            </ng-template>
+            <td>{{orderLine.produitLibelle}}</td>
+            <td style="text-align: right;">{{orderLine.initStock |number}}</td>
+
+            <td pEditableColumn style="text-align: right;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input (focus)="$event.target.select()" (keydown.enter)="onUpdateOrderCostAmount(orderLine,$event)" [value]="orderLine.orderCostAmount" pInputText
+                               required
+                               style="width: 100%;"
+                               type="number">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{orderLine.orderCostAmount |number}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td style="text-align: right;">{{orderLine.costAmount |number}}</td>
+
+            <td pEditableColumn style="text-align: right;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input (focus)="$event.target.select()" (keydown.enter)="onUpdateOrderUnitPrice(orderLine,$event)" [value]="orderLine.orderUnitPrice" pInputText
+                               required
+                               style="width: 100%;"
+                               type="number">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{orderLine.orderUnitPrice |number}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td style="text-align: right;">{{orderLine.regularUnitPrice |number}}</td>
+            <td pEditableColumn style="text-align: right;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input (focus)="$event.target.select()" (keydown.enter)="onUpdateQuantityRequested(orderLine,$event)" [value]="orderLine.quantityRequested" pInputText
+                               required
+                               style="width: 100%;"
+                               type="number">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{orderLine.quantityRequested |number}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td style="text-align: right;">{{orderLine.quantityRequested * orderLine.orderCostAmount |number}}</td>
+            <td style="text-align: right;">
+                <button [hidden]="true" [routerLink]="['/produit', orderLine.produitId, 'detail']" class="p-button-rounded p-button-info p-button-smp-mb-3 " icon="pi pi-eye"
+                        pButton pRipple>
+
+
+                </button>
+                <button (click)="confirmDeleteItem(orderLine)" class="p-button-rounded p-button-danger p-button-sm  p-mb-3" icon="pi pi-trash"
+                        pButton pRipple
+                        pTooltip="Supprimer"></button>
+            </td>
+            <td class="text-center">
+                <p-tableCheckbox [value]="orderLine"></p-tableCheckbox>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <tr *ngIf="orderLines.length>0">
+            <td class="p-text-left" colspan="4">VALEUR ACHAT/VENTE</td>
+            <td style="text-align: right">{{commande?.grossAmount |number}} </td>
+            <td colspan="2" style="text-align: right">{{commande?.orderAmount |number}}</td>
+            <td colspan="3" style="text-align: right">{{commande?.grossAmount |number}}</td>
+            <td colspan="2"></td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+
+

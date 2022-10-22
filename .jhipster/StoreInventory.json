@@ -1,0 +1,73 @@
+{
+  "name": "StoreInventory",
+  "fields": [
+    {
+      "fieldName": "inventoryValueCostBegin",
+      "fieldType": "Long",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "inventoryAmountBegin",
+      "fieldType": "Long",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "inventoryValueCostAfter",
+      "fieldType": "Long",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "inventoryAmountAfter",
+      "fieldType": "Long",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "storeInventoryLine",
+      "otherEntityRelationshipName": "storeInventory",
+      "relationshipName": "storeInventoryLine"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "dateDimension",
+      "otherEntityRelationshipName": "storeInventory",
+      "relationshipName": "dateDimension",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20210224112127",
+  "entityTableName": "store_inventory",
+  "dto": "no",
+  "pagination": "infinite-scroll",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*"
+}

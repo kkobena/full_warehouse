@@ -1,0 +1,66 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="sales">
+            <h2><span jhiTranslate="warehouseApp.sales.detail.title">Sales</span> {{ sales.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="warehouseApp.sales.discountAmount">Discount Amount</span></dt>
+                <dd>
+                    <span>{{ sales.discountAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.salesAmount">Sales Amount</span></dt>
+                <dd>
+                    <span>{{ sales.salesAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.grossAmount">Gross Amount</span></dt>
+                <dd>
+                    <span>{{ sales.grossAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.netAmount">Net Amount</span></dt>
+                <dd>
+                    <span>{{ sales.netAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.taxAmount">Tax Amount</span></dt>
+                <dd>
+                    <span>{{ sales.taxAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.costAmount">Cost Amount</span></dt>
+                <dd>
+                    <span>{{ sales.costAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.statut">Statut</span></dt>
+                <dd>
+                    <span jhiTranslate="{{ 'warehouseApp.SalesStatut.' + sales.statut }}">{{ sales.statut }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{ sales.createdAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{ sales.updatedAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.customer">Customer</span></dt>
+                <dd>
+                    <div *ngIf="sales.customer">
+                        <a [routerLink]="['/customer', sales.customer?.id, 'view']">{{ sales.customer?.id }}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.sales.dateDimension">Date Dimension</span></dt>
+
+            </dl>
+
+            <button type="submit" (click)="previousState()" class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button" [routerLink]="['/sales', sales.id, 'edit']" class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

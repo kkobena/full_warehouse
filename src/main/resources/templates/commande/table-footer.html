@@ -1,0 +1,17 @@
+<tfoot th:if="${isLastPage}">
+
+<tr>
+    <td style="text-align: left;">TOTAUX</td>
+    <td colspan="5" style="text-align: left;"><span>NOMBRE DE PRODUITS <span class="total item-size" th:text="${'( '+ item_size}+' )'"></span></span></td>
+    <td th:if="${commande.grossAmount ge 1000}"
+        th:text="${#numbers.formatInteger(commande.grossAmount,3,'WHITESPACE')}"></td>
+    <td th:if="${commande.grossAmount lt 1000}" th:text="${commande.grossAmount }"></td>
+
+    <td th:if="${commande.orderAmount ge 1000}"
+        th:text="${#numbers.formatInteger(commande.orderAmount,3,'WHITESPACE') }"></td>
+    <td th:if="${commande.orderAmount lt 1000}" th:text="${commande.orderAmount}"></td>
+</tr>
+<tr>
+   <td style="text-align: center;" colspan="8"> TOUS LES MONTANTS SONT EXPRIMES EN <span th:text="${devise}"></span></td>
+</tr>
+</tfoot>

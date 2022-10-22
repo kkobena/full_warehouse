@@ -1,0 +1,28 @@
+{
+  "warehouseApp": {
+    "storeInventoryLine": {
+      "home": {
+        "title": "Store Inventory Lines",
+        "createLabel": "Create a new Store Inventory Line",
+        "createOrEditLabel": "Create or edit a Store Inventory Line",
+        "notFound": "No Store Inventory Lines found"
+      },
+      "created": "A new Store Inventory Line is created with identifier {{ param }}",
+      "updated": "A Store Inventory Line is updated with identifier {{ param }}",
+      "deleted": "A Store Inventory Line is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Store Inventory Line {{ id }}?"
+      },
+      "detail": {
+        "title": "Store Inventory Line"
+      },
+      "quantityOnHand": "Quantity On Hand",
+      "quantityInit": "Quantity Init",
+      "quantitySold": "Quantity Sold",
+      "inventoryValueCost": "Inventory Value Cost",
+      "inventoryValueLatestSellingPrice": "Inventory Value Latest Selling Price",
+      "storeInventory": "Store Inventory",
+      "produit": "Produit"
+    }
+  }
+}

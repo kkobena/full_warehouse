@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "fournisseur": {
+      "home": {
+        "title": "Fournisseur",
+        "createLabel": "Nouveau",
+        "createOrEditLabel": "Créer ou éditer un nouveau fournisseur",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Un nouveau fournisseur a été créé",
+      "updated": "Le fournisseur avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "Le fournisseur avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le fournisseur {{ id }} ?"
+      },
+      "detail": {
+        "title": "Fournisseurs"
+      }
+    }
+  }
+}

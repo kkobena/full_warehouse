@@ -1,0 +1,574 @@
+<ngx-spinner name="salespinner" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"
+             [fullScreen]="false">
+</ngx-spinner>
+<p-dialog (onHide)="onHideClientErrorDialog($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
+          [(visible)]="displayErrorModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+          [resizable]="false">
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez ajouter un client à la vente</strong></span>
+    <ng-template pTemplate="footer">
+        <button type="button" #clientSearchModalBtn (click)="cancelErrorModal()" class="btn btn-danger"
+                data-dismiss="modal">
+            Fermer
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)" [showHeader]="true" [focusOnShow]="true" header="Erreur"
+          [(visible)]="displayErrorEntryAmountModal" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+          [resizable]="false">
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
+    <ng-template pTemplate="footer">
+        <button type="button" #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()" class="btn btn-danger"
+                data-dismiss="modal">Fermer
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '40vw'}" #deleteItem key="deleteItem" [baseZIndex]="10000">
+    <p-footer>
+        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
+                (click)="deleteItem.reject()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="deleteItem.accept()"></button>
+    </p-footer>
+
+</p-confirmDialog>
+
+<p-confirmDialog [style]="{width: '40vw'}" #forcerStock key="forcerStock" [baseZIndex]="10000" appendTo="body">
+    <p-footer>
+        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
+                (click)="forcerStock.reject()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="forcerStock.accept()"
+                #forcerStockBtn></button>
+    </p-footer>
+</p-confirmDialog>
+
+<p-dialog (onHide)="onHideHideDialog()" [showHeader]="true" [focusOnShow]="true" header="Erreur"
+          [(visible)]="commonDialog" [modal]="true" [style]="{width: '30vw'}" [draggable]="false"
+          [resizable]="false">
+    <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
+    <ng-template pTemplate="footer">
+        <button type="button" #commonDialogModalBtn (click)="cancelCommonDialog()" class="btn btn-danger"
+                data-dismiss="modal">Fermer
+        </button>
+    </ng-template>
+</p-dialog>
+
+
+<div class="card-group">
+    <div class="card">
+        <div class="card-header sale-card-header">TYPE VENTE</div>
+        <div class="card-body sale-card">
+            <p-selectButton [options]="naturesVentes" [(ngModel)]="naturesVente" optionDisabled="disabled"
+                            (onChange)="onNatureVenteChange($event)"
+                            optionLabel="name"></p-selectButton>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header sale-card-header">NATURE VENTE</div>
+        <div class="card-body sale-card">
+            <p-selectButton [options]="typePrescriptions" [(ngModel)]="typePrescription"
+                            optionLabel="name"></p-selectButton>
+        </div>
+
+    </div>
+    <div class="card">
+        <div class="card-header sale-card-header">OPERATEUR</div>
+        <div class="card-body sale-card">
+            <ng-select autofocus="true" #user [items]="users" bindLabel="fullName" class="produitContainer"
+                       placeholder="Sélectionner un opérateur"
+                       [(ngModel)]="userSeller" [searchable]="false"
+                       (keyup)="searchUser($event)"
+                       (change)="onSelectUser()"
+            >
+            </ng-select>
+        </div>
+    </div>
+
+    <div class="card bg-light">
+
+        <div class="card-body sale-card">
+            <p-button icon="pi pi-search" styleClass="p-button-info p-button-sm" label="VENTE EN ATTENTE"></p-button>
+
+            <p-button icon="pi pi-arrow-left" styleClass="p-button-danger p-button-sm" label="RETOUR"
+                      (click)="previousState()"></p-button>
+        </div>
+    </div>
+</div>
+
+<div class="card-group mt-1" *ngIf="showClientSearch()">
+    <div class="card " style="max-width:15rem;">
+        <div class="card-header sale-card-header">
+            RECHERCHE CLIENT
+            <span class="float-right">
+
+                 <button pButton pRipple icon="pi pi-user" pTooltip="Ajouter nouveau client"
+                         class="p-button-rounded p-button-primary p-button-sm" (click)="addNewCustomer()"></button>
+                    </span>
+        </div>
+        <div class="card-body sale-card alert-secondary">
+        <span class="p-input-icon-left sale-p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText #clientSearchBox [(ngModel)]="clientSearchValue"
+           placeholder="Taper pour rechercher un client" class="sale-p-inputtext"
+           (keydown.enter)="loadsCustomer()">
+</span>
+        </div>
+    </div>
+    <div class="card" style="max-width:35rem;"
+         *ngIf="customerSelected && naturesVente?.code!=='COMPTANT';else uninsuredCustomer">
+        <div class="card-header sale-card-header">
+            {{clientBoxHeader}}
+
+            <span class="float-right" *ngIf="customerSelected">
+                <button pButton pRipple type="button" icon="pi pi-user" label="EDITER LE CLIENT"
+                        class="p-button-danger p-button-sm"
+                        (click)="editCustomer()"></button>
+                <button *ngIf="naturesVente?.code==='ASSURANCE'" pButton pRipple type="button" icon="pi pi-users"
+                        label="AJOUTER UN AYANT DROIT" pTooltip="AJOUTER AYANT DROIT SI DIFFERENT DE L'ASSURE"
+                        class=" p-button-secondary p-button-sm" (click)="loadAyantDoits()"></button>
+
+                    </span>
+
+
+        </div>
+
+
+        <div class="card-body sale-card">
+            <div class="row">
+                <div class="col-12 row">
+                    <div class="col-lg-7 row">
+                        <div class="col-3"><label
+                            style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
+
+                        <div class="col-9">
+                            <span style="font-weight: 800;">{{customerSelected?.fullName}}</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 row" style="padding: 0;">
+                        <div class="col-6"><label
+                            style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+
+                        <div class="col-6" style="padding: 0;" #btn>
+                            <span style="font-weight: 800;">{{customerSelected?.num}}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12 assure" *ngIf="showAyantDroit()" style="padding-right: 3px;">
+                    <p-divider align="right">
+                        <span>
+                        <button pButton pRipple icon="pi pi-pencil"
+                                pTooltip="Modifier l'ayant droit" (click)="onEditAyantDroit()"
+                                class="p-button-rounded p-button-success p-button-sm"></button>
+                             <button pButton pRipple icon="pi pi-times"
+                                     pTooltip="Retirer l'ayant droit" (click)="onRemoveAyantDroit()"
+                                     class="p-button-rounded p-button-danger p-button-sm"></button>
+                    </span>
+                    </p-divider>
+                    <div class="col-12 row" style="padding-right: 0px;padding-left: 2px;">
+                        <div class="col-lg-7 row">
+                            <div class="col-3"><label
+                                style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
+
+                            <div class="col-9">
+                                <span style="font-weight: 800;">{{ayantDroit?.fullName}}</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 row" style="padding: 0;">
+                            <div class="col-5" style="padding: 0;"><label
+                                style="padding-left:1px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+
+                            <div class="col-7" style="padding: 0;">
+                                <span style="font-weight: 800;">{{ayantDroit?.numAyantDroit}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <ng-template #uninsuredCustomer>
+        <div class="card" *ngIf="customerSelected && naturesVente?.code==='COMPTANT'">
+            <div class="card-header sale-card-header">
+                {{clientBoxHeader}}
+                <span class="float-right" *ngIf="customerSelected">
+                <button pButton pRipple type="button" icon="pi pi-user" label="EDITER LE CLIENT"
+                        class="p-button-danger p-button-sm"
+                        (click)="editCustomer()"></button>
+                <button pButton pRipple type="button" icon="pi pi-users" label="AJOUTER UN AYANT DROIT"
+                        class=" p-button-secondary p-button-sm"></button>
+
+                    </span>
+            </div>
+            <div class="card-body sale-card">
+                <div class="row">
+                    <div class="col-12  row">
+                        <div class="col-7 row">
+                            <label class="col-sm-5">Nom/Prénom(s):</label>
+                            <div class="col-sm-6">
+                                <span>{{customerSelected?.fullName}}</span>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <label class="col-sm-5 col-form-label ">Téléphone:</label>
+                            <div class="col-sm-6">
+                                <span class="badge badge-primary mt-2 ">{{customerSelected?.phone}}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </ng-template>
+    <div class="card" *ngIf="showTiersPayant()">
+        <div class="card-header sale-card-header">
+            TIERS-PAYANT <span class="float-right">
+
+             <button pButton pRipple type="button" icon="pi pi-plus" label="AJOUTER UN TIERS-PAYANT"
+                     (click)="addComplementaire()"
+                     class=" p-button-secondary p-button-sm" *ngIf="showOrHideTiersPayantBtn"></button>
+                    </span>
+        </div>
+        <div class="card-body sale-card tiersPayant" #tierspayntDiv>
+            <div *ngFor="let tiersPayant of getTiersPayants(); let i = index" class="row sale-tiers-payant-control ">
+
+                <div class="col-12 form-inline thirdPartySaleLines">
+                    <input type="hidden" value="{{tiersPayant.id}}">
+                    <div class="col-5 form-group row">
+                        <div class="col-2" style="padding-left: 10px;">
+                            <label>TP<span
+                                style="color: red;">{{tiersPayant.priorite}}</span>:</label>
+                        </div>
+                        <div class="col-10"><span>{{tiersPayant.tiersPayantFullName}}</span></div>
+
+                    </div>
+
+                    <div class="col-4 form-group">
+                        <div class="p-inputgroup">
+                            <span class="p-inputgroup-addon">N°Bon</span>
+                            <input id="{{'tierspayant_'+i}}" pInputText [(ngModel)]="tiersPayant.numBon" class=""
+                                   pKeyFilter="alphanum" autocomplete="off"/>
+                        </div>
+                    </div>
+
+                    <input type="hidden" value="{{tiersPayant.priorite}}">
+                    <div class="col-2">
+                        <label>Taux :<span
+                            style="color: red;" class="ml-1">{{tiersPayant.taux}}</span></label>
+                    </div>
+                    <div class="col-1">
+                        <button *ngIf="getTiersPayants().length>1" pButton type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-danger p-button mt-2"
+                                (click)="removeTiersPayantFromIndex(i,tiersPayant.id!)"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="row mt-1 bg-light">
+    <div [class]="produitClass">
+        <div class="col-9">
+            <div class="p-inputgroup">
+
+                <span class="p-inputgroup-addon">Produits</span>
+                <ng-select id="produitBox" autofocus="true" #produitbox [items]="produits" bindLabel="libelle"
+                           placeholder="Sélectionner un produit"
+                           [(ngModel)]="produitSelected" [searchable]="true"
+                           (keyup)="searchFn($event)"
+                           [searchFn]="produitComponentSearch"
+                           (change)="onSelect()"
+                           [notFoundText]="notFoundText"
+                           [openOnEnter]="false"
+                           [selectOnTab]="selectOnTab"
+                           (keydown)="onSelectKeyDow($event)"
+                >
+                    <ng-template ng-option-tmp let-item="item" let-index="index">
+                        <div *ngIf="item.totalQuantity>0">
+                        <span
+                            style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
+                            <span class="float-right">{{item.regularUnitPrice |number}}</span>
+                        </div>
+                        <div *ngIf="item.totalQuantity<=0">
+                                <span class="stockless"
+                                      style="width:20%; display:inline-block">{{item.codeCip}}</span><span
+                            class="stockless"> {{item.libelle}}</span> <span
+                            class="float-right stockless">{{item.regularUnitPrice |number}}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
+
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">Qté</span>
+                <input pInputText #quantyBox [(ngModel)]="quantiteSaisie" type="number"
+                       (keydown.enter)="onQuantityBoxAction($event)"/>
+            </div>
+        </div>
+    </div>
+
+    <div [class]="rayonClass" *ngIf="produitSelected">
+        RAYONS:
+        <p-tag severity="warning" *ngFor=" let rayon of produitSelected?.rayonProduits">
+            {{rayon.libelleRayon}}
+        </p-tag>
+    </div>
+    <div class="col-1" *ngIf="showStock && produitSelected">
+        STOCK:
+        <p-tag [severity]="stockSeverity" [rounded]="true">{{produitSelected?.totalQuantity |number}}</p-tag>
+
+    </div>
+    <div class="col-3" *ngIf="remiseProduits.length>0">
+        <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">Remises</span>
+            <p-dropdown [options]="remiseProduits" [(ngModel)]="remiseProduit" placeholder="Selectionner une remise"
+                        optionLabel="valeur"></p-dropdown>
+        </div>
+    </div>
+</div>
+<p-divider></p-divider>
+<div class="row">
+    <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+        <p-table #produitTable [value]="salesLines" dataKey="id" [paginator]="true" [rows]="5"
+                 [showCurrentPageReport]="true"
+                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                 [rowsPerPageOptions]="[5,8,10,20]" selectionMode="single"
+                 [globalFilterFields]="['code','produitLibelle']">
+            <ng-template pTemplate="caption">
+                <span class="mr-lg-5">PRODUITS DE LA VENTE</span>
+
+                <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER"
+           (input)="produitTable.filterGlobal($event.target.value, 'contains')">
+</span>
+
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:5%">
+                        #
+                    </th>
+                    <th style="width:10%">CODE</th>
+                    <th style="width:44%">LIBELLE</th>
+                    <th style="width:8%">QTE.D</th>
+                    <th style="width:8%">QTE.S</th>
+                    <th style="width:9%">PU</th>
+                    <th style="width:10%">TOTAL</th>
+                    <th style="width:6%"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-saleLine let-rowIndex="rowIndex">
+                <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                    <td style="text-align: left;">{{rowIndex + 1}}</td>
+                    <td>{{saleLine.code}}</td>
+                    <td>{{saleLine.produitLibelle}}</td>
+                    <td pEditableColumn style="text-align: right;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input style="width: 100px;" pInputText type="number"
+                                       required (keydown.enter)="updateItemQtyRequested(saleLine,$event)" (focus)="$event.target.select()">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{saleLine.quantityRequested |number}}
+                            </ng-template>
+                        </p-cellEditor>
+
+                    </td>
+                    <td pEditableColumn style="text-align: right;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input style="width: 100px;" pInputText type="number"
+                                       required (keydown.enter)="updateItemQtySold(saleLine,$event)"   (focus)="$event.target.select()">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{saleLine.quantitySold |number}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td pEditableColumn *ngIf="canUpdatePu;else unEditRegularUnitPrice" style="text-align: right;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input style="width: 100px;" pInputText type="number"
+                                       (keydown.enter)="updateItemPrice(saleLine,$event)" (focus)="$event.target.select()"
+                                       required>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{saleLine.regularUnitPrice |number}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <ng-template #unEditRegularUnitPrice>
+                        <td style="text-align: right;">{{saleLine.regularUnitPrice |number}}</td>
+                    </ng-template>
+
+                    <td style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+                    <td style="text-align: right;">
+                        <button pButton pRipple icon="pi pi-trash"
+                                pTooltip="Supprimer" (click)="confirmDeleteItem(saleLine)"
+                                class="p-button-rounded p-button-danger p-button-sm  p-mb-3"></button>
+                    </td>
+                </tr>
+
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <tr *ngIf="salesLines.length>0">
+                    <td colspan="3" class="p-text-left">TOTAUX</td>
+                    <td style="text-align: right">{{totalQtyProduit() |number}} </td>
+                    <td style="text-align: right">{{totalQtyServi() |number}}</td>
+                    <td style="text-align: right" colspan="2">{{totalTtc() |number}}</td>
+                    <td></td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
+        <ul class="list-group mt-1">
+            <li class="list-group-item" *ngIf="sale"><span class="h6">TOTAL VENTE</span> <span
+                class="float-right sale-amount text-success">{{sale?.salesAmount |number}}  Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.taxAmount!>0"><span class="h6">TOTAL TVA</span><span
+                class="float-right sale-amount ">{{sale?.taxAmount!|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.discountAmount!>0"><span
+                class="h6">TOTAL REMISE</span><span
+                class="float-right sale-amount ">{{sale?.discountAmount|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale && sale?.categorie==='VO'"><span
+                class="h6">PAR TIER-PAYANT</span><span
+                class="float-right sale-amount ">{{sale?.partTiersPayant|number}} Fca</span></li>
+            <li class="list-group-item" *ngIf="sale"><span class="h6">NET A PAYER</span><span
+                class="float-right sale-amount text-danger ">{{sale?.amountToBePaid|number}} Fca</span></li>
+            <li class="list-group-item"><span class="h6">DERNIERE MONNAIE</span><span
+                class="float-right sale-amount text-info">{{derniereMonnaie|number}} Fca</span></li>
+            <li *ngIf="sale?.amountToBePaid!>0" class="list-group-item"><span class="h6">MONNAIE</span><span
+                class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
+            <li class="list-group-item">
+                <p-button icon="pi pi-check" styleClass="p-button-danger" label="TERMINER" [disabled]="!sale"
+                          (click)="save()"></p-button>
+
+                <p-button icon="pi pi-times" [disabled]="!sale" styleClass="p-button-secondary" label="EN ATTENTE"
+                          (click)="putCurrentSaleOnHold()"></p-button>
+            </li>
+        </ul>
+
+    </div>
+</div>
+<div class="card-group">
+    <div class="card" *ngIf="sale?.amountToBePaid!>0">
+        <div class="card-header sale-card-header">MODE REGLEMENT <span class="float-right"><p-inputSwitch
+            [(ngModel)]="isDiffere" (onChange)="onDiffereChange()">
+
+        </p-inputSwitch></span><span class="float-right mr-1">Est-elle une différé ?</span></div>
+        <div class="card-body sale-card" class="card-body sale-card">
+            <p-selectButton [multiple]="true" [options]="modeReglements" [(ngModel)]="modeReglementSelected"
+                            optionLabel="libelle" optionValue="code"
+                            (onChange)="onModeReglementChange($event)"></p-selectButton>
+        </div>
+
+
+    </div>
+    <div class="card" *ngIf="showModeReglementCard">
+        <div class="card-header sale-card-header"><span
+            class="float-left mr-1">Voulez-vous votre ticket de caisse ?</span><span class="float-left"><p-inputSwitch
+            [(ngModel)]="printTicket">
+        </p-inputSwitch></span>
+            <span class="float-left mr-1 ml-3">Voulez-vous une facture ?</span><span class="float-left"><p-inputSwitch
+                [(ngModel)]="printInvoice">
+        </p-inputSwitch></span>
+            <span *ngIf="naturesVente?.code==='ASSURANCE'" class="float-left mr-1 ml-3">Vente sans bon ?</span><span
+                *ngIf="naturesVente?.code==='ASSURANCE'" class="float-left"><p-inputSwitch
+                [(ngModel)]="sansBon">
+        </p-inputSwitch></span>
+        </div>
+        <div class="card-body sale-card" *ngIf="sale?.amountToBePaid!>0">
+            <div [ngClass]="reglementInputParentClass">
+                <div [ngClass]="reglementInputClass" *ngIf="montantCashDiv">
+                    <span class="p-inputgroup-addon">CASH</span>
+                    <input pInputText #montantCashInput [(ngModel)]="montantCash" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantOrangeDiv">
+                    <span class="p-inputgroup-addon">OM</span>
+                    <input pInputText #montantOMInput [(ngModel)]="montantOrange" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantMtnDiv">
+                    <span class="p-inputgroup-addon">MTN</span>
+                    <input pInputText #montantMTNInput [(ngModel)]="montantMtn" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantMoovDiv">
+                    <span class="p-inputgroup-addon">MOOV</span>
+                    <input pInputText #montantMOOVInput [(ngModel)]="montantMoov" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantWaveDiv">
+                    <span class="p-inputgroup-addon">WAVE</span>
+                    <input pInputText #montantWAVEInput [(ngModel)]="montantWave" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantCbDiv">
+                    <span class="p-inputgroup-addon">CB</span>
+                    <input pInputText #montantCbInput [(ngModel)]="montantCb" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantVirementDiv">
+                    <span class="p-inputgroup-addon">VIREMENT</span>
+                    <input pInputText #montantVirInput [(ngModel)]="montantVirement" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+                <div [ngClass]="reglementInputClass" *ngIf="montantChequeDiv">
+                    <span class="p-inputgroup-addon">CHEQUE</span>
+                    <input pInputText #montantChInput [(ngModel)]="montantCheque" type="number"
+                           (input)="onReglementInputChange()" min="0" (keydown.enter)="save()"/>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card" *ngIf="showInfosComplementaireReglementCard">
+        <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
+        <div class="card-body sale-card">
+            <div class="p-inputgroup" *ngIf="isDiffere">
+                <span class="p-inputgroup-addon">Téléphone</span>
+                <input pInputText #telephoneDiffInput [(ngModel)]="telephone" type="text"/>
+            </div>
+            <div class="p-inputgroup mt-1" *ngIf="isDiffere">
+                <span class="p-inputgroup-addon">Commentaire</span>
+                <input pInputText #commentiareDiffInput [(ngModel)]="commentaire" type="text"/>
+            </div>
+            <div class="row mt-1" *ngIf="showInfosBancaire">
+                <div class="p-inputgroup col-6">
+                    <span class="p-inputgroup-addon">Référence</span>
+                    <input pInputText #referenceInput [(ngModel)]="referenceBancaire" type="text"/>
+                </div>
+                <div class="p-inputgroup  col-6">
+                    <span class="p-inputgroup-addon">Banque</span>
+                    <input pInputText #banqueInput [(ngModel)]="banque" type="text"/>
+                </div>
+                <div class="p-inputgroup mt-1  col-8">
+                    <span class="p-inputgroup-addon">Lieux</span>
+                    <input pInputText #lieuxInput [(ngModel)]="lieux" type="text"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+

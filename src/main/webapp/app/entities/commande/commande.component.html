@@ -1,0 +1,255 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="gestion-commande-spinner" size="medium"
+             type="timer"></ngx-spinner>
+<p-confirmDialog #deleteCommande [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteCommande">
+    <p-footer>
+        <button (click)="deleteCommande.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+                type="button"></button>
+        <button (click)="deleteCommande.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    </p-footer>
+
+</p-confirmDialog>
+<p-dialog header="Importer un fichier" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
+          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
+    <div class="ui-g form-group">
+        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
+                      accept=".csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onImporterReponseCommande($event)">
+        </p-fileUpload>
+    </div>
+    <p-footer>
+        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
+                (click)="cancel()" label="Annuler"></button>
+
+    </p-footer>
+</p-dialog>
+
+<p-tabView [(activeIndex)]="index" [orientation]="tooltipPosition">
+    <p-tabPanel header="Commandes">
+
+
+        <p-toolbar>
+            <div class="p-toolbar-group-left commande" style="width: 40%;">
+                <div class="row" style="width: 100%;">
+                    <div class="col-md-4">
+
+                        <input (keyup.enter)="onSearch()" [(ngModel)]="searchCommande" pInputText
+                               placeholder="Recherche sur la commande"
+                               style="width: 100%;" type="text">
+
+                    </div>
+                    <div class="col-md-4">
+
+                        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                               placeholder="Recherche sur les produits"
+                               style="width: 100%;" type="text">
+
+                    </div>
+                    <div class="col-md-4">
+                        <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter" [items]="filtres!" bindLabel="label"
+                                   bindValue="value">
+
+                        </ng-select>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="p-toolbar-group-right">
+                 <span class="p-buttonset">
+                     <button [hidden]="true" (click)="test()" class="p-button-raised p-button-info " icon="pi pi-search"
+                             label="Test" pButton
+                             pRipple
+                             type="button"></button>
+
+
+
+                <button (click)="loadPage()" class="p-button-raised p-button-info " icon="pi pi-search"
+                        label="Rechercher" pButton
+                        pRipple
+                        type="button"></button>
+                <button  class="p-button-raised p-button-help " icon="pi pi-upload"
+                        label="Importation" pButton pRipple
+                        type="button" (click)="onShowNewCommandeDialog()"></button>
+
+                   <p-splitButton *ngIf="selectedFilter==='OPPPP'" [model]="commandebuttons" icon="pi pi-eye"
+                                  label="Verifier"
+                                  styleClass="p-button-raised p-button-secondary"
+
+                   ></p-splitButton>
+
+   <button *ngIf="selectedFilter==='REQUESTED'" [routerLink]="['/commande/new']"
+           class="p-button-raised   p-button-success " pButton
+           pRipple type="button">
+                    <i class="pi pi-plus"></i>
+                    <span jhiTranslate="warehouseApp.commande.home.createLabel">
+               Nouvelle commande
+            </span>
+                </button>
+                      <button (click)="fusionner()"
+                              *ngIf="selectedFilter==='REQUESTED' && selections!.length>1" class="p-button-raised p-button-warning"
+                              pButton
+                              pRipple type="button">
+                    <fa-icon icon="copy"></fa-icon>&nbsp;<span jhiTranslate="entity.action.fusionner">Fusionner</span>
+                </button>
+                    <button *ngIf="selections!.length>0" class="p-button-raised p-button-danger"
+                            pButton
+                            pRipple type="button">
+                    <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="entity.action.delete" (click)="confirmDeleteSelectedRows()">Supprimer</span>
+                </button>
+                 </span>
+            </div>
+        </p-toolbar>
+
+        <p-table (onLazyLoad)="lazyLoading($event)" (onRowExpand)="onRowExpand($event)" *ngIf="commandes && commandes.length > 0"
+                 [(selection)]="selections"
+                 [lazy]="true" [loading]="loading"
+                 [paginator]="true"
+                 [rowExpandMode]="rowExpandMode"
+                 [rowsPerPageOptions]="[5,10,15,20,30,50]"
+                 [rows]="itemsPerPage" [showCurrentPageReport]="true"
+                 [totalRecords]="totalItems"
+                 [value]="commandes"
+                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
+                 dataKey="id"
+                 selectionMode="multiple"
+                 styleClass="p-datatable-gridlines mt-2" styleClass="p-datatable-striped"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:3%"></th>
+                    <th style="width:12%">Date</th>
+                    <th style="width:8%">Référence</th>
+                    <th style="width:8%">Nbre d'articles</th>
+                    <th style="width:8%">Montant Achat</th>
+                    <th style="width:8%">Montant Vente</th>
+                    <th style="width:15%">Fournisseur</th>
+                    <th  style="width:15%">Opérateur</th>
+                    <th style="width:3%">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th style="width:20%"></th>
+                </tr>
+            </ng-template>
+            <ng-template let-commande let-expanded="expanded" pTemplate="body">
+                <tr>
+                    <td>
+                        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain" pButton
+                                pRipple
+                                type="button"></button>
+                    </td>
+                    <td>{{commande.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                    <td>{{commande.orderRefernce}}</td>
+                    <td class="text-right">{{commande.itemSize |number}}</td>
+                    <td class="text-right">{{commande.grossAmount |number}}</td>
+                    <td class="text-right">{{commande.orderAmount |number}}</td>
+                    <td>{{commande.fournisseur?.libelle}}</td>
+                    <td>{{commande.lastUserEdit?.abbrName}}</td>
+                    <td class="text-center">
+                        <p-tableCheckbox [value]="commande"></p-tableCheckbox>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+
+                            <button [routerLink]="['/commande', commande.id, 'edit']" class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
+                                    pButton pRipple
+                                    pTooltip="Editer">
+
+                            </button>
+
+
+                            <button class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                                    pButton pRipple
+                                    pTooltip="Faire l'entréé en  stock" [routerLink]="['/commande', commande.id, 'stock-entry']"></button>
+                            <button [hidden]="true" class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                                    pButton pRipple
+                                    pTooltip="Importer la reponse " (click)="onShowFileDialog(commande)"></button>
+                            <button class="p-button-rounded p-button-primary p-button-sm ml-sm-1" icon="pi pi-shopping-cart"
+                                    pButton pRipple
+                                    pTooltip="Envoi par Pharma-ML"></button>
+
+
+
+
+                            <button class="p-button-rounded p-button-warning p-button-sm ml-sm-1" pButton
+                                    pRipple
+                                    pTooltip="Exporter en CSV" icon="pi pi-file-excel" (click)="exportCSV(commande)">
+
+
+                            </button>
+                            <button class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print" pButton
+                                    pRipple
+                                    pTooltip="Imprimer" (click)="exportPdf(commande)"></button>
+                            <button (click)="confirmDelete(commande)" class="p-button-rounded p-button-danger p-button-sm ml-sm-1" icon="pi pi-trash"
+                                    pButton pRipple
+                                    pTooltip="Supprimer"
+                                    type="submit"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template let-elRow pTemplate="rowexpansion">
+                <tr class="commande-rowexpansion">
+                    <td colspan="10">
+                        <p-table [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]" [rows]="30"
+                                 [showCurrentPageReport]="true" [value]="elRow.orderLines" dataKey="id"
+                                 responsiveLayout="scroll" styleClass="p-datatable-striped rowexpansion-table"
+                                 >
+                            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:3%">
+                        #
+                    </th>
+                    <th style="width:8%">CODE</th>
+                    <th style="width:30%">LIBELLE</th>
+                    <th style="width:6%">STOCK.INIT</th>
+                    <th style="width:7%">P.ACHAT</th>
+                    <th style="width:9%">P.ACHAT.MACHINE</th>
+                    <th style="width:6%">P.U</th>
+                    <th style="width:6%">P.U.MACHINE</th>
+                    <th style="width:7%">QUANTITE</th>
+                    <th style="width:7%">TOTAL.ACHAT</th>
+
+
+                </tr>
+            </ng-template>
+            <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
+                <tr [ngClass]="orderLineTableColor(orderLine)">
+                    <td style="text-align: left;">{{rowIndex + 1}}</td>
+                    <td>{{orderLine.produitCip}}</td>
+
+                    <td>{{orderLine.produitLibelle}}</td>
+                    <td style="text-align: right;">{{orderLine.initStock |number}}</td>
+
+                    <td style="text-align: right;">
+                        {{orderLine.orderCostAmount |number}}
+                    </td>
+                    <td style="text-align: right;">{{orderLine.costAmount |number}}</td>
+
+                    <td style="text-align: right;">
+                        {{orderLine.orderUnitPrice |number}}
+                    </td>
+                    <td style="text-align: right;">{{orderLine.regularUnitPrice |number}}</td>
+                    <td style="text-align: right;">
+                        {{orderLine.quantityRequested |number}}
+                    </td>
+                    <td style="text-align: right;">{{orderLine.quantityRequested * orderLine.orderCostAmount |number}}</td>
+
+                </tr>
+            </ng-template>
+
+        </p-table>
+        </td>
+        </tr>
+
+
+        </ng-template>
+        </p-table>
+
+    </p-tabPanel>
+    <p-tabPanel header="Gestion des entrées en stock">
+        Gestion des entrées en stock
+    </p-tabPanel>
+    <p-tabPanel header="Suggession de commande">
+        Suggession de commande
+    </p-tabPanel>
+
+</p-tabView>

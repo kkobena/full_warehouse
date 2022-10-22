@@ -1,0 +1,22 @@
+{
+  "warehouseApp": {
+    "tva": {
+      "home": {
+        "title": "Tvas",
+        "createLabel": "Créer",
+        "createOrEditLabel": "Créer ou éditer une nouvelle tva",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Une nouvelle tva a été créée avec l'identifiant {{ param }}",
+      "updated": "La tva avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La tva avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la tva {{ id }} ?"
+      },
+      "detail": {
+        "title": "tva"
+      },
+      "taux": "Taux"
+    }
+  }
+}

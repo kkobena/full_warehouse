@@ -1,0 +1,34 @@
+{
+  "warehouseApp": {
+    "sales": {
+      "home": {
+        "title": "Liste des ventes",
+        "createLabel": "Faire une nouvelle vente",
+        "createOrEditLabel": "Créer ou éditer une vente",
+        "notFound": "Aucune vente trouvée"
+      },
+      "created": "Une nouvelle vente  a été créée avec l'identifiant {{ param }}",
+      "updated": "La vente avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La vente avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la vente {{ id }} ?"
+      },
+      "detail": {
+        "title": "Ventes"
+      },
+      "discountAmount": "Montant remise",
+      "numberTransaction": "Numéro",
+      "salesAmount": "Montant",
+      "grossAmount": "Montant brut",
+      "netAmount": "Montant net",
+      "taxAmount": "Montant Tax",
+      "costAmount": "Montant Achat",
+      "statut": "Statut",
+      "createdAt": "Crée le",
+      "updatedAt": "Modifiée le",
+      "salesLine": "Détails",
+      "customer": "Client",
+      "dateDimension": "Date Dimension"
+    }
+  }
+}

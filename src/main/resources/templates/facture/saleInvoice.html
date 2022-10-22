@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="fr">
+<head>
+    <title th:text="#{sale.invoice.title}">Creation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+
+        @page {
+            size: A4;
+            /*   size: 80mm 70mm;*/
+            @bottom-center {
+                content: counter(page) "/" counter(pages);
+                font-family: sans-serif;
+
+            }
+            margin-top: 20px;
+        }
+
+
+        .invoice {
+
+            padding: 0
+        }
+
+        .invoice header .row {
+            padding: 3px 0;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #3989c6
+        }
+
+        .invoice .company-details {
+            text-align: right
+        }
+
+        .invoice .company-details .name {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        .invoice .contacts {
+            margin-bottom: 20px
+        }
+
+        .invoice .invoice-to {
+            text-align: left
+        }
+
+        .invoice .invoice-to .to {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        .invoice .invoice-details {
+            text-align: right
+        }
+
+        .invoice .invoice-details .invoice-id {
+            margin-top: 0;
+            color: #3989c6
+        }
+
+        .invoice main {
+            padding-bottom: 50px
+        }
+
+
+        .invoice main .notices {
+            padding-left: 6px;
+            border-left: 6px solid #3989c6;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .invoice main .notices .notice {
+            font-size: 1.2em
+        }
+
+        .invoice table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            -fs-table-paginate: paginate;
+        }
+
+        .invoice table td, .invoice table th {
+            padding: 0.2rem 1rem;
+            background: #eee;
+            border-bottom: 1px solid #fff
+        }
+
+        .invoice table th {
+            white-space: nowrap;
+            font-weight: 400;
+            font-size: 13px
+        }
+
+        .invoice table td h3 {
+            margin: 0;
+            font-weight: 400;
+            color: #3989c6;
+            font-size: 1.2em
+        }
+
+        .invoice table .qty, .invoice table .total, .invoice table .unit {
+            text-align: right;
+
+        }
+
+        .invoice table .total {
+            background: #ddd;
+
+        }
+
+        .invoice table tbody tr:last-child td {
+            border: none
+        }
+
+        .invoice table tfoot td {
+            background: 0 0;
+            border-bottom: none;
+            white-space: nowrap;
+            text-align: right;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-top: 1px solid #aaa
+        }
+
+        .invoice table tfoot tr:first-child td {
+            border-top: none
+        }
+
+        .invoice table tfoot tr:last-child td {
+            font-weight: bold;
+            font-size: 1.3em;
+
+        }
+
+        .invoice table tfoot tr td:first-child {
+            border: none
+        }
+
+        .invoice footer, .invoice footer div {
+            width: 100%;
+            text-align: center;
+            color: #777;
+            border-top: 1px solid #aaa;
+            padding: 8px 0;
+
+        }
+
+        .invoice {
+            font-size: 12px;
+            line-height: 1.2;
+            font-family: sans-serif;
+        }
+
+        a.logo {
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        tr, tfoot {
+            page-break-inside: avoid;
+        }
+
+        div.logo-container {
+            float: left;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+    </style>
+
+</head>
+<body>
+<div id="invoice">
+    <div class="invoice">
+        <div>
+            <header>
+                <div class="row">
+                    <div class="logo-container">
+                        <a class="logo">
+                            <img alt="Business Logo" src="../images/logo.png" width="79" height="50"/>
+                        </a>
+                    </div>
+                    <div class="col company-details">
+                        <h2 class="name">
+                            <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
+                        </h2>
+                        <div th:if="${magasin.phone ne null}">
+                            <span th:text="${magasin.phone}"></span>
+                        </div>
+                        <div th:if="${magasin.address ne null}">
+                            <span th:text="${magasin.address}"></span>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+
+            </header>
+            <main>
+                <div class="row contacts">
+                    <div class="col invoice-to">
+                        <div class="text-gray-light">FACTURE DE #</div>
+                        <h3 class="to" th:if="${sale.customer ne null}"
+                            th:text="${sale.customer.fullName} "></h3>
+                        <div class="address" th:if="${sale.customer ne null}">
+                            <span th:if="${sale.customer.phone ne null}" th:text="${sale.customer.phone}"></span>
+
+                        </div>
+                    </div>
+                    <div class="col invoice-details">
+                        <h3 class="invoice-id">FACTURE #
+                            <th:block th:text="${sale.numberTransaction}"></th:block>
+                        </h3>
+                        <div class="date">
+                            <span th:text="${'DATE # '+  #temporals.format(sale.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+
+                        </div>
+                    </div>
+                </div><!-- fin contact -->
+                <!-- debut table -->
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 14%;" class="text-left">CODE</th>
+                        <th style="width:47%;" class="text-left">DESCRIPTION</th>
+                        <th style="width: 12%;" class="text-right">PRIX.U</th>
+                        <th style="width: 10%;" class="text-right">QTE</th>
+                        <th style="width: 12%;" class="text-right">TOTAL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="itm : ${sale.salesLines}">
+                        <td class="no" th:text="${itmStat.index + 1}"></td>
+                        <td class="text-left" th:text="${itm.code}"></td>
+                        <td class="text-left" th:text="${itm.produitLibelle}"></td>
+                        <td th:if="${itm.regularUnitPrice ge 1000}" class="unit"
+                            th:text="${#numbers.formatInteger(itm.regularUnitPrice,3,'WHITESPACE')}"></td>
+                        <td th:if="${itm.regularUnitPrice lt 1000}" class="unit" th:text="${itm.regularUnitPrice}"></td>
+                        <td th:if="${itm.quantityRequested ge 1000}" class="qty"
+                            th:text="${#numbers.formatInteger(itm.quantityRequested,3,'WHITESPACE')}"></td>
+                        <td th:if="${itm.quantityRequested lt 1000}" class="qty"
+                            th:text="${itm.quantityRequested}"></td>
+                        <td th:if="${itm.salesAmount ge 1000}" class="total"
+                            th:text="${#numbers.formatInteger(itm.salesAmount,3,'WHITESPACE')}"></td>
+                        <td th:if="${itm.salesAmount lt 1000}" class="total" th:text="${itm.salesAmount}"></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td colspan="2">SOUS-TOTAL</td>
+                        <td th:if="${sale.netAmount ge 1000}"
+                            th:text="${#numbers.formatInteger(sale.netAmount,3,'WHITESPACE')+' FCFA' }"></td>
+                        <td th:if="${sale.netAmount lt 1000}" th:text="${sale.netAmount+' FCFA' }"></td>
+                    </tr>
+                    <tr th:each="tva : ${sale.tvaEmbededs}">
+                        <td colspan="3"></td>
+                        <td colspan="2">TVA
+                            <th:block th:text="${' '+tva.tva+' %'}"></th:block>
+
+                        </td>
+                        <td th:if="${tva.amount ge 1000}"
+                            th:text="${ #numbers.formatInteger(tva.amount,3,'WHITESPACE')  +' FCFA'}"></td>
+                        <td th:if="${tva.amount lt 1000}" th:text="${ tva.amount +' FCFA'}"></td>
+                    </tr>
+
+                    <tr th:if="${sale.taxAmount gt 0}">
+                        <td colspan="3"></td>
+                        <td colspan="2">TOTAL TVA</td>
+                        <td th:if="${sale.taxAmount ge 1000}"
+                            th:text="${ #numbers.formatInteger(sale.taxAmount,3,'WHITESPACE') +' FCFA'}"></td>
+                        <td th:if="${sale.taxAmount lt 1000}" th:text="${ sale.taxAmount +' FCFA'}"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td colspan="2">GRAND TOTAL</td>
+                        <td th:if="${sale.salesAmount ge 1000}"
+                            th:text="${ #numbers.formatInteger(sale.salesAmount,3,'WHITESPACE') +' FCFA'}"></td>
+                        <td th:if="${sale.salesAmount lt 1000}" th:text="${ sale.salesAmount +' FCFA'}"></td>
+                    </tr>
+                    </tfoot>
+
+                </table>
+                <!-- Fin table -->
+
+                <div class="notices">
+
+                    <div th:if="${sale.netAmount ge 1000}" style="text-align: left;font-weight: 700;" class="notice"
+                         th:text="${' Arrêté la présente facture à la somme de '+ #numbers.formatInteger( sale.netAmount ,3,'WHITESPACE')+' FCFA'}"></div>
+                    <div th:if="${sale.netAmount lt 1000}" style="text-align: center;font-weight: 700;"
+                         class="notice">
+                        <h2 th:text="${' Arrêté la présente facture à la somme de '+  sale.netAmount +' FCFA'}"></h2>
+                    </div>
+
+
+                </div>
+            </main>
+
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

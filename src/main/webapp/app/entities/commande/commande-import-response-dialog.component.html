@@ -1,0 +1,78 @@
+<div class="modal-header">
+    <h4 class="modal-title">IMPORTATION DE NOUVELLE COMMANDE</h4>
+
+    <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal"
+            type="button">&times;
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            Nombre de produits pris en compte
+        </div>
+        <div class="card-body text-center">
+                    <span class="badge badge-success text-lg-center"
+                          style="font-weight: 700;font-size: 1.6rem;">{{responseCommande?.succesCount | number}}
+                        /{{responseCommande?.totalItemCount | number}}</span>
+
+
+        </div>
+
+    </div>
+    <div *ngIf="responseCommande?.items!.length>0" class="card">
+        <div class="card-header bg-warning text-white">
+            Liste des produits non pris en compte
+        </div>
+        <div class="card-body">
+            <p>
+                        <span class="badge badge-warning"
+                              style="font-weight: 700;font-size: 1.6rem;">{{responseCommande?.items!.length | number}}
+                            /{{responseCommande?.totalItemCount| number}}</span>
+            </p>
+            <div [hidden]="hiddenInfo" class="alert-warning">
+                <h4>Le fichier sera disponible dans quelques instant.... Veuillez cliquer sur le lien dans queleques
+                    secondes</h4>
+            </div>
+            <h4>
+                <p-button (click)="onClickLink()"
+                          label="Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte" styleClass="p-button-link"></p-button>
+            </h4>
+            <div style="width: 100%;">
+                <table
+                    class="table table-striped">
+                    <thead>
+                    <tr>
+
+                        <th scope="col">Code cip</th>
+                        <th scope="col">Code ean</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Quantité commandées</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let item of responseCommande?.items">
+                        <td>{{item.produitCip}}</td>
+                        <td>{{item.produitEan}}</td>
+                        <td>{{item.produitLibelle}}</td>
+                        <td class="text-right">{{item.quantityRequested |number}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="modal-footer">
+    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
+    </button>
+
+
+</div>
+

@@ -1,0 +1,12 @@
+export const enum SalesStatut {
+  PROCESSING = 'PROCESSING',
+  PENDING = 'PENDING',
+  CLOSE = 'CLOSE',
+  PAID = 'PAID',
+  UNPAID = 'UNPAID',
+  ENABLE = 'ENABLE',
+  DISABLE = 'DISABLE',
+  DELETED = 'DELETED',
+  CLOSED = 'CLOSED',
+  ACTIVE = 'ACTIVE',
+}

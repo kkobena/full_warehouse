@@ -1,0 +1,67 @@
+<div class="modal-body">
+    <p-toolbar styleClass="mb-1">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="add()"></button>
+
+        </ng-template>
+
+    </p-toolbar>
+    <p-table [value]="tiersPayants" dataKey="id" #tiersPayantTable
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} "
+             selectionMode="single"
+             [globalFilterFields]="['tiersPayantName','tiersPayantFullName','typeTiersPayant']">
+        <ng-template pTemplate="caption">
+            <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
+
+            <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER"
+           (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')">
+</span>
+
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:3%">
+                    #
+                </th>
+                <th>TIERS-PAYANT</th>
+                <th style="width:90px;">TAUX</th>
+                <th style="width:110px;">CATEGORIE</th>
+                <th style="width: 20%;">TYPE COMPTE</th>
+                <th style="width:7%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-tiersPayant let-rowIndex="rowIndex">
+            <tr (dblclick)="onDbleClick(tiersPayant)" style="cursor: pointer;">
+                <td style="text-align: left;">{{rowIndex + 1}}</td>
+                <td>{{tiersPayant.tiersPayantFullName}}</td>
+                <td style="text-align: right;">{{tiersPayant.taux}}</td>
+                <td style="text-align: center;">{{tiersPayant.categorie}}</td>
+                <td>{{tiersPayant.typeTiersPayant}}</td>
+
+                <td style="text-align: right;">
+                    <button pButton pRipple icon="pi pi-check"
+                            pTooltip="Séléctionner"
+                            class="p-button-rounded p-button-info p-button-sm  p-mb-3"
+                            (click)="onSelect(tiersPayant)"></button>
+                </td>
+            </tr>
+
+        </ng-template>
+
+    </p-table>
+
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="cancel()">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
+    </button>
+
+
+</div>
+
+

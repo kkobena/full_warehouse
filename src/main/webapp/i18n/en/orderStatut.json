@@ -1,0 +1,11 @@
+{
+  "warehouseApp": {
+    "OrderStatut": {
+      "null": "",
+      "REQUESTED": "REQUESTED",
+      "RECEIVED": "RECEIVED",
+      "PAID": "PAID",
+      "UNPAID": "UNPAID"
+    }
+  }
+}

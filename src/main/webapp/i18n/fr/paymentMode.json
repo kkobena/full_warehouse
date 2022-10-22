@@ -1,0 +1,26 @@
+{
+  "warehouseApp": {
+    "paymentMode": {
+      "home": {
+        "title": "PaymentModes",
+        "createLabel": "Créer un nouveau Payment Mode",
+        "createOrEditLabel": "Créer ou éditer un Payment Mode",
+        "notFound": "Aucun Payment Mode trouvé"
+      },
+      "created": "Un nouveau Payment Mode a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Payment Mode avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Payment Mode avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Payment Mode {{ id }} ?"
+      },
+      "detail": {
+        "title": "Payment Mode"
+      },
+      "libelle": "Libelle",
+      "code": "Code",
+      "group": "Group",
+      "paymentFournisseur": "Payment Fournisseur",
+      "payment": "Payment"
+    }
+  }
+}

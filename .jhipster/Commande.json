@@ -1,0 +1,102 @@
+{
+  "name": "Commande",
+  "fields": [
+    {
+      "fieldName": "orderRefernce",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "receiptDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "discountAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "orderAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "grossAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "netAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "taxAmount",
+      "fieldType": "Integer",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "orderStatus",
+      "fieldType": "OrderStatut",
+      "fieldValues": "REQUESTED,RECEIVED,PAID,UNPAID"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "paymentFournisseur",
+      "otherEntityRelationshipName": "commande",
+      "relationshipName": "paymentFournisseur"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "orderLine",
+      "otherEntityRelationshipName": "commande",
+      "relationshipName": "orderLine"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "dateDimension",
+      "otherEntityRelationshipName": "commande",
+      "relationshipName": "dateDimension",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20210224111827",
+  "entityTableName": "commande",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*"
+}

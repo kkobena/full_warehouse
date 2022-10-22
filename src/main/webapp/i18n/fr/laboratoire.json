@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "laboratoire": {
+      "home": {
+        "title": "Laboratoire",
+        "createLabel": "Nouveau laboratoire",
+        "createOrEditLabel": "Créer ou éditer",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Un nouveau  laboratoire a été créé",
+      "updated": "Le nouveau laboratoire avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "Le nouveau laboratoire avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le laboratoire ?"
+      },
+      "detail": {
+        "title": "Laboratoire"
+      }
+    }
+  }
+}

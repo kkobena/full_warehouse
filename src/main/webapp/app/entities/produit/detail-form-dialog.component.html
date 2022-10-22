@@ -1,0 +1,80 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <div class="modal-header">
+        <h4 class="modal-title">Ajouter un détail au produit {{produit?.libelle}}</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" [hidden]="!editForm.get('id')!.value">
+            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+            <input id="field_createdAt" style="display:none;" type="hidden" class="form-control"
+                   id="datetime-local" class="form-control" name="createdAt" formControlName="createdAt"
+                   placeholder="YYYY-MM-DD HH:mm"/>
+        </div>
+
+    <div class="form-row">
+        <div class="form-group col">
+            <label class="form-control-label" jhiTranslate="warehouseApp.produit.libelle"
+                   for="field_libelle">Libelle</label>
+            <input type="text" class="form-control" name="libelle" id="field_libelle"
+                   formControlName="libelle"/>
+            <div
+                *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+                <small class="form-text text-danger" *ngIf="editForm.get('libelle')?.errors?.required"
+                       jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label class="form-control-label" jhiTranslate="warehouseApp.produit.costAmount"
+                   for="field_costAmount">Cost
+                Amount</label>
+            <input type="number" class="form-control" name="costAmount" id="field_costAmount"
+                   formControlName="costAmount"/>
+            <div
+                *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">
+                <small class="form-text text-danger" *ngIf="editForm.get('costAmount')?.errors?.required"
+                       jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+                <small class="form-text text-danger" [hidden]="!editForm.get('costAmount')?.errors?.number"
+                       jhiTranslate="entity.validation.number">
+                    This field should be a number.
+                </small>
+            </div>
+        </div>
+        <div class="form-group col-md-6">
+            <label class="form-control-label" jhiTranslate="warehouseApp.produit.regularUnitPrice"
+                   for="field_regularUnitPrice">Regular Unit Price</label>
+            <input type="number" class="form-control"
+                   name="regularUnitPrice" id="field_regularUnitPrice" formControlName="regularUnitPrice"/>
+            <div
+                *ngIf="editForm.get('regularUnitPrice')!.invalid && (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)">
+                <small class="form-text text-danger"
+                       *ngIf="editForm.get('regularUnitPrice')?.errors?.required"
+                       jhiTranslate="entity.validation.required">
+                    This field is required.
+                </small>
+                <small class="form-text text-danger"
+                       [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
+                       jhiTranslate="entity.validation.number">
+                    This field should be a number.
+                </small>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
+        </button>
+    </div>
+</form>

@@ -1,0 +1,35 @@
+{
+  "warehouseApp": {
+    "customer": {
+      "home": {
+        "title": "Clients",
+        "createLabel": "Créer",
+        "createOrEditLabel": "Créer ou éditer un client",
+        "notFound": "Aucun Customer trouvé"
+      },
+      "created": "Un nouveau client a été créé avec l'identifiant {{ param }}",
+      "updated": "Le client avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le client avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le client {{ id }} ?"
+      },
+      "detail": {
+        "title": "Clients",
+        "print": "Imprimer",
+        "billto": "FACTURE DE",
+        "invoice": "FACTURE"
+      },
+      "firstName": "Nom",
+      "lastName": "Prénom(s)",
+      "phone": "Téléphone",
+      "email": "Email",
+      "createdAt": "Date de création",
+      "updatedAt": "Dernière modification",
+      "sales": "Les achats du client",
+      "produits": "Les préférences",
+      "action": {
+        "achats": "Achats"
+      }
+    }
+  }
+}

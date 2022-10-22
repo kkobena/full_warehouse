@@ -1,0 +1,48 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="upload-commande-spinner" size="medium"
+             type="timer"></ngx-spinner>
+
+    <div class="modal-body">
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label">Fournisseurs</label>
+                <p-dropdown [options]="fournisseurs"  [(ngModel)]="fournisseurSelectedId"
+
+                            [filter]="true" placeholder="Séléctionner un fournisseur "
+                            styleClass="form-control ngCombo" optionLabel="libelle" optionValue="id" [appendTo]="appendTo">
+                </p-dropdown>
+
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label class="form-control-label">Model de fichier</label>
+                <p-dropdown [options]="models"  [(ngModel)]="modelSelected" [appendTo]="appendTo"
+
+                            [filter]="false" placeholder="Séléctionner un fournisseur "
+                            styleClass="form-control ngCombo" optionLabel="label" optionValue="value">
+                </p-dropdown>
+
+            </div>
+        </div>
+        <div class="form-row">
+        <p-fileUpload #fileUpload chooseLabel="Importer un fichier" mode="basic" [auto]="true"
+                      accept=".csv,.txt" [customUpload]="true" (uploadHandler)="uploadHandler($event,fileUpload)" [showCancelButton]="true">
+        </p-fileUpload>
+
+        </div>
+
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button id="save-entity" [disabled]=" isSaving || !isValidForm()" (click)="save()"
+                class="btn btn-success">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span>Valider</span>
+        </button>
+    </div>
+

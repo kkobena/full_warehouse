@@ -1,0 +1,26 @@
+{
+  "warehouseApp": {
+    "ajustement": {
+      "home": {
+        "title": "Ajustements",
+        "createLabel": "Create a new Ajustement",
+        "createOrEditLabel": "Create or edit a Ajustement",
+        "notFound": "No Ajustements found"
+      },
+      "created": "A new Ajustement is created with identifier {{ param }}",
+      "updated": "A Ajustement is updated with identifier {{ param }}",
+      "deleted": "A Ajustement is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Ajustement {{ id }}?"
+      },
+      "detail": {
+        "title": "Ajustement"
+      },
+      "qtyMvt": "Qty Mvt",
+      "dateMtv": "Date Mtv",
+      "produit": "Produit",
+      "dateDimension": "Date Dimension",
+      "user": "User"
+    }
+  }
+}

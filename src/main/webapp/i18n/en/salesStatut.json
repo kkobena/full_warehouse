@@ -1,0 +1,12 @@
+{
+  "warehouseApp": {
+    "SalesStatut": {
+      "null": "",
+      "PROCESSING": "PROCESSING",
+      "PENDING": "PENDING",
+      "CLOSE": "CLOSE",
+      "PAID": "PAID",
+      "UNPAID": "UNPAID"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "warehouseApp": {
+    "storeInventoryLine": {
+      "home": {
+        "title": "StoreInventoryLines",
+        "createLabel": "Créer un nouveau Store Inventory Line",
+        "createOrEditLabel": "Créer ou éditer un Store Inventory Line",
+        "notFound": "Aucun Store Inventory Line trouvé"
+      },
+      "created": "Un nouveau Store Inventory Line a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Store Inventory Line avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Store Inventory Line avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Store Inventory Line {{ id }} ?"
+      },
+      "detail": {
+        "title": "Store Inventory Line"
+      },
+      "quantityOnHand": "Quantity On Hand",
+      "quantityInit": "Quantity Init",
+      "quantitySold": "Quantity Sold",
+      "inventoryValueCost": "Inventory Value Cost",
+      "inventoryValueLatestSellingPrice": "Inventory Value Latest Selling Price",
+      "storeInventory": "Store Inventory",
+      "produit": "Produit"
+    }
+  }
+}

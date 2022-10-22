@@ -1,0 +1,28 @@
+{
+  "warehouseApp": {
+    "storeInventory": {
+      "home": {
+        "title": "Inventaire",
+        "createLabel": "Nouveau",
+        "createOrEditLabel": "Nouvel inventaire",
+        "notFound": "Aucun inventaire trouvé"
+      },
+      "created": "Un nouvel inventaire  a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Store Inventory avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "L'inventaire avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer L'inventaire ?"
+      },
+      "detail": {
+        "title": "Inventaire"
+      },
+      "inventoryValueCostBegin": "Valeur achat avant",
+      "inventoryAmountBegin": "Valeur vente avant",
+      "createdAt": "Créé le",
+      "updatedAt": "Créé le",
+      "inventoryValueCostAfter": "Valeur achat après",
+      "inventoryAmountAfter": "Valeur vente après",
+      "storeInventoryLine": "Produits inventoriés"
+    }
+  }
+}

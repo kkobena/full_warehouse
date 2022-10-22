@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "gammeProduit": {
+      "home": {
+        "title": "Gamme de produit",
+        "createLabel": "Nouvelle gamme",
+        "createOrEditLabel": "Créer ou éditer une nouvelle gamme",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Une nouvelle gamme a été créée",
+      "updated": "La gamme avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La gamme avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la gamme ?"
+      },
+      "detail": {
+        "title": "Gamme de produit"
+      }
+    }
+  }
+}

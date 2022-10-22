@@ -1,0 +1,255 @@
+<div class="row justify-content-center">
+    <div class="col-md-11">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h3 id="jhi-produit-heading" jhiTranslate="warehouseApp.produit.home.createOrEditLabel">Create or edit a
+                Produit</h3>
+            <jhi-alert-error></jhi-alert-error>
+            <div class="form-group" [hidden]="!editForm.get('id')!.value">
+                <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+                <input id="field_createdAt" style="display:none;" type="hidden" class="form-control"
+                       id="datetime-local" class="form-control" name="createdAt" formControlName="createdAt"
+                       placeholder="YYYY-MM-DD HH:mm"/>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.libelle"
+                           for="field_libelle">Libelle </label> <span style="font-weight: 900;color: red;">*</span>
+                    <input type="text" class="form-control" name="libelle" id="field_libelle"
+                           formControlName="libelle" autocomplete="off"/>
+                    <div
+                        *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('libelle')?.errors?.required"
+                               jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="form-control-label"
+                           for="field_codeCip">Code cip <span style="font-weight: 900;color: red;">*</span>
+                    </label>
+                    <input type="text" pInputText pKeyFilter="int" class="form-control" name="codeCip"
+                           id="field_codeCip"
+                           formControlName="codeCip" autocomplete="off"/>
+                    <div
+                        *ngIf="editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('codeCip')?.errors?.required"
+                               jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+
+                    </div>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.costAmount"
+                           for="field_costAmount">Cost
+                        Amount</label> <span style="font-weight: 900;color: red;">*</span>
+                    <input type="text" pInputText pKeyFilter="int" class="form-control" name="costAmount"
+                           id="field_costAmount"
+                           formControlName="costAmount" (keyup)="handleCostInput($event)" autocomplete="off"/>
+                    <div
+                        *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('costAmount')?.errors?.required"
+                               jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                        <small class="form-text text-danger" [hidden]="!editForm.get('costAmount')?.errors?.number"
+                               jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.regularUnitPrice"
+                           for="field_regularUnitPrice">Regular Unit Price</label> <span
+                    style="font-weight: 900;color: red;">*</span>
+                    <input type="text" pInputText pKeyFilter="int" (keyup)="handleUnitPriceInput($event)"
+                           class="form-control"
+                           name="regularUnitPrice" id="field_regularUnitPrice" formControlName="regularUnitPrice"
+                           autocomplete="off"/>
+                    <div
+                        *ngIf="editForm.get('regularUnitPrice')!.invalid && (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('regularUnitPrice')?.errors?.required"
+                               jhiTranslate="entity.validation.required">
+                            This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                               [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
+                               jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group col-md-3">
+                    <label for="fournisseurId" class="form-control-label">Fournisseurs<span
+                        style="font-weight: 900;color: red;">*</span></label>
+                    <ng-select [items]="fournisseurs" styleClass="form-control" bindLabel="libelle"
+                               name="fournisseurId" id="fournisseurId" formControlName="fournisseurId"
+                               placeholder="Sélectionner le fournisseur"
+                               [(ngModel)]="fournisseurSelected">
+                    </ng-select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="rayonId" class="form-control-label">Rayon<span
+                        style="font-weight: 900;color: red;">*</span></label>
+                    <ng-select [items]="rayons" styleClass="form-control" bindLabel="libelle" name="rayonId"
+                               id="rayonId" formControlName="rayonId" placeholder="Sélectionner un rayon"
+                               [(ngModel)]="rayonSelected">
+                    </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="tvaId" class="form-control-label">Tva<span
+                        style="font-weight: 900;color: red;">*</span></label>
+                    <ng-select [items]="tvas" styleClass="form-control" bindLabel="taux"
+                               name="tvaId" id="tvaId" formControlName="tvaId"
+                               placeholder="Sélectionner une Tva"
+                               [(ngModel)]="tvaSelected">
+                    </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="typeEtyquetteId" class="form-control-label">Type etiquette<span
+                        style="font-weight: 900;color: red;">*</span></label>
+                    <ng-select [items]="etiquettes" styleClass="form-control" bindLabel="libelle"
+                               name="typeEtyquetteId" id="typeEtyquetteId" formControlName="typeEtyquetteId"
+                               placeholder="Sélectionner une etiquette"
+                               [(ngModel)]="etiquetteSelected">
+                    </ng-select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="familleId" class="form-control-label">Famille article<span
+                        style="font-weight: 900;color: red;">*</span></label>
+                    <ng-select [items]="familleProduits" styleClass="form-control" bindLabel="libelle"
+                               name="familleId" id="familleId" formControlName="familleId"
+                               placeholder="Sélectionner une Famille"
+                               [(ngModel)]="familleSelected">
+                    </ng-select>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label class="form-control-label"
+                           for="field_codeEan">Code Ean
+                    </label>
+                    <input type="text" pInputText pKeyFilter="int" class="form-control" name="codeEan"
+                           id="field_codeEan"
+                           formControlName="codeEan" autocomplete="off"/>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-control-label" for="qtyAppro">Qunatité réappro</label>
+                    <input type="text" pInputText pKeyFilter="int" class="form-control" id="qtyAppro" name="qtyAppro"
+                           formControlName="qtyAppro"
+                           autocomplete="off"/>
+
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-control-label" for="qtySeuilMini">Qunatité Mini</label>
+                    <input type="text" pInputText pKeyFilter="int" class="form-control" id="qtySeuilMini"
+                           name="qtySeuilMini" formControlName="qtySeuilMini"
+                           autocomplete="off"/>
+
+                </div>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group col-md-3">
+                    <label for="remiseId" class="form-control-label">Remise produit</label>
+                    <ng-select [items]="remisesProduits" styleClass="form-control" bindLabel="libelle"
+                               name="remiseId" id="remiseId" formControlName="remiseId"
+                               placeholder="Sélectionner une remise"
+                               [(ngModel)]="remiseSelected">
+                    </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="formeId" class="form-control-label">Forme produit</label>
+                    <ng-select [items]="formeProduits" styleClass="form-control" bindLabel="libelle"
+                               name="formeId" id="formeId" formControlName="formeId"
+                               placeholder="Sélectionner la forme"
+                               [(ngModel)]="formeSelected">
+                    </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="gammeId" class="form-control-label">Gamme produit</label>
+                    <ng-select [items]="gammes" styleClass="form-control" bindLabel="libelle"
+                               name="gammeId" id="gammeId" formControlName="gammeId"
+                               placeholder="Sélectionner la gamme"
+                               [(ngModel)]="gammeSelected">
+                    </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="laboratoireId" class="form-control-label">Laboratoire produit</label>
+                    <ng-select [items]="laboratoires" styleClass="form-control" bindLabel="libelle"
+                               name="laboratoireId" id="laboratoireId" formControlName="laboratoireId"
+                               placeholder="Sélectionner le laboratoire"
+                               [(ngModel)]="laboratoireSelected">
+                    </ng-select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <div class="form-check form-switch  pt-4">
+                        <input  (change)="onDeconditionnable($event)" class="form-check-input"   formControlName="deconditionnable"  name="deconditionnable"  type="checkbox" id="deconditionnable">
+                        <label class="form-check-label form-control-label ml-3" for="deconditionnable">Déconditionnable ?</label>
+                    </div>
+                </div>
+                <div class="form-group  col-md-3" *ngIf="isDeconditionnable">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemQty"
+                           for="field_itemQty">Item Qty</label>
+                    <input (keyup)="handleItemQty($event)" type="text" pInputText pKeyFilter="int" class="form-control" name="itemQty"
+                           id="field_itemQty" formControlName="itemQty" autocomplete="off"/>
+
+                </div>
+                <div *ngIf="isDeconditionnable" class="form-group col-md-3">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemCostAmount"
+                           for="field_itemCostAmount">Item
+                        Cost Amount</label>
+                    <input (keyup)="handleItemCost($event)" type="text" pInputText pKeyFilter="int" class="form-control" name="itemCostAmount"
+                           id="field_itemCostAmount" formControlName="itemCostAmount" autocomplete="off"/>
+
+                </div>
+
+                <div *ngIf="isDeconditionnable" class="form-group col-md-3">
+                    <label class="form-control-label" jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
+                           for="field_itemRegularUnitPrice">Item Regular Unit Price</label>
+                    <input (keyup)="handleItemPrice($event)" type="text" pInputText pKeyFilter="int" class="form-control"
+                           name="itemRegularUnitPrice" id="field_itemRegularUnitPrice"
+                           formControlName="itemRegularUnitPrice" autocomplete="off"/>
+
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <div class="form-check form-switch  pt-3">
+                        <input  (change)="onDatePeremtionCheck($event)" class="form-check-input"   formControlName="dateperemption"  name="dateperemption"  type="checkbox" id="dateperemption">
+                        <label class="form-check-label form-control-label ml-3" for="dateperemption">Observer la date de péremption ?</label>
+                    </div>
+                </div>
+                <div *ngIf="isDatePeremptionChecked" class="form-group col-md-3">
+                    <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
+                    <p-inputMask mask="99/99/9999"  styleClass="form-control" name="expirationDate" id="field_perimeAt"
+                                 formControlName="expirationDate" placeholder="01/11/2020" slotChar="dd/mm/yyyy" autocomplete="off">
+                    </p-inputMask>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
+                        class="btn btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

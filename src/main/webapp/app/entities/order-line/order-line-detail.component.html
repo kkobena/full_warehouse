@@ -1,0 +1,86 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="orderLine">
+            <h2><span jhiTranslate="warehouseApp.orderLine.detail.title">Order Line</span> {{ orderLine.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="warehouseApp.orderLine.receiptDate">Receipt Date</span></dt>
+                <dd>
+                    <span>{{ orderLine.receiptDate }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.quantityReceived">Quantity Received</span></dt>
+                <dd>
+                    <span>{{ orderLine.quantityReceived }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.quantityRequested">Quantity Requested</span></dt>
+                <dd>
+                    <span>{{ orderLine.quantityRequested }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.quantityReturned">Quantity Returned</span></dt>
+                <dd>
+                    <span>{{ orderLine.quantityReturned }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.discountAmount">Discount Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.discountAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.orderAmount">Order Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.orderAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.grossAmount">Gross Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.grossAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.netAmount">Net Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.netAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.taxAmount">Tax Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.taxAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{ orderLine.createdAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{ orderLine.updatedAt }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.costAmount">Cost Amount</span></dt>
+                <dd>
+                    <span>{{ orderLine.costAmount }}</span>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.commande">Commande</span></dt>
+                <dd>
+                    <div *ngIf="orderLine.commande">
+                        <a [routerLink]="['/commande', orderLine.commande?.id, 'view']">{{ orderLine.commande?.id }}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="warehouseApp.orderLine.produit">Produit</span></dt>
+                <dd>
+                    <div *ngIf="orderLine.produit">
+                        <a [routerLink]="['/produit', orderLine.produit?.id, 'view']">{{ orderLine.produit?.id }}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/order-line', orderLine.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

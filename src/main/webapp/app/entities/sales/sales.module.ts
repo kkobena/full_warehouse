@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { WarehouseSharedModule } from 'app/shared/shared.module';
+import { SharedModule } from 'app/shared/shared.module';
 import { SalesComponent } from './sales.component';
 import { SalesDetailComponent } from './sales-detail.component';
 import { SalesUpdateComponent } from './sales-update.component';
@@ -18,7 +18,7 @@ import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component
 import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
 
 @NgModule({
-  imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([BtnRemoveComponent]), RouterModule.forChild(salesRoute)],
+  imports: [SharedModule, NgSelectModule, AgGridModule.withComponents([BtnRemoveComponent]), RouterModule.forChild(salesRoute)],
   declarations: [
     SalesComponent,
     SalesDetailComponent,

@@ -10,6 +10,16 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
+import {
+  faStore,
+  faFileInvoiceDollar,
+  faUserTimes,
+  faWarehouse,
+  faShoppingBag,
+  faShippingFast,
+  faThList,
+  faShoppingBasket,
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'jhi-navbar',
@@ -24,7 +34,15 @@ export class NavbarComponent implements OnInit {
   version = '';
   account: Account | null = null;
   entitiesNavbarItems: any[] = [];
-
+  faUserTimes = faUserTimes;
+  hideLanguage?: boolean;
+  faFileInvoiceDollar = faFileInvoiceDollar;
+  faWarehouse = faWarehouse;
+  faShoppingBag = faShoppingBag;
+  faThList = faThList;
+  faShippingFast = faShippingFast;
+  faShoppingBasket = faShoppingBasket;
+  faStore = faStore;
   constructor(
     private loginService: LoginService,
     private translateService: TranslateService,
@@ -62,7 +80,9 @@ export class NavbarComponent implements OnInit {
   login(): void {
     this.router.navigate(['/login']);
   }
-
+  isAuthenticated(): boolean {
+    return this.accountService.isAuthenticated();
+  }
   logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
@@ -71,5 +91,8 @@ export class NavbarComponent implements OnInit {
 
   toggleNavbar(): void {
     this.isNavbarCollapsed = !this.isNavbarCollapsed;
+  }
+  getImageUrl(): string {
+    return this.isAuthenticated() ? this.accountService.getImageUrl() : '';
   }
 }

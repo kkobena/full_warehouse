@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest;
 
-
 import com.kobe.warehouse.service.TypeEtiquetteService;
 import com.kobe.warehouse.service.dto.TypeEtiquetteDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,13 +17,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -49,13 +46,15 @@ public class TypeEtiquetteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/type-etiquettes")
-    public ResponseEntity<TypeEtiquetteDTO> createTypeEtiquette(@Valid @RequestBody TypeEtiquetteDTO typeEtiquetteDTO) throws URISyntaxException {
+    public ResponseEntity<TypeEtiquetteDTO> createTypeEtiquette(@Valid @RequestBody TypeEtiquetteDTO typeEtiquetteDTO)
+        throws URISyntaxException {
         log.debug("REST request to save TypeEtiquette : {}", typeEtiquetteDTO);
         if (typeEtiquetteDTO.getId() != null) {
             throw new BadRequestAlertException("A new typeEtiquette cannot already have an ID", ENTITY_NAME, "idexists");
         }
         TypeEtiquetteDTO result = typeEtiquetteService.save(typeEtiquetteDTO);
-        return ResponseEntity.created(new URI("/api/type-etiquettes/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/type-etiquettes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -70,13 +69,15 @@ public class TypeEtiquetteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/type-etiquettes")
-    public ResponseEntity<TypeEtiquetteDTO> updateTypeEtiquette(@Valid @RequestBody TypeEtiquetteDTO typeEtiquetteDTO) throws URISyntaxException {
+    public ResponseEntity<TypeEtiquetteDTO> updateTypeEtiquette(@Valid @RequestBody TypeEtiquetteDTO typeEtiquetteDTO)
+        throws URISyntaxException {
         log.debug("REST request to update TypeEtiquette : {}", typeEtiquetteDTO);
         if (typeEtiquetteDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         TypeEtiquetteDTO result = typeEtiquetteService.save(typeEtiquetteDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, typeEtiquetteDTO.getId().toString()))
             .body(result);
     }
@@ -119,6 +120,9 @@ public class TypeEtiquetteResource {
         log.debug("REST request to delete TypeEtiquette : {}", id);
 
         typeEtiquetteService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }

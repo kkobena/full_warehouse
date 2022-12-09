@@ -1,5 +1,17 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.dto.ProduitCriteria;
+import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,13 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.validation.Valid;
-
-import com.kobe.warehouse.domain.enumeration.Status;
-import com.kobe.warehouse.service.ProduitService;
-import com.kobe.warehouse.service.dto.ProduitCriteria;
-import com.kobe.warehouse.service.dto.ResponseDTO;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,19 +42,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.SecurityUtils;
-import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -64,17 +60,15 @@ public class ProduitResource {
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+
     private final UserRepository userRepository;
     private final ProduitRepository produitRepository;
     private final ProduitService produitService;
 
-    public ProduitResource(ProduitRepository produitRepository,
-                           UserRepository userRepository, ProduitService produitService
-    ) {
+    public ProduitResource(ProduitRepository produitRepository, UserRepository userRepository, ProduitService produitService) {
         this.produitRepository = produitRepository;
         this.userRepository = userRepository;
         this.produitService = produitService;
-
     }
 
     /**
@@ -94,7 +88,6 @@ public class ProduitResource {
         }
         produitService.save(produitDTO);
         return ResponseEntity.ok().build();
-
     }
 
     /**
@@ -137,17 +130,18 @@ public class ProduitResource {
         @RequestParam(required = false, name = "familleId") Long familleId,
         Pageable pageable
     ) {
-        Page<ProduitDTO> page = produitService.findAll(new ProduitCriteria()
+        Page<ProduitDTO> page = produitService.findAll(
+            new ProduitCriteria()
                 .setSearch(search)
                 .setStatus(status)
                 .setDeconditionnable(deconditionnable)
                 .setDeconditionne(deconditionne)
                 .setFamilleId(familleId)
                 .setRayonId(rayonId)
-                .setStorageId(storageId)
-            , pageable);
-        HttpHeaders headers = PaginationUtil
-            .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                .setStorageId(storageId),
+            pageable
+        );
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -176,7 +170,8 @@ public class ProduitResource {
     public ResponseEntity<Void> deleteProduit(@PathVariable Long id) {
         log.debug("REST request to delete Produit : {}", id);
         produitRepository.deleteById(id);
-        return ResponseEntity.noContent()
+        return ResponseEntity
+            .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }

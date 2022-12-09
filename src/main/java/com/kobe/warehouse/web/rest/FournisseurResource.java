@@ -4,9 +4,12 @@ import com.kobe.warehouse.service.FournisseurService;
 import com.kobe.warehouse.service.dto.FournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Fournisseur}.
@@ -59,7 +58,8 @@ public class FournisseurResource {
             throw new BadRequestAlertException("A new fournisseur cannot already have an ID", ENTITY_NAME, "idexists");
         }
         FournisseurDTO result = fournisseurService.save(fournisseurDTO);
-        return ResponseEntity.created(new URI("/api/fournisseurs/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/fournisseurs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -80,7 +80,8 @@ public class FournisseurResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FournisseurDTO result = fournisseurService.save(fournisseurDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, fournisseurDTO.getId().toString()))
             .body(result);
     }
@@ -92,9 +93,12 @@ public class FournisseurResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fournisseurs in body.
      */
     @GetMapping(value = "/fournisseurs")
-    public ResponseEntity<List<FournisseurDTO>> getAllFournisseurs(@RequestParam(value = "search",required = false) String search,Pageable pageable) {
+    public ResponseEntity<List<FournisseurDTO>> getAllFournisseurs(
+        @RequestParam(value = "search", required = false) String search,
+        Pageable pageable
+    ) {
         log.debug("REST request to get a page of Fournisseurs");
-        Page<FournisseurDTO> page = fournisseurService.findAll(search,pageable);
+        Page<FournisseurDTO> page = fournisseurService.findAll(search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -123,10 +127,14 @@ public class FournisseurResource {
         log.debug("REST request to delete Fournisseur : {}", id);
 
         fournisseurService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
+
     @PostMapping("/fournisseurs/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException , IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
         ResponseDTO responseDTO = fournisseurService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }

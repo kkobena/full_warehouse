@@ -7,8 +7,10 @@ import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeFilterDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link Commande}.
@@ -56,20 +55,17 @@ public class CommandeDataResource {
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "searchCommande") String searchCommande,
         @RequestParam(required = false, name = "orderStatut") OrderStatut orderStatut,
-        Pageable pageable) {
-
-        Page<CommandeLiteDTO> page =
-            commandeDataService.fetchCommandes(
-                new CommandeFilterDTO()
-                    .setTypeSuggession(typeSuggession)
-                    .setOrderStatut(orderStatut)
-                    .setSearch(search)
-                    .setSearchCommande(searchCommande)
-                ,
-                pageable);
-        HttpHeaders headers =
-            PaginationUtil.generatePaginationHttpHeaders(
-                ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        Pageable pageable
+    ) {
+        Page<CommandeLiteDTO> page = commandeDataService.fetchCommandes(
+            new CommandeFilterDTO()
+                .setTypeSuggession(typeSuggession)
+                .setOrderStatut(orderStatut)
+                .setSearch(search)
+                .setSearchCommande(searchCommande),
+            pageable
+        );
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -85,8 +81,8 @@ public class CommandeDataResource {
         @RequestParam(name = "commandeId") Long commandeId,
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "searchCommande") String searchCommande,
-        @RequestParam(required = false, name = "orderStatut") OrderStatut orderStatut) {
-
+        @RequestParam(required = false, name = "orderStatut") OrderStatut orderStatut
+    ) {
         return ResponseEntity.ok(
             commandeDataService.filterCommandeLines(
                 new CommandeFilterDTO()
@@ -94,12 +90,12 @@ public class CommandeDataResource {
                     .setOrderStatut(orderStatut)
                     .setSearchCommande(searchCommande)
                     .setSearch(search)
-            ));
+            )
+        );
     }
 
     @GetMapping("/commandes/csv/{id}")
-    public ResponseEntity<Resource> getCsv(@PathVariable Long id, HttpServletRequest request)
-        throws IOException {
+    public ResponseEntity<Resource> getCsv(@PathVariable Long id, HttpServletRequest request) throws IOException {
         final Resource resource = commandeDataService.exportCommandeToCsv(id);
         String contentType = null;
         try {
@@ -110,17 +106,15 @@ public class CommandeDataResource {
         if (contentType == null) {
             contentType = "text/csv";
         }
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .contentType(MediaType.parseMediaType(contentType))
-            .header(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
             .body(resource);
     }
 
     @GetMapping("/commandes/pdf/{id}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request)
-        throws IOException {
+    public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request) throws IOException {
         final Resource resource = commandeDataService.exportCommandeToPdf(id);
         String contentType = null;
         try {
@@ -131,28 +125,23 @@ public class CommandeDataResource {
         if (contentType == null) {
             contentType = "application/pdf";
         }
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .contentType(MediaType.parseMediaType(contentType))
-            .header(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
             .body(resource);
     }
 
     @GetMapping("/commandes/pageable-order-lines/{id}")
-    public ResponseEntity<List<OrderLineDTO>> getOrderLinesByCommandeId(
-        @PathVariable Long id, Pageable pageable) {
-
+    public ResponseEntity<List<OrderLineDTO>> getOrderLinesByCommandeId(@PathVariable Long id, Pageable pageable) {
         Page<OrderLineDTO> page = commandeDataService.filterCommandeLines(id, pageable);
-        HttpHeaders headers =
-            PaginationUtil.generatePaginationHttpHeaders(
-                ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/commandes/rupture-csv/{reference}")
-    public ResponseEntity<Resource> getRuptureCsv(
-        @PathVariable("reference") String reference, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> getRuptureCsv(@PathVariable("reference") String reference, HttpServletRequest request)
+        throws IOException {
         final Resource resource = commandeDataService.getRuptureCsv(reference);
         String contentType = null;
         try {
@@ -163,11 +152,10 @@ public class CommandeDataResource {
         if (contentType == null) {
             contentType = "text/csv";
         }
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .contentType(MediaType.parseMediaType(contentType))
-            .header(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
             .body(resource);
     }
 }

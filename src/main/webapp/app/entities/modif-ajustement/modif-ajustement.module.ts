@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 
 import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
 import { ModifAjustementComponent } from './modif-ajustement.component';
-import { WarehouseSharedModule } from '../../shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 import { RouterModule } from '@angular/router';
 import { motifAjustementRoute } from './motif-ajustement.route';
 
@@ -10,6 +10,6 @@ import { motifAjustementRoute } from './motif-ajustement.route';
   declarations: [ModifAjustementComponent, FormMotifAjustementComponent],
   entryComponents: [FormMotifAjustementComponent],
 
-  imports: [WarehouseSharedModule, RouterModule.forChild(motifAjustementRoute)],
+  imports: [SharedModule, RouterModule.forChild(motifAjustementRoute)],
 })
 export class ModifAjustementModule {}

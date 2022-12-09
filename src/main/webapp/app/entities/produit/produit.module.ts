@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { WarehouseSharedModule } from 'app/shared/shared.module';
+import { SharedModule } from 'app/shared/shared.module';
 import { ProduitComponent } from './produit.component';
 import { ProduitDetailComponent } from './produit-detail.component';
 import { ProduitUpdateComponent } from './produit-update.component';
@@ -15,7 +15,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
 import { FormRayonProduitComponent } from './form-rayon-produit/form-rayon-produit.component';
 @NgModule({
-  imports: [WarehouseSharedModule, NgSelectModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
+  imports: [SharedModule, NgSelectModule, AgGridModule.withComponents([]), RouterModule.forChild(produitRoute)],
   declarations: [
     ProduitComponent,
     ProduitDetailComponent,

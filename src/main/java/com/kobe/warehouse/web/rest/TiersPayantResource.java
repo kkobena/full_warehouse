@@ -10,9 +10,11 @@ import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +23,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
 public class TiersPayantResource {
+
     private final ImportationTiersPayantService importationTiersPayantService;
     private final TiersPayantDataService tiersPayantDataService;
     private final TiersPayantService tiersPayantService;
@@ -39,7 +39,11 @@ public class TiersPayantResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    public TiersPayantResource(ImportationTiersPayantService importationTiersPayantService, TiersPayantDataService tiersPayantDataService, TiersPayantService tiersPayantService) {
+    public TiersPayantResource(
+        ImportationTiersPayantService importationTiersPayantService,
+        TiersPayantDataService tiersPayantDataService,
+        TiersPayantService tiersPayantService
+    ) {
         this.importationTiersPayantService = importationTiersPayantService;
         this.tiersPayantDataService = tiersPayantDataService;
         this.tiersPayantService = tiersPayantService;
@@ -47,7 +51,6 @@ public class TiersPayantResource {
 
     @PostMapping("/tiers-payants/importjson")
     public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file) throws URISyntaxException, IOException {
-
         ResponseDTO responseDTO = importationTiersPayantService.updateStocFromJSON(file.getInputStream());
         return ResponseEntity.ok(responseDTO);
     }
@@ -66,14 +69,15 @@ public class TiersPayantResource {
         }
 
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
-
     }
 
     @GetMapping(value = "/tiers-payants")
-    public ResponseEntity<List<TiersPayantDto>> getAll(@RequestParam(name = "groupeTiersPayantId", required = false) Long groupeTiersPayantId, @RequestParam(value = "search", required = false, defaultValue = "") String search,
-
-                                                       @RequestParam(value = "type", required = false, defaultValue = "") String type,
-                                                       Pageable pageable) {
+    public ResponseEntity<List<TiersPayantDto>> getAll(
+        @RequestParam(name = "groupeTiersPayantId", required = false) Long groupeTiersPayantId,
+        @RequestParam(value = "search", required = false, defaultValue = "") String search,
+        @RequestParam(value = "type", required = false, defaultValue = "") String type,
+        Pageable pageable
+    ) {
         Page<TiersPayantDto> page = tiersPayantDataService.list(search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -81,7 +85,6 @@ public class TiersPayantResource {
 
     @PostMapping("/tiers-payants")
     public ResponseEntity<TiersPayantDto> create(@Valid @RequestBody TiersPayantDto tiersPayantDto) throws URISyntaxException {
-
         if (tiersPayantDto.getId() != null) {
             throw new BadRequestAlertException("A new rayon cannot already have an ID", null, "idexists");
         }
@@ -97,15 +100,19 @@ public class TiersPayantResource {
 
     @DeleteMapping("/tiers-payants/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-
         tiersPayantService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     @DeleteMapping("/tiers-payants/desable/{id}")
     public ResponseEntity<Void> desable(@PathVariable Long id) {
-
         tiersPayantService.desable(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }

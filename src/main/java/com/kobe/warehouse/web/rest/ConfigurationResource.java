@@ -8,9 +8,11 @@ import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,12 +22,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}.
@@ -33,8 +32,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 public class ConfigurationResource {
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+
     private final Logger log = LoggerFactory.getLogger(ConfigurationResource.class);
     private final AppConfigurationService appConfigurationService;
 
@@ -48,11 +49,10 @@ public class ConfigurationResource {
         Optional<AppConfiguration> appConfiguration = appConfigurationService.findOneById(id);
         return ResponseUtil.wrapOrNotFound(appConfiguration);
     }
+
     @GetMapping("/app/param-gestion-stock")
     public ResponseEntity<AppConfiguration> getParamGestionStock() {
         Optional<AppConfiguration> appConfiguration = appConfigurationService.findStockParam();
         return ResponseUtil.wrapOrNotFound(appConfiguration);
     }
-
-
 }

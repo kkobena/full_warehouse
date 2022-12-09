@@ -3,16 +3,15 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.Reference;
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventory}.
@@ -33,7 +32,6 @@ public class StoreInventoryResource {
     public StoreInventoryResource(InventaireService inventaireService) {
         this.inventaireService = inventaireService;
     }
-
 
     @GetMapping("/store-inventories/init")
     public ResponseEntity<Void> createStoreInventory() throws Exception {
@@ -57,7 +55,10 @@ public class StoreInventoryResource {
     public ResponseEntity<Void> deleteStoreInventory(@PathVariable Long id) {
         log.debug("REST request to delete StoreInventory : {}", id);
         inventaireService.remove(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     @GetMapping("/store-inventories/{id}")

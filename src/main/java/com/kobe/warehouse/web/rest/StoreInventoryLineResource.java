@@ -4,7 +4,9 @@ import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -12,17 +14,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.net.URISyntaxException;
-import java.util.Optional;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventoryLine}.
  */
 @RestController
 @RequestMapping("/api")
-
 public class StoreInventoryLineResource {
 
     private final Logger log = LoggerFactory.getLogger(StoreInventoryLineResource.class);
@@ -45,7 +43,7 @@ public class StoreInventoryLineResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/store-inventory-lines")
-    public ResponseEntity<StoreInventoryDTO> updateStoreInventoryLine(@Valid @RequestBody StoreInventoryLineDTO storeInventoryLine)  {
+    public ResponseEntity<StoreInventoryDTO> updateStoreInventoryLine(@Valid @RequestBody StoreInventoryLineDTO storeInventoryLine) {
         log.debug("REST request to update StoreInventoryLine : {}", storeInventoryLine);
         if (storeInventoryLine.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -53,7 +51,5 @@ public class StoreInventoryLineResource {
         inventaireService.updateQuantityOnHand(storeInventoryLine);
         Optional<StoreInventoryDTO> storeInventoryDTO = inventaireService.getStoreInventory(storeInventoryLine.getStoreInventoryId());
         return ResponseUtil.wrapOrNotFound(storeInventoryDTO);
-
     }
-
 }

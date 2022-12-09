@@ -79,6 +79,9 @@ export class AccountService {
   private fetch(): Observable<Account> {
     return this.http.get<Account>(this.applicationConfigService.getEndpointFor('api/account'));
   }
+  getImageUrl(): string {
+    return this.userIdentity?.imageUrl!;
+  }
 
   private navigateToStoredUrl(): void {
     // previousState can be set in the authExpiredInterceptor and in the userRouteAccessService

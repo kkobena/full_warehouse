@@ -21,7 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * A user.
  */
 @Entity
-@Table(name = "jhi_user")
+@Table(name = "user")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class User extends AbstractAuditingEntity<Long> implements Serializable {
 
@@ -82,10 +82,17 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
+    @ManyToOne(optional = false)
+    @NotNull
+    private Magasin magasin;
+
+    @ManyToOne
+    private Printer printer;
+
     @JsonIgnore
     @ManyToMany
     @JoinTable(
-        name = "jhi_user_authority",
+        name = "user_authority",
         joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
@@ -108,6 +115,24 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
 
     public String getLogin() {
         return login;
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public User setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+        return this;
+    }
+
+    public Printer getPrinter() {
+        return printer;
+    }
+
+    public User setPrinter(Printer printer) {
+        this.printer = printer;
+        return this;
     }
 
     // Lowercase the login before saving it in database

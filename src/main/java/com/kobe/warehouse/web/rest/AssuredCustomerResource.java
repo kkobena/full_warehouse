@@ -3,26 +3,27 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
+import tech.jhipster.web.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api")
 public class AssuredCustomerResource {
+
     private final Logger log = LoggerFactory.getLogger(AssuredCustomerResource.class);
 
     private static final String ENTITY_NAME = "customer";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+
     private final AssuredCustomerService assuredCustomerService;
 
     public AssuredCustomerResource(AssuredCustomerService assuredCustomerService) {
@@ -37,11 +38,10 @@ public class AssuredCustomerResource {
         }
         AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.createFromDto(customer));
         return ResponseEntity
-            .created(new URI("/api/customers/assured/" + result.getId())).headers(HeaderUtil
-                .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .created(new URI("/api/customers/assured/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     @PutMapping("/customers/assured")
     public ResponseEntity<AssuredCustomerDTO> updateCustomer(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
@@ -50,8 +50,9 @@ public class AssuredCustomerResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.updateFromDto(customer));
-        return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
             .body(result);
     }
 
@@ -61,13 +62,14 @@ public class AssuredCustomerResource {
         if (customer.getId() != null) {
             throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(assuredCustomerService.createAyantDroitFromDto(customer));
+        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
+            assuredCustomerService.createAyantDroitFromDto(customer)
+        );
         return ResponseEntity
-            .created(new URI("/api/customers/ayant-droit/" + result.getId())).headers(HeaderUtil
-                .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .created(new URI("/api/customers/ayant-droit/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     @PutMapping("/customers/ayant-droit")
     public ResponseEntity<AssuredCustomerDTO> updateAyantDroit(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
@@ -75,9 +77,12 @@ public class AssuredCustomerResource {
         if (customer.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(assuredCustomerService.updateAyantDroitFromDto(customer));
-        return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
+        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
+            assuredCustomerService.updateAyantDroitFromDto(customer)
+        );
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
             .body(result);
     }
 
@@ -85,7 +90,8 @@ public class AssuredCustomerResource {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         log.debug("REST request to delete Customer : {}", id);
         assuredCustomerService.deleteCustomerById(id);
-        return ResponseEntity.noContent()
+        return ResponseEntity
+            .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }

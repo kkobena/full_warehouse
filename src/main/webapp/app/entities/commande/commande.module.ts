@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { WarehouseSharedModule } from 'app/shared/shared.module';
+import { SharedModule } from 'app/shared/shared.module';
 import { CommandeComponent } from './commande.component';
 import { CommandeDetailComponent } from './commande-detail.component';
 import { CommandeUpdateComponent } from './commande-update.component';
@@ -16,12 +16,7 @@ import { AgGridModule } from 'ag-grid-angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 
 @NgModule({
-  imports: [
-    WarehouseSharedModule,
-    NgSelectModule,
-    AgGridModule.withComponents([CommandeBtnComponent]),
-    RouterModule.forChild(commandeRoute),
-  ],
+  imports: [SharedModule, NgSelectModule, AgGridModule, RouterModule.forChild(commandeRoute)],
   declarations: [
     CommandeComponent,
     CommandeDetailComponent,

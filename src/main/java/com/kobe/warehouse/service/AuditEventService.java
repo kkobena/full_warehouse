@@ -1,8 +1,10 @@
 package com.kobe.warehouse.service;
 
-import io.github.jhipster.config.JHipsterProperties;
 import com.kobe.warehouse.config.audit.AuditEventConverter;
 import com.kobe.warehouse.repository.PersistenceAuditEventRepository;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -11,10 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
+import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Service for managing audit events.
@@ -35,8 +34,9 @@ public class AuditEventService {
 
     public AuditEventService(
         PersistenceAuditEventRepository persistenceAuditEventRepository,
-        AuditEventConverter auditEventConverter, JHipsterProperties jhipsterProperties) {
-
+        AuditEventConverter auditEventConverter,
+        JHipsterProperties jhipsterProperties
+    ) {
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
         this.jHipsterProperties = jhipsterProperties;
@@ -59,19 +59,18 @@ public class AuditEventService {
 
     @Transactional(readOnly = true)
     public Page<AuditEvent> findAll(Pageable pageable) {
-        return persistenceAuditEventRepository.findAll(pageable)
-            .map(auditEventConverter::convertToAuditEvent);
+        return persistenceAuditEventRepository.findAll(pageable).map(auditEventConverter::convertToAuditEvent);
     }
 
     @Transactional(readOnly = true)
     public Page<AuditEvent> findByDates(Instant fromDate, Instant toDate, Pageable pageable) {
-        return persistenceAuditEventRepository.findAllByAuditEventDateBetween(fromDate, toDate, pageable)
+        return persistenceAuditEventRepository
+            .findAllByAuditEventDateBetween(fromDate, toDate, pageable)
             .map(auditEventConverter::convertToAuditEvent);
     }
 
     @Transactional(readOnly = true)
     public Optional<AuditEvent> find(Long id) {
-        return persistenceAuditEventRepository.findById(id)
-            .map(auditEventConverter::convertToAuditEvent);
+        return persistenceAuditEventRepository.findById(id).map(auditEventConverter::convertToAuditEvent);
     }
 }

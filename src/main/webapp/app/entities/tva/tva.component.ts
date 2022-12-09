@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { TvaService } from './tva.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent } from 'primeng/api';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ITva, Tva } from '../../shared/model/tva.model';
 
 @Component({
@@ -27,7 +26,7 @@ export class TvaComponent implements OnInit, OnDestroy {
   isSaving = false;
   displayDialog?: boolean;
   editForm = this.fb.group({
-    id: [],
+    id: new FormControl(),
     taux: [null, [Validators.required]],
   });
 
@@ -75,6 +74,7 @@ export class TvaComponent implements OnInit, OnDestroy {
       this.loadPage();
     });
   }
+
   ngOnDestroy(): void {}
 
   trackId(index: number, item: ITva): number {
@@ -89,29 +89,12 @@ export class TvaComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected onSuccess(data: ITva[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/tva'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
-    this.tvas = data || [];
-    this.loading = false;
-  }
-
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     if (this.predicate !== 'id') {
       result.push('id');
     }
     return result;
-  }
-
-  protected onError(): void {
-    this.loading = false;
   }
 
   confirmDelete(id: number): void {
@@ -130,47 +113,73 @@ export class TvaComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   updateForm(tva: ITva): void {
     this.editForm.patchValue({
       id: tva.id,
       taux: tva.taux,
     });
   }
+
+  save(): void {
+    this.isSaving = true;
+    const tva = this.createFromForm();
+    this.subscribeToSaveResponse(this.tvaService.create(tva));
+  }
+
+  cancel(): void {
+    this.displayDialog = false;
+  }
+
+  addNewEntity(): void {
+    this.updateForm(new Tva());
+    this.displayDialog = true;
+  }
+
+  onEdit(tva: ITva): void {
+    this.updateForm(tva);
+    this.displayDialog = true;
+  }
+
+  protected onSuccess(data: ITva[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/tva'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+      },
+    });
+    this.tvas = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
+  }
+
   protected onSaveSuccess(): void {
     this.isSaving = false;
     this.displayDialog = false;
     this.loadPage(0);
   }
+
   protected onSaveError(): void {
     this.isSaving = false;
   }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
       () => this.onSaveError()
     );
   }
+
   private createFromForm(): ITva {
     return {
       ...new Tva(),
       id: this.editForm.get(['id'])!.value,
       taux: this.editForm.get(['taux'])!.value,
     };
-  }
-  save(): void {
-    this.isSaving = true;
-    const tva = this.createFromForm();
-    this.subscribeToSaveResponse(this.tvaService.create(tva));
-  }
-  cancel(): void {
-    this.displayDialog = false;
-  }
-  addNewEntity(): void {
-    this.updateForm(new Tva());
-    this.displayDialog = true;
-  }
-  onEdit(tva: ITva): void {
-    this.updateForm(tva);
-    this.displayDialog = true;
   }
 }

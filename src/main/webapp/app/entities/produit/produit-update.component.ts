@@ -3,7 +3,7 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
+import moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 import { IProduit, Produit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
@@ -204,53 +204,6 @@ export class ProduitUpdateComponent implements OnInit {
     }
   }
 
-  private createFromForm(): IProduit {
-    return {
-      ...new Produit(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      costAmount: this.editForm.get(['costAmount'])!.value,
-      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
-      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
-      itemQty: this.editForm.get(['itemQty'])!.value,
-      itemCostAmount: this.editForm.get(['itemCostAmount'])!.value,
-      itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice'])!.value,
-      typeProduit: TypeProduit.PACKAGE,
-      typeEtyquetteId: this.editForm.get(['typeEtyquetteId'])!.value?.id,
-      tvaId: this.editForm.get(['tvaId'])!.value?.id,
-      familleId: this.editForm.get(['familleId'])!.value?.id,
-      codeCip: this.editForm.get(['codeCip'])!.value,
-      rayonId: this.editForm.get(['rayonId'])!.value?.id,
-      codeEan: this.editForm.get(['codeEan'])!.value,
-      qtyAppro: this.editForm.get(['qtyAppro'])!.value,
-      qtySeuilMini: this.editForm.get(['qtySeuilMini'])!.value,
-      remiseId: this.editForm.get(['remiseId'])!.value?.id,
-      gammeId: this.editForm.get(['gammeId'])!.value?.id,
-      fournisseurId: this.editForm.get(['fournisseurId'])!.value?.id,
-      laboratoireId: this.editForm.get(['laboratoireId'])!.value?.id,
-      deconditionnable: this.editForm.get(['deconditionnable'])!.value,
-      dateperemption: this.editForm.get(['dateperemption'])!.value,
-      expirationDate: this.editForm.get(['expirationDate'])!.value,
-      formeId: this.editForm.get(['formeId'])!.value?.id,
-    };
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
   trackById(index: number, item: ICategorie): any {
     return item.id;
   }
@@ -338,5 +291,52 @@ export class ProduitUpdateComponent implements OnInit {
       this.editForm.get('itemCostAmount')!.clearValidators();
       this.editForm.get('itemCostAmount')!.updateValueAndValidity();
     }
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onSaveSuccess(): void {
+    this.isSaving = false;
+    this.previousState();
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+  }
+
+  private createFromForm(): IProduit {
+    return {
+      ...new Produit(),
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      costAmount: this.editForm.get(['costAmount'])!.value,
+      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
+      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      itemQty: this.editForm.get(['itemQty'])!.value,
+      itemCostAmount: this.editForm.get(['itemCostAmount'])!.value,
+      itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice'])!.value,
+      typeProduit: TypeProduit.PACKAGE,
+      typeEtyquetteId: this.editForm.get(['typeEtyquetteId'])!.value?.id,
+      tvaId: this.editForm.get(['tvaId'])!.value?.id,
+      familleId: this.editForm.get(['familleId'])!.value?.id,
+      codeCip: this.editForm.get(['codeCip'])!.value,
+      rayonId: this.editForm.get(['rayonId'])!.value?.id,
+      codeEan: this.editForm.get(['codeEan'])!.value,
+      qtyAppro: this.editForm.get(['qtyAppro'])!.value,
+      qtySeuilMini: this.editForm.get(['qtySeuilMini'])!.value,
+      remiseId: this.editForm.get(['remiseId'])!.value?.id,
+      gammeId: this.editForm.get(['gammeId'])!.value?.id,
+      fournisseurId: this.editForm.get(['fournisseurId'])!.value?.id,
+      laboratoireId: this.editForm.get(['laboratoireId'])!.value?.id,
+      deconditionnable: this.editForm.get(['deconditionnable'])!.value,
+      dateperemption: this.editForm.get(['dateperemption'])!.value,
+      expirationDate: this.editForm.get(['expirationDate'])!.value,
+      formeId: this.editForm.get(['formeId'])!.value?.id,
+    };
   }
 }

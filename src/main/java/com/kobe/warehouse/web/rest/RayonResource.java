@@ -1,15 +1,17 @@
 package com.kobe.warehouse.web.rest;
 
-
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Rayon}.
@@ -44,10 +42,8 @@ public class RayonResource {
 
     private final RayonService rayonService;
 
-
     public RayonResource(RayonService rayonService) {
         this.rayonService = rayonService;
-
     }
 
     /**
@@ -64,7 +60,8 @@ public class RayonResource {
             throw new BadRequestAlertException("A new rayon cannot already have an ID", ENTITY_NAME, "idexists");
         }
         RayonDTO result = rayonService.save(rayonDTO);
-        return ResponseEntity.created(new URI("/api/rayons/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/rayons/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -85,7 +82,8 @@ public class RayonResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         RayonDTO result = rayonService.update(rayonDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, rayonDTO.getId().toString()))
             .body(result);
     }
@@ -97,7 +95,11 @@ public class RayonResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of rayons in body.
      */
     @GetMapping(value = "/rayons")
-    public ResponseEntity<List<RayonDTO>> getAllRayons(@RequestParam(name = "storageId", required = false) Long storageId, @RequestParam(value = "search", required = false, defaultValue = "") String search, Pageable pageable) {
+    public ResponseEntity<List<RayonDTO>> getAllRayons(
+        @RequestParam(name = "storageId", required = false) Long storageId,
+        @RequestParam(value = "search", required = false, defaultValue = "") String search,
+        Pageable pageable
+    ) {
         log.debug("REST request to get a page of Rayons");
         Page<RayonDTO> page = rayonService.findAll(storageId, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -127,25 +129,33 @@ public class RayonResource {
     public ResponseEntity<Void> deleteRayon(@PathVariable Long id) {
         log.debug("REST request to delete Rayon : {}", id);
         rayonService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     @PostMapping("/rayons/importcsv/{storageId}")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file, @PathVariable(name = "storageId") Long storageId) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(
+        @RequestPart("importcsv") MultipartFile file,
+        @PathVariable(name = "storageId") Long storageId
+    ) throws URISyntaxException, IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
 
     @PostMapping("/rayons/clone/{storageId}")
-    public ResponseEntity<ResponseDTO> clonerRayons(@PathVariable(name = "storageId", required = false) Long storageId,
-                                                    @RequestBody List<RayonDTO> rayonIds
+    public ResponseEntity<ResponseDTO> clonerRayons(
+        @PathVariable(name = "storageId", required = false) Long storageId,
+        @RequestBody List<RayonDTO> rayonIds
     ) throws URISyntaxException, IOException {
         ResponseDTO responseDTO = rayonService.cloner(rayonIds, storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
 
     @PostMapping("/rayons/importcsv")
-    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file)
+        throws URISyntaxException, IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), null);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }

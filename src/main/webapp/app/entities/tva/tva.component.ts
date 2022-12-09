@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
-import { TvaService } from './tva.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ITva, Tva } from '../../shared/model/tva.model';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Observable, Subscription} from 'rxjs';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
+import {TvaService} from './tva.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {FormBuilder, FormControl, Validators} from '@angular/forms';
+import {ITva, Tva} from '../../shared/model/tva.model';
 
 @Component({
   selector: 'jhi-tva',
@@ -26,7 +26,7 @@ export class TvaComponent implements OnInit, OnDestroy {
   isSaving = false;
   displayDialog?: boolean;
   editForm = this.fb.group({
-    id: new FormControl(),
+    id: [],
     taux: [null, [Validators.required]],
   });
 
@@ -36,7 +36,8 @@ export class TvaComponent implements OnInit, OnDestroy {
     protected router: Router,
     protected modalService: ConfirmationService,
     private fb: FormBuilder
-  ) {}
+  ) {
+  }
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
@@ -75,7 +76,8 @@ export class TvaComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+  }
 
   trackId(index: number, item: ITva): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion

@@ -12,105 +12,105 @@ import java.io.Serializable;
 
 public class RemiseDTO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private Long id;
+    private Long id;
 
-	private String valeur;
+    private String valeur;
 
-	@NotNull
-	private Float remiseValue;
+    @NotNull
+    private Float remiseValue;
 
-	private String typeRemise,typeLibelle;
+    private String typeRemise, typeLibelle;
 
-	private Status status;
+    private Status status;
 
-	public Long getId() {
-		return id;
-	}
+    public RemiseDTO() {
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public RemiseDTO(Remise remise) {
+        id = remise.getId();
+        valeur = remise.getValeur();
+        remiseValue = remise.getRemiseValue();
+        status = remise.getStatus();
+        if (remise instanceof RemiseClient) {
+            typeRemise = "RC";
+            typeLibelle = "Remise client";
+        } else if (remise instanceof RemiseProduit) {
+            typeRemise = "RP";
+            typeLibelle = "Remise produit";
+        }
 
-	public String getValeur() {
-		return valeur;
-	}
+    }
 
-	public void setValeur(String valeur) {
-		this.valeur = valeur;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Float getRemiseValue() {
-		return remiseValue;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setRemiseValue(Float remiseValue) {
-		this.remiseValue = remiseValue;
-	}
+    public String getValeur() {
+        return valeur;
+    }
 
-	public Status getStatus() {
-		return status;
-	}
+    public void setValeur(String valeur) {
+        this.valeur = valeur;
+    }
 
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    public Float getRemiseValue() {
+        return remiseValue;
+    }
 
-	public String getTypeRemise() {
-		return typeRemise;
-	}
+    public void setRemiseValue(Float remiseValue) {
+        this.remiseValue = remiseValue;
+    }
 
-	public void setTypeRemise(String typeRemise) {
-		this.typeRemise = typeRemise;
-	}
+    public Status getStatus() {
+        return status;
+    }
 
-	public String getTypeLibelle() {
-		return typeLibelle;
-	}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-	public void setTypeLibelle(String typeLibelle) {
-		this.typeLibelle = typeLibelle;
-	}
+    public String getTypeRemise() {
+        return typeRemise;
+    }
 
-	public RemiseDTO() {
-	}
+    public void setTypeRemise(String typeRemise) {
+        this.typeRemise = typeRemise;
+    }
 
-	public RemiseDTO(Remise remise) {
-		this.id = remise.getId();
-		this.valeur = remise.getValeur();
-		this.remiseValue = remise.getRemiseValue();
-		this.status=remise.getStatus();
-		if (remise instanceof RemiseClient) {
-			this.typeRemise = "RC";
-			this.typeLibelle="Remise client";
-		} else if (remise instanceof RemiseProduit) {
-			this.typeRemise = "RP";
-			this.typeLibelle="Remise produit";
-		}
+    public String getTypeLibelle() {
+        return typeLibelle;
+    }
 
-	}
+    public void setTypeLibelle(String typeLibelle) {
+        this.typeLibelle = typeLibelle;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof RemiseDTO)) {
-			return false;
-		}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RemiseDTO)) {
+            return false;
+        }
 
-		return id != null && id.equals(((RemiseDTO) o).id);
-	}
+        return id != null && id.equals(((RemiseDTO) o).id);
+    }
 
-	@Override
-	public int hashCode() {
-		return 31;
-	}
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 
-	@Override
-	public String toString() {
-		return "RemiseDTO{" + "id=" + getId() + ", valeur='" + getValeur() + "'" + ", remiseValue=" + getRemiseValue()
-				+ ", status='" + getStatus() + "'" + "}";
-	}
+    @Override
+    public String toString() {
+        return "RemiseDTO{" + "id=" + getId() + ", valeur='" + getValeur() + "'" + ", remiseValue=" + getRemiseValue()
+            + ", status='" + getStatus() + "'" + "}";
+    }
 }

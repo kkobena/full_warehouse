@@ -2,24 +2,27 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
-import com.kobe.warehouse.service.dto.GenericDTO;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
-@TypeDef(
-    name = "json", typeClass = JsonStringType.class
-)
+
 @Table(name = "importation",
     indexes = {
         @Index(columnList = "importation_status", name = "importation_status_index"),
@@ -50,12 +53,12 @@ public class Importation implements Serializable {
     private User user;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant created=Instant.now();
+    private Instant created = Instant.now();
     @Column(name = "updated_at")
     private Instant updated;
-    @Type(type = "json")
+    @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
     @Column(columnDefinition = "json", name = "ligne_en_erreur")
-    private Set<Object> ligneEnErreur=new HashSet<>();
+    private Set<Object> ligneEnErreur = new HashSet<>();
 
     public Set<Object> getLigneEnErreur() {
         return ligneEnErreur;

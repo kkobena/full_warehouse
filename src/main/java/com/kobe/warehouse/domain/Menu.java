@@ -1,9 +1,13 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -40,26 +44,26 @@ public class Menu implements Serializable {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public Menu libelle(String libelle) {
         this.libelle = libelle;
         return this;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Menu name(String name) {
         this.name = name;
         return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

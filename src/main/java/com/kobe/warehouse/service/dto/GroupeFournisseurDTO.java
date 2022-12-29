@@ -28,6 +28,19 @@ public class GroupeFournisseurDTO implements Serializable {
     private Integer odre = 100;
 
 
+    public GroupeFournisseurDTO() {
+    }
+
+    public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {
+        id = groupeFournisseur.getId();
+        libelle = groupeFournisseur.getLibelle();
+        addresspostale = groupeFournisseur.getAddresspostale();
+        numFaxe = groupeFournisseur.getNumFaxe();
+        email = groupeFournisseur.getEmail();
+        tel = groupeFournisseur.getTel();
+        odre = groupeFournisseur.getOdre();
+    }
+
     public Long getId() {
         return id;
     }
@@ -76,7 +89,6 @@ public class GroupeFournisseurDTO implements Serializable {
         this.tel = tel;
     }
 
-
     public Integer getOdre() {
         return odre;
     }
@@ -100,18 +112,5 @@ public class GroupeFournisseurDTO implements Serializable {
     @Override
     public int hashCode() {
         return 31;
-    }
-
-    public GroupeFournisseurDTO() {
-    }
-
-    public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {
-        this.id = groupeFournisseur.getId();
-        this.libelle = groupeFournisseur.getLibelle();
-        this.addresspostale = groupeFournisseur.getAddresspostale();
-        this.numFaxe = groupeFournisseur.getNumFaxe();
-        this.email = groupeFournisseur.getEmail();
-        this.tel = groupeFournisseur.getTel();
-        this.odre = groupeFournisseur.getOdre();
     }
 }

@@ -1,9 +1,7 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
-
-import { ISales } from 'app/shared/model/sales.model';
-import { SalesService } from './sales.service';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ISales} from 'app/shared/model/sales.model';
+import {SalesService} from './sales.service';
 
 @Component({
   templateUrl: './sales-delete-dialog.component.html',
@@ -11,7 +9,8 @@ import { SalesService } from './sales.service';
 export class SalesDeleteDialogComponent {
   sales?: ISales;
 
-  constructor(protected salesService: SalesService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected salesService: SalesService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +18,7 @@ export class SalesDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.salesService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('salesListModification');
+
       this.activeModal.close();
     });
   }

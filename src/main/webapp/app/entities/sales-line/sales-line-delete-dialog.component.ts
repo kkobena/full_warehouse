@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ISalesLine } from 'app/shared/model/sales-line.model';
-import { SalesLineService } from './sales-line.service';
+
+import {ISalesLine} from 'app/shared/model/sales-line.model';
+import {SalesLineService} from './sales-line.service';
 
 @Component({
   templateUrl: './sales-line-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { SalesLineService } from './sales-line.service';
 export class SalesLineDeleteDialogComponent {
   salesLine?: ISalesLine;
 
-  constructor(protected salesLineService: SalesLineService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected salesLineService: SalesLineService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,6 @@ export class SalesLineDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.salesLineService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('salesLineListModification');
       this.activeModal.close();
     });
   }

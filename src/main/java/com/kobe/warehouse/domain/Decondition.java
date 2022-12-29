@@ -3,9 +3,16 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -66,6 +73,10 @@ public class Decondition implements Serializable {
         return qtyMvt;
     }
 
+    public void setQtyMvt(Integer qtyMvt) {
+        this.qtyMvt = qtyMvt;
+    }
+
     public Decondition qtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;
         return this;
@@ -80,12 +91,12 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setQtyMvt(Integer qtyMvt) {
-        this.qtyMvt = qtyMvt;
-    }
-
     public Instant getDateMtv() {
         return dateMtv;
+    }
+
+    public void setDateMtv(Instant dateMtv) {
+        this.dateMtv = dateMtv;
     }
 
     public Decondition dateMtv(Instant dateMtv) {
@@ -93,12 +104,12 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setDateMtv(Instant dateMtv) {
-        this.dateMtv = dateMtv;
-    }
-
     public Integer getStockBefore() {
         return stockBefore;
+    }
+
+    public void setStockBefore(Integer stockBefore) {
+        this.stockBefore = stockBefore;
     }
 
     public Decondition stockBefore(Integer stockBefore) {
@@ -106,12 +117,12 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setStockBefore(Integer stockBefore) {
-        this.stockBefore = stockBefore;
-    }
-
     public Integer getStockAfter() {
         return stockAfter;
+    }
+
+    public void setStockAfter(Integer stockAfter) {
+        this.stockAfter = stockAfter;
     }
 
     public Decondition stockAfter(Integer stockAfter) {
@@ -119,12 +130,12 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setStockAfter(Integer stockAfter) {
-        this.stockAfter = stockAfter;
-    }
-
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Decondition user(User user) {
@@ -132,12 +143,12 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Produit getProduit() {
         return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
     }
 
     public Decondition produit(Produit produit) {
@@ -145,23 +156,18 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
-
     public DateDimension getDateDimension() {
         return dateDimension;
-    }
-
-    public Decondition dateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-        return this;
     }
 
     public void setDateDimension(DateDimension dateDimension) {
         this.dateDimension = dateDimension;
     }
 
+    public Decondition dateDimension(DateDimension dateDimension) {
+        this.dateDimension = dateDimension;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

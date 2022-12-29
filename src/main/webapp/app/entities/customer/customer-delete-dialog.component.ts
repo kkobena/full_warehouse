@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ICustomer } from 'app/shared/model/customer.model';
-import { CustomerService } from './customer.service';
+
+import {ICustomer} from 'app/shared/model/customer.model';
+import {CustomerService} from './customer.service';
 
 @Component({
   templateUrl: './customer-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { CustomerService } from './customer.service';
 export class CustomerDeleteDialogComponent {
   customer?: ICustomer;
 
-  constructor(protected customerService: CustomerService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected customerService: CustomerService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,7 @@ export class CustomerDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.customerService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('customerListModification');
+
       this.activeModal.close();
     });
   }

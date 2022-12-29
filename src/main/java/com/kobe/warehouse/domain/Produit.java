@@ -3,14 +3,9 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,17 +22,23 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-/** not an ignored comment */
+
+/**
+ * not an ignored comment
+ */
 
 @Entity
-@TypeDef(name = "json", typeClass = JsonStringType.class)
 @Table(
     name = "produit",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "type_produit" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
     indexes = {
         @Index(columnList = "libelle ASC", name = "libelle_index"),
         @Index(columnList = "code_ean", name = "codeEan_index"),
@@ -131,10 +132,10 @@ public class Produit implements Serializable {
     @JsonIgnoreProperties(value = "produits", allowSetters = true)
     private Produit parent;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE})
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @ManyToOne(optional = false)
@@ -177,7 +178,7 @@ public class Produit implements Serializable {
     @Column(name = "perime_at")
     private LocalDate perimeAt;
 
-    @OneToMany(mappedBy = "produit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -188,24 +189,38 @@ public class Produit implements Serializable {
     @JoinFormula("(SELECT o.id FROM stock_produit o WHERE  o.storage_id=2 AND o.produit_id=id LIMIT  1)")
     private StockProduit stockProduitPointOfSale;
 
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
     /* @Type(type = "json")
   @Column(columnDefinition = "json", name = "parcours_json")
   private List<ParcoursProduit> parcoursProduits = new ArrayList<>();*/
 
-    @Type(type = "json")
+    @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
     @Column(columnDefinition = "json", name = "daily_stock_json")
     private Set<DailyStock> dailyStocks = new HashSet<>();
 
-    public Set<DailyStock> getDailyStocks() {
-        return dailyStocks;
+    public static Produit detailFromParent(Produit parent) {
+        Produit produit = new Produit();
+        produit.setParent(parent);
+        produit.setLibelle(parent.getLibelle());
+        produit.setUpdatedAt(parent.getUpdatedAt());
+        produit.setCreatedAt(parent.getCreatedAt());
+        produit.setCostAmount(parent.getItemCostAmount());
+        produit.setItemQty(0);
+        produit.setItemRegularUnitPrice(0);
+        produit.setItemCostAmount(0);
+        produit.setRegularUnitPrice(parent.getItemRegularUnitPrice());
+        produit.setNetUnitPrice(0);
+        produit.setTypeProduit(TypeProduit.DETAIL);
+
+        return produit;
     }
 
-    public Produit setDailyStocks(Set<DailyStock> dailyStocks) {
-        this.dailyStocks = dailyStocks;
-        return this;
+    public static Produit detailFromParent(Produit parent, Produit produit) {
+        produit.setUpdatedAt(parent.getUpdatedAt());
+        produit.setCostAmount(parent.getItemCostAmount());
+        return produit;
     }
 
     /*
@@ -218,17 +233,34 @@ public class Produit implements Serializable {
     return this;
   }*/
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Set<DailyStock> getDailyStocks() {
+        return dailyStocks;
+    }
+
+    public Produit setDailyStocks(Set<DailyStock> dailyStocks) {
+        this.dailyStocks = dailyStocks;
+        return this;
+    }
+
     public FournisseurProduit getFournisseurProduitPrincipal() {
         return fournisseurProduitPrincipal;
+    }
+
+    public Produit setFournisseurProduitPrincipal(FournisseurProduit fournisseurProduitPrincipal) {
+        this.fournisseurProduitPrincipal = fournisseurProduitPrincipal;
+        return this;
     }
 
     public Set<StockProduit> getStockProduits() {
         return stockProduits;
     }
 
-    public Produit setFournisseurProduitPrincipal(FournisseurProduit fournisseurProduitPrincipal) {
-        this.fournisseurProduitPrincipal = fournisseurProduitPrincipal;
-        return this;
+    public void setStockProduits(Set<StockProduit> stockProduits) {
+        this.stockProduits = stockProduits;
     }
 
     public Set<RayonProduit> getRayonProduits() {
@@ -254,12 +286,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setStockProduits(Set<StockProduit> stockProduits) {
-        this.stockProduits = stockProduits;
-    }
-
     public Tva getTva() {
         return tva;
+    }
+
+    public void setTva(Tva tva) {
+        this.tva = tva;
     }
 
     public Status getStatus() {
@@ -289,10 +321,6 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setTva(Tva tva) {
-        this.tva = tva;
-    }
-
     public RemiseProduit getRemise() {
         return remise;
     }
@@ -313,17 +341,21 @@ public class Produit implements Serializable {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public Produit libelle(String libelle) {
         this.libelle = libelle;
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
     public TypeProduit getTypeProduit() {
         return typeProduit;
+    }
+
+    public void setTypeProduit(TypeProduit typeProduit) {
+        this.typeProduit = typeProduit;
     }
 
     public Produit typeProduit(TypeProduit typeProduit) {
@@ -331,12 +363,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setTypeProduit(TypeProduit typeProduit) {
-        this.typeProduit = typeProduit;
-    }
-
     public Integer getCostAmount() {
         return costAmount;
+    }
+
+    public void setCostAmount(Integer costAmount) {
+        this.costAmount = costAmount;
     }
 
     public Produit costAmount(Integer costAmount) {
@@ -344,12 +376,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setCostAmount(Integer costAmount) {
-        this.costAmount = costAmount;
-    }
-
     public Integer getRegularUnitPrice() {
         return regularUnitPrice;
+    }
+
+    public void setRegularUnitPrice(Integer regularUnitPrice) {
+        this.regularUnitPrice = regularUnitPrice;
     }
 
     public Produit regularUnitPrice(Integer regularUnitPrice) {
@@ -357,21 +389,17 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setRegularUnitPrice(Integer regularUnitPrice) {
-        this.regularUnitPrice = regularUnitPrice;
-    }
-
     public Integer getNetUnitPrice() {
         return netUnitPrice;
+    }
+
+    public void setNetUnitPrice(Integer netUnitPrice) {
+        this.netUnitPrice = netUnitPrice;
     }
 
     public Produit netUnitPrice(Integer netUnitPrice) {
         this.netUnitPrice = netUnitPrice;
         return this;
-    }
-
-    public void setNetUnitPrice(Integer netUnitPrice) {
-        this.netUnitPrice = netUnitPrice;
     }
 
     public Instant getCreatedAt() {
@@ -381,13 +409,13 @@ public class Produit implements Serializable {
         return createdAt;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Produit createdAt(Instant createdAt) {
         this.createdAt = createdAt;
         return this;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 
     public Instant getUpdatedAt() {
@@ -397,17 +425,21 @@ public class Produit implements Serializable {
         return updatedAt;
     }
 
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Produit updatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Integer getItemQty() {
         return itemQty;
+    }
+
+    public void setItemQty(Integer itemQty) {
+        this.itemQty = itemQty;
     }
 
     public Produit itemQty(Integer itemQty) {
@@ -415,12 +447,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setItemQty(Integer itemQty) {
-        this.itemQty = itemQty;
-    }
-
     public Integer getItemCostAmount() {
         return itemCostAmount;
+    }
+
+    public void setItemCostAmount(Integer itemCostAmount) {
+        this.itemCostAmount = itemCostAmount;
     }
 
     public Produit itemCostAmount(Integer itemCostAmount) {
@@ -428,12 +460,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setItemCostAmount(Integer itemCostAmount) {
-        this.itemCostAmount = itemCostAmount;
-    }
-
     public Integer getItemRegularUnitPrice() {
         return itemRegularUnitPrice;
+    }
+
+    public void setItemRegularUnitPrice(Integer itemRegularUnitPrice) {
+        this.itemRegularUnitPrice = itemRegularUnitPrice;
     }
 
     public Produit itemRegularUnitPrice(Integer itemRegularUnitPrice) {
@@ -441,12 +473,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public void setItemRegularUnitPrice(Integer itemRegularUnitPrice) {
-        this.itemRegularUnitPrice = itemRegularUnitPrice;
-    }
-
     public Set<SalesLine> getSalesLines() {
         return salesLines;
+    }
+
+    public void setSalesLines(Set<SalesLine> salesLines) {
+        this.salesLines = salesLines;
     }
 
     public Produit salesLines(Set<SalesLine> salesLines) {
@@ -455,17 +487,17 @@ public class Produit implements Serializable {
     }
 
     public Produit addSalesLine(SalesLine salesLine) {
-        this.salesLines.add(salesLine);
+        salesLines.add(salesLine);
         salesLine.setProduit(this);
         return this;
     }
 
-    public void setSalesLines(Set<SalesLine> salesLines) {
-        this.salesLines = salesLines;
-    }
-
     public Set<StoreInventoryLine> getStoreInventoryLines() {
         return storeInventoryLines;
+    }
+
+    public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
+        this.storeInventoryLines = storeInventoryLines;
     }
 
     public Produit storeInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
@@ -474,23 +506,23 @@ public class Produit implements Serializable {
     }
 
     public Produit addStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-        this.storeInventoryLines.add(storeInventoryLine);
+        storeInventoryLines.add(storeInventoryLine);
         storeInventoryLine.setProduit(this);
         return this;
     }
 
     public Produit removeStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-        this.storeInventoryLines.remove(storeInventoryLine);
+        storeInventoryLines.remove(storeInventoryLine);
         storeInventoryLine.setProduit(null);
         return this;
     }
 
-    public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
-        this.storeInventoryLines = storeInventoryLines;
-    }
-
     public Set<OrderLine> getOrderLines() {
         return orderLines;
+    }
+
+    public void setOrderLines(Set<OrderLine> orderLines) {
+        this.orderLines = orderLines;
     }
 
     public Produit orderLines(Set<OrderLine> orderLines) {
@@ -499,23 +531,23 @@ public class Produit implements Serializable {
     }
 
     public Produit addOrderLine(OrderLine orderLine) {
-        this.orderLines.add(orderLine);
+        orderLines.add(orderLine);
         orderLine.setProduit(this);
         return this;
     }
 
     public Produit addProduit(Produit produit) {
-        this.produits.add(produit);
+        produits.add(produit);
         produit.setParent(this);
         return this;
     }
 
-    public void setOrderLines(Set<OrderLine> orderLines) {
-        this.orderLines = orderLines;
-    }
-
     public Set<InventoryTransaction> getInventoryTransactions() {
         return inventoryTransactions;
+    }
+
+    public void setInventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
+        this.inventoryTransactions = inventoryTransactions;
     }
 
     public Produit inventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
@@ -524,19 +556,15 @@ public class Produit implements Serializable {
     }
 
     public Produit addInventoryTransaction(InventoryTransaction inventoryTransaction) {
-        this.inventoryTransactions.add(inventoryTransaction);
+        inventoryTransactions.add(inventoryTransaction);
         inventoryTransaction.setProduit(this);
         return this;
     }
 
     public Produit removeInventoryTransaction(InventoryTransaction inventoryTransaction) {
-        this.inventoryTransactions.remove(inventoryTransaction);
+        inventoryTransactions.remove(inventoryTransaction);
         inventoryTransaction.setProduit(null);
         return this;
-    }
-
-    public void setInventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
-        this.inventoryTransactions = inventoryTransactions;
     }
 
     public Produit getParent() {
@@ -551,35 +579,8 @@ public class Produit implements Serializable {
         return produits;
     }
 
-    public static Produit detailFromParent(Produit parent) {
-        Produit produit = new Produit();
-        produit.setParent(parent);
-        produit.setLibelle(parent.getLibelle());
-        produit.setUpdatedAt(parent.getUpdatedAt());
-        produit.setCreatedAt(parent.getCreatedAt());
-        produit.setCostAmount(parent.getItemCostAmount());
-        produit.setItemQty(0);
-        produit.setItemRegularUnitPrice(0);
-        produit.setItemCostAmount(0);
-        produit.setRegularUnitPrice(parent.getItemRegularUnitPrice());
-        produit.setNetUnitPrice(0);
-        produit.setTypeProduit(TypeProduit.DETAIL);
-
-        return produit;
-    }
-
-    public static Produit detailFromParent(Produit parent, Produit produit) {
-        produit.setUpdatedAt(parent.getUpdatedAt());
-        produit.setCostAmount(parent.getItemCostAmount());
-        return produit;
-    }
-
     public void setProduits(List<Produit> produits) {
         this.produits = produits;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
     }
 
     public Integer getQtyAppro() {
@@ -696,19 +697,19 @@ public class Produit implements Serializable {
     }
 
     public Produit addStockProduit(StockProduit stockProduit) {
-        this.stockProduits.add(stockProduit);
+        stockProduits.add(stockProduit);
         stockProduit.setProduit(this);
         return this;
     }
 
     public Produit removeStockProduit(StockProduit stockProduit) {
-        this.stockProduits.remove(stockProduit);
+        stockProduits.remove(stockProduit);
         stockProduit.setProduit(null);
         return this;
     }
 
     public Produit addFournisseurProduit(FournisseurProduit fournisseurProduit) {
-        this.fournisseurProduits.add(fournisseurProduit);
+        fournisseurProduits.add(fournisseurProduit);
         fournisseurProduit.setProduit(this);
         return this;
     }
@@ -723,7 +724,7 @@ public class Produit implements Serializable {
     }
 
     public Produit removeFournisseurProduit(FournisseurProduit fournisseurProduit) {
-        this.fournisseurProduits.remove(fournisseurProduit);
+        fournisseurProduits.remove(fournisseurProduit);
         fournisseurProduit.setProduit(null);
         return this;
     }

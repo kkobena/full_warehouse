@@ -3,14 +3,15 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.User;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A DTO representing a user, with only the public attributes.
@@ -56,7 +57,37 @@ public class UserDTO implements Serializable {
     private String fullName;
     private String abbrName;
 
-    public UserDTO() {}
+    public UserDTO() {
+    }
+
+    public UserDTO(User user) {
+        id = user.getId();
+        login = user.getLogin();
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+        email = user.getEmail();
+        activated = user.isActivated();
+        imageUrl = user.getImageUrl();
+        langKey = user.getLangKey();
+        createdBy = user.getCreatedBy();
+        createdDate = user.getCreatedDate();
+        lastModifiedBy = user.getLastModifiedBy();
+        lastModifiedDate = user.getLastModifiedDate();
+        authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
+        abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+    }
+
+    public static UserDTO user(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setAbbrName(String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName()));
+        userDTO.setFullName(String.format("%s %s", user.getFirstName(), user.getLastName()));
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(userDTO.getLastName());
+        return userDTO;
+    }
 
     public String getFullName() {
         return fullName;
@@ -74,24 +105,6 @@ public class UserDTO implements Serializable {
     public UserDTO setAbbrName(String abbrName) {
         this.abbrName = abbrName;
         return this;
-    }
-
-    public UserDTO(User user) {
-        this.id = user.getId();
-        this.login = user.getLogin();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.email = user.getEmail();
-        this.activated = user.isActivated();
-        this.imageUrl = user.getImageUrl();
-        this.langKey = user.getLangKey();
-        this.createdBy = user.getCreatedBy();
-        this.createdDate = user.getCreatedDate();
-        this.lastModifiedBy = user.getLastModifiedBy();
-        this.lastModifiedDate = user.getLastModifiedDate();
-        this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
-        this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
-        this.abbrName = String.format("%s. %s", user.getFirstName().substring(0, 1), user.getLastName());
     }
 
     public Long getId() {
@@ -199,17 +212,6 @@ public class UserDTO implements Serializable {
 
     public void setAuthorities(Set<String> authorities) {
         this.authorities = authorities;
-    }
-
-    public static UserDTO user(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setAbbrName(String.format("%s. %s", user.getFirstName().substring(0, 1), user.getLastName()));
-        userDTO.setFullName(String.format("%s %s", user.getFirstName(), user.getLastName()));
-        userDTO.setFirstName(user.getFirstName());
-        userDTO.setLastName(userDTO.getLastName());
-        return userDTO;
     }
 
     // prettier-ignore

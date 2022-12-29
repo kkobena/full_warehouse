@@ -1,14 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { ProduitService } from './produit.service';
-import { IProduit, Produit } from '../../shared/model/produit.model';
-import { DATE_TIME_FORMAT } from '../../shared/constants/input.constants';
-import * as moment from 'moment';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
-import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ProduitService} from './produit.service';
+import {IProduit, Produit} from '../../shared/model/produit.model';
+import {DATE_TIME_FORMAT} from '../../shared/constants/input.constants';
+import moment from 'moment';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
 
 @Component({
   selector: 'jhi-detail-form-dialog',
@@ -28,11 +27,11 @@ export class DetailFormDialogComponent implements OnInit {
   });
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     protected produitService: ProduitService,
-    public activeModal: NgbActiveModal,
-    protected eventManager: JhiEventManager
-  ) {}
+    public activeModal: NgbActiveModal
+  ) {
+  }
 
   ngOnInit(): void {
     if (this.entity !== null && this.entity !== undefined) {
@@ -96,7 +95,7 @@ export class DetailFormDialogComponent implements OnInit {
 
   protected onSaveSuccess(): void {
     this.isSaving = false;
-    this.eventManager.broadcast('produitListModification');
+
     this.activeModal.close();
   }
 

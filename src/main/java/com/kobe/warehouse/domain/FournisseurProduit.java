@@ -4,7 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -16,7 +26,7 @@ import java.util.Set;
  * A FournisseurProduit.
  */
 @Entity
-@Table(name = "fournisseur_produit", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "fournisseur_id"}),@UniqueConstraint(columnNames = {"code_cip", "fournisseur_id"})},    indexes = {
+@Table(name = "fournisseur_produit", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "fournisseur_id"}), @UniqueConstraint(columnNames = {"code_cip", "fournisseur_id"})}, indexes = {
     @Index(columnList = "code_cip ASC", name = "code_cip_index"),
     @Index(columnList = "principal", name = "principal_index")
 })
@@ -31,7 +41,7 @@ public class FournisseurProduit implements Serializable {
     @Column(name = "code_cip", nullable = false)
     private String codeCip;
     @NotNull
-    @Min(value =1)
+    @Min(value = 1)
     @Column(name = "prix_achat", nullable = false)
     private Integer prixAchat;
     @NotNull
@@ -40,12 +50,12 @@ public class FournisseurProduit implements Serializable {
     private Integer prixUni;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt=Instant.now();
+    private Instant createdAt = Instant.now();
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
     @NotNull
-    @Column(name = "principal", nullable = false,columnDefinition = "boolean default false")
+    @Column(name = "principal", nullable = false, columnDefinition = "boolean default false")
     private Boolean principal;
     @ManyToOne(optional = false)
     @NotNull
@@ -59,9 +69,12 @@ public class FournisseurProduit implements Serializable {
     private Set<OrderLine> orderLines = new HashSet<>();
 
 
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Set<OrderLine> getOrderLines() {
@@ -73,12 +86,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getCodeCip() {
         return codeCip;
+    }
+
+    public void setCodeCip(String codeCip) {
+        this.codeCip = codeCip;
     }
 
     public FournisseurProduit codeCip(String codeCip) {
@@ -86,12 +99,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setCodeCip(String codeCip) {
-        this.codeCip = codeCip;
-    }
-
     public Integer getPrixAchat() {
         return prixAchat;
+    }
+
+    public void setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
     }
 
     public FournisseurProduit prixAchat(Integer prixAchat) {
@@ -99,12 +112,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setPrixAchat(Integer prixAchat) {
-        this.prixAchat = prixAchat;
-    }
-
     public Integer getPrixUni() {
         return prixUni;
+    }
+
+    public void setPrixUni(Integer prixUni) {
+        this.prixUni = prixUni;
     }
 
     public FournisseurProduit prixUni(Integer prixUni) {
@@ -112,12 +125,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setPrixUni(Integer prixUni) {
-        this.prixUni = prixUni;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public FournisseurProduit createdAt(Instant createdAt) {
@@ -125,21 +138,17 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public FournisseurProduit updatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
         return this;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public Boolean isPrincipal() {
@@ -151,12 +160,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setPrincipal(Boolean principal) {
-        this.principal = principal;
-    }
-
     public Produit getProduit() {
         return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
     }
 
     public FournisseurProduit produit(Produit produit) {
@@ -164,12 +173,12 @@ public class FournisseurProduit implements Serializable {
         return this;
     }
 
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
-
     public Boolean getPrincipal() {
         return principal;
+    }
+
+    public void setPrincipal(Boolean principal) {
+        this.principal = principal;
     }
 
     public Fournisseur getFournisseur() {

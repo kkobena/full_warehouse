@@ -1,20 +1,21 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { ICustomer, Customer } from 'app/shared/model/customer.model';
-import { CustomerService } from './customer.service';
-import { CustomerComponent } from './customer.component';
-import { CustomerDetailComponent } from './customer-detail.component';
-import { CustomerUpdateComponent } from './customer-update.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {Customer, ICustomer} from 'app/shared/model/customer.model';
+import {CustomerService} from './customer.service';
+import {CustomerComponent} from './customer.component';
+import {CustomerDetailComponent} from './customer-detail.component';
+import {CustomerUpdateComponent} from './customer-update.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class CustomerResolve implements Resolve<ICustomer> {
-  constructor(private service: CustomerService, private router: Router) {}
+  constructor(private service: CustomerService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<ICustomer> | Observable<never> {
     const id = route.params['id'];

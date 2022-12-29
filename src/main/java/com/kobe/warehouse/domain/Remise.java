@@ -1,14 +1,25 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.Status;
+
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -30,14 +41,14 @@ public class Remise implements Serializable {
     @Column(name = "remise_value", nullable = false)
     private Float remiseValue;
     @NotNull
-    @Column(name = "enable", nullable = false,columnDefinition = "boolean default true")
-    private boolean enable=true;
+    @Column(name = "enable", nullable = false, columnDefinition = "boolean default true")
+    private boolean enable = true;
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private Status status=Status.ENABLE;
+    private Status status = Status.ENABLE;
     @NotNull
-    @Column(name = "code",unique = true,nullable = false)
+    @Column(name = "code", unique = true, nullable = false)
     private String code;
     @FutureOrPresent
     private LocalDateTime period;
@@ -71,6 +82,7 @@ public class Remise implements Serializable {
     public boolean isEnable() {
         return enable;
     }
+
     public void setEnable(boolean enable) {
         this.enable = enable;
     }
@@ -79,26 +91,26 @@ public class Remise implements Serializable {
         return valeur;
     }
 
+    public void setValeur(String valeur) {
+        this.valeur = valeur;
+    }
+
     public Remise valeur(String valeur) {
         this.valeur = valeur;
         return this;
-    }
-
-    public void setValeur(String valeur) {
-        this.valeur = valeur;
     }
 
     public Float getRemiseValue() {
         return remiseValue;
     }
 
+    public void setRemiseValue(Float remiseValue) {
+        this.remiseValue = remiseValue;
+    }
+
     public Remise remiseValue(Float remiseValue) {
         this.remiseValue = remiseValue;
         return this;
-    }
-
-    public void setRemiseValue(Float remiseValue) {
-        this.remiseValue = remiseValue;
     }
 
     public Status getStatus() {

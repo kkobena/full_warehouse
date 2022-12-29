@@ -31,28 +31,28 @@ public class CashFundServiceImpl implements CashFundService {
         cashFund.setCashFundType(cashFundType);
         cashFund.setStatut(CashRegisterStatut.PENDING);
         cashFund.setValidatedBy(cashRegisterOwner);
-        return this.cashFundRepository.save(cashFund);
+        return cashFundRepository.save(cashFund);
 
     }
 
     @Override
     public void validateCashFund(CashRegister cashRegister) {
-        CashFund cashFund = this.getLastPendingCashFundByCashRegister(cashRegister.getId());
+        CashFund cashFund = getLastPendingCashFundByCashRegister(cashRegister.getId());
         cashFund.setUpdated(LocalDateTime.now());
         cashFund.setValidatedBy(cashRegister.getUser());
         cashFund.setStatut(CashRegisterStatut.VALIDETED);
-        this.cashFundRepository.save(cashFund);
+        cashFundRepository.save(cashFund);
     }
 
     @Override
     public CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId) {
-        return this.cashFundRepository.findOneByCashRegisterIdAndStatut(cashRegisterId, CashRegisterStatut.PENDING);
+        return cashFundRepository.findOneByCashRegisterIdAndStatut(cashRegisterId, CashRegisterStatut.PENDING);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CashFund findById(Long id) {
-        return this.cashFundRepository.getOne(id);
+        return cashFundRepository.getReferenceById(id);
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CashFundServiceImpl implements CashFundService {
         cashFund.setCashRegister(cashRegister);
         cashFund.setStatut(CashRegisterStatut.VALIDETED);
         cashFund.setUpdated(LocalDateTime.now());
-        this.cashFundRepository.save(cashFund);
+        cashFundRepository.save(cashFund);
     }
 }

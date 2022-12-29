@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
 
-import { IMenu, Menu } from 'app/shared/model/menu.model';
-import { MenuService } from './menu.service';
+import {IMenu, Menu} from 'app/shared/model/menu.model';
+import {MenuService} from './menu.service';
 
 @Component({
   selector: 'jhi-menu-update',
@@ -21,10 +21,12 @@ export class MenuUpdateComponent implements OnInit {
     name: [null, [Validators.required]],
   });
 
-  constructor(protected menuService: MenuService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
+  constructor(protected menuService: MenuService, protected activatedRoute: ActivatedRoute,
+              private fb: UntypedFormBuilder) {
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ menu }) => {
+    this.activatedRoute.data.subscribe(({menu}) => {
       this.updateForm(menu);
     });
   }
@@ -51,15 +53,6 @@ export class MenuUpdateComponent implements OnInit {
     }
   }
 
-  private createFromForm(): IMenu {
-    return {
-      ...new Menu(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      name: this.editForm.get(['name'])!.value,
-    };
-  }
-
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMenu>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
@@ -74,5 +67,14 @@ export class MenuUpdateComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
+  }
+
+  private createFromForm(): IMenu {
+    return {
+      ...new Menu(),
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      name: this.editForm.get(['name'])!.value,
+    };
   }
 }

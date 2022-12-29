@@ -1,20 +1,19 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, Data } from '@angular/router';
-import { Subscription, combineLatest } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
+import {combineLatest, Subscription} from 'rxjs';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IDecondition } from 'app/shared/model/decondition.model';
+import {IDecondition} from 'app/shared/model/decondition.model';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { DeconditionService } from './decondition.service';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {DeconditionService} from './decondition.service';
 
 @Component({
   selector: 'jhi-decondition',
   templateUrl: './decondition.component.html',
 })
-export class DeconditionComponent implements OnInit, OnDestroy {
+export class DeconditionComponent implements OnInit {
   deconditions?: IDecondition[];
   eventSubscriber?: Subscription;
   totalItems = 0;
@@ -28,9 +27,9 @@ export class DeconditionComponent implements OnInit, OnDestroy {
     protected deconditionService: DeconditionService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal
-  ) {}
+  ) {
+  }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
@@ -67,11 +66,6 @@ export class DeconditionComponent implements OnInit, OnDestroy {
     }).subscribe();
   }
 
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
 
   trackId(index: number, item: IDecondition): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -79,7 +73,7 @@ export class DeconditionComponent implements OnInit, OnDestroy {
   }
 
   registerChangeInDeconditions(): void {
-    this.eventSubscriber = this.eventManager.subscribe('deconditionListModification', () => this.loadPage());
+    this.loadPage();
   }
 
   sort(): string[] {

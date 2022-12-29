@@ -1,6 +1,10 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.MotifAjustement;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.User;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -15,14 +19,45 @@ public class AjustementDTO {
     private Instant dateMtv;
     private int stockBefore;
     private int stockAfter;
-    private String produitLibelle,codeCip;
+    private String produitLibelle, codeCip;
     private String userFullName;
     private Long motifAjustementId;
     private String motifAjustementLibelle;
     private String commentaire;
 
+    public AjustementDTO(Ajustement ajustement) {
+        id = ajustement.getId();
+        qtyMvt = ajustement.getQtyMvt();
+        Produit produit = ajustement.getProduit();
+        produitId = produit.getId();
+        ajustId = ajustement.getAjust().getId();
+        dateMtv = ajustement.getDateMtv();
+        stockBefore = ajustement.getStockBefore();
+        stockAfter = ajustement.getStockAfter();
+        produitLibelle = produit.getLibelle();
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+
+        if (fournisseurProduit != null) {
+            codeCip = fournisseurProduit.getCodeCip();
+        }
+        User user = ajustement.getAjust().getUser();
+        userFullName = user.getFirstName() + " " + user.getLastName();
+        MotifAjustement motifAjustement = ajustement.getMotifAjustement();
+        if (motifAjustement != null) {
+            motifAjustementId = motifAjustement.getId();
+            motifAjustementLibelle = motifAjustement.getLibelle();
+        }
+    }
+
+    public AjustementDTO() {
+    }
+
     public int getQtyMvt() {
         return qtyMvt;
+    }
+
+    public void setQtyMvt(int qtyMvt) {
+        this.qtyMvt = qtyMvt;
     }
 
     public String getUserFullName() {
@@ -31,10 +66,6 @@ public class AjustementDTO {
 
     public void setUserFullName(String userFullName) {
         this.userFullName = userFullName;
-    }
-
-    public void setQtyMvt(int qtyMvt) {
-        this.qtyMvt = qtyMvt;
     }
 
     public Long getProduitId() {
@@ -89,32 +120,13 @@ public class AjustementDTO {
         return produitLibelle;
     }
 
-    public void setProduitlibelle(String produitlibelle) {
-        this.produitLibelle = produitlibelle;
+    public AjustementDTO setProduitLibelle(String produitLibelle) {
+        this.produitLibelle = produitLibelle;
+        return this;
     }
 
-    public AjustementDTO(Ajustement ajustement) {
-        this.id = ajustement.getId();
-        this.qtyMvt = ajustement.getQtyMvt();
-        Produit produit = ajustement.getProduit();
-        this.produitId = produit.getId();
-        this.ajustId = ajustement.getAjust().getId();
-        this.dateMtv = ajustement.getDateMtv();
-        this.stockBefore = ajustement.getStockBefore();
-        this.stockAfter = ajustement.getStockAfter();
-        this.produitLibelle = produit.getLibelle();
-        FournisseurProduit fournisseurProduit=produit.getFournisseurProduitPrincipal();
-
-        if(fournisseurProduit!=null){
-            this.codeCip=fournisseurProduit.getCodeCip();
-        }
-        User user = ajustement.getAjust().getUser();
-        this.userFullName = user.getFirstName() + " " + user.getLastName();
-        MotifAjustement motifAjustement = ajustement.getMotifAjustement();
-        if (motifAjustement != null) {
-            this.motifAjustementId = motifAjustement.getId();
-            this.motifAjustementLibelle = motifAjustement.getLibelle();
-        }
+    public void setProduitlibelle(String produitlibelle) {
+        produitLibelle = produitlibelle;
     }
 
     public String getCodeCip() {
@@ -123,11 +135,6 @@ public class AjustementDTO {
 
     public AjustementDTO setCodeCip(String codeCip) {
         this.codeCip = codeCip;
-        return this;
-    }
-
-    public AjustementDTO setProduitLibelle(String produitLibelle) {
-        this.produitLibelle = produitLibelle;
         return this;
     }
 
@@ -165,8 +172,5 @@ public class AjustementDTO {
     public AjustementDTO setStorageId(Long storageId) {
         this.storageId = storageId;
         return this;
-    }
-
-    public AjustementDTO() {
     }
 }

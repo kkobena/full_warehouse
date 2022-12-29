@@ -1,19 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { IPayment, Payment } from 'app/shared/model/payment.model';
-import { PaymentService } from './payment.service';
-import { PaymentComponent } from './payment.component';
-import { PaymentDetailComponent } from './payment-detail.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {IPayment, Payment} from 'app/shared/model/payment.model';
+import {PaymentService} from './payment.service';
+import {PaymentComponent} from './payment.component';
+import {PaymentDetailComponent} from './payment-detail.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class PaymentResolve implements Resolve<IPayment> {
-  constructor(private service: PaymentService, private router: Router) {}
+  constructor(private service: PaymentService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<IPayment> | Observable<never> {
     const id = route.params['id'];

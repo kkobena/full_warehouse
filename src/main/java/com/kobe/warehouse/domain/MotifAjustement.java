@@ -1,6 +1,12 @@
 package com.kobe.warehouse.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -19,23 +25,23 @@ public class MotifAjustement implements Serializable {
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
-    public void setId(Long id) {
-        this.id = id;
+    public MotifAjustement() {
+
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getLibelle() {
         return libelle;
     }
 
-    public MotifAjustement() {
-
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
 }

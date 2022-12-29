@@ -54,7 +54,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         Optional<SalesLine> optionalSalesLine = salesLineRepository.findBySalesIdAndProduitId(saleLine.getSaleId(), saleLine.getProduitId());
         if (optionalSalesLine.isPresent()) {
             salesLine = optionalSalesLine.get();
-            Produit produit = produitRepository.getOne(saleLine.getProduitId());
+            Produit produit = produitRepository.getReferenceById(saleLine.getProduitId());
             if ((salesLine.getQuantitySold() + saleLine.getQuantitySold()) > 0/*produit.getQuantity()*/) {
                 throw new StockException();
             } else {
@@ -85,18 +85,19 @@ public class SalesLineServiceImpl implements SalesLineService {
     @Override
     public void updateItemQuantitySold(SalesLine salesLine, SaleLineDTO saleLineDTO, Long storageId) {
         updateItemQuantitySold(saleLineDTO, salesLine, storageId);
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLine);
     }
 
 
     @Override
     public SalesLine getOneById(Long id) {
-        return this.salesLineRepository.getOne(id);
+        return salesLineRepository.getReferenceById(id);
     }
 
 
+    @Override
     public void processUg(SalesLine salesLine, SaleLineDTO dto, Long stockageId) {
-        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), stockageId);
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), stockageId);
         if (stockProduit.getQtyUG() > 0) {
             if (salesLine.getQuantitySold() >= stockProduit.getQtyUG()) {
                 salesLine.setQuantityUg(stockProduit.getQtyUG());
@@ -127,9 +128,10 @@ public class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public void deleteSaleLine(SalesLine salesLine) {
-        this.salesLineRepository.delete(salesLine);
+        salesLineRepository.delete(salesLine);
     }
 
+    @Override
     public SalesLine buildSaleLineFromDTO(SaleLineDTO dto) {
         Produit produit = produitRepository.findOneByLibelle(dto.getProduitLibelle().trim()).orElseThrow();
         SalesLine salesLine = new SalesLine();
@@ -157,14 +159,16 @@ public class SalesLineServiceImpl implements SalesLineService {
 
     }
 
-    public SalesLine create(SaleLineDTO dto, Long storageId,Sales sales) {
+    @Override
+    public SalesLine create(SaleLineDTO dto, Long storageId, Sales sales) {
         SalesLine salesLine = createSaleLineFromDTO(dto, storageId);
         salesLine.setSales(sales);
-        return this.salesLineRepository.save(salesLine);
+        return salesLineRepository.save(salesLine);
     }
 
+    @Override
     public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Long stockageId) {
-        Produit produit = produitRepository.getOne(dto.getProduitId());
+        Produit produit = produitRepository.getReferenceById(dto.getProduitId());
         Tva tva = produit.getTva();
         SalesLine salesLine = new SalesLine();
         salesLine.setTaxValue(tva.getTaux());
@@ -199,20 +203,23 @@ public class SalesLineServiceImpl implements SalesLineService {
         processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
     }
 
+    @Override
     public Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId) {
-        return this.salesLineRepository.findBySalesIdAndProduitId(salesId, produitId);
+        return salesLineRepository.findBySalesIdAndProduitId(salesId, produitId);
     }
 
     @Override
     public void saveSalesLine(SalesLine salesLine) {
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLine);
     }
 
+    @Override
     public void updateSaleLine(SaleLineDTO dto, SalesLine salesLine, Long storageId) {
         updateSalesLine(salesLine, dto, storageId);
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLine);
     }
 
+    @Override
     public void updateItemRegularPrice(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId) {
         salesLine.setUpdatedAt(Instant.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
@@ -220,21 +227,24 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
         processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLine);
     }
-    public  void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, User user,Long storageId){
+
+    @Override
+    public void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, User user, Long storageId) {
         salesLines.forEach(salesLine -> {
             salesLine.setUpdatedAt(Instant.now());
             salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
             SalesLine salesLineCopy = cloneSalesLine(salesLine, copy);
-            createInventoryAnnulation(salesLineCopy, user, copy.getDateDimension(),storageId);
+            createInventoryAnnulation(salesLineCopy, user, copy.getDateDimension(), storageId);
         });
     }
 
-    public void createInventory(SalesLine salesLine, User user, DateDimension dateD,Long storageId) {
+    @Override
+    public void createInventory(SalesLine salesLine, User user, DateDimension dateD, Long storageId) {
         InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
         Produit p = salesLine.getProduit();
-        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
         int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
         inventoryTransaction.setDateDimension(dateD);
@@ -242,18 +252,19 @@ public class SalesLineServiceImpl implements SalesLineService {
         inventoryTransaction.setQuantityAfter(quantityAfter);
         inventoryTransactionRepository.save(inventoryTransaction);
         if (quantityBefor < salesLine.getQuantityRequested()) {
-            this.logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
+            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
         }
         FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
             String desc = String.format("Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s", fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "", p.getLibelle(), fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null, salesLine.getRegularUnitPrice(), salesLine.getSales().getNumberTransaction());
-            this.logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
+            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
         }
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
         stockProduit.setUpdatedAt(Instant.now());
-        this.stockProduitRepository.save(stockProduit);
+        stockProduitRepository.save(stockProduit);
     }
+
     private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy) {
         SalesLine salesLineCopy = (SalesLine) salesLine.clone();
         salesLineCopy.setId(null);
@@ -272,15 +283,16 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLineCopy.setDiscountAmount(salesLineCopy.getDiscountAmount() * (-1));
         salesLineCopy.setDiscountAmountUg(salesLineCopy.getDiscountAmountUg() * (-1));
         salesLineCopy.setAmountToBeTakenIntoAccount(salesLineCopy.getAmountToBeTakenIntoAccount() * (-1));
-        this.salesLineRepository.save(salesLineCopy);
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLineCopy);
+        salesLineRepository.save(salesLine);
         return salesLineCopy;
 
     }
-    private void createInventoryAnnulation(SalesLine salesLine, User user, DateDimension dateD,Long storageId) {
+
+    private void createInventoryAnnulation(SalesLine salesLine, User user, DateDimension dateD, Long storageId) {
         InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, TransactionType.CANCEL_SALE, user);
         Produit p = salesLine.getProduit();
-        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
         int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
         inventoryTransaction.setDateDimension(dateD);
@@ -290,8 +302,9 @@ public class SalesLineServiceImpl implements SalesLineService {
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
         stockProduit.setUpdatedAt(Instant.now());
-        this.stockProduitRepository.save(stockProduit);
+        stockProduitRepository.save(stockProduit);
     }
+
     private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId) {
         salesLine.setQuantitySold(saleLineDTO.getQuantitySold());
         salesLine.setUpdatedAt(Instant.now());
@@ -301,8 +314,9 @@ public class SalesLineServiceImpl implements SalesLineService {
         processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
     }
 
+    @Override
     public void updateItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId) throws StockException, DeconditionnementStockOut {
-        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
         int quantity = stockProduit.getQtyStock();
         if (saleLineDTO.getQuantityRequested() > quantity && !saleLineDTO.isForceStock()) {
             if (salesLine.getProduit().getParent() == null) {
@@ -318,6 +332,6 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
         processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
-        this.salesLineRepository.save(salesLine);
+        salesLineRepository.save(salesLine);
     }
 }

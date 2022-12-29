@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +60,7 @@ public class StoreInventoryLineResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -71,9 +73,10 @@ public class StoreInventoryLineResourceIT {
             .inventoryValueLatestSellingPrice(DEFAULT_INVENTORY_VALUE_LATEST_SELLING_PRICE);
         return storeInventoryLine;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -98,8 +101,8 @@ public class StoreInventoryLineResourceIT {
         int databaseSizeBeforeCreate = storeInventoryLineRepository.findAll().size();
         // Create the StoreInventoryLine
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isCreated());
 
         // Validate the StoreInventoryLine in the database
@@ -123,8 +126,8 @@ public class StoreInventoryLineResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the StoreInventoryLine in the database
@@ -144,8 +147,8 @@ public class StoreInventoryLineResourceIT {
 
 
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventoryLine> storeInventoryLineList = storeInventoryLineRepository.findAll();
@@ -163,8 +166,8 @@ public class StoreInventoryLineResourceIT {
 
 
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventoryLine> storeInventoryLineList = storeInventoryLineRepository.findAll();
@@ -182,8 +185,8 @@ public class StoreInventoryLineResourceIT {
 
 
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventoryLine> storeInventoryLineList = storeInventoryLineRepository.findAll();
@@ -201,8 +204,8 @@ public class StoreInventoryLineResourceIT {
 
 
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventoryLine> storeInventoryLineList = storeInventoryLineRepository.findAll();
@@ -220,8 +223,8 @@ public class StoreInventoryLineResourceIT {
 
 
         restStoreInventoryLineMockMvc.perform(post("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventoryLine> storeInventoryLineList = storeInventoryLineRepository.findAll();
@@ -245,7 +248,7 @@ public class StoreInventoryLineResourceIT {
             .andExpect(jsonPath("$.[*].inventoryValueCost").value(hasItem(DEFAULT_INVENTORY_VALUE_COST)))
             .andExpect(jsonPath("$.[*].inventoryValueLatestSellingPrice").value(hasItem(DEFAULT_INVENTORY_VALUE_LATEST_SELLING_PRICE)));
     }
-    
+
     @Test
     @Transactional
     public void getStoreInventoryLine() throws Exception {
@@ -263,6 +266,7 @@ public class StoreInventoryLineResourceIT {
             .andExpect(jsonPath("$.inventoryValueCost").value(DEFAULT_INVENTORY_VALUE_COST))
             .andExpect(jsonPath("$.inventoryValueLatestSellingPrice").value(DEFAULT_INVENTORY_VALUE_LATEST_SELLING_PRICE));
     }
+
     @Test
     @Transactional
     public void getNonExistingStoreInventoryLine() throws Exception {
@@ -291,8 +295,8 @@ public class StoreInventoryLineResourceIT {
             .inventoryValueLatestSellingPrice(UPDATED_INVENTORY_VALUE_LATEST_SELLING_PRICE);
 
         restStoreInventoryLineMockMvc.perform(put("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedStoreInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedStoreInventoryLine)))
             .andExpect(status().isOk());
 
         // Validate the StoreInventoryLine in the database
@@ -313,8 +317,8 @@ public class StoreInventoryLineResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restStoreInventoryLineMockMvc.perform(put("/api/store-inventory-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventoryLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the StoreInventoryLine in the database
@@ -332,7 +336,7 @@ public class StoreInventoryLineResourceIT {
 
         // Delete the storeInventoryLine
         restStoreInventoryLineMockMvc.perform(delete("/api/store-inventory-lines/{id}", storeInventoryLine.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

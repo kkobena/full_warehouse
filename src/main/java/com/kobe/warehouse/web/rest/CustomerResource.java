@@ -1,34 +1,49 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.enumeration.Status;
-import com.kobe.warehouse.repository.CustomerRepository;
-import com.kobe.warehouse.service.*;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.AssuredCustomerService;
+import com.kobe.warehouse.service.CustomerDataService;
+import com.kobe.warehouse.service.ImportationCustomer;
+import com.kobe.warehouse.service.SaleDataService;
+import com.kobe.warehouse.service.UninsuredCustomerService;
+import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
+import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.CustomerDTO;
+import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import javax.validation.Valid;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Customer}.
@@ -38,18 +53,15 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class CustomerResource {
 
-    private final Logger log = LoggerFactory.getLogger(CustomerResource.class);
-
     private static final String ENTITY_NAME = "customer";
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
+    private final Logger log = LoggerFactory.getLogger(CustomerResource.class);
     private final CustomerDataService customerDataService;
     private final SaleDataService saleService;
     private final UninsuredCustomerService uninsuredCustomerService;
     private final ImportationCustomer importationCustomer;
     private final AssuredCustomerService assuredCustomerService;
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     public CustomerResource(
         CustomerDataService customerDataService,
@@ -154,19 +166,19 @@ public class CustomerResource {
         @RequestParam(value = "typeTiersPayant", required = false) String typeTiersPayant
     ) {
         log.debug("REST request to get a page of Customers");
-        List<AssuredCustomerDTO> dtoList = this.assuredCustomerService.fetch(search, typeTiersPayant);
+        List<AssuredCustomerDTO> dtoList = assuredCustomerService.fetch(search, typeTiersPayant);
         return ResponseEntity.ok().body(dtoList);
     }
 
     @GetMapping("/customers/tiers-payants/{id}")
     public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Long id) {
-        List<ClientTiersPayantDTO> dtoList = this.customerDataService.fetchCustomersTiersPayant(id);
+        List<ClientTiersPayantDTO> dtoList = customerDataService.fetchCustomersTiersPayant(id);
         return ResponseEntity.ok().body(dtoList);
     }
 
     @GetMapping("/customers/ayant-droits/{id}")
     public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Long id) {
-        List<AssuredCustomerDTO> dtoList = this.customerDataService.fetchAyantDroit(id);
+        List<AssuredCustomerDTO> dtoList = customerDataService.fetchAyantDroit(id);
         return ResponseEntity.ok().body(dtoList);
     }
 }

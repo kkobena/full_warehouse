@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
-import { ErrorService } from 'app/shared/error.service';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {GroupeTiersPayant, IGroupeTiersPayant} from 'app/shared/model/groupe-tierspayant.model';
+import {ErrorService} from 'app/shared/error.service';
+import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {GroupeTiersPayantService} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
@@ -27,12 +27,13 @@ export class FormGroupeTiersPayantComponent implements OnInit {
 
   constructor(
     protected errorService: ErrorService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected groupeTiersPayantService: GroupeTiersPayantService,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -92,10 +93,10 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     this.isSaving = false;
     if (error.error && error.error.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
       });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
+      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
     }
   }
 }

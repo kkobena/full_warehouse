@@ -31,49 +31,49 @@ public class TiersPayantServiceImpl implements TiersPayantService {
     @Override
     public TiersPayantDto createFromDto(TiersPayantDto dto) throws GenericError {
         if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = this.tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
             if (tiersPayantOp.isPresent())
                 throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme", "tiersPayantExistant");
         } else {
-            Optional<TiersPayant> tiersPayantOp = this.tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
             if (tiersPayantOp.isPresent())
                 throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
         }
 
-        TiersPayant tiersPayant = this.entityFromDto(dto);
+        TiersPayant tiersPayant = entityFromDto(dto);
         tiersPayant.setUpdatedBy(storageService.getUser());
-        tiersPayant = this.tiersPayantRepository.save(tiersPayant);
-        return this.fromEntity(tiersPayant);
+        tiersPayant = tiersPayantRepository.save(tiersPayant);
+        return fromEntity(tiersPayant);
     }
 
     @Override
     public TiersPayantDto updateFromDto(TiersPayantDto dto) throws GenericError {
-        TiersPayant tiersPayant = this.tiersPayantRepository.getOne(dto.getId());
+        TiersPayant tiersPayant = tiersPayantRepository.getReferenceById(dto.getId());
         if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = this.tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
             if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId())
                 throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme", "tiersPayantExistant");
         } else {
-            Optional<TiersPayant> tiersPayantOp = this.tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
             if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId())
                 throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
         }
 
-        tiersPayant = this.entityFromDto(dto, tiersPayant);
+        tiersPayant = entityFromDto(dto, tiersPayant);
         tiersPayant.setUpdatedBy(storageService.getUser());
-        tiersPayant = this.tiersPayantRepository.save(tiersPayant);
-        return this.fromEntity(tiersPayant);
+        tiersPayant = tiersPayantRepository.save(tiersPayant);
+        return fromEntity(tiersPayant);
     }
 
     @Override
     public void desable(Long id) {
-        this.tiersPayantRepository.save(this.tiersPayantRepository.getOne(id).setStatut(TiersPayantStatut.DISABLED).setUpdated(Instant.now()).setUpdatedBy(storageService.getUser()));
+        tiersPayantRepository.save(tiersPayantRepository.getReferenceById(id).setStatut(TiersPayantStatut.DISABLED).setUpdated(Instant.now()).setUpdatedBy(storageService.getUser()));
     }
 
     @Override
     public void delete(Long id) throws GenericError {
         try {
-            this.tiersPayantRepository.deleteById(id);
+            tiersPayantRepository.deleteById(id);
         } catch (Exception e) {
             log.debug("delete {}", e);
             throw new GenericError("tierspayant", "Il y'a client associés à ce tiers-payant", "tiersPayantClientsAssocies");

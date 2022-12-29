@@ -12,6 +12,15 @@ public class TvaDTO implements Serializable {
     private Integer taux;
     private String tva;
 
+    public TvaDTO(Tva tva) {
+        id = tva.getId();
+        taux = tva.getTaux();
+
+    }
+
+    public TvaDTO() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -45,12 +54,10 @@ public class TvaDTO implements Serializable {
         return 31;
     }
 
-
     public String getTva() {
-        this.tva = taux.toString();
+        tva = taux.toString();
         return tva;
     }
-
 
     @Override
     public String toString() {
@@ -58,14 +65,5 @@ public class TvaDTO implements Serializable {
             "id=" + getId() +
             ", taux=" + getTaux() +
             "}";
-    }
-
-    public TvaDTO(Tva tva) {
-        this.id = tva.getId();
-        this.taux = tva.getTaux();
-
-    }
-
-    public TvaDTO() {
     }
 }

@@ -1,18 +1,19 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { ITiersPayant, TiersPayant } from '../../shared/model/tierspayant.model';
-import { TiersPayantService } from './tierspayant.service';
-import { TiersPayantComponent } from './tiers-payant.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {ITiersPayant, TiersPayant} from '../../shared/model/tierspayant.model';
+import {TiersPayantService} from './tierspayant.service';
+import {TiersPayantComponent} from './tiers-payant.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class GroupeTiersPayantResolve implements Resolve<ITiersPayant> {
-  constructor(private service: TiersPayantService, private router: Router) {}
+  constructor(private service: TiersPayantService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<ITiersPayant> | Observable<never> {
     const id = route.params['id'];

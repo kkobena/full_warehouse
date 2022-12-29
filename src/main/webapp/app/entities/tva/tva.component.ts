@@ -5,7 +5,7 @@ import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
 import {TvaService} from './tva.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {FormBuilder, FormControl, Validators} from '@angular/forms';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
 import {ITva, Tva} from '../../shared/model/tva.model';
 
 @Component({
@@ -35,7 +35,7 @@ export class TvaComponent implements OnInit, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: ConfirmationService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) {
   }
 

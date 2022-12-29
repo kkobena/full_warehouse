@@ -2,7 +2,10 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
+
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -21,10 +24,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.kobe.warehouse.domain.enumeration.TransactionType;
 /**
  * Integration tests for the {@link InventoryTransactionResource} REST controller.
  */
@@ -67,7 +74,7 @@ public class InventoryTransactionResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -80,9 +87,10 @@ public class InventoryTransactionResourceIT {
             .quantityAfter(DEFAULT_QUANTITY_AFTER);
         return inventoryTransaction;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -107,8 +115,8 @@ public class InventoryTransactionResourceIT {
         int databaseSizeBeforeCreate = inventoryTransactionRepository.findAll().size();
         // Create the InventoryTransaction
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isCreated());
 
         // Validate the InventoryTransaction in the database
@@ -132,8 +140,8 @@ public class InventoryTransactionResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         // Validate the InventoryTransaction in the database
@@ -153,8 +161,8 @@ public class InventoryTransactionResourceIT {
 
 
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -173,8 +181,8 @@ public class InventoryTransactionResourceIT {
 
 
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -186,8 +194,8 @@ public class InventoryTransactionResourceIT {
     public void checkUpdatedAtIsRequired() throws Exception {
         int databaseSizeBeforeTest = inventoryTransactionRepository.findAll().size();
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -205,8 +213,8 @@ public class InventoryTransactionResourceIT {
 
 
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -224,8 +232,8 @@ public class InventoryTransactionResourceIT {
 
 
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -243,8 +251,8 @@ public class InventoryTransactionResourceIT {
 
 
         restInventoryTransactionMockMvc.perform(post("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         List<InventoryTransaction> inventoryTransactionList = inventoryTransactionRepository.findAll();
@@ -290,6 +298,7 @@ public class InventoryTransactionResourceIT {
             .andExpect(jsonPath("$.quantityBefor").value(DEFAULT_QUANTITY_BEFOR))
             .andExpect(jsonPath("$.quantityAfter").value(DEFAULT_QUANTITY_AFTER));
     }
+
     @Test
     @Transactional
     public void getNonExistingInventoryTransaction() throws Exception {
@@ -318,8 +327,8 @@ public class InventoryTransactionResourceIT {
             .quantityAfter(UPDATED_QUANTITY_AFTER);
 
         restInventoryTransactionMockMvc.perform(put("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedInventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedInventoryTransaction)))
             .andExpect(status().isOk());
 
         // Validate the InventoryTransaction in the database
@@ -340,8 +349,8 @@ public class InventoryTransactionResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restInventoryTransactionMockMvc.perform(put("/api/inventory-transactions").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(inventoryTransaction)))
             .andExpect(status().isBadRequest());
 
         // Validate the InventoryTransaction in the database
@@ -359,7 +368,7 @@ public class InventoryTransactionResourceIT {
 
         // Delete the inventoryTransaction
         restInventoryTransactionMockMvc.perform(delete("/api/inventory-transactions/{id}", inventoryTransaction.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

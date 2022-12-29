@@ -2,8 +2,8 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -24,10 +24,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
 /**
  * Integration tests for the {@link CommandeResource} REST controller.
  */
@@ -39,8 +43,8 @@ public class CommandeResourceIT {
     private static final String DEFAULT_ORDER_REFERNCE = "AAAAAAAAAA";
     private static final String UPDATED_ORDER_REFERNCE = "BBBBBBBBBB";
 
-    private static final LocalDateTime DEFAULT_RECEIPT_DATE = LocalDateTime.now().minusMonths(1);
-    private static final LocalDateTime UPDATED_RECEIPT_DATE = LocalDateTime.now(ZoneId.systemDefault());
+    private static final LocalDate DEFAULT_RECEIPT_DATE = LocalDate.now().minusMonths(1);
+    private static final LocalDate UPDATED_RECEIPT_DATE = LocalDate.now(ZoneId.systemDefault());
 
     private static final Integer DEFAULT_DISCOUNT_AMOUNT = 1;
     private static final Integer UPDATED_DISCOUNT_AMOUNT = 2;
@@ -79,7 +83,7 @@ public class CommandeResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -97,9 +101,10 @@ public class CommandeResourceIT {
             .orderStatus(DEFAULT_ORDER_STATUS);
         return commande;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -129,8 +134,8 @@ public class CommandeResourceIT {
         int databaseSizeBeforeCreate = commandeRepository.findAll().size();
         // Create the Commande
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isCreated());
 
         // Validate the Commande in the database
@@ -159,8 +164,8 @@ public class CommandeResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         // Validate the Commande in the database
@@ -180,8 +185,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -199,8 +204,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -218,8 +223,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -237,8 +242,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -256,8 +261,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -275,8 +280,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -294,8 +299,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -313,8 +318,8 @@ public class CommandeResourceIT {
 
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         List<Commande> commandeList = commandeRepository.findAll();
@@ -366,6 +371,7 @@ public class CommandeResourceIT {
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
             .andExpect(jsonPath("$.orderStatus").value(DEFAULT_ORDER_STATUS.toString()));
     }
+
     @Test
     @Transactional
     public void getNonExistingCommande() throws Exception {
@@ -399,8 +405,8 @@ public class CommandeResourceIT {
             .orderStatus(UPDATED_ORDER_STATUS);
 
         restCommandeMockMvc.perform(put("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedCommande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedCommande)))
             .andExpect(status().isOk());
 
         // Validate the Commande in the database
@@ -426,8 +432,8 @@ public class CommandeResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCommandeMockMvc.perform(put("/api/commandes").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(commande)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(commande)))
             .andExpect(status().isBadRequest());
 
         // Validate the Commande in the database
@@ -445,7 +451,7 @@ public class CommandeResourceIT {
 
         // Delete the commande
         restCommandeMockMvc.perform(delete("/api/commandes/{id}", commande.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

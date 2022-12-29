@@ -41,8 +41,8 @@ Generic styles
 /* other generic styles */
 
 .jh-card {
-  padding: 1.5%;
-  margin-top: 20px;
+  padding: 0.5%;
+  margin-top: 5px;
   border: none;
 }
 
@@ -68,10 +68,6 @@ Generic styles
   word-break: break-all;
 }
 
-.form-control {
-  background-color: #fff;
-}
-
 .readonly {
   background-color: #eee;
   opacity: 1;
@@ -92,6 +88,7 @@ Custom alerts for notification
 .alerts {
   .alert {
     text-overflow: ellipsis;
+
     pre {
       background: none;
       border: none;
@@ -100,22 +97,28 @@ Custom alerts for notification
       padding: 0;
       margin: 0;
     }
+
     .popover pre {
       font-size: 10px;
     }
   }
+
   .jhi-toast {
     position: fixed;
     width: 100%;
+
     &.left {
       left: 5px;
     }
+
     &.right {
       right: 5px;
     }
+
     &.top {
       top: 55px;
     }
+
     &.bottom {
       bottom: 55px;
     }
@@ -129,37 +132,23 @@ Custom alerts for notification
 }
 
 /* ==========================================================================
-entity list page css
-========================================================================== */
-
-.table-entities thead th .d-flex > * {
-  margin: auto 0;
-}
-
-/* ==========================================================================
 entity detail page css
 ========================================================================== */
-.row-md.jh-entity-details {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 10px;
-  line-height: 1.5;
+.row.jh-entity-details > {
+  dd {
+    margin-bottom: 15px;
+  }
 }
 
 @media screen and (min-width: 768px) {
-  .row-md.jh-entity-details > {
+  .row.jh-entity-details > {
     dt {
-      float: left;
-      overflow: hidden;
-      clear: left;
-      text-align: right;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 0.5em 0;
+      margin-bottom: 15px;
     }
+
     dd {
       border-bottom: 1px solid #eee;
-      padding: 0.5em 0;
+      padding-left: 180px;
       margin-left: 0;
     }
   }
@@ -182,29 +171,375 @@ ui bootstrap tweaks
   white-space: nowrap;
 }
 
-.dropdown-menu {
-  padding-left: 0px;
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.2rem 1rem;
 }
 
-/* ==========================================================================
-angular-cli removes postcss-rtl processed inline css, processed rules must be added here instead
-========================================================================== */
-/* page-ribbon.component.scss */
-.ribbon {
-  left: -3.5em;
-  -moz-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  -o-transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
-  transform: rotate(-45deg);
+.p-toolbar {
+  padding: 5px;
 }
 
-/* navbar.component.scss */
-.navbar {
-  ul.navbar-nav {
-    .nav-item {
-      margin-left: 0.5em;
-    }
+.p-autocomplete {
+  width: 100%;
+}
+
+.invoice {
+  padding: 0;
+}
+
+.invoice,
+.invoice .invoice-items {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body .ui-inputtext {
+  width: 100% !important;
+}
+
+body .ui-dropdown {
+  width: 100% !important;
+}
+
+#field_tel {
+  width: 100% !important;
+}
+
+.p-md-7 {
+  width: 58.3333%;
+  margin: 0.5px;
+}
+
+.jumbotron {
+  padding: 1rem 1rem;
+}
+
+.p-inputtext {
+  padding: 0.5rem 1rem;
+}
+
+.p-button {
+  padding: 0.45rem 1rem;
+}
+
+.form-switch {
+  padding-left: 2.5em;
+}
+
+.form-check {
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5em;
+  margin-bottom: 0.125rem;
+}
+
+.form-switch .form-check-input:checked {
+  background-position: right center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23a2b7cd'/%3e%3c/svg%3e");
+}
+
+.form-check-input:checked[type='checkbox'] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input {
+  width: 2em;
+  margin-left: -2.5em;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+  background-position: left center;
+  border-radius: 2em;
+  transition: background-position 0.15s ease-in-out;
+}
+
+.form-check-input:checked {
+  background-color: #446e9b;
+  border-color: #446e9b;
+}
+
+.form-check-input[type='checkbox'] {
+  border-radius: 0.25em;
+}
+
+.form-check .form-check-input {
+  float: left;
+  margin-left: -1.5em;
+}
+
+.form-check-input {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+}
+
+@media (min-width: 576px) {
+  .st-editTable {
+    height: 250px;
   }
 }
-/* jhipster-needle-scss-add-main JHipster will add new css style */
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+  .st-editTable {
+    height: 300px;
+  }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+  .st-editTable {
+    height: 300px;
+  }
+}
+
+// X-Large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+  .st-editTable {
+    height: 350px;
+  }
+  .sale-toolbar .toobar-input-search {
+    width: 170px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
+}
+
+// XX-Large devices (larger desktops, 1400px and up)
+@media (min-width: 1500px) {
+  .st-editTable {
+    height: 440px;
+  }
+
+  /*  .sale-toolbar .toobar-input-search {
+    width: 180px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 115px;
+  }*/
+}
+
+@media (min-width: 1700px) {
+  .sale-toolbar .toobar-input-search {
+    width: 200px;
+  }
+  .sale-toolbar .p-calendar,
+  .sale-toolbar .p-calendar .p-inputtext {
+    width: 120px;
+  }
+  /* .sale-toolbar .toobar-input-search {
+    width: 250px;
+  }
+  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
+    width: 150px;
+  }*/
+}
+
+.stockless {
+  color: red;
+}
+
+.ngCombo {
+  padding: 0px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  // margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.sale-p-inputtext {
+  width: 100%;
+}
+
+.sale-p-input-icon-left {
+  width: 100%;
+}
+
+.sale-card {
+  padding: 0.25rem;
+}
+
+.sale-card-header {
+  padding: 0.1rem 1.25rem;
+}
+
+.sale-list-group-item {
+  padding: 0.1rem 0.1rem;
+}
+
+.p-inputgroup .ng-select {
+  width: 100%;
+}
+
+.sale-products-table .p-datatable .p-datatable-header {
+  padding: 0.16rem 1rem;
+}
+
+.sale-products-table .p-datatable .p-datatable-thead > tr > th {
+  padding: 0.16rem 0.857rem;
+}
+
+.avoir {
+  color: red !important;
+}
+
+.sale-amount {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.sale-amount-net-topay {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+*.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  color: #333;
+  background-color: #eee;
+  font-weight: 777;
+}
+
+.sale-products-table .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0rem 1rem;
+}
+
+.sale-montant-block .list-group-item {
+  padding: 0.25rem 1.25rem;
+}
+
+.p-divider.p-divider-vertical {
+  margin: 0 0.4rem;
+  padding: 1rem 0;
+}
+
+/*
+.sale .p-button .p-button-icon-left {
+  margin-right:2px;
+}
+.sale .p-button .p-button-icon-right {
+  margin-right: 2px;
+}
+.sale .p-button{
+padding-left:0.5rem;
+  padding-right:0.5rem;
+}
+*/
+:host ::ng-deep .p-message-close-icon {
+  color: #2c1e30;
+}
+
+.form-date-input {
+  padding: 0;
+}
+
+.form-client .p-divider.p-divider-horizontal {
+  margin: 0;
+}
+
+.sale-tiers-payant-control label {
+  margin-bottom: 0;
+  line-height: 1px;
+  font-weight: 700;
+}
+
+.sale-card .form-group {
+  /* margin-bottom: 0;*/
+}
+
+.tiersPayant div {
+  padding-right: 2px;
+  /*padding-left: 4px;*/
+}
+
+.tiersPayant input {
+  width: 150px !important;
+}
+
+.tiersPayant .p-inputgroup-addon {
+  width: 55px !important;
+  min-width: 55px !important;
+}
+
+body {
+  line-height: 1 !important;
+}
+
+.assure .p-divider.p-divider-horizontal {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.assure .ayan-droit {
+  color: #3e8acc;
+  font-weight: 700;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -5px;
+  margin-left: -5px;
+}
+
+.modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 1rem;
+}
+
+.form-row > .col, .form-row > [class*=col-] {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.modal-footer > * {
+  margin: 0.25rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+
+.ag-cell-label-container {
+  /* Necessary to allow for text to grow vertically */
+  height: 100%;
+}
+
+.ag-header-cell-label {
+  /* Necessary to allow for text to grow vertically */
+  height: 100%;
+  padding: 0 !important;
+}
+
+.ag-header-cell-label .ag-header-cell-text {
+  display: inline-block;
+}

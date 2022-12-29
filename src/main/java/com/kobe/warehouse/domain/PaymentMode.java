@@ -1,14 +1,18 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import com.kobe.warehouse.domain.enumeration.PaymentGroup;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.kobe.warehouse.domain.enumeration.PaymentGroup;
 
 /**
  * A PaymentMode.
@@ -25,7 +29,7 @@ public class PaymentMode implements Serializable {
     @Column(length = 50)
     private String code;
     @NotNull
-    @Column(name = "libelle", nullable = false,unique = true)
+    @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
 
@@ -39,17 +43,21 @@ public class PaymentMode implements Serializable {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public PaymentMode libelle(String libelle) {
         this.libelle = libelle;
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
     public String getCode() {
         return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public PaymentMode code(String code) {
@@ -57,21 +65,17 @@ public class PaymentMode implements Serializable {
         return this;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public PaymentGroup getGroup() {
         return group;
+    }
+
+    public void setGroup(PaymentGroup group) {
+        this.group = group;
     }
 
     public PaymentMode group(PaymentGroup group) {
         this.group = group;
         return this;
-    }
-
-    public void setGroup(PaymentGroup group) {
-        this.group = group;
     }
 
     @Override

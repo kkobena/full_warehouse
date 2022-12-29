@@ -1,8 +1,16 @@
 package com.kobe.warehouse.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+
 @Entity
 @Table(name = "groupe_tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})
 
@@ -22,6 +30,9 @@ public class GroupeTiersPayant implements Serializable {
     private String telephone;
     @Column(name = "telephone_fixe", length = 15)
     private String telephoneFixe;
+
+    public GroupeTiersPayant() {
+    }
 
     public Long getId() {
         return id;
@@ -66,8 +77,5 @@ public class GroupeTiersPayant implements Serializable {
     public GroupeTiersPayant setTelephoneFixe(String telephoneFixe) {
         this.telephoneFixe = telephoneFixe;
         return this;
-    }
-
-    public GroupeTiersPayant() {
     }
 }

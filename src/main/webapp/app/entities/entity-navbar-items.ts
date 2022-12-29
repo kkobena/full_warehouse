@@ -1,1 +1,1 @@
-export const EntityNavbarItems = [];
+export const EntityNavbarItems: any[] = [];

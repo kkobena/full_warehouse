@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, Data } from '@angular/router';
-import { Subscription, combineLatest } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
+import {combineLatest, Subscription} from 'rxjs';
 
-import { IPayment } from 'app/shared/model/payment.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { PaymentService } from './payment.service';
-import { PaymentDeleteDialogComponent } from './payment-delete-dialog.component';
+import {IPayment} from 'app/shared/model/payment.model';
+
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {PaymentService} from './payment.service';
+import {PaymentDeleteDialogComponent} from './payment-delete-dialog.component';
 
 @Component({
   selector: 'jhi-payment',
   templateUrl: './payment.component.html',
 })
-export class PaymentComponent implements OnInit, OnDestroy {
+export class PaymentComponent implements OnInit {
   payments?: IPayment[];
   eventSubscriber?: Subscription;
   totalItems = 0;
@@ -29,9 +29,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
     protected paymentService: PaymentService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal
-  ) {}
+  ) {
+  }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
@@ -53,6 +53,27 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.registerChangeInPayments();
   }
 
+  trackId(index: number, item: IPayment): number {
+    return item.id!;
+  }
+
+  registerChangeInPayments(): void {
+    this.loadPage();
+  }
+
+  delete(payment: IPayment): void {
+    const modalRef = this.modalService.open(PaymentDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
+    modalRef.componentInstance.payment = payment;
+  }
+
+  sort(): string[] {
+    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
+    if (this.predicate !== 'id') {
+      result.push('id');
+    }
+    return result;
+  }
+
   protected handleNavigation(): void {
     combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
       const page = params.get('page');
@@ -66,32 +87,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
         this.loadPage(pageNumber, true);
       }
     }).subscribe();
-  }
-
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
-
-  trackId(index: number, item: IPayment): number {
-    return item.id!;
-  }
-
-  registerChangeInPayments(): void {
-    this.eventSubscriber = this.eventManager.subscribe('paymentListModification', () => this.loadPage());
-  }
-
-  delete(payment: IPayment): void {
-    const modalRef = this.modalService.open(PaymentDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.payment = payment;
-  }
-  sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'id') {
-      result.push('id');
-    }
-    return result;
   }
 
   protected onSuccess(data: IPayment[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {

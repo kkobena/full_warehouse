@@ -3,11 +3,19 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,9 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@TypeDef(
-    name = "json", typeClass = JsonStringType.class
-)
+
 @Table(name = "client_tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"tiers_payant_id", "assured_customer_id"}),
     @UniqueConstraint(columnNames = {"tiers_payant_id", "num"})
 
@@ -62,11 +68,20 @@ public class ClientTiersPayant implements Serializable {
     private transient double tauxValue;
     @Column(name = "plafond_absolu")
     private Boolean plafondAbsolu = false;
-    @Type(type = "json")
+    @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
     @Column(columnDefinition = "json", name = "consommation_json")
-    private Set<Consommation> consommations=new HashSet<>();
+    private Set<Consommation> consommations = new HashSet<>();
+
+    public ClientTiersPayant() {
+    }
+
     public Boolean getPlafondAbsolu() {
         return plafondAbsolu;
+    }
+
+    public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
+        this.plafondAbsolu = plafondAbsolu;
+        return this;
     }
 
     public Set<Consommation> getConsommations() {
@@ -75,11 +90,6 @@ public class ClientTiersPayant implements Serializable {
 
     public ClientTiersPayant setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
-        return this;
-    }
-
-    public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
-        this.plafondAbsolu = plafondAbsolu;
         return this;
     }
 
@@ -177,6 +187,11 @@ public class ClientTiersPayant implements Serializable {
         return statut;
     }
 
+    public ClientTiersPayant setStatut(TiersPayantStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
     public double getTauxValue() {
         tauxValue = Double.valueOf(taux) / 100;
         return tauxValue;
@@ -191,30 +206,21 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
-    public ClientTiersPayant setStatut(TiersPayantStatut statut) {
-        this.statut = statut;
-        return this;
-    }
-
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ClientTiersPayant{");
-        sb.append("id=").append(id);
-        sb.append(", num='").append(num).append('\'');
-        sb.append(", plafondConso=").append(plafondConso);
-        sb.append(", plafondJournalier=").append(plafondJournalier);
-        sb.append(", created=").append(created);
-        sb.append(", updated=").append(updated);
-        sb.append(", priorite=").append(priorite);
-        sb.append(", statut=").append(statut);
-        sb.append(", taux=").append(taux);
-        sb.append(", consoMensuelle=").append(consoMensuelle);
-        sb.append(", tauxValue=").append(tauxValue);
-        sb.append(", plafondAbsolu=").append(plafondAbsolu);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public ClientTiersPayant() {
+        String sb = "ClientTiersPayant{" + "id=" + id +
+            ", num='" + num + '\'' +
+            ", plafondConso=" + plafondConso +
+            ", plafondJournalier=" + plafondJournalier +
+            ", created=" + created +
+            ", updated=" + updated +
+            ", priorite=" + priorite +
+            ", statut=" + statut +
+            ", taux=" + taux +
+            ", consoMensuelle=" + consoMensuelle +
+            ", tauxValue=" + tauxValue +
+            ", plafondAbsolu=" + plafondAbsolu +
+            '}';
+        return sb;
     }
 }

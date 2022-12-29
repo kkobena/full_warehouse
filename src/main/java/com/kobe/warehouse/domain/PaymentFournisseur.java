@@ -2,9 +2,14 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -66,17 +71,21 @@ public class PaymentFournisseur implements Serializable {
         return netAmount;
     }
 
+    public void setNetAmount(Integer netAmount) {
+        this.netAmount = netAmount;
+    }
+
     public PaymentFournisseur netAmount(Integer netAmount) {
         this.netAmount = netAmount;
         return this;
     }
 
-    public void setNetAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-    }
-
     public Integer getPaidAmount() {
         return paidAmount;
+    }
+
+    public void setPaidAmount(Integer paidAmount) {
+        this.paidAmount = paidAmount;
     }
 
     public PaymentFournisseur paidAmount(Integer paidAmount) {
@@ -84,12 +93,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setPaidAmount(Integer paidAmount) {
-        this.paidAmount = paidAmount;
-    }
-
     public Integer getRestToPay() {
         return restToPay;
+    }
+
+    public void setRestToPay(Integer restToPay) {
+        this.restToPay = restToPay;
     }
 
     public PaymentFournisseur restToPay(Integer restToPay) {
@@ -97,12 +106,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setRestToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public PaymentFournisseur createdAt(Instant createdAt) {
@@ -110,12 +119,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public PaymentFournisseur updatedAt(Instant updatedAt) {
@@ -123,12 +132,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Commande getCommande() {
         return commande;
+    }
+
+    public void setCommande(Commande commande) {
+        this.commande = commande;
     }
 
     public PaymentFournisseur commande(Commande commande) {
@@ -136,12 +145,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setCommande(Commande commande) {
-        this.commande = commande;
-    }
-
     public PaymentMode getPaymentMode() {
         return paymentMode;
+    }
+
+    public void setPaymentMode(PaymentMode paymentMode) {
+        this.paymentMode = paymentMode;
     }
 
     public PaymentFournisseur paymentMode(PaymentMode paymentMode) {
@@ -149,21 +158,17 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public void setPaymentMode(PaymentMode paymentMode) {
-        this.paymentMode = paymentMode;
-    }
-
     public DateDimension getDateDimension() {
         return dateDimension;
+    }
+
+    public void setDateDimension(DateDimension dateDimension) {
+        this.dateDimension = dateDimension;
     }
 
     public PaymentFournisseur dateDimension(DateDimension dateDimension) {
         this.dateDimension = dateDimension;
         return this;
-    }
-
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

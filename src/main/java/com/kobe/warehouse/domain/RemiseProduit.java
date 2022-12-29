@@ -12,22 +12,21 @@ import java.util.Set;
 @Entity
 public class RemiseProduit extends Remise implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@OneToMany(mappedBy = "remise")
+    private static final long serialVersionUID = 1L;
+    @OneToMany(mappedBy = "remise")
     private Set<Produit> produits = new HashSet<>();
+
     public Set<Produit> getProduits() {
         return produits;
+    }
+
+    public void setProduits(Set<Produit> produits) {
+        this.produits = produits;
     }
 
     public RemiseProduit produits(Set<Produit> produits) {
         this.produits = produits;
         return this;
-    }
-
-
-
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
     }
 
 

@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -63,7 +65,7 @@ public class StoreInventoryResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -77,9 +79,10 @@ public class StoreInventoryResourceIT {
             .inventoryAmountAfter(DEFAULT_INVENTORY_AMOUNT_AFTER);
         return storeInventory;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -105,8 +108,8 @@ public class StoreInventoryResourceIT {
         int databaseSizeBeforeCreate = storeInventoryRepository.findAll().size();
         // Create the StoreInventory
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isCreated());
 
         // Validate the StoreInventory in the database
@@ -131,8 +134,8 @@ public class StoreInventoryResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         // Validate the StoreInventory in the database
@@ -152,8 +155,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -171,8 +174,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -190,8 +193,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -209,8 +212,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -228,8 +231,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -247,8 +250,8 @@ public class StoreInventoryResourceIT {
 
 
         restStoreInventoryMockMvc.perform(post("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         List<StoreInventory> storeInventoryList = storeInventoryRepository.findAll();
@@ -273,7 +276,7 @@ public class StoreInventoryResourceIT {
             .andExpect(jsonPath("$.[*].inventoryValueCostAfter").value(hasItem(DEFAULT_INVENTORY_VALUE_COST_AFTER.intValue())))
             .andExpect(jsonPath("$.[*].inventoryAmountAfter").value(hasItem(DEFAULT_INVENTORY_AMOUNT_AFTER.intValue())));
     }
-    
+
     @Test
     @Transactional
     public void getStoreInventory() throws Exception {
@@ -292,6 +295,7 @@ public class StoreInventoryResourceIT {
             .andExpect(jsonPath("$.inventoryValueCostAfter").value(DEFAULT_INVENTORY_VALUE_COST_AFTER.intValue()))
             .andExpect(jsonPath("$.inventoryAmountAfter").value(DEFAULT_INVENTORY_AMOUNT_AFTER.intValue()));
     }
+
     @Test
     @Transactional
     public void getNonExistingStoreInventory() throws Exception {
@@ -321,8 +325,8 @@ public class StoreInventoryResourceIT {
             .inventoryAmountAfter(UPDATED_INVENTORY_AMOUNT_AFTER);
 
         restStoreInventoryMockMvc.perform(put("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedStoreInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedStoreInventory)))
             .andExpect(status().isOk());
 
         // Validate the StoreInventory in the database
@@ -344,8 +348,8 @@ public class StoreInventoryResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restStoreInventoryMockMvc.perform(put("/api/store-inventories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(storeInventory)))
             .andExpect(status().isBadRequest());
 
         // Validate the StoreInventory in the database
@@ -363,7 +367,7 @@ public class StoreInventoryResourceIT {
 
         // Delete the storeInventory
         restStoreInventoryMockMvc.perform(delete("/api/store-inventories/{id}", storeInventory.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -2,13 +2,10 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.StorageType;
-import com.kobe.warehouse.repository.AppConfigurationRepository;
-import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
@@ -32,8 +29,8 @@ public class StorageService {
     }
 
     public Storage getDefaultMagasinPointOfSale() {
-        if (appConfigurationService.isMono()) return this.getDefaultMagasinMainStorage();
-        return storageRepository.getOne(EntityConstant.POINT_of_STORAGE);
+        if (appConfigurationService.isMono()) return getDefaultMagasinMainStorage();
+        return storageRepository.getReferenceById(EntityConstant.POINT_of_STORAGE);
     }
 
     public Storage getStorageByMagasinIdAndType(Long magasinId, StorageType storageType) {
@@ -42,11 +39,11 @@ public class StorageService {
     }
 
     public Storage getOne(Long id) {
-        return storageRepository.getOne(id);
+        return storageRepository.getReferenceById(id);
     }
 
     public Storage getDefaultMagasinMainStorage() {
-        return storageRepository.getOne(EntityConstant.DEFAULT_STORAGE);
+        return storageRepository.getReferenceById(EntityConstant.DEFAULT_STORAGE);
     }
 
     public Storage getDefaultMagasinReserveStorage() {
@@ -61,18 +58,18 @@ public class StorageService {
 
     @Cacheable(EntityConstant.PRINCIPAL_CACHE)
     public Storage getDefaultConnectedUserMainStorage() {
-        return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
+        return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
     @Cacheable(EntityConstant.POINT_DE_VENTE_CACHE)
     public Storage getDefaultConnectedUserPointOfSaleStorage() {
         if (appConfigurationService.isMono())
-            return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
-        return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.POINT_DE_VENTE);
+            return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
+        return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.POINT_DE_VENTE);
     }
 
     public Storage getDefaultConnectedUserReserveStorage() {
-        return this.getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
+        return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
     }
 
     public Magasin getConnectedUserMagasin() {

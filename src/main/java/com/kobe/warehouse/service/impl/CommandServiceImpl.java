@@ -56,14 +56,14 @@ import java.util.Set;
 @Transactional
 
 public class CommandServiceImpl implements CommandService {
+    private static final String CSV = "csv";
+    private static final String TXT = "txt";
     private final Logger log = LoggerFactory.getLogger(CommandServiceImpl.class);
     private final CommandeRepository commandeRepository;
     private final StorageService storageService;
     private final OrderLineService orderLineService;
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
-    private static final String CSV = "csv";
-    private static final String TXT = "txt";
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -80,12 +80,12 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public Commande createNewCommande(Commande commande) {
-        return this.commandeRepository.saveAndFlush(commande);
+        return commandeRepository.saveAndFlush(commande);
     }
 
     @Override
     public Commande createNewCommandeFromCommandeDTO(CommandeDTO commande) {
-        return this.createNewCommande(buildCommandeFromCommandeDTO(commande));
+        return createNewCommande(buildCommandeFromCommandeDTO(commande));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setMagasin(user.getMagasin());
         commande.setOrderRefernce(referenceService.buildNumCommande());
         OrderLine orderLine =
-            this.orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().get(0));
+            orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().get(0));
         commande.addOrderLine(orderLine);
         commande.setGrossAmount(orderLine.getGrossAmount());
         commande.setOrderAmount(orderLine.getOrderAmount());
@@ -114,7 +114,7 @@ public class CommandServiceImpl implements CommandService {
         int oldGrossAmount = 0;
         int oldOrderAmount = 0;
         Optional<OrderLine> optionalOrderLine =
-            this.orderLineService.findOneFromCommande(
+            orderLineService.findOneFromCommande(
                 orderLineDTO.getProduitId(),
                 orderLineDTO.getCommande().getId(),
                 orderLineDTO.getCommande().getFournisseur().getId());
@@ -123,9 +123,9 @@ public class CommandServiceImpl implements CommandService {
             orderLine = optionalOrderLine.get();
         }
 
-        Commande commande = this.commandeRepository.getOne(orderLineDTO.getCommande().getId());
+        Commande commande = commandeRepository.getReferenceById(orderLineDTO.getCommande().getId());
         if (orderLine == null) {
-            orderLine = this.orderLineService.buildOrderLineFromOrderLineDTO(orderLineDTO);
+            orderLine = orderLineService.buildOrderLineFromOrderLineDTO(orderLineDTO);
             orderLine.setCommande(commande);
             commande.getOrderLines().add(orderLine);
         } else {
@@ -137,21 +137,31 @@ public class CommandServiceImpl implements CommandService {
             orderLine.setGrossAmount(orderLine.getOrderCostAmount() * orderLine.getQuantityRequested());
         }
         updateCommandeAmount(commande, orderLine, oldGrossAmount, oldOrderAmount);
-        this.orderLineService.save(orderLine);
-        return this.commandeRepository.saveAndFlush(commande);
+        orderLineService.save(orderLine);
+        return commandeRepository.saveAndFlush(commande);
     }
 
     @Override
     public Commande updateQuantityRequested(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair =
-            this.orderLineService.updateOrderLineQuantityRequested(orderLineDTO);
+            orderLineService.updateOrderLineQuantityRequested(orderLineDTO);
         return updateCommande(orderLineOrderLinePair);
+    }
+
+    @Override
+    public void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO) {
+        orderLineService.findOneById(orderLineDTO.getId()).ifPresentOrElse(orderLine -> orderLineService.updateOrderLineQuantityReceived(orderLine, orderLineDTO.getQuantityReceived()), () -> new NullPointerException());
+    }
+
+    @Override
+    public void updateOrderLineQuantityUg(OrderLineDTO orderLineDTO) {
+        orderLineService.findOneById(orderLineDTO.getId()).ifPresentOrElse(orderLine -> orderLineService.updateOrderLineQuantityUG(orderLineDTO.getId(), orderLineDTO.getQuantityUg()), () -> new NullPointerException());
     }
 
     @Override
     public Commande updateOrderCostAmount(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair =
-            this.orderLineService.updateOrderLineCostAmount(orderLineDTO);
+            orderLineService.updateOrderLineCostAmount(orderLineDTO);
 
         return updateCommande(orderLineOrderLinePair);
     }
@@ -159,14 +169,14 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair =
-            this.orderLineService.updateOrderLineUnitPrice(orderLineDTO);
+            orderLineService.updateOrderLineUnitPrice(orderLineDTO);
 
         return updateCommande(orderLineOrderLinePair);
     }
 
     @Override
     public void deleteOrderLineById(Long orderLineId) {
-        this.orderLineService
+        orderLineService
             .findOneById(orderLineId)
             .ifPresent(
                 orderLine -> {
@@ -174,27 +184,27 @@ public class CommandServiceImpl implements CommandService {
                     commande.removeOrderLine(orderLine);
                     updateCommandeAmount(
                         commande, orderLine.getGrossAmount() * (-1), orderLine.getOrderAmount() * (-1));
-                    this.orderLineService.deleteOrderLine(orderLine);
-                    this.commandeRepository.save(commande);
+                    orderLineService.deleteOrderLine(orderLine);
+                    commandeRepository.save(commande);
                 });
     }
 
     @Override
     public void deleteById(Long id) {
-        this.commandeRepository.delete(this.commandeRepository.getOne(id));
+        commandeRepository.delete(commandeRepository.getReferenceById(id));
     }
 
     @Override
     public void updateCodeCip(OrderLineDTO orderLineDTO) {
-        this.orderLineService.updateCodeCip(orderLineDTO);
+        orderLineService.updateCodeCip(orderLineDTO);
     }
 
     @Override
     public void deleteOrderLinesByIds(Long commandeId, List<Long> ids) {
-        Commande commande = this.commandeRepository.getOne(commandeId);
+        Commande commande = commandeRepository.getReferenceById(commandeId);
         ids.forEach(
             orderLineId -> {
-                this.orderLineService
+                orderLineService
                     .findOneById(orderLineId)
                     .ifPresent(
                         orderLine -> {
@@ -203,33 +213,33 @@ public class CommandServiceImpl implements CommandService {
                                 commande,
                                 orderLine.getGrossAmount() * (-1),
                                 orderLine.getOrderAmount() * (-1));
-                            this.orderLineService.deleteOrderLine(orderLine);
+                            orderLineService.deleteOrderLine(orderLine);
                         });
             });
-        this.commandeRepository.save(commande);
+        commandeRepository.save(commande);
     }
 
     @Override
     public void closeCommandeEnCours(Long commandeId) {
-        Commande commande = this.commandeRepository.getOne(commandeId);
+        Commande commande = commandeRepository.getReferenceById(commandeId);
         commande.setOrderStatus(OrderStatut.PASSED);
         commande.setUpdatedAt(Instant.now());
-        commande.setLastUserEdit(this.storageService.getUser());
-        this.orderLineService.updateRequestedLineToPassedLine(commande.getOrderLines());
-        this.commandeRepository.save(commande);
+        commande.setLastUserEdit(storageService.getUser());
+        orderLineService.updateRequestedLineToPassedLine(commande.getOrderLines());
+        commandeRepository.save(commande);
     }
 
     @Override
     public void fusionner(List<Long> ids) {
         Collections.sort(ids);
         final Long firstCommandeId = ids.get(0);
-        Commande commande = this.commandeRepository.getOne(firstCommandeId);
+        Commande commande = commandeRepository.getReferenceById(firstCommandeId);
         List<Commande> commandesToDelete = new ArrayList<>();
         List<Long> longs = ids.subList(1, ids.size());
         longs.stream()
             .forEach(
                 aLong -> {
-                    Commande commandeSecond = this.commandeRepository.getOne(aLong);
+                    Commande commandeSecond = commandeRepository.getReferenceById(aLong);
                     commandeSecond
                         .getOrderLines()
                         .forEach(
@@ -237,13 +247,13 @@ public class CommandServiceImpl implements CommandService {
                                 findOrderLineInSetOrderLine(commande.getOrderLines(), orderLine)
                                     .ifPresentOrElse(
                                         orderLine1 -> {
-                                            this.orderLineService.updateOrderLine(
+                                            orderLineService.updateOrderLine(
                                                 orderLine1, orderLine.getQuantityRequested());
-                                            this.orderLineService.save(orderLine1);
+                                            orderLineService.save(orderLine1);
                                         },
                                         () -> {
                                             commande.addOrderLine(orderLine);
-                                            this.orderLineService.save(orderLine);
+                                            orderLineService.save(orderLine);
                                             updateCommande(commande, orderLine);
                                         });
                             });
@@ -251,13 +261,13 @@ public class CommandServiceImpl implements CommandService {
                 });
         commande.setLastUserEdit(storageService.getUser());
         commande.setUpdatedAt(Instant.now());
-        this.commandeRepository.save(commande);
-        this.commandeRepository.deleteAll(commandesToDelete);
+        commandeRepository.save(commande);
+        commandeRepository.deleteAll(commandesToDelete);
     }
 
     @Override
     public void deleteAll(List<Long> ids) {
-        ids.forEach(aLong -> this.commandeRepository.deleteById(aLong));
+        ids.forEach(aLong -> commandeRepository.deleteById(aLong));
     }
 
     @Override
@@ -266,9 +276,9 @@ public class CommandServiceImpl implements CommandService {
         String fileName = multipartFile.getOriginalFilename();
         String extension = fileName.substring(fileName.indexOf(".") + 1);
         if (extension.equalsIgnoreCase(CSV)) {
-            return verificationCommandeCsv(multipartFile, this.commandeRepository.getOne(commandeId));
+            return verificationCommandeCsv(multipartFile, commandeRepository.getReferenceById(commandeId));
         }
-        return verificationCommandeExcel(multipartFile, this.commandeRepository.getOne(commandeId));
+        return verificationCommandeExcel(multipartFile, commandeRepository.getReferenceById(commandeId));
     }
 
     @Override
@@ -294,10 +304,11 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
+
     public void createRuptureFile(
         String commandeReference, CommandeModel commandeModel, List<OrderItem> items) {
         if (!CollectionUtils.isEmpty(items)) {
-            this.exportationCsvService.createRuptureFile(commandeReference, items, commandeModel);
+            exportationCsvService.createRuptureFile(commandeReference, items, commandeModel);
         }
     }
 
@@ -307,8 +318,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setNetAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
-        commande.setOrderRefernce(this.referenceService.buildNumCommande());
-        commande.setLastUserEdit(this.storageService.getUser());
+        commande.setOrderRefernce(referenceService.buildNumCommande());
+        commande.setLastUserEdit(storageService.getUser());
         commande.setUser(commande.getLastUserEdit());
         commande.setOrderAmount(0);
         commande.setGrossAmount(0);
@@ -373,12 +384,12 @@ public class CommandServiceImpl implements CommandService {
                 int orderCostAmount = Integer.parseInt(record[2]);
                 int orderUnitPrice = Integer.parseInt(record[5]);
                 Optional<FournisseurProduit> fournisseurProduitOptional =
-                    this.orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
+                    orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
                 if (fournisseurProduitOptional.isPresent()) {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
 
                     int currentStock =
-                        this.orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+                        orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                     findInCommandeMap(longOrderLineMap, fournisseurProduit.getId())
                         .ifPresentOrElse(
                             orderLine -> {
@@ -443,11 +454,11 @@ public class CommandServiceImpl implements CommandService {
                     int orderUnitPrice = (int) Double.parseDouble(record.get(7));
                     int taxAmount = (int) Double.parseDouble(record.get(9));
                     Optional<FournisseurProduit> fournisseurProduitOptional =
-                        this.orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
+                        orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
                     if (fournisseurProduitOptional.isPresent()) {
                         FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
                         int currentStock =
-                            this.orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+                            orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
 
                         findInCommandeMap(longOrderLineMap, fournisseurProduit.getId())
                             .ifPresentOrElse(
@@ -522,11 +533,11 @@ public class CommandServiceImpl implements CommandService {
                     int quantityUg = Integer.parseInt(record.get(10));
                     int quantityRequested = Integer.parseInt(record.get(8));
                     Optional<FournisseurProduit> fournisseurProduitOptional =
-                        this.orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
+                        orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
                     if (fournisseurProduitOptional.isPresent()) {
                         FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
                         int currentStock =
-                            this.orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+                            orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                         findInCommandeMap(longOrderLineMap, fournisseurProduit.getId())
                             .ifPresentOrElse(
                                 orderLine -> {
@@ -597,12 +608,12 @@ public class CommandServiceImpl implements CommandService {
                 int orderCostAmount = Integer.parseInt(record.get(4));
 
                 Optional<FournisseurProduit> fournisseurProduitOptional =
-                    this.orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
+                    orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
                 if (fournisseurProduitOptional.isPresent()) {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
                     int orderUnitPrice = fournisseurProduit.getPrixUni();
                     int currentStock =
-                        this.orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+                        orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                     findInCommandeMap(longOrderLineMap, fournisseurProduit.getId())
                         .ifPresentOrElse(
                             orderLine -> {
@@ -669,11 +680,11 @@ public class CommandServiceImpl implements CommandService {
                 int quantityRequested = Integer.parseInt(record.get(7));
                 double taxAmount = Double.valueOf(record.get(5));
                 Optional<FournisseurProduit> fournisseurProduitOptional =
-                    this.orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
+                    orderLineService.getFournisseurProduitByCriteria(codeProduit, fournisseurId);
                 if (fournisseurProduitOptional.isPresent()) {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
                     int currentStock =
-                        this.orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+                        orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                     findInCommandeMap(longOrderLineMap, fournisseurProduit.getId())
                         .ifPresentOrElse(
                             orderLine -> {
@@ -764,7 +775,7 @@ public class CommandServiceImpl implements CommandService {
         int currentStock,
         int taxAmount) {
         OrderLine orderLineNew =
-            this.orderLineService.createOrderLine(
+            orderLineService.createOrderLine(
                 commande,
                 buildOrderLineDTOFromRecord(
                     fournisseurProduit,
@@ -846,7 +857,7 @@ public class CommandServiceImpl implements CommandService {
         Commande commande = orderLine.getCommande();
         updateCommandeAmount(
             commande, orderLine, oldOrderLine.getGrossAmount(), oldOrderLine.getOrderAmount());
-        return this.commandeRepository.saveAndFlush(commande);
+        return commandeRepository.saveAndFlush(commande);
     }
 
     private Fournisseur buildFournisseurFromId(Long id) {
@@ -894,14 +905,14 @@ public class CommandServiceImpl implements CommandService {
     private void updateResponseCommandeEnCours(
         Commande commande, Set<OrderLine> orderLinesToSave, Set<OrderLine> orderLinesToRemove) {
         if (orderLinesToSave.isEmpty()) {
-            this.commandeRepository.delete(commande);
+            commandeRepository.delete(commande);
         } else {
             saveOrderLines(orderLinesToSave);
             removeOrderLines(commande, orderLinesToRemove);
-            this.commandeRepository.save(commande);
+            commandeRepository.save(commande);
         }
         if (!orderLinesToRemove.isEmpty()) {
-            this.orderLineService.deleteAll(orderLinesToRemove);
+            orderLineService.deleteAll(orderLinesToRemove);
         }
     }
 
@@ -990,7 +1001,7 @@ public class CommandServiceImpl implements CommandService {
 
     private void saveOrderLines(Set<OrderLine> orderLines) {
         if (!orderLines.isEmpty()) {
-            this.orderLineService.saveAll(orderLines);
+            orderLineService.saveAll(orderLines);
         }
     }
 
@@ -1012,7 +1023,7 @@ public class CommandServiceImpl implements CommandService {
         Produit produit = fournisseurProduit.getProduit();
 
         if (quantityReceived > 0) {
-            this.orderLineService.updateOrderLineQuantityReceived(orderLine, quantityReceived);
+            orderLineService.updateOrderLineQuantityReceived(orderLine, quantityReceived);
         }
 
         return new VerificationResponseCommandeDTO.Item()

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IStoreInventory } from 'app/shared/model/store-inventory.model';
-import { StoreInventoryService } from './store-inventory.service';
+
+import {IStoreInventory} from 'app/shared/model/store-inventory.model';
+import {StoreInventoryService} from './store-inventory.service';
 
 @Component({
   templateUrl: './store-inventory-delete-dialog.component.html',
@@ -13,9 +13,9 @@ export class StoreInventoryDeleteDialogComponent {
 
   constructor(
     protected storeInventoryService: StoreInventoryService,
-    public activeModal: NgbActiveModal,
-    protected eventManager: JhiEventManager
-  ) {}
+    public activeModal: NgbActiveModal
+  ) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -23,7 +23,6 @@ export class StoreInventoryDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.storeInventoryService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('storeInventoryListModification');
       this.activeModal.close();
     });
   }

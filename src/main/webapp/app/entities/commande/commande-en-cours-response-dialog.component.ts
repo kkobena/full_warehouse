@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component, OnInit} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IResponseCommande } from '../../shared/model/response-commande.model';
-import { IResponseCommandeItem } from '../../shared/model/response-commande-item.model';
-import { ICommande } from '../../shared/model/commande.model';
+import {IResponseCommande} from '../../shared/model/response-commande.model';
+import {IResponseCommandeItem} from '../../shared/model/response-commande-item.model';
+import {ICommande} from '../../shared/model/commande.model';
 
 @Component({
   templateUrl: './commande-en-cours-response-dialog.component.html',
@@ -17,7 +16,9 @@ export class CommandeEnCoursResponseDialogComponent implements OnInit {
   responseCommandeItemMoitieLivrer: IResponseCommandeItem[] = [];
   classCss = 'col-sm-3';
   classCssNon = 'col-sm-9';
-  constructor(public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+
+  constructor(public activeModal: NgbActiveModal) {
+  }
 
   ngOnInit(): void {
     this.getItem();

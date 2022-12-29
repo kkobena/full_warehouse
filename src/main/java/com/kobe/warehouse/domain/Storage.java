@@ -3,7 +3,15 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
@@ -60,6 +68,10 @@ public class Storage implements Serializable {
         return magasin;
     }
 
+    public void setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,10 +83,6 @@ public class Storage implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public void setMagasin(Magasin magasin) {
-        this.magasin = magasin;
     }
 
     @Override

@@ -14,6 +14,16 @@ public class GammeProduitDTO implements Serializable {
     private String code;
     @NotNull
     private String libelle;
+
+    public GammeProduitDTO() {
+    }
+
+    public GammeProduitDTO(GammeProduit g) {
+        id = g.getId();
+        code = g.getCode();
+        libelle = g.getLibelle();
+    }
+
     public Long getId() {
         return id;
     }
@@ -66,14 +76,5 @@ public class GammeProduitDTO implements Serializable {
             ", code='" + getCode() + "'" +
             ", libelle='" + getLibelle() + "'" +
             "}";
-    }
-
-    public GammeProduitDTO() {
-    }
-
-    public GammeProduitDTO(GammeProduit g) {
-        this.id = g.getId();
-        this.code = g.getCode();
-        this.libelle = g.getLibelle();
     }
 }

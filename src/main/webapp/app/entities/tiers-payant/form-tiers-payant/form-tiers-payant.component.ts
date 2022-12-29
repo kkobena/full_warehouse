@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { ErrorService } from 'app/shared/error.service';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { ITiersPayant, TiersPayant } from 'app/shared/model/tierspayant.model';
-import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
-import { HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ICustomer } from 'app/shared/model/customer.model';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ErrorService} from 'app/shared/error.service';
+import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
+import {GroupeTiersPayantService} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import {ITiersPayant, TiersPayant} from 'app/shared/model/tierspayant.model';
+import {IGroupeTiersPayant} from 'app/shared/model/groupe-tierspayant.model';
+import {HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ICustomer} from 'app/shared/model/customer.model';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
@@ -42,30 +42,32 @@ export class FormTiersPayantComponent implements OnInit {
 
   constructor(
     protected errorService: ErrorService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected tiersPayantService: TiersPayantService,
     protected groupeTiersPayantService: GroupeTiersPayantService,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
     this.type = this.config.data.type;
     if (this.entity) {
       this.updateForm(this.entity);
-    }
-    this.populate();
-  }
 
-  populate(): void {
-    this.groupeTiersPayantService.query().subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
-      this.groupeTiersPayants = res.body || [];
+    }
+    this.populate().then(r => {
+      this.groupeTiersPayants = r;
       if (this.entity) {
         this.selectedGroupe = this.entity?.groupeTiersPayant || null;
       }
     });
+  }
+
+  async populate(): Promise<IGroupeTiersPayant[]> {
+    return await this.groupeTiersPayantService.queryPromise({search: ''});
   }
 
   cancel(): void {
@@ -98,10 +100,10 @@ export class FormTiersPayantComponent implements OnInit {
     this.isSaving = false;
     if (error.error && error.error.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
       });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
+      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
     }
   }
 

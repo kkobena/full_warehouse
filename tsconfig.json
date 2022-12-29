@@ -4,7 +4,7 @@
     "outDir": "./target/classes/static/",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -17,12 +17,15 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2020",
     "module": "es2020",
-    "lib": ["es2018", "dom"]
+    "lib": [
+      "es2018",
+      "dom"
+    ]
   },
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
+    "strictTemplates": false,
     "preserveWhitespaces": true
   }
 }

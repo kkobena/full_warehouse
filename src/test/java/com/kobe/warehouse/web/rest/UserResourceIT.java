@@ -14,10 +14,13 @@ import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.mapper.UserMapper;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
+
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
+
 import javax.persistence.EntityManager;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +78,7 @@ class UserResourceIT {
 
     /**
      * Create a User.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.
      */

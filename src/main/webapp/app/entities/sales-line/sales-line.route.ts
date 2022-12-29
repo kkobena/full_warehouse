@@ -1,20 +1,21 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
-import { SalesLineService } from './sales-line.service';
-import { SalesLineComponent } from './sales-line.component';
-import { SalesLineDetailComponent } from './sales-line-detail.component';
-import { SalesLineUpdateComponent } from './sales-line-update.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {ISalesLine, SalesLine} from 'app/shared/model/sales-line.model';
+import {SalesLineService} from './sales-line.service';
+import {SalesLineComponent} from './sales-line.component';
+import {SalesLineDetailComponent} from './sales-line-detail.component';
+import {SalesLineUpdateComponent} from './sales-line-update.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SalesLineResolve implements Resolve<ISalesLine> {
-  constructor(private service: SalesLineService, private router: Router) {}
+  constructor(private service: SalesLineService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<ISalesLine> | Observable<never> {
     const id = route.params['id'];

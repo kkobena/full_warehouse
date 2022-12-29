@@ -1,9 +1,10 @@
-import { Input, Directive, ElementRef, OnChanges, OnInit, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Directive, ElementRef, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
-import { translationNotFoundMessage } from 'app/config/translation.config';
+import {translationNotFoundMessage} from 'app/config/translation.config';
+import {PrimeNGConfig} from "primeng/api";
 
 /**
  * A wrapper directive on top of the translate pipe as the inbuilt translate directive from ngx-translate is too verbose and buggy
@@ -17,7 +18,8 @@ export class TranslateDirective implements OnChanges, OnInit, OnDestroy {
 
   private readonly directiveDestroyed = new Subject();
 
-  constructor(private el: ElementRef, private translateService: TranslateService) {}
+  constructor(private el: ElementRef, private translateService: TranslateService, private config: PrimeNGConfig) {
+  }
 
   ngOnInit(): void {
     this.translateService.onLangChange.pipe(takeUntil(this.directiveDestroyed)).subscribe(() => {
@@ -30,6 +32,8 @@ export class TranslateDirective implements OnChanges, OnInit, OnDestroy {
 
   ngOnChanges(): void {
     this.getTranslation();
+
+
   }
 
   ngOnDestroy(): void {
@@ -42,10 +46,15 @@ export class TranslateDirective implements OnChanges, OnInit, OnDestroy {
       .get(this.jhiTranslate, this.translateValues)
       .pipe(takeUntil(this.directiveDestroyed))
       .subscribe({
-        next: value => {
-          this.el.nativeElement.innerHTML = value;
-        },
-        error: () => `${translationNotFoundMessage}[${this.jhiTranslate}]`,
-      });
+          next: value => {
+            this.el.nativeElement.innerHTML = value;
+
+          },
+          error: () => `${translationNotFoundMessage}[${this.jhiTranslate}]`,
+          complete: () => {
+            this.translateService.get('primeng').subscribe(res => this.config.setTranslation(res));
+          }
+        }
+      );
   }
 }

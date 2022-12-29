@@ -10,15 +10,16 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.MaxAndMinDate;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.impl.SaleServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -27,7 +28,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,7 +59,7 @@ public class ImportationVenteService {
                                    SalesLineService salesLineService
     ) {
         this.transactionTemplate = transactionTemplate;
-        this.restTemplate = restTemplateBuilder.build();
+        restTemplate = restTemplateBuilder.build();
         this.saleService = saleService;
         this.cashSaleRepository = cashSaleRepository;
         this.salesLineRepository = salesLineRepository;
@@ -100,7 +100,7 @@ public class ImportationVenteService {
         }
     }
 
-   // @PostConstruct
+    // @PostConstruct
     public void init() {
         try {
             updateVNOFromLegacy();

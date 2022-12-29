@@ -11,39 +11,41 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface CommandService {
-  Commande createNewCommande(Commande commande);
+    Commande createNewCommande(Commande commande);
 
-  Commande createNewCommandeFromCommandeDTO(CommandeDTO commande);
+    Commande createNewCommandeFromCommandeDTO(CommandeDTO commande);
 
-  Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO);
+    Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO);
 
-  Commande createOrUpdateOrderLine(OrderLineDTO orderLineDTO);
+    Commande createOrUpdateOrderLine(OrderLineDTO orderLineDTO);
 
-  Commande updateQuantityRequested(OrderLineDTO orderLineDTO);
+    Commande updateQuantityRequested(OrderLineDTO orderLineDTO);
 
-  Commande updateOrderCostAmount(OrderLineDTO orderLineDTO);
+    void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO);
 
-  Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO);
+    void updateOrderLineQuantityUg(OrderLineDTO orderLineDTO);
 
-  void deleteOrderLineById(Long orderLineId);
+    Commande updateOrderCostAmount(OrderLineDTO orderLineDTO);
 
-  void deleteById(Long id);
+    Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO);
 
-  void updateCodeCip(OrderLineDTO orderLineDTO);
+    void deleteOrderLineById(Long orderLineId);
 
-  void deleteOrderLinesByIds(Long commandeId, List<Long> ids);
+    void deleteById(Long id);
 
-  void closeCommandeEnCours(Long commandeId);
+    void updateCodeCip(OrderLineDTO orderLineDTO);
 
-  void fusionner(List<Long> ids);
+    void deleteOrderLinesByIds(Long commandeId, List<Long> ids);
 
-  void deleteAll(List<Long> ids);
+    void closeCommandeEnCours(Long commandeId);
 
-  VerificationResponseCommandeDTO importerReponseCommande(
-      Long commandeId, MultipartFile multipartFile);
+    void fusionner(List<Long> ids);
 
-  CommandeResponseDTO uploadNewCommande(
-      Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
+    void deleteAll(List<Long> ids);
+
+    VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile);
+
+    CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
 
 }

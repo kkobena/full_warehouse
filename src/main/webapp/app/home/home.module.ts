@@ -1,12 +1,14 @@
-import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
 
-import { SharedModule } from 'app/shared/shared.module';
-import { HOME_ROUTE } from './home.route';
-import { HomeComponent } from './home.component';
+import {SharedModule} from 'app/shared/shared.module';
+import {HOME_ROUTE} from './home.route';
+import {HomeComponent} from './home.component';
+import {AgGridModule} from "ag-grid-angular";
 
 @NgModule({
-  imports: [SharedModule, RouterModule.forChild([HOME_ROUTE])],
+  imports: [SharedModule, AgGridModule, RouterModule.forChild([HOME_ROUTE])],
   declarations: [HomeComponent],
 })
-export class HomeModule {}
+export class HomeModule {
+}

@@ -146,7 +146,7 @@ spring:
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
@@ -231,4 +231,4 @@ jhipster:
 # ===================================================================
 
 # application:
-legacy-url: http://localhost:8090/laborex
+legacy-url: http://localhost:9090/laborex

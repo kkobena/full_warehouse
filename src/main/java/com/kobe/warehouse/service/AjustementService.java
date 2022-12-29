@@ -1,20 +1,26 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Ajust;
+import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.DateDimension;
+import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.MotifAjustement;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.repository.AjustRepository;
+import com.kobe.warehouse.repository.AjustementRepository;
+import com.kobe.warehouse.repository.InventoryTransactionRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustementDTO;
-import com.kobe.warehouse.service.dto.DeconditionDTO;
-import com.kobe.warehouse.web.rest.errors.StockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +46,6 @@ public class AjustementService {
     private final StorageService storageService;
     private final StockProduitRepository stockProduitRepository;
 
-    private User getUser() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(login -> userRepository.findOneByLogin(login));
-        return user.orElseGet(null);
-    }
-
     public AjustementService(AjustementRepository ajustementRepository, ProduitRepository produitRepository, UserRepository userRepository, AjustRepository ajustRepository, InventoryTransactionRepository inventoryTransactionRepository, StorageService storageService, StockProduitRepository stockProduitRepository) {
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
@@ -54,6 +54,12 @@ public class AjustementService {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.storageService = storageService;
         this.stockProduitRepository = stockProduitRepository;
+    }
+
+    private User getUser() {
+        Optional<User> user = SecurityUtils.getCurrentUserLogin()
+            .flatMap(login -> userRepository.findOneByLogin(login));
+        return user.orElseGet(null);
     }
 
     private Ajust createAjsut(Long id, String comment, Long storageId) {
@@ -72,12 +78,12 @@ public class AjustementService {
             }
             return ajustRepository.save(ajust);
         }
-        return ajustRepository.getOne(id);
+        return ajustRepository.getReferenceById(id);
     }
 
     public AjustementDTO save(AjustementDTO ajustementDTO) {
         Ajust ajust = createAjsut(ajustementDTO.getAjustId(), ajustementDTO.getCommentaire(), ajustementDTO.getStorageId());
-        Produit produit = produitRepository.getOne(ajustementDTO.getProduitId());
+        Produit produit = produitRepository.getReferenceById(ajustementDTO.getProduitId());
         int stock = stockProduitRepository.findStockProduitByStorageIdAndProduitId(ajust.getStorage().getId(), ajustementDTO.getProduitId()).get().getQtyStock();
         Ajustement ajustement;
         if (ajustementDTO.getAjustId() == null) {
@@ -114,7 +120,7 @@ public class AjustementService {
     }
 
     public void saveAjust(AjustementDTO ajustementDTO) {
-        Ajust ajust = ajustRepository.getOne(ajustementDTO.getAjustId());
+        Ajust ajust = ajustRepository.getReferenceById(ajustementDTO.getAjustId());
         List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(ajust.getId());
         save(ajustements);
         ajust.setCommentaire(ajustementDTO.getCommentaire());
@@ -142,7 +148,7 @@ public class AjustementService {
     }
 
     public AjustementDTO update(AjustementDTO ajustementDTO) {
-        Ajustement ajustement = ajustementRepository.getOne(ajustementDTO.getId());
+        Ajustement ajustement = ajustementRepository.getReferenceById(ajustementDTO.getId());
         int stock = 0;
         Optional<StockProduit> stockProduit = stockProduitRepository.findStockProduitByStorageIdAndProduitId(ajustementDTO.getStorageId(), ajustementDTO.getProduitId());
         if (stockProduit.isPresent()) {

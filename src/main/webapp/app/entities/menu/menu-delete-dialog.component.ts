@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IMenu } from 'app/shared/model/menu.model';
-import { MenuService } from './menu.service';
+
+import {IMenu} from 'app/shared/model/menu.model';
+import {MenuService} from './menu.service';
 
 @Component({
   templateUrl: './menu-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { MenuService } from './menu.service';
 export class MenuDeleteDialogComponent {
   menu?: IMenu;
 
-  constructor(protected menuService: MenuService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected menuService: MenuService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,7 @@ export class MenuDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.menuService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('menuListModification');
+
       this.activeModal.close();
     });
   }

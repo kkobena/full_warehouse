@@ -4,109 +4,115 @@ package com.kobe.warehouse.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
  * A Rayon.
  */
 @Entity
-@Table(name = "rayon", uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "storage_id" }),
-		@UniqueConstraint(columnNames = { "code", "storage_id" }) })
+@Table(name = "rayon", uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "storage_id"}),
+    @UniqueConstraint(columnNames = {"code", "storage_id"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Rayon implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-	@SequenceGenerator(name = "sequenceGenerator")
-	private Long id;
-	@Column(name = "created_at")
-	private Instant createdAt;
-	@Column(name = "updated_at")
-	private Instant updatedAt;
-	@NotNull
-	@Column(name = "code", nullable = false)
-	private String code;
-	@NotNull
-	@Column(name = "libelle", nullable = false)
-	private String libelle;
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
+    private Long id;
+    @Column(name = "created_at")
+    private Instant createdAt;
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+    @NotNull
+    @Column(name = "code", nullable = false)
+    private String code;
+    @NotNull
+    @Column(name = "libelle", nullable = false)
+    private String libelle;
 
-	@ManyToOne(optional = false)
-	@NotNull
-	private Storage storage;
-	@Column(name = "exclude",columnDefinition = "boolean default false")
-	private boolean exclude;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Storage storage;
+    @Column(name = "exclude", columnDefinition = "boolean default false")
+    private boolean exclude;
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Rayon id(Long id) {
         this.id = id;
         return this;
     }
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
 
-	public Rayon createdAt(Instant createdAt) {
-		this.createdAt = createdAt;
-		return this;
-	}
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public Instant getUpdatedAt() {
-		return updatedAt;
-	}
+    public Rayon createdAt(Instant createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 
-	public Rayon updatedAt(Instant updatedAt) {
-		this.updatedAt = updatedAt;
-		return this;
-	}
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
-	public void setUpdatedAt(Instant updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
+    public Rayon updatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
+    }
 
+    public String getCode() {
+        return code;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-	public Rayon code(String code) {
-		this.code = code;
-		return this;
-	}
+    public Rayon code(String code) {
+        this.code = code;
+        return this;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public String getLibelle() {
+        return libelle;
+    }
 
-	public String getLibelle() {
-		return libelle;
-	}
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
 
-	public Rayon libelle(String libelle) {
-		this.libelle = libelle;
-		return this;
-	}
-
-	public void setLibelle(String libelle) {
-		this.libelle = libelle;
-	}
+    public Rayon libelle(String libelle) {
+        this.libelle = libelle;
+        return this;
+    }
 
     public Storage getStorage() {
         return storage;
@@ -117,29 +123,29 @@ public class Rayon implements Serializable {
     }
 
     public boolean isExclude() {
-		return exclude;
-	}
+        return exclude;
+    }
 
-	public void setExclude(boolean exclude) {
-		this.exclude = exclude;
-	}
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof Rayon)) {
-			return false;
-		}
-		return id != null && id.equals(((Rayon) o).id);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Rayon)) {
+            return false;
+        }
+        return id != null && id.equals(((Rayon) o).id);
+    }
 
 
     @Override
-	public int hashCode() {
-		return 31;
-	}
+    public int hashCode() {
+        return 31;
+    }
 
     @Override
     public String toString() {

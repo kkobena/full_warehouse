@@ -1,20 +1,19 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { JhiEventManager, JhiParseLinks } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Subscription} from 'rxjs';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ICategorie } from 'app/shared/model/categorie.model';
+import {ICategorie} from 'app/shared/model/categorie.model';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { CategorieService } from './categorie.service';
-import { CategorieDeleteDialogComponent } from './categorie-delete-dialog.component';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {CategorieService} from './categorie.service';
+import {CategorieDeleteDialogComponent} from './categorie-delete-dialog.component';
 
 @Component({
   selector: 'jhi-categorie',
   templateUrl: './categorie.component.html',
 })
-export class CategorieComponent implements OnInit, OnDestroy {
+export class CategorieComponent implements OnInit {
   categories: ICategorie[];
   eventSubscriber?: Subscription;
   itemsPerPage: number;
@@ -25,9 +24,7 @@ export class CategorieComponent implements OnInit, OnDestroy {
 
   constructor(
     protected categorieService: CategorieService,
-    protected eventManager: JhiEventManager,
-    protected modalService: NgbModal,
-    protected parseLinks: JhiParseLinks
+    protected modalService: NgbModal
   ) {
     this.categories = [];
     this.itemsPerPage = ITEMS_PER_PAGE;
@@ -63,11 +60,6 @@ export class CategorieComponent implements OnInit, OnDestroy {
     this.registerChangeInCategories();
   }
 
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
 
   trackId(index: number, item: ICategorie): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -75,11 +67,11 @@ export class CategorieComponent implements OnInit, OnDestroy {
   }
 
   registerChangeInCategories(): void {
-    this.eventSubscriber = this.eventManager.subscribe('categorieListModification', () => this.reset());
+    this.reset();
   }
 
   delete(categorie: ICategorie): void {
-    const modalRef = this.modalService.open(CategorieDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(CategorieDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
     modalRef.componentInstance.categorie = categorie;
   }
 
@@ -93,7 +85,7 @@ export class CategorieComponent implements OnInit, OnDestroy {
 
   protected paginateCategories(data: ICategorie[] | null, headers: HttpHeaders): void {
     const headersLink = headers.get('link');
-    this.links = this.parseLinks.parse(headersLink ? headersLink : '');
+    // this.links = this.parseLinks.parse(headersLink ? headersLink : '');
     if (data) {
       for (let i = 0; i < data.length; i++) {
         this.categories.push(data[i]);

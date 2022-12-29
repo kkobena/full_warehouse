@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeFilterDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
@@ -10,19 +12,24 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface CommandeDataService {
-  CommandeDTO findOneById(Long id);
+    CommandeDTO findOneById(Long id);
 
-  Resource exportCommandeToCsv(Long id) throws IOException;
+    Optional<Commande> getOneById(Long id);
 
-  Resource exportCommandeToPdf(Long id) throws IOException;
+    Optional<CommandeEntryDTO> getCommandeById(Long id);
 
-  List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter);
+    Resource exportCommandeToCsv(Long id) throws IOException;
 
-  Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
+    Resource exportCommandeToPdf(Long id) throws IOException;
 
-  Page<OrderLineDTO> filterCommandeLines(Long commandeId,Pageable pageable);
+    List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter);
+
+    Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
+
+    Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable);
 
     Resource getRuptureCsv(String reference) throws IOException;
 }

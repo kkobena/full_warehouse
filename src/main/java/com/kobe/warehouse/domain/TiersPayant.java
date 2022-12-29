@@ -3,11 +3,19 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,9 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@TypeDef(
-    name = "json", typeClass = JsonStringType.class
-)
+
 @Table(name = "tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}),
     @UniqueConstraint(columnNames = {"full_name"})
 })
@@ -78,9 +84,12 @@ public class TiersPayant implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     private User updatedBy;
-    @Type(type = "json")
+    @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
     @Column(columnDefinition = "json", name = "consommation_json")
-    private Set<Consommation> consommations=new HashSet<>();
+    private Set<Consommation> consommations = new HashSet<>();
+
+    public TiersPayant() {
+    }
 
     public Set<Consommation> getConsommations() {
         return consommations;
@@ -163,8 +172,6 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-
-
     public String getCodeOrganisme() {
         return codeOrganisme;
     }
@@ -179,7 +186,7 @@ public class TiersPayant implements Serializable {
     }
 
     public TiersPayant setCodeRegroupement(String coeRegroupement) {
-        this.codeRegroupement = coeRegroupement;
+        codeRegroupement = coeRegroupement;
         return this;
     }
 
@@ -255,8 +262,6 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-
-
     public TiersPayantStatut getStatut() {
         return statut;
     }
@@ -300,8 +305,5 @@ public class TiersPayant implements Serializable {
     public TiersPayant setGroupeTiersPayant(GroupeTiersPayant groupeTiersPayant) {
         this.groupeTiersPayant = groupeTiersPayant;
         return this;
-    }
-
-    public TiersPayant() {
     }
 }

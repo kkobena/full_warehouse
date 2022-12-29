@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.model';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { InventoryTransactionService } from './inventory-transaction.service';
-import * as moment from 'moment';
-import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Subscription} from 'rxjs';
+
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {IInventoryTransaction} from 'app/shared/model/inventory-transaction.model';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {InventoryTransactionService} from './inventory-transaction.service';
+import moment from 'moment';
+import {DD_MM_YYYY_HH_MM} from 'app/shared/constants/input.constants';
 
 @Component({
   selector: 'jhi-inventory-transaction',
@@ -20,6 +20,7 @@ import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
         box-shadow: 0 4px 8px rgb(0 0 0 / 16%);
         justify-content: space-between;
       }
+
       .ag-theme-alpine {
         max-height: 700px;
         height: 500px;
@@ -39,11 +40,11 @@ export class InventoryTransactionComponent implements OnInit {
   ngbPaginationPage = 1;
   rowData: any = [];
   columnDefs: any[];
+
   constructor(
     protected inventoryTransactionService: InventoryTransactionService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal
   ) {
     this.columnDefs = [
@@ -111,6 +112,7 @@ export class InventoryTransactionComponent implements OnInit {
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
+
   formatDate(date: any): string {
     return moment(date.value).format(DD_MM_YYYY_HH_MM);
   }

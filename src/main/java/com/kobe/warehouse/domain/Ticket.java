@@ -1,18 +1,19 @@
 package com.kobe.warehouse.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Closeable;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "ticket")
-public class  Ticket implements Serializable, Cloneable {
+public class Ticket implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
     @NotNull
     @Size(max = 50)
@@ -52,6 +53,7 @@ public class  Ticket implements Serializable, Cloneable {
     private String tva;
     @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
     private Boolean canceled = false;
+
     public String getTva() {
         return tva;
     }
@@ -168,7 +170,6 @@ public class  Ticket implements Serializable, Cloneable {
         this.sale = sale;
         return this;
     }
-
 
 
     public Integer getMontantVerse() {

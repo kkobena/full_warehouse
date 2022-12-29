@@ -2,9 +2,6 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +10,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -43,7 +44,7 @@ public class CashRegister implements Serializable {
     private LocalDateTime created;
     @NotNull
     @Column(name = "updated")
-    private LocalDateTime updated=LocalDateTime.now();
+    private LocalDateTime updated = LocalDateTime.now();
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
@@ -51,8 +52,14 @@ public class CashRegister implements Serializable {
     @NotNull
     @OneToOne(mappedBy = "cashRegister")
     private CashFund cashFund;
+
     public Long getId() {
         return id;
+    }
+
+    public CashRegister setId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public CashFund getCashFund() {
@@ -61,11 +68,6 @@ public class CashRegister implements Serializable {
 
     public CashRegister setCashFund(CashFund cashFund) {
         this.cashFund = cashFund;
-        return this;
-    }
-
-    public CashRegister setId(Long id) {
-        this.id = id;
         return this;
     }
 

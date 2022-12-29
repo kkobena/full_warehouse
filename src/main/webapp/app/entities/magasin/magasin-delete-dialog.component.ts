@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IMagasin } from 'app/shared/model/magasin.model';
-import { MagasinService } from './magasin.service';
+
+import {IMagasin} from 'app/shared/model/magasin.model';
+import {MagasinService} from './magasin.service';
 
 @Component({
   templateUrl: './magasin-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { MagasinService } from './magasin.service';
 export class MagasinDeleteDialogComponent {
   magasin?: IMagasin;
 
-  constructor(protected magasinService: MagasinService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected magasinService: MagasinService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,7 @@ export class MagasinDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.magasinService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('magasinListModification');
+
       this.activeModal.close();
     });
   }

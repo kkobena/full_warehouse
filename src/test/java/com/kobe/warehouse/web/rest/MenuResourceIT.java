@@ -3,7 +3,6 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Menu;
 import com.kobe.warehouse.repository.MenuRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +12,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link MenuResource} REST controller.
@@ -49,7 +54,7 @@ public class MenuResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -59,9 +64,10 @@ public class MenuResourceIT {
             .name(DEFAULT_NAME);
         return menu;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -83,8 +89,8 @@ public class MenuResourceIT {
         int databaseSizeBeforeCreate = menuRepository.findAll().size();
         // Create the Menu
         restMenuMockMvc.perform(post("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(menu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(menu)))
             .andExpect(status().isCreated());
 
         // Validate the Menu in the database
@@ -105,8 +111,8 @@ public class MenuResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restMenuMockMvc.perform(post("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(menu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(menu)))
             .andExpect(status().isBadRequest());
 
         // Validate the Menu in the database
@@ -126,8 +132,8 @@ public class MenuResourceIT {
 
 
         restMenuMockMvc.perform(post("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(menu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(menu)))
             .andExpect(status().isBadRequest());
 
         List<Menu> menuList = menuRepository.findAll();
@@ -145,8 +151,8 @@ public class MenuResourceIT {
 
 
         restMenuMockMvc.perform(post("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(menu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(menu)))
             .andExpect(status().isBadRequest());
 
         List<Menu> menuList = menuRepository.findAll();
@@ -167,7 +173,7 @@ public class MenuResourceIT {
             .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
-    
+
     @Test
     @Transactional
     public void getMenu() throws Exception {
@@ -182,6 +188,7 @@ public class MenuResourceIT {
             .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME));
     }
+
     @Test
     @Transactional
     public void getNonExistingMenu() throws Exception {
@@ -207,8 +214,8 @@ public class MenuResourceIT {
             .name(UPDATED_NAME);
 
         restMenuMockMvc.perform(put("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedMenu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedMenu)))
             .andExpect(status().isOk());
 
         // Validate the Menu in the database
@@ -226,8 +233,8 @@ public class MenuResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restMenuMockMvc.perform(put("/api/menus").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(menu)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(menu)))
             .andExpect(status().isBadRequest());
 
         // Validate the Menu in the database
@@ -245,7 +252,7 @@ public class MenuResourceIT {
 
         // Delete the menu
         restMenuMockMvc.perform(delete("/api/menus/{id}", menu.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.vm;
 
 import com.kobe.warehouse.service.dto.AdminUserDTO;
+
 import javax.validation.constraints.Size;
 
 /**

@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
-import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
-import { ProduitService } from '../produit.service';
-import { ErrorService } from '../../../shared/error.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {IProduit} from '../../../shared/model/produit.model';
+import {FournisseurProduit, IFournisseurProduit} from '../../../shared/model/fournisseur-produit.model';
+import {ProduitService} from '../produit.service';
+import {ErrorService} from '../../../shared/error.service';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
 
-import { IFournisseur } from '../../../shared/model/fournisseur.model';
-import { FournisseurService } from '../../fournisseur/fournisseur.service';
-import { HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import {IFournisseur} from '../../../shared/model/fournisseur.model';
+import {FournisseurService} from '../../fournisseur/fournisseur.service';
+import {HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'jhi-form-produit-fournisseur',
@@ -37,12 +37,13 @@ export class FormProduitFournisseurComponent implements OnInit {
   constructor(
     protected produitService: ProduitService,
     protected errorService: ErrorService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected fournisseurService: FournisseurService,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   save(): void {
     this.isSaving = true;
@@ -164,7 +165,7 @@ export class FormProduitFournisseurComponent implements OnInit {
     this.isSaving = false;
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
       });
     }
   }

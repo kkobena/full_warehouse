@@ -3,7 +3,13 @@ package com.kobe.warehouse.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -55,6 +61,10 @@ public class GroupeFournisseur implements Serializable {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public GroupeFournisseur libelle(String libelle) {
         this.libelle = libelle;
         return this;
@@ -65,12 +75,12 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
     public String getAddresspostale() {
         return addresspostale;
+    }
+
+    public void setAddresspostale(String addresspostale) {
+        this.addresspostale = addresspostale;
     }
 
     public GroupeFournisseur addresspostale(String addresspostale) {
@@ -78,12 +88,12 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public void setAddresspostale(String addresspostale) {
-        this.addresspostale = addresspostale;
-    }
-
     public String getNumFaxe() {
         return numFaxe;
+    }
+
+    public void setNumFaxe(String numFaxe) {
+        this.numFaxe = numFaxe;
     }
 
     public GroupeFournisseur numFaxe(String numFaxe) {
@@ -91,12 +101,12 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public void setNumFaxe(String numFaxe) {
-        this.numFaxe = numFaxe;
-    }
-
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public GroupeFournisseur email(String email) {
@@ -104,12 +114,12 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getTel() {
         return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
     }
 
     public GroupeFournisseur tel(String tel) {
@@ -117,22 +127,17 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public void setTel(String tel) {
-        this.tel = tel;
-    }
-
-
     public Integer getOdre() {
         return odre;
+    }
+
+    public void setOdre(Integer odre) {
+        this.odre = odre;
     }
 
     public GroupeFournisseur odre(Integer odre) {
         this.odre = odre;
         return this;
-    }
-
-    public void setOdre(Integer odre) {
-        this.odre = odre;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

@@ -1,11 +1,18 @@
 package com.kobe.warehouse.domain;
 
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.JoinFormula;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import java.io.Serializable;
 
 /**
@@ -42,8 +49,13 @@ public class Magasin implements Serializable {
     private Storage pointOfSale;
     @Column(name = "welcome_message")
     private String welcomeMessage;
+
     public Storage getPointOfSale() {
         return pointOfSale;
+    }
+
+    public void setPointOfSale(Storage pointOfSale) {
+        this.pointOfSale = pointOfSale;
     }
 
     public String getWelcomeMessage() {
@@ -53,10 +65,6 @@ public class Magasin implements Serializable {
     public Magasin setWelcomeMessage(String welcomeMessage) {
         this.welcomeMessage = welcomeMessage;
         return this;
-    }
-
-    public void setPointOfSale(Storage pointOfSale) {
-        this.pointOfSale = pointOfSale;
     }
 
     public Storage getPrimaryStorage() {
@@ -79,17 +87,21 @@ public class Magasin implements Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Magasin name(String name) {
         this.name = name;
         return this;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public Magasin phone(String phone) {
@@ -97,12 +109,12 @@ public class Magasin implements Serializable {
         return this;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getAddress() {
         return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Magasin address(String address) {
@@ -110,12 +122,12 @@ public class Magasin implements Serializable {
         return this;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getNote() {
         return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public Magasin note(String note) {
@@ -123,12 +135,12 @@ public class Magasin implements Serializable {
         return this;
     }
 
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public String getRegistre() {
         return registre;
+    }
+
+    public void setRegistre(String registre) {
+        this.registre = registre;
     }
 
     public Magasin registre(String registre) {
@@ -150,10 +162,6 @@ public class Magasin implements Serializable {
 
     public void setNumComptable(String numComptable) {
         this.numComptable = numComptable;
-    }
-
-    public void setRegistre(String registre) {
-        this.registre = registre;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

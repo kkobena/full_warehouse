@@ -1,29 +1,39 @@
-import { Component } from '@angular/core';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
+import {Component} from '@angular/core';
+import {ICellRendererAngularComp} from 'ag-grid-angular';
 
 @Component({
   selector: 'jhi-commande-btn',
   template: `
-    <div class="btn-group text-right pb-sm-1">
+    <div class="btn-group text-right pb-sm-1" style="padding: 0">
       <button
         type="submit"
         (click)="onEditLigneInfo()"
-        class="p-button-rounded p-button-success p-button-sm"
+        class="btn btn-sm btn-success "
         icon="pi pi-pencil"
         pButton
         pRipple
-        pTooltip="Modifier la ligne"
+        pTooltip="Modifier le produit"
       ></button>
 
       <button
         *ngIf="showLotBtn"
         type="submit"
         (click)="onAddLot()"
-        class="p-button-rounded p-button-help p-button-sm"
+        class="btn btn-sm btn-info"
         icon="pi pi-plus"
         pButton
         pRipple
         pTooltip="Gérer le lot"
+      ></button>
+      <button
+
+        type="submit"
+        (click)="remove()"
+        class="btn btn-sm btn-danger"
+        icon="pi pi-times"
+        pButton
+        pRipple
+        pTooltip="Supprimer"
       ></button>
     </div>
   `,
@@ -32,7 +42,8 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
   showLotBtn = false;
 
-  constructor() {}
+  constructor() {
+  }
 
   refresh(): boolean {
     return false;
@@ -42,7 +53,7 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
     this.params = params;
 
     this.showLotBtn = this.params.context.componentParent.showLotBtn;
-    console.error(this.showLotBtn, 'showLotBtn========>>');
+
   }
 
   onAddLot(): void {
@@ -51,5 +62,9 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
 
   onEditLigneInfo(): void {
     this.params.context.componentParent.editLigneInfos(this.params.data);
+  }
+
+  remove(): void {
+    this.params.context.componentParent.removeLine(this.params.data);
   }
 }

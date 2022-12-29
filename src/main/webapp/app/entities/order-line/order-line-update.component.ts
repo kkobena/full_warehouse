@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
+import moment from 'moment';
+import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
 
-import { IOrderLine, OrderLine } from 'app/shared/model/order-line.model';
-import { OrderLineService } from './order-line.service';
-import { ICommande } from 'app/shared/model/commande.model';
-import { CommandeService } from 'app/entities/commande/commande.service';
-import { IProduit } from 'app/shared/model/produit.model';
-import { ProduitService } from 'app/entities/produit/produit.service';
+import {IOrderLine, OrderLine} from 'app/shared/model/order-line.model';
+import {OrderLineService} from './order-line.service';
+import {ICommande} from 'app/shared/model/commande.model';
+import {CommandeService} from 'app/entities/commande/commande.service';
+import {IProduit} from 'app/shared/model/produit.model';
+import {ProduitService} from 'app/entities/produit/produit.service';
 
 type SelectableEntity = ICommande | IProduit;
 
@@ -49,11 +49,12 @@ export class OrderLineUpdateComponent implements OnInit {
     protected commandeService: CommandeService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+    private fb: UntypedFormBuilder
+  ) {
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ orderLine }) => {
+    this.activatedRoute.data.subscribe(({orderLine}) => {
       if (!orderLine.id) {
         const today = moment().startOf('day');
         orderLine.createdAt = today;
@@ -102,6 +103,26 @@ export class OrderLineUpdateComponent implements OnInit {
     }
   }
 
+  trackById(index: number, item: SelectableEntity): any {
+    return item.id;
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IOrderLine>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onSaveSuccess(): void {
+    this.isSaving = false;
+    this.previousState();
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+  }
+
   private createFromForm(): IOrderLine {
     return {
       ...new OrderLine(),
@@ -121,25 +142,5 @@ export class OrderLineUpdateComponent implements OnInit {
       commande: this.editForm.get(['commande'])!.value,
       produit: this.editForm.get(['produit'])!.value,
     };
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IOrderLine>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
-  trackById(index: number, item: SelectableEntity): any {
-    return item.id;
   }
 }

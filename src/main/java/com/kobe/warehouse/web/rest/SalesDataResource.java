@@ -5,12 +5,6 @@ import com.kobe.warehouse.service.SaleDataService;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceService;
 import com.kobe.warehouse.service.report.SaleReceiptService;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,21 +23,25 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class SalesDataResource {
 
-    private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
-
     private static final String ENTITY_NAME = "sales";
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
+    private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
     private final SaleDataService saleDataService;
     private final SaleInvoiceService saleInvoiceService;
     private final ReceiptPrinterService receiptPrinterService;
     private final SaleReceiptService saleReceiptService;
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     public SalesDataResource(
         SaleDataService saleDataService,
@@ -62,7 +60,7 @@ public class SalesDataResource {
      *
      * @param id the id of the sales to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the sales, or
-     *     with status {@code 404 (Not Found)}.
+     * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/sales/{id}")
     public ResponseEntity<SaleDTO> getSales(@PathVariable Long id) {

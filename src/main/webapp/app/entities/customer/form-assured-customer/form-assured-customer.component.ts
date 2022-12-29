@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ErrorService } from 'app/shared/error.service';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
-import { CustomerService } from 'app/entities/customer/customer.service';
-import { ITiersPayant } from 'app/shared/model/tierspayant.model';
-import { Customer, ICustomer } from 'app/shared/model/customer.model';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import * as moment from 'moment';
-import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
+import {Component, OnInit} from '@angular/core';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {ErrorService} from 'app/shared/error.service';
+import {FormArray, UntypedFormBuilder, Validators} from '@angular/forms';
+import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
+import {CustomerService} from 'app/entities/customer/customer.service';
+import {ITiersPayant} from 'app/shared/model/tierspayant.model';
+import {Customer, ICustomer} from 'app/shared/model/customer.model';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import moment from 'moment';
+import {IClientTiersPayant} from 'app/shared/model/client-tiers-payant.model';
 
 @Component({
   selector: 'jhi-form-assured-customer',
@@ -20,15 +20,15 @@ import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 export class FormAssuredCustomerComponent implements OnInit {
   entity?: ICustomer;
   catgories = [
-    { label: 'RC1', value: 1 },
-    { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 },
+    {label: 'RC1', value: 1},
+    {label: 'RC2', value: 2},
+    {label: 'RC3', value: 3},
   ];
 
   categoriesComplementaires = [
-    { name: 'T0', value: 0 },
-    { name: 'T1', value: 1 },
-    { name: 'T2', value: 2 },
+    {name: 'T0', value: 0},
+    {name: 'T1', value: 1},
+    {name: 'T2', value: 2},
     {
       name: 'T3',
       value: 3,
@@ -44,8 +44,8 @@ export class FormAssuredCustomerComponent implements OnInit {
   tiersPayants: ITiersPayant[] = [];
   maxDate = new Date();
   plafonds = [
-    { label: 'Non', value: false },
-    { label: 'Oui', value: true },
+    {label: 'Non', value: false},
+    {label: 'Oui', value: true},
   ];
   editForm = this.fb.group({
     id: [],
@@ -69,13 +69,14 @@ export class FormAssuredCustomerComponent implements OnInit {
 
   constructor(
     protected errorService: ErrorService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected tiersPayantService: TiersPayantService,
     protected customerService: CustomerService,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -293,10 +294,10 @@ export class FormAssuredCustomerComponent implements OnInit {
     this.isSaving = false;
     if (error.error && error.error.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
       });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
+      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
     }
   }
 }

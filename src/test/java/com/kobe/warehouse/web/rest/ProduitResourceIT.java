@@ -2,7 +2,10 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.ProduitRepository;
+
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -21,10 +24,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.kobe.warehouse.domain.enumeration.TypeProduit;
 /**
  * Integration tests for the {@link ProduitResource} REST controller.
  */
@@ -85,7 +92,7 @@ public class ProduitResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -103,9 +110,10 @@ public class ProduitResourceIT {
             .itemRegularUnitPrice(DEFAULT_ITEM_REGULAR_UNIT_PRICE);
         return produit;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -135,8 +143,8 @@ public class ProduitResourceIT {
         int databaseSizeBeforeCreate = produitRepository.findAll().size();
         // Create the Produit
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isCreated());
 
         // Validate the Produit in the database
@@ -165,8 +173,8 @@ public class ProduitResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         // Validate the Produit in the database
@@ -186,8 +194,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -199,8 +207,8 @@ public class ProduitResourceIT {
     public void checkCodeIsRequired() throws Exception {
         int databaseSizeBeforeTest = produitRepository.findAll().size();
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -218,8 +226,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -231,8 +239,8 @@ public class ProduitResourceIT {
     public void checkQuantityIsRequired() throws Exception {
         int databaseSizeBeforeTest = produitRepository.findAll().size();
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -250,8 +258,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -269,8 +277,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -288,8 +296,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -307,8 +315,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -326,8 +334,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -345,8 +353,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -364,8 +372,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -383,8 +391,8 @@ public class ProduitResourceIT {
 
 
         restProduitMockMvc.perform(post("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         List<Produit> produitList = produitRepository.findAll();
@@ -442,6 +450,7 @@ public class ProduitResourceIT {
             .andExpect(jsonPath("$.itemCostAmount").value(DEFAULT_ITEM_COST_AMOUNT))
             .andExpect(jsonPath("$.itemRegularUnitPrice").value(DEFAULT_ITEM_REGULAR_UNIT_PRICE));
     }
+
     @Test
     @Transactional
     public void getNonExistingProduit() throws Exception {
@@ -475,8 +484,8 @@ public class ProduitResourceIT {
             .itemRegularUnitPrice(UPDATED_ITEM_REGULAR_UNIT_PRICE);
 
         restProduitMockMvc.perform(put("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedProduit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedProduit)))
             .andExpect(status().isOk());
 
         // Validate the Produit in the database
@@ -502,8 +511,8 @@ public class ProduitResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restProduitMockMvc.perform(put("/api/produits").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(produit)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(produit)))
             .andExpect(status().isBadRequest());
 
         // Validate the Produit in the database
@@ -521,7 +530,7 @@ public class ProduitResourceIT {
 
         // Delete the produit
         restProduitMockMvc.perform(delete("/api/produits/{id}", produit.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

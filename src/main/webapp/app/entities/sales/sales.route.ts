@@ -1,22 +1,23 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { ISales, Sales } from 'app/shared/model/sales.model';
-import { SalesService } from './sales.service';
-import { SalesComponent } from './sales.component';
-import { SalesDetailComponent } from './sales-detail.component';
-import { SalesUpdateComponent } from './sales-update.component';
-import { PresaleComponent } from './presale/presale.component';
-import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {ISales, Sales} from 'app/shared/model/sales.model';
+import {SalesService} from './sales.service';
+import {SalesComponent} from './sales.component';
+import {SalesDetailComponent} from './sales-detail.component';
+import {SalesUpdateComponent} from './sales-update.component';
+import {PresaleComponent} from './presale/presale.component';
+import {VenteEnCoursComponent} from './vente-en-cours/vente-en-cours.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SalesResolve implements Resolve<ISales> {
-  constructor(private service: SalesService, private router: Router) {}
+  constructor(private service: SalesService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<ISales> | Observable<never> {
     const id = route.params['id'];

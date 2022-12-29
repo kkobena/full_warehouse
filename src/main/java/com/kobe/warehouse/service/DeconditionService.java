@@ -1,16 +1,23 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.DateDimension;
+import com.kobe.warehouse.domain.Decondition;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import com.kobe.warehouse.repository.*;
-import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.repository.DeconditionRepository;
+import com.kobe.warehouse.repository.InventoryTransactionRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,7 +51,7 @@ public class DeconditionService {
         this.storageService = storageService;
     }
 
-    private void createDecondition(Produit produit, int beforeStock, int afterStock, int mvtQty, User user, TransactionType transactionType, TypeDeconditionnement typeDeconditionnement){
+    private void createDecondition(Produit produit, int beforeStock, int afterStock, int mvtQty, User user, TransactionType transactionType, TypeDeconditionnement typeDeconditionnement) {
         Decondition decondition = new Decondition();
         decondition.setProduit(produit);
         decondition.setDateMtv(Instant.now());
@@ -57,20 +64,21 @@ public class DeconditionService {
         deconditionRepository.save(decondition);
         createInventory(decondition,
             transactionType,
-            beforeStock,afterStock, user);
+            beforeStock, afterStock, user);
     }
-//TODO a revoir pour optimisation des ug
+
+    //TODO a revoir pour optimisation des ug
     public void save(DeconditionDTO deconditionDTO) throws StockException {
-        Produit parent = produitRepository.getOne(deconditionDTO.getProduitId());
-        StockProduit stockProduit = this.stockProduitRepository.findOneByProduitIdAndStockageId(deconditionDTO.getProduitId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        Produit parent = produitRepository.getReferenceById(deconditionDTO.getProduitId());
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(deconditionDTO.getProduitId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
         int stock = stockProduit.getQtyStock();
-        User user = this.storageService.getUser();
+        User user = storageService.getUser();
         if (stock >= deconditionDTO.getQtyMvt()) {
             stockProduit.setQtyStock(stock - deconditionDTO.getQtyMvt());
             stockProduit.setQtyVirtual(stockProduit.getQtyStock());
             stockProduit.setUpdatedAt(Instant.now());
             Produit detail = parent.getProduits().get(0);
-            StockProduit stockDetail = this.stockProduitRepository.findOneByProduitIdAndStockageId(detail.getId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+            StockProduit stockDetail = stockProduitRepository.findOneByProduitIdAndStockageId(detail.getId(), storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
             int stockDetailInit = stockDetail.getQtyStock();
             int stockDetailFinal = (deconditionDTO.getQtyMvt() * parent.getItemQty()) + stockDetailInit;
             stockDetail.setQtyStock(stockDetailFinal);
@@ -79,18 +87,18 @@ public class DeconditionService {
             stockProduitRepository.save(stockDetail);
             stockProduitRepository.save(stockProduit);
 
-            this.logsService.create(TransactionType.DECONDTION_OUT, TransactionType.FORCE_STOCK.getValue(), parent.getId().toString());
-            createDecondition(parent,stock,stockProduit.getQtyStock(),deconditionDTO.getQtyMvt(),user,TransactionType.DECONDTION_OUT,TypeDeconditionnement.DECONDTION_OUT);
-            createDecondition(detail,stockDetailInit,stockDetailFinal, (deconditionDTO.getQtyMvt() * parent.getItemQty()),user,TransactionType.DECONDTION_IN,TypeDeconditionnement.DECONDTION_IN);
+            logsService.create(TransactionType.DECONDTION_OUT, TransactionType.FORCE_STOCK.getValue(), parent.getId().toString());
+            createDecondition(parent, stock, stockProduit.getQtyStock(), deconditionDTO.getQtyMvt(), user, TransactionType.DECONDTION_OUT, TypeDeconditionnement.DECONDTION_OUT);
+            createDecondition(detail, stockDetailInit, stockDetailFinal, (deconditionDTO.getQtyMvt() * parent.getItemQty()), user, TransactionType.DECONDTION_IN, TypeDeconditionnement.DECONDTION_IN);
             FournisseurProduit fournisseurProduitPrincipal = parent.getFournisseurProduitPrincipal();
-            if (fournisseurProduitPrincipal != null ) {
-                String desc = String.format("Déconditionnement du produit %s %s quantité initiale %d quantité déconditionnée %d quantité finale %d", fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",parent.getLibelle(), stock, deconditionDTO.getQtyMvt(), stockProduit.getQtyStock());
-                this.logsService.create(TransactionType.DECONDTION_OUT, desc, parent.getId().toString());
+            if (fournisseurProduitPrincipal != null) {
+                String desc = String.format("Déconditionnement du produit %s %s quantité initiale %d quantité déconditionnée %d quantité finale %d", fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "", parent.getLibelle(), stock, deconditionDTO.getQtyMvt(), stockProduit.getQtyStock());
+                logsService.create(TransactionType.DECONDTION_OUT, desc, parent.getId().toString());
             }
             FournisseurProduit fournisseurProduitPrincipaldetail = detail.getFournisseurProduitPrincipal();
-            if (fournisseurProduitPrincipal != null ) {
-                String desc = String.format("Déconditionnement du produit %s %s quantité initiale %d quantité ajoutée %d quantité finale %d", fournisseurProduitPrincipaldetail != null ? fournisseurProduitPrincipaldetail.getCodeCip() : "",detail.getLibelle(), stockDetailInit, stockDetailFinal, stockDetail.getQtyStock());
-                this.logsService.create(TransactionType.DECONDTION_IN, desc, parent.getId().toString());
+            if (fournisseurProduitPrincipal != null) {
+                String desc = String.format("Déconditionnement du produit %s %s quantité initiale %d quantité ajoutée %d quantité finale %d", fournisseurProduitPrincipaldetail != null ? fournisseurProduitPrincipaldetail.getCodeCip() : "", detail.getLibelle(), stockDetailInit, stockDetailFinal, stockDetail.getQtyStock());
+                logsService.create(TransactionType.DECONDTION_IN, desc, parent.getId().toString());
             }
         } else {
             throw new StockException();
@@ -111,7 +119,7 @@ public class DeconditionService {
         inventoryTransaction.setTransactionType(transactionType);
         inventoryTransaction.setDateDimension(dateD);
         inventoryTransaction.setQuantityBefor(quantityBefor);
-         inventoryTransaction.setQuantityAfter(quantityFinal);
+        inventoryTransaction.setQuantityAfter(quantityFinal);
         inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());
         inventoryTransaction.setCostAmount(p.getCostAmount());
         inventoryTransactionRepository.save(inventoryTransaction);

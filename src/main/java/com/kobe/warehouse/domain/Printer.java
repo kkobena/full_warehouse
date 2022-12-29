@@ -1,22 +1,23 @@
 package com.kobe.warehouse.domain;
 
-import java.io.Serializable;
-import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import java.io.Serializable;
+import java.util.Objects;
+
 @Entity
 @Table(
     name = "printer",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
-    indexes = { @Index(columnList = "name", name = "name_index") }
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})},
+    indexes = {@Index(columnList = "name", name = "name_index")}
 )
 public class Printer implements Serializable {
 

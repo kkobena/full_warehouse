@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ public class AssuredCustomer extends Customer implements Serializable {
     private String numAyantDroit;
     @OneToMany(mappedBy = "assurePrincipal", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<AssuredCustomer> ayantDroits = new HashSet<>();
-    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST,CascadeType.MERGE})
+    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
     public AssuredCustomer getAssurePrincipal() {
@@ -38,17 +39,17 @@ public class AssuredCustomer extends Customer implements Serializable {
         return ayantDroits;
     }
 
+    public AssuredCustomer setAyantDroits(Set<AssuredCustomer> ayantDroits) {
+        this.ayantDroits = ayantDroits;
+        return this;
+    }
+
     public Set<ClientTiersPayant> getClientTiersPayants() {
         return clientTiersPayants;
     }
 
     public AssuredCustomer setClientTiersPayants(Set<ClientTiersPayant> clientTiersPayants) {
         this.clientTiersPayants = clientTiersPayants;
-        return this;
-    }
-
-    public AssuredCustomer setAyantDroits(Set<AssuredCustomer> ayantDroits) {
-        this.ayantDroits = ayantDroits;
         return this;
     }
 

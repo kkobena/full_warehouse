@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class RayonProduitService {
     }
 
     public Optional<RayonProduitDTO> create(RayonProduitDTO dto) throws GenericError {
-        Rayon rayon = rayonRepository.getOne(dto.getRayonId());
+        Rayon rayon = rayonRepository.getReferenceById(dto.getRayonId());
         long error = rayonProduitRepository.countRayonProduitByProduitIdAndRayonId(dto.getProduitId(), dto.getRayonId());
         if (error > 0)
             throw new GenericError("produit", "Le produit est déjà rattaché à ce rayon dans ce stockage", "duplicateProduitRayon");
@@ -43,7 +42,7 @@ public class RayonProduitService {
     }
 
     public void delete(long id) throws GenericError {
-        RayonProduit rayonProduit = rayonProduitRepository.getOne(id);
+        RayonProduit rayonProduit = rayonProduitRepository.getReferenceById(id);
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(id, rayonProduit.getRayon().getStorage().getId());
         if (stockProduit != null && (stockProduit.getQtyStock() > 0 || stockProduit.getQtyUG() > 0))
             throw new GenericError("produit", "Le produit est en stock dans ce rayon", "stockConflic");

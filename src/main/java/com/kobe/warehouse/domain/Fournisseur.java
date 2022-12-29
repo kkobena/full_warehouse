@@ -4,7 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -57,6 +64,10 @@ public class Fournisseur implements Serializable {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public Fournisseur libelle(String libelle) {
         this.libelle = libelle;
         return this;
@@ -67,12 +78,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
     public String getNumFaxe() {
         return numFaxe;
+    }
+
+    public void setNumFaxe(String numFaxe) {
+        this.numFaxe = numFaxe;
     }
 
     public Fournisseur numFaxe(String numFaxe) {
@@ -80,12 +91,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setNumFaxe(String numFaxe) {
-        this.numFaxe = numFaxe;
-    }
-
     public String getAddressePostal() {
         return addressePostal;
+    }
+
+    public void setAddressePostal(String addressePostal) {
+        this.addressePostal = addressePostal;
     }
 
     public Fournisseur addressePostal(String addressePostal) {
@@ -93,12 +104,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setAddressePostal(String addressePostal) {
-        this.addressePostal = addressePostal;
-    }
-
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public Fournisseur phone(String phone) {
@@ -106,12 +117,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getMobile() {
         return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public Fournisseur mobile(String mobile) {
@@ -119,12 +130,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
     public String getSite() {
         return site;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
     }
 
     public Fournisseur site(String site) {
@@ -132,12 +143,12 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setSite(String site) {
-        this.site = site;
-    }
-
     public String getCode() {
         return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Fournisseur code(String code) {
@@ -145,21 +156,17 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public GroupeFournisseur getGroupeFournisseur() {
         return groupeFournisseur;
+    }
+
+    public void setGroupeFournisseur(GroupeFournisseur groupeFournisseur) {
+        this.groupeFournisseur = groupeFournisseur;
     }
 
     public Fournisseur groupeFournisseur(GroupeFournisseur groupeFournisseur) {
         this.groupeFournisseur = groupeFournisseur;
         return this;
-    }
-
-    public void setGroupeFournisseur(GroupeFournisseur groupeFournisseur) {
-        this.groupeFournisseur = groupeFournisseur;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

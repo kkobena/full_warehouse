@@ -4,12 +4,23 @@ import com.kobe.warehouse.domain.enumeration.OrderStatut;
 
 
 public class CommandeFilterDTO {
-  private String search;
-  private String searchCommande;
-  private Long commandeId;
-  private OrderStatut orderStatut;
-  private FilterCommaneEnCours filterCommaneEnCours;
-  private String typeSuggession;
+    private String search;
+    private String searchCommande;
+    private Long commandeId;
+    private OrderStatut orderStatut;
+    private FilterCommaneEnCours filterCommaneEnCours;
+    private String typeSuggession;
+    private Sort orderBy;
+
+
+    public Sort getOrderBy() {
+        return orderBy;
+    }
+
+    public CommandeFilterDTO setOrderBy(Sort orderBy) {
+        this.orderBy = orderBy;
+        return this;
+    }
 
     public String getSearch() {
         return search;
@@ -65,9 +76,17 @@ public class CommandeFilterDTO {
         return this;
     }
 
-    public enum FilterCommaneEnCours {
-    NOT_EQUAL,
-    PROVISOL_CIP,
-    ALL
-  }
+    @Override
+    public String toString() {
+        String sb = "CommandeFilterDTO{" + "search='" + search + '\'' +
+            ", searchCommande='" + searchCommande + '\'' +
+            ", commandeId=" + commandeId +
+            ", orderStatut=" + orderStatut +
+            ", filterCommaneEnCours=" + filterCommaneEnCours +
+            ", typeSuggession='" + typeSuggession + '\'' +
+            ", orderBy=" + orderBy +
+            '}';
+        return sb;
+    }
+
 }

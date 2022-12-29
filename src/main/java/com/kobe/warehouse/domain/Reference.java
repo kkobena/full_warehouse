@@ -1,9 +1,16 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -11,7 +18,7 @@ import java.time.LocalDate;
  * A Reference.
  */
 @Entity
-@Table(name = "reference", uniqueConstraints = { @UniqueConstraint(columnNames = { "mvt_date", "d_type","num" }) })
+@Table(name = "reference", uniqueConstraints = {@UniqueConstraint(columnNames = {"mvt_date", "d_type", "num"})})
 public class Reference implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,7 +44,7 @@ public class Reference implements Serializable {
     @Column(name = "d_type", nullable = false)
     private Integer type;
 
- 
+
     public Long getId() {
         return id;
     }
@@ -50,17 +57,21 @@ public class Reference implements Serializable {
         return num;
     }
 
+    public void setNum(String num) {
+        this.num = num;
+    }
+
     public Reference num(String num) {
         this.num = num;
         return this;
     }
 
-    public void setNum(String num) {
-        this.num = num;
-    }
-
     public Integer getNumberTransac() {
         return numberTransac;
+    }
+
+    public void setNumberTransac(Integer numberTransac) {
+        this.numberTransac = numberTransac;
     }
 
     public Reference numberTransac(Integer numberTransac) {
@@ -68,12 +79,12 @@ public class Reference implements Serializable {
         return this;
     }
 
-    public void setNumberTransac(Integer numberTransac) {
-        this.numberTransac = numberTransac;
-    }
-
     public LocalDate getMvtDate() {
         return mvtDate;
+    }
+
+    public void setMvtDate(LocalDate mvtDate) {
+        this.mvtDate = mvtDate;
     }
 
     public Reference mvtDate(LocalDate mvtDate) {
@@ -81,21 +92,15 @@ public class Reference implements Serializable {
         return this;
     }
 
-    public void setMvtDate(LocalDate mvtDate) {
-        this.mvtDate = mvtDate;
+    public Integer getType() {
+        return type;
     }
 
-   
-    
-    public Integer getType() {
-		return type;
-	}
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
-	public void setType(Integer type) {
-		this.type = type;
-	}
-
-	@Override
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -119,7 +124,7 @@ public class Reference implements Serializable {
             ", num='" + getNum() + "'" +
             ", numberTransac=" + getNumberTransac() +
             ", mvtDate='" + getMvtDate() + "'" +
-      
+
             "}";
     }
 }

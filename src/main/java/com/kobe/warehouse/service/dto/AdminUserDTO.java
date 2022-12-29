@@ -3,10 +3,12 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.User;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.validation.constraints.*;
 
 /**

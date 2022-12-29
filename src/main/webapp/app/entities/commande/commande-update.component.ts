@@ -1,25 +1,25 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { Commande, ICommande } from 'app/shared/model/commande.model';
-import { CommandeService } from './commande.service';
-import { OrderLineService } from '../order-line/order-line.service';
-import { ProduitService } from '../produit/produit.service';
-import { IProduit } from 'app/shared/model/produit.model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
-import { IFournisseur } from '../../shared/model/fournisseur.model';
-import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
-import { ConfirmationService, MenuItem } from 'primeng/api';
-import { ErrorService } from '../../shared/error.service';
-import { DialogService } from 'primeng/dynamicdialog';
-import { saveAs } from 'file-saver';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { IResponseCommande } from '../../shared/model/response-commande.model';
-import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
+import {Commande, ICommande} from 'app/shared/model/commande.model';
+import {CommandeService} from './commande.service';
+import {OrderLineService} from '../order-line/order-line.service';
+import {ProduitService} from '../produit/produit.service';
+import {IProduit} from 'app/shared/model/produit.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AlertInfoComponent} from 'app/shared/alert/alert-info.component';
+import {IFournisseur} from '../../shared/model/fournisseur.model';
+import {FournisseurService} from '../fournisseur/fournisseur.service';
+import {IOrderLine, OrderLine} from '../../shared/model/order-line.model';
+import {ConfirmationService, MenuItem} from 'primeng/api';
+import {ErrorService} from '../../shared/error.service';
+import {DialogService} from 'primeng/dynamicdialog';
+import {saveAs} from 'file-saver';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {IResponseCommande} from '../../shared/model/response-commande.model';
+import {CommandeEnCoursResponseDialogComponent} from './commande-en-cours-response-dialog.component';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -70,9 +70,9 @@ export class CommandeUpdateComponent implements OnInit {
   selectOnTab = false;
   clearOnBackspace = true;
   minTermLength = 1;
-  @ViewChild('quantyBox', { static: false })
+  @ViewChild('quantyBox', {static: false})
   quantyBox?: ElementRef;
-  @ViewChild('produitbox', { static: false })
+  @ViewChild('produitbox', {static: false})
   produitbox?: any;
   @ViewChild('fournisseurBox')
   fournisseurBox?: any;
@@ -96,9 +96,9 @@ export class CommandeUpdateComponent implements OnInit {
   ) {
     this.selectedEl = [];
     this.filtres = [
-      { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
-      { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
-      { label: 'Tous', value: 'ALL' },
+      {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
+      {label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP'},
+      {label: 'Tous', value: 'ALL'},
     ];
     this.commandebuttons = [
       {
@@ -118,7 +118,7 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ commande }) => {
+    this.activatedRoute.data.subscribe(({commande}) => {
       if (commande.id) {
         this.commande = commande;
         this.orderLines = commande.orderLines;
@@ -227,13 +227,16 @@ export class CommandeUpdateComponent implements OnInit {
   onCloseCurrentCommande(): void {
     this.spinner.show('commandeEnCourspinner');
     this.commandeService.closeCommandeEnCours(this.commande?.id!).subscribe(
-      () => {
-        this.spinner.hide('commandeEnCourspinner');
-        this.confirmStay();
-      },
-      error => {
-        this.onCommonError(error);
-        this.spinner.hide('commandeEnCourspinner');
+      {
+        next: () => {
+          this.spinner.hide('commandeEnCourspinner');
+          this.confirmStay();
+        },
+        error: (error) => {
+          this.onCommonError(error);
+          this.spinner.hide('commandeEnCourspinner');
+        }
+
       }
     );
   }
@@ -305,7 +308,7 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   openDialog(message: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static' });
+    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static'});
     modalRef.componentInstance.message = message;
   }
 
@@ -369,16 +372,19 @@ export class CommandeUpdateComponent implements OnInit {
     const file = event.files[0];
 
     formData.append('commande', file, file.name);
-    this.spinner.show('commandeEnCourspinner');
+
+    this.showsPinner('commandeEnCourspinner');
     this.commandeService.importerReponseCommande(this.commande?.id!, formData).subscribe(
       res => {
-        this.spinner.hide('commandeEnCourspinner');
+
+        this.hidePinner('commandeEnCourspinner');
         this.refreshCommande();
         this.cancel();
         this.openImporterReponseCommandeDialog(res.body!);
       },
       error => {
-        this.spinner.hide('commandeEnCourspinner');
+        this.hidePinner('commandeEnCourspinner');
+
         this.onCommonError(error);
       }
     );
@@ -424,36 +430,6 @@ export class CommandeUpdateComponent implements OnInit {
     }
   }
 
-  private openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static', centered: true });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
-  }
-
-  private createOrderLine(produit: IProduit, quantityRequested: number): IOrderLine {
-    return {
-      ...new OrderLine(),
-      produitId: produit.id,
-      totalQuantity: produit.totalQuantity,
-      commande:
-        this.commande?.id !== undefined
-          ? this.commande
-          : {
-              ...new Commande(),
-              fournisseur: this.selectedProvider!,
-            },
-      quantityRequested,
-    };
-  }
-
-  private createCommande(produit: IProduit, quantityRequested: number): ICommande {
-    return {
-      ...new Commande(),
-      fournisseur: this.selectedProvider!,
-      orderLines: [this.createOrderLine(produit, quantityRequested)],
-    };
-  }
-
   protected onSaveSuccess(): void {
     this.isSaving = false;
   }
@@ -489,12 +465,51 @@ export class CommandeUpdateComponent implements OnInit {
     this.produits = data || [];
   }
 
-  protected onError(): void {}
+  protected onError(): void {
+  }
 
   protected subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe(
       res => this.onSaveOrderLineSuccess(res.body!),
       err => this.onCommonError(err)
     );
+  }
+
+  private openInfoDialog(message: string, infoClass: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static', centered: true});
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.infoClass = infoClass;
+  }
+
+  private createOrderLine(produit: IProduit, quantityRequested: number): IOrderLine {
+    return {
+      ...new OrderLine(),
+      produitId: produit.id,
+      totalQuantity: produit.totalQuantity,
+      commande:
+        this.commande?.id !== undefined
+          ? this.commande
+          : {
+            ...new Commande(),
+            fournisseur: this.selectedProvider!,
+          },
+      quantityRequested,
+    };
+  }
+
+  private createCommande(produit: IProduit, quantityRequested: number): ICommande {
+    return {
+      ...new Commande(),
+      fournisseur: this.selectedProvider!,
+      orderLines: [this.createOrderLine(produit, quantityRequested)],
+    };
+  }
+
+  private showsPinner(spinnerName: string): void {
+    this.spinner.show(spinnerName);
+  }
+
+  private hidePinner(spinnerName: string): void {
+    this.spinner.hide(spinnerName);
   }
 }

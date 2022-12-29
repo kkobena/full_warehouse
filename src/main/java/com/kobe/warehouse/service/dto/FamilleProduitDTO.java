@@ -20,6 +20,21 @@ public class FamilleProduitDTO implements Serializable {
 
     private String categorieLibelle;
 
+    public FamilleProduitDTO(FamilleProduit familleProduit) {
+        id = familleProduit.getId();
+        code = familleProduit.getCode();
+        libelle = familleProduit.getLibelle();
+        Categorie categorie = familleProduit.getCategorie();
+        if (categorie != null) {
+            categorieId = categorie.getId();
+            categorieLibelle = categorie.getLibelle();
+        }
+
+    }
+
+    public FamilleProduitDTO() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -44,13 +59,12 @@ public class FamilleProduitDTO implements Serializable {
         this.libelle = libelle;
     }
 
-
     public Long getCategorieId() {
         return categorieId;
     }
 
     public void setCategorieId(Long categorieProduitId) {
-        this.categorieId = categorieProduitId;
+        categorieId = categorieProduitId;
     }
 
     public String getCategorieLibelle() {
@@ -58,7 +72,7 @@ public class FamilleProduitDTO implements Serializable {
     }
 
     public void setCategorieLibelle(String categorieProduitLibelle) {
-        this.categorieLibelle = categorieProduitLibelle;
+        categorieLibelle = categorieProduitLibelle;
     }
 
     @Override
@@ -88,20 +102,5 @@ public class FamilleProduitDTO implements Serializable {
             ", categorieId=" + getCategorieId() +
             ", categorieLibelle='" + getCategorieLibelle() + "'" +
             "}";
-    }
-
-    public FamilleProduitDTO(FamilleProduit familleProduit) {
-        this.id = familleProduit.getId();
-        this.code = familleProduit.getCode();
-        this.libelle = familleProduit.getLibelle();
-        Categorie categorie = familleProduit.getCategorie();
-        if (categorie != null) {
-            this.categorieId = categorie.getId();
-            this.categorieLibelle = categorie.getLibelle();
-        }
-
-    }
-
-    public FamilleProduitDTO() {
     }
 }

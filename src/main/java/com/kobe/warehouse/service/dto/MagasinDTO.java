@@ -9,99 +9,118 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class MagasinDTO implements Serializable {
-  private final Logger LOG = LoggerFactory.getLogger(MagasinDTO.class);
-  private static final long serialVersionUID = 1L;
-  private Long id;
-  @NotNull private String name;
-  private String phone;
-  private String address;
-  private String note;
-  private String registre;
-  private String compteContribuable;
-  private String numComptable;
-  private Storage primaryStorage;
-  private Storage pointOfSale;
-  private String welcomeMessage;
+    private static final long serialVersionUID = 1L;
+    private final Logger LOG = LoggerFactory.getLogger(MagasinDTO.class);
+    private Long id;
+    @NotNull
+    private String name;
+    private String phone;
+    private String address;
+    private String note;
+    private String registre;
+    private String compteContribuable;
+    private String numComptable;
+    private Storage primaryStorage;
+    private Storage pointOfSale;
+    private String welcomeMessage;
 
-  public Long getId() {
-    return id;
-  }
+    public MagasinDTO() {
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public MagasinDTO(Magasin magasin) {
+        id = magasin.getId();
+        name = magasin.getName();
+        phone = magasin.getPhone();
+        address = magasin.getAddress();
+        note = magasin.getNote();
+        registre = magasin.getRegistre();
+        compteContribuable = magasin.getCompteContribuable();
+        numComptable = magasin.getNumComptable();
+        LOG.info("=== {}{}", new Object[]{magasin.getPrimaryStorage(), magasin.getPointOfSale()});
+        primaryStorage = magasin.getPrimaryStorage();
+        pointOfSale = magasin.getPointOfSale();
+        welcomeMessage = magasin.getWelcomeMessage();
+    }
 
-  public String getName() {
-    return name;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public String getPhone() {
-    return phone;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public String getAddress() {
-    return address;
-  }
+    public String getPhone() {
+        return phone;
+    }
 
-  public void setAddress(String address) {
-    this.address = address;
-  }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-  public String getNote() {
-    return note;
-  }
+    public String getAddress() {
+        return address;
+    }
 
-  public void setNote(String note) {
-    this.note = note;
-  }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-  public String getRegistre() {
-    return registre;
-  }
+    public String getNote() {
+        return note;
+    }
 
-  public void setRegistre(String registre) {
-    this.registre = registre;
-  }
+    public void setNote(String note) {
+        this.note = note;
+    }
 
-  public String getCompteContribuable() {
-    return compteContribuable;
-  }
+    public String getRegistre() {
+        return registre;
+    }
 
-  public void setCompteContribuable(String compteContribuable) {
-    this.compteContribuable = compteContribuable;
-  }
+    public void setRegistre(String registre) {
+        this.registre = registre;
+    }
 
-  public String getNumComptable() {
-    return numComptable;
-  }
+    public String getCompteContribuable() {
+        return compteContribuable;
+    }
 
-  public void setNumComptable(String numComptable) {
-    this.numComptable = numComptable;
-  }
+    public void setCompteContribuable(String compteContribuable) {
+        this.compteContribuable = compteContribuable;
+    }
 
-  public Storage getPrimaryStorage() {
-    return primaryStorage;
-  }
+    public String getNumComptable() {
+        return numComptable;
+    }
 
-  public void setPrimaryStorage(Storage primaryStorage) {
-    this.primaryStorage = primaryStorage;
-  }
+    public void setNumComptable(String numComptable) {
+        this.numComptable = numComptable;
+    }
 
-  public Storage getPointOfSale() {
-    return pointOfSale;
-  }
+    public Storage getPrimaryStorage() {
+        return primaryStorage;
+    }
 
-  public void setPointOfSale(Storage pointOfSale) {
-    this.pointOfSale = pointOfSale;
-  }
+    public void setPrimaryStorage(Storage primaryStorage) {
+        this.primaryStorage = primaryStorage;
+    }
+
+    public Storage getPointOfSale() {
+        return pointOfSale;
+    }
+
+    public void setPointOfSale(Storage pointOfSale) {
+        this.pointOfSale = pointOfSale;
+    }
 
     public String getWelcomeMessage() {
         return welcomeMessage;
@@ -111,21 +130,4 @@ public class MagasinDTO implements Serializable {
         this.welcomeMessage = welcomeMessage;
         return this;
     }
-
-    public MagasinDTO() {}
-
-  public MagasinDTO(Magasin magasin) {
-    this.id = magasin.getId();
-    this.name = magasin.getName();
-    this.phone = magasin.getPhone();
-    this.address = magasin.getAddress();
-    this.note = magasin.getNote();
-    this.registre = magasin.getRegistre();
-    this.compteContribuable = magasin.getCompteContribuable();
-    this.numComptable = magasin.getNumComptable();
-    LOG.info("=== {}{}", new Object[] {magasin.getPrimaryStorage(), magasin.getPointOfSale()});
-    this.primaryStorage = magasin.getPrimaryStorage();
-    this.pointOfSale = magasin.getPointOfSale();
-    this.welcomeMessage = magasin.getWelcomeMessage();
-  }
 }

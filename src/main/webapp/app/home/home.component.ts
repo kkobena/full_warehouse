@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
-import { AccountService } from 'app/core/auth/account.service';
-import { Account } from 'app/core/auth/account.model';
-import { IDailyca } from '../shared/model/dailyca.model';
+import {AccountService} from 'app/core/auth/account.service';
+import {Account} from 'app/core/auth/account.model';
+import {IDailyca} from '../shared/model/dailyca.model';
 import {
   faChartArea,
   faChartBar,
@@ -16,10 +16,10 @@ import {
   faShoppingBasket,
   faShoppingCart,
 } from '@fortawesome/free-solid-svg-icons';
-import { TOP_MAX_RESULT } from '../shared/constants/pagination.constants';
-import { DashboardService } from './dashboard.service';
-import { HttpResponse } from '@angular/common/http';
-import { IStatistiqueProduit } from '../shared/model/statistique-produit.model';
+import {TOP_MAX_RESULT} from '../shared/constants/pagination.constants';
+import {DashboardService} from './dashboard.service';
+import {HttpResponse} from '@angular/common/http';
+import {IStatistiqueProduit} from '../shared/model/statistique-produit.model';
 
 @Component({
   selector: 'jhi-home',
@@ -119,7 +119,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.accountService
       .getAuthenticationState()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(account => (this.account = account));
+      .subscribe(account => {
+        this.account = account;
+        this.subscribeToCaResponse(this.dashboardService.daily());
+      });
   }
 
   login(): void {
@@ -139,8 +142,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   protected subscribeToCaResponse(result: Observable<HttpResponse<IDailyca>>): void {
     result.subscribe(
-      (res: HttpResponse<IDailyca>) => this.onDailyCaSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IDailyca>) => this.onDailyCaSuccess(res.body)
     );
   }
 
@@ -161,71 +163,64 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   protected onYearlyCaSuccess(ca: IDailyca | null): void {
     this.yearlyCa = ca;
-    this.subscribeToMonthlyQuantityResponse(this.dashboardService.monthlyQuantity({ maxResult: TOP_MAX_RESULT }));
+    this.subscribeToMonthlyQuantityResponse(this.dashboardService.monthlyQuantity({maxResult: TOP_MAX_RESULT}));
   }
 
   protected subscribeToWeeklyCaResponse(result: Observable<HttpResponse<IDailyca>>): void {
     result.subscribe(
-      (res: HttpResponse<IDailyca>) => this.onWeeklyCaSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IDailyca>) => this.onWeeklyCaSuccess(res.body)
     );
   }
 
   protected subscribeToYearlyCaResponse(result: Observable<HttpResponse<IDailyca>>): void {
     result.subscribe(
-      (res: HttpResponse<IDailyca>) => this.onYearlyCaSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IDailyca>) => this.onYearlyCaSuccess(res.body)
     );
   }
 
   protected subscribeToMonthylyCaResponse(result: Observable<HttpResponse<IDailyca>>): void {
     result.subscribe(
-      (res: HttpResponse<IDailyca>) => this.onMonthyCaCaSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IDailyca>) => this.onMonthyCaCaSuccess(res.body)
     );
   }
 
   protected subscribeToMonthlyQuantityResponse(result: Observable<HttpResponse<IStatistiqueProduit>>): void {
     result.subscribe(
-      (res: HttpResponse<IStatistiqueProduit>) => this.onMonthlyQuantitySuccess(res.body),
-      () => {}
+      (res: HttpResponse<IStatistiqueProduit>) => this.onMonthlyQuantitySuccess(res.body)
     );
   }
 
   protected subscribeToMonthlyAmountResponse(result: Observable<HttpResponse<IStatistiqueProduit>>): void {
     result.subscribe(
-      (res: HttpResponse<IStatistiqueProduit>) => this.onMonthlyAmountSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IStatistiqueProduit>) => this.onMonthlyAmountSuccess(res.body)
     );
   }
 
   protected onMonthlyQuantitySuccess(stat: IStatistiqueProduit | null): void {
     this.rowQuantityMonthly = stat;
-    this.subscribeToMonthlyAmountResponse(this.dashboardService.monthlyAmount({ maxResult: TOP_MAX_RESULT }));
+    this.subscribeToMonthlyAmountResponse(this.dashboardService.monthlyAmount({maxResult: TOP_MAX_RESULT}));
   }
 
   protected onMonthlyAmountSuccess(stat: IStatistiqueProduit | null): void {
     this.rowAmountMonthly = stat;
-    this.subscribeToYearQuantityResponse(this.dashboardService.yearlyQuantity({ maxResult: TOP_MAX_RESULT }));
+    this.subscribeToYearQuantityResponse(this.dashboardService.yearlyQuantity({maxResult: TOP_MAX_RESULT}));
   }
 
   protected subscribeToYearAmountResponse(result: Observable<HttpResponse<IStatistiqueProduit>>): void {
     result.subscribe(
-      (res: HttpResponse<IStatistiqueProduit>) => this.onYearAmountSuccess(res.body),
-      () => {}
+      (res: HttpResponse<IStatistiqueProduit>) => this.onYearAmountSuccess(res.body)
     );
   }
 
   protected subscribeToYearQuantityResponse(result: Observable<HttpResponse<IStatistiqueProduit>>): void {
     result.subscribe(
-      (res: HttpResponse<IStatistiqueProduit>) => this.onYearQuantitySuccess(res.body),
-      () => {}
+      (res: HttpResponse<IStatistiqueProduit>) => this.onYearQuantitySuccess(res.body)
     );
   }
 
   protected onYearQuantitySuccess(stat: IStatistiqueProduit | null): void {
     this.rowQuantityYear = stat;
-    this.subscribeToYearAmountResponse(this.dashboardService.yearlyAmount({ maxResult: TOP_MAX_RESULT }));
+    this.subscribeToYearAmountResponse(this.dashboardService.yearlyAmount({maxResult: TOP_MAX_RESULT}));
   }
 
   protected onYearAmountSuccess(stat: IStatistiqueProduit | null): void {

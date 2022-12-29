@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
 
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
-import { ModifAjustementService } from '../motif-ajustement.service';
-import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from 'primeng/api';
+import {ModifAjustementService} from '../motif-ajustement.service';
+import {IMotifAjustement, MotifAjustement} from '../../../shared/model/motif-ajustement.model';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
 
 @Component({
   selector: 'jhi-form-motif-ajustement',
@@ -20,13 +20,15 @@ export class FormMotifAjustementComponent implements OnInit {
     id: [],
     libelle: [null, [Validators.required]],
   });
+
   constructor(
     protected entityService: ModifAjustementService,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -42,14 +44,6 @@ export class FormMotifAjustementComponent implements OnInit {
     });
   }
 
-  private createFromForm(): IMotifAjustement {
-    return {
-      ...new MotifAjustement(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-    };
-  }
-
   save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();
@@ -60,21 +54,32 @@ export class FormMotifAjustementComponent implements OnInit {
     }
   }
 
+  cancel(): void {
+    this.ref.destroy();
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
     result.subscribe(
       (res: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(res.body),
       () => this.onSaveError()
     );
   }
+
   protected onSaveSuccess(response: IMotifAjustement | null): void {
-    this.messageService.add({ severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès' });
+    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès'});
     this.ref.close(response);
   }
+
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
+    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
   }
-  cancel(): void {
-    this.ref.destroy();
+
+  private createFromForm(): IMotifAjustement {
+    return {
+      ...new MotifAjustement(),
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+    };
   }
 }

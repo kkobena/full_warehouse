@@ -55,7 +55,7 @@ public class ProduitServiceImpl implements ProduitService {
         log.debug("Request to save Produit : {}", produitDTO);
         try {
 
-            customizedProductService.save(produitDTO,rayonRepository.getOne(produitDTO.getRayonId()));
+            customizedProductService.save(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
         } catch (Exception e) {
             log.debug("Request to save Produit : {}", e);
 
@@ -188,7 +188,7 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     private Storage getPointOfSale() {
-        return magasinRepository.getOne(1l).getPointOfSale();
+        return magasinRepository.getReferenceById(1l).getPointOfSale();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class GroupeTiersPayantService {
     }
 
     public GroupeTiersPayant create(GroupeTiersPayant groupeTiersPayant) throws GenericError {
-        Optional<GroupeTiersPayant> groupeTiersPayantOptional = this.groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
+        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent())
             throw new GenericError("groupeTierspayant", "Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
         GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
@@ -44,27 +44,27 @@ public class GroupeTiersPayantService {
         tiersPayant.setName(groupeTiersPayant.getName());
         tiersPayant.setTelephone(groupeTiersPayant.getTelephone());
         tiersPayant.setTelephoneFixe(groupeTiersPayant.getTelephoneFixe());
-        return this.groupeTiersPayantRepository.save(tiersPayant);
+        return groupeTiersPayantRepository.save(tiersPayant);
     }
 
     public GroupeTiersPayant update(GroupeTiersPayant groupeTiersPayant) throws GenericError {
-        GroupeTiersPayant tiersPayant = this.groupeTiersPayantRepository.getOne(groupeTiersPayant.getId());
-        Optional<GroupeTiersPayant> groupeTiersPayantOptional = this.groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
+        GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
+        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent() && groupeTiersPayantOptional.get().getId() != tiersPayant.getId())
             throw new GenericError("groupeTierspayant", "Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
         tiersPayant.setName(groupeTiersPayant.getName());
         tiersPayant.setTelephone(groupeTiersPayant.getTelephone());
         tiersPayant.setTelephoneFixe(groupeTiersPayant.getTelephoneFixe());
-        return this.groupeTiersPayantRepository.save(tiersPayant);
+        return groupeTiersPayantRepository.save(tiersPayant);
     }
 
     @Transactional(readOnly = true)
     public List<GroupeTiersPayant> list(String search) {
         if (StringUtils.isEmpty(search)) {
-            return this.groupeTiersPayantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+            return groupeTiersPayantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
         }
-        return this.groupeTiersPayantRepository.findAll(this.groupeTiersPayantRepository.specialisationQueryString(search + "%"), Sort.by(Sort.Direction.ASC, "name"));
+        return groupeTiersPayantRepository.findAll(groupeTiersPayantRepository.specialisationQueryString(search + "%"), Sort.by(Sort.Direction.ASC, "name"));
 
     }
 
@@ -72,7 +72,7 @@ public class GroupeTiersPayantService {
         List<TiersPayant> tiersPayants = tiersPayantRepository.findAllByGroupeTiersPayantId(id);
         if (tiersPayants.size() > 0)
             throw new GenericError("groupeTierspayant", "Il  y'a des tierspants associés à ce groupe", "groupeTiersPayantAssocies");
-        this.groupeTiersPayantRepository.deleteById(id);
+        groupeTiersPayantRepository.deleteById(id);
 
     }
 
@@ -87,7 +87,7 @@ public class GroupeTiersPayantService {
                 tiersPayant.setName(record.get(0));
                 tiersPayant.setAdresse(record.get(1));
                 tiersPayant.setTelephone(record.get(2));
-                this.create(tiersPayant);
+                create(tiersPayant);
                 count.incrementAndGet();
             });
         } catch (IOException e) {
@@ -98,10 +98,10 @@ public class GroupeTiersPayantService {
     }
 
     public Optional<GroupeTiersPayant> getOne(Long id) {
-        return this.groupeTiersPayantRepository.findById(id);
+        return groupeTiersPayantRepository.findById(id);
     }
 
     public Optional<GroupeTiersPayant> getOneByName(String name) {
-        return this.groupeTiersPayantRepository.findOneByName(name);
+        return groupeTiersPayantRepository.findOneByName(name);
     }
 }

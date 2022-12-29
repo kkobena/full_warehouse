@@ -1,15 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable, Subscription } from 'rxjs';
-import { JhiEventManager, JhiParseLinks } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Observable, Subscription} from 'rxjs';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IStoreInventory } from 'app/shared/model/store-inventory.model';
+import {IStoreInventory} from 'app/shared/model/store-inventory.model';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { StoreInventoryService } from './store-inventory.service';
-import { StoreInventoryDeleteDialogComponent } from './store-inventory-delete-dialog.component';
-import { NgxSpinnerService } from 'ngx-spinner';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {StoreInventoryService} from './store-inventory.service';
+import {StoreInventoryDeleteDialogComponent} from './store-inventory-delete-dialog.component';
+import {NgxSpinnerService} from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -19,9 +18,11 @@ import { NgxSpinnerService } from 'ngx-spinner';
       .table tr:hover {
         cursor: pointer;
       }
+
       .active {
         background-color: #95caf9 !important;
       }
+
       .ag-theme-alpine {
         min-height: 400px;
         height: 550px;
@@ -30,7 +31,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
     `,
   ],
 })
-export class StoreInventoryComponent implements OnInit, OnDestroy {
+export class StoreInventoryComponent implements OnInit {
   storeInventories: IStoreInventory[];
   eventSubscriber?: Subscription;
   selectedRowIndex?: number;
@@ -46,9 +47,7 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
 
   constructor(
     protected storeInventoryService: StoreInventoryService,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal,
-    protected parseLinks: JhiParseLinks,
     private spinner: NgxSpinnerService
   ) {
     this.storeInventories = [];
@@ -92,19 +91,22 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
       },
     ];
   }
+
   cellClass(params: any): any {
     if (params.data.updated) {
       const ecart = Number(params.data.quantityOnHand) - Number(params.data.quantityInit);
-      return ecart >= 0 ? { backgroundColor: 'lightgreen' } : { backgroundColor: 'lightcoral' };
+      return ecart >= 0 ? {backgroundColor: 'lightgreen'} : {backgroundColor: 'lightcoral'};
     }
     return;
   }
+
   setGap(params: any): number {
     if (params.data.updated) {
       return params.data.quantityOnHand - params.data.quantityInit;
     }
     return 0;
   }
+
   loadAll(): void {
     this.storeInventoryService.query({}).subscribe((res: HttpResponse<IStoreInventory[]>) => this.onSuccess(res.body));
   }
@@ -125,23 +127,15 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
     // this.registerChangeInStoreInventories();
   }
 
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
 
   trackId(index: number, item: IStoreInventory): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
   }
 
-  registerChangeInStoreInventories(): void {
-    this.eventSubscriber = this.eventManager.subscribe('storeInventoryListModification', () => this.reset());
-  }
 
   delete(storeInventory: IStoreInventory): void {
-    const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
     modalRef.componentInstance.storeInventory = storeInventory;
   }
 
@@ -151,16 +145,6 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
       result.push('id');
     }
     return result;
-  }
-
-  protected paginateStoreInventories(data: IStoreInventory[] | null, headers: HttpHeaders): void {
-    const headersLink = headers.get('link');
-    this.links = this.parseLinks.parse(headersLink ? headersLink : '');
-    if (data) {
-      for (let i = 0; i < data.length; i++) {
-        this.storeInventories.push(data[i]);
-      }
-    }
   }
 
   onFilterTextBoxChanged(event: any): void {
@@ -186,16 +170,34 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
     }, 5000);
 */
   }
+
+  clickRow(storeInventory: IStoreInventory): void {
+    this.selectedRowIndex = storeInventory.id;
+    this.rowData = storeInventory.storeInventoryLines;
+  }
+
+  protected paginateStoreInventories(data: IStoreInventory[] | null, headers: HttpHeaders): void {
+    const headersLink = headers.get('link');
+    //   this.links = this.parseLinks.parse(headersLink ? headersLink : '');
+    if (data) {
+      for (let i = 0; i < data.length; i++) {
+        this.storeInventories.push(data[i]);
+      }
+    }
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
       () => this.onSaveError()
     );
   }
+
   protected onSaveSuccess(): void {
     this.spinner.hide();
     this.loadAll();
   }
+
   protected onSaveError(): void {
     this.spinner.hide();
   }
@@ -204,9 +206,5 @@ export class StoreInventoryComponent implements OnInit, OnDestroy {
     if (data) {
       this.storeInventories = data;
     }
-  }
-  clickRow(storeInventory: IStoreInventory): void {
-    this.selectedRowIndex = storeInventory.id;
-    this.rowData = storeInventory.storeInventoryLines;
   }
 }

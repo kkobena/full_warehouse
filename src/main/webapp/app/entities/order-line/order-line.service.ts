@@ -1,50 +1,51 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import * as moment from 'moment';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import moment from 'moment';
 
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
-import { SERVER_API_URL } from 'app/app.constants';
-import { IOrderLine } from 'app/shared/model/order-line.model';
+import {DATE_FORMAT} from 'app/shared/constants/input.constants';
+import {SERVER_API_URL} from 'app/app.constants';
+import {IOrderLine} from 'app/shared/model/order-line.model';
 
 type EntityResponseType = HttpResponse<IOrderLine>;
 type EntityArrayResponseType = HttpResponse<IOrderLine[]>;
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OrderLineService {
   public resourceUrl = SERVER_API_URL + 'api/order-lines';
 
-  constructor(protected http: HttpClient) {}
+  constructor(protected http: HttpClient) {
+  }
 
   create(orderLine: IOrderLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(orderLine);
     return this.http
-      .post<IOrderLine>(this.resourceUrl, copy, { observe: 'response' })
+      .post<IOrderLine>(this.resourceUrl, copy, {observe: 'response'})
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   update(orderLine: IOrderLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(orderLine);
     return this.http
-      .put<IOrderLine>(this.resourceUrl, copy, { observe: 'response' })
+      .put<IOrderLine>(this.resourceUrl, copy, {observe: 'response'})
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
-      .get<IOrderLine>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .get<IOrderLine>(`${this.resourceUrl}/${id}`, {observe: 'response'})
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   query(commandeId?: number): Observable<EntityArrayResponseType> {
     return this.http
-      .get<IOrderLine[]>(`${this.resourceUrl}/${commandeId}`, { observe: 'response' })
+      .get<IOrderLine[]>(`${this.resourceUrl}/${commandeId}`, {observe: 'response'})
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+    return this.http.delete(`${this.resourceUrl}/${id}`, {observe: 'response'});
   }
 
   protected convertDateFromClient(orderLine: IOrderLine): IOrderLine {

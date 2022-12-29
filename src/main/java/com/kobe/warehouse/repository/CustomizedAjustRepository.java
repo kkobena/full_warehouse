@@ -1,20 +1,33 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Ajust;
+import com.kobe.warehouse.domain.Ajust_;
+import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.Ajustement_;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,7 +54,7 @@ public class CustomizedAjustRepository implements AjustService {
             List<Predicate> predicates = ajustPredicates(search, dtStart, dtEnd, cb, root);
             cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<Ajust> q = em.createQuery(cq);
-            q.setFirstResult((int)pageable.getOffset());
+            q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
             list = q.getResultList().stream().map(e -> new AjustDTO(e).setAjustements(items(e.getId()))).collect(Collectors.toList());
 
@@ -75,7 +88,7 @@ public class CustomizedAjustRepository implements AjustService {
 
     private List<Predicate> ajustPredicates(String search, LocalDate dtStart, LocalDate dtEnd, CriteriaBuilder cb, Root<Ajustement> root) {
         List<Predicate> predicates = new ArrayList<>();
-        if (!StringUtils.isEmpty(search)) {
+        if (StringUtils.isNotBlank(search)) {
             search = search + "%";
             Join<Ajustement, Produit> produitJoin = root.join(Ajustement_.produit);
             SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);

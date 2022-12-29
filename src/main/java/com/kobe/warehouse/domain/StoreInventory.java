@@ -3,9 +3,17 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -67,6 +75,10 @@ public class StoreInventory implements Serializable {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Magasin getMagasin() {
         return magasin;
     }
@@ -76,12 +88,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getInventoryValueCostBegin() {
         return inventoryValueCostBegin;
+    }
+
+    public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
+        this.inventoryValueCostBegin = inventoryValueCostBegin;
     }
 
     public StoreInventory inventoryValueCostBegin(Long inventoryValueCostBegin) {
@@ -89,12 +101,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
-        this.inventoryValueCostBegin = inventoryValueCostBegin;
-    }
-
     public Long getInventoryAmountBegin() {
         return inventoryAmountBegin;
+    }
+
+    public void setInventoryAmountBegin(Long inventoryAmountBegin) {
+        this.inventoryAmountBegin = inventoryAmountBegin;
     }
 
     public StoreInventory inventoryAmountBegin(Long inventoryAmountBegin) {
@@ -110,12 +122,12 @@ public class StoreInventory implements Serializable {
         this.statut = statut;
     }
 
-    public void setInventoryAmountBegin(Long inventoryAmountBegin) {
-        this.inventoryAmountBegin = inventoryAmountBegin;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public StoreInventory createdAt(Instant createdAt) {
@@ -123,12 +135,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public StoreInventory updatedAt(Instant updatedAt) {
@@ -136,12 +148,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Long getInventoryValueCostAfter() {
         return inventoryValueCostAfter;
+    }
+
+    public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
+        this.inventoryValueCostAfter = inventoryValueCostAfter;
     }
 
     public StoreInventory inventoryValueCostAfter(Long inventoryValueCostAfter) {
@@ -149,12 +161,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
-        this.inventoryValueCostAfter = inventoryValueCostAfter;
-    }
-
     public Long getInventoryAmountAfter() {
         return inventoryAmountAfter;
+    }
+
+    public void setInventoryAmountAfter(Long inventoryAmountAfter) {
+        this.inventoryAmountAfter = inventoryAmountAfter;
     }
 
     public StoreInventory inventoryAmountAfter(Long inventoryAmountAfter) {
@@ -162,12 +174,12 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public void setInventoryAmountAfter(Long inventoryAmountAfter) {
-        this.inventoryAmountAfter = inventoryAmountAfter;
-    }
-
     public Set<StoreInventoryLine> getStoreInventoryLines() {
         return storeInventoryLines;
+    }
+
+    public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
+        this.storeInventoryLines = storeInventoryLines;
     }
 
     public StoreInventory storeInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
@@ -176,32 +188,28 @@ public class StoreInventory implements Serializable {
     }
 
     public StoreInventory addStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-        this.storeInventoryLines.add(storeInventoryLine);
+        storeInventoryLines.add(storeInventoryLine);
         storeInventoryLine.setStoreInventory(this);
         return this;
     }
 
     public StoreInventory removeStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-        this.storeInventoryLines.remove(storeInventoryLine);
+        storeInventoryLines.remove(storeInventoryLine);
         storeInventoryLine.setStoreInventory(null);
         return this;
-    }
-
-    public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
-        this.storeInventoryLines = storeInventoryLines;
     }
 
     public DateDimension getDateDimension() {
         return dateDimension;
     }
 
+    public void setDateDimension(DateDimension dateDimension) {
+        this.dateDimension = dateDimension;
+    }
+
     public StoreInventory dateDimension(DateDimension dateDimension) {
         this.dateDimension = dateDimension;
         return this;
-    }
-
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

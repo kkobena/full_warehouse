@@ -1,20 +1,21 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { IOrderLine, OrderLine } from 'app/shared/model/order-line.model';
-import { OrderLineService } from './order-line.service';
-import { OrderLineComponent } from './order-line.component';
-import { OrderLineDetailComponent } from './order-line-detail.component';
-import { OrderLineUpdateComponent } from './order-line-update.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {IOrderLine, OrderLine} from 'app/shared/model/order-line.model';
+import {OrderLineService} from './order-line.service';
+import {OrderLineComponent} from './order-line.component';
+import {OrderLineDetailComponent} from './order-line-detail.component';
+import {OrderLineUpdateComponent} from './order-line-update.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OrderLineResolve implements Resolve<IOrderLine> {
-  constructor(private service: OrderLineService, private router: Router) {}
+  constructor(private service: OrderLineService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<IOrderLine> | Observable<never> {
     const id = route.params['id'];

@@ -1,22 +1,22 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { combineLatest, Subscription } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {combineLatest, Subscription} from 'rxjs';
 
-import { IAjustement } from 'app/shared/model/ajustement.model';
-import { AjustementService } from './ajustement.service';
-import * as moment from 'moment';
-import { DD_MM_YYYY_HH_MM } from '../../shared/constants/input.constants';
-import { IAjust } from '../../shared/model/ajust.model';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 
-import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
+import {IAjustement} from 'app/shared/model/ajustement.model';
+import {AjustementService} from './ajustement.service';
+import moment from 'moment';
+import {DD_MM_YYYY_HH_MM} from '../../shared/constants/input.constants';
+import {IAjust} from '../../shared/model/ajust.model';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+
+import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
 
 @Component({
   selector: 'jhi-ajustement',
   templateUrl: './ajustement.component.html',
 })
-export class AjustementComponent implements OnInit, OnDestroy {
+export class AjustementComponent implements OnInit {
   ajustements?: IAjustement[];
   eventSubscriber?: Subscription;
   columnDefs: any[];
@@ -28,9 +28,9 @@ export class AjustementComponent implements OnInit, OnDestroy {
   ascending!: boolean;
   ngbPaginationPage = 1;
   search: string;
+
   constructor(
     protected ajustementService: AjustementService,
-    protected eventManager: JhiEventManager,
     protected router: Router,
     protected activatedRoute: ActivatedRoute
   ) {
@@ -75,6 +75,7 @@ export class AjustementComponent implements OnInit, OnDestroy {
       },
     ];
   }
+
   formatDate(date: any): string {
     return moment(date.value).format(DD_MM_YYYY_HH_MM);
   }
@@ -84,6 +85,7 @@ export class AjustementComponent implements OnInit, OnDestroy {
       .toString()
       .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
   }
+
   loadAll(): void {
     this.ajustementService.queryAll().subscribe((res: HttpResponse<IAjustement[]>) => (this.rowData = res.body || []));
   }
@@ -93,18 +95,13 @@ export class AjustementComponent implements OnInit, OnDestroy {
     this.registerChangeInAjustements();
   }
 
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
 
   trackId(index: number, item: IAjustement): number {
     return item.id!;
   }
 
   registerChangeInAjustements(): void {
-    this.eventSubscriber = this.eventManager.subscribe('ajustementListModification', () => this.loadPage());
+    this.loadPage();
   }
 
   sort(): string[] {
@@ -114,6 +111,7 @@ export class AjustementComponent implements OnInit, OnDestroy {
     }
     return result;
   }
+
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
 
@@ -129,6 +127,7 @@ export class AjustementComponent implements OnInit, OnDestroy {
         () => this.onError()
       );
   }
+
   protected onSuccess(data: IAjust[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
@@ -144,9 +143,11 @@ export class AjustementComponent implements OnInit, OnDestroy {
     this.rowData = data || [];
     this.ngbPaginationPage = this.page;
   }
+
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
+
   protected handleNavigation(): void {
     combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
       const page = params.get('page');

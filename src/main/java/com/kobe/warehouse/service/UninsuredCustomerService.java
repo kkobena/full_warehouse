@@ -41,7 +41,7 @@ public class UninsuredCustomerService {
         uninsuredCustomer.setEmail(dto.getEmail());
         uninsuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
         uninsuredCustomer.setCode(RandomStringUtils.randomNumeric(6));
-        var cust = this.uninsuredCustomerRepository.save(uninsuredCustomer);
+        var cust = uninsuredCustomerRepository.save(uninsuredCustomer);
         return uninsuredCustomerFromEntity(cust);
 
     }
@@ -50,13 +50,13 @@ public class UninsuredCustomerService {
         Optional<UninsuredCustomer> uninsuredCustomerOptional = findOne(dto);
         if (uninsuredCustomerOptional.isPresent() && uninsuredCustomerOptional.get().getId() != dto.getId())
             throw new CustomerAlreadyExistException();
-        var uninsuredCustomer = this.uninsuredCustomerRepository.getOne(dto.getId());
+        var uninsuredCustomer = uninsuredCustomerRepository.getReferenceById(dto.getId());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
         uninsuredCustomer.setFirstName(dto.getFirstName());
         uninsuredCustomer.setLastName(dto.getLastName());
         uninsuredCustomer.setPhone(dto.getPhone());
         uninsuredCustomer.setEmail(dto.getEmail());
-        var cust = this.uninsuredCustomerRepository.save(uninsuredCustomer);
+        var cust = uninsuredCustomerRepository.save(uninsuredCustomer);
         return uninsuredCustomerFromEntity(cust);
 
     }
@@ -74,23 +74,23 @@ public class UninsuredCustomerService {
     }
 
     public List<UninsuredCustomerDTO> fetch(String query) {
-        Specification<UninsuredCustomer> specification = Specification.where(this.uninsuredCustomerRepository.specialisation(Status.ENABLE));
+        Specification<UninsuredCustomer> specification = Specification.where(uninsuredCustomerRepository.specialisation(Status.ENABLE));
         if (StringUtils.isNotEmpty(query)) {
             query = query.toUpperCase() + "%";
-            specification = specification.and(this.uninsuredCustomerRepository.specialisationQueryString(query));
+            specification = specification.and(uninsuredCustomerRepository.specialisationQueryString(query));
 
         }
-        return this.uninsuredCustomerRepository.findAll(specification, Sort.by(Sort.Direction.ASC, "firstName", "lastName")).stream().map(UninsuredCustomerDTO::new).collect(Collectors.toList());
+        return uninsuredCustomerRepository.findAll(specification, Sort.by(Sort.Direction.ASC, "firstName", "lastName")).stream().map(UninsuredCustomerDTO::new).collect(Collectors.toList());
     }
 
     public Optional<UninsuredCustomer> findOne(UninsuredCustomerDTO dto) {
-        Specification<UninsuredCustomer> specification = Specification.where(this.uninsuredCustomerRepository.specialisationCheckExist(dto.getFirstName(), dto.getLastName(), dto.getPhone()));
-        return this.uninsuredCustomerRepository.findOne(specification);
+        Specification<UninsuredCustomer> specification = Specification.where(uninsuredCustomerRepository.specialisationCheckExist(dto.getFirstName(), dto.getLastName(), dto.getPhone()));
+        return uninsuredCustomerRepository.findOne(specification);
     }
 
     public void deleteCustomerById(Long id) throws GenericError {
         try {
-            this.uninsuredCustomerRepository.deleteById(id);
+            uninsuredCustomerRepository.deleteById(id);
         } catch (Exception e) {
             throw new GenericError("deleteCustomer", "Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
         }

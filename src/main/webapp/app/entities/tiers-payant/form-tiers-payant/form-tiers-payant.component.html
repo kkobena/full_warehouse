@@ -1,148 +1,148 @@
 <p-toast position="center"></p-toast>
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-    <div class="modal-body">
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
 
-        <div class="form-group" [hidden]="!editForm.get('id')!.value">
-            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
+    <div [hidden]="!editForm.get('id')!.value" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden"/>
+
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="field_libelle">Nom abrégé </label> <span style="font-weight: 900;color: red;">*</span>
+        <input autocomplete="off" class="form-control" formControlName="name" id="field_libelle"
+               name="name" type="text"/>
+        <div
+          *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+          <small *ngIf="editForm.get('name')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group col-md-5">
+        <label class="form-control-label"
+               for="field_fullName">Nom long <span style="font-weight: 900;color: red;">*</span>
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="fullName" id="field_fullName"
+               name="fullName"
+               pInputText type="text"/>
+        <div
+          *ngIf="editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)">
+          <small *ngIf="editForm.get('fullName')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
 
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-4">
-                <label class="form-control-label"
-                       for="field_libelle">Nom abrégé </label> <span style="font-weight: 900;color: red;">*</span>
-                <input type="text" class="form-control" name="name" id="field_libelle"
-                       formControlName="name" autocomplete="off"/>
-                <div
-                    *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
-                </div>
-            </div>
-            <div class="form-group col-md-5">
-                <label class="form-control-label"
-                       for="field_fullName">Nom long <span style="font-weight: 900;color: red;">*</span>
-                </label>
-                <input type="text" pInputText class="form-control" name="fullName"
-                       id="field_fullName"
-                       formControlName="fullName" autocomplete="off"/>
-                <div
-                    *ngIf="editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('fullName')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label"
+               for="codeOrganisme">Code organisme
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="codeOrganisme" id="codeOrganisme"
+               name="codeOrganisme"
+               pInputText type="text"/>
+      </div>
 
-                </div>
-            </div>
-            <div class="form-group col-md-3">
-                <label class="form-control-label"
-                       for="codeOrganisme">Code organisme
-                </label>
-                <input type="text" pInputText  class="form-control" name="codeOrganisme"
-                       id="codeOrganisme"
-                       formControlName="codeOrganisme" autocomplete="off"/>
-            </div>
+    </div>
+    <div class="form-row">
 
-        </div>
-        <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
+        <ng-select [(ngModel)]="selectedGroupe" [items]="groupeTiersPayants" bindLabel="name"
+                   formControlName="groupeTiersPayantId" id="groupeTiersPayantId" name="groupeTiersPayantId"
+                   placeholder="Sélectionner un groupe"
+                   styleClass="form-control">
+        </ng-select>
+      </div>
 
-            <div class="form-group col-md-4">
-                <label for="groupeTiersPayantId" class="form-control-label">Groupe tiers-payant</label>
-                <ng-select [items]="groupeTiersPayants" styleClass="form-control" bindLabel="name" appendTo="body"
-                           name="groupeTiersPayantId" id="groupeTiersPayantId" formControlName="groupeTiersPayantId"
-                           placeholder="Sélectionner un groupe"
-                           [(ngModel)]="selectedGroupe">
-                </ng-select>
-            </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label"
+               for="telephone">Téléphone
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="telephone" id="telephone" name="telephone"
+               pInputText
+               pKeyFilter="int" type="text"/>
+      </div>
+      <div class="form-group col-md-5">
+        <label class="form-control-label" for="adresse">Adresse</label>
+        <input autocomplete="off" class="form-control" formControlName="adresse" id="adresse" name="adresse"
+               pInputText
+               pKeyFilter="int" type="text"/>
+      </div>
 
-            <div class="form-group col-md-3">
-                <label class="form-control-label"
-                       for="telephone">Téléphone
-                </label>
-                <input type="text" pInputText pKeyFilter="int" class="form-control" name="telephone"
-                       id="telephone"
-                       formControlName="telephone" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-5">
-                <label for="adresse" class="form-control-label">Adresse</label>
-                <input type="text" pInputText pKeyFilter="int" class="form-control" name="adresse"
-                       id="adresse"
-                       formControlName="adresse" autocomplete="off"/>
-            </div>
+    </div>
+    <div class="form-row">
 
-        </div>
-        <div class="form-row">
+      <div class="form-group col-md-3">
+        <label class="form-control-label"
+               for="codeRegroupement">Code regroupement
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="codeRegroupement" id="codeRegroupement"
+               name="codeRegroupement"
+               pInputText type="text"/>
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label"
+               for="codeRegroupement">E-mail
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="email" id="email"
+               name="email"
+               pInputText type="email"/>
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
+        <input autocomplete="off" class="form-control" formControlName="nbreBordereaux" id="nbreBordereaux" name="nbreBordereaux"
+               pInputText
+               pKeyFilter="int" type="text"/>
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="montantMaxParFcture">Montant maxi par facture</label>
+        <input autocomplete="off" class="form-control" formControlName="montantMaxParFcture" id="montantMaxParFcture" name="montantMaxParFcture"
+               pInputText
+               pKeyFilter="int" type="text"/>
+      </div>
 
-            <div class="form-group col-md-3">
-                <label class="form-control-label"
-                       for="codeRegroupement">Code regroupement
-                </label>
-                <input type="text" pInputText class="form-control" name="codeRegroupement"
-                       id="codeRegroupement"
-                       formControlName="codeRegroupement" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-3">
-                <label class="form-control-label"
-                       for="codeRegroupement">E-mail
-                </label>
-                <input type="email" pInputText class="form-control" name="email"
-                       id="email"
-                       formControlName="email" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="nbreBordereaux" class="form-control-label">Nombre maxi de bordereau par facture</label>
-                <input type="text" pInputText pKeyFilter="int" class="form-control" name="nbreBordereaux"
-                       id="nbreBordereaux"
-                       formControlName="nbreBordereaux" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="montantMaxParFcture" class="form-control-label">Montant maxi par facture</label>
-                <input type="text" pInputText pKeyFilter="int" class="form-control" name="montantMaxParFcture"
-                       id="montantMaxParFcture"
-                       formControlName="montantMaxParFcture" autocomplete="off"/>
-            </div>
+    </div>
+    <div class="form-row">
 
-        </div>
-        <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="remiseForfaitaire">Remise forfaitaire
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="remiseForfaitaire" id="remiseForfaitaire"
+               name="remiseForfaitaire"
+               pInputText pKeyFilter="int" type="text"/>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="codeRegroupement">Plafond consommation
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="plafondConso" id="plafondConso"
+               name="plafondConso"
+               pInputText pKeyFilter="int" type="plafondConso"/>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label">Le plofond est-il absolu ?</label>
+        <p-inputSwitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-inputSwitch>
+      </div>
 
-            <div class="form-group col-md-4">
-                <label class="form-control-label"
-                       for="remiseForfaitaire">Remise forfaitaire
-                </label>
-                <input type="text" pInputText class="form-control" name="remiseForfaitaire"
-                       id="remiseForfaitaire"
-                       formControlName="remiseForfaitaire" pKeyFilter="int" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-4">
-                <label class="form-control-label"
-                       for="codeRegroupement">Plafond consommation
-                </label>
-                <input type="plafondConso" pInputText class="form-control" name="plafondConso"
-                       id="plafondConso"
-                       formControlName="plafondConso" pKeyFilter="int" autocomplete="off"/>
-            </div>
-            <div class="form-group col-md-4">
-                <label  class="form-control-label">Le plofond est-il absolu ?</label>
-                <p-inputSwitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-inputSwitch>
-            </div>
-
-
-        </div>
 
     </div>
 
+  </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-        </button>
 
-        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
-                class="btn btn-primary">
-            <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
-        </button>
-    </div>
+  <div class="modal-footer">
+    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+    </button>
+
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+            type="submit">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
+    </button>
+  </div>
 
 </form>

@@ -4,6 +4,8 @@ import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.PaymentFournisseur;
 import com.kobe.warehouse.repository.PaymentFournisseurRepository;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -21,8 +23,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link PaymentFournisseurResource} REST controller.
@@ -60,7 +67,7 @@ public class PaymentFournisseurResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -73,9 +80,10 @@ public class PaymentFournisseurResourceIT {
             .updatedAt(DEFAULT_UPDATED_AT);
         return paymentFournisseur;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -100,8 +108,8 @@ public class PaymentFournisseurResourceIT {
         int databaseSizeBeforeCreate = paymentFournisseurRepository.findAll().size();
         // Create the PaymentFournisseur
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isCreated());
 
         // Validate the PaymentFournisseur in the database
@@ -125,8 +133,8 @@ public class PaymentFournisseurResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         // Validate the PaymentFournisseur in the database
@@ -146,8 +154,8 @@ public class PaymentFournisseurResourceIT {
 
 
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         List<PaymentFournisseur> paymentFournisseurList = paymentFournisseurRepository.findAll();
@@ -165,8 +173,8 @@ public class PaymentFournisseurResourceIT {
 
 
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         List<PaymentFournisseur> paymentFournisseurList = paymentFournisseurRepository.findAll();
@@ -184,8 +192,8 @@ public class PaymentFournisseurResourceIT {
 
 
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         List<PaymentFournisseur> paymentFournisseurList = paymentFournisseurRepository.findAll();
@@ -203,8 +211,8 @@ public class PaymentFournisseurResourceIT {
 
 
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         List<PaymentFournisseur> paymentFournisseurList = paymentFournisseurRepository.findAll();
@@ -222,8 +230,8 @@ public class PaymentFournisseurResourceIT {
 
 
         restPaymentFournisseurMockMvc.perform(post("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         List<PaymentFournisseur> paymentFournisseurList = paymentFournisseurRepository.findAll();
@@ -247,7 +255,7 @@ public class PaymentFournisseurResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getPaymentFournisseur() throws Exception {
@@ -265,6 +273,7 @@ public class PaymentFournisseurResourceIT {
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
+
     @Test
     @Transactional
     public void getNonExistingPaymentFournisseur() throws Exception {
@@ -293,8 +302,8 @@ public class PaymentFournisseurResourceIT {
             .updatedAt(UPDATED_UPDATED_AT);
 
         restPaymentFournisseurMockMvc.perform(put("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedPaymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedPaymentFournisseur)))
             .andExpect(status().isOk());
 
         // Validate the PaymentFournisseur in the database
@@ -315,8 +324,8 @@ public class PaymentFournisseurResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restPaymentFournisseurMockMvc.perform(put("/api/payment-fournisseurs").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentFournisseur)))
             .andExpect(status().isBadRequest());
 
         // Validate the PaymentFournisseur in the database
@@ -334,7 +343,7 @@ public class PaymentFournisseurResourceIT {
 
         // Delete the paymentFournisseur
         restPaymentFournisseurMockMvc.perform(delete("/api/payment-fournisseurs/{id}", paymentFournisseur.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

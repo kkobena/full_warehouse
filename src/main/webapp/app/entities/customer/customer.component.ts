@@ -1,33 +1,33 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, Data } from '@angular/router';
-import { Subscription, combineLatest, Observable } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
+import {combineLatest, Observable, Subscription} from 'rxjs';
 
-import { ICustomer } from 'app/shared/model/customer.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { CustomerService } from './customer.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig } from 'primeng/api';
-import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FormAssuredCustomerComponent } from './form-assured-customer/form-assured-customer.component';
-import { TranslateService } from '@ngx-translate/core';
-import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
-import { NgxSpinnerService } from 'ngx-spinner';
+import {ICustomer} from 'app/shared/model/customer.model';
+
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {CustomerService} from './customer.service';
+import {ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig} from 'primeng/api';
+import {UninsuredCustomerFormComponent} from './uninsured-customer-form/uninsured-customer-form.component';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {FormAssuredCustomerComponent} from './form-assured-customer/form-assured-customer.component';
+import {TranslateService} from '@ngx-translate/core';
+import {FormAyantDroitComponent} from './form-ayant-droit/form-ayant-droit.component';
+import {NgxSpinnerService} from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-customer',
   templateUrl: './customer.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
 })
-export class CustomerComponent implements OnInit, OnDestroy {
+export class CustomerComponent implements OnInit {
   customers?: ICustomer[];
   types: string[] = ['TOUT', 'ASSURE', 'STANDARD'];
   statuts: object[] = [
-    { value: 'ENABLE', label: 'ACTIF' },
-    { value: 'DISABLE', label: 'DESACTIVE' },
+    {value: 'ENABLE', label: 'ACTIF'},
+    {value: 'DISABLE', label: 'DESACTIVE'},
   ];
   typeSelected = '';
   statutSelected = 'ENABLE';
@@ -51,7 +51,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
     protected customerService: CustomerService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal,
     private dialogService: DialogService,
     protected confirmationService: ConfirmationService,
@@ -131,19 +130,11 @@ export class CustomerComponent implements OnInit, OnDestroy {
     this.responseDialog = false;
   }
 
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
 
   trackId(index: number, item: ICustomer): number {
     return item.id!;
   }
 
-  registerChangeInCustomers(): void {
-    this.eventSubscriber = this.eventManager.subscribe('customerListModification', () => this.loadPage());
-  }
 
   delete(customer: ICustomer): void {
     this.customerService.delete(customer.id!).subscribe(() => this.loadPage());
@@ -193,7 +184,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   addAssureCustomer(): void {
     this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: { entity: null },
+      data: {entity: null},
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
@@ -207,7 +198,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   editAssureCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: { entity: customer },
+      data: {entity: customer},
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
@@ -221,7 +212,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   addUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: null },
+      data: {entity: null},
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '50%',
     });
@@ -234,7 +225,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   editUninsuredCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: customer },
+      data: {entity: customer},
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '50%',
     });
@@ -247,7 +238,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   addAyantDroit(customer: ICustomer): void {
     this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: null, assure: customer },
+      data: {entity: null, assure: customer},
       header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
       width: '50%',
       closeOnEscape: false,
@@ -261,7 +252,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   editAyantDroit(customer: ICustomer, ayantDroit: ICustomer): void {
     this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: ayantDroit, assure: customer },
+      data: {entity: ayantDroit, assure: customer},
       header: "FORMULAIRE DE MODIFICATION D'AYANT DROIT ",
       width: '50%',
       closeOnEscape: false,
@@ -301,7 +292,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   protected onImportError(): void {
     this.spinner.hide('importation');
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
+    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
   }
 
   protected onPocesJsonSuccess(): void {

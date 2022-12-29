@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
 
 @Entity
@@ -19,19 +20,19 @@ public class MotifRetourProduit implements Serializable {
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getLibelle() {
         return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
 }

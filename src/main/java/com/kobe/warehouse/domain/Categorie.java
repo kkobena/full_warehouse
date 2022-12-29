@@ -1,12 +1,15 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A Categorie.
@@ -21,7 +24,7 @@ public class Categorie implements Serializable {
     @Column(name = "code")
     private String code;
     @NotNull
-    @Column(name = "libelle", nullable = false,unique = true)
+    @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
     public String getCode() {
@@ -44,21 +47,19 @@ public class Categorie implements Serializable {
         return libelle;
     }
 
-    public Categorie libelle(String libelle) {
-        this.libelle = libelle;
-        return this;
-    }
-    public Categorie id(Long id) {
-        this.id = id;
-        return this;
-    }
-
     public void setLibelle(String libelle) {
         this.libelle = libelle;
     }
 
+    public Categorie libelle(String libelle) {
+        this.libelle = libelle;
+        return this;
+    }
 
-
+    public Categorie id(Long id) {
+        this.id = id;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

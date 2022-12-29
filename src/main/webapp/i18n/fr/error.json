@@ -9,6 +9,16 @@
       "500": "Erreur interne du serveur."
     },
     "concurrencyFailure": "Un autre utilisateur a modifié ces données en même temps que vous. Vos changements n'ont pas été sauvegardés.",
-    "validation": "Erreur de validation côté serveur."
+    "validation": "Erreur de validation côté serveur.",
+    "stock": "Stock insuffisant.",
+    "principal": "Il existe déjà un fournisseur principal. Désactiver pour continuer",
+    "duplicateCodeCip": "le code  est déjà associé à un produit pour ce grossiste",
+    "duplicateProvider": "Le produit est déjà rattaché au fournisseur séléctionné",
+    "codeCip": "le code  est déjà associé à un produit ",
+    "customerExist": "Ce client existe déjà",
+    "wrongEntryAmount": "Le montant  saisi n'est pas correct",
+    "wrongEntryAmount": "Veuillez ajouter un client à la vente",
+    "groupeTiersPayantExistant": "Il existe dejà  un groupe avec le même nom",
+    "numBonAlreadyUse": "Le numéro de bon  est déjà utilisé par ce client"
   }
 }

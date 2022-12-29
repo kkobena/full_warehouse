@@ -5,10 +5,9 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
+
 import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
@@ -31,14 +34,11 @@ import tech.jhipster.web.util.HeaderUtil;
 @Transactional
 public class SalesResource {
 
-    private final Logger log = LoggerFactory.getLogger(SalesResource.class);
-
     private static final String ENTITY_NAME = "sales";
-
+    private final Logger log = LoggerFactory.getLogger(SalesResource.class);
+    private final SaleService saleService;
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
-    private final SaleService saleService;
 
     public SalesResource(SaleService saleService) {
         this.saleService = saleService;

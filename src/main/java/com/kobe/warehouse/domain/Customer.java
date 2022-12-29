@@ -4,7 +4,17 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -52,8 +62,8 @@ public class Customer implements Serializable {
     private String code;
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_assure", nullable = false,length = 15)
-    private TypeAssure typeAssure ;
+    @Column(name = "type_assure", nullable = false, length = 15)
+    private TypeAssure typeAssure;
 
     public TypeAssure getTypeAssure() {
         return typeAssure;
@@ -76,6 +86,10 @@ public class Customer implements Serializable {
         return firstName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public Customer firstName(String firstName) {
         this.firstName = firstName;
         return this;
@@ -89,12 +103,12 @@ public class Customer implements Serializable {
         this.status = status;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public Customer lastName(String lastName) {
@@ -111,12 +125,12 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public Customer phone(String phone) {
@@ -124,21 +138,17 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Customer email(String email) {
         this.email = email;
         return this;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Instant getCreatedAt() {
@@ -148,20 +158,24 @@ public class Customer implements Serializable {
         return createdAt;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Customer createdAt(Instant createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         if (updatedAt == null) {
-            this.updatedAt = Instant.now();
+            updatedAt = Instant.now();
         }
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Customer updatedAt(Instant updatedAt) {
@@ -169,24 +183,18 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-
     public Set<Payment> getPayments() {
         return payments;
-    }
-
-    public Customer payments(Set<Payment> payments) {
-        this.payments = payments;
-        return this;
     }
 
     public void setPayments(Set<Payment> payments) {
         this.payments = payments;
     }
 
+    public Customer payments(Set<Payment> payments) {
+        this.payments = payments;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

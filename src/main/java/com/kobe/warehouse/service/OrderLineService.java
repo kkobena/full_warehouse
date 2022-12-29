@@ -16,58 +16,56 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface OrderLineService {
-  OrderLine createOrderLine(OrderLine orderLine);
+    OrderLine createOrderLine(OrderLine orderLine);
 
-  void updateOrderLine(OrderLine orderLine);
+    void updateOrderLine(OrderLine orderLine);
 
-  OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) throws GenericError;
+    OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) throws GenericError;
 
-  OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit);
+    OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit);
 
-  Pair<OrderLine, OrderLine> updateOrderLineQuantityRequested(OrderLineDTO orderLineDTO);
+    Pair<OrderLine, OrderLine> updateOrderLineQuantityRequested(OrderLineDTO orderLineDTO);
 
-  OrderLine updateIncrementOrderLineQuantityRequested(OrderLineDTO orderLineDTO);
+    void updateOrderLineQuantityReturned(OrderLineDTO orderLineDTO, OrderLine orderLine);
 
-  void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO, OrderLine orderLine);
+    Pair<OrderLine, OrderLine> updateOrderLineUnitPrice(OrderLineDTO orderLineDTO);
 
-  void updateOrderLineQuantityReturned(OrderLineDTO orderLineDTO, OrderLine orderLine);
+    Pair<OrderLine, OrderLine> updateOrderLineCostAmount(OrderLineDTO orderLineDTO);
 
-  Pair<OrderLine, OrderLine> updateOrderLineUnitPrice(OrderLineDTO orderLineDTO);
+    void deleteOrderLine(OrderLine orderLine);
 
-  Pair<OrderLine, OrderLine> updateOrderLineCostAmount(OrderLineDTO orderLineDTO);
+    void saveOrderLine(SalesLine salesLine);
 
-  void deleteOrderLine(OrderLine orderLine);
+    void createOrderLineInventory(
+        OrderLine salesLine, User user, DateDimension dateD, Long storageId);
 
-  void saveOrderLine(SalesLine salesLine);
+    Optional<OrderLine> findOneById(Long id);
 
-  void createOrderLineInventory(
-      OrderLine salesLine, User user, DateDimension dateD, Long storageId);
+    OrderLine save(OrderLine orderLine);
 
-  Optional<OrderLine> findOneById(Long id);
+    Optional<OrderLine> findOneFromCommande(Long produitId, Long commandeId, Long fournisseurId);
 
-  OrderLine save(OrderLine orderLine);
+    void updateCodeCip(OrderLineDTO orderLineDTO);
 
-  Optional<OrderLine> findOneFromCommande(Long produitId, Long commandeId, Long fournisseurId);
+    void updateRequestedLineToPassedLine(Set<OrderLine> orderLines);
 
-  void updateCodeCip(OrderLineDTO orderLineDTO);
+    void updateOrderLine(OrderLine orderLine, int quantityRequested);
 
-  void updateRequestedLineToPassedLine(Set<OrderLine> orderLines);
+    void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived);
 
-  void updateOrderLine(OrderLine orderLine, int quantityRequested);
+    void updateOrderLineQuantityUG(Long id, int quantityReceived);
 
-  void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived);
+    void saveAll(Set<OrderLine> orderLines);
 
-  void saveAll(Set<OrderLine> orderLines);
+    void deleteAll(Set<OrderLine> orderLines);
 
-  void deleteAll(Set<OrderLine> orderLines);
+    OrderLine createOrderLine(Commande commande, OrderLineDTO orderLineDTO);
 
-  OrderLine createOrderLine(Commande commande, OrderLineDTO orderLineDTO);
+    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Long fournisseurId);
 
-  Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Long fournisseurId);
+    int produitTotalStock(FournisseurProduit fournisseurProduit);
 
-  int produitTotalStock(FournisseurProduit fournisseurProduit);
+    int produitTotalStockWithQantitUg(Produit produit);
 
-  int produitTotalStockWithQantitUg(Produit produit);
-
-  List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId);
+    List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId);
 }

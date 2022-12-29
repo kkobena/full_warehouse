@@ -4,9 +4,48 @@
     "browsehappy": "Vous utilisez un <strong>ancien</strong> navigateur. Veuillez <a href=\"http://browsehappy.com/?locale=fr\">mettre à jour votre navigateur</a> pour une meilleure expérience.",
     "menu": {
       "home": "Accueil",
+      "referentiel": "Reférentiels",
+      "tiersPayant": "Tiers-payants",
+      "menuGestionStock": "Gestion Stock",
+      "menuCommande": "Commande",
+      "menuInventaire": "Inventaire",
+      "menuClient": "Client",
+      "menuFacturation": "Facturation",
+      "menuGestionCourrante": "Gestion courante",
+      "gammeProduit": "Gamme de produit",
+      "laboratoire": "Laboratoire",
+      "motifAjustement": "Motifs ajustement",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
-        "main": "Entités",
+        "main": "Facturation",
+        "tva": "Tva",
+        "gammeProduit": "Gamme de produit",
+        "laboratoire": "Laboratoire",
+        "rayon": "Rayon",
+        "formeProduit": "Forme de produit",
+        "familleProduit": "Famille de produit",
+        "dateDimension": "Date Dimension",
+        "inventoryTransaction": "Suivi article",
+        "categorie": "Catégorie",
+        "produit": "Produit",
+        "customer": "Client",
+        "salesLine": "Détail vente",
+        "sales": "Journal des ventes",
+        "payment": "Balance",
+        "paymentMode": "Mode payment ",
+        "orderLine": "Détail commande",
+        "commande": "Commande",
+        "paymentFournisseur": "Facture fournisseur",
+        "storeInventoryLine": "Détail inventaire",
+        "storeInventory": "Inventaire",
+        "menu": "Gestion du menu",
+        "magasin": "Infos magasin",
+        "salesJournal": "Journal des ventes",
+        "fournisseur": "Fournisseurs",
+        "groupeFournisseur": "Groupe fournisseurs",
+        "motifAjustement": "Motifs ajustement",
+        "groupeTiersPayant": "Groupe tiers-payant",
+        "tiersPayant": "Tiers-payants",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -26,6 +65,7 @@
         "health": "Diagnostics",
         "configuration": "Configuration",
         "logs": "Logs",
+        "audits": "Audits",
         "apidocs": "API",
         "database": "Base de données",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
@@ -98,7 +138,10 @@
       "open": "Ouvrir",
       "save": "Sauvegarder",
       "view": "Voir",
-      "show": "Show {{otherEntity}}"
+      "basculer": "Basculer",
+      "print": "Imprimer",
+      "order": "Commander",
+      "fusionner": "Fusionner"
     },
     "detail": {
       "field": "Champs",
@@ -119,11 +162,6 @@
       "number": "Ce champ doit être un nombre.",
       "datetimelocal": "Ce champ doit être une date et une heure.",
       "patternLogin": "Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail."
-    },
-    "filters": {
-      "set": "Following filters are set",
-      "clear": "Clear filter",
-      "clearAll": "Clear all filters"
     }
   },
   "error": {
@@ -136,8 +174,6 @@
     "emailexists": "Email déjà utilisé !",
     "idexists": "Une nouvelle entité {{entityName}} ne peut pas avoir d'identifiant !",
     "idnull": "Identifiant invalide",
-    "idinvalid": "Invalid Id",
-    "idnotfound": "ID cannot be found",
     "file": {
       "could.not.extract": "Impossible d'extraire le fichier",
       "not.image": "Le fichier doit être une image et non du type \"{{ fileType }}\""

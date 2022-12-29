@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -81,7 +83,7 @@ public class SalesLineResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -99,9 +101,10 @@ public class SalesLineResourceIT {
             .updatedAt(DEFAULT_UPDATED_AT);
         return salesLine;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -131,8 +134,8 @@ public class SalesLineResourceIT {
         int databaseSizeBeforeCreate = salesLineRepository.findAll().size();
         // Create the SalesLine
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isCreated());
 
         // Validate the SalesLine in the database
@@ -161,8 +164,8 @@ public class SalesLineResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the SalesLine in the database
@@ -182,8 +185,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -201,8 +204,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -220,8 +223,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -239,8 +242,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -258,8 +261,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -277,14 +280,13 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
         assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
     }
-
 
 
     @Test
@@ -298,14 +300,13 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
         assertThat(salesLineList).hasSize(databaseSizeBeforeTest);
     }
-
 
 
     @Test
@@ -319,8 +320,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -338,8 +339,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -357,8 +358,8 @@ public class SalesLineResourceIT {
 
 
         restSalesLineMockMvc.perform(post("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         List<SalesLine> salesLineList = salesLineRepository.findAll();
@@ -414,6 +415,7 @@ public class SalesLineResourceIT {
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
+
     @Test
     @Transactional
     public void getNonExistingSalesLine() throws Exception {
@@ -448,8 +450,8 @@ public class SalesLineResourceIT {
             .updatedAt(UPDATED_UPDATED_AT);
 
         restSalesLineMockMvc.perform(put("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedSalesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedSalesLine)))
             .andExpect(status().isOk());
 
         // Validate the SalesLine in the database
@@ -475,8 +477,8 @@ public class SalesLineResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restSalesLineMockMvc.perform(put("/api/sales-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(salesLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(salesLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the SalesLine in the database
@@ -494,7 +496,7 @@ public class SalesLineResourceIT {
 
         // Delete the salesLine
         restSalesLineMockMvc.perform(delete("/api/sales-lines/{id}", salesLine.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

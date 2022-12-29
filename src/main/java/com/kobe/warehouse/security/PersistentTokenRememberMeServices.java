@@ -3,22 +3,27 @@ package com.kobe.warehouse.security;
 import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.rememberme.*;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
+import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Service;
 import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.security.PersistentTokenCache;
 import tech.jhipster.security.RandomUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Custom implementation of Spring Security's RememberMeServices.
@@ -48,15 +53,11 @@ import tech.jhipster.security.RandomUtil;
 @Service
 public class PersistentTokenRememberMeServices extends AbstractRememberMeServices {
 
-    private final Logger log = LoggerFactory.getLogger(PersistentTokenRememberMeServices.class);
-
     // Token is valid for one month
     private static final int TOKEN_VALIDITY_DAYS = 31;
-
     private static final int TOKEN_VALIDITY_SECONDS = 60 * 60 * 24 * TOKEN_VALIDITY_DAYS;
-
-    private static final long UPGRADED_TOKEN_VALIDITY_MILLIS = 5000l;
-
+    private static final long UPGRADED_TOKEN_VALIDITY_MILLIS = 5000L;
+    private final Logger log = LoggerFactory.getLogger(PersistentTokenRememberMeServices.class);
     private final PersistentTokenCache<UpgradedRememberMeToken> upgradedTokenCache;
 
     private final PersistentTokenRepository persistentTokenRepository;
@@ -140,8 +141,8 @@ public class PersistentTokenRememberMeServices extends AbstractRememberMeService
      * The standard Spring Security implementations are too basic: they invalidate all tokens for the
      * current user, so when he logs out from one browser, all his other sessions are destroyed.
      *
-     * @param request the request.
-     * @param response the response.
+     * @param request        the request.
+     * @param response       the response.
      * @param authentication the authentication.
      */
     @Override
@@ -193,7 +194,7 @@ public class PersistentTokenRememberMeServices extends AbstractRememberMeService
     }
 
     private void addCookie(PersistentToken token, HttpServletRequest request, HttpServletResponse response) {
-        setCookie(new String[] { token.getSeries(), token.getTokenValue() }, TOKEN_VALIDITY_SECONDS, request, response);
+        setCookie(new String[]{token.getSeries(), token.getTokenValue()}, TOKEN_VALIDITY_SECONDS, request, response);
     }
 
     private static class UpgradedRememberMeToken implements Serializable {
@@ -210,8 +211,8 @@ public class PersistentTokenRememberMeServices extends AbstractRememberMeService
         }
 
         String getUserLoginIfValid(String[] currentToken) {
-            if (currentToken[0].equals(this.upgradedToken[0]) && currentToken[1].equals(this.upgradedToken[1])) {
-                return this.userLogin;
+            if (currentToken[0].equals(upgradedToken[0]) && currentToken[1].equals(upgradedToken[1])) {
+                return userLogin;
             }
             return null;
         }

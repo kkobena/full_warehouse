@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+
 /**
  * Integration tests for the {@link SalesResource} REST controller.
  */
@@ -73,7 +76,7 @@ public class SalesResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -89,9 +92,10 @@ public class SalesResourceIT {
             .updatedAt(DEFAULT_UPDATED_AT);
         return sales;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -119,8 +123,8 @@ public class SalesResourceIT {
         int databaseSizeBeforeCreate = salesRepository.findAll().size();
         // Create the Sales
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isCreated());
 
         // Validate the Sales in the database
@@ -147,8 +151,8 @@ public class SalesResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         // Validate the Sales in the database
@@ -168,8 +172,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -187,8 +191,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -206,8 +210,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -225,8 +229,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -244,8 +248,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -263,8 +267,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -282,8 +286,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -301,8 +305,8 @@ public class SalesResourceIT {
 
 
         restSalesMockMvc.perform(post("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         List<Sales> salesList = salesRepository.findAll();
@@ -352,6 +356,7 @@ public class SalesResourceIT {
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
+
     @Test
     @Transactional
     public void getNonExistingSales() throws Exception {
@@ -383,8 +388,8 @@ public class SalesResourceIT {
             .updatedAt(UPDATED_UPDATED_AT);
 
         restSalesMockMvc.perform(put("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedSales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedSales)))
             .andExpect(status().isOk());
 
         // Validate the Sales in the database
@@ -408,8 +413,8 @@ public class SalesResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restSalesMockMvc.perform(put("/api/sales").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(sales)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(sales)))
             .andExpect(status().isBadRequest());
 
         // Validate the Sales in the database
@@ -427,7 +432,7 @@ public class SalesResourceIT {
 
         // Delete the sales
         restSalesMockMvc.perform(delete("/api/sales/{id}", sales.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

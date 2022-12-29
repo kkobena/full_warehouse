@@ -1,7 +1,10 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.DateDimension;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StoreInventory;
+import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
@@ -14,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,6 +28,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class InventaireService {
+    private static final Comparator<StoreInventoryDTO> COMPARATOR = Comparator.comparing(StoreInventoryDTO::getUpdatedAt, Comparator.reverseOrder());
+    private static final Comparator<StoreInventoryLineDTO> COMPARATOR_LINE = Comparator.comparing(
+        StoreInventoryLineDTO::getProduitLibelle);
     private final Logger LOG = LoggerFactory.getLogger(InventaireService.class);
     @Autowired
     private ProduitRepository produitRepository;
@@ -37,9 +42,6 @@ public class InventaireService {
     private StoreInventoryRepository storeInventoryRepository;
     @Autowired
     private StoreInventoryLineRepository storeInventoryLineRepository;
-    private static final Comparator<StoreInventoryDTO> COMPARATOR = Comparator.comparing(StoreInventoryDTO::getUpdatedAt,Comparator.reverseOrder());
-    private static final Comparator<StoreInventoryLineDTO> COMPARATOR_LINE = Comparator.comparing(
-        StoreInventoryLineDTO::getProduitLibelle);
 
     public void init() throws Exception {
         long inventoryValueCostBegin = 0, inventoryAmountBegin = 0;
@@ -63,7 +65,7 @@ public class InventaireService {
 
     public void close(Long id) throws Exception {
         long inventoryValueCostAfter = 0, inventoryAmountAfter = 0;
-        StoreInventory storeInventory = storeInventoryRepository.getOne(id);
+        StoreInventory storeInventory = storeInventoryRepository.getReferenceById(id);
         DateDimension dateDimension = storeInventory.getDateDimension();
         storeInventory.setStatut(SalesStatut.CLOSED);
         storeInventory.setUpdatedAt(Instant.now());
@@ -73,7 +75,7 @@ public class InventaireService {
             inventoryAmountAfter += (line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
             inventoryTransactionService.buildInventoryTransaction(line, dateDimension, storeInventory.getUpdatedAt(), userService.getUser());
             Produit produit = line.getProduit();
-           // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
+            // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
             produitRepository.save(produit);
         }
         storeInventory.setInventoryValueCostAfter(inventoryValueCostAfter);
@@ -87,7 +89,7 @@ public class InventaireService {
         storeInventoryLine.setProduit(produit);
         storeInventoryLine.setQuantitySold(quantitySold);
         storeInventoryLine.setStoreInventory(storeInventory);
-      //  storeInventoryLine.setQuantityInit(produit.getQuantity());
+        //  storeInventoryLine.setQuantityInit(produit.getQuantity());
         storeInventoryLine.setQuantityOnHand(0);
         storeInventoryLine.setUpdated(false);
         storeInventoryLine.setInventoryValueCost(produit.getCostAmount());
@@ -128,7 +130,7 @@ public class InventaireService {
     }
 
     public void updateQuantityOnHand(StoreInventoryLineDTO storeInventoryLineDTO) {
-        StoreInventoryLine storeInventoryLine = storeInventoryLineRepository.getOne(storeInventoryLineDTO.getId());
+        StoreInventoryLine storeInventoryLine = storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
         storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
         storeInventoryLine.setUpdated(true);
         storeInventoryLineRepository.save(storeInventoryLine);

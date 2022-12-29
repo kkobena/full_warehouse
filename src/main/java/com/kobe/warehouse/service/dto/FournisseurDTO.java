@@ -3,8 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 
@@ -31,6 +29,27 @@ public class FournisseurDTO implements Serializable {
     private Long groupeFournisseurId;
 
     private String groupeFournisseurLibelle;
+
+    public FournisseurDTO() {
+    }
+
+    public FournisseurDTO(Fournisseur fournisseur) {
+        id = fournisseur.getId();
+        libelle = fournisseur.getLibelle();
+        addresspostale = fournisseur.getAddressePostal();
+        numFaxe = fournisseur.getNumFaxe();
+        addressePostal = fournisseur.getAddressePostal();
+        phone = fournisseur.getPhone();
+        mobile = fournisseur.getMobile();
+        site = fournisseur.getSite();
+        code = fournisseur.getCode();
+        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        if (groupeFournisseur != null) {
+            groupeFournisseurId = groupeFournisseur.getId();
+            groupeFournisseurLibelle = groupeFournisseur.getLibelle();
+        }
+
+    }
 
     public Long getId() {
         return id;
@@ -135,28 +154,5 @@ public class FournisseurDTO implements Serializable {
     @Override
     public int hashCode() {
         return 31;
-    }
-
-
-
-    public FournisseurDTO() {
-    }
-
-    public FournisseurDTO(Fournisseur fournisseur) {
-        this.id = fournisseur.getId();
-        this.libelle = fournisseur.getLibelle();
-        this.addresspostale = fournisseur.getAddressePostal();
-        this.numFaxe = fournisseur.getNumFaxe();
-        this.addressePostal = fournisseur.getAddressePostal();
-        this.phone = fournisseur.getPhone();
-        this.mobile = fournisseur.getMobile();
-        this.site = fournisseur.getSite();
-        this.code = fournisseur.getCode();
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
-        if (groupeFournisseur != null) {
-            this.groupeFournisseurId = groupeFournisseur.getId();
-            this.groupeFournisseurLibelle = groupeFournisseur.getLibelle();
-        }
-
     }
 }

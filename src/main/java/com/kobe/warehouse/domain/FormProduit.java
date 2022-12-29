@@ -1,10 +1,11 @@
 package com.kobe.warehouse.domain;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +32,6 @@ public class FormProduit implements Serializable {
     private String libelle;
 
 
-
     @OneToMany(mappedBy = "forme")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Produit> produits = new HashSet<>();
@@ -46,9 +46,12 @@ public class FormProduit implements Serializable {
     }
 
 
-
     public String getLibelle() {
         return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
 
     public FormProduit libelle(String libelle) {
@@ -56,25 +59,17 @@ public class FormProduit implements Serializable {
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-
-
     public Set<Produit> getProduits() {
         return produits;
+    }
+
+    public void setProduits(Set<Produit> produits) {
+        this.produits = produits;
     }
 
     public FormProduit produits(Set<Produit> produits) {
         this.produits = produits;
         return this;
-    }
-
-
-
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

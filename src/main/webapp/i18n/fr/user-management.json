@@ -2,7 +2,6 @@
   "userManagement": {
     "home": {
       "title": "Utilisateurs",
-      "refreshListLabel": "Actualiser la liste",
       "createLabel": "Créer un nouvel utilisateur",
       "createOrEditLabel": "Créer ou éditer un utilisateur"
     },
@@ -16,8 +15,8 @@
       "title": "Utilisateur"
     },
     "login": "Login",
-    "firstName": "Prénom",
-    "lastName": "Nom",
+    "firstName": "Nom",
+    "lastName": "Prénom",
     "email": "Email",
     "activated": "Activé",
     "deactivated": "Désactivé",

@@ -2,9 +2,15 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -189,17 +195,21 @@ public class SalesLine implements Serializable, Cloneable {
         return quantitySold;
     }
 
+    public void setQuantitySold(Integer quantitySold) {
+        this.quantitySold = quantitySold;
+    }
+
     public SalesLine quantitySold(Integer quantitySold) {
         this.quantitySold = quantitySold;
         return this;
     }
 
-    public void setQuantitySold(Integer quantitySold) {
-        this.quantitySold = quantitySold;
-    }
-
     public Integer getRegularUnitPrice() {
         return regularUnitPrice;
+    }
+
+    public void setRegularUnitPrice(Integer regularUnitPrice) {
+        this.regularUnitPrice = regularUnitPrice;
     }
 
     public SalesLine regularUnitPrice(Integer regularUnitPrice) {
@@ -207,12 +217,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setRegularUnitPrice(Integer regularUnitPrice) {
-        this.regularUnitPrice = regularUnitPrice;
-    }
-
     public Integer getDiscountUnitPrice() {
         return discountUnitPrice;
+    }
+
+    public void setDiscountUnitPrice(Integer discountUnitPrice) {
+        this.discountUnitPrice = discountUnitPrice;
     }
 
     public SalesLine discountUnitPrice(Integer discountUnitPrice) {
@@ -220,12 +230,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setDiscountUnitPrice(Integer discountUnitPrice) {
-        this.discountUnitPrice = discountUnitPrice;
-    }
-
     public Integer getNetUnitPrice() {
         return netUnitPrice;
+    }
+
+    public void setNetUnitPrice(Integer netUnitPrice) {
+        this.netUnitPrice = netUnitPrice;
     }
 
     public SalesLine netUnitPrice(Integer netUnitPrice) {
@@ -233,12 +243,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setNetUnitPrice(Integer netUnitPrice) {
-        this.netUnitPrice = netUnitPrice;
-    }
-
     public Integer getDiscountAmount() {
         return discountAmount;
+    }
+
+    public void setDiscountAmount(Integer discountAmount) {
+        this.discountAmount = discountAmount;
     }
 
     public SalesLine discountAmount(Integer discountAmount) {
@@ -246,12 +256,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setDiscountAmount(Integer discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
     public Integer getSalesAmount() {
         return salesAmount;
+    }
+
+    public void setSalesAmount(Integer salesAmount) {
+        this.salesAmount = salesAmount;
     }
 
     public SalesLine salesAmount(Integer salesAmount) {
@@ -259,13 +269,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setSalesAmount(Integer salesAmount) {
-        this.salesAmount = salesAmount;
-    }
-
-
     public Integer getNetAmount() {
         return netAmount;
+    }
+
+    public void setNetAmount(Integer netAmount) {
+        this.netAmount = netAmount;
     }
 
     public SalesLine netAmount(Integer netAmount) {
@@ -273,13 +282,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setNetAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-    }
-
-
     public Integer getCostAmount() {
         return costAmount;
+    }
+
+    public void setCostAmount(Integer costAmount) {
+        this.costAmount = costAmount;
     }
 
     public SalesLine costAmount(Integer costAmount) {
@@ -287,12 +295,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setCostAmount(Integer costAmount) {
-        this.costAmount = costAmount;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public SalesLine createdAt(Instant createdAt) {
@@ -300,12 +308,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public SalesLine updatedAt(Instant updatedAt) {
@@ -313,12 +321,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Sales getSales() {
         return sales;
+    }
+
+    public void setSales(Sales sales) {
+        this.sales = sales;
     }
 
     public SalesLine sales(Sales sales) {
@@ -326,25 +334,19 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setSales(Sales sales) {
-        this.sales = sales;
-    }
-
     public Produit getProduit() {
         return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
     }
 
     public SalesLine produit(Produit produit) {
         this.produit = produit;
         return this;
     }
-
-
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
 
     @Override
     public boolean equals(Object o) {

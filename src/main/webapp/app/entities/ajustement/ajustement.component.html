@@ -1,95 +1,95 @@
 <div>
-    <h4 id="page-heading">
-        <span jhiTranslate="warehouseApp.ajustement.home.title">Ajustements</span>
-        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-produit"
-                [routerLink]="['/ajustement/new']">
-            <fa-icon icon="plus"></fa-icon>
-            <span jhiTranslate="warehouseApp.ajustement.home.createLabel">
+  <h4 id="page-heading">
+    <span jhiTranslate="warehouseApp.ajustement.home.title">Ajustements</span>
+    <button [routerLink]="['/ajustement/new']" class="btn btn-primary float-right jh-create-entity create-produit"
+            id="jh-create-entity">
+      <fa-icon icon="plus"></fa-icon>
+      <span jhiTranslate="warehouseApp.ajustement.home.createLabel">
                Faire un ajustement
             </span>
-        </button>
-    </h4>
+    </button>
+  </h4>
 
-    <div class="alert alert-warning" id="no-result" *ngIf="rowData?.length === 0">
-        <span jhiTranslate="warehouseApp.ajustement.home.notFound">No ajustements found</span>
+  <div *ngIf="rowData?.length === 0" class="alert alert-warning" id="no-result">
+    <span jhiTranslate="warehouseApp.ajustement.home.notFound">No ajustements found</span>
+  </div>
+  <p-table [value]="rowData" dataKey="id" styleClass="p-datatable-gridlines ">
+    <ng-template pTemplate="header">
+      <th style="width:3%"></th>
+      <th>Opérateur</th>
+      <th>Date opération</th>
+      <th><span>Commentaire</span>
+      <th><span>Magasin de stockage</span>
+      </th>
+
+    </ng-template>
+    <ng-template let-ajust let-expanded="expanded" pTemplate="body">
+      <tr>
+        <td>
+          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="ajust" class="p-button-text p-button-rounded p-button-plain" pButton
+                  pRipple
+                  type="button"></button>
+        </td>
+        <td>{{ ajust.userFullName }}</td>
+        <td>{{ ajust.dateMtv | date:'dd/MM/yy HH:mm'}}</td>
+        <td>{{ ajust.commentaire }}</td>
+        <td>{{ ajust.storageLibelle }}</td>
+
+      </tr>
+    </ng-template>
+    <ng-template let-elRow pTemplate="rowexpansion">
+      <tr>
+        <td colspan="5">
+          <div class="card">
+            <div class="card-header bg-info text-white">DETAILS</div>
+            <div class="card-body">
+
+              <table class="table table-borderless">
+                <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>Code cip</th>
+                  <th style="width: 30%;">Libellé</th>
+                  <th>Quantité ajustée</th>
+                  <th>Stock avant</th>
+                  <th>Stock final</th>
+                  <th>Motif</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let ajustement of elRow?.ajustements; let i = index">
+                  <td>{{i + 1}}</td>
+                  <td>{{ajustement.codeCip}}</td>
+                  <td>{{ajustement.produitLibelle}}</td>
+                  <td>{{ajustement.qtyMvt | number}}</td>
+                  <td>{{ajustement.stockBefore | number}}</td>
+                  <td>{{ajustement.stockAfter | number}}</td>
+                  <td>{{ajustement.motifAjustementLibelle}}</td>
+
+                </tr>
+                </tbody>
+              </table>
+
+
+            </div>
+          </div>
+
+        </td>
+      </tr>
+
+    </ng-template>
+  </p-table>
+  <div *ngIf="rowData && rowData.length > 0">
+    <!--        <div class="row justify-content-center">-->
+    <!--            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>-->
+    <!--        </div>-->
+
+    <div class="row justify-content-center">
+      <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage" [boundaryLinks]="true"
+                      [collectionSize]="totalItems" [maxSize]="10" [pageSize]="itemsPerPage"
+                      [rotate]="true"></ngb-pagination>
     </div>
-    <p-table [value]="rowData" dataKey="id" styleClass="p-datatable-gridlines ">
-        <ng-template pTemplate="header">
-            <th style="width:3%"></th>
-            <th>Opérateur</th>
-            <th>Date opération</th>
-            <th><span>Commentaire</span>
-            <th><span>Magasin de stockage</span>
-            </th>
-
-        </ng-template>
-        <ng-template pTemplate="body" let-ajust let-expanded="expanded">
-            <tr>
-                <td>
-                    <button type="button" pButton pRipple [pRowToggler]="ajust"
-                            class="p-button-text p-button-rounded p-button-plain"
-                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                </td>
-                <td>{{ ajust.userFullName }}</td>
-                <td>{{ ajust.dateMtv | date:'dd/MM/yy HH:mm'}}</td>
-                <td>{{ ajust.commentaire }}</td>
-                <td>{{ ajust.storageLibelle }}</td>
-
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-elRow>
-            <tr>
-                <td colspan="5">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">DETAILS</div>
-                        <div class="card-body">
-
-                            <table class="table table-borderless">
-                                <thead>
-                                <tr>
-                                    <th style="width: 50px;">#</th>
-                                    <th>Code cip</th>
-                                    <th style="width: 30%;">Libellé</th>
-                                    <th>Quantité ajustée</th>
-                                    <th>Stock avant</th>
-                                    <th>Stock final</th>
-                                    <th>Motif</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr *ngFor="let ajustement of elRow?.ajustements; let i = index">
-                                    <td>{{i + 1}}</td>
-                                    <td>{{ajustement.codeCip}}</td>
-                                    <td>{{ajustement.produitLibelle}}</td>
-                                    <td>{{ajustement.qtyMvt | number}}</td>
-                                    <td>{{ajustement.stockBefore | number}}</td>
-                                    <td>{{ajustement.stockAfter | number}}</td>
-                                    <td>{{ajustement.motifAjustementLibelle}}</td>
-
-                                </tr>
-                                </tbody>
-                            </table>
 
 
-                        </div>
-                    </div>
-
-                </td>
-            </tr>
-
-        </ng-template>
-    </p-table>
-    <div *ngIf="rowData && rowData.length > 0">
-        <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
-        </div>
-
-        <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage"
-                            [maxSize]="10" [rotate]="true" [boundaryLinks]="true"
-                            (pageChange)="loadPage($event)"></ngb-pagination>
-        </div>
-
-
-    </div>
+  </div>
 </div>

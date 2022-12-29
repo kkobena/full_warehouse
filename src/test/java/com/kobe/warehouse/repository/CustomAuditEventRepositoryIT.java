@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.WarehouseApp;
-
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.config.audit.AuditEventConverter;
 import com.kobe.warehouse.domain.PersistentAuditEvent;
@@ -22,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static com.kobe.warehouse.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link CustomAuditEventRepository}.

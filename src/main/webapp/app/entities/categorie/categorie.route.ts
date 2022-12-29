@@ -1,20 +1,21 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
+import {EMPTY, Observable, of} from 'rxjs';
+import {flatMap} from 'rxjs/operators';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
-import { ICategorie, Categorie } from 'app/shared/model/categorie.model';
-import { CategorieService } from './categorie.service';
-import { CategorieComponent } from './categorie.component';
-import { CategorieDetailComponent } from './categorie-detail.component';
-import { CategorieUpdateComponent } from './categorie-update.component';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {Categorie, ICategorie} from 'app/shared/model/categorie.model';
+import {CategorieService} from './categorie.service';
+import {CategorieComponent} from './categorie.component';
+import {CategorieDetailComponent} from './categorie-detail.component';
+import {CategorieUpdateComponent} from './categorie-update.component';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class CategorieResolve implements Resolve<ICategorie> {
-  constructor(private service: CategorieService, private router: Router) {}
+  constructor(private service: CategorieService, private router: Router) {
+  }
 
   resolve(route: ActivatedRouteSnapshot): Observable<ICategorie> | Observable<never> {
     const id = route.params['id'];

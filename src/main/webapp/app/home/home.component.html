@@ -1,79 +1,184 @@
 <div class="row">
-  <div class="col-md-3">
-    <span class="hipster img-fluid rounded"></span>
-  </div>
-
-  <div class="col-md-9">
-    <h1 class="display-4"><span jhiTranslate="home.title">Bienvenue, Java Hipster !</span> (Warehouse)</h1>
-
-    <p class="lead" jhiTranslate="home.subtitle">Ceci est votre page d'accueil</p>
+  <div class="col-lg-12">
 
     <div [ngSwitch]="account !== null">
-      <div class="alert alert-success" *ngSwitchCase="true">
-        <span id="home-logged-message" *ngIf="account" jhiTranslate="home.logged.message" [translateValues]="{ username: account.login }"
-          >Vous êtes connecté en tant que "{{ account.login }}".</span
-        >
+      <div *ngSwitchCase="true">
+        <!--        <span *ngIf="account" [translateValues]="{ username: account.login }" id="home-logged-message"-->
+        <!--              jhiTranslate="home.logged.message"-->
+        <!--        >Vous êtes connecté en tant que "{{ account.login }}".</span-->
+        <!--        >-->
+
+        <div class="row">
+          <div class="card md-3 mr-3 ml-5" style="width:20rem;">
+            <div class="card-header bg-primary text-white"><span><fa-icon
+              [icon]="faShoppingBasket"></fa-icon></span>&nbsp;&nbsp;<span>Chiffes d'affaires jour</span>
+            </div>
+            <div class="card-body bg-transparent card-item">
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Montant des ventes
+                  <span class="badge bg-primary rounded-pill">{{dailyCa?.amount | number}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Nombre de clients
+                  <span
+                    class="badge bg-primary rounded-pill">{{dailyCa?.numberTransaction | number}}</span>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+          <div class="card md-3 mr-3" style="width:20rem;">
+            <div class="card-header text-white bg-secondary"><span><fa-icon
+              [icon]="faShippingFast"></fa-icon></span>&nbsp;&nbsp;Chiffes
+              d'affaires de la semaine
+            </div>
+            <div class="card-body bg-transparent card-item">
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Montant des ventes
+                  <span class="badge bg-primary rounded-pill">{{weeklyCa?.amount | number}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Nombre de clients
+                  <span
+                    class="badge bg-primary rounded-pill">{{weeklyCa?.numberTransaction | number}}</span>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+          <div class="card md-3 mr-3" style="width:20rem;">
+            <div class="card-header text-white bg-success"><span><fa-icon [icon]="faShoppingCart"></fa-icon></span>&nbsp;&nbsp;Chiffes
+              d'affaires du mois
+            </div>
+            <div class="card-body bg-transparent card-item">
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Montant des ventes
+                  <span class="badge bg-primary rounded-pill">{{monthlyCa?.amount | number}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Nombre de clients
+                  <span
+                    class="badge bg-primary rounded-pill">{{monthlyCa?.numberTransaction | number}}</span>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+          <div class="card md-3 mr-3" style="width:20rem;">
+            <div class="card-header text-white bg-warning"><span><fa-icon
+              [icon]="faCommentsDollar"></fa-icon></span>&nbsp;&nbsp;Chiffes
+              d'affaires de l'année
+            </div>
+            <div class="card-body bg-transparent card-item">
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Montant des ventes
+                  <span class="badge bg-primary rounded-pill">{{yearlyCa?.amount | number}}</span>
+
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Nombre de clients
+                  <span
+                    class="badge bg-primary rounded-pill">{{yearlyCa?.numberTransaction | number}}</span>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="card col-md-5 ml-5 ag-theme-card-item">
+            <div class="card-header bg-primary text-white">
+
+              <h5 style="font-width:9000;"><span>  <fa-icon
+                [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
+                Top {{TOP_MAX_RESULT}} des ventes en quantité du mois
+              </h5>
+            </div>
+            <div class="card-body ag-theme-alpine " style="min-height:300px;">
+              <ag-grid-angular [columnDefs]="columnDefs" [rowData]="rowQuantityMonthly"
+                               style="width: 100%;height:100%;">
+              </ag-grid-angular>
+
+            </div>
+
+          </div>
+
+          <div class="card col-md-5 ml-5 ag-theme-card-item">
+            <div class="card-header bg-warning text-white">
+
+              <h5 style="font-width:9000;"><span>
+                                <fa-icon
+                                  [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
+                            </span>
+                Top {{TOP_MAX_RESULT}} des articles du mois
+              </h5>
+            </div>
+            <div class="card-body ag-theme-alpine" style="min-height:300px;">
+              <ag-grid-angular [columnDefs]="columnDefsMonthAmount" [rowData]="rowAmountMonthly"
+                               style="width: 100%;height:100%;">
+              </ag-grid-angular>
+
+            </div>
+
+          </div>
+
+        </div>
+        <hr>
+        <div class="row">
+          <div class="card col-md-5 ml-5  ag-theme-card-item">
+            <div class="card-header bg-info text-white">
+
+              <h5 style="font-width:9000;"><span><fa-icon
+                [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span> Top {{TOP_MAX_RESULT}}
+                des ventes en quatité de l'année
+              </h5>
+            </div>
+            <div class="card-body ag-theme-alpine" style="min-height:300px;">
+              <ag-grid-angular [columnDefs]="columnDefsYearQunatity" [rowData]="rowQuantityYear"
+                               style="width: 100%;height:100%;">
+              </ag-grid-angular>
+
+            </div>
+
+          </div>
+          <div class="card col-md-5 ml-5  ag-theme-card-item">
+            <div class="card-header bg-success text-white">
+
+              <h5 style="font-width:9000;"><span> <fa-icon
+                [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;</span>
+                Top {{TOP_MAX_RESULT}} des articles de l'année
+              </h5>
+            </div>
+            <div class="card-body ag-theme-alpine" style="min-height:300px;">
+              <ag-grid-angular [columnDefs]="columnDefsYearAmount" [rowData]="rowAmountYear"
+                               style="width: 100%;height:100%;">
+              </ag-grid-angular>
+
+            </div>
+
+          </div>
+        </div>
       </div>
 
-      <div class="alert alert-warning" *ngSwitchCase="false">
+      <div *ngSwitchCase="false" class="alert alert-warning">
         <span jhiTranslate="global.messages.info.authenticated.prefix">Si vous voulez vous </span>
-        <a class="alert-link" (click)="login()" jhiTranslate="global.messages.info.authenticated.link">connecter</a
-        ><span jhiTranslate="global.messages.info.authenticated.suffix"
-          >, vous pouvez utiliser les comptes par défaut : <br />
-          - Administrateur (nom d'utilisateur="admin" et mot de passe ="admin") <br />
-          - Utilisateur (nom d'utilisateur="user" et mot de passe ="user").</span
+        <a (click)="login()" class="alert-link" jhiTranslate="global.messages.info.authenticated.link">connecter</a
         >
+
       </div>
 
-      <div class="alert alert-warning" *ngSwitchCase="false">
+      <div *ngSwitchCase="false" class="alert alert-warning">
         <span jhiTranslate="global.messages.info.register.noaccount">Vous n'avez pas encore de compte ?</span>&nbsp;
-        <a class="alert-link" routerLink="account/register" jhiTranslate="global.messages.info.register.link">Créer un compte</a>
+        <a class="alert-link" jhiTranslate="global.messages.info.register.link" routerLink="account/register">Créer un
+          compte</a>
       </div>
     </div>
 
-    <p jhiTranslate="home.question">Si vous avez des questions à propos de JHipster :</p>
 
-    <ul>
-      <li>
-        <a href="https://www.jhipster.tech/" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.homepage"
-          >Page d'accueil de JHipster</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://stackoverflow.com/tags/jhipster/info"
-          target="_blank"
-          rel="noopener noreferrer"
-          jhiTranslate="home.link.stackoverflow"
-          >JHipster sur Stack Overflow</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/jhipster/generator-jhipster/issues?state=open"
-          target="_blank"
-          rel="noopener noreferrer"
-          jhiTranslate="home.link.bugtracker"
-          >JHipster bug tracker</a
-        >
-      </li>
-      <li>
-        <a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.chat"
-          >JHipster public chat room</a
-        >
-      </li>
-      <li>
-        <a href="https://twitter.com/jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.follow"
-          >Suivez @jhipster sur Twitter</a
-        >
-      </li>
-    </ul>
-
-    <p>
-      <span jhiTranslate="home.like">Si vous aimez JHipster, donnez nous une étoile sur</span>
-      <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.github"
-        >GitHub </a
-      >!
-    </p>
   </div>
 </div>

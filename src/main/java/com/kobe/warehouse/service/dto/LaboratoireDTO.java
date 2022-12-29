@@ -15,6 +15,14 @@ public class LaboratoireDTO implements Serializable {
     @NotNull
     private String libelle;
 
+    public LaboratoireDTO() {
+    }
+
+    public LaboratoireDTO(Laboratoire laboratoire) {
+        id = laboratoire.getId();
+        libelle = laboratoire.getLibelle();
+    }
+
     public Long getId() {
         return id;
     }
@@ -56,13 +64,5 @@ public class LaboratoireDTO implements Serializable {
             "id=" + getId() +
             ", libelle='" + getLibelle() + "'" +
             "}";
-    }
-
-    public LaboratoireDTO() {
-    }
-
-    public LaboratoireDTO(Laboratoire  laboratoire) {
-        this.id = laboratoire.getId();
-        this.libelle = laboratoire.getLibelle();
     }
 }

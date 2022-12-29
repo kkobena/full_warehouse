@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 public class DeconditionDTO {
     private int qtyMvt;
     @NotNull
-   private Long produitId;
+    private Long produitId;
 
     public int getQtyMvt() {
         return qtyMvt;

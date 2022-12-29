@@ -3,7 +3,6 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.repository.CategorieRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +12,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link CategorieResource} REST controller.
@@ -46,7 +51,7 @@ public class CategorieResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -55,9 +60,10 @@ public class CategorieResourceIT {
             .libelle(DEFAULT_LIBELLE);
         return categorie;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -78,8 +84,8 @@ public class CategorieResourceIT {
         int databaseSizeBeforeCreate = categorieRepository.findAll().size();
         // Create the Categorie
         restCategorieMockMvc.perform(post("/api/categories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(categorie)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(categorie)))
             .andExpect(status().isCreated());
 
         // Validate the Categorie in the database
@@ -99,8 +105,8 @@ public class CategorieResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCategorieMockMvc.perform(post("/api/categories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(categorie)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(categorie)))
             .andExpect(status().isBadRequest());
 
         // Validate the Categorie in the database
@@ -120,8 +126,8 @@ public class CategorieResourceIT {
 
 
         restCategorieMockMvc.perform(post("/api/categories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(categorie)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(categorie)))
             .andExpect(status().isBadRequest());
 
         List<Categorie> categorieList = categorieRepository.findAll();
@@ -141,7 +147,7 @@ public class CategorieResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(categorie.getId().intValue())))
             .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)));
     }
-    
+
     @Test
     @Transactional
     public void getCategorie() throws Exception {
@@ -155,6 +161,7 @@ public class CategorieResourceIT {
             .andExpect(jsonPath("$.id").value(categorie.getId().intValue()))
             .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE));
     }
+
     @Test
     @Transactional
     public void getNonExistingCategorie() throws Exception {
@@ -179,8 +186,8 @@ public class CategorieResourceIT {
             .libelle(UPDATED_LIBELLE);
 
         restCategorieMockMvc.perform(put("/api/categories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedCategorie)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedCategorie)))
             .andExpect(status().isOk());
 
         // Validate the Categorie in the database
@@ -197,8 +204,8 @@ public class CategorieResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCategorieMockMvc.perform(put("/api/categories").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(categorie)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(categorie)))
             .andExpect(status().isBadRequest());
 
         // Validate the Categorie in the database
@@ -216,7 +223,7 @@ public class CategorieResourceIT {
 
         // Delete the categorie
         restCategorieMockMvc.perform(delete("/api/categories/{id}", categorie.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

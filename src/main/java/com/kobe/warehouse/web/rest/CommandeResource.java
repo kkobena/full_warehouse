@@ -7,11 +7,9 @@ import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
+
 import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,25 +21,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.web.util.HeaderUtil;
 
-/** REST controller for managing {@link com.kobe.warehouse.domain.Commande}. */
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+/**
+ * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
+ */
 @RestController
 @RequestMapping("/api")
 public class CommandeResource {
 
-    private final Logger log = LoggerFactory.getLogger(CommandeResource.class);
-
     private static final String ENTITY_NAME = "commande";
-
+    private final Logger log = LoggerFactory.getLogger(CommandeResource.class);
+    private final CommandService commandService;
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
-    private final CommandService commandService;
 
     public CommandeResource(CommandService commandService) {
         this.commandService = commandService;

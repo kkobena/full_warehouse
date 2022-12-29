@@ -3,7 +3,6 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.MagasinRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +12,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link MagasinResource} REST controller.
@@ -58,7 +63,7 @@ public class MagasinResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -71,9 +76,10 @@ public class MagasinResourceIT {
             .registre(DEFAULT_REGISTRE);
         return magasin;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -98,8 +104,8 @@ public class MagasinResourceIT {
         int databaseSizeBeforeCreate = magasinRepository.findAll().size();
         // Create the Magasin
         restMagasinMockMvc.perform(post("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(magasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(magasin)))
             .andExpect(status().isCreated());
 
         // Validate the Magasin in the database
@@ -123,8 +129,8 @@ public class MagasinResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restMagasinMockMvc.perform(post("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(magasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(magasin)))
             .andExpect(status().isBadRequest());
 
         // Validate the Magasin in the database
@@ -144,8 +150,8 @@ public class MagasinResourceIT {
 
 
         restMagasinMockMvc.perform(post("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(magasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(magasin)))
             .andExpect(status().isBadRequest());
 
         List<Magasin> magasinList = magasinRepository.findAll();
@@ -163,8 +169,8 @@ public class MagasinResourceIT {
 
 
         restMagasinMockMvc.perform(post("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(magasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(magasin)))
             .andExpect(status().isBadRequest());
 
         List<Magasin> magasinList = magasinRepository.findAll();
@@ -188,7 +194,7 @@ public class MagasinResourceIT {
             .andExpect(jsonPath("$.[*].note").value(hasItem(DEFAULT_NOTE)))
             .andExpect(jsonPath("$.[*].registre").value(hasItem(DEFAULT_REGISTRE)));
     }
-    
+
     @Test
     @Transactional
     public void getMagasin() throws Exception {
@@ -206,6 +212,7 @@ public class MagasinResourceIT {
             .andExpect(jsonPath("$.note").value(DEFAULT_NOTE))
             .andExpect(jsonPath("$.registre").value(DEFAULT_REGISTRE));
     }
+
     @Test
     @Transactional
     public void getNonExistingMagasin() throws Exception {
@@ -234,8 +241,8 @@ public class MagasinResourceIT {
             .registre(UPDATED_REGISTRE);
 
         restMagasinMockMvc.perform(put("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedMagasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedMagasin)))
             .andExpect(status().isOk());
 
         // Validate the Magasin in the database
@@ -256,8 +263,8 @@ public class MagasinResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restMagasinMockMvc.perform(put("/api/magasins").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(magasin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(magasin)))
             .andExpect(status().isBadRequest());
 
         // Validate the Magasin in the database
@@ -275,7 +282,7 @@ public class MagasinResourceIT {
 
         // Delete the magasin
         restMagasinMockMvc.perform(delete("/api/magasins/{id}", magasin.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

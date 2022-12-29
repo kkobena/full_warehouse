@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { IProduit } from '../../shared/model/produit.model';
-import { FormBuilder, Validators } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {IProduit} from '../../shared/model/produit.model';
+import {FormBuilder, Validators} from '@angular/forms';
 
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { Decondition, IDecondition } from '../../shared/model/decondition.model';
-import { DeconditionService } from '../decondition/decondition.service';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {Decondition, IDecondition} from '../../shared/model/decondition.model';
+import {DeconditionService} from '../decondition/decondition.service';
 
 @Component({
   selector: 'jhi-decondition',
@@ -24,11 +23,12 @@ export class DeconditionDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public activeModal: NgbActiveModal,
-    protected deconditionService: DeconditionService,
-    protected eventManager: JhiEventManager
-  ) {}
+    protected deconditionService: DeconditionService
+  ) {
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   private createFromForm(): IDecondition {
     return {
@@ -53,7 +53,6 @@ export class DeconditionDialogComponent implements OnInit {
 
   protected onSaveSuccess(): void {
     this.isSaving = false;
-    this.eventManager.broadcast('produitListModification');
     this.activeModal.close();
   }
 
@@ -64,6 +63,7 @@ export class DeconditionDialogComponent implements OnInit {
   cancel(): void {
     this.activeModal.dismiss();
   }
+
   onQuantitySoldBoxChanged(event: any): void {
     const qty = event.target.value;
     const oldStock = this.produit!.totalQuantity;

@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, Data } from '@angular/router';
-import { Subscription, combineLatest } from 'rxjs';
-import { JhiEventManager } from 'ng-jhipster';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
+import {combineLatest, Subscription} from 'rxjs';
 
-import { IOrderLine } from 'app/shared/model/order-line.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { OrderLineService } from './order-line.service';
-import { OrderLineDeleteDialogComponent } from './order-line-delete-dialog.component';
+import {IOrderLine} from 'app/shared/model/order-line.model';
+
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {OrderLineService} from './order-line.service';
+import {OrderLineDeleteDialogComponent} from './order-line-delete-dialog.component';
 
 @Component({
   selector: 'jhi-order-line',
   templateUrl: './order-line.component.html',
 })
-export class OrderLineComponent implements OnInit, OnDestroy {
+export class OrderLineComponent implements OnInit {
   orderLines?: IOrderLine[];
   eventSubscriber?: Subscription;
   totalItems = 0;
@@ -29,9 +29,9 @@ export class OrderLineComponent implements OnInit, OnDestroy {
     protected orderLineService: OrderLineService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected eventManager: JhiEventManager,
     protected modalService: NgbModal
-  ) {}
+  ) {
+  }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
@@ -44,6 +44,28 @@ export class OrderLineComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.handleNavigation();
     this.registerChangeInOrderLines();
+  }
+
+  trackId(index: number, item: IOrderLine): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
+  }
+
+  registerChangeInOrderLines(): void {
+    this.loadPage();
+  }
+
+  delete(orderLine: IOrderLine): void {
+    const modalRef = this.modalService.open(OrderLineDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
+    modalRef.componentInstance.orderLine = orderLine;
+  }
+
+  sort(): string[] {
+    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
+    if (this.predicate !== 'id') {
+      result.push('id');
+    }
+    return result;
   }
 
   protected handleNavigation(): void {
@@ -59,34 +81,6 @@ export class OrderLineComponent implements OnInit, OnDestroy {
         this.loadPage(pageNumber, true);
       }
     }).subscribe();
-  }
-
-  ngOnDestroy(): void {
-    if (this.eventSubscriber) {
-      this.eventManager.destroy(this.eventSubscriber);
-    }
-  }
-
-  trackId(index: number, item: IOrderLine): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
-  }
-
-  registerChangeInOrderLines(): void {
-    this.eventSubscriber = this.eventManager.subscribe('orderLineListModification', () => this.loadPage());
-  }
-
-  delete(orderLine: IOrderLine): void {
-    const modalRef = this.modalService.open(OrderLineDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.orderLine = orderLine;
-  }
-
-  sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'id') {
-      result.push('id');
-    }
-    return result;
   }
 
   protected onSuccess(data: IOrderLine[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {

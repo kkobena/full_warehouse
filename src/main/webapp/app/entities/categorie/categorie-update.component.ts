@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
 
-import { ICategorie, Categorie } from 'app/shared/model/categorie.model';
-import { CategorieService } from './categorie.service';
+import {Categorie, ICategorie} from 'app/shared/model/categorie.model';
+import {CategorieService} from './categorie.service';
 
 @Component({
   selector: 'jhi-categorie-update',
@@ -20,10 +20,11 @@ export class CategorieUpdateComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(protected categorieService: CategorieService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
+  constructor(protected categorieService: CategorieService, protected activatedRoute: ActivatedRoute, private fb: UntypedFormBuilder) {
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ categorie }) => {
+    this.activatedRoute.data.subscribe(({categorie}) => {
       this.updateForm(categorie);
     });
   }
@@ -49,14 +50,6 @@ export class CategorieUpdateComponent implements OnInit {
     }
   }
 
-  private createFromForm(): ICategorie {
-    return {
-      ...new Categorie(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-    };
-  }
-
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
@@ -71,5 +64,13 @@ export class CategorieUpdateComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
+  }
+
+  private createFromForm(): ICategorie {
+    return {
+      ...new Categorie(),
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+    };
   }
 }

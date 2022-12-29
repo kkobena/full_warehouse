@@ -2,9 +2,15 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -12,7 +18,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "store_inventory_line", uniqueConstraints =
-    { @UniqueConstraint(columnNames = { "produit_id", "store_inventory_id" }) })
+    {@UniqueConstraint(columnNames = {"produit_id", "store_inventory_id"})})
 public class StoreInventoryLine implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +31,7 @@ public class StoreInventoryLine implements Serializable {
     @Column(name = "quantity_on_hand", nullable = false)
     private Integer quantityOnHand;
     @Column(name = "gap")
-   private  Integer gap=0;
+    private Integer gap = 0;
     @NotNull
     @Column(name = "quantity_init", nullable = false)
     private Integer quantityInit;
@@ -51,7 +57,8 @@ public class StoreInventoryLine implements Serializable {
     private Produit produit;
     @NotNull
     @Column(name = "updated", nullable = false)
-    private Boolean updated=false;
+    private Boolean updated = false;
+
     public Long getId() {
         return id;
     }
@@ -64,17 +71,21 @@ public class StoreInventoryLine implements Serializable {
         return quantityOnHand;
     }
 
+    public void setQuantityOnHand(Integer quantityOnHand) {
+        this.quantityOnHand = quantityOnHand;
+    }
+
     public StoreInventoryLine quantityOnHand(Integer quantityOnHand) {
         this.quantityOnHand = quantityOnHand;
         return this;
     }
 
-    public void setQuantityOnHand(Integer quantityOnHand) {
-        this.quantityOnHand = quantityOnHand;
-    }
-
     public Integer getQuantityInit() {
         return quantityInit;
+    }
+
+    public void setQuantityInit(Integer quantityInit) {
+        this.quantityInit = quantityInit;
     }
 
     public StoreInventoryLine quantityInit(Integer quantityInit) {
@@ -82,12 +93,12 @@ public class StoreInventoryLine implements Serializable {
         return this;
     }
 
-    public void setQuantityInit(Integer quantityInit) {
-        this.quantityInit = quantityInit;
-    }
-
     public Integer getQuantitySold() {
         return quantitySold;
+    }
+
+    public void setQuantitySold(Integer quantitySold) {
+        this.quantitySold = quantitySold;
     }
 
     public StoreInventoryLine quantitySold(Integer quantitySold) {
@@ -95,12 +106,12 @@ public class StoreInventoryLine implements Serializable {
         return this;
     }
 
-    public void setQuantitySold(Integer quantitySold) {
-        this.quantitySold = quantitySold;
-    }
-
     public Integer getInventoryValueCost() {
         return inventoryValueCost;
+    }
+
+    public void setInventoryValueCost(Integer inventoryValueCost) {
+        this.inventoryValueCost = inventoryValueCost;
     }
 
     public StoreInventoryLine inventoryValueCost(Integer inventoryValueCost) {
@@ -108,12 +119,12 @@ public class StoreInventoryLine implements Serializable {
         return this;
     }
 
-    public void setInventoryValueCost(Integer inventoryValueCost) {
-        this.inventoryValueCost = inventoryValueCost;
-    }
-
     public Integer getInventoryValueLatestSellingPrice() {
         return inventoryValueLatestSellingPrice;
+    }
+
+    public void setInventoryValueLatestSellingPrice(Integer inventoryValueLatestSellingPrice) {
+        this.inventoryValueLatestSellingPrice = inventoryValueLatestSellingPrice;
     }
 
     public StoreInventoryLine inventoryValueLatestSellingPrice(Integer inventoryValueLatestSellingPrice) {
@@ -121,12 +132,12 @@ public class StoreInventoryLine implements Serializable {
         return this;
     }
 
-    public void setInventoryValueLatestSellingPrice(Integer inventoryValueLatestSellingPrice) {
-        this.inventoryValueLatestSellingPrice = inventoryValueLatestSellingPrice;
-    }
-
     public StoreInventory getStoreInventory() {
         return storeInventory;
+    }
+
+    public void setStoreInventory(StoreInventory storeInventory) {
+        this.storeInventory = storeInventory;
     }
 
     public StoreInventoryLine storeInventory(StoreInventory storeInventory) {
@@ -142,12 +153,12 @@ public class StoreInventoryLine implements Serializable {
         this.gap = gap;
     }
 
-    public void setStoreInventory(StoreInventory storeInventory) {
-        this.storeInventory = storeInventory;
-    }
-
     public Produit getProduit() {
         return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
     }
 
     public StoreInventoryLine produit(Produit produit) {
@@ -161,10 +172,6 @@ public class StoreInventoryLine implements Serializable {
 
     public void setUpdated(Boolean updated) {
         this.updated = updated;
-    }
-
-    public void setProduit(Produit produit) {
-        this.produit = produit;
     }
 
     @Override

@@ -3,9 +3,18 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -15,7 +24,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "payment", indexes = {
     @Index(columnList = "ticket_code", name = "ticket_code_index")})
-public class Payment implements Serializable , Cloneable{
+public class Payment implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,26 +62,37 @@ public class Payment implements Serializable , Cloneable{
     private Instant effectiveUpdateDate;
     @NotNull
     @Column(name = "montant_verse", nullable = false)
-    private Integer montantVerse=0;
+    private Integer montantVerse = 0;
     @Size(max = 50)
     @Column(name = "ticket_code", length = 50)
     private String ticketCode;
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
-    private SalesStatut statut=SalesStatut.CLOSED;
+    private SalesStatut statut = SalesStatut.CLOSED;
     @Column(name = "part_assure", columnDefinition = "int default '0'")
     private Integer partAssure;
     @Column(name = "part_tiers_payant", columnDefinition = "int default '0'")
     private Integer partTiersPayant;
     @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
     private Boolean canceled = false;
+
     public SalesStatut getStatut() {
         return statut;
     }
 
+    public Payment setStatut(SalesStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
     public Boolean getCanceled() {
         return canceled;
+    }
+
+    public Payment setCanceled(Boolean canceled) {
+        this.canceled = canceled;
+        return this;
     }
 
     public Integer getPartAssure() {
@@ -90,16 +110,6 @@ public class Payment implements Serializable , Cloneable{
 
     public Payment setPartTiersPayant(Integer partTiersPayant) {
         this.partTiersPayant = partTiersPayant;
-        return this;
-    }
-
-    public Payment setCanceled(Boolean canceled) {
-        this.canceled = canceled;
-        return this;
-    }
-
-    public Payment setStatut(SalesStatut statut) {
-        this.statut = statut;
         return this;
     }
 
@@ -131,20 +141,20 @@ public class Payment implements Serializable , Cloneable{
     }
 
     public Sales getSales() {
-		return sales;
-	}
+        return sales;
+    }
 
-	public void setSales(Sales sales) {
-		this.sales = sales;
-	}
+    public void setSales(Sales sales) {
+        this.sales = sales;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public Long getId() {
         return id;
@@ -158,17 +168,21 @@ public class Payment implements Serializable , Cloneable{
         return netAmount;
     }
 
+    public void setNetAmount(Integer netAmount) {
+        this.netAmount = netAmount;
+    }
+
     public Payment netAmount(Integer netAmount) {
         this.netAmount = netAmount;
         return this;
     }
 
-    public void setNetAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-    }
-
     public Integer getPaidAmount() {
         return paidAmount;
+    }
+
+    public void setPaidAmount(Integer paidAmount) {
+        this.paidAmount = paidAmount;
     }
 
     public Payment paidAmount(Integer paidAmount) {
@@ -176,11 +190,12 @@ public class Payment implements Serializable , Cloneable{
         return this;
     }
 
-    public void setPaidAmount(Integer paidAmount) {
-        this.paidAmount = paidAmount;
-    }
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Payment createdAt(Instant createdAt) {
@@ -188,12 +203,12 @@ public class Payment implements Serializable , Cloneable{
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Payment updatedAt(Instant updatedAt) {
@@ -201,12 +216,12 @@ public class Payment implements Serializable , Cloneable{
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public PaymentMode getPaymentMode() {
         return paymentMode;
+    }
+
+    public void setPaymentMode(PaymentMode paymentMode) {
+        this.paymentMode = paymentMode;
     }
 
     public Payment paymentMode(PaymentMode paymentMode) {
@@ -214,12 +229,12 @@ public class Payment implements Serializable , Cloneable{
         return this;
     }
 
-    public void setPaymentMode(PaymentMode paymentMode) {
-        this.paymentMode = paymentMode;
-    }
-
     public DateDimension getDateDimension() {
         return dateDimension;
+    }
+
+    public void setDateDimension(DateDimension dateDimension) {
+        this.dateDimension = dateDimension;
     }
 
     public Payment dateDimension(DateDimension dateDimension) {
@@ -227,20 +242,15 @@ public class Payment implements Serializable , Cloneable{
         return this;
     }
 
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
+    public Customer getCustomer() {
+        return customer;
     }
 
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
-    public Customer getCustomer() {
-		return customer;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
-
-	@Override
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

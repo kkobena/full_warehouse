@@ -4,7 +4,15 @@ import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -33,25 +41,44 @@ public class FamilleProduit implements Serializable {
     private Set<Produit> produits = new HashSet<>();
     @ManyToOne(optional = false)
     private Categorie categorie;
+
+    public FamilleProduit() {
+    }
+
+    public FamilleProduit(FamilleProduitDTO familleProduitDTO) {
+        id = familleProduitDTO.getId();
+        code = familleProduitDTO.getCode();
+        libelle = familleProduitDTO.getLibelle();
+        categorie = new Categorie().id(familleProduitDTO.getId());
+    }
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getCode() {
         return code;
     }
-    public FamilleProduit code(String code) {
-        this.code = code;
-        return this;
-    }
+
     public void setCode(String code) {
         this.code = code;
     }
 
+    public FamilleProduit code(String code) {
+        this.code = code;
+        return this;
+    }
+
     public String getLibelle() {
         return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
     }
 
     public FamilleProduit libelle(String libelle) {
@@ -59,22 +86,17 @@ public class FamilleProduit implements Serializable {
         return this;
     }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-
     public Set<Produit> getProduits() {
         return produits;
+    }
+
+    public void setProduits(Set<Produit> produits) {
+        this.produits = produits;
     }
 
     public FamilleProduit produits(Set<Produit> produits) {
         this.produits = produits;
         return this;
-    }
-
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
     }
 
     public Categorie getCategorie() {
@@ -110,15 +132,5 @@ public class FamilleProduit implements Serializable {
             ", libelle='" + getLibelle() + "'" +
 
             "}";
-    }
-
-    public FamilleProduit() {
-    }
-
-    public FamilleProduit(FamilleProduitDTO familleProduitDTO) {
-        this.id = familleProduitDTO.getId();
-        this.code = familleProduitDTO.getCode();
-        this.libelle = familleProduitDTO.getLibelle();
-        this.categorie = new Categorie().id(familleProduitDTO.getId());
     }
 }

@@ -5,11 +5,18 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
 
 
 /**
@@ -17,9 +24,9 @@ import java.util.HashSet;
  */
 @Entity
 @Table(name = "stock_produit",
-uniqueConstraints=
-@UniqueConstraint(columnNames={"storage_id", "produit_id"})
-		)
+    uniqueConstraints =
+    @UniqueConstraint(columnNames = {"storage_id", "produit_id"})
+)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 
 public class StockProduit implements Serializable {
@@ -39,7 +46,7 @@ public class StockProduit implements Serializable {
     private Integer qtyUG;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt=Instant.now();
+    private Instant createdAt = Instant.now();
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
@@ -84,17 +91,21 @@ public class StockProduit implements Serializable {
         return qtyStock;
     }
 
+    public void setQtyStock(Integer qtyStock) {
+        this.qtyStock = qtyStock;
+    }
+
     public StockProduit qtyStock(Integer qtyStock) {
         this.qtyStock = qtyStock;
         return this;
     }
 
-    public void setQtyStock(Integer qtyStock) {
-        this.qtyStock = qtyStock;
-    }
-
     public Integer getQtyVirtual() {
         return qtyVirtual;
+    }
+
+    public void setQtyVirtual(Integer qtyVirtual) {
+        this.qtyVirtual = qtyVirtual;
     }
 
     public StockProduit qtyVirtual(Integer qtyVirtual) {
@@ -102,12 +113,12 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public void setQtyVirtual(Integer qtyVirtual) {
-        this.qtyVirtual = qtyVirtual;
-    }
-
     public Integer getQtyUG() {
         return qtyUG;
+    }
+
+    public void setQtyUG(Integer qtyUG) {
+        this.qtyUG = qtyUG;
     }
 
     public StockProduit qtyUG(Integer qtyUG) {
@@ -115,12 +126,12 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public void setQtyUG(Integer qtyUG) {
-        this.qtyUG = qtyUG;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public StockProduit createdAt(Instant createdAt) {
@@ -128,12 +139,12 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public StockProduit updatedAt(Instant updatedAt) {
@@ -141,23 +152,18 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Produit getProduit() {
         return produit;
-    }
-
-    public StockProduit produit(Produit produit) {
-        this.produit = produit;
-        return this;
     }
 
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
 
+    public StockProduit produit(Produit produit) {
+        this.produit = produit;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

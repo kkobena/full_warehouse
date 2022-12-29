@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IPayment } from 'app/shared/model/payment.model';
-import { PaymentService } from './payment.service';
+
+import {IPayment} from 'app/shared/model/payment.model';
+import {PaymentService} from './payment.service';
 
 @Component({
   templateUrl: './payment-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { PaymentService } from './payment.service';
 export class PaymentDeleteDialogComponent {
   payment?: IPayment;
 
-  constructor(protected paymentService: PaymentService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected paymentService: PaymentService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,7 @@ export class PaymentDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.paymentService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('paymentListModification');
+
       this.activeModal.close();
     });
   }

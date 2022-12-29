@@ -4,6 +4,8 @@ import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.repository.OrderLineRepository;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,8 +25,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link OrderLineResource} REST controller.
@@ -84,7 +90,7 @@ public class OrderLineResourceIT {
 
     /**
      * Create an entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -104,9 +110,10 @@ public class OrderLineResourceIT {
             .costAmount(DEFAULT_COST_AMOUNT);
         return orderLine;
     }
+
     /**
      * Create an updated entity for this test.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
@@ -138,8 +145,8 @@ public class OrderLineResourceIT {
         int databaseSizeBeforeCreate = orderLineRepository.findAll().size();
         // Create the OrderLine
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isCreated());
 
         // Validate the OrderLine in the database
@@ -170,8 +177,8 @@ public class OrderLineResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the OrderLine in the database
@@ -191,8 +198,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -210,8 +217,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -229,8 +236,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -248,8 +255,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -267,8 +274,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -286,8 +293,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -305,8 +312,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -324,8 +331,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -343,8 +350,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -362,8 +369,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -381,8 +388,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -400,8 +407,8 @@ public class OrderLineResourceIT {
 
 
         restOrderLineMockMvc.perform(post("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         List<OrderLine> orderLineList = orderLineRepository.findAll();
@@ -457,6 +464,7 @@ public class OrderLineResourceIT {
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
             .andExpect(jsonPath("$.costAmount").value(DEFAULT_COST_AMOUNT));
     }
+
     @Test
     @Transactional
     public void getNonExistingOrderLine() throws Exception {
@@ -492,8 +500,8 @@ public class OrderLineResourceIT {
             .costAmount(UPDATED_COST_AMOUNT);
 
         restOrderLineMockMvc.perform(put("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedOrderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(updatedOrderLine)))
             .andExpect(status().isOk());
 
         // Validate the OrderLine in the database
@@ -521,8 +529,8 @@ public class OrderLineResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restOrderLineMockMvc.perform(put("/api/order-lines").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(orderLine)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(orderLine)))
             .andExpect(status().isBadRequest());
 
         // Validate the OrderLine in the database
@@ -540,7 +548,7 @@ public class OrderLineResourceIT {
 
         // Delete the orderLine
         restOrderLineMockMvc.perform(delete("/api/order-lines/{id}", orderLine.getId()).with(csrf())
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

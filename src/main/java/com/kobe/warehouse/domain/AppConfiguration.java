@@ -1,9 +1,14 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -73,17 +78,17 @@ public class AppConfiguration implements Serializable {
         return name;
     }
 
+    public AppConfiguration setName(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public AppConfiguration setDescription(String description) {
         this.description = description;
-        return this;
-    }
-
-    public AppConfiguration setName(String name) {
-        this.name = name;
         return this;
     }
 

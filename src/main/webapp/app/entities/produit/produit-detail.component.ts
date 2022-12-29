@@ -1,14 +1,15 @@
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.model';
-import * as moment from 'moment';
-import { IProduit } from 'app/shared/model/produit.model';
-import { InventoryTransactionService } from '../inventory-transaction/inventory-transaction.service';
-import { ProduitService } from './produit.service';
-import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
-import { SelectItem } from 'primeng/api';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {IInventoryTransaction} from 'app/shared/model/inventory-transaction.model';
+import moment from 'moment';
+import {IProduit} from 'app/shared/model/produit.model';
+import {InventoryTransactionService} from '../inventory-transaction/inventory-transaction.service';
+import {ProduitService} from './produit.service';
+import {DD_MM_YYYY_HH_MM} from 'app/shared/constants/input.constants';
+import {SelectItem} from 'primeng/api';
+
 @Component({
   selector: 'jhi-produit-detail',
   styles: [
@@ -39,8 +40,9 @@ export class ProduitDetailComponent implements OnInit {
   endDate = '';
   event: any;
   public columnDefs: any[];
-  @ViewChild('quantyBox', { static: false })
+  @ViewChild('quantyBox', {static: false})
   quantyBox?: ElementRef;
+
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected inventoryTransactionService: InventoryTransactionService,
@@ -85,12 +87,12 @@ export class ProduitDetailComponent implements OnInit {
         flex: 1,
       },
     ];
-    this.typeMouvement.push({ label: 'TOUT', value: -1 });
+    this.typeMouvement.push({label: 'TOUT', value: -1});
     this.populate();
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ produit }) => (this.produit = produit));
+    this.activatedRoute.data.subscribe(({produit}) => (this.produit = produit));
     this.loadPage();
     this.loadProduits();
   }
@@ -98,15 +100,18 @@ export class ProduitDetailComponent implements OnInit {
   previousState(): void {
     window.history.back();
   }
+
   formatDate(date: any): string {
     return moment(date.value).format(DD_MM_YYYY_HH_MM);
   }
+
   onSelect(event: any): void {
     this.event = event;
     if (this.quantyBox) {
       this.quantyBox.nativeElement.focus();
     }
   }
+
   loadProduits(): void {
     this.produitService
       .query({
@@ -130,16 +135,19 @@ export class ProduitDetailComponent implements OnInit {
         () => this.onError()
       );
   }
+
   filtreTypeMouvement(event: any): void {
     this.selectedTypeMouvement = event.value;
     this.loadPage();
   }
+
   async populate(): Promise<void> {
     const result = await this.inventoryTransactionService.allTypeTransaction();
     result.forEach(e => {
-      this.typeMouvement.push({ label: e.name, value: e.value });
+      this.typeMouvement.push({label: e.name, value: e.value});
     });
   }
+
   protected onSuccess(data: IInventoryTransaction[] | null, headers: HttpHeaders): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.rowData = data || [];
@@ -148,6 +156,7 @@ export class ProduitDetailComponent implements OnInit {
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
+
   protected onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
   }

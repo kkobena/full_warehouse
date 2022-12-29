@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ISales } from 'app/shared/model/sales.model';
-import { SalesService } from './sales.service';
-import { SalesLineService } from '../sales-line/sales-line.service';
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
-import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import * as moment from 'moment';
-import { IUser, User } from '../../core/user/user.model';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { UserService } from '../../core/user/user.service';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ISales} from 'app/shared/model/sales.model';
+import {SalesService} from './sales.service';
+import {SalesLineService} from '../sales-line/sales-line.service';
+import {faPrint} from '@fortawesome/free-solid-svg-icons';
+import {ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig} from 'primeng/api';
+import {TranslateService} from '@ngx-translate/core';
+import {Subscription} from 'rxjs';
+import moment from 'moment';
+import {IUser, User} from '../../core/user/user.model';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {UserService} from '../../core/user/user.service';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 
 @Component({
   selector: 'jhi-sales',
@@ -181,11 +181,11 @@ export class SalesComponent implements OnInit {
 
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
-      this.users.push({ id: null, fullName: 'TOUT' });
+      this.users.push({id: null, fullName: 'TOUT'});
       if (res.body) {
         this.users.push(...res.body);
       }
-      this.user = { id: null, fullName: 'TOUT' };
+      this.user = {id: null, fullName: 'TOUT'};
     });
   }
 

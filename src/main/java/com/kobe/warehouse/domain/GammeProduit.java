@@ -1,10 +1,11 @@
 package com.kobe.warehouse.domain;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,44 +47,44 @@ public class GammeProduit implements Serializable {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public GammeProduit code(String code) {
         this.code = code;
         return this;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public String getLibelle() {
         return libelle;
     }
 
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
     public GammeProduit libelle(String libelle) {
         this.libelle = libelle;
         return this;
     }
+
     public GammeProduit id(Long id) {
         this.id = id;
         return this;
-    }
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
     }
 
     public Set<Produit> getProduits() {
         return produits;
     }
 
+    public void setProduits(Set<Produit> produits) {
+        this.produits = produits;
+    }
+
     public GammeProduit produits(Set<Produit> produits) {
         this.produits = produits;
         return this;
-    }
-
-
-
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

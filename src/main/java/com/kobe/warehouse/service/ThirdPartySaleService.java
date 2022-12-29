@@ -7,7 +7,6 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
-import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.NumBonAlreadyUseException;
@@ -22,59 +21,59 @@ import java.util.Set;
 
 public interface ThirdPartySaleService {
 
-  ThirdPartySales computeCarnetAmounts(
-      ThirdPartySaleDTO thirdPartySaleDTO, ThirdPartySales thirdPartySales)
-      throws GenericError, NumBonAlreadyUseException;
+    ThirdPartySales computeCarnetAmounts(
+        ThirdPartySaleDTO thirdPartySaleDTO, ThirdPartySales thirdPartySales)
+        throws GenericError, NumBonAlreadyUseException;
 
-  void processDiscount(ThirdPartySales thirdPartySales, SalesLine saleLine, SalesLine oldSaleLine);
+    void processDiscount(ThirdPartySales thirdPartySales, SalesLine saleLine, SalesLine oldSaleLine);
 
-  void processDiscountWhenRemovingItem(ThirdPartySales thirdPartySales, SalesLine saleLine);
+    void processDiscountWhenRemovingItem(ThirdPartySales thirdPartySales, SalesLine saleLine);
 
-  void computeAllAmounts(ThirdPartySales thirdPartySales);
+    void computeAllAmounts(ThirdPartySales thirdPartySales);
 
-  ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
+    ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
-  List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
+    List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
 
-  void copySale(ThirdPartySales sales, ThirdPartySales copy);
+    void copySale(ThirdPartySales sales, ThirdPartySales copy);
 
-  void updateClientTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
+    void updateClientTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 
-  void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
+    void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 
-  int buildConsommationId();
+    int buildConsommationId();
 
-  default int buildConsommationId(@NotNull String s) {
-    return Integer.valueOf(s);
-  }
+    default int buildConsommationId(@NotNull String s) {
+        return Integer.valueOf(s);
+    }
 
-  String buildTvaData(Set<SalesLine> salesLines);
+    String buildTvaData(Set<SalesLine> salesLines);
 
-  SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto);
+    SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto);
 
-  void deleteSaleLineById(Long id);
+    void deleteSaleLineById(Long id);
 
-  ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError;
+    ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError;
 
-  SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
-      throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
+        throws StockException, DeconditionnementStockOut;
 
-  SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO);
+    SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO);
 
-  void cancelSale(Long id);
+    void cancelSale(Long id);
 
-  ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
+    ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
 
-  ResponseDTO save(ThirdPartySaleDTO dto)
-      throws PaymentAmountException, SaleNotFoundCustomerException,
-          ThirdPartySalesTiersPayantException;
+    ResponseDTO save(ThirdPartySaleDTO dto)
+        throws PaymentAmountException, SaleNotFoundCustomerException,
+        ThirdPartySalesTiersPayantException;
 
-  SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
+    SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 
-  void deleteSalePrevente(Long id);
+    void deleteSalePrevente(Long id);
 
-  ThirdPartySaleDTO addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
-      throws GenericError, NumBonAlreadyUseException;
+    ThirdPartySaleDTO addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
+        throws GenericError, NumBonAlreadyUseException;
 
-  void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId);
+    void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId);
 }

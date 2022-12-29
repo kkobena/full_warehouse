@@ -26,6 +26,25 @@ public class FournisseurProduitDTO {
     private String fournisseurLibelle;
     private boolean principal;
 
+    public FournisseurProduitDTO() {
+    }
+
+    public FournisseurProduitDTO(FournisseurProduit f) {
+        id = f.getId();
+        codeCip = f.getCodeCip();
+        prixAchat = f.getPrixAchat();
+        prixUni = f.getPrixUni();
+        createdAt = f.getCreatedAt();
+        updatedAt = f.getUpdatedAt();
+        Produit p = f.getProduit();
+        produitId = p.getId();
+        produitLibelle = p.getLibelle();
+        Fournisseur fr = f.getFournisseur();
+        fournisseurId = fr.getId();
+        fournisseurLibelle = fr.getLibelle();
+        principal = f.isPrincipal();
+    }
+
     public Long getId() {
         return id;
     }
@@ -123,24 +142,5 @@ public class FournisseurProduitDTO {
     public FournisseurProduitDTO setPrincipal(boolean principal) {
         this.principal = principal;
         return this;
-    }
-
-    public FournisseurProduitDTO() {
-    }
-
-    public FournisseurProduitDTO(FournisseurProduit f) {
-        this.id = f.getId();
-        this.codeCip = f.getCodeCip();
-        this.prixAchat = f.getPrixAchat();
-        this.prixUni = f.getPrixUni();
-        this.createdAt = f.getCreatedAt();
-        this.updatedAt = f.getUpdatedAt();
-        Produit p=f.getProduit();
-        this.produitId = p.getId();
-        this.produitLibelle = p.getLibelle();
-        Fournisseur fr=f.getFournisseur();
-        this.fournisseurId = fr.getId();
-        this.fournisseurLibelle = fr.getLibelle();
-        this.principal = f.isPrincipal();
     }
 }

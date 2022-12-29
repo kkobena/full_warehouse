@@ -1,27 +1,15 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.Status;
-import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 import javax.validation.Valid;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,13 +26,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -54,16 +44,13 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class ProduitResource {
 
-    private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
-
     private static final String ENTITY_NAME = "produit";
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
+    private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
     private final UserRepository userRepository;
     private final ProduitRepository produitRepository;
     private final ProduitService produitService;
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     public ProduitResource(ProduitRepository produitRepository, UserRepository userRepository, ProduitService produitService) {
         this.produitRepository = produitRepository;

@@ -12,3 +12,13 @@ eg $input-color: red;
 @import '~bootswatch/dist/spacelab/bootswatch';
 
 /* jhipster-needle-scss-add-vendor JHipster will add new css style */
+// ag grid styles
+
+@import '~ag-grid-community/dist/styles/ag-grid.css';
+@import '~ag-grid-community/dist/styles/ag-theme-alpine.css';
+/* jhipster-needle-scss-add-vendor JHipster will add new css style */
+@import '~@ng-select/ng-select/themes/default.theme.css';
+
+@import '~primeicons/primeicons.css';
+@import '~primeng/resources/themes/nova/theme.css';
+@import '~primeng/resources/primeng.min.css';

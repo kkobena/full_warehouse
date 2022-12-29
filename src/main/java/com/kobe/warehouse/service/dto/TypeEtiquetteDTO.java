@@ -10,6 +10,14 @@ public class TypeEtiquetteDTO implements Serializable {
     @NotNull
     private String libelle;
 
+    public TypeEtiquetteDTO() {
+    }
+
+    public TypeEtiquetteDTO(TypeEtiquette typeEtiquette) {
+        id = typeEtiquette.getId();
+        libelle = typeEtiquette.getLibelle();
+    }
+
     public Long getId() {
         return id;
     }
@@ -53,13 +61,5 @@ public class TypeEtiquetteDTO implements Serializable {
             ", libelle='" + getLibelle() + "'" +
 
             "}";
-    }
-
-    public TypeEtiquetteDTO() {
-    }
-
-    public TypeEtiquetteDTO(TypeEtiquette typeEtiquette) {
-        this.id = typeEtiquette.getId();
-        this.libelle = typeEtiquette.getLibelle();
     }
 }

@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
+import moment from 'moment';
+import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
 
-import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
-import { SalesLineService } from './sales-line.service';
-import { ISales } from 'app/shared/model/sales.model';
-import { SalesService } from 'app/entities/sales/sales.service';
-import { IProduit } from 'app/shared/model/produit.model';
-import { ProduitService } from 'app/entities/produit/produit.service';
+import {ISalesLine, SalesLine} from 'app/shared/model/sales-line.model';
+import {SalesLineService} from './sales-line.service';
+import {ISales} from 'app/shared/model/sales.model';
+import {SalesService} from 'app/entities/sales/sales.service';
+import {IProduit} from 'app/shared/model/produit.model';
+import {ProduitService} from 'app/entities/produit/produit.service';
 
 type SelectableEntity = ISales | IProduit;
 
@@ -48,11 +48,12 @@ export class SalesLineUpdateComponent implements OnInit {
     protected salesService: SalesService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+    private fb: UntypedFormBuilder
+  ) {
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ salesLine }) => {
+    this.activatedRoute.data.subscribe(({salesLine}) => {
       if (!salesLine.id) {
         const today = moment().startOf('day');
         salesLine.createdAt = today;
@@ -101,6 +102,26 @@ export class SalesLineUpdateComponent implements OnInit {
     }
   }
 
+  trackById(index: number, item: SelectableEntity): any {
+    return item.id;
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ISalesLine>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
+  }
+
+  protected onSaveSuccess(): void {
+    this.isSaving = false;
+    this.previousState();
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+  }
+
   private createFromForm(): ISalesLine {
     return {
       ...new SalesLine(),
@@ -120,25 +141,5 @@ export class SalesLineUpdateComponent implements OnInit {
       sales: this.editForm.get(['sales'])!.value,
       produit: this.editForm.get(['produit'])!.value,
     };
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
-  trackById(index: number, item: SelectableEntity): any {
-    return item.id;
   }
 }

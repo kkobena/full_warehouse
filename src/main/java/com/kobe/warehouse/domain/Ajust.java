@@ -2,7 +2,15 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,7 +24,7 @@ public class Ajust implements Serializable {
     private Long id;
     @NotNull
     @Column(name = "date_mtv", nullable = false)
-    private Instant dateMtv=Instant.now();
+    private Instant dateMtv = Instant.now();
     @ManyToOne(optional = false)
     @NotNull
     private DateDimension dateDimension;
@@ -26,18 +34,27 @@ public class Ajust implements Serializable {
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut", nullable = false)
-    private SalesStatut statut=SalesStatut.PENDING;
+    private SalesStatut statut = SalesStatut.PENDING;
     @ManyToOne(optional = false)
     @NotNull
     private Storage storage;
     @Column(name = "commentaire")
     private String commentaire;
+
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public SalesStatut getStatut() {
         return statut;
+    }
+
+    public void setStatut(SalesStatut statut) {
+        this.statut = statut;
     }
 
     public String getCommentaire() {
@@ -47,14 +64,6 @@ public class Ajust implements Serializable {
     public Ajust setCommentaire(String commentaire) {
         this.commentaire = commentaire;
         return this;
-    }
-
-    public void setStatut(SalesStatut statut) {
-        this.statut = statut;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Instant getDateMtv() {
@@ -77,6 +86,10 @@ public class Ajust implements Serializable {
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Storage getStorage() {
         return storage;
     }
@@ -84,9 +97,5 @@ public class Ajust implements Serializable {
     public Ajust setStorage(Storage storage) {
         this.storage = storage;
         return this;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

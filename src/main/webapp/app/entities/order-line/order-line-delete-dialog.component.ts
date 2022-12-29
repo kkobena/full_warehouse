@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
+import {Component} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { IOrderLine } from 'app/shared/model/order-line.model';
-import { OrderLineService } from './order-line.service';
+
+import {IOrderLine} from 'app/shared/model/order-line.model';
+import {OrderLineService} from './order-line.service';
 
 @Component({
   templateUrl: './order-line-delete-dialog.component.html',
@@ -11,7 +11,8 @@ import { OrderLineService } from './order-line.service';
 export class OrderLineDeleteDialogComponent {
   orderLine?: IOrderLine;
 
-  constructor(protected orderLineService: OrderLineService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
+  constructor(protected orderLineService: OrderLineService, public activeModal: NgbActiveModal) {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -19,7 +20,7 @@ export class OrderLineDeleteDialogComponent {
 
   confirmDelete(id: number): void {
     this.orderLineService.delete(id).subscribe(() => {
-      this.eventManager.broadcast('orderLineListModification');
+
       this.activeModal.close();
     });
   }

@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Customer, ICustomer } from 'app/shared/model/customer.model';
-import { FormBuilder, Validators } from '@angular/forms';
-import { ErrorService } from 'app/shared/error.service';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CustomerService } from 'app/entities/customer/customer.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import * as moment from 'moment';
+import {Component, OnInit} from '@angular/core';
+import {Customer, ICustomer} from 'app/shared/model/customer.model';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ErrorService} from 'app/shared/error.service';
+import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {CustomerService} from 'app/entities/customer/customer.service';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import moment from 'moment';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
@@ -31,12 +31,13 @@ export class FormAyantDroitComponent implements OnInit {
 
   constructor(
     protected errorService: ErrorService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected customerService: CustomerService,
     private messageService: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -101,10 +102,10 @@ export class FormAyantDroitComponent implements OnInit {
     this.isSaving = false;
     if (error.error && error.error.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
       });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
+      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
     }
   }
 }

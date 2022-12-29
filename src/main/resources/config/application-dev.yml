@@ -29,7 +29,7 @@ logging:
 spring:
   devtools:
     restart:
-      enabled: false
+      enabled: true
       additional-exclude: static/**
     livereload:
       enabled: false # we use Webpack dev server + BrowserSync for livereload
@@ -66,7 +66,7 @@ spring:
       installed-by: root
 
 server:
-  port: 8080
+  port: 8090
 
 # ===================================================================
 # JHipster specific properties

@@ -2,9 +2,16 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -84,17 +91,21 @@ public class Ajustement implements Serializable {
         return qtyMvt;
     }
 
+    public void setQtyMvt(Integer qtyMvt) {
+        this.qtyMvt = qtyMvt;
+    }
+
     public Ajustement qtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;
         return this;
     }
 
-    public void setQtyMvt(Integer qtyMvt) {
-        this.qtyMvt = qtyMvt;
-    }
-
     public Instant getDateMtv() {
         return dateMtv;
+    }
+
+    public void setDateMtv(Instant dateMtv) {
+        this.dateMtv = dateMtv;
     }
 
     public Ajustement dateMtv(Instant dateMtv) {
@@ -102,23 +113,18 @@ public class Ajustement implements Serializable {
         return this;
     }
 
-    public void setDateMtv(Instant dateMtv) {
-        this.dateMtv = dateMtv;
-    }
-
     public Produit getProduit() {
         return produit;
-    }
-
-    public Ajustement produit(Produit produit) {
-        this.produit = produit;
-        return this;
     }
 
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
 
+    public Ajustement produit(Produit produit) {
+        this.produit = produit;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

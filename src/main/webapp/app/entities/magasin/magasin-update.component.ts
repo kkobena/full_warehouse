@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
 
-import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
-import { MagasinService } from './magasin.service';
+import {IMagasin, Magasin} from 'app/shared/model/magasin.model';
+import {MagasinService} from './magasin.service';
 
 @Component({
   selector: 'jhi-magasin-update',
@@ -25,10 +25,12 @@ export class MagasinUpdateComponent implements OnInit {
     welcomeMessage: [],
   });
 
-  constructor(protected magasinService: MagasinService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
+  constructor(protected magasinService: MagasinService, protected activatedRoute: ActivatedRoute,
+              private fb: UntypedFormBuilder) {
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ magasin }) => {
+    this.activatedRoute.data.subscribe(({magasin}) => {
       this.updateForm(magasin);
     });
   }
@@ -59,19 +61,6 @@ export class MagasinUpdateComponent implements OnInit {
     }
   }
 
-  private createFromForm(): IMagasin {
-    return {
-      ...new Magasin(),
-      id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
-      address: this.editForm.get(['address'])!.value,
-      note: this.editForm.get(['note'])!.value,
-      registre: this.editForm.get(['registre'])!.value,
-      welcomeMessage: this.editForm.get(['welcomeMessage'])!.value,
-    };
-  }
-
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMagasin>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
@@ -86,5 +75,18 @@ export class MagasinUpdateComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
+  }
+
+  private createFromForm(): IMagasin {
+    return {
+      ...new Magasin(),
+      id: this.editForm.get(['id'])!.value,
+      name: this.editForm.get(['name'])!.value,
+      phone: this.editForm.get(['phone'])!.value,
+      address: this.editForm.get(['address'])!.value,
+      note: this.editForm.get(['note'])!.value,
+      registre: this.editForm.get(['registre'])!.value,
+      welcomeMessage: this.editForm.get(['welcomeMessage'])!.value,
+    };
   }
 }

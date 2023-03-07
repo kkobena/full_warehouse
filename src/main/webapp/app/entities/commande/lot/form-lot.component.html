@@ -1,0 +1,91 @@
+<p-toast position="center"></p-toast>
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="p-col-12">
+    
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Num.Lot<span
+          style="font-weight: 900;color: red;">*</span></label>
+        <input (keyup)="onValidateNumLot($event)" [pKeyFilter]="blockSpace" autocomplete="off"
+               class="form-control"
+               formControlName="numLot" name="numLot" pInputText
+               type="text"
+        />
+        <div
+          *ngIf="editForm.get('numLot')!.invalid && (editForm.get('numLot')!.dirty || editForm.get('numLot')!.touched)">
+          <small *ngIf="editForm.get('numLot')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+
+        </div>
+      </div>
+    </div>
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Quantité<span
+          style="font-weight: 900;color: red;">*</span></label>
+        <input (keyup)="onValidateQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
+               class="form-control" formControlName="quantityReceived"
+               name="quantityReceived" pInputText type="text" />
+        <div
+          *ngIf="editForm.get('quantityReceived')!.invalid && (editForm.get('quantityReceived')!.dirty || editForm.get('quantityReceived')!.touched)">
+          <small *ngIf="editForm.get('quantityReceived')?.errors?.required"
+                 class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+
+        </div>
+      </div>
+    </div>
+    <div class="p-fluid p-formgrid p-grid">
+      <div *ngIf="showUgControl" class="p-field p-col">
+        <label class="col-auto col-form-label">Quantité UG</label>
+        <input (keyup)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
+               class="form-control" formControlName="ugQuantityReceived"
+               name="ugQuantityReceived" pInputText type="text" />
+
+      </div>
+
+
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Date de péremption</label>
+        <p-calendar [minDate]="minDate" [selectOtherMonths]="true" [showButtonBar]="true"
+                    appendTo="body" dateFormat="dd/mm/yy" formControlName="expiryDate"
+                    name="expiryDate"
+        ></p-calendar>
+        <div
+          *ngIf="editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty || editForm.get('expiryDate')!.touched)">
+          <small *ngIf="editForm.get('expiryDate')?.errors?.required"
+                 class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+
+        </div>
+      </div>
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Date de fabrication</label>
+        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true" [showButtonBar]="true"
+                    appendTo="body" dateFormat="dd/mm/yy"
+                    formControlName="manufacturingDate"
+                    name="manufacturingDate"
+        ></p-calendar>
+
+      </div>
+    </div>
+  </div>
+  <div class="mt-2" style="float: right;">
+    <button [disabled]="editForm.invalid || isSaving || numLotAlreadyExist"
+            class="p-button-success mr-2 p-button-raised" icon="pi pi-check"
+            label="Enregistrer"
+            pButton pRipple
+            type="submit"></button>
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler"
+            pButton
+            pRipple type="button"></button>
+  </div>
+
+</form>

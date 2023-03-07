@@ -1,6 +1,7 @@
 import { Moment } from 'moment';
 import { ICommande } from 'app/shared/model/commande.model';
 import { IProduit } from 'app/shared/model/produit.model';
+import { ILot } from './lot.model';
 
 export interface IOrderLine {
   id?: number;
@@ -31,6 +32,9 @@ export interface IOrderLine {
   quantityReceivedTmp?: number;
   quantityUG?: number;
   provisionalCode?: boolean;
+  ugQuantity?: number;
+
+  lots?: ILot[];
 }
 
 export class OrderLine implements IOrderLine {
@@ -62,6 +66,8 @@ export class OrderLine implements IOrderLine {
     public initStock?: number,
     public provisionalCode?: boolean,
     public quantityReceivedTmp?: number,
-    public quantityUG?: number
+    public quantityUG?: number,
+    public ugQuantity?: number,
+    public lots?: ILot[]
   ) {}
 }

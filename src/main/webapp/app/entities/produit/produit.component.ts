@@ -1,31 +1,31 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
-import {combineLatest, Observable, Subscription} from 'rxjs';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {IProduit} from 'app/shared/model/produit.model';
-import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {ProduitService} from './produit.service';
-import {ProduitDeleteDialogComponent} from './produit-delete-dialog.component';
-import {faCut, faFileUpload, faImage, faPlusCircle} from '@fortawesome/free-solid-svg-icons';
-import {DetailFormDialogComponent} from './detail-form-dialog.component';
-import {DeconditionDialogComponent} from './decondition.dialog.component';
-import {AlertInfoComponent} from '../../shared/alert/alert-info.component';
-import {IResponseDto} from '../../shared/util/response-dto';
-import {ConfirmationService, MenuItem, MessageService, SelectItem} from 'primeng/api';
-import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {IProduitCriteria, ProduitCriteria} from '../../shared/model/produit-criteria.model';
-import {RayonService} from '../rayon/rayon.service';
-import {FamilleProduitService} from '../famille-produit/famille-produit.service';
-import {SERVER_API_URL} from '../../app.constants';
-import {Statut} from '../../shared/model/enumerations/statut.model';
-import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
-import {IFournisseurProduit} from '../../shared/model/fournisseur-produit.model';
-import {ErrorService} from '../../shared/error.service';
-import {FormProduitFournisseurComponent} from './form-produit-fournisseur/form-produit-fournisseur.component';
-import {ConfigurationService} from '../../shared/configuration.service';
-import {IConfiguration} from '../../shared/model/configuration.model';
-import {Params} from "../../shared/model/enumerations/params.model";
+import { Component, OnInit } from '@angular/core';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
+import { combineLatest, Observable, Subscription } from 'rxjs';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { IProduit } from 'app/shared/model/produit.model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { ProduitService } from './produit.service';
+import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
+import { faCut, faFileUpload, faImage, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { DetailFormDialogComponent } from './detail-form-dialog.component';
+import { DeconditionDialogComponent } from './decondition.dialog.component';
+import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { ConfirmationService, MenuItem, MessageService, SelectItem } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { IProduitCriteria, ProduitCriteria } from '../../shared/model/produit-criteria.model';
+import { RayonService } from '../rayon/rayon.service';
+import { FamilleProduitService } from '../famille-produit/famille-produit.service';
+import { SERVER_API_URL } from '../../app.constants';
+import { Statut } from '../../shared/model/enumerations/statut.model';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
+import { ErrorService } from '../../shared/error.service';
+import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
+import { ConfigurationService } from '../../shared/configuration.service';
+import { IConfiguration } from '../../shared/model/configuration.model';
+import { Params } from '../../shared/model/enumerations/params.model';
 
 @Component({
   selector: 'jhi-produit',
@@ -115,6 +115,7 @@ export class ProduitComponent implements OnInit {
   isMono = true;
   rowExpandMode = 'single';
 
+  //            <td><span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span></td>
   constructor(
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
@@ -154,14 +155,14 @@ export class ProduitComponent implements OnInit {
       },
     ];
     this.filtesProduits = [
-      {label: 'Produits actifs', value: 0},
-      {label: 'Produits désactifs', value: 1},
-      {label: 'Déconditionnables', value: 2},
-      {label: 'Déconditionnés', value: 3},
-      {label: 'Tous', value: 10},
+      { label: 'Produits actifs', value: 0 },
+      { label: 'Produits désactifs', value: 1 },
+      { label: 'Déconditionnables', value: 2 },
+      { label: 'Déconditionnés', value: 3 },
+      { label: 'Tous', value: 10 },
     ];
-    this.familles.push({label: 'TOUT', value: null});
-    this.rayons.push({label: 'TOUT', value: null});
+    this.familles.push({ label: 'TOUT', value: null });
+    this.rayons.push({ label: 'TOUT', value: null });
     this.search = '';
     this.populate();
   }
@@ -171,13 +172,13 @@ export class ProduitComponent implements OnInit {
   }
 
   async populate(): Promise<void> {
-    const familleProduitsResponse = await this.familleService.queryPromise({search: ''});
+    const familleProduitsResponse = await this.familleService.queryPromise({ search: '' });
     familleProduitsResponse.forEach(e => {
-      this.familles.push({label: e.libelle, value: e.id});
+      this.familles.push({ label: e.libelle, value: e.id });
     });
-    const rayonsResponse = await this.rayonService.queryPromise({search: ''});
+    const rayonsResponse = await this.rayonService.queryPromise({ search: '' });
     rayonsResponse.forEach(e => {
-      this.rayons.push({label: e.libelle, value: e.id});
+      this.rayons.push({ label: e.libelle, value: e.id });
     });
   }
 
@@ -219,7 +220,6 @@ export class ProduitComponent implements OnInit {
     this.registerChangeInProduits();
   }
 
-
   trackId(index: number, item: IProduit): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
@@ -230,7 +230,10 @@ export class ProduitComponent implements OnInit {
   }
 
   delete(produit: IProduit): void {
-    const modalRef = this.modalService.open(ProduitDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
+    const modalRef = this.modalService.open(ProduitDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
     modalRef.componentInstance.produit = produit;
   }
 
@@ -261,7 +264,10 @@ export class ProduitComponent implements OnInit {
   }
 
   openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static', centered: true});
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
   }
@@ -342,8 +348,7 @@ export class ProduitComponent implements OnInit {
     const isChecked = e.checked;
     if (four) {
       this.produitService.updateDefaultFournisseur(four.id!, isChecked).subscribe(
-        () => {
-        },
+        () => {},
         error => this.onActionError(four, error)
       );
     }
@@ -414,7 +419,6 @@ export class ProduitComponent implements OnInit {
     if (stockParam) {
       this.isMono = Number(stockParam.value) === 0;
     }
-
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
@@ -433,14 +437,22 @@ export class ProduitComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   protected onActionError(el: IFournisseurProduit, error: any): void {
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
         translatedErrorMessage => {
-          this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: translatedErrorMessage,
+          });
         },
         () => {
           this.onErrorOccur = true;
@@ -454,10 +466,14 @@ export class ProduitComponent implements OnInit {
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
         translatedErrorMessage => {
-          this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: translatedErrorMessage,
+          });
         },
         () => {
-          this.messageService.add({severity: 'error', summary: 'Erreur', detail: error.title});
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.title });
         }
       );
     }
@@ -479,15 +495,13 @@ export class ProduitComponent implements OnInit {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
-              setTimeout(() => {
-              }, 5000);
+              setTimeout(() => {}, 5000);
               clearInterval(interval);
             }
           }
         },
         () => {
-          setTimeout(() => {
-          }, 5000);
+          setTimeout(() => {}, 5000);
           clearInterval(interval);
         }
       );

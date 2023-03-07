@@ -2,7 +2,9 @@ package com.kobe.warehouse.service.impl;
 
 
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.repository.CustomizedProductService;
@@ -187,9 +189,6 @@ public class ProduitServiceImpl implements ProduitService {
         return null;
     }
 
-    private Storage getPointOfSale() {
-        return magasinRepository.getReferenceById(1l).getPointOfSale();
-    }
 
     @Override
     public void updateDetail(ProduitDTO produitDTO) {
@@ -200,5 +199,24 @@ public class ProduitServiceImpl implements ProduitService {
             log.debug("Request to update Produit : {}", e);
 
         }
+    }
+
+    @Override
+    public int getProductTotalStock(Long productId) {
+        return customizedProductService.produitTotalStockWithQantitUg(produitRepository.getReferenceById(productId));
+    }
+
+    @Override
+    public StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg) {
+        return customizedProductService.updateTotalStock(produit, stockIn, stockUg);
+    }
+
+    @Override
+    public void update(Produit produit) {
+        produitRepository.save(produit);
+    }
+
+    private Storage getPointOfSale() {
+        return magasinRepository.getReferenceById(1L).getPointOfSale();
     }
 }

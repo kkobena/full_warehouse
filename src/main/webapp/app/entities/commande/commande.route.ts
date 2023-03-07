@@ -19,7 +19,6 @@ export class CommandeResolve implements Resolve<ICommande> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<ICommande> | Observable<never> {
     const id = route.params['id'];
-    console.error(route.url.some(url => url.path.includes("stock-entry")));
     if (id) {
       if (route.url.some(url => url.path.includes("stock-entry"))) {
         return this.service.findSaisieEntreeStock(id).pipe(

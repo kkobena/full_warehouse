@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,7 +31,7 @@ import java.time.Instant;
     @UniqueConstraint(columnNames = {"storage_id", "produit_id"})
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class StockProduit implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -54,10 +57,11 @@ public class StockProduit implements Serializable {
     @NotNull
     @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
     private Produit produit;
+
     @ManyToOne(optional = false)
     @NotNull
     private Storage storage;
-
+    @NotAudited
     @Formula("qty_ug+qty_stock")
     private Integer totalStockQuantity;
 

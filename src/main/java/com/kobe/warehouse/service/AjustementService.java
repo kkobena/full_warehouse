@@ -3,7 +3,6 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
-import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
@@ -170,8 +169,6 @@ public class AjustementService {
     }
 
     private void createInventory(Ajustement ajustement, TransactionType transactionType, User user) {
-
-        DateDimension dateD = Constants.DateDimension(LocalDate.now());
         Produit p = ajustement.getProduit();
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setCreatedAt(Instant.now());
@@ -179,7 +176,6 @@ public class AjustementService {
         inventoryTransaction.setUser(user);
         inventoryTransaction.setQuantity(ajustement.getQtyMvt());
         inventoryTransaction.setTransactionType(transactionType);
-        inventoryTransaction.setDateDimension(dateD);
         inventoryTransaction.setQuantityBefor(ajustement.getStockBefore());
         inventoryTransaction.setQuantityAfter(ajustement.getStockAfter());
         inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());

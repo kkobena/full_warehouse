@@ -4,9 +4,13 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
 public class OrderLineDTO {
   private int totalQuantity;
@@ -39,6 +43,67 @@ public class OrderLineDTO {
   private Boolean provisionalCode;
   private Integer quantityUg;
   private Integer quantityReceivedTmp;
+  private Integer ugQuantity;
+
+  private Set<LotJsonValue> lots = new HashSet<>();
+
+  public OrderLineDTO() {}
+
+  public OrderLineDTO(OrderLine orderLine) {
+    initStock = orderLine.getInitStock();
+    regularUnitPrice = orderLine.getRegularUnitPrice();
+    orderUnitPrice = orderLine.getOrderUnitPrice();
+    id = orderLine.getId();
+    quantityReceived = orderLine.getQuantityReceived();
+    quantityRequested = orderLine.getQuantityRequested();
+    quantityReturned = orderLine.getQuantityReturned();
+    discountAmount = orderLine.getDiscountAmount();
+    orderAmount = orderLine.getOrderAmount();
+    grossAmount = orderLine.getGrossAmount();
+    netAmount = orderLine.getNetAmount();
+    taxAmount = orderLine.getTaxAmount();
+    createdAt = orderLine.getCreatedAt();
+    updatedAt = orderLine.getUpdatedAt();
+    costAmount = orderLine.getCostAmount();
+    Commande commande = orderLine.getCommande();
+    commandeId = commande.getId();
+    commandeOrderRefernce = commande.getOrderRefernce();
+    commandeReceiptRefernce = commande.getReceiptRefernce();
+    FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+    Produit produit = fournisseurProduit.getProduit();
+    produitId = produit.getId();
+    fournisseurProduitId = fournisseurProduit.getId();
+    produitLibelle = produit.getLibelle();
+    produitCip = fournisseurProduit.getCodeCip();
+    produitCodeEan = produit.getCodeEan();
+    orderCostAmount = orderLine.getOrderCostAmount();
+    provisionalCode = orderLine.getProvisionalCode();
+    quantityUg = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
+    ugQuantity = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
+    quantityReceivedTmp =
+        orderLine.getQuantityReceived() != null
+            ? orderLine.getQuantityReceived()
+            : orderLine.getQuantityRequested();
+    lots =
+        !CollectionUtils.isEmpty(commande.getLots())
+            ? commande.getLots().stream()
+                .filter(lotJsonValue -> lotJsonValue.getReceiptItem().equals(id))
+                .collect(Collectors.toSet())
+            : Collections.emptySet();
+  }
+
+  public Set<LotJsonValue> getLots() {
+    return lots;
+  }
+
+  public Integer getUgQuantity() {
+    return ugQuantity;
+  }
+
+  public OrderLineDTO setUgQuantity(Integer ugQuantity) {
+    this.ugQuantity = ugQuantity;
+    return this;
+  }
 
   public Boolean getProvisionalCode() {
     return provisionalCode;
@@ -308,44 +373,5 @@ public class OrderLineDTO {
   public OrderLineDTO setQuantityReceivedTmp(Integer quantityReceivedTmp) {
     this.quantityReceivedTmp = quantityReceivedTmp;
     return this;
-  }
-
-  public OrderLineDTO() {}
-
-  public OrderLineDTO(OrderLine orderLine) {
-    this.initStock = orderLine.getInitStock();
-    this.regularUnitPrice = orderLine.getRegularUnitPrice();
-    this.orderUnitPrice = orderLine.getOrderUnitPrice();
-    this.id = orderLine.getId();
-    this.receiptDate = orderLine.getReceiptDate();
-    this.quantityReceived = orderLine.getQuantityReceived();
-    this.quantityRequested = orderLine.getQuantityRequested();
-    this.quantityReturned = orderLine.getQuantityReturned();
-    this.discountAmount = orderLine.getDiscountAmount();
-    this.orderAmount = orderLine.getOrderAmount();
-    this.grossAmount = orderLine.getGrossAmount();
-    this.netAmount = orderLine.getNetAmount();
-    this.taxAmount = orderLine.getTaxAmount();
-    this.createdAt = orderLine.getCreatedAt();
-    this.updatedAt = orderLine.getUpdatedAt();
-    this.costAmount = orderLine.getCostAmount();
-    Commande commande = orderLine.getCommande();
-    this.commandeId = commande.getId();
-    this.commandeOrderRefernce = commande.getOrderRefernce();
-    this.commandeReceiptRefernce = commande.getReceiptRefernce();
-    FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
-    Produit produit = fournisseurProduit.getProduit();
-    this.produitId = produit.getId();
-    this.fournisseurProduitId = fournisseurProduit.getId();
-    this.produitLibelle = produit.getLibelle();
-    this.produitCip = fournisseurProduit.getCodeCip();
-    this.produitCodeEan = produit.getCodeEan();
-    this.orderCostAmount = orderLine.getOrderCostAmount();
-    this.provisionalCode = orderLine.getProvisionalCode();
-    this.quantityUg = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
-    this.quantityReceivedTmp =
-        orderLine.getQuantityReceived() != null
-            ? orderLine.getQuantityReceived()
-            : orderLine.getQuantityRequested();
   }
 }

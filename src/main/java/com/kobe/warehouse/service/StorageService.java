@@ -47,7 +47,7 @@ public class StorageService {
     }
 
     public Storage getDefaultMagasinReserveStorage() {
-        return storageRepository.getOne(EntityConstant.RESERVE_STORAGE);
+        return storageRepository.getReferenceById(EntityConstant.RESERVE_STORAGE);
     }
 
     public User getUser() {

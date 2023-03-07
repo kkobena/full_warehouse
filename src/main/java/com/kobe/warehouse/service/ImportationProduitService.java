@@ -3,23 +3,37 @@ package com.kobe.warehouse.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Importation;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Rayon;
+import com.kobe.warehouse.domain.RayonProduit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.repository.FamilleProduitRepository;
+import com.kobe.warehouse.repository.FormProduitRepository;
+import com.kobe.warehouse.repository.FournisseurProduitRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
+import com.kobe.warehouse.repository.GammeProduitRepository;
+import com.kobe.warehouse.repository.ImportationRepository;
+import com.kobe.warehouse.repository.LaboratoireRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.RayonRepository;
+import com.kobe.warehouse.repository.RemiseProduitRepository;
+import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.repository.TvaRepository;
+import com.kobe.warehouse.repository.TypeEtiquetteRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.ResponseDTO;
-import com.kobe.warehouse.service.dto.StockProduitDTO;
-import com.kobe.warehouse.service.impl.ProduitServiceImpl;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -29,7 +43,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -87,9 +103,9 @@ public class ImportationProduitService {
     @Async
     public void updateStocFromJSON(InputStream input, User user) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        Storage storage = this.storageService.getDefaultMagasinMainStorage();
+        Storage storage = storageService.getDefaultMagasinMainStorage();
         if (storage == null) {
-            storage = this.storageService.getDefaultMagasinMainStorage();
+            storage = storageService.getDefaultMagasinMainStorage();
         }
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
@@ -174,7 +190,7 @@ public class ImportationProduitService {
         produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCodeEan(produitDTO.getCodeEan());
-        produit.setDateperemption(produitDTO.getDateperemption());
+        produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(false);
         produit.setQtyAppro(0);
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
@@ -218,7 +234,7 @@ public class ImportationProduitService {
         produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCodeEan(produitDTO.getCodeEan());
-        produit.setDateperemption(produitDTO.getDateperemption());
+        produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());

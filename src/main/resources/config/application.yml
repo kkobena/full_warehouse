@@ -61,8 +61,8 @@ management:
             'logfile',
             'loggers',
             'prometheus',
-            'threaddump',
-            'liquibase',
+            'threaddump'
+
           ]
   endpoint:
     health:

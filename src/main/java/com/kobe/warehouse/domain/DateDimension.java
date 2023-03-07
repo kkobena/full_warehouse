@@ -7,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -126,13 +125,8 @@ public class DateDimension implements Serializable {
     private Set<Commande> commandes = new HashSet<>();
 
     @OneToMany(mappedBy = "dateDimension")
-    private Set<PaymentFournisseur> paymentFournisseurs = new HashSet<>();
-
-    @OneToMany(mappedBy = "dateDimension")
     private Set<Payment> payments = new HashSet<>();
 
-    @OneToMany(mappedBy = "dateDimension")
-    private Set<InventoryTransaction> inventoryTransactions = new HashSet<>();
 
     @OneToMany(mappedBy = "dateDimension")
     private Set<Sales> sales = new HashSet<>();
@@ -492,30 +486,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Set<PaymentFournisseur> getPaymentFournisseurs() {
-        return paymentFournisseurs;
-    }
-
-    public void setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
-        this.paymentFournisseurs = paymentFournisseurs;
-    }
-
-    public DateDimension paymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
-        this.paymentFournisseurs = paymentFournisseurs;
-        return this;
-    }
-
-    public DateDimension addPaymentFournisseur(PaymentFournisseur paymentFournisseur) {
-        paymentFournisseurs.add(paymentFournisseur);
-        paymentFournisseur.setDateDimension(this);
-        return this;
-    }
-
-    public DateDimension removePaymentFournisseur(PaymentFournisseur paymentFournisseur) {
-        paymentFournisseurs.remove(paymentFournisseur);
-        paymentFournisseur.setDateDimension(null);
-        return this;
-    }
 
     public Set<Payment> getPayments() {
         return payments;
@@ -542,30 +512,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Set<InventoryTransaction> getInventoryTransactions() {
-        return inventoryTransactions;
-    }
-
-    public void setInventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
-        this.inventoryTransactions = inventoryTransactions;
-    }
-
-    public DateDimension inventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
-        this.inventoryTransactions = inventoryTransactions;
-        return this;
-    }
-
-    public DateDimension addInventoryTransaction(InventoryTransaction inventoryTransaction) {
-        inventoryTransactions.add(inventoryTransaction);
-        inventoryTransaction.setDateDimension(this);
-        return this;
-    }
-
-    public DateDimension removeInventoryTransaction(InventoryTransaction inventoryTransaction) {
-        inventoryTransactions.remove(inventoryTransaction);
-        inventoryTransaction.setDateDimension(null);
-        return this;
-    }
 
     public Set<Sales> getSales() {
         return sales;

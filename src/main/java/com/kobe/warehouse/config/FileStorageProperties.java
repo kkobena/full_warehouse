@@ -7,16 +7,17 @@ import org.springframework.stereotype.Service;
 @Service
 @ConfigurationProperties(prefix = "file")
 public class FileStorageProperties {
-    @Value("${file.report}")
-    private String reportsDir;
-    @Value("${file.images}")
-    private String imagesDir;
+  @Value("${file.report}")
+  private String reportsDir;
 
-    public String getReportsDir() {
-        return reportsDir;
-    }
+  @Value("${file.images}")
+  private String imagesDir;
 
-    public String getImagesDir() {
-        return imagesDir;
-    }
+  public String getReportsDir() {
+    return reportsDir;
+  }
+
+  public String getImagesDir() {
+    return imagesDir;
+  }
 }

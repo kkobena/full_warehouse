@@ -25,7 +25,7 @@ public enum TransactionType {
     MOUVEMENT_STOCK_OUT("Déplacement de stock sortant"),
     FORCE_STOCK("Vente en avoir"),
     MODIFICATION_PRIX_PRODUCT_A_LA_VENTE("Modification prix  produit à la vente"),
-    ;
+    ENTREE_STOCK("Entrée en stock");
 
     private final String value;
 

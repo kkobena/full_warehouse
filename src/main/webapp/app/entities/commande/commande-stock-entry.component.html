@@ -1,6 +1,7 @@
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
 <div class="commande-entry">
-  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="onSave" size="medium"
-               type="timer"></ngx-spinner>
+
   <div class="row">
     <div class="col-sm-2">
       <div class="card-header bg-primary text-white">
@@ -9,6 +10,10 @@
       </div>
       <div class=" form-bon">
         <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px;">Référence</span>
+            <span class="text-primary">{{commande?.orderRefernce}}</span>
+          </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Grossiste</span>
             <span class="text-primary">{{commande?.fournisseur?.libelle}}</span>
@@ -29,7 +34,8 @@
 
               <label class="form-control-label">Date Bon</label>
               <div class="input-group">
-                <p-calendar (change)="enabledBtnValidate()" [(ngModel)]="receiptDate" [maxDate]="maxDate"
+                <p-calendar (change)="enabledBtnValidate()" [(ngModel)]="receiptDate"
+                            [maxDate]="maxDate"
                             [selectOtherMonths]="true" [showButtonBar]="true" dateFormat="dd/mm/yy"
                             styleClass="date-picker-bl"></p-calendar>
               </div>
@@ -40,7 +46,7 @@
             <div class="form-group col">
               <label class="form-control-label">Référence Bon</label>
               <input (input)="enabledBtnValidate()" [(ngModel)]="receiptRefernce"
-                     autocomplete="off" class="form-control" pInputText type="text"/>
+                     autocomplete="off" class="form-control" pInputText type="text" />
 
             </div>
           </div>
@@ -48,7 +54,7 @@
             <div class="form-group col">
               <label class="form-control-label">Séquence Bon</label>
               <input (input)="enabledBtnValidate()" [(ngModel)]="sequenceBon" autocomplete="off"
-                     class="form-control" pInputText type="text"/>
+                     class="form-control" pInputText type="text" />
 
             </div>
           </div>
@@ -59,16 +65,17 @@
               <input (input)="enabledBtnValidate()" [(ngModel)]="receiptAmount" [pKeyFilter]="'int'"
                      autocomplete="off"
                      class="form-control"
-                     pInputText type="text"/>
+                     pInputText type="text" />
 
             </div>
           </div>
           <div class="form-row">
             <div class="form-group col">
               <label class="form-control-label">Taxe</label>
-              <input (input)="enabledBtnValidate()" [(ngModel)]="taxAmount" [pKeyFilter]="'int'" autocomplete="off"
+              <input (input)="enabledBtnValidate()" [(ngModel)]="taxAmount" [pKeyFilter]="'int'"
+                     autocomplete="off"
                      class="form-control"
-                     pInputText type="text"/>
+                     pInputText type="text" />
 
             </div>
           </div>
@@ -91,28 +98,33 @@
           </div>
           <div class="col-md-3">
 
-            <ng-select (change)="onFilterCommandeLines()" [(ngModel)]="selectedFilter" [items]="filtres!"
+            <ng-select (change)="onFilterCommandeLines()" [(ngModel)]="selectedFilter"
+                       [items]="filtres!"
+                       autofocus="false"
                        bindLabel="label"
-                       bindValue="value">
+                       bindValue="value"
+
+            >
             </ng-select>
           </div>
           <div class="col-md-6 text-right">
-            <button (click)="onSave()" [disabled]="disableActionBtn"
-                    class="p-button-raised p-button-success mr-sm-1"
+            <button (click)="onSave()" [disabled]="disableActionBtn" class="p-button-raised p-button-success mr-sm-1"
                     icon="pi pi-save"
-                    label="Sauvegarder la saisie" pButton pRipple type="button"></button>
-            <button [disabled]="disableActionBtn" class="p-button-raised  p-button-info mr-sm-1"
-                    icon="pi pi-check-circle"
-                    iconPos="left" label="Valider l'entrée en stock"
-                    pButton pRipple
+                    label="Sauvegarder la saisie"
+                    pButton pRipple style="display: none;" type="button"></button>
+            <button (click)="onFinalize()" [disabled]="disableActionBtn"
+                    class="p-button-raised  p-button-info mr-sm-1"
+                    icon="pi pi-check-circle" iconPos="left"
+                    label="Valider l'entrée en stock" pButton pRipple
                     type="button"></button>
-            <button (click)="previousState()" class="p-button-raised  p-button-secondary" icon="pi pi-arrow-left"
+            <button (click)="previousState()" class="p-button-raised  p-button-secondary"
+                    icon="pi pi-arrow-left"
                     iconPos="left" label="Retour"
                     pButton pRipple type="button"></button>
           </div>
         </div>
       </div>
-      <div class="card-body" style="width: 100%;height: 100%;">
+      <div class="card-body " style="width: 100%;height: 100%;">
 
         <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
                          (gridReady)="onGridReady($event)"
@@ -122,6 +134,7 @@
                          [columnDefs]="columnDefs"
                          [context]="context"
                          [defaultColDef]="defaultColDef"
+                         [domLayout]="'normal'"
                          [enterMovesDownAfterEdit]="true"
                          [enterMovesDown]="true"
                          [frameworkComponents]="frameworkComponents"
@@ -132,8 +145,8 @@
                          [rowData]="orderLines"
                          [singleClickEdit]="true"
                          [stopEditingWhenCellsLoseFocus]="false"
-                         class="ag-theme-alpine"
-                         style="width: 100%;height: 100%;">
+                         class="ag-theme-alpine "
+                         style="width: 100%;height: 100%;background-color: #777777">
         </ag-grid-angular>
 
 

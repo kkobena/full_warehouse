@@ -1,10 +1,12 @@
 # warehouse
 
-This application was generated using JHipster 6.10.5, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.10.5](https://www.jhipster.tech/documentation-archive/v6.10.5).
+This application was generated using JHipster 6.10.5, you can find documentation and help
+at [https://www.jhipster.tech/documentation-archive/v6.10.5](https://www.jhipster.tech/documentation-archive/v6.10.5).
 
 ## Development
 
-Before you can build this project, you must install and configure the following dependencies on your machine:
+Before you can build this project, you must install and configure the following dependencies on your
+machine:
 
 1. [Node.js][]: We use Node to run a development web server and build the project.
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
@@ -18,7 +20,8 @@ npm install
 
 We use npm scripts and [Webpack][] as our build system.
 
-Run the following commands in two separate terminals to create a blissful development experience where your browser
+Run the following commands in two separate terminals to create a blissful development experience
+where your browser
 auto-refreshes when files change on your hard drive.
 
 ```
@@ -29,45 +32,54 @@ auto-refreshes when files change on your hard drive.
 npm start
 ```
 
-Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.
+Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade
+dependencies by
+specifying a newer version in [package.json](package.json). You can also run `npm update`
+and `npm install` to manage dependencies.
 Add the `help` flag on any command to see how you can use it. For example, `npm help update`.
 
 The `npm run` command will list all of the scripts available to run for this project.
 
 ### PWA Support
 
-JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the main components of a PWA is a service worker.
+JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the
+main components of a PWA is a service worker.
 
-The service worker initialization code is commented out by default. To enable it, uncomment the following code in `src/main/webapp/index.html`:
+The service worker initialization code is commented out by default. To enable it, uncomment the
+following code in `src/main/webapp/index.html`:
 
 ```html
+
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js').then(function () {
-      console.log('Service Worker Registered');
-    });
-  }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js').then(function() {
+            console.log('Service Worker Registered');
+        });
+    }
 </script>
 ```
 
-Note: [Workbox](https://developers.google.com/web/tools/workbox/) powers JHipster's service worker. It dynamically generates the `service-worker.js` file.
+Note: [Workbox](https://developers.google.com/web/tools/workbox/) powers JHipster's service worker.
+It dynamically generates the `service-worker.js` file.
 
 ### Managing dependencies
 
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
+For example, to add [Leaflet][] library as a runtime dependency of your application, you would run
+following command:
 
 ```
 npm install --save --save-exact leaflet
 ```
 
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
+To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you
+would run following command:
 
 ```
 npm install --save-dev --save-exact @types/leaflet
 ```
 
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
+Then you would import the JS and CSS files specified in library's installation instructions so
+that [Webpack][] knows about them:
 Edit [src/main/webapp/app/vendor.ts](src/main/webapp/app/vendor.ts) file:
 
 ```
@@ -82,7 +94,8 @@ Edit [src/main/webapp/content/scss/vendor.scss](src/main/webapp/content/scss/ven
 
 Note: There are still a few other things remaining to do for Leaflet that we won't detail here.
 
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
+For further instructions on how to develop with JHipster, have a look
+at [Using JHipster in development][].
 
 ### Using Angular CLI
 
@@ -115,7 +128,8 @@ To build the final jar and optimize the warehouse application for production, ru
 
 ```
 
-This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
+This will concatenate and minify the client CSS and JavaScript files. It will also
+modify `index.html` so it references these new files.
 To ensure everything worked, run:
 
 ```
@@ -150,7 +164,8 @@ To launch your application's tests, run:
 
 ### Client tests
 
-Unit tests are run by [Jest][] and written with [Jasmine][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
+Unit tests are run by [Jest][] and written with [Jasmine][]. They're located
+in [src/test/javascript/](src/test/javascript/) and can be run with:
 
 ```
 npm test
@@ -160,13 +175,16 @@ For more information, refer to the [Running tests page][].
 
 ### Code quality
 
-Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:
+Sonar is used to analyse code quality. You can start a local Sonar server (accessible
+on http://localhost:9001) with:
 
 ```
 docker-compose -f src/main/docker/sonar.yml up -d
 ```
 
-You can run a Sonar analysis with using the [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) or by using the maven plugin.
+You can run a Sonar analysis with using
+the [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) or by
+using the maven plugin.
 
 Then, run a Sonar analysis:
 
@@ -174,7 +192,8 @@ Then, run a Sonar analysis:
 ./mvnw -Pprod clean verify sonar:sonar
 ```
 
-If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase since Sonar properties are loaded from the sonar-project.properties file.
+If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase
+since Sonar properties are loaded from the sonar-project.properties file.
 
 ```
 ./mvnw initialize sonar:sonar
@@ -184,7 +203,9 @@ For more information, refer to the [Code quality page][].
 
 ## Using Docker to simplify development (optional)
 
-You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
+You can use Docker to improve your JHipster development experience. A number of docker-compose
+configuration are available in the [src/main/docker](src/main/docker) folder to launch required
+third party services.
 
 For example, to start a mariadb database in a docker container, run:
 
@@ -211,29 +232,50 @@ Then run:
 docker-compose -f src/main/docker/app.yml up -d
 ```
 
-For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
+For more information refer to [Using Docker and Docker-Compose][], this page also contains
+information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to
+generate docker configurations for one or several JHipster applications.
 
 ## Continuous Integration (optional)
 
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
+To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you
+generate configuration files for a number of Continuous Integration systems. Consult
+the [Setting up Continuous Integration][] page for more information.
 
 [jhipster homepage and latest documentation]: https://www.jhipster.tech
+
 [jhipster 6.10.5 archive]: https://www.jhipster.tech/documentation-archive/v6.10.5
+
 [using jhipster in development]: https://www.jhipster.tech/documentation-archive/v6.10.5/development/
+
 [using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v6.10.5/docker-compose
+
 [using jhipster in production]: https://www.jhipster.tech/documentation-archive/v6.10.5/production/
+
 [running tests page]: https://www.jhipster.tech/documentation-archive/v6.10.5/running-tests/
+
 [code quality page]: https://www.jhipster.tech/documentation-archive/v6.10.5/code-quality/
+
 [setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v6.10.5/setting-up-ci/
+
 [node.js]: https://nodejs.org/
+
 [yarn]: https://yarnpkg.org/
+
 [webpack]: https://webpack.github.io/
+
 [angular cli]: https://cli.angular.io/
+
 [browsersync]: https://www.browsersync.io/
+
 [jest]: https://facebook.github.io/jest/
+
 [jasmine]: https://jasmine.github.io/2.0/introduction.html
+
 [protractor]: https://angular.github.io/protractor/
+
 [leaflet]: https://leafletjs.com/
+
 [definitelytyped]: https://definitelytyped.org/
 
 https://github.com/ng-select/ng-select
@@ -254,19 +296,23 @@ Available for Sale Available for Sale
 
 Current Ratio = Current Assets(Actifs) ÷ Current Liabilities(Passifs)
 #Taux de rotation des stock
-Inventory Turnover Ratio = Cost of Goods Sold ÷ Average Inventory(moyen stock pour une période donnée
+Inventory Turnover Ratio = Cost of Goods Sold ÷ Average Inventory(moyen stock pour une période
+donnée
 
 # inventory balance (solde de stock calculé à la fin du ternier jour iuvrable du mois)
 
 #Cost of goods sold (Coût des marchandises vendues)
-Beginning inventory(date fin dernier invententaire) + Purchases during the period - Ending inventory = Cost of goods sold
+Beginning inventory(date fin dernier invententaire) + Purchases during the period - Ending
+inventory = Cost of goods sold
 
 #Inventory Turnover (Rotation des stocks)
-Annual cost of goods sold(montant des vente annuelle) ÷ Inventory(valorisation en vente du stock actuel) = Inventory turnover
+Annual cost of goods sold(montant des vente annuelle) ÷ Inventory(valorisation en vente du stock
+actuel) = Inventory turnover
 
 #exemple de calcul Inventory Turnover
 $8,150,000 Cost of Goods Sold
---------------------------------------------   =   5 Turns Per Year===>> 365/5 (nbre stock en main journalier)
+-------------------------------------------- = 5 Turns Per Year===>> 365/5 (nbre stock en main
+journalier)
 $1,630,000 Inventory
 
 #Average inventory calculation
@@ -274,9 +320,9 @@ $1,630,000 Inventory
 #exemple
 
 #January ending inventory $185,000
-#February ending inventory	$213,000
+#February ending inventory $213,000
 #March ending inventory $142,000
-#Total	$540,000
+#Total $540,000
 #Average inventory = Total / 3 \$180,000
 
 #Days of Inventory
@@ -357,11 +403,16 @@ as a guideline (300 items x 50% = 150 items)
 
 # REQUETE POUR EXPORTER LES FOURNISSEURS EN CSV
 
-SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code, f.libelle AS groupeFournisseur_libelle,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile, g.str_TELEPHONE AS phone ,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
+SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code, f.libelle AS
+groupeFournisseur_libelle,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile,
+g.str_TELEPHONE AS phone ,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur
+FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
 
 #REQUETE FAMILLE PRODUIT
-SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile, g.str_TELEPHONE AS phone
-,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur, f.libelle AS groupeFournisseur_libelle
+SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE
+AS mobile, g.str_TELEPHONE AS phone
+,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur, f.libelle AS
+groupeFournisseur_libelle
 FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
 
 #GAMME DE PRODUITS
@@ -374,12 +425,14 @@ select l.libelle AS libelle from laboratoire l;
 
 # REQUETE POUR EXPORTER LES RAYONS EN CSV
 
-SELECT r.str_LIBELLEE AS libelle,r.str_CODE AS code, r.bool_ACCOUNT AS exclude FROM t_zone_geographique r
+SELECT r.str_LIBELLEE AS libelle,r.str_CODE AS code, r.bool_ACCOUNT AS exclude FROM
+t_zone_geographique r
 WHERE r.str_STATUT='enable' AND r.str_LIBELLEE <> 'Default';
 
 #REQUETE POUR EXPORTER LES GROUPE DE TIERSPAYANTS
 
-SELECT g.str_LIBELLE as name,g.str_ADRESSE as adresse,g.str_TELEPHONE as telephone FROM t_groupe_tierspayant g;
+SELECT g.str_LIBELLE as name,g.str_ADRESSE as adresse,g.str_TELEPHONE as telephone FROM
+t_groupe_tierspayant g;
 
 const interval = setInterval(() => {
 this.entityService.findImortation().subscribe(
@@ -404,3 +457,33 @@ Thermal receipt printers (Epson, Star, etc): 80mm x 80mm, 80mm x 70mm, 80mm x 60
 ## apache poi
 
 https://poi.apache.org/components/spreadsheet/quick-guide.html
+
+* "0 0 * * * *" = the top of every hour of every day.
+* "*/10 * * * * *" = every ten seconds.
+* "0 0 8-10 * * *" = 8, 9 and 10 o'clock of every day.
+* "0 0 8,10 * * *" = 8 and 10 o'clock of every day.
+* "0 0/30 8-10 * * *" = 8:00, 8:30, 9:00, 9:30 and 10 o'clock every day.
+* "0 0 9-17 * * MON-FRI" = on the hour nine-to-five weekdays
+* "0 0 0 25 12 ?" = every Christmas Day at midnight
+  <dependency>
+  <groupId>commons-net</groupId>
+  <artifactId>commons-net</artifactId>
+  <version>3.6</version>
+  </dependency>
+* <dependency>
+  <groupId>commons-net</groupId>
+  <artifactId>commons-net</artifactId>
+  <version>3.9.0</version>
+
+</dependency>
+* https://tf.nist.gov/tf-cgi/servers.cgi
+* public static final void timeTCP(String host) throws IOException {
+  TimeTCPClient client = new TimeTCPClient();
+
+// We want to timeout if a response takes longer than 60 seconds
+client.setDefaultTimeout(60000);/*www.ja v a 2 s . c o m*/
+client.connect(host);
+System.out.println(client.getDate().toString());
+client.disconnect();
+}
+#lpr:hostname:port/printername impression remote

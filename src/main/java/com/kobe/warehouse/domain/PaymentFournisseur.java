@@ -48,15 +48,12 @@ public class PaymentFournisseur implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
-    private Commande commande;
+    private DeliveryReceipt deliveryReceipt;
 
     @ManyToOne
     @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
     private PaymentMode paymentMode;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
-    private DateDimension dateDimension;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -132,16 +129,12 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public Commande getCommande() {
-        return commande;
+    public DeliveryReceipt getDeliveryReceipt() {
+        return deliveryReceipt;
     }
 
-    public void setCommande(Commande commande) {
-        this.commande = commande;
-    }
-
-    public PaymentFournisseur commande(Commande commande) {
-        this.commande = commande;
+    public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
+        this.deliveryReceipt = deliveryReceipt;
         return this;
     }
 
@@ -153,23 +146,6 @@ public class PaymentFournisseur implements Serializable {
         this.paymentMode = paymentMode;
     }
 
-    public PaymentFournisseur paymentMode(PaymentMode paymentMode) {
-        this.paymentMode = paymentMode;
-        return this;
-    }
-
-    public DateDimension getDateDimension() {
-        return dateDimension;
-    }
-
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-    }
-
-    public PaymentFournisseur dateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-        return this;
-    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override

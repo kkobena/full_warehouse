@@ -13,22 +13,23 @@ import {SortByDirective} from './sort/sort-by.directive';
 import {SortDirective} from './sort/sort.directive';
 import {ItemCountComponent} from './pagination/item-count.component';
 import {FilterComponent} from './filter/filter.component';
-import {AlertInfoComponent} from "./alert/alert-info.component";
+import {AlertInfoComponent} from './alert/alert-info.component';
 import {
   UninsuredCustomerFormComponent
-} from "../entities/customer/uninsured-customer-form/uninsured-customer-form.component";
-import {FormTiersPayantComponent} from "../entities/tiers-payant/form-tiers-payant/form-tiers-payant.component";
-import {FormAssuredCustomerComponent} from "../entities/customer/form-assured-customer/form-assured-customer.component";
-import {FormAyantDroitComponent} from "../entities/customer/form-ayant-droit/form-ayant-droit.component";
+} from '../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
+import {FormTiersPayantComponent} from '../entities/tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import {FormAssuredCustomerComponent} from '../entities/customer/form-assured-customer/form-assured-customer.component';
+import {FormAyantDroitComponent} from '../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import {
   FormClientTierPayantComponent
-} from "../entities/customer/form-client-tier-payant/form-client-tier-payant.component";
+} from '../entities/customer/form-client-tier-payant/form-client-tier-payant.component';
 import {
   AyantDroitCustomerListComponent
-} from "../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component";
+} from '../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
 import {
   TiersPayantCustomerListComponent
-} from "../entities/customer/tiers-payant-customer-list/tiers-payant-customer-list.component";
+} from '../entities/customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
+import {ProduitUpdateComponent} from '../entities/produit/produit-update.component';
 
 @NgModule({
   imports: [SharedLibsModule],
@@ -54,9 +55,9 @@ import {
     AyantDroitCustomerListComponent,
     TiersPayantCustomerListComponent,
     AlertInfoComponent,
+    ProduitUpdateComponent,
   ],
   entryComponents: [
-
     AlertInfoComponent,
     UninsuredCustomerFormComponent,
     FormTiersPayantComponent,
@@ -84,6 +85,7 @@ import {
     AyantDroitCustomerListComponent,
     TiersPayantCustomerListComponent,
     AlertInfoComponent,
+    ProduitUpdateComponent,
   ],
 })
 export class SharedModule {

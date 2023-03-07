@@ -1,26 +1,28 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ConfirmationService} from 'primeng/api';
-import {DialogService} from 'primeng/dynamicdialog';
-import {CommandeService} from './commande.service';
-import {OrderLineService} from '../order-line/order-line.service';
-import {ProduitService} from '../produit/produit.service';
-import {ActivatedRoute} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorService} from '../../shared/error.service';
-import {ICommande} from '../../shared/model/commande.model';
-import {IOrderLine} from '../../shared/model/order-line.model';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
-import {AlertInfoComponent} from '../../shared/alert/alert-info.component';
-import {AgGridAngular} from 'ag-grid-angular';
-import {CommandeBtnComponent} from './btn/commande-btn.component';
-import {ConfigurationService} from '../../shared/configuration.service';
-import {GridApi, GridReadyEvent} from 'ag-grid-community';
-import {checkIfAlineToBeUpdated, formatNumberToString} from '../../shared/util/warehouse-util';
-import {NgxSpinnerService} from 'ngx-spinner';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { CommandeService } from './commande.service';
+import { OrderLineService } from '../order-line/order-line.service';
+import { ProduitService } from '../produit/produit.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../shared/error.service';
+import { ICommande } from '../../shared/model/commande.model';
+import { IOrderLine } from '../../shared/model/order-line.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { AgGridAngular } from 'ag-grid-angular';
+import { CommandeBtnComponent } from './btn/commande-btn.component';
+import { ConfigurationService } from '../../shared/configuration.service';
+import { GridApi, GridReadyEvent } from 'ag-grid-community';
+import { checkIfAlineToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
+import { NgxSpinnerService } from 'ngx-spinner';
 import moment from 'moment';
-import {DATE_FORMAT} from '../../shared/constants/input.constants';
-import {Params} from '../../shared/model/enumerations/params.model';
+import { DATE_FORMAT } from '../../shared/constants/input.constants';
+import { Params } from '../../shared/model/enumerations/params.model';
+import { FormLotComponent } from './lot/form-lot.component';
+import { ListLotComponent } from './lot/list/list-lot.component';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -49,6 +51,7 @@ export class CommandeStockEntryComponent implements OnInit {
   context: any;
   showLotBtn = true;
   disableActionBtn = true;
+  ref?: DynamicDialogRef;
   private gridApi!: GridApi;
 
   constructor(
@@ -60,12 +63,14 @@ export class CommandeStockEntryComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private errorService: ErrorService,
     protected configurationService: ConfigurationService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    protected router: Router,
+    private dialogService: DialogService
   ) {
     this.filtres = [
-      {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
-      {label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP'},
-      {label: 'Tous', value: 'ALL'},
+      { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
+      { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
+      { label: 'Tous', value: 'ALL' },
     ];
     this.columnDefs = [
       {
@@ -80,7 +85,7 @@ export class CommandeStockEntryComponent implements OnInit {
         sortable: true,
         cellStyle: this.cellStyle,
         filter: 'agTextColumnFilter',
-        flex: 0.4,
+        flex: 0.5,
       },
       {
         headerName: 'Libellé',
@@ -155,7 +160,7 @@ export class CommandeStockEntryComponent implements OnInit {
       {
         headerName: 'Qté Ug',
         flex: 0.4,
-        field: 'quantityUG',
+        field: 'ugQuantity',
         editable: true,
         sortable: true,
         type: ['rightAligned', 'numericColumn'],
@@ -172,7 +177,7 @@ export class CommandeStockEntryComponent implements OnInit {
       {
         field: ' ',
         cellRenderer: 'btnCellRenderer',
-        flex: 0.5,
+        flex: 0.4,
         hide: false,
         suppressToolPanel: false,
         cellStyle: this.btnCellStyle,
@@ -190,7 +195,7 @@ export class CommandeStockEntryComponent implements OnInit {
     this.frameworkComponents = {
       btnCellRenderer: CommandeBtnComponent,
     };
-    this.context = {componentParent: this};
+    this.context = { componentParent: this };
   }
 
   ngOnInit(): void {
@@ -234,11 +239,19 @@ export class CommandeStockEntryComponent implements OnInit {
     if (orderLine.quantityReceived) {
       const ecart = Math.abs(Number(orderLine.quantityRequested) - Number(orderLine.quantityReceived));
       if (ecart > 0) {
-        return {
-          backgroundColor: 'lightgreen',
-          borderRight: 'solid 0.25px  rgb(150, 150, 200)',
-          borderLeft: 'solid 0.25px  rgb(150, 150, 200)',
-        };
+        if (Number(orderLine.quantityRequested) < Number(orderLine.quantityReceived)) {
+          return {
+            backgroundColor: '#FFC107',
+            borderRight: 'solid 0.25px  rgb(150, 150, 200)',
+            borderLeft: 'solid 0.25px  rgb(150, 150, 200)',
+          };
+        } else {
+          return {
+            backgroundColor: 'lightgreen',
+            borderRight: 'solid 0.25px  rgb(150, 150, 200)',
+            borderLeft: 'solid 0.25px  rgb(150, 150, 200)',
+          };
+        }
       }
     }
     const toBeUpdated = checkIfAlineToBeUpdated(orderLine);
@@ -301,15 +314,16 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   setGap(params: any): number {
-    if (params.data.updated) {
-      return params.data.quantityRequested - params.data.quantityReceived;
+    const orderLine = params.data as IOrderLine;
+    if (orderLine.quantityReceived) {
+      return orderLine.quantityRequested - orderLine.quantityReceived;
     }
     return 0;
   }
 
   stockOnHandcellStyle(params: any): any {
     if (params.data.updated) {
-      return {backgroundColor: '#c6c6c6'};
+      return { backgroundColor: '#c6c6c6' };
     }
     return;
   }
@@ -320,7 +334,7 @@ export class CommandeStockEntryComponent implements OnInit {
       search: this.search,
       filterCommaneEnCours: this.selectedFilter,
       size: 99999,
-      orderBy: 'PRODUIT_LIBELLE'
+      orderBy: 'PRODUIT_LIBELLE',
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
       this.orderLines = res.body!;
@@ -339,10 +353,9 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onCellValueChanged(params: any): void {
-    console.error(params);
     // console.error(params.newValue, params.oldValue, params.value, params.column.colId, params.data);
     switch (params.column.colId) {
-      case 'quantityUG':
+      case 'ugQuantity':
         this.onUpdatequantityUG(params);
         break;
       case 'quantityReceivedTmp':
@@ -363,13 +376,29 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   editLigneInfos(orderLine: IOrderLine): void {
-    console.error(orderLine);
+    this.gotoProduitPageEdit(orderLine.produitId);
   }
 
   onAddLot(orderLine: IOrderLine): void {
+    const quantityReceived = orderLine.quantityReceived || orderLine.quantityRequested;
+    if (quantityReceived > 1) {
+      this.ref = this.dialogService.open(ListLotComponent, {
+        data: { orderLine, commandeId: this.commande.id },
+        width: '60%',
+        header: `GESTION DE LOTS DE LA LIGNE ${orderLine.produitLibelle} [${orderLine.produitCodeEan}]`,
+      });
+    } else {
+      this.ref = this.dialogService.open(FormLotComponent, {
+        data: { entity: null, orderLine, commandeId: this.commande.id },
+        width: '40%',
+        header: 'Ajout de lot',
+      });
+    }
+    this.ref.onClose.subscribe(() => this.reloadCommande(this.commande));
   }
 
-  onUpdateCip(orderLine: IOrderLine): void {
+  onUpdateCip(data: any): void {
+    const orderLine = data as IOrderLine;
     this.commandeService.updateCip(orderLine).subscribe(() => {
       orderLine.provisionalCode = false;
     });
@@ -397,8 +426,10 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onUpdatequantityUG(params: any): void {
     const orderLine = params.data as IOrderLine;
-    const newQuantityUG = Number(orderLine.quantityUG);
-    if (this.commande && newQuantityUG > 0) {
+    const newQuantityUG = Number(orderLine.ugQuantity);
+    if (newQuantityUG > 0) {
+      orderLine.quantityUG = newQuantityUG;
+      orderLine.ugQuantity = newQuantityUG;
       this.subscribeOnEditCellResponse(this.commandeService.updateQuantityUG(orderLine));
     } else {
       this.reloadCommande(this.commande);
@@ -408,7 +439,8 @@ export class CommandeStockEntryComponent implements OnInit {
   onUpdateQuantityReceived(params: any): void {
     const orderLine = params.data as IOrderLine;
     const newQuantityReceived = Number(orderLine.quantityReceivedTmp);
-    if (newQuantityReceived > 0) {
+    if (newQuantityReceived >= 0) {
+      orderLine.quantityReceived = newQuantityReceived;
       this.subscribeOnEditCellResponse(this.commandeService.updateQuantityReceived(orderLine));
     } else {
       this.reloadCommande(this.commande);
@@ -431,17 +463,33 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onSave(): void {
-    this.showsPinner('onSave');
+    this.showsPinner();
 
     this.buildCommande();
     this.commandeService.sauvegarderSaisieEntreeStock(this.commande).subscribe({
       next: res => {
-        this.hidePinner('onSave');
+        this.hidePinner();
         this.reloadCommande(res.body);
       },
       error: error => {
         this.onCommonError(error);
-        this.hidePinner('onSave');
+        this.hidePinner();
+      },
+    });
+  }
+
+  onFinalize(): void {
+    this.showsPinner();
+    this.buildCommande();
+    this.commandeService.finalizeSaisieEntreeStock(this.commande).subscribe({
+      next: () => {
+        this.hidePinner();
+        this.commande = null;
+        this.previousState();
+      },
+      error: error => {
+        this.onCommonError(error);
+        this.hidePinner();
       },
     });
   }
@@ -465,27 +513,35 @@ export class CommandeStockEntryComponent implements OnInit {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-        },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-      });
+      if (error?.error?.errorKey) {
+        this.errorService.getErrorMessageTranslation(error?.error?.errorKey).subscribe({
+          next: translatedErrorMessage => {
+            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+          },
+          error: () => this.openInfoDialog(error, 'alert alert-danger'),
+        });
+      } else {
+        this.openInfoDialog(error, 'alert alert-danger');
+      }
     }
   }
 
-  openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static', centered: true});
-    modalRef.componentInstance.message = message;
+  openInfoDialog(error: any, infoClass: string): void {
+    console.error(error, 'deux');
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.message = error?.error?.title || 'Une erreur est survenue';
     modalRef.componentInstance.infoClass = infoClass;
   }
 
-  showsPinner(spinnerName: string): void {
-    this.spinner.show(spinnerName);
+  showsPinner(): void {
+    this.spinner.show();
   }
 
-  hidePinner(spinnerName: string): void {
-    this.spinner.hide(spinnerName);
+  hidePinner(): void {
+    this.spinner.hide();
   }
 
   reloadCommande(commande: ICommande): void {
@@ -505,9 +561,13 @@ export class CommandeStockEntryComponent implements OnInit {
     this.commande.receiptRefernce = this.receiptRefernce;
   }
 
+  gotoProduitPageEdit(id: number): void {
+    this.router.navigate(['/produit', id, 'edit'], { relativeTo: this.activatedRoute });
+  }
+
   private subscribeOnEditCellResponse(result: Observable<{}>): void {
     result.subscribe({
-      next: res => this.reloadCommande(this.commande),
+      next: () => this.reloadCommande(this.commande),
       error: err => this.onEditCellError(err),
     });
   }

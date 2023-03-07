@@ -1,26 +1,26 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subscription} from 'rxjs';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ICommande} from 'app/shared/model/commande.model';
-import {DETAIL_PER_PAGE, ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {CommandeService} from './commande.service';
-import {IOrderLine} from 'app/shared/model/order-line.model';
-import {OrderLineService} from '../order-line/order-line.service';
-import {ProduitService} from '../produit/produit.service';
-import {ConfirmationService, LazyLoadEvent, MenuItem} from 'primeng/api';
-import {AlertInfoComponent} from '../../shared/alert/alert-info.component';
-import {ErrorService} from '../../shared/error.service';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {saveAs} from 'file-saver';
-import {IResponseCommande} from '../../shared/model/response-commande.model';
-import {CommandeEnCoursResponseDialogComponent} from './commande-en-cours-response-dialog.component';
-import {IFournisseur} from '../../shared/model/fournisseur.model';
-import {CommandeImportResponseDialogComponent} from './commande-import-response-dialog.component';
-import {ICommandeResponse} from '../../shared/model/commande-response.model';
-import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ImportationNewCommandeComponent} from './importation-new-commande.component';
+import { Component, OnInit } from '@angular/core';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ICommande } from 'app/shared/model/commande.model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { CommandeService } from './commande.service';
+import { IOrderLine } from 'app/shared/model/order-line.model';
+import { OrderLineService } from '../order-line/order-line.service';
+import { ProduitService } from '../produit/produit.service';
+import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
+import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { ErrorService } from '../../shared/error.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { saveAs } from 'file-saver';
+import { IResponseCommande } from '../../shared/model/response-commande.model';
+import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
+import { ICommandeResponse } from '../../shared/model/commande-response.model';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ImportationNewCommandeComponent } from './importation-new-commande.component';
 
 @Component({
   selector: 'jhi-commande',
@@ -58,11 +58,10 @@ export class CommandeComponent implements OnInit {
   selectedRowOrderLines?: IOrderLine[] = [];
   eventSubscriber?: Subscription;
   totalItems = 0;
-  totalDetail = 0;
-  detaimPerPage = DETAIL_PER_PAGE;
+
   itemsPerPage = ITEMS_PER_PAGE;
   search = '';
-  pageItem!: number;
+
   predicate!: string;
   ascending!: boolean;
   ngbPaginationPage = 1;
@@ -98,20 +97,20 @@ export class CommandeComponent implements OnInit {
   ) {
     this.selections = [];
     this.models = [
-      {label: 'LABOREX', value: 'LABOREX'},
-      {label: 'COPHARMED', value: 'COPHARMED'},
-      {label: 'DPCI', value: 'DPCI'},
-      {label: 'TEDIS', value: 'TEDIS'},
+      { label: 'LABOREX', value: 'LABOREX' },
+      { label: 'COPHARMED', value: 'COPHARMED' },
+      { label: 'DPCI', value: 'DPCI' },
+      { label: 'TEDIS', value: 'TEDIS' },
     ];
     this.filtres = [
-      {label: 'Commande en cours', value: 'REQUESTED'},
-      {label: 'Commande passées', value: 'PASSED'},
-      {label: 'Commande reçues', value: 'RECEIVED'},
+      { label: 'Commande en cours', value: 'REQUESTED' },
+      { label: 'Commande passées', value: 'PASSED' },
+      { label: 'Commande reçues', value: 'CLOSED' },
     ];
     this.typeSuggessions = [
-      {label: 'Tous', value: 'ALL'},
-      {label: 'Auto', value: 'AUTO'},
-      {label: 'Manuelle', value: 'MANUELLE'},
+      { label: 'Tous', value: 'ALL' },
+      { label: 'Auto', value: 'AUTO' },
+      { label: 'Manuelle', value: 'MANUELLE' },
     ];
 
     this.commandebuttons = [
@@ -140,10 +139,9 @@ export class CommandeComponent implements OnInit {
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
       .subscribe({
-          next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-          error: () => this.onError()
-        }
-      );
+        next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   ngOnInit(): void {
@@ -168,13 +166,11 @@ export class CommandeComponent implements OnInit {
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
         .subscribe({
-            next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
-            error: () => this.onError()
-          }
-        );
+          next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: () => this.onError(),
+        });
     }
   }
-
 
   delete(commandeId: number): void {
     this.spinner.show('gestion-commande-spinner');
@@ -351,7 +347,7 @@ export class CommandeComponent implements OnInit {
   }
 
   test(): void {
-    this.commandeService.test({model: 'TEDIS'}).subscribe(() => {
+    this.commandeService.test({ model: 'TEDIS' }).subscribe(() => {
       console.error('===============================');
     });
   }
@@ -402,7 +398,10 @@ export class CommandeComponent implements OnInit {
   }
 
   protected openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static', centered: true});
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
   }
@@ -427,6 +426,5 @@ export class CommandeComponent implements OnInit {
     this.ngbPaginationPage = this.page ?? 1;
   }
 
-  protected onOrderLineError(): void {
-  }
+  protected onOrderLineError(): void {}
 }

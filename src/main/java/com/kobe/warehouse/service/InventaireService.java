@@ -13,7 +13,6 @@ import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +31,24 @@ public class InventaireService {
     private static final Comparator<StoreInventoryLineDTO> COMPARATOR_LINE = Comparator.comparing(
         StoreInventoryLineDTO::getProduitLibelle);
     private final Logger LOG = LoggerFactory.getLogger(InventaireService.class);
-    @Autowired
-    private ProduitRepository produitRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private InventoryTransactionService inventoryTransactionService;
-    @Autowired
-    private StoreInventoryRepository storeInventoryRepository;
-    @Autowired
-    private StoreInventoryLineRepository storeInventoryLineRepository;
+
+    private final ProduitRepository produitRepository;
+
+    private final UserService userService;
+
+    private final InventoryTransactionService inventoryTransactionService;
+
+    private final StoreInventoryRepository storeInventoryRepository;
+
+    private final StoreInventoryLineRepository storeInventoryLineRepository;
+
+    public InventaireService(ProduitRepository produitRepository, UserService userService, InventoryTransactionService inventoryTransactionService, StoreInventoryRepository storeInventoryRepository, StoreInventoryLineRepository storeInventoryLineRepository) {
+        this.produitRepository = produitRepository;
+        this.userService = userService;
+        this.inventoryTransactionService = inventoryTransactionService;
+        this.storeInventoryRepository = storeInventoryRepository;
+        this.storeInventoryLineRepository = storeInventoryLineRepository;
+    }
 
     public void init() throws Exception {
         long inventoryValueCostBegin = 0, inventoryAmountBegin = 0;
@@ -49,13 +56,13 @@ public class InventaireService {
         storeInventory.setCreatedAt(Instant.now());
         storeInventory.setUpdatedAt(storeInventory.getCreatedAt());
         storeInventory.setUser(userService.getUser());
-        storeInventory.setInventoryAmountAfter(0l);
-        storeInventory.setInventoryValueCostAfter(0l);
+        storeInventory.setInventoryAmountAfter(0L);
+        storeInventory.setInventoryValueCostAfter(0L);
         storeInventory.setDateDimension(Constants.DateDimension(LocalDate.now()));
         List<StoreInventoryLine> storeInventoryLines = intitLines(storeInventory);
         for (StoreInventoryLine line : storeInventoryLines) {
-            inventoryValueCostBegin += (line.getInventoryValueCost() * line.getQuantityInit());
-            inventoryAmountBegin += (line.getInventoryValueLatestSellingPrice() * line.getQuantityInit());
+            inventoryValueCostBegin += ((long) line.getInventoryValueCost() * line.getQuantityInit());
+            inventoryAmountBegin += ((long) line.getInventoryValueLatestSellingPrice() * line.getQuantityInit());
         }
         storeInventory.setInventoryAmountBegin(inventoryAmountBegin);
         storeInventory.setInventoryValueCostBegin(inventoryValueCostBegin);
@@ -71,9 +78,9 @@ public class InventaireService {
         storeInventory.setUpdatedAt(Instant.now());
         List<StoreInventoryLine> storeInventoryLines = storeInventoryLineRepository.findAllByStoreInventoryId(id);
         for (StoreInventoryLine line : storeInventoryLines) {
-            inventoryValueCostAfter += (line.getInventoryValueCost() * line.getQuantityOnHand());
-            inventoryAmountAfter += (line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
-            inventoryTransactionService.buildInventoryTransaction(line, dateDimension, storeInventory.getUpdatedAt(), userService.getUser());
+            inventoryValueCostAfter += ((long) line.getInventoryValueCost() * line.getQuantityOnHand());
+            inventoryAmountAfter += ((long) line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
+            inventoryTransactionService.buildInventoryTransaction(line, storeInventory.getUpdatedAt(), userService.getUser());
             Produit produit = line.getProduit();
             // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
             produitRepository.save(produit);

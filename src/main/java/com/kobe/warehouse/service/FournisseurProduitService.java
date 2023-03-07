@@ -190,4 +190,8 @@ public class FournisseurProduitService {
     public List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId, Pageable pageable) {
         return fournisseurProduitRepository.findAllByFournisseurIdAndProduitParentIsNull(founisseurId, pageable);
     }
+
+    public FournisseurProduit update(FournisseurProduit fournisseurProduit) {
+        return fournisseurProduitRepository.save(fournisseurProduit);
+    }
 }

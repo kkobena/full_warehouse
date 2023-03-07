@@ -1,11 +1,12 @@
-import {Component} from '@angular/core';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
+import { Component } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
   selector: 'jhi-commande-btn',
   template: `
-    <div class="btn-group text-right pb-sm-1" style="padding: 0">
+    <div class="btn-group text-right pb-sm-1" style="padding: 0;">
       <button
+        style="display: none;"
         type="submit"
         (click)="onEditLigneInfo()"
         class="btn btn-sm btn-success "
@@ -26,8 +27,8 @@ import {ICellRendererAngularComp} from 'ag-grid-angular';
         pTooltip="Gérer le lot"
       ></button>
       <button
-
         type="submit"
+        [hidden]="true"
         (click)="remove()"
         class="btn btn-sm btn-danger"
         icon="pi pi-times"
@@ -42,8 +43,7 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
   showLotBtn = false;
 
-  constructor() {
-  }
+  constructor() {}
 
   refresh(): boolean {
     return false;
@@ -53,7 +53,6 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
     this.params = params;
 
     this.showLotBtn = this.params.context.componentParent.showLotBtn;
-
   }
 
   onAddLot(): void {

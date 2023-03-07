@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -107,7 +106,6 @@ public class DeconditionService {
     }
 
     private void createInventory(Decondition decondition, TransactionType transactionType, int quantityBefor, int quantityFinal, User user) {
-        DateDimension dateD = Constants.DateDimension(LocalDate.now());
         Produit p = decondition.getProduit();
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setDecondition(decondition);
@@ -117,7 +115,6 @@ public class DeconditionService {
         inventoryTransaction.setMagasin(user.getMagasin());
         inventoryTransaction.setQuantity(decondition.getQtyMvt());
         inventoryTransaction.setTransactionType(transactionType);
-        inventoryTransaction.setDateDimension(dateD);
         inventoryTransaction.setQuantityBefor(quantityBefor);
         inventoryTransaction.setQuantityAfter(quantityFinal);
         inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());

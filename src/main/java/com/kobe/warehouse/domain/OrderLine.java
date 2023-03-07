@@ -33,9 +33,6 @@ public class OrderLine implements Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "receipt_date")
-    private LocalDateTime receiptDate;
-
     @Column(name = "quantity_received")
     private Integer quantityReceived;
 
@@ -75,6 +72,8 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "receipt_date")
+    private LocalDateTime receiptDate;
     @NotNull
     @Column(name = "cost_amount", nullable = false)
     private Integer costAmount; //prix achat machine ligne de commande
@@ -122,6 +121,15 @@ public class OrderLine implements Serializable, Cloneable {
 
     public OrderLine setEffectifGrossIncome(Integer effectifGrossIncome) {
         this.effectifGrossIncome = effectifGrossIncome;
+        return this;
+    }
+
+    public LocalDateTime getReceiptDate() {
+        return receiptDate;
+    }
+
+    public OrderLine setReceiptDate(LocalDateTime receiptDate) {
+        this.receiptDate = receiptDate;
         return this;
     }
 
@@ -194,15 +202,6 @@ public class OrderLine implements Serializable, Cloneable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public LocalDateTime getReceiptDate() {
-        return receiptDate;
-    }
-
-    public OrderLine setReceiptDate(LocalDateTime receiptDate) {
-        this.receiptDate = receiptDate;
-        return this;
     }
 
     public Integer getQuantityReceived() {
@@ -406,8 +405,6 @@ public class OrderLine implements Serializable, Cloneable {
             + "id="
             + getId()
             + ", receiptDate='"
-            + getReceiptDate()
-            + "'"
             + ", quantityReceived="
             + getQuantityReceived()
             + ", quantityRequested="

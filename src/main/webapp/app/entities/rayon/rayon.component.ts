@@ -61,25 +61,6 @@ export class RayonComponent implements OnInit {
     this.uploadFileResponse(this.entityService.uploadRayonFile(formData));
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-    }
-    this.responseDialog = true;
-    this.fileDialog = false;
-    this.dialogueClone = false;
-    this.loadPage(0);
-  }
-
-  protected onSaveError(): void {}
-
   cancel(): void {
     this.displayDialog = false;
     this.fileDialog = false;
@@ -101,10 +82,10 @@ export class RayonComponent implements OnInit {
         size: ITEMS_PER_PAGE,
         search: query,
       })
-      .subscribe(
-        (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -118,29 +99,11 @@ export class RayonComponent implements OnInit {
           search: '',
           magasinId: this.magasin?.id,
         })
-        .subscribe(
-          (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
-          () => this.onError()
-        );
+        .subscribe({
+          next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: () => this.onError(),
+        });
     }
-  }
-
-  protected onSuccess(data: IRayon[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/rayon'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        magasinId: this.magasin?.id,
-      },
-    });
-    this.entites = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.loading = false;
   }
 
   showFileDialog(): void {
@@ -197,13 +160,6 @@ export class RayonComponent implements OnInit {
     });
   }
 
-  private findUserMagasin(): void {
-    /*  this.magasinService.findConnectedUserStockages().then(magasin => {
-        this.magasins = magasin;
-
-      });*/
-  }
-
   search(event: any): void {
     this.loadPage(0, event.target.value);
   }
@@ -233,4 +189,48 @@ export class RayonComponent implements OnInit {
   }
 
   onBasculer(entity: IRayon): void {}
+
+  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
+  }
+
+  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) {
+      this.responsedto = responseDto;
+    }
+    this.responseDialog = true;
+    this.fileDialog = false;
+    this.dialogueClone = false;
+    this.loadPage(0);
+  }
+
+  protected onSaveError(): void {}
+
+  protected onSuccess(data: IRayon[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/rayon'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+        magasinId: this.magasin?.id,
+      },
+    });
+    this.entites = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
+  }
+
+  private findUserMagasin(): void {
+    /*  this.magasinService.findConnectedUserStockages().then(magasin => {
+        this.magasins = magasin;
+
+      });*/
+  }
 }

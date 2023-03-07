@@ -1,16 +1,16 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {FournisseurService} from './fournisseur.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ConfirmationService, LazyLoadEvent, MessageService, SelectItem} from 'primeng/api';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {GroupeFournisseurService} from '../groupe-fournisseur/groupe-fournisseur.service';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {IResponseDto} from '../../shared/util/response-dto';
-import {Fournisseur, IFournisseur} from '../../shared/model/fournisseur.model';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {IGroupeFournisseur} from '../../shared/model/groupe-fournisseur.model';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FournisseurService } from './fournisseur.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, LazyLoadEvent, MessageService, SelectItem } from 'primeng/api';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisseur.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { Fournisseur, IFournisseur } from '../../shared/model/fournisseur.model';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
 
 @Component({
   selector: 'jhi-fournisseur',
@@ -41,7 +41,6 @@ export class FournisseurComponent implements OnInit {
   loading = false;
   isSaving = false;
   displayDialog?: boolean;
-  groupeFournisseurs: IGroupeFournisseur[] = [];
   groupes: SelectItem[] = [];
   editForm = this.fb.group({
     id: [],
@@ -62,8 +61,7 @@ export class FournisseurComponent implements OnInit {
     protected groupeFournisseurService: GroupeFournisseurService,
     private spinner: NgxSpinnerService,
     private messageService: MessageService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadPage();
@@ -79,10 +77,10 @@ export class FournisseurComponent implements OnInit {
         size: this.itemsPerPage,
         search: query,
       })
-      .subscribe(
-        (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -94,10 +92,10 @@ export class FournisseurComponent implements OnInit {
         size: event.rows,
         search: '',
       })
-      .subscribe(
-        (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError(),
+      });
   }
 
   confirmDialog(id: number): void {
@@ -121,7 +119,7 @@ export class FournisseurComponent implements OnInit {
       .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
         if (res.body)
           res.body.forEach(item => {
-            this.groupes.push({label: item.libelle, value: item.id});
+            this.groupes.push({ label: item.libelle, value: item.id });
           });
         this.editForm.patchValue({
           id: entity.id,
@@ -217,13 +215,21 @@ export class FournisseurComponent implements OnInit {
     this.displayDialog = false;
     this.loadPage(0);
     this.spinner.hide();
-    this.messageService.add({severity: 'success', summary: 'Success', detail: 'Enregistrement effectué avec success'});
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Enregistrement effectué avec success',
+    });
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
     this.spinner.hide();
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseur>>): void {

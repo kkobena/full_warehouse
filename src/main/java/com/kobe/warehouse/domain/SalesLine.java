@@ -37,7 +37,7 @@ public class SalesLine implements Serializable, Cloneable {
     private Integer quantityUg = 0;
     @NotNull
     @Column(name = "quantity_avoir", nullable = false, columnDefinition = "int default '0'")
-    private Integer quantiyAvoir = 0;
+    private Integer quantityAvoir = 0;
     @NotNull
     @Column(name = "montant_tva_ug", nullable = false, columnDefinition = "int default '0'")
     private Integer montantTvaUg = 0;
@@ -138,12 +138,12 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getQuantiyAvoir() {
-        return quantiyAvoir;
+    public Integer getQuantityAvoir() {
+        return quantityAvoir;
     }
 
-    public SalesLine setQuantiyAvoir(Integer quantiyAvoir) {
-        this.quantiyAvoir = quantiyAvoir;
+    public SalesLine setQuantityAvoir(Integer quantiyAvoir) {
+        quantityAvoir = quantiyAvoir;
         return this;
     }
 

@@ -1,31 +1,31 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 import moment from 'moment';
-import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
-import {IProduit, Produit} from 'app/shared/model/produit.model';
-import {ProduitService} from './produit.service';
-import {CategorieService} from 'app/entities/categorie/categorie.service';
-import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
-import {IFournisseur} from '../../shared/model/fournisseur.model';
-import {IRayon} from '../../shared/model/rayon.model';
-import {IFamilleProduit} from '../../shared/model/famille-produit.model';
-import {ITva} from '../../shared/model/tva.model';
-import {ITypeEtiquette} from '../../shared/model/type-etiquette.model';
-import {IRemiseProduit} from '../../shared/model/remise-produit.model';
-import {IFormProduit} from '../../shared/model/form-produit.model';
-import {IGammeProduit} from '../../shared/model/gamme-produit.model';
-import {ILaboratoire} from '../../shared/model/laboratoire.model';
-import {RayonService} from '../rayon/rayon.service';
-import {LaboratoireProduitService} from '../laboratoire-produit/laboratoire-produit.service';
-import {FormeProduitService} from '../forme-produit/forme-produit.service';
-import {FournisseurService} from '../fournisseur/fournisseur.service';
-import {FamilleProduitService} from '../famille-produit/famille-produit.service';
-import {GammeProduitService} from '../gamme-produit/gamme-produit.service';
-import {TvaService} from '../tva/tva.service';
-import {TypeEtiquetteService} from '../type-etiquette/type-etiquette.service';
+import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+import { IProduit, Produit } from 'app/shared/model/produit.model';
+import { ProduitService } from './produit.service';
+import { CategorieService } from 'app/entities/categorie/categorie.service';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { IRayon } from '../../shared/model/rayon.model';
+import { IFamilleProduit } from '../../shared/model/famille-produit.model';
+import { ITva } from '../../shared/model/tva.model';
+import { ITypeEtiquette } from '../../shared/model/type-etiquette.model';
+import { IRemiseProduit } from '../../shared/model/remise-produit.model';
+import { IFormProduit } from '../../shared/model/form-produit.model';
+import { IGammeProduit } from '../../shared/model/gamme-produit.model';
+import { ILaboratoire } from '../../shared/model/laboratoire.model';
+import { RayonService } from '../rayon/rayon.service';
+import { LaboratoireProduitService } from '../laboratoire-produit/laboratoire-produit.service';
+import { FormeProduitService } from '../forme-produit/forme-produit.service';
+import { FournisseurService } from '../fournisseur/fournisseur.service';
+import { FamilleProduitService } from '../famille-produit/famille-produit.service';
+import { GammeProduitService } from '../gamme-produit/gamme-produit.service';
+import { TvaService } from '../tva/tva.service';
+import { TypeEtiquetteService } from '../type-etiquette/type-etiquette.service';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -56,7 +56,7 @@ export class ProduitUpdateComponent implements OnInit {
   remiseSelected!: IRemiseProduit | null;
   editForm = this.fb.group({
     id: [],
-    typeEtyquetteId: [null, [Validators.required]],
+
     tvaId: [null, [Validators.required]],
     familleId: [null, [Validators.required]],
     codeCip: [null, [Validators.required]],
@@ -79,6 +79,8 @@ export class ProduitUpdateComponent implements OnInit {
     itemCostAmount: [],
     itemRegularUnitPrice: [],
     expirationDate: [],
+    typeEtiquetteId: [],
+    cmuAmount: [],
   });
 
   constructor(
@@ -94,11 +96,10 @@ export class ProduitUpdateComponent implements OnInit {
     protected gammeProduitService: GammeProduitService,
     protected tvaService: TvaService,
     protected typeEtiquetteService: TypeEtiquetteService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({produit}) => {
+    this.activatedRoute.data.subscribe(({ produit }) => {
       if (!produit.id) {
         const today = moment().startOf('day');
         produit.createdAt = today;
@@ -122,7 +123,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.typeEtiquetteService.query().subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
       this.etiquettes = res.body || [];
       if (produit) {
-        this.etiquetteSelected = this.etiquettes.find(e => e.id === produit.typeEtyquetteId) || null;
+        this.etiquetteSelected = this.etiquettes.find(e => e.id === produit.typeEtiquetteId) || null;
       }
     });
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
@@ -166,12 +167,13 @@ export class ProduitUpdateComponent implements OnInit {
       id: produit.id,
       libelle: produit.libelle,
       costAmount: produit.costAmount,
+      cmuAmount: produit.cmuAmount,
       regularUnitPrice: produit.regularUnitPrice,
       createdAt: produit.createdAt ? produit.createdAt.format(DATE_TIME_FORMAT) : null,
       itemQty: produit.itemQty,
       itemCostAmount: produit.itemCostAmount,
       itemRegularUnitPrice: produit.itemRegularUnitPrice,
-      typeEtyquetteId: produit.typeEtyquetteId,
+      typeEtiquetteId: produit.typeEtiquetteId,
       tvaId: produit.tvaId,
       familleId: produit.familleId,
       codeCip: produit.codeCip,
@@ -203,7 +205,6 @@ export class ProduitUpdateComponent implements OnInit {
       this.subscribeToSaveResponse(this.produitService.create(produit));
     }
   }
-
 
   handleCostInput(event: any): void {
     const value = Number(event.target.value);
@@ -312,13 +313,14 @@ export class ProduitUpdateComponent implements OnInit {
       id: this.editForm.get(['id'])!.value,
       libelle: this.editForm.get(['libelle'])!.value,
       costAmount: this.editForm.get(['costAmount'])!.value,
+      cmuAmount: this.editForm.get(['cmuAmount'])!.value,
       regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
       createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
       itemQty: this.editForm.get(['itemQty'])!.value,
       itemCostAmount: this.editForm.get(['itemCostAmount'])!.value,
       itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice'])!.value,
       typeProduit: TypeProduit.PACKAGE,
-      typeEtyquetteId: this.editForm.get(['typeEtyquetteId'])!.value?.id,
+      typeEtiquetteId: this.editForm.get(['typeEtiquetteId'])!.value?.id,
       tvaId: this.editForm.get(['tvaId'])!.value?.id,
       familleId: this.editForm.get(['familleId'])!.value?.id,
       codeCip: this.editForm.get(['codeCip'])!.value,

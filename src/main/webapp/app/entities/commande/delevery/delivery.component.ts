@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
   templateUrl: './delivery.component.html',
   providers: [ConfirmationService, DialogService],
 })
-export class DeliveryComponent implements OnInit {
+export class DeliveryComponent implements OnChanges {
   deliveries: IDelivery[] = [];
   commandebuttons: MenuItem[];
   rowExpandMode = 'single';
@@ -25,6 +25,7 @@ export class DeliveryComponent implements OnInit {
   page = 0;
   ngbPaginationPage = 1;
   totalItems = 0;
+  @Input() activeIndex: number;
 
   constructor(protected router: Router, protected entityService: DeliveryService) {}
 
@@ -43,8 +44,11 @@ export class DeliveryComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {
-    this.loadPage();
+  ngOnChanges(changes: SimpleChanges) {
+    const index = changes.activeIndex;
+    if (index.currentValue === 1) {
+      this.loadPage(0);
+    }
   }
 
   onSearch(): void {

@@ -482,6 +482,11 @@
     </build>
     <dependencies>
         <dependency>
+            <artifactId>google-java-format</artifactId>
+            <groupId>com.google.googlejavaformat</groupId>
+            <version>1.16.0</version>
+        </dependency>
+        <dependency>
             <artifactId>commons-net</artifactId>
             <groupId>commons-net</groupId>
             <version>3.9.0</version>
@@ -629,11 +634,7 @@
             <groupId>javax.validation</groupId>
             <version>${validation-api.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>javax.validation</groupId>-->
-        <!--            <artifactId>javax.validation-api</artifactId>-->
-        <!--            <version>3.0.2</version>-->
-        <!--        </dependency>-->
+
         <dependency>
             <artifactId>mapstruct</artifactId>
             <groupId>org.mapstruct</groupId>

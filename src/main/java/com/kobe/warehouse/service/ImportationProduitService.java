@@ -29,6 +29,13 @@ import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.repository.TypeEtiquetteRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,16 +47,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Service
 public class ImportationProduitService {
+
     private final Logger log = LoggerFactory.getLogger(ImportationProduitService.class);
     private final FamilleProduitRepository familleProduitRepository;
     private final RayonRepository rayonRepository;
@@ -68,20 +68,20 @@ public class ImportationProduitService {
     private final ImportationRepository importationRepository;
 
     public ImportationProduitService(TransactionTemplate transactionTemplate,
-                                     FamilleProduitRepository familleProduitRepository,
-                                     RayonRepository rayonRepository,
-                                     TypeEtiquetteRepository typeEtiquetteRepository,
-                                     TvaRepository tvaRepository,
-                                     FournisseurRepository fournisseurRepository,
-                                     GammeProduitRepository gammeProduitRepository,
-                                     LaboratoireRepository laboratoireRepository,
-                                     FormProduitRepository formProduitRepository,
-                                     RemiseProduitRepository remiseProduitRepository,
-                                     ProduitRepository produitRepository,
-                                     StorageService storageService,
-                                     StockProduitRepository stockProduitRepository,
-                                     FournisseurProduitRepository fournisseurProduitRepository,
-                                     ImportationRepository importationRepository
+        FamilleProduitRepository familleProduitRepository,
+        RayonRepository rayonRepository,
+        TypeEtiquetteRepository typeEtiquetteRepository,
+        TvaRepository tvaRepository,
+        FournisseurRepository fournisseurRepository,
+        GammeProduitRepository gammeProduitRepository,
+        LaboratoireRepository laboratoireRepository,
+        FormProduitRepository formProduitRepository,
+        RemiseProduitRepository remiseProduitRepository,
+        ProduitRepository produitRepository,
+        StorageService storageService,
+        StockProduitRepository stockProduitRepository,
+        FournisseurProduitRepository fournisseurProduitRepository,
+        ImportationRepository importationRepository
     ) {
         this.familleProduitRepository = familleProduitRepository;
         this.rayonRepository = rayonRepository;
@@ -129,14 +129,16 @@ public class ImportationProduitService {
         updateImportation(errorSize.get(), size.get());
     }
 
-    void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize, AtomicInteger size) {
+    void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize,
+        AtomicInteger size) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
                     StockProduit stockProduit = buidStockProduit(p, storage);
                     Produit produit = buildProduit(p);
-                    produit.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
+                    produit.setRayonProduits(
+                        Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
                     produit = produitRepository.save(produit);
                     stockProduit.setProduit(produit);
                     stockProduitRepository.save(stockProduit);
@@ -149,14 +151,17 @@ public class ImportationProduitService {
                     if (!p.getProduits().isEmpty()) {
                         ProduitDTO detail = p.getProduits().stream().findFirst().get();
                         Produit produitDetail = buildDeatilProduit(detail, produit);
-                        produitDetail.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produitDetail)));
+                        produitDetail.setRayonProduits(Set.of(
+                            fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(
+                                produitDetail)));
                         StockProduit stockProduitDetail = buidStockProduit(detail, storage);
                         produitDetail = produitRepository.save(produitDetail);
                         stockProduitDetail.setProduit(produitDetail);
                         stockProduitRepository.save(stockProduitDetail);
 
                         for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
-                            FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(d);
+                            FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(
+                                d);
                             fournisseurProduitDetail.setProduit(produitDetail);
                             fournisseurProduitRepository.save(fournisseurProduitDetail);
                         }
@@ -211,10 +216,12 @@ public class ImportationProduitService {
     }
 
     private RayonProduit fromRayonLibelle(String libelle, Storage storage) {
-        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle, storage.getId());
+        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle,
+            storage.getId());
         Rayon rayon;
         if (optionalRayon.isEmpty()) {
-            rayon = rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get();
+            rayon = rayonRepository.findFirstByLibelleAndStorageId(
+                EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get();
         } else {
             rayon = optionalRayon.get();
         }
@@ -264,21 +271,22 @@ public class ImportationProduitService {
                 });
         }
         if (StringUtils.isNotEmpty(produitDTO.getGammeLibelle())) {
-            gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle()).ifPresent(d -> {
-                produit.setGamme(d);
-            });
+            gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle())
+                .ifPresent(d -> {
+                    produit.setGamme(d);
+                });
         }
-        if (StringUtils.isNotEmpty(produitDTO.getTypeEtyquetteLibelle())) {
-            typeEtiquetteRepository.findFirstByLibelleEquals(produitDTO.getTypeEtyquetteLibelle())
+        if (StringUtils.isNotEmpty(produitDTO.getTypeEtiquetteLibelle())) {
+            typeEtiquetteRepository.findFirstByLibelleEquals(produitDTO.getTypeEtiquetteLibelle())
                 .ifPresent(t -> {
                     produit.setTypeEtyquette(t);
                 });
         }
         if (StringUtils.isNotEmpty(produitDTO.getFormeLibelle())) {
             formProduitRepository.findFirstByLibelleEquals(produitDTO.getFormeLibelle())
-                .ifPresent(f -> {
-                    produit.setForme(f);
-                });
+                .ifPresent(f ->
+                    produit.setForme(f)
+                );
 
         }
 
@@ -299,7 +307,8 @@ public class ImportationProduitService {
 
     private FournisseurProduit buildFournisseurProduit(FournisseurProduitDTO p) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
-        fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).get());
+        fournisseurProduit.setFournisseur(
+            fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).get());
         fournisseurProduit.setPrixUni(p.getPrixUni());
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setPrincipal(p.isPrincipal());
@@ -338,12 +347,15 @@ public class ImportationProduitService {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
-                    Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(ImportationType.STOCK_PRODUIT);
+                    Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
+                        ImportationType.STOCK_PRODUIT);
                     if (importation != null) {
                         importation.setUpdated(Instant.now());
                         importation.setSize(size);
                         importation.setErrorSize(errorSize);
-                        importation.setImportationStatus(errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
+                        importation.setImportationStatus(
+                            errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS
+                                : ImportationStatus.COMPLETED);
                         importationRepository.save(importation);
                     }
                 } catch (Exception e) {

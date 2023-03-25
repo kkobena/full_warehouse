@@ -46,8 +46,8 @@ export interface IProduit {
   laboratoireId?: number;
   formeLibelle?: string;
   formeId?: number;
-  typeEtyquetteLibelle?: string;
-  typeEtyquetteId?: number;
+  typeEtiquetteLibelle?: string;
+  typeEtiquetteId?: number;
   familleLibelle?: string;
   familleId?: number;
   gammeLibelle?: string;
@@ -67,6 +67,7 @@ export interface IProduit {
   expirationDate?: string;
   displayField?: string;
   rayonProduits?: IRayonProduit[];
+  cmuAmount?: number;
 }
 
 export class Produit implements IProduit {
@@ -107,8 +108,8 @@ export class Produit implements IProduit {
     public laboratoireId?: number,
     public formeLibelle?: string,
     public formeId?: number,
-    public typeEtyquetteLibelle?: string,
-    public typeEtyquetteId?: number,
+    public typeEtiquetteLibelle?: string,
+    public typeEtiquetteId?: number,
     public familleLibelle?: string,
     public familleId?: number,
     public gammeLibelle?: string,
@@ -128,6 +129,7 @@ export class Produit implements IProduit {
     public rayonId?: number,
     public expirationDate?: string,
     public displayField?: string,
-    public rayonProduits?: IRayonProduit[]
+    public rayonProduits?: IRayonProduit[],
+    public cmuAmount?: number
   ) {}
 }

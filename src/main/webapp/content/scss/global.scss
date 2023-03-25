@@ -564,3 +564,21 @@ label {
   background-color: #2c1e30;
   width: 50%;
 }
+
+.produit-form .form-check-label {
+  display: block;
+}
+
+.produit-form .card-body {
+  padding-top: 3px;
+  margin-top: 0;
+}
+
+.produit-form .card-body .row {
+  padding: 0;
+  margin-top: 0;
+}
+
+.produit-form {
+  background: #f7f7f7;
+}

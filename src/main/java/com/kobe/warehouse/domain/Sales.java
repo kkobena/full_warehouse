@@ -1,11 +1,15 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
-
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,11 +24,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A Sales.
@@ -44,6 +43,7 @@ import java.util.Set;
     })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Sales implements Serializable, Cloneable {
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -213,6 +213,10 @@ public class Sales implements Serializable, Cloneable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "statut_caisse", nullable = false)
     private SalesStatut statutCaisse;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ca", nullable = false, length = 30)
+    private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
 
     @NotNull
     @Column(name = "caisse_end_num", length = 100)
@@ -265,6 +269,15 @@ public class Sales implements Serializable, Cloneable {
     public Sales setLastUserEdit(User lastUserEdit) {
         this.lastUserEdit = lastUserEdit;
         return this;
+    }
+
+    public CategorieChiffreAffaire getCategorieChiffreAffaire() {
+        return categorieChiffreAffaire;
+    }
+
+    public void setCategorieChiffreAffaire(
+        CategorieChiffreAffaire categorieChiffreAffaire) {
+        this.categorieChiffreAffaire = categorieChiffreAffaire;
     }
 
     public Boolean getCanceled() {
@@ -736,45 +749,44 @@ public class Sales implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Sales{");
-        sb.append("id=").append(id);
-        sb.append(", numberTransaction='").append(numberTransaction).append('\'');
-        sb.append(", discountAmount=").append(discountAmount);
-        sb.append(", salesAmount=").append(salesAmount);
-        sb.append(", htAmount=").append(htAmount);
-        sb.append(", netAmount=").append(netAmount);
-        sb.append(", taxAmount=").append(taxAmount);
-        sb.append(", costAmount=").append(costAmount);
-        sb.append(", amountToBePaid=").append(amountToBePaid);
-        sb.append(", payrollAmount=").append(payrollAmount);
-        sb.append(", restToPay=").append(restToPay);
-        sb.append(", amountToBeTakenIntoAccount=").append(amountToBeTakenIntoAccount);
-        sb.append(", margeUg=").append(margeUg);
-        sb.append(", montantttcUg=").append(montantttcUg);
-        sb.append(", montantnetUg=").append(montantnetUg);
-        sb.append(", montantTvaUg=").append(montantTvaUg);
-        sb.append(", discountAmountHorsUg=").append(discountAmountHorsUg);
-        sb.append(", discountAmountUg=").append(discountAmountUg);
-        sb.append(", netUgAmount=").append(netUgAmount);
-        sb.append(", htAmountUg=").append(htAmountUg);
-        sb.append(", statut=").append(statut);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", remise=").append(remise);
-        sb.append(", dateDimension=").append(dateDimension);
-        sb.append(", effectiveUpdateDate=").append(effectiveUpdateDate);
-        sb.append(", toIgnore=").append(toIgnore);
-        sb.append(", copy=").append(copy);
-        sb.append(", imported=").append(imported);
-        sb.append(", paymentStatus=").append(paymentStatus);
-        sb.append(", natureVente=").append(natureVente);
-        sb.append(", typePrescription=").append(typePrescription);
-        sb.append(", differe=").append(differe);
-        sb.append(", caisseNum='").append(caisseNum).append('\'');
-        sb.append(", statutCaisse=").append(statutCaisse);
-        sb.append(", caisseEndNum='").append(caisseEndNum).append('\'');
-        sb.append('}');
-        return sb.toString();
+        String sb = "Sales{" + "id=" + id
+            + ", numberTransaction='" + numberTransaction + '\''
+            + ", discountAmount=" + discountAmount
+            + ", salesAmount=" + salesAmount
+            + ", htAmount=" + htAmount
+            + ", netAmount=" + netAmount
+            + ", taxAmount=" + taxAmount
+            + ", costAmount=" + costAmount
+            + ", amountToBePaid=" + amountToBePaid
+            + ", payrollAmount=" + payrollAmount
+            + ", restToPay=" + restToPay
+            + ", amountToBeTakenIntoAccount=" + amountToBeTakenIntoAccount
+            + ", margeUg=" + margeUg
+            + ", montantttcUg=" + montantttcUg
+            + ", montantnetUg=" + montantnetUg
+            + ", montantTvaUg=" + montantTvaUg
+            + ", discountAmountHorsUg=" + discountAmountHorsUg
+            + ", discountAmountUg=" + discountAmountUg
+            + ", netUgAmount=" + netUgAmount
+            + ", htAmountUg=" + htAmountUg
+            + ", statut=" + statut
+            + ", createdAt=" + createdAt
+            + ", updatedAt=" + updatedAt
+            + ", remise=" + remise
+            + ", dateDimension=" + dateDimension
+            + ", effectiveUpdateDate=" + effectiveUpdateDate
+            + ", toIgnore=" + toIgnore
+            + ", copy=" + copy
+            + ", imported=" + imported
+            + ", paymentStatus=" + paymentStatus
+            + ", natureVente=" + natureVente
+            + ", typePrescription=" + typePrescription
+            + ", differe=" + differe
+            + ", caisseNum='" + caisseNum + '\''
+            + ", statutCaisse=" + statutCaisse
+            + ", caisseEndNum='" + caisseEndNum + '\''
+            + '}';
+        return sb;
     }
 
     @Override

@@ -1,26 +1,24 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {Ajustement, IAjustement} from 'app/shared/model/ajustement.model';
-import {AjustementService} from './ajustement.service';
-import {AjustementComponent} from './ajustement.component';
-import {AjustementDetailComponent} from './ajustement-detail.component';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
+import { AjustementService } from './ajustement.service';
+import { AjustementComponent } from './ajustement.component';
+import { AjustementDetailComponent } from './ajustement-detail.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AjustementResolve implements Resolve<IAjustement> {
-  constructor(private service: AjustementService, private router: Router) {
-  }
+  constructor(private service: AjustementService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<IAjustement> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((ajustement: HttpResponse<Ajustement>) => {
+        mergeMap((ajustement: HttpResponse<Ajustement>) => {
           if (ajustement.body) {
             return of(ajustement.body);
           } else {

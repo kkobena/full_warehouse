@@ -145,11 +145,13 @@ export class CommandeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadPage();
+    this.onSearch();
   }
 
   onSearch(): void {
-    this.loadPage(0);
+    if (this.index == 0) {
+      this.loadPage(0);
+    }
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -192,12 +194,6 @@ export class CommandeComponent implements OnInit {
       result.push('updatedAt');
     }
     return result;
-  }
-
-  formatNumber(number: any): string {
-    return Math.floor(number.value)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 
   onRowExpand(event: any): void {
@@ -352,48 +348,16 @@ export class CommandeComponent implements OnInit {
     });
   }
 
-  onNewCommande(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-
-    formData.append('commande', file, file.name);
-    this.spinner.show('gestion-commande-spinner');
-    this.commandeService.uploadNewCommande(this.commandeFournisseur?.id!, this.modelSelected, formData).subscribe(
-      res => {
-        this.cancel();
-        this.spinner.hide('gestion-commande-spinner');
-        if (res.body && res.body.items?.length === 0) {
-          this.selectedFilter = 'PASSED';
-        } else {
-          this.selectedFilter = 'REQUESTED';
-        }
-        this.loadPage(0); //affichier la tab correspondante
-        this.openImportResponseDialogComponent(res.body!);
-      },
-      error => {
-        this.spinner.hide('gestion-commande-spinner');
-        this.onCommonError(error);
-      }
-    );
-  }
-
-  onClickLink(commande: ICommande): void {
-    this.commandeService.getRuptureCsv(commande.orderRefernce!).subscribe(
-      blod => saveAs(blod),
-      error => this.onCommonError(error)
-    );
-  }
-
   protected onCommonError(error: any): void {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
-        translatedErrorMessage => {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
+        next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        () => this.openInfoDialog(error.error.title, 'alert alert-danger')
-      );
+        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+      });
     }
   }
 
@@ -425,6 +389,4 @@ export class CommandeComponent implements OnInit {
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
-
-  protected onOrderLineError(): void {}
 }

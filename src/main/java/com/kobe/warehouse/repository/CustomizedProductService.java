@@ -21,17 +21,14 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
-import org.apache.commons.lang3.StringUtils;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-
 public interface CustomizedProductService {
+
     List<ProduitDTO> findAll(ProduitCriteria produitCriteria) throws Exception;
 
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception;
@@ -54,7 +51,8 @@ public interface CustomizedProductService {
 
     void removeFournisseurProduit(Long id) throws Exception;
 
-    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Long fournisseurId);
+    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria,
+        Long fournisseurId);
 
     int produitTotalStock(Produit produit);
 
@@ -74,7 +72,8 @@ public interface CustomizedProductService {
 
     StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg);
 
-    default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto) {
+    default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(
+        FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
         fournisseurProduit.setCodeCip(dto.getCodeCip());
         fournisseurProduit.setCreatedAt(Instant.now());
@@ -92,7 +91,8 @@ public interface CustomizedProductService {
         return fournisseur;
     }
 
-    default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto, FournisseurProduit fournisseurProduit) {
+    default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(
+        FournisseurProduitDTO dto, FournisseurProduit fournisseurProduit) {
         fournisseurProduit.setCodeCip(dto.getCodeCip());
         fournisseurProduit.setUpdatedAt(Instant.now());
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
@@ -102,7 +102,8 @@ public interface CustomizedProductService {
         return fournisseurProduit;
     }
 
-    default StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto, StockProduit stockProduit) {
+    default StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto,
+        StockProduit stockProduit) {
         stockProduit.setQtyStock(dto.getQtyStock());
         stockProduit.setUpdatedAt(Instant.now());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
@@ -219,41 +220,6 @@ public interface CustomizedProductService {
         Tva tva = new Tva();
         tva.setId(id);
         return tva;
-    }
-
-    default Produit buildProduitFromProduitDTO(ProduitDTO produitDTO, Produit produit) {
-        produit.setUpdatedAt(Instant.now());
-        produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
-        produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCostAmount(produitDTO.getCostAmount());
-        if (produitDTO.getDeconditionnable()) {
-            produit.setItemCostAmount(produitDTO.getItemCostAmount());
-            produit.setItemQty(produitDTO.getItemQty());
-            produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-        } else {
-            produit.setItemCostAmount(produitDTO.getCostAmount());
-            produit.setItemQty(1);
-            produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        }
-        produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
-        produit.setCheckExpiryDate(produitDTO.getDateperemption());
-        produit.setDeconditionnable(produitDTO.getDeconditionnable());
-        produit.setQtyAppro(produitDTO.getQtyAppro());
-        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
-            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        }
-        produit.setRemise(remiseProduitFromId(produitDTO.getRemiseId()));
-        produit.setTva(tvaFromId(produitDTO.getTvaId()));
-        produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
-        produit.setFamille(familleFromId(produitDTO.getFamilleId()));
-        produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
-        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtyquetteId()));
-        produit.setForme(formeFromId(produitDTO.getFormeId()));
-        //   produit.addStockProduit(stockProduitFromProduitDTO(produitDTO));
-        produit.addFournisseurProduit(fournisseurProduitProduit(produit, produitDTO));
-        return produit;
     }
 
 

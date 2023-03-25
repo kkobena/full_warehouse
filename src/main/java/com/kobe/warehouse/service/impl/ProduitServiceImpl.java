@@ -14,16 +14,16 @@ import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -39,7 +39,9 @@ public class ProduitServiceImpl implements ProduitService {
     private final RayonRepository rayonRepository;
 
 
-    public ProduitServiceImpl(MagasinRepository magasinRepository, ProduitRepository produitRepository, CustomizedProductService customizedProductService, RayonRepository rayonRepository) {
+    public ProduitServiceImpl(MagasinRepository magasinRepository,
+        ProduitRepository produitRepository, CustomizedProductService customizedProductService,
+        RayonRepository rayonRepository) {
         this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
@@ -57,7 +59,8 @@ public class ProduitServiceImpl implements ProduitService {
         log.debug("Request to save Produit : {}", produitDTO);
         try {
 
-            customizedProductService.save(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
+            customizedProductService.save(produitDTO,
+                rayonRepository.getReferenceById(produitDTO.getRayonId()));
         } catch (Exception e) {
             log.debug("Request to save Produit : {}", e);
 
@@ -75,7 +78,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Produits");
-        return produitRepository.findAll(pageable).map(ProduitDTO::new);
+        return produitRepository.findAll(pageable).map(ProduitBuilder::fromProduit);
     }
 
     /**
@@ -120,7 +123,8 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public ProduitDTO findOne(ProduitCriteria produitCriteria) {
         log.debug("Request to get Produit : {}", produitCriteria);
-        Optional<ProduitDTO> produit = produitRepository.findById(produitCriteria.getId()).map(ProduitDTO::new);
+        Optional<ProduitDTO> produit = produitRepository.findById(produitCriteria.getId())
+            .map(ProduitBuilder::fromProduit);
         ProduitDTO dto = null;
         if (produit.isPresent()) {
             dto = produit.get();
@@ -203,7 +207,8 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public int getProductTotalStock(Long productId) {
-        return customizedProductService.produitTotalStockWithQantitUg(produitRepository.getReferenceById(productId));
+        return customizedProductService.produitTotalStockWithQantitUg(
+            produitRepository.getReferenceById(productId));
     }
 
     @Override

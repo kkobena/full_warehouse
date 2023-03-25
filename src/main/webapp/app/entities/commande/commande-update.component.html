@@ -1,6 +1,6 @@
 <h6 id="page-heading" style="text-align:left;font-weight: 700;">
   <span jhiTranslate="warehouseApp.commande.home.createOrEditLabel"></span>
-  <p-tag icon="pi pi-info-circle" severity="info" styleClass="ml-4"
+  <p-tag *ngIf="commande" icon="pi pi-info-circle" severity="info" styleClass="ml-4"
          value="{{commande?.orderRefernce}}"></p-tag>
 
 </h6>
@@ -299,7 +299,7 @@
       <td style="text-align: right;">{{orderLine.quantityRequested
       * orderLine.orderCostAmount |number}}</td>
       <td style="text-align: right;">
-        <button [hidden]="true" [routerLink]="['/produit', orderLine.produitId, 'detail']"
+        <button [hidden]="false" [routerLink]="['/produit', orderLine.produitId, 'edit']"
                 class="p-button-rounded p-button-info p-button-smp-mb-3 " icon="pi pi-eye"
                 pButton pRipple>
 

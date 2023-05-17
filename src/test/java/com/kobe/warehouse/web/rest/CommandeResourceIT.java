@@ -1,26 +1,5 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.WarehouseApp;
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.repository.CommandeRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -31,6 +10,27 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.kobe.warehouse.WarehouseApp;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.web.rest.commande.CommandeResource;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import javax.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests for the {@link CommandeResource} REST controller.
@@ -84,8 +84,8 @@ public class CommandeResourceIT {
     /**
      * Create an entity for this test.
      * <p>
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * This is a static method, as tests for other entities might also need it, if they test an
+     * entity which requires the current entity.
      */
     public static Commande createEntity(EntityManager em) {
         Commande commande = new Commande()
@@ -105,8 +105,8 @@ public class CommandeResourceIT {
     /**
      * Create an updated entity for this test.
      * <p>
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * This is a static method, as tests for other entities might also need it, if they test an
+     * entity which requires the current entity.
      */
     public static Commande createUpdatedEntity(EntityManager em) {
         Commande commande = new Commande()
@@ -183,7 +183,6 @@ public class CommandeResourceIT {
 
         // Create the Commande, which fails.
 
-
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(commande)))
@@ -201,7 +200,6 @@ public class CommandeResourceIT {
         commande.setDiscountAmount(null);
 
         // Create the Commande, which fails.
-
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -221,7 +219,6 @@ public class CommandeResourceIT {
 
         // Create the Commande, which fails.
 
-
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(commande)))
@@ -239,7 +236,6 @@ public class CommandeResourceIT {
         commande.setGrossAmount(null);
 
         // Create the Commande, which fails.
-
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -259,7 +255,6 @@ public class CommandeResourceIT {
 
         // Create the Commande, which fails.
 
-
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(commande)))
@@ -277,7 +272,6 @@ public class CommandeResourceIT {
         commande.setTaxAmount(null);
 
         // Create the Commande, which fails.
-
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -297,7 +291,6 @@ public class CommandeResourceIT {
 
         // Create the Commande, which fails.
 
-
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(commande)))
@@ -315,7 +308,6 @@ public class CommandeResourceIT {
         commande.setUpdatedAt(null);
 
         // Create the Commande, which fails.
-
 
         restCommandeMockMvc.perform(post("/api/commandes").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -338,7 +330,8 @@ public class CommandeResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(commande.getId().intValue())))
             .andExpect(jsonPath("$.[*].orderRefernce").value(hasItem(DEFAULT_ORDER_REFERNCE)))
-            .andExpect(jsonPath("$.[*].receiptDate").value(hasItem(DEFAULT_RECEIPT_DATE.toString())))
+            .andExpect(
+                jsonPath("$.[*].receiptDate").value(hasItem(DEFAULT_RECEIPT_DATE.toString())))
             .andExpect(jsonPath("$.[*].discountAmount").value(hasItem(DEFAULT_DISCOUNT_AMOUNT)))
             .andExpect(jsonPath("$.[*].orderAmount").value(hasItem(DEFAULT_ORDER_AMOUNT)))
             .andExpect(jsonPath("$.[*].grossAmount").value(hasItem(DEFAULT_GROSS_AMOUNT)))
@@ -346,7 +339,8 @@ public class CommandeResourceIT {
             .andExpect(jsonPath("$.[*].taxAmount").value(hasItem(DEFAULT_TAX_AMOUNT)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].orderStatus").value(hasItem(DEFAULT_ORDER_STATUS.toString())));
+            .andExpect(
+                jsonPath("$.[*].orderStatus").value(hasItem(DEFAULT_ORDER_STATUS.toString())));
     }
 
     @Test

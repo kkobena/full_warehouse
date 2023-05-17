@@ -22,7 +22,7 @@ import org.hibernate.annotations.Formula;
 @Table(
     name = "delivery_receipt_item",
     uniqueConstraints = {
-      @UniqueConstraint(columnNames = {"delivery_receipt_id", "fournisseur_produit_id"})
+        @UniqueConstraint(columnNames = {"delivery_receipt_id", "fournisseur_produit_id"})
     })
 public class DeliveryReceiptItem implements Serializable {
 
@@ -59,6 +59,8 @@ public class DeliveryReceiptItem implements Serializable {
   @NotNull
   @Column(name = "created_date", nullable = false)
   private LocalDateTime createdDate;
+  @Column(name = "updated_date")
+  private LocalDateTime updatedDate = LocalDateTime.now();
 
   @ManyToOne(optional = false)
   @JsonIgnoreProperties(value = "receiptItems", allowSetters = true)
@@ -91,12 +93,36 @@ public class DeliveryReceiptItem implements Serializable {
   @OneToMany(mappedBy = "receiptItem")
   private List<Lot> lots = new ArrayList<>();
 
+  @Column(name = "is_updated")
+  private Boolean updated = Boolean.FALSE;
+
+  @Column(name = "cost_amount")
+  private Integer costAmount;
+
   public Long getId() {
     return id;
   }
 
   public DeliveryReceiptItem setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public LocalDateTime getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public DeliveryReceiptItem setUpdatedDate(LocalDateTime updatedDate) {
+    this.updatedDate = updatedDate;
+    return this;
+  }
+
+  public Integer getCostAmount() {
+    return costAmount;
+  }
+
+  public DeliveryReceiptItem setCostAmount(Integer costAmount) {
+    this.costAmount = costAmount;
     return this;
   }
 
@@ -142,6 +168,15 @@ public class DeliveryReceiptItem implements Serializable {
 
   public DeliveryReceiptItem setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
+    return this;
+  }
+
+  public Boolean getUpdated() {
+    return updated;
+  }
+
+  public DeliveryReceiptItem setUpdated(Boolean updated) {
+    this.updated = updated;
     return this;
   }
 
@@ -255,8 +290,12 @@ public class DeliveryReceiptItem implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     DeliveryReceiptItem that = (DeliveryReceiptItem) o;
     return id.equals(that.id);
   }

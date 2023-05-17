@@ -7,7 +7,6 @@ import { ICommande } from 'app/shared/model/commande.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CommandeService } from './commande.service';
 import { IOrderLine } from 'app/shared/model/order-line.model';
-import { OrderLineService } from '../order-line/order-line.service';
 import { ProduitService } from '../produit/produit.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
@@ -21,6 +20,9 @@ import { CommandeImportResponseDialogComponent } from './commande-import-respons
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ImportationNewCommandeComponent } from './importation-new-commande.component';
+import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
+import { DeliveryService } from './delevery/delivery.service';
+import { IDelivery } from '../../shared/model/delevery.model';
 
 @Component({
   selector: 'jhi-commande',
@@ -72,6 +74,7 @@ export class CommandeComponent implements OnInit {
   commandebuttons: MenuItem[];
   rowExpandMode = 'single';
   loading!: boolean;
+  loadingSelectedFilter = true;
   page = 0;
   selectedtypeSuggession = 'ALL';
   typeSuggessions: any[] = [];
@@ -89,7 +92,7 @@ export class CommandeComponent implements OnInit {
     protected router: Router,
     protected modalService: NgbModal,
     private errorService: ErrorService,
-    protected orderLineService: OrderLineService,
+    protected deliveryService: DeliveryService,
     protected produitService: ProduitService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
@@ -105,7 +108,7 @@ export class CommandeComponent implements OnInit {
     this.filtres = [
       { label: 'Commande en cours', value: 'REQUESTED' },
       { label: 'Commande passées', value: 'PASSED' },
-      { label: 'Commande reçues', value: 'CLOSED' },
+      { label: 'Commande reçues', value: 'RECEIVED' },
     ];
     this.typeSuggessions = [
       { label: 'Tous', value: 'ALL' },
@@ -115,10 +118,10 @@ export class CommandeComponent implements OnInit {
 
     this.commandebuttons = [
       /*  {
-        label: 'Excel',
-        icon: 'pi pi-file-excel'
+                                label: 'Excel',
+                                icon: 'pi pi-file-excel'
 
-      },*/
+                              },*/
       {
         label: 'Csv',
         icon: 'pi pi-folder-open',
@@ -339,6 +342,31 @@ export class CommandeComponent implements OnInit {
       icon: 'pi pi-info-circle',
       accept: () => this.delete(commande?.id!),
       key: 'deleteCommande',
+    });
+  }
+
+  //  this.router.navigate(['404']);
+  gotoEntreeStockComponent(delivery: IDelivery): void {
+    this.router.navigate(['/commande', delivery.id, 'stock-entry']);
+  }
+
+  onCreateBon(commande: ICommande): void {
+    this.deliveryService.findByOrderReference(commande.orderRefernce).subscribe({
+      next: (res: HttpResponse<IDelivery>) => {
+        this.gotoEntreeStockComponent(res.body);
+      },
+      error: () => {
+        this.ref = this.dialogService.open(DeliveryModalComponent, {
+          data: { entity: null, commande },
+          header: 'CREATION DU BON DE LIVRAISON',
+          width: '40%',
+        });
+        this.ref.onClose.subscribe((delivery: IDelivery) => {
+          if (delivery) {
+            this.gotoEntreeStockComponent(delivery);
+          }
+        });
+      },
     });
   }
 

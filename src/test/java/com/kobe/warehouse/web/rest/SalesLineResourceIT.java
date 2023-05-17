@@ -4,6 +4,7 @@ import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.SalesLineRepository;
 
+import com.kobe.warehouse.web.rest.sales.SalesLineResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

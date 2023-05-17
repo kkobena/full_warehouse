@@ -46,7 +46,7 @@
         "motifAjustement": "Motifs ajustement",
         "groupeTiersPayant": "Groupe tiers-payant",
         "tiersPayant": "Tiers-payants",
-        "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
+        "delivery": "Entrée en stock"
       },
       "account": {
         "main": "Compte",

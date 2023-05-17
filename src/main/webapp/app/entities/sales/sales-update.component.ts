@@ -102,9 +102,9 @@ export class SalesUpdateComponent implements OnInit {
   event: any;
   @ViewChild('clientSearchBox', { static: false })
   clientSearchBox?: ElementRef;
-  @ViewChild('quantyBox', { static: false })
+  @ViewChild('quantyBox', { static: true })
   quantyBox?: ElementRef;
-  @ViewChild('produitbox', { static: false })
+  @ViewChild('produitbox', { static: true })
   produitbox?: any;
   @ViewChild('forcerStockBtn', { static: false })
   forcerStockBtn?: ElementRef;
@@ -175,6 +175,9 @@ export class SalesUpdateComponent implements OnInit {
   canSaleWithoutSansBon = false;
   selectOnTab = false;
 
+  /*
+  @ViewChild('keyContainer', { static: true }) input: ElementRef |
+    undefined;*/
   constructor(
     protected salesService: SalesService,
     protected customerService: CustomerService,
@@ -229,6 +232,12 @@ export class SalesUpdateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    /*
+    const logger$ = fromEvent<KeyboardEvent>(this.inpu
+nativeElement, 'keyup');
+logger$.subscribe(evt => this.keys += evt.key);
+     */
+
     this.loadAllUsers();
     this.maxToSale();
     this.saleWithoutSansBon();
@@ -495,7 +504,8 @@ export class SalesUpdateComponent implements OnInit {
     this.clientSearchBox?.nativeElement.focus();
   }
 
-  onHideHideDialog(): void {}
+  onHideHideDialog(): void {
+  }
 
   cancelErrorModal(): void {
     this.displayErrorModal = false;
@@ -921,13 +931,13 @@ export class SalesUpdateComponent implements OnInit {
 
   loadProduits(): void {
     this.produitService
-      .query({
-        page: 0,
-        size: 5,
-        withdetail: false,
-        search: this.searchValue,
-      })
-      .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
+    .query({
+      page: 0,
+      size: 5,
+      withdetail: false,
+      search: this.searchValue,
+    })
+    .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
 
   clickRow(item: IProduit): void {
@@ -1184,12 +1194,15 @@ export class SalesUpdateComponent implements OnInit {
 
   formatNumber(number: any): string {
     return Math.floor(number.value)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+    .toString()
+    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
   }
 
   openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static', centered: true });
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
   }
@@ -1445,34 +1458,34 @@ export class SalesUpdateComponent implements OnInit {
     if (this.clientSearchValue) {
       this.spinner.show('salespinner');
       this.customerService
-        .queryAssuredCustomer({
-          search: this.clientSearchValue,
-          typeTiersPayant: this.naturesVente?.code,
-        })
-        .subscribe(
-          res => {
-            this.spinner.hide('salespinner');
-            const assuredCustomers = res.body;
-            if (assuredCustomers && assuredCustomers.length > 0) {
-              if (assuredCustomers.length === 1) {
-                this.customerSelected = assuredCustomers[0];
-                setTimeout(() => {
-                  this.firstRefBonFocus();
-                }, 100);
-              } else {
-                this.openAssuredCustomerListTable(assuredCustomers);
-              }
-
-              this.clientSearchValue = null;
+      .queryAssuredCustomer({
+        search: this.clientSearchValue,
+        typeTiersPayant: this.naturesVente?.code,
+      })
+      .subscribe(
+        res => {
+          this.spinner.hide('salespinner');
+          const assuredCustomers = res.body;
+          if (assuredCustomers && assuredCustomers.length > 0) {
+            if (assuredCustomers.length === 1) {
+              this.customerSelected = assuredCustomers[0];
+              setTimeout(() => {
+                this.firstRefBonFocus();
+              }, 100);
             } else {
-              this.addAssuredCustomer();
-              this.clientSearchValue = null;
+              this.openAssuredCustomerListTable(assuredCustomers);
             }
-          },
-          () => {
-            this.spinner.hide('salespinner');
+
+            this.clientSearchValue = null;
+          } else {
+            this.addAssuredCustomer();
+            this.clientSearchValue = null;
           }
-        );
+        },
+        () => {
+          this.spinner.hide('salespinner');
+        }
+      );
     }
   }
 
@@ -1579,12 +1592,6 @@ export class SalesUpdateComponent implements OnInit {
     });
   }
 
-  private addTiersPayant(resp: IClientTiersPayant): void {
-    this.assuranceService.addThirdPartySaleLineToSales(resp, this.sale?.id!).subscribe(() => {
-      this.subscribeToSaveResponse(this.assuranceService.find(this.sale?.id!));
-    });
-  }
-
   protected processQtyRequested(salesLine: ISalesLine): void {
     if (this.naturesVente?.code === 'COMPTANT') {
       this.processQtyRequestedForVNO(salesLine);
@@ -1625,18 +1632,6 @@ export class SalesUpdateComponent implements OnInit {
     );
   }
 
-  private createPayment(montant: number, code: string): Payment {
-    this.entryAmount = this.getEntryAmount();
-    const amount = this.sale?.amountToBePaid! - (this.entryAmount - montant);
-    return {
-      ...new Payment(),
-      paidAmount: amount,
-      netAmount: amount,
-      paymentMode: SalesUpdateComponent.createPaymentMode(code),
-      montantVerse: this.montantCash ?? 0,
-    };
-  }
-
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
     result.subscribe(
       (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body?.saleId!)),
@@ -1673,32 +1668,6 @@ export class SalesUpdateComponent implements OnInit {
 
   protected onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
-  }
-
-  private createSaleComptant(produit: IProduit, quantitySold: number): ISales {
-    return {
-      ...new Sales(),
-      salesLines: [this.createSalesLine(produit, quantitySold)],
-      customer: this.customerSelected!,
-      natureVente: this.naturesVente?.code,
-      typePrescription: this.typePrescription?.code,
-      cassier: this.userCaissier!,
-      seller: this.userSeller!,
-      type: 'VNO',
-      categorie: 'VNO',
-    };
-  }
-
-  private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
-    return {
-      ...new SalesLine(),
-      produitId: produit.id,
-      regularUnitPrice: produit.regularUnitPrice,
-      saleId: this.sale?.id,
-      quantitySold: quantityRequested,
-      quantityRequested,
-      sales: this.sale,
-    };
   }
 
   protected onSaveSuccess(sale: ISales | null): void {
@@ -1816,6 +1785,66 @@ export class SalesUpdateComponent implements OnInit {
     }
   }
 
+  protected processQtySold(salesLine: ISalesLine): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.updateVNOQuantitySold(salesLine);
+    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+      this.updateCarnetQuantitySold(salesLine);
+    }
+  }
+
+  protected processItemPrice(salesLine: ISalesLine): void {
+    if (this.naturesVente?.code === 'COMPTANT') {
+      this.updateVNOItemPrice(salesLine);
+    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+      this.updateCarnetItemPrice(salesLine);
+    }
+  }
+
+  private addTiersPayant(resp: IClientTiersPayant): void {
+    this.assuranceService.addThirdPartySaleLineToSales(resp, this.sale?.id!).subscribe(() => {
+      this.subscribeToSaveResponse(this.assuranceService.find(this.sale?.id!));
+    });
+  }
+
+  private createPayment(montant: number, code: string): Payment {
+    this.entryAmount = this.getEntryAmount();
+    const amount = this.sale?.amountToBePaid! - (this.entryAmount - montant);
+    return {
+      ...new Payment(),
+      paidAmount: amount,
+      netAmount: amount,
+      paymentMode: SalesUpdateComponent.createPaymentMode(code),
+      montantVerse: this.montantCash ?? 0,
+    };
+  }
+
+  private createSaleComptant(produit: IProduit, quantitySold: number): ISales {
+    return {
+      ...new Sales(),
+      salesLines: [this.createSalesLine(produit, quantitySold)],
+      customer: this.customerSelected!,
+      natureVente: this.naturesVente?.code,
+      typePrescription: this.typePrescription?.code,
+      cassier: this.userCaissier!,
+      seller: this.userSeller!,
+      type: 'VNO',
+      categorie: 'VNO',
+    };
+  }
+
+  private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
+    return {
+      ...new SalesLine(),
+      produitId: produit.id,
+      regularUnitPrice: produit.regularUnitPrice,
+      saleId: this.sale?.id,
+      quantitySold: quantityRequested,
+      quantityRequested,
+      sales: this.sale,
+    };
+  }
+
   private onPrintInvoice(): void {
     this.salesService.print(this.sale?.id!).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
@@ -1862,14 +1891,6 @@ export class SalesUpdateComponent implements OnInit {
     ];
   }
 
-  protected processQtySold(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
-      this.updateVNOQuantitySold(salesLine);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
-      this.updateCarnetQuantitySold(salesLine);
-    }
-  }
-
   private updateVNOQuantitySold(salesLine: ISalesLine): void {
     this.salesService.updateItemQtySold(salesLine).subscribe(
       () => {
@@ -1896,14 +1917,6 @@ export class SalesUpdateComponent implements OnInit {
         this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
       }
     );
-  }
-
-  protected processItemPrice(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
-      this.updateVNOItemPrice(salesLine);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
-      this.updateCarnetItemPrice(salesLine);
-    }
   }
 
   private updateVNOItemPrice(salesLine: ISalesLine): void {
@@ -2003,7 +2016,11 @@ export class SalesUpdateComponent implements OnInit {
         { code: 'MOOV', libelle: 'MOOV', disabled: !this.modeReglementSelected.includes('MOOV') },
         { code: 'WAVE', libelle: 'WAVE', disabled: !this.modeReglementSelected.includes('WAVE') },
         { code: 'CB', libelle: 'CB', disabled: !this.modeReglementSelected.includes('CB') },
-        { code: 'VIREMENT', libelle: 'VIREMENT', disabled: !this.modeReglementSelected.includes('VIREMENT') },
+        {
+          code: 'VIREMENT',
+          libelle: 'VIREMENT',
+          disabled: !this.modeReglementSelected.includes('VIREMENT'),
+        },
         { code: 'CH', libelle: 'CHEQUE', disabled: !this.modeReglementSelected.includes('CH') },
       ];
     } else {

@@ -487,3 +487,74 @@ System.out.println(client.getDate().toString());
 client.disconnect();
 }
 #lpr:hostname:port/printername impression remote
+
+<div [ngSwitch]="name">
+<p *ngSwitchCase="'Webcam'">
+Product is used for video
+</p>
+<p *ngSwitchCase="'Microphone'">
+Product is used for audio
+</p>
+<p *ngSwitchDefault>Product is for general use</p>
+</div>
+<li *ngFor="let product of products | keyvalue">
+{{product.key}}
+</li>
+
+transform(value: Product[]): Product[] {
+if (value) {
+return value.sort((a: Product, b: Product) => {
+if (a.name < b.name) {
+return -1;
+} else if (b.name < a.name) {
+return 1;
+}
+return 0;
+});
+}
+return [];
+}
+
+@HostBinding
+@HostListener
+ViewContainerRef
+*ngFor="let product of (products$ | async)! | sort; let i=index
+products$: Observable<Product[]> | undefined;
+
+private getProducts() {
+this.products$ = this.productService.getProducts();
+}
+
+@Output() deleted = new EventEmitter();
+V<app-product-detail
+*ngIf="selectedProduct; else noProduct"
+[id]="selectedProduct.id"
+(deleted)="onDelete()"
+(bought)="onBuy()">
+</app-product-detail>
+{ path: '', redirectTo: '/products', pathMatch: 'full' }
+input.ng-touched {
+border: 3px solid lightblue;
+}
+• ng-untouched: Indicates that we have not interacted with the control yet
+• ng-touched: Indicates that we have interacted with the control
+• ng-dirty: Indicates that we have set a value to the control
+• ng-pristine: Indicates that the control does not have a value yet
+• ng-valid: Indicates that the value of the control is valid
+• ng-invalid: Indicates that the value of the control is not valid
+
+input.ng-dirty.ng-valid {
+border: 2px solid green;
+}
+input.ng-dirty.ng-invalid {
+border: 2px solid red;
+}
+<div [formGroup]="cartForm">
+<div
+formArrayName="products"
+*ngFor="let product of cartForm.controls.products.controls; let
+i=index">
+<label>{{cart[i].name}}</label>
+<input type="number" [formControlName]="i" />
+</div>
+</div>

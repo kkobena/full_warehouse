@@ -602,6 +602,16 @@
             <version>6.20.0</version>
         </dependency>
         <dependency>
+            <artifactId>barcode4j</artifactId>
+            <groupId>net.sf.barcode4j</groupId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <artifactId>batik-bridge</artifactId>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <version>1.12</version>
+        </dependency>
+        <dependency>
             <artifactId>pdfbox</artifactId>
             <groupId>org.apache.pdfbox</groupId>
             <version>2.0.22</version>

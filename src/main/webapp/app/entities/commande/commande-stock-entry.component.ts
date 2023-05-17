@@ -16,13 +16,16 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
-import { checkIfAlineToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
+import { checkIfRomToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
 import { NgxSpinnerService } from 'ngx-spinner';
-import moment from 'moment';
-import { DATE_FORMAT } from '../../shared/constants/input.constants';
 import { Params } from '../../shared/model/enumerations/params.model';
 import { FormLotComponent } from './lot/form-lot.component';
 import { ListLotComponent } from './lot/list/list-lot.component';
+import { DeliveryService } from './delevery/delivery.service';
+import { IDelivery } from '../../shared/model/delevery.model';
+import { IDeliveryItem } from '../../shared/model/delivery-item';
+import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
+import { ReceiptStatusComponent } from './status/receipt-status.component';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -32,13 +35,10 @@ import { ListLotComponent } from './lot/list/list-lot.component';
 })
 export class CommandeStockEntryComponent implements OnInit {
   commande?: ICommande | null = null;
+  delivery?: IDelivery | null = null;
   orderLines: IOrderLine[] = [];
-  receiptRefernce: string | null = null;
-  sequenceBon: string | null = null;
-  receiptAmount: number | null = null;
-  taxAmount: number | null = null;
-  receiptDate = new Date();
-  maxDate = new Date();
+  receiptItems: IDeliveryItem[] = [];
+
   selectedFilter = 'ALL';
   filtres: any[] = [];
   search?: string;
@@ -50,12 +50,15 @@ export class CommandeStockEntryComponent implements OnInit {
   frameworkComponents: any;
   context: any;
   showLotBtn = true;
-  disableActionBtn = true;
+  disableActionBtn = false;
+  showEditBtn = false;
   ref?: DynamicDialogRef;
+
   private gridApi!: GridApi;
 
   constructor(
     protected commandeService: CommandeService,
+    protected service: DeliveryService,
     protected orderLineService: OrderLineService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
@@ -76,47 +79,55 @@ export class CommandeStockEntryComponent implements OnInit {
       {
         headerName: '#',
         flex: 0.1,
-        cellStyle: this.cellStyle,
+        //   cellStyle: this.cellStyle,
         valueGetter: (params: any) => params.node.rowIndex + 1,
-      },
-      {
-        headerName: 'Code cip',
-        field: 'produitCip',
-        sortable: true,
-        cellStyle: this.cellStyle,
-        filter: 'agTextColumnFilter',
-        flex: 0.5,
-      },
-      {
-        headerName: 'Libellé',
-        field: 'produitLibelle',
-        sortable: true,
-        //  filter: 'agTextColumnFilter',
-        flex: 1.2,
-        cellStyle: this.cellStyle,
-        //  valueGetter: 'data.firstName',
-        //editable: (params) => params.data.year == 2012
       },
 
       {
-        headerName: 'PA.M',
-        field: 'costAmount',
-        type: ['rightAligned', 'numericColumn'],
-        editable: false,
+        headerName: 'Code cip',
+        field: 'fournisseurProduitCip',
         sortable: true,
+        // cellStyle: this.cellStyle,
+        filter: 'agTextColumnFilter',
         flex: 0.4,
-        valueFormatter: formatNumberToString,
-        cellStyle: this.cellStyle,
       },
       {
-        headerName: 'PA',
+        headerName: 'Libellé',
+        field: 'fournisseurProduitLibelle',
+        sortable: true,
+        //  filter: 'agTextColumnFilter',
+        flex: 1,
+        //  cellStyle: this.cellStyle,
+        //  valueGetter: 'data.firstName',
+        //editable: (params) => params.data.year == 2012
+      },
+      {
+        headerName: 'Stock',
+        field: 'initStock',
+        type: ['rightAligned', 'numericColumn'],
+        valueFormatter: formatNumberToString,
+        //  cellStyle: this.cellStyle,
+        flex: 0.3,
+      },
+      {
+        headerName: 'PA.M',
         field: 'orderCostAmount',
         type: ['rightAligned', 'numericColumn'],
         editable: false,
         sortable: true,
         flex: 0.3,
         valueFormatter: formatNumberToString,
-        cellStyle: this.cellStyle,
+        //  cellStyle: this.cellStyle,
+      },
+      {
+        headerName: 'PA',
+        field: 'costAmount',
+        type: ['rightAligned', 'numericColumn'],
+        editable: false,
+        sortable: true,
+        flex: 0.3,
+        valueFormatter: formatNumberToString,
+        // cellStyle: this.cellStyle,
       },
       {
         headerName: 'PU.M',
@@ -126,7 +137,7 @@ export class CommandeStockEntryComponent implements OnInit {
         sortable: true,
         flex: 0.4,
         valueFormatter: formatNumberToString,
-        cellStyle: this.cellStyle,
+        // cellStyle: this.cellStyle,
       },
       {
         headerName: 'PU',
@@ -136,7 +147,7 @@ export class CommandeStockEntryComponent implements OnInit {
         sortable: true,
         flex: 0.4,
         valueFormatter: formatNumberToString,
-        cellStyle: this.cellStyle,
+        // cellStyle: this.cellStyle,
       },
       {
         headerName: 'Qté cmd',
@@ -146,16 +157,16 @@ export class CommandeStockEntryComponent implements OnInit {
         sortable: true,
         flex: 0.3,
         valueFormatter: formatNumberToString,
-        cellStyle: this.cellStyle,
+        //  cellStyle: this.cellStyle,
       },
       {
-        headerName: 'Qté livréé',
+        headerName: 'Qté livrée',
         flex: 0.4,
         field: 'quantityReceivedTmp',
         editable: true,
         sortable: true,
         type: ['rightAligned', 'numericColumn'],
-        cellStyle: this.cellStyle,
+        //  cellStyle: this.cellStyle,
       },
       {
         headerName: 'Qté Ug',
@@ -164,7 +175,7 @@ export class CommandeStockEntryComponent implements OnInit {
         editable: true,
         sortable: true,
         type: ['rightAligned', 'numericColumn'],
-        cellStyle: this.cellStyle,
+        //   cellStyle: this.cellStyle,
       },
       {
         headerName: 'Ecart',
@@ -172,12 +183,20 @@ export class CommandeStockEntryComponent implements OnInit {
         flex: 0.3,
         type: ['rightAligned', 'numericColumn'],
         valueGetter: this.setGap,
-        cellStyle: this.cellClass,
+        //    cellStyle: this.cellClass,
+      },
+      {
+        field: 'Status',
+        cellRenderer: 'statusCellRenderer',
+        flex: 0.3,
+        hide: false,
+        suppressToolPanel: false,
+        cellStyle: this.statusCellStyle,
       },
       {
         field: ' ',
         cellRenderer: 'btnCellRenderer',
-        flex: 0.4,
+        flex: 0.2,
         hide: false,
         suppressToolPanel: false,
         cellStyle: this.btnCellStyle,
@@ -194,27 +213,23 @@ export class CommandeStockEntryComponent implements OnInit {
     };
     this.frameworkComponents = {
       btnCellRenderer: CommandeBtnComponent,
+      statusCellRenderer: ReceiptStatusComponent,
     };
     this.context = { componentParent: this };
   }
 
   ngOnInit(): void {
-    this.maxDate = new Date();
     this.activatedRoute.data.subscribe({
       next: data => {
-        const commande = data.commande;
-        if (commande.id) {
-          this.commande = commande;
-          this.orderLines = commande.orderLines;
-          this.receiptRefernce = commande.receiptRefernce;
-          this.sequenceBon = commande.sequenceBon;
-          this.receiptDate = commande.receiptDate ? new Date(commande.receiptDate.format(DATE_FORMAT)) : new Date();
-          this.receiptAmount = commande.receiptAmount;
-          this.taxAmount = commande.taxAmount > 0 ? commande.taxAmount : null;
+        const delivery = data.delivery;
+        if (delivery.id) {
+          this.delivery = delivery;
+          this.receiptItems = delivery.receiptItems;
           this.enabledBtnValidate();
         }
       },
     });
+
     this.findParamAddLot();
   }
 
@@ -234,12 +249,20 @@ export class CommandeStockEntryComponent implements OnInit {
     }
   }
 
+  statusCellStyle(): any {
+    return {
+      paddingTop: '10px',
+      paddingLeft: '1px',
+      paddingRight: '1px',
+    };
+  }
+
   cellClass(params: any): any {
-    const orderLine = params.data as IOrderLine;
-    if (orderLine.quantityReceived) {
-      const ecart = Math.abs(Number(orderLine.quantityRequested) - Number(orderLine.quantityReceived));
+    const deliveryItem = params.data as IDeliveryItem;
+    if (deliveryItem.quantityReceived) {
+      const ecart = Math.abs(Number(deliveryItem.quantityRequested) - Number(deliveryItem.quantityReceived));
       if (ecart > 0) {
-        if (Number(orderLine.quantityRequested) < Number(orderLine.quantityReceived)) {
+        if (Number(deliveryItem.quantityRequested) < Number(deliveryItem.quantityReceived)) {
           return {
             backgroundColor: '#FFC107',
             borderRight: 'solid 0.25px  rgb(150, 150, 200)',
@@ -254,7 +277,7 @@ export class CommandeStockEntryComponent implements OnInit {
         }
       }
     }
-    const toBeUpdated = checkIfAlineToBeUpdated(orderLine);
+    const toBeUpdated = checkIfRomToBeUpdated(deliveryItem);
 
     let backgroundColor = '';
     if (toBeUpdated) {
@@ -273,8 +296,8 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   cellStyle(params: any): any {
-    const orderLine = params.data as IOrderLine;
-    const toBeUpdated = checkIfAlineToBeUpdated(orderLine);
+    const deliveryItem = params.data as IDeliveryItem;
+    const toBeUpdated = checkIfRomToBeUpdated(deliveryItem);
 
     let backgroundColor = '';
     if (toBeUpdated) {
@@ -314,9 +337,9 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   setGap(params: any): number {
-    const orderLine = params.data as IOrderLine;
-    if (orderLine.quantityReceived) {
-      return orderLine.quantityRequested - orderLine.quantityReceived;
+    const deliveryItem = params.data as IDeliveryItem;
+    if (deliveryItem.quantityReceived) {
+      return deliveryItem.quantityRequested - deliveryItem.quantityReceived;
     }
     return 0;
   }
@@ -328,24 +351,24 @@ export class CommandeStockEntryComponent implements OnInit {
     return;
   }
 
-  onFilterCommandeLines(): void {
+  onFilterReceiptItems(): void {
     const query = {
-      commandeId: this.commande?.id,
+      deliveryId: this.delivery?.id,
       search: this.search,
-      filterCommaneEnCours: this.selectedFilter,
+      filter: this.selectedFilter,
       size: 99999,
       orderBy: 'PRODUIT_LIBELLE',
     };
-    this.commandeService.filterCommandeLines(query).subscribe(res => {
-      this.orderLines = res.body!;
+    this.service.filterItems(query).subscribe(res => {
+      this.receiptItems = res.body!;
     });
   }
 
-  orderLineTableColor(orderLine: IOrderLine): string {
-    if (orderLine) {
-      if (orderLine.costAmount !== orderLine.orderCostAmount) {
+  orderLineTableColor(deliveryItem: IDeliveryItem): string {
+    if (deliveryItem) {
+      if (deliveryItem.costAmount !== deliveryItem.orderCostAmount) {
         return 'table-danger';
-      } else if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
+      } else if (deliveryItem.regularUnitPrice !== deliveryItem.orderUnitPrice) {
         return 'table-warning';
       }
     }
@@ -367,7 +390,7 @@ export class CommandeStockEntryComponent implements OnInit {
       case 'orderCostAmount':
         this.onUpdateOrderCostAmount(params);
         break;
-      case 'produitCip':
+      case 'fournisseurProduitCip':
         this.onUpdateCip(params.data);
         break;
       default:
@@ -375,75 +398,79 @@ export class CommandeStockEntryComponent implements OnInit {
     }
   }
 
-  editLigneInfos(orderLine: IOrderLine): void {
-    this.gotoProduitPageEdit(orderLine.produitId);
+  editLigneInfos(deliveryItem: IDeliveryItem): void {
+    this.gotoProduitPageEdit(deliveryItem.fournisseurProduitId);
   }
 
-  onAddLot(orderLine: IOrderLine): void {
-    const quantityReceived = orderLine.quantityReceived || orderLine.quantityRequested;
+  onAddLot(deliveryItem: IDeliveryItem): void {
+    const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
     if (quantityReceived > 1) {
       this.ref = this.dialogService.open(ListLotComponent, {
-        data: { orderLine, commandeId: this.commande.id },
+        data: { deliveryItem, commandeId: this.commande.id },
         width: '60%',
-        header: `GESTION DE LOTS DE LA LIGNE ${orderLine.produitLibelle} [${orderLine.produitCodeEan}]`,
+        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
       });
     } else {
       this.ref = this.dialogService.open(FormLotComponent, {
-        data: { entity: null, orderLine, commandeId: this.commande.id },
+        data: { entity: null, deliveryItem, commandeId: this.commande.id },
         width: '40%',
         header: 'Ajout de lot',
       });
     }
-    this.ref.onClose.subscribe(() => this.reloadCommande(this.commande));
+    this.ref.onClose.subscribe(() => this.reloadDelivery());
   }
 
-  onUpdateCip(data: any): void {
-    const orderLine = data as IOrderLine;
-    this.commandeService.updateCip(orderLine).subscribe(() => {
-      orderLine.provisionalCode = false;
+  onUpdateCip(params: any): void {
+    const deliveryItem = params.data as IDeliveryItem;
+    this.service.updateCip(deliveryItem).subscribe({
+      next: () => {
+        deliveryItem.provisionalCode = false;
+        this.reloadDelivery();
+      },
+      error: err => this.onEditCellError(err),
     });
   }
 
   onUpdateOrderCostAmount(params: any): void {
-    const orderLine = params.data as IOrderLine;
-    const orderCostAmount = Number(orderLine.orderCostAmount);
+    const deliveryItem = params.data as IDeliveryItem;
+    const orderCostAmount = Number(deliveryItem.orderCostAmount);
     if (Number(orderCostAmount) > 0) {
-      this.subscribeToSaveOrderLineResponse(this.commandeService.updateOrderCostAmount(orderLine));
+      this.subscribeOnEditCellResponse(this.service.updateOrderCostAmount(deliveryItem));
     } else {
-      this.reloadCommande(this.commande);
+      this.reloadDelivery();
     }
   }
 
   onUpdateOrderUnitPrice(params: any): void {
-    const orderLine = params.data as IOrderLine;
-    const orderUnitPrice = Number(orderLine.orderUnitPrice);
-    if (this.commande && orderUnitPrice > 0) {
-      this.subscribeOnEditCellResponse(this.commandeService.updateOrderUnitPriceOnStockEntry(orderLine));
+    const deliveryItem = params.data as IDeliveryItem;
+    const orderUnitPrice = Number(deliveryItem.orderUnitPrice);
+    if (orderUnitPrice > 0) {
+      this.subscribeOnEditCellResponse(this.service.updateOrderUnitPriceOnStockEntry(deliveryItem));
     } else {
-      this.reloadCommande(this.commande);
+      this.reloadDelivery();
     }
   }
 
   onUpdatequantityUG(params: any): void {
-    const orderLine = params.data as IOrderLine;
-    const newQuantityUG = Number(orderLine.ugQuantity);
+    const deliveryItem = params.data as IDeliveryItem;
+    const newQuantityUG = Number(deliveryItem.ugQuantity);
     if (newQuantityUG > 0) {
-      orderLine.quantityUG = newQuantityUG;
-      orderLine.ugQuantity = newQuantityUG;
-      this.subscribeOnEditCellResponse(this.commandeService.updateQuantityUG(orderLine));
+      deliveryItem.quantityUG = newQuantityUG;
+      deliveryItem.ugQuantity = newQuantityUG;
+      this.subscribeOnEditCellResponse(this.service.updateQuantityUG(deliveryItem));
     } else {
-      this.reloadCommande(this.commande);
+      this.reloadDelivery();
     }
   }
 
   onUpdateQuantityReceived(params: any): void {
-    const orderLine = params.data as IOrderLine;
-    const newQuantityReceived = Number(orderLine.quantityReceivedTmp);
+    const deliveryItem = params.data as IDeliveryItem;
+    const newQuantityReceived = Number(deliveryItem.quantityReceivedTmp);
     if (newQuantityReceived >= 0) {
-      orderLine.quantityReceived = newQuantityReceived;
-      this.subscribeOnEditCellResponse(this.commandeService.updateQuantityReceived(orderLine));
+      deliveryItem.quantityReceived = newQuantityReceived;
+      this.subscribeOnEditCellResponse(this.service.updateQuantityReceived(deliveryItem));
     } else {
-      this.reloadCommande(this.commande);
+      this.reloadDelivery();
     }
   }
 
@@ -452,24 +479,16 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   enabledBtnValidate(): void {
-    this.disableActionBtn =
-      !this.taxAmount ||
-      this.taxAmount < 0 ||
-      !this.receiptAmount ||
-      this.receiptAmount <= 0 ||
-      this.receiptAmount != this.commande?.grossAmount ||
-      !this.receiptRefernce ||
-      !this.receiptDate;
+    this.disableActionBtn = false;
   }
 
   onSave(): void {
     this.showsPinner();
 
-    this.buildCommande();
     this.commandeService.sauvegarderSaisieEntreeStock(this.commande).subscribe({
       next: res => {
         this.hidePinner();
-        this.reloadCommande(res.body);
+        this.reloadDelivery();
       },
       error: error => {
         this.onCommonError(error);
@@ -480,11 +499,10 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onFinalize(): void {
     this.showsPinner();
-    this.buildCommande();
-    this.commandeService.finalizeSaisieEntreeStock(this.commande).subscribe({
+    this.service.finalizeSaisieEntreeStock(this.delivery).subscribe({
       next: () => {
         this.hidePinner();
-        this.commande = null;
+        this.delivery = null;
         this.previousState();
       },
       error: error => {
@@ -494,15 +512,15 @@ export class CommandeStockEntryComponent implements OnInit {
     });
   }
 
-  subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
+  subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
-      next: res => this.onSaveOrderLineSuccess(res.body!),
+      next: () => this.onSaveOrderLineSuccess(),
       error: err => this.onCommonError(err),
     });
   }
 
-  onSaveOrderLineSuccess(commande: ICommande): void {
-    this.reloadCommande(commande);
+  onSaveOrderLineSuccess(): void {
+    this.reloadDelivery();
   }
 
   onSaveError(): void {
@@ -544,36 +562,46 @@ export class CommandeStockEntryComponent implements OnInit {
     this.spinner.hide();
   }
 
-  reloadCommande(commande: ICommande): void {
-    if (commande) {
-      this.commandeService.findSaisieEntreeStock(commande.id!).subscribe(res => {
-        this.commande = res.body;
-        this.orderLines = this.commande?.orderLines!;
-      });
-    }
+  findCommande(): void {
+    this.commandeService.findByReference(this.delivery.orderReference).subscribe(res => {
+      this.commande = res.body;
+      this.orderLines = this.commande?.orderLines!;
+    });
   }
 
-  buildCommande(): void {
-    this.commande.receiptAmount = this.receiptAmount;
-    this.commande.taxAmount = this.taxAmount;
-    this.commande.sequenceBon = this.sequenceBon;
-    this.commande.receiptDate = moment(this.receiptDate.toISOString());
-    this.commande.receiptRefernce = this.receiptRefernce;
+  reloadDelivery(): void {
+    this.service.find(this.delivery.id!).subscribe(res => {
+      this.delivery = res.body;
+      this.receiptItems = this.delivery?.receiptItems;
+    });
+  }
+
+  onEditDelivery(): void {
+    this.ref = this.dialogService.open(DeliveryModalComponent, {
+      data: { entity: this.delivery, commande: this.commande },
+      header: 'MODIFICATION DU BON DE LIVRAISON',
+      width: '40%',
+    });
+    this.ref.onClose.subscribe((delivery: IDelivery) => {
+      if (delivery) {
+        this.delivery = delivery;
+      }
+    });
   }
 
   gotoProduitPageEdit(id: number): void {
-    this.router.navigate(['/produit', id, 'edit'], { relativeTo: this.activatedRoute });
+    this.router.navigate(['/produit', id, 'edit']);
   }
 
   private subscribeOnEditCellResponse(result: Observable<{}>): void {
     result.subscribe({
-      next: () => this.reloadCommande(this.commande),
+      next: () => this.reloadDelivery(), // see how to commit row insted reload
       error: err => this.onEditCellError(err),
     });
   }
 
   private onEditCellError(error: any): void {
     this.onCommonError(error);
-    this.reloadCommande(this.commande);
+    this.reloadDelivery(); // se how to reset ROW
   }
 }

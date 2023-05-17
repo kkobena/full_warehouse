@@ -6,6 +6,7 @@ export interface ICommandeResponse {
   succesCount?: number;
   failureCount?: number;
   reference?: string;
+  entity?: any;
 }
 
 export class CommandeResponse implements ICommandeResponse {
@@ -14,6 +15,7 @@ export class CommandeResponse implements ICommandeResponse {
     public succesCount?: number,
     public failureCount?: number,
     public reference?: string,
+    public entity?: any,
     public items?: IOrderItem[]
   ) {}
 }

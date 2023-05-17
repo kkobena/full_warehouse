@@ -147,17 +147,17 @@ export class CommandeService {
   }
 
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + '/entree-stock/update-order-line-quantity-received', orderLine, {
+    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
       observe: 'response',
     });
   }
 
   updateQuantityUG(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + '/entree-stock/update-order-line-quantity-ug', orderLine, { observe: 'response' });
+    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-quantity-ug', orderLine, { observe: 'response' });
   }
 
   updateOrderUnitPriceOnStockEntry(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + '/entree-stock/update-order-line-unit-price', orderLine, { observe: 'response' });
+    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-unit-price', orderLine, { observe: 'response' });
   }
 
   test(req: any): Observable<HttpResponse<{}>> {
@@ -182,6 +182,12 @@ export class CommandeService {
   findSaisieEntreeStock(id: number): Observable<EntityResponseType> {
     return this.http
       .get<ICommande>(`${this.resourceUrl}/entree-stock/${id}`, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  findByReference(reference: string): Observable<EntityResponseType> {
+    return this.http
+      .get<ICommande>(`${this.resourceUrl}/by-reference/${reference}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 

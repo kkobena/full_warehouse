@@ -24,12 +24,16 @@ export interface IDeliveryItem {
   effectifOrderAmount?: number;
 
   ugQuantity?: number;
-
+  quantityUG?: number;
   fournisseurProduitId?: number;
   fournisseurProduitLibelle?: string;
   fournisseurProduitCip?: string;
   fournisseurProduitEan?: string;
   lots?: ILot[];
+  updated?: boolean;
+  costAmount?: number;
+  quantityReceivedTmp?: number;
+  provisionalCode?: boolean;
 }
 
 export class DeliveryItem implements IDeliveryItem {
@@ -48,10 +52,15 @@ export class DeliveryItem implements IDeliveryItem {
     public effectifGrossIncome?: number,
     public effectifOrderAmount?: number,
     public ugQuantity?: number,
+    public quantityUG?: number,
     public fournisseurProduitId?: number,
     public fournisseurProduitLibelle?: string,
     public fournisseurProduitCip?: string,
     public fournisseurProduitEan?: string,
-    public lots?: ILot[]
+    public lots?: ILot[],
+    public updated?: boolean,
+    public costAmount?: number,
+    public quantityReceivedTmp?: number,
+    public provisionalCode?: boolean
   ) {}
 }

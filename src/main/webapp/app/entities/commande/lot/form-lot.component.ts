@@ -6,8 +6,8 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
 import { LotService } from './lot.service';
-import { IOrderLine } from '../../../shared/model/order-line.model';
 import { BLOCK_SPACE, DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
+import { IDeliveryItem } from '../../../shared/model/delivery-item';
 
 @Component({
   selector: 'jhi-form-lot',
@@ -17,7 +17,7 @@ import { BLOCK_SPACE, DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/wareho
 export class FormLotComponent implements OnInit {
   isSaving = false;
   entity?: ILot;
-  orderLine?: IOrderLine;
+  deliveryItem?: IDeliveryItem;
   commandeId?: number;
 
   maxDate = new Date();
@@ -56,9 +56,9 @@ export class FormLotComponent implements OnInit {
     this.maxDate = new Date();
     this.minDate = new Date();
     this.entity = this.config.data.entity;
-    this.orderLine = this.config.data.orderLine;
+    this.deliveryItem = this.config.data.deliveryItem;
     this.commandeId = this.config.data.commandeId;
-    this.showUgControl = Number(this.orderLine.ugQuantity) > 0 || this.getLotUgQuantity() < Number(this.orderLine.ugQuantity);
+    this.showUgControl = Number(this.deliveryItem.ugQuantity) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.ugQuantity);
 
     if (this.entity) {
       this.updateForm(this.entity);
@@ -94,7 +94,7 @@ export class FormLotComponent implements OnInit {
 
   onValidateNumLot(event: any): void {
     const numLot = event.target.value;
-    this.numLotAlreadyExist = this.orderLine.lots.some(lot => lot.numLot === numLot);
+    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot);
     if (this.numLotAlreadyExist) {
       this.messageService.add({
         severity: 'error',
@@ -162,12 +162,12 @@ export class FormLotComponent implements OnInit {
       quantityReceived: this.editForm.get(['quantityReceived'])!.value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived'])!.value,
       commandeId: this.commandeId,
-      receiptItem: this.orderLine.id,
+      receiptItem: this.deliveryItem.id,
     };
   }
 
   private getValidLotQuantity(): number {
-    const quantityReceived = this.orderLine.quantityReceived || this.orderLine.quantityRequested;
+    const quantityReceived = this.deliveryItem.quantityReceived || this.deliveryItem.quantityRequested;
     if (this.entity) {
       return quantityReceived - (this.getLotQuantity() - this.entity.quantityReceived);
     } else {
@@ -176,7 +176,7 @@ export class FormLotComponent implements OnInit {
   }
 
   private getValidLotUgQuantity(): number {
-    const ugQuantity = this.orderLine.ugQuantity;
+    const ugQuantity = this.deliveryItem.ugQuantity;
     if (this.entity && ugQuantity) {
       return ugQuantity - (this.getLotUgQuantity() - this.entity.ugQuantityReceived);
     }
@@ -185,10 +185,10 @@ export class FormLotComponent implements OnInit {
   }
 
   private getLotQuantity(): number {
-    return this.orderLine.lots.reduce((first, second) => first + second.quantityReceived, 0);
+    return this.deliveryItem.lots.reduce((first, second) => first + second.quantityReceived, 0);
   }
 
   private getLotUgQuantity(): number {
-    return this.orderLine.lots.reduce((first, second) => first + second.ugQuantityReceived, 0);
+    return this.deliveryItem.lots.reduce((first, second) => first + second.ugQuantityReceived, 0);
   }
 }

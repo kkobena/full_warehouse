@@ -14,21 +14,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CommandeDataService {
-  CommandeDTO findOneById(Long id);
 
-  Optional<Commande> getOneById(Long id);
+    CommandeDTO findOneById(Long id);
 
-  Optional<CommandeEntryDTO> getCommandeById(Long id);
+    Optional<Commande> getOneById(Long id);
 
-  Resource exportCommandeToCsv(Long id) throws IOException;
+    Optional<CommandeEntryDTO> getCommandeById(Long id);
 
-  Resource exportCommandeToPdf(Long id) throws IOException;
+    Resource exportCommandeToCsv(Long id) throws IOException;
 
-  List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter);
+    Resource exportCommandeToPdf(Long id) throws IOException;
 
-  Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
+    List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter);
 
-  Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable);
+    Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
 
-  Resource getRuptureCsv(String reference) throws IOException;
+    Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable);
+
+    Resource getRuptureCsv(String reference);
+
+    Optional<CommandeDTO> findOneByOrderReference(String orderReference);
+
 }

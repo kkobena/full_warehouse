@@ -111,6 +111,10 @@ import { RouterModule } from '@angular/router';
         path: 'tiers-payant',
         loadChildren: () => import('./tiers-payant/tiers-payant.module').then(m => m.WarehouseTiersPayantModule),
       },
+      {
+        path: 'gestion-entree',
+        loadChildren: () => import('./commande/delevery/delivery.module').then(m => m.DeliveryModule),
+      },
     ]),
   ],
 })

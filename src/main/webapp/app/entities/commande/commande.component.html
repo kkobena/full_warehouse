@@ -30,8 +30,9 @@
   </p-footer>
 </p-dialog>
 
-<p-tabView [(activeIndex)]="index" [orientation]="tooltipPosition">
-  <p-tabPanel header="Commandes">
+<h3 id="page-heading">
+  <span jhiTranslate="warehouseApp.commande.home.title">Gestion des commandes</span>
+</h3>
     <p-toolbar>
       <div class="p-toolbar-group-left commande" style="width: 40%;">
         <div class="row" style="width: 100%;">
@@ -52,7 +53,7 @@
           <div class="col-md-4">
             <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter" [items]="filtres!"
                        bindLabel="label"
-                       bindValue="value">
+                       bindValue="value" [hidden]="loadingSelectedFilter">
 
             </ng-select>
           </div>
@@ -62,7 +63,8 @@
       </div>
       <div class="p-toolbar-group-right">
                  <span class="p-buttonset">
-                     <button [hidden]="true" (click)="test()" class="p-button-raised p-button-info "
+                     <button [hidden]="true" (click)="test()"
+                             class="p-button-raised p-button-info "
                              icon="pi pi-search"
                              label="Test" pButton
                              pRipple
@@ -152,7 +154,7 @@
                     pRipple
                     type="button"></button>
           </td>
-          <td>{{commande.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+          <td>{{commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
           <td>{{commande.orderRefernce}}</td>
           <td class="text-right">{{commande.itemSize |number}}</td>
           <td class="text-right">{{commande.grossAmount |number}}</td>
@@ -176,7 +178,7 @@
               <button class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
                       pButton pRipple
                       pTooltip="Faire l'entréé en  stock"
-                      [routerLink]="['/commande', commande.id, 'stock-entry']"
+                   (click)="onCreateBon(commande)"
                       *ngIf="commande.orderStatus!=='CLOSED'"></button>
               <button [hidden]="true" class="p-button-rounded p-button-help p-button-sm ml-sm-1"
                       icon="pi pi-upload"
@@ -269,12 +271,4 @@
     </ng-template>
     </p-table>
 
-  </p-tabPanel>
-  <p-tabPanel header="Gestion des entrées en stock">
 
-  <jhi-delevery [activeIndex]="index" ></jhi-delevery>
-
-  </p-tabPanel>
-
-
-</p-tabView>

@@ -4,11 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandeResponseDTO {
-  private int totalItemCount;
-  private int succesCount;
-  private int failureCount;
-  private String reference;
-  private List<OrderItem> items = new ArrayList<>();
+
+    private int totalItemCount;
+    private int succesCount;
+    private int failureCount;
+    private String reference;
+    private List<OrderItem> items = new ArrayList<>();
+    private DeliveryReceiptLiteDTO entity;
+
+    public CommandeResponseDTO() {
+    }
+
+    public DeliveryReceiptLiteDTO getEntity() {
+        return entity;
+    }
+
+    public CommandeResponseDTO setEntity(DeliveryReceiptLiteDTO entity) {
+        this.entity = entity;
+        return this;
+    }
 
     public String getReference() {
         return reference;
@@ -48,9 +62,6 @@ public class CommandeResponseDTO {
 
     public List<OrderItem> getItems() {
         return items;
-    }
-
-    public CommandeResponseDTO() {
     }
 
     public CommandeResponseDTO setItems(List<OrderItem> items) {

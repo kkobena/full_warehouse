@@ -52,8 +52,7 @@ export class ImportationNewCommandeComponent implements OnInit {
     this.isSaving = true;
     const formData: FormData = new FormData();
     const file = this.file;
-    const test = 150503;
-    this.fournisseurSelectedId = test;
+
     formData.append('commande', file, file.name);
     this.spinner.show('upload-commande-spinner');
     this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData).subscribe(
@@ -104,7 +103,10 @@ export class ImportationNewCommandeComponent implements OnInit {
   }
 
   protected openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static', centered: true });
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
   }

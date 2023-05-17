@@ -9,13 +9,9 @@ import { commandeRoute } from './commande.route';
 import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
 import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
 import { ImportationNewCommandeComponent } from './importation-new-commande.component';
-import { CommandeStockEntryComponent } from './commande-stock-entry.component';
 import { AgGridModule } from 'ag-grid-angular';
-import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { CommandeUpdateComponent } from './commande-update.component';
-import { FormLotComponent } from './lot/form-lot.component';
-import { ListLotComponent } from './lot/list/list-lot.component';
-import { DeliveryComponent } from './delevery/delivery.component';
+import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
 
 @NgModule({
   imports: [SharedModule, AgGridModule, RouterModule.forChild(commandeRoute)],
@@ -27,11 +23,7 @@ import { DeliveryComponent } from './delevery/delivery.component';
     CommandeEnCoursResponseDialogComponent,
     CommandeImportResponseDialogComponent,
     ImportationNewCommandeComponent,
-    CommandeStockEntryComponent,
-    CommandeBtnComponent,
-    FormLotComponent,
-    ListLotComponent,
-    DeliveryComponent,
+    DeliveryModalComponent,
   ],
 })
 export class WarehouseCommandeModule {}

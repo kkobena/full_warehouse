@@ -582,3 +582,53 @@ label {
 .produit-form {
   background: #f7f7f7;
 }
+
+.form-delivery {
+  padding-top: 0;
+  padding-bottom: 0;
+
+  .p-card-title {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .p-card-content {
+    padding: 0.5rem 0;
+  }
+
+  .p-card-body {
+    padding: 0.5rem 1rem;
+  }
+
+  .p-card-footer {
+    padding: 0.2rem 0 0 0;
+    text-align: right;
+  }
+}
+
+.commande-entry {
+  .col-sm-2 {
+    padding-left: 1px;
+    padding-right: 1px;
+
+    .card:first-child {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .col-sm-10 {
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+
+  .ag-theme-alpine {
+    .ag-row {
+      font-size: 13px;
+    }
+
+    .ag-header-cell-text {
+      white-space: break-spaces;
+      
+    }
+  }
+}

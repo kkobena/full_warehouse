@@ -4,83 +4,64 @@
 
   <div class="row">
     <div class="col-sm-2">
-      <div class="card-header bg-primary text-white">
+      <!--<div class="card-header bg-primary text-white">
         Information sur la commande
 
-      </div>
-      <div class=" form-bon">
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span style="margin-right: 5px;">Référence</span>
-            <span class="text-primary">{{commande?.orderRefernce}}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span style="margin-right: 5px;">Grossiste</span>
-            <span class="text-primary">{{commande?.fournisseur?.libelle}}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Valeur Achat
-            <span class="text-primary">{{commande?.grossAmount | number}}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Valeur Vente
-            <span class="text-primary">{{commande?.orderAmount | number}}</span>
-          </li>
-        </ul>
-        <div class="mt-sm-1">
-          <div class="card-header bg-primary text-white">Formulaire du bon de livraison</div>
-          <div class="form-row pt-sm-1">
-            <div class="form-group col">
-
-              <label class="form-control-label">Date Bon</label>
-              <div class="input-group">
-                <p-calendar (change)="enabledBtnValidate()" [(ngModel)]="receiptDate"
-                            [maxDate]="maxDate"
-                            [selectOtherMonths]="true" [showButtonBar]="true" dateFormat="dd/mm/yy"
-                            styleClass="date-picker-bl"></p-calendar>
-              </div>
-
-            </div>
-          </div>
-          <div class="form-row ">
-            <div class="form-group col">
-              <label class="form-control-label">Référence Bon</label>
-              <input (input)="enabledBtnValidate()" [(ngModel)]="receiptRefernce"
-                     autocomplete="off" class="form-control" pInputText type="text" />
-
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col">
-              <label class="form-control-label">Séquence Bon</label>
-              <input (input)="enabledBtnValidate()" [(ngModel)]="sequenceBon" autocomplete="off"
-                     class="form-control" pInputText type="text" />
-
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col">
-              <label class="form-control-label">Montant TTC</label>
-              <input (input)="enabledBtnValidate()" [(ngModel)]="receiptAmount" [pKeyFilter]="'int'"
-                     autocomplete="off"
-                     class="form-control"
-                     pInputText type="text" />
-
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col">
-              <label class="form-control-label">Taxe</label>
-              <input (input)="enabledBtnValidate()" [(ngModel)]="taxAmount" [pKeyFilter]="'int'"
-                     autocomplete="off"
-                     class="form-control"
-                     pInputText type="text" />
-
-            </div>
-          </div>
+      </div>-->
+      <div *ngIf="commande" class="card">
+        <div class="card-header">
+          Information sur la commande
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span style="margin-right: 5px;">Référence</span>
+              <span class="text-primary">{{commande?.orderRefernce}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span style="margin-right: 5px;">Grossiste</span>
+              <span class="text-primary">{{commande?.fournisseur?.libelle}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Valeur Achat
+              <span class="text-primary">{{commande?.grossAmount | number}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Valeur Vente
+              <span class="text-primary">{{commande?.orderAmount | number}}</span>
+            </li>
+          </ul>
         </div>
       </div>
+
+
+      <div class="card">
+        <div class="card-header">
+          Formulaire du bon de livraison
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span style="margin-right: 5px;">Référence bon</span>
+              <span class="text-primary">{{delivery?.receiptRefernce}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span style="margin-right: 5px;">Date Bon</span>
+              <span class="text-primary">{{delivery?.receiptDate | date: 'dd/MM/yyyy'}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Montant TTC
+              <span class="text-primary">{{delivery?.receiptAmount | number}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Taxe
+              <span class="text-primary">{{delivery?.taxAmount | number}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
     </div>
     <div class="col-sm-10">
       <div class="card-header">
@@ -98,7 +79,7 @@
           </div>
           <div class="col-md-3">
 
-            <ng-select (change)="onFilterCommandeLines()" [(ngModel)]="selectedFilter"
+            <ng-select (change)="onFilterReceiptItems()" [(ngModel)]="selectedFilter"
                        [items]="filtres!"
                        autofocus="false"
                        bindLabel="label"
@@ -108,7 +89,8 @@
             </ng-select>
           </div>
           <div class="col-md-6 text-right">
-            <button (click)="onSave()" [disabled]="disableActionBtn" class="p-button-raised p-button-success mr-sm-1"
+            <button (click)="onSave()" [disabled]="disableActionBtn"
+                    class="p-button-raised p-button-success mr-sm-1"
                     icon="pi pi-save"
                     label="Sauvegarder la saisie"
                     pButton pRipple style="display: none;" type="button"></button>
@@ -124,17 +106,18 @@
           </div>
         </div>
       </div>
-      <div class="card-body " style="width: 100%;height: 100%;">
+      <div class="card-body" class="ag-theme-alpine"
+           style="width: 100%; height: 100%;">
 
         <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
                          (gridReady)="onGridReady($event)"
-                         *ngIf="commande"
+                         *ngIf="delivery"
                          [animateRows]="true"
                          [cacheQuickFilter]="true"
                          [columnDefs]="columnDefs"
                          [context]="context"
                          [defaultColDef]="defaultColDef"
-                         [domLayout]="'normal'"
+                         [domLayout]="'autoHeight'"
                          [enterMovesDownAfterEdit]="true"
                          [enterMovesDown]="true"
                          [frameworkComponents]="frameworkComponents"
@@ -142,11 +125,11 @@
                          [pagination]="false"
                          [quickFilterText]="search"
                          [readOnlyEdit]="false"
-                         [rowData]="orderLines"
+                         [rowData]="receiptItems"
                          [singleClickEdit]="true"
                          [stopEditingWhenCellsLoseFocus]="false"
-                         class="ag-theme-alpine "
-                         style="width: 100%;height: 100%;background-color: #777777">
+
+                         style="width: 100%; height: 100%;">
         </ag-grid-angular>
 
 

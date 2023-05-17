@@ -80,7 +80,6 @@
                      [searchFn]="produitComponentSearch"
                      [searchable]="true"
                      bindLabel="libelle"
-
                      id="produitBox"
                      placeholder="Sélectionner un produit"
           >
@@ -141,8 +140,8 @@
   </div>
 </p-toolbar>
 
-<p-table #commandeTable *ngIf="commande" [(selection)]="selectedEl" [paginator]="true"
-         [rowsPerPageOptions]="[10,20,30,40,50]" [rows]="10"
+<p-table *ngIf="commande" [(selection)]="selectedEl" [paginator]="true"
+         [rowsPerPageOptions]="[5,10,20,30,40,50]" [rows]="10"
          [showCurrentPageReport]="true" [value]="orderLines" dataKey="id"
          styleClass="commande-order-line-table"
 >
@@ -206,19 +205,19 @@
   </ng-template>
   <ng-template pTemplate="header">
     <tr>
-      <th style="width:3%">
+      <th style="width:2%">
         #
       </th>
       <th style="width:8%">CODE</th>
       <th style="width:30%">LIBELLE</th>
-      <th style="width:6%">STOCK.INIT</th>
-      <th style="width:7%">P.ACHAT</th>
-      <th style="width:9%">P.ACHAT.MACHINE</th>
-      <th style="width:6%">P.U</th>
-      <th style="width:6%">P.U.MACHINE</th>
+      <th style="width:5%">STOCK INIT</th>
+      <th style="width:9%">P ACHAT</th>
+      <th style="width:6%">P.A MACHINE</th>
+      <th style="width:9%">P UNITAIRE</th>
+      <th style="width:6%">P.U MACHINE</th>
       <th style="width:7%">QUANTITE</th>
-      <th style="width:7%">TOTAL.ACHAT</th>
-      <th style="width:8%"></th>
+      <th style="width:5%">T.ACHAT</th>
+      <th style="width:9%"></th>
       <th style="width: 3rem">
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
@@ -299,12 +298,12 @@
       <td style="text-align: right;">{{orderLine.quantityRequested
       * orderLine.orderCostAmount |number}}</td>
       <td style="text-align: right;">
-        <button [hidden]="false" [routerLink]="['/produit', orderLine.produitId, 'edit']"
-                class="p-button-rounded p-button-info p-button-smp-mb-3 " icon="pi pi-eye"
-                pButton pRipple>
 
-
-        </button>
+        <button [routerLink]="['/produit', orderLine.produitId, 'edit']"
+                class="p-button-rounded p-button-info p-button-sm  p-mb-3"
+                icon="pi pi-eye"
+                pButton pRipple
+                pTooltip="Supprimer"></button>
         <button (click)="confirmDeleteItem(orderLine)"
                 class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
                 icon="pi pi-trash"

@@ -1,0 +1,36 @@
+<div class="p-col-6">
+
+
+  <div class="p-fluid p-formgrid p-grid">
+    <div class="p-field p-col">
+      <label class="col-auto col-form-label">Quantité<span
+        style="font-weight: 900;color: red;">*</span></label>
+      <input [(ngModel)]="startAt" [pKeyFilter]="'int'"
+             autocomplete="off" class="form-control"
+             pInputText type="text" />
+      <div
+        *ngIf="startAt===0 || startAt > 64">
+        <small
+          class="form-text text-danger"
+          style="color: red;">
+          Le nombre saisi doit être compris entre 0 et 64
+        </small>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="mt-2" style="float: right;">
+  <button (click)="save()"
+          [disabled]=" isSaving || (startAt===0 || startAt > 64)" class="p-button-success mr-2 p-button-raised"
+          icon="pi pi-check"
+          label="Enregistrer" pButton
+          pRipple type="submit"></button>
+  <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+          label="Annuler"
+          pButton
+          pRipple type="button"></button>
+</div>
+
+

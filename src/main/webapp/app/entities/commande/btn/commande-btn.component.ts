@@ -6,7 +6,7 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
   template: `
     <div class="btn-group text-right pb-sm-1" style="padding: 0;">
       <button
-        style="display: none;"
+        *ngIf="showEditBtn"
         type="submit"
         (click)="onEditLigneInfo()"
         class="btn btn-sm btn-success "
@@ -42,6 +42,7 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
   showLotBtn = false;
+  showEditBtn = false;
 
   constructor() {}
 
@@ -53,6 +54,7 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
     this.params = params;
 
     this.showLotBtn = this.params.context.componentParent.showLotBtn;
+    this.showEditBtn = this.params.context.componentParent.showEditBtn;
   }
 
   onAddLot(): void {

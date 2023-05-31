@@ -11,9 +11,9 @@
     <jhi-alert-error></jhi-alert-error>
 
     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    <input class="form-control" class="form-control" formControlName="createdAt"
+    <input class="form-control" formControlName="createdAt"
            id="field_createdAt"
-           id="datetime-local" name="createdAt" placeholder="YYYY-MM-DD HH:mm"
+           name="createdAt" placeholder="YYYY-MM-DD HH:mm"
            style="display:none;"
            type="hidden" />
 
@@ -108,11 +108,17 @@
         <div class="form-group col-md-4">
           <label class="form-control-label" for="tvaId">Tva<span
             style="font-weight: 900;color: red;">*</span></label>
-          <ng-select [(ngModel)]="tvaSelected" [items]="tvas" bindLabel="taux"
-                     formControlName="tvaId" id="tvaId" name="tvaId"
-                     placeholder="Sélectionner une Tva"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown [filter]="false"
+                      [options]="tvas" [style]="{'width':'100%'}"
+                      appendTo="body"
+                      formControlName="tvaId"
+                      id="tvaId"
+                      name="tvaId" optionLabel="tva"
+                      optionValue="id"
+                      placeholder="Sélectionner une Tva"
+          >
+          </p-dropdown>
+
         </div>
       </div>
 
@@ -121,22 +127,35 @@
         <div class="form-group col-md-6">
           <label class="form-control-label" for="fournisseurId">Fournisseurs<span
             style="font-weight: 900;color: red;">*</span></label>
-          <ng-select [(ngModel)]="fournisseurSelected" [items]="fournisseurs"
-                     bindLabel="libelle"
-                     formControlName="fournisseurId" id="fournisseurId" name="fournisseurId"
-                     placeholder="Sélectionner le fournisseur"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown [filter]="true"
+                      [options]="fournisseurs" [style]="{'width':'100%'}"
+                      [virtualScroll]="false" appendTo="body"
+                      filterBy="libelle"
+                      formControlName="fournisseurId"
+                      id="fournisseurId"
+                      name="fournisseurId" optionLabel="libelle"
+                      optionValue="id"
+                      placeholder="Sélectionner un fournisseur"
+          >
+          </p-dropdown>
+
         </div>
 
         <div class="form-group col-md-6">
           <label class="form-control-label" for="rayonId">Rayon<span
             style="font-weight: 900;color: red;">*</span></label>
-          <ng-select [(ngModel)]="rayonSelected" [items]="rayons" bindLabel="libelle"
-                     formControlName="rayonId"
-                     id="rayonId" name="rayonId" placeholder="Sélectionner un rayon"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown [filter]="true"
+                      [options]="rayons" [style]="{'width':'100%'}"
+                      [virtualScroll]="false" appendTo="body"
+                      filterBy="libelle"
+                      formControlName="rayonId"
+                      id="rayonId"
+                      name="rayonId" optionLabel="libelle"
+                      optionValue="id"
+                      placeholder="Sélectionner un rayon"
+          >
+          </p-dropdown>
+
         </div>
 
       </div>
@@ -144,11 +163,18 @@
         <div class="form-group col-md-6">
           <label class="form-control-label" for="familleId">Famille article<span
             style="font-weight: 900;color: red;">*</span></label>
-          <ng-select [(ngModel)]="familleSelected" [items]="familleProduits" bindLabel="libelle"
-                     formControlName="familleId" id="familleId" name="familleId"
-                     placeholder="Sélectionner une Famille"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown [filter]="true"
+                      [options]="familleProduits" [style]="{'width':'100%'}"
+                      [virtualScroll]="false" appendTo="body"
+                      filterBy="libelle"
+                      formControlName="familleId"
+                      id="familleId"
+                      name="familleId" optionLabel="libelle"
+                      optionValue="id"
+                      placeholder="Sélectionner une famille"
+          >
+          </p-dropdown>
+
         </div>
         <div class="form-group col-md-6">
           <label class="form-control-label"
@@ -173,7 +199,7 @@
 
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="qtyAppro">Qunatité réappro</label>
+          <label class="form-control-label" for="qtyAppro">Quantité réappro</label>
           <input autocomplete="off" class="form-control" formControlName="qtyAppro"
                  id="qtyAppro"
                  name="qtyAppro"
@@ -183,7 +209,7 @@
 
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="qtySeuilMini">Qunatité Mini</label>
+          <label class="form-control-label" for="qtySeuilMini">Quantité Mini</label>
           <input autocomplete="off" class="form-control" formControlName="qtySeuilMini"
                  id="qtySeuilMini" name="qtySeuilMini"
                  pInputText pKeyFilter="int"
@@ -197,51 +223,82 @@
 
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="typeEtyquetteId">Type etiquette</label>
-          <ng-select [(ngModel)]="etiquetteSelected" [items]="etiquettes" bindLabel="libelle"
-                     formControlName="typeEtiquetteId" id="typeEtyquetteId"
-                     name="typeEtyquetteId"
-                     placeholder="Sélectionner une etiquette"
-                     styleClass="form-control">
-          </ng-select>
+          <label class="form-control-label" for="typeEtiquetteId">Type etiquette</label>
+          <p-dropdown
+            [options]="etiquettes" [style]="{'width':'100%'}"
+            appendTo="body"
+            formControlName="typeEtiquetteId"
+            id="typeEtiquetteId"
+            name="typeEtiquetteId" optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une etiquette"
+          >
+          </p-dropdown>
+
+
         </div>
         <div class="form-group col-md-6">
           <label class="form-control-label" for="remiseId">Remise produit</label>
-          <ng-select [(ngModel)]="remiseSelected" [items]="remisesProduits" bindLabel="libelle"
-                     formControlName="remiseId" id="remiseId" name="remiseId"
-                     placeholder="Sélectionner une remise"
-                     styleClass="form-control">
-          </ng-select>
+
+          <p-dropdown
+            [options]="remisesProduits" [style]="{'width':'100%'}"
+            appendTo="body"
+            formControlName="remiseId"
+            id="remiseId"
+            name="remiseId" optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une remise"
+          >
+          </p-dropdown>
+
+
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label class="form-control-label" for="laboratoireId">Laboratoire produit</label>
-          <ng-select [(ngModel)]="laboratoireSelected" [items]="laboratoires"
-                     bindLabel="libelle"
-                     formControlName="laboratoireId" id="laboratoireId" name="laboratoireId"
-                     placeholder="Sélectionner le laboratoire"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown
+            [options]="laboratoires" [style]="{'width':'100%'}"
+            appendTo="body"
+            formControlName="laboratoireId"
+            id="laboratoireId"
+            name="laboratoireId" optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un laboratoire"
+          >
+          </p-dropdown>
+
 
         </div>
         <div class="form-group col-md-6">
           <label class="form-control-label" for="gammeId">Gamme produit</label>
-          <ng-select [(ngModel)]="gammeSelected" [items]="gammes" bindLabel="libelle"
-                     formControlName="gammeId" id="gammeId" name="gammeId"
-                     placeholder="Sélectionner la gamme"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown
+            [options]="gammes" [style]="{'width':'100%'}"
+            appendTo="body"
+            formControlName="gammeId"
+            id="gammeId"
+            name="gammeId" optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une gamme"
+          >
+          </p-dropdown>
+
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
           <label class="form-control-label" for="formeId">Forme produit</label>
-          <ng-select [(ngModel)]="formeSelected" [items]="formeProduits" bindLabel="libelle"
-                     formControlName="formeId" id="formeId" name="formeId"
-                     placeholder="Sélectionner la forme"
-                     styleClass="form-control">
-          </ng-select>
+          <p-dropdown
+            [options]="formeProduits" [style]="{'width':'100%'}"
+            appendTo="body"
+            formControlName="formeId"
+            id="formeId"
+            name="formeId" optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une forme"
+          >
+          </p-dropdown>
+
         </div>
         <div class="form-group col-md-4">
           <div class="form-check form-switch pt-md-4">

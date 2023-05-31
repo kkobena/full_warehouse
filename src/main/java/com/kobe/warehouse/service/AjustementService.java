@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -18,15 +17,15 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustementDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link Ajustement}.
@@ -66,7 +65,7 @@ public class AjustementService {
         if (id == null) {
             Ajust ajust = new Ajust();
             ajust.setCommentaire(comment);
-            ajust.setDateDimension(Constants.DateDimension(LocalDate.now()));
+            ajust.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
             ajust.setUser(getUser());
             ajust.setDateMtv(Instant.now());
             if (storageId != null) {

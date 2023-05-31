@@ -4,10 +4,7 @@
 
   <div class="row">
     <div class="col-sm-2">
-      <!--<div class="card-header bg-primary text-white">
-        Information sur la commande
 
-      </div>-->
       <div *ngIf="commande" class="card">
         <div class="card-header">
           Information sur la commande
@@ -67,9 +64,6 @@
       <div class="card-header">
 
         <div class="row">
-          <!--          <div class="col-md-2">-->
-          <!--            Lignes de la commande-->
-          <!--          </div>-->
           <div class="col-md-3">
                <span class="p-input-icon-left" style="width: 100%;">
                     <i class="pi pi-search"></i>
@@ -106,21 +100,20 @@
           </div>
         </div>
       </div>
-      <div class="card-body" class="ag-theme-alpine"
+      <div class="card-body ag-theme-alpine"
            style="width: 100%; height: 100%;">
-
         <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
                          (gridReady)="onGridReady($event)"
                          *ngIf="delivery"
                          [animateRows]="true"
                          [cacheQuickFilter]="true"
                          [columnDefs]="columnDefs"
+                         [components]="frameworkComponents"
                          [context]="context"
                          [defaultColDef]="defaultColDef"
-                         [domLayout]="'autoHeight'"
+                         [domLayout]="'normal'"
                          [enterMovesDownAfterEdit]="true"
                          [enterMovesDown]="true"
-                         [frameworkComponents]="frameworkComponents"
                          [paginationAutoPageSize]="true"
                          [pagination]="false"
                          [quickFilterText]="search"
@@ -131,7 +124,6 @@
 
                          style="width: 100%; height: 100%;">
         </ag-grid-angular>
-
 
       </div>
     </div>

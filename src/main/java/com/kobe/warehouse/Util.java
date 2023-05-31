@@ -20,7 +20,7 @@ public final class Util {
       try {
         return new ObjectMapper().readValue(content, new TypeReference<>() {});
       } catch (JsonProcessingException e) {
-        log.debug("{}", e);
+        log.debug("{0}", e);
         return Collections.emptyList();
       }
     }
@@ -28,7 +28,7 @@ public final class Util {
   }
 
   public static String transformTvaEmbededToString(List<TvaEmbeded> tvaEmbededs) {
-    if (tvaEmbededs.size() > 0) {
+    if (!tvaEmbededs.isEmpty()) {
       try {
         return new ObjectMapper().writeValueAsString(tvaEmbededs);
       } catch (JsonProcessingException e) {

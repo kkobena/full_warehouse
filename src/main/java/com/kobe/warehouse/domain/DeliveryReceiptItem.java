@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import org.hibernate.annotations.Formula;
     })
 public class DeliveryReceiptItem implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Id

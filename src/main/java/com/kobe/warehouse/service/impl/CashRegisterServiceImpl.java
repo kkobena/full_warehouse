@@ -12,16 +12,15 @@ import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.CashFundService;
 import com.kobe.warehouse.service.CashRegisterService;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -108,7 +107,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     private Double convertToDouble(String value) {
-        if (StringUtils.isEmpty(value)) return 0d;
+        if (!StringUtils.hasLength(value)) return 0d;
         try {
             return Double.valueOf(value.trim());
         } catch (NumberFormatException e) {

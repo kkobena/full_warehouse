@@ -2,7 +2,9 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,8 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * A Decondition.
@@ -23,6 +23,7 @@ import java.time.Instant;
 @Table(name = "decondition")
 public class Decondition implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

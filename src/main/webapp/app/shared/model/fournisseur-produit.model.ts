@@ -1,3 +1,5 @@
+import { IProduit } from './produit.model';
+
 export interface IFournisseurProduit {
   id?: number;
   prixAchat?: number;
@@ -8,6 +10,7 @@ export interface IFournisseurProduit {
   fournisseurId?: number;
   codeCip?: string;
   produitId?: number;
+  produit?: IProduit;
 }
 
 export class FournisseurProduit implements IFournisseurProduit {
@@ -20,6 +23,7 @@ export class FournisseurProduit implements IFournisseurProduit {
     public produitLibelle?: string,
     public produitId?: number,
     public fournisseurId?: number,
-    public principal?: boolean
+    public principal?: boolean,
+    public produit?: IProduit
   ) {}
 }

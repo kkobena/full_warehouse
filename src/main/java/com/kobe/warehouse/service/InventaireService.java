@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventory;
@@ -11,11 +10,7 @@ import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,6 +18,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -58,7 +57,7 @@ public class InventaireService {
         storeInventory.setUser(userService.getUser());
         storeInventory.setInventoryAmountAfter(0L);
         storeInventory.setInventoryValueCostAfter(0L);
-        storeInventory.setDateDimension(Constants.DateDimension(LocalDate.now()));
+        storeInventory.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
         List<StoreInventoryLine> storeInventoryLines = intitLines(storeInventory);
         for (StoreInventoryLine line : storeInventoryLines) {
             inventoryValueCostBegin += ((long) line.getInventoryValueCost() * line.getQuantityInit());

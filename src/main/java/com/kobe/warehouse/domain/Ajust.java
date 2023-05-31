@@ -1,7 +1,9 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,12 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
 
 @Entity
 @Table(name = "ajust")
 public class Ajust implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -31,6 +31,7 @@ public class DeliveryReceiptItemDTO {
     private final Integer effectifGrossIncome;
     private final Integer effectifOrderAmount;
     private final long fournisseurProduitId;
+    private final long produitId;
 
     private final String fournisseurProduitLibelle;
     private final String fournisseurProduitCip;
@@ -59,7 +60,8 @@ public class DeliveryReceiptItemDTO {
         effectifOrderAmount = receiptItem.getEffectifOrderAmount();
         FournisseurProduit fournisseurProduit = receiptItem.getFournisseurProduit();
         Produit produit = fournisseurProduit.getProduit();
-        fournisseurProduitId = produit.getId();
+        fournisseurProduitId = fournisseurProduit.getId();
+        produitId = produit.getId();
         fournisseurProduitCip = fournisseurProduit.getCodeCip();
         fournisseurProduitEan = produit.getCodeEan();
         fournisseurProduitLibelle = produit.getLibelle();

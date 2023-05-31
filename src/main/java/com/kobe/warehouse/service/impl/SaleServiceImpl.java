@@ -31,6 +31,7 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
@@ -197,7 +198,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
   @Override
   public CashSaleDTO createCashSale(CashSaleDTO dto) {
-    DateDimension dateDimension = Constants.DateDimension(LocalDate.now());
+    DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
     UninsuredCustomer uninsuredCustomer =
         dto.getCustomer() != null
             ? uninsuredCustomerRepository.getReferenceById(dto.getCustomer().getId())
@@ -463,7 +464,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     copy.setEffectiveUpdateDate(copy.getUpdatedAt());
     buildReference(copy);
     copy.setCanceledSale(sales);
-    copy.dateDimension(Constants.DateDimension(LocalDate.now()));
+    copy.dateDimension(ServiceUtil.DateDimension(LocalDate.now()));
     copy.setMontantttcUg(copy.getMontantttcUg() * (-1));
     copy.setHtAmountUg(copy.getHtAmountUg() * (-1));
     copy.setCostAmount(copy.getCostAmount() * (-1));

@@ -4,37 +4,23 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 @Component({
   selector: 'jhi-commande-btn',
   template: `
-    <div class="btn-group text-right pb-sm-1" style="padding: 0;">
+    <div class="btn-group btn-group-sm" role="group">
       <button
         *ngIf="showEditBtn"
-        type="submit"
         (click)="onEditLigneInfo()"
-        class="btn btn-sm btn-success "
+        class="p-button-success p-ripple p-button-rounded"
         icon="pi pi-pencil"
         pButton
-        pRipple
         pTooltip="Modifier le produit"
       ></button>
 
       <button
         *ngIf="showLotBtn"
-        type="submit"
         (click)="onAddLot()"
-        class="btn btn-sm btn-info"
+        class="p-button-info p-ripple p-button-rounded"
         icon="pi pi-plus"
         pButton
-        pRipple
         pTooltip="Gérer le lot"
-      ></button>
-      <button
-        type="submit"
-        [hidden]="true"
-        (click)="remove()"
-        class="btn btn-sm btn-danger"
-        icon="pi pi-times"
-        pButton
-        pRipple
-        pTooltip="Supprimer"
       ></button>
     </div>
   `,
@@ -43,8 +29,6 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
   showLotBtn = false;
   showEditBtn = false;
-
-  constructor() {}
 
   refresh(): boolean {
     return false;

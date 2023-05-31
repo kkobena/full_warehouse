@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -14,18 +13,17 @@ import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.StockException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Optional;
-
 
 /**
  * Service Implementation for managing {@link Decondition}.
@@ -57,7 +55,7 @@ public class DeconditionService {
         decondition.setQtyMvt(mvtQty);
         decondition.setStockBefore(beforeStock);
         decondition.setStockAfter(afterStock);
-        decondition.setDateDimension(Constants.DateDimension(LocalDate.now()));
+        decondition.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
         decondition.setUser(user);
         decondition.setTypeDeconditionnement(typeDeconditionnement);
         deconditionRepository.save(decondition);

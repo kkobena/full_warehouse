@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.OrderLine;
@@ -14,6 +13,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public class CommandeService {
     commande.setUpdatedAt(Instant.now());
     commande.setReceiptDate(LocalDate.now());
     commande.setOrderRefernce(referenceService.buildNumCommande());
-    commande.setDateDimension(Constants.DateDimension(LocalDate.now()));
+    commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
     commande.setDiscountAmount(0);
     commande.setGrossAmount(0);
     commande.setTaxAmount(0);

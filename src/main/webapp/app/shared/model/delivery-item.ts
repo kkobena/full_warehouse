@@ -26,6 +26,7 @@ export interface IDeliveryItem {
   ugQuantity?: number;
   quantityUG?: number;
   fournisseurProduitId?: number;
+  produitId?: number;
   fournisseurProduitLibelle?: string;
   fournisseurProduitCip?: string;
   fournisseurProduitEan?: string;
@@ -54,6 +55,7 @@ export class DeliveryItem implements IDeliveryItem {
     public ugQuantity?: number,
     public quantityUG?: number,
     public fournisseurProduitId?: number,
+    public produitId?: number,
     public fournisseurProduitLibelle?: string,
     public fournisseurProduitCip?: string,
     public fournisseurProduitEan?: string,

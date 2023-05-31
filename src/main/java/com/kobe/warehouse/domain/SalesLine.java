@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,9 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
 
 /**
  * A SalesLine.
@@ -22,6 +22,7 @@ import java.util.Objects;
 @Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable, Cloneable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

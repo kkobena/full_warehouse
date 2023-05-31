@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.DateDimension;
@@ -33,6 +32,7 @@ import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.NumBonAlreadyUseException;
@@ -642,7 +642,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   }
 
   private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {
-    DateDimension dateDimension = Constants.DateDimension(LocalDate.now());
+    DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
     AssuredCustomer assuredCustomer =
         dto.getCustomer() != null
             ? assuredCustomerRepository.getReferenceById(dto.getCustomer().getId())

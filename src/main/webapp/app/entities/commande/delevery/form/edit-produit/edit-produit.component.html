@@ -1,0 +1,185 @@
+<p-toast position="center"></p-toast>
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="field_fournisseurId">Fournisseurs</label>
+        <p-dropdown
+          [disabled]="disabledFournisseur"
+          [filter]="false" [options]="fournisseurs"
+          [style]="{'width':'100%'}"
+          appendTo="body" formControlName="fournisseurId"
+          id="field_fournisseurId" optionLabel="libelle"
+          optionValue="id"
+          placeholder="Séléctionner un fournisseur "
+        >
+        </p-dropdown>
+        <div
+          *ngIf="editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)">
+          <small *ngIf="editForm.get('fournisseurId')?.errors?.required"
+                 class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="field_codeCip">Code cip</label>
+        <input autocomplete="off" class="form-control" formControlName="codeCip" id="field_codeCip"
+               name="codeCip"
+               pInputText
+               pKeyFilter="int" type="text" />
+
+        <div
+          *ngIf="editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)">
+          <small *ngIf="editForm.get('codeCip')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group col-md-4" style="padding-left: 1rem;padding-top: 2rem;">
+        <div class="form-check form-switch ">
+          <input class="form-check-input" formControlName="principal" id="principal"
+                 type="checkbox" />
+          <label class="form-check-label" for="principal" style="margin-left: 5px;">Est-il le
+            fournisseur principal?</label>
+        </div>
+
+
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="field_prixAchat">Prix achat</label>
+        <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control"
+               formControlName="prixAchat"
+               id="field_prixAchat" name="prixAchat"
+               type="number" />
+        <div
+          *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
+          <small *ngIf="editForm.get('prixAchat')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label"
+               for="field_prixUni">Prix unitaire</label>
+        <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control"
+               formControlName="prixUni"
+               id="field_prixUni" name="prixAchat"
+               type="number" />
+        <div
+          *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">
+          <small *ngIf="editForm.get('prixUni')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label" for="tvaId">Tva</label>
+        <p-dropdown [filter]="false"
+                    [options]="tvas" [style]="{'width':'100%'}"
+                    appendTo="body"
+                    formControlName="tvaId"
+                    id="tvaId"
+                    name="tvaId" optionLabel="tva"
+                    optionValue="id"
+                    placeholder="Sélectionner une Tva"
+        >
+        </p-dropdown>
+
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-5">
+        <label class="form-control-label"
+               for="field_codeEan">Code Ean
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="codeEan"
+               id="field_codeEan" name="codeEan"
+               pInputText
+               pKeyFilter="int" type="text" />
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="cmuAmount">Montant cmu</label>
+        <input autocomplete="off" class="form-control" formControlName="cmuAmount"
+               id="cmuAmount"
+               name="cmuAmount"
+               pInputText
+               pKeyFilter="int"
+               type="text" />
+
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
+        <p-inputMask autocomplete="off" formControlName="expirationDate" id="field_perimeAt"
+                     mask="99/99/9999"
+                     name="expirationDate" placeholder="01/11/2020"
+                     slotChar="dd/mm/yyyy" styleClass="form-control">
+        </p-inputMask>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label class="form-control-label" for="rayonId">Rayon</label>
+        <p-dropdown [filter]="true"
+                    [options]="rayons" [style]="{'width':'100%'}"
+                    [virtualScroll]="false" appendTo="body"
+                    filterBy="libelle"
+                    formControlName="rayonId"
+                    id="rayonId"
+                    name="rayonId" optionLabel="libelle"
+                    optionValue="id"
+                    placeholder="Sélectionner un rayon"
+        >
+        </p-dropdown>
+
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-control-label" for="typeEtiquetteId">Type etiquette</label>
+        <p-dropdown
+          [options]="etiquettes" [style]="{'width':'100%'}"
+          appendTo="body"
+          formControlName="typeEtiquetteId"
+          id="typeEtiquetteId"
+          name="typeEtiquetteId" optionLabel="libelle"
+          optionValue="id"
+          placeholder="Sélectionner une etiquette"
+        >
+        </p-dropdown>
+
+
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="cancel()"
+            class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+
+            pButton pRipple type="button">
+      <span jhiTranslate="entity.action.cancel">Cancel</span>
+    </button>
+
+    <button [disabled]="editForm.invalid || isSaving || !isValid"
+            class="p-button-success mr-2 p-button-raised" icon="pi pi-check" label="Enregistrer"
+            pButton pRipple
+            type="submit">
+
+    </button>
+  </div>
+</form>
+

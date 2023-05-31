@@ -46,7 +46,8 @@
         </div>
       </div>
       <div class="card  col" style="width:20rem;">
-        <div class="card-header text-white bg-success"><span><fa-icon [icon]="faShoppingCart"></fa-icon></span>&nbsp;&nbsp;Chiffes
+        <div class="card-header text-white bg-success"><span><fa-icon
+          [icon]="faShoppingCart"></fa-icon></span>&nbsp;&nbsp;Chiffes
           d'affaires du mois
         </div>
         <div class="card-body bg-transparent card-item">
@@ -91,10 +92,10 @@
       <div class="card col ag-theme-card-item">
         <div class="card-header bg-primary text-white">
 
-          <h5 style="font-width:9000;"><span>  <fa-icon
+          <span style="font-width:9000;"><span>  <fa-icon
             [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
             Top {{TOP_MAX_RESULT}} des ventes en quantité du mois
-          </h5>
+          </span>
         </div>
         <div class="card-body ag-theme-alpine " style="min-height:300px;">
           <ag-grid-angular [columnDefs]="columnDefs" [rowData]="rowQuantityMonthly"
@@ -108,12 +109,12 @@
       <div class="card col ag-theme-card-item">
         <div class="card-header bg-warning text-white">
 
-          <h5 style="font-width:9000;"><span>
+          <span style="font-width:9000;"><span>
                                 <fa-icon
                                   [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
                             </span>
             Top {{TOP_MAX_RESULT}} des articles du mois
-          </h5>
+          </span>
         </div>
         <div class="card-body ag-theme-alpine" style="min-height:300px;">
           <ag-grid-angular [columnDefs]="columnDefsMonthAmount" [rowData]="rowAmountMonthly"
@@ -130,10 +131,10 @@
       <div class="card col ag-theme-card-item">
         <div class="card-header bg-info text-white">
 
-          <h5 style="font-width:9000;"><span><fa-icon
+          <span style="font-width:9000;"><span><fa-icon
             [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span> Top {{TOP_MAX_RESULT}}
             des ventes en quatité de l'année
-          </h5>
+          </span>
         </div>
         <div class="card-body ag-theme-alpine" style="min-height:300px;">
           <ag-grid-angular [columnDefs]="columnDefsYearQunatity" [rowData]="rowQuantityYear"
@@ -146,10 +147,10 @@
       <div class="card col ag-theme-card-item">
         <div class="card-header bg-success text-white">
 
-          <h5 style="font-width:9000;"><span> <fa-icon
+          <span style="font-width:9000;"><span> <fa-icon
             [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;</span>
             Top {{TOP_MAX_RESULT}} des articles de l'année
-          </h5>
+          </span>
         </div>
         <div class="card-body ag-theme-alpine" style="min-height:300px;">
           <ag-grid-angular [columnDefs]="columnDefsYearAmount" [rowData]="rowAmountYear"
@@ -170,8 +171,10 @@
   </div>
 
   <div *ngSwitchCase="false" class="alert alert-warning">
-    <span jhiTranslate="global.messages.info.register.noaccount">Vous n'avez pas encore de compte ?</span>&nbsp;
-    <a class="alert-link" jhiTranslate="global.messages.info.register.link" routerLink="account/register">Créer un
+    <span
+      jhiTranslate="global.messages.info.register.noaccount">Vous n'avez pas encore de compte ?</span>&nbsp;
+    <a class="alert-link" jhiTranslate="global.messages.info.register.link"
+       routerLink="account/register">Créer un
       compte</a>
   </div>
 </div>

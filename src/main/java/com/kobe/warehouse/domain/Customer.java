@@ -3,7 +3,11 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
-
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,10 +22,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A Customer.
@@ -30,6 +30,7 @@ import java.util.Set;
 @Table(name = "customer")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Customer implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

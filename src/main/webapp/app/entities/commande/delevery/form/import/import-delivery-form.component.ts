@@ -17,7 +17,6 @@ type ModelFichier = { label: string; value: string };
 @Component({
   selector: 'jhi-import-delivery-form',
   templateUrl: './import-delivery-form.component.html',
-  styleUrls: ['./import-delivery-form.component.scss'],
 })
 export class ImportDeliveryFormComponent implements OnInit {
   appendTo = 'body';
@@ -27,7 +26,6 @@ export class ImportDeliveryFormComponent implements OnInit {
   isSaving = false;
   entity?: IDelivery;
   maxDate = new Date();
-  minDate = new Date();
 
   editForm = this.fb.group({
     model: new FormControl<ModelFichier | null>(null, {
@@ -104,7 +102,10 @@ export class ImportDeliveryFormComponent implements OnInit {
 
     const deliveryReceipt: UploadDeleiveryReceipt = this.createUploadDeleiveryReceipt();
     const formData: FormData = new FormData();
-    formData.append('deliveryReceipt', JSON.stringify(deliveryReceipt));
+    const body = new Blob([JSON.stringify(deliveryReceipt)], {
+      type: 'application/json',
+    });
+    formData.append('deliveryReceipt', body);
     formData.append('fichier', this.file, this.file.name);
     this.spinner.show('gestion-commande-spinner');
     this.entityService.uploadNew(formData).subscribe({

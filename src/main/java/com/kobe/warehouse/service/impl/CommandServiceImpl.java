@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -21,6 +20,7 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.utils.FileUtil;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class CommandServiceImpl implements CommandService {
     public Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
         User user = storageService.getUser();
         Commande commande = new Commande();
-        commande.setDateDimension(Constants.DateDimension(LocalDate.now()));
+        commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
         commande.setCreatedAt(Instant.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -340,7 +340,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setDiscountAmount(0);
         commande.setCreatedAt(Instant.now());
         commande.setUpdatedAt(commande.getCreatedAt());
-        commande.setDateDimension(Constants.DateDimension(LocalDate.now()));
+        commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
         commande.setMagasin(commande.getUser().getMagasin());
         return commande;
     }

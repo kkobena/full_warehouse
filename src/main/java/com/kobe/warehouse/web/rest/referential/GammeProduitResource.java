@@ -4,9 +4,12 @@ import com.kobe.warehouse.service.GammeProduitService;
 import com.kobe.warehouse.service.dto.GammeProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +32,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.GammeProduit}.
@@ -89,7 +86,7 @@ public class GammeProduitResource {
      */
     @PutMapping("/gamme-produits")
     public ResponseEntity<GammeProduitDTO> updateGammeProduit(@Valid @RequestBody GammeProduitDTO gammeProduitDTO)
-        throws URISyntaxException {
+        {
         log.debug("REST request to update GammeProduit : {}", gammeProduitDTO);
         if (gammeProduitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -150,8 +147,9 @@ public class GammeProduitResource {
             .build();
     }
 
-    @PostMapping("/gamme-produits/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+  @PostMapping("/gamme-produits/importcsv")
+  public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file)
+      throws IOException {
         ResponseDTO responseDTO = gammeProduitService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }

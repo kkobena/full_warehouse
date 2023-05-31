@@ -2,11 +2,8 @@
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
              size="medium"
              type="timer"></ngx-spinner>
-
-
 <p-card styleClass="form-delivery">
   <form [formGroup]="editForm" name="editForm" novalidate role="form">
-
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Fournisseurs</label>
@@ -23,9 +20,7 @@
                  style="color: red;">
             Ce champ est obligatoire.
           </small>
-
         </div>
-
       </div>
     </div>
     <div class="form-row">
@@ -44,61 +39,65 @@
                  style="color: red;">
             Ce champ est obligatoire.
           </small>
-
         </div>
       </div>
     </div>
     <div class="form-row">
-      <p-fileUpload #fileUpload (uploadHandler)="uploadHandler($event,fileUpload)" [auto]="true"
-                    [customUpload]="true"
-                    [showCancelButton]="true" accept=".csv,.txt"
-                    chooseLabel="Importer un fichier" mode="basic">
-      </p-fileUpload>
+      <div class="p-field col-md-12">
+        <p-fileUpload #fileUpload (uploadHandler)="uploadHandler($event,fileUpload)" [auto]="true"
+                      [customUpload]="true"
+                      [showCancelButton]="true" accept=".csv,.txt"
+                      chooseLabel="Importer un fichier">
+          <ng-template pTemplate="content">
+            <span *ngIf="file">
+              {{ file.name }} - {{ file.size }} bytes
+            </span>
+          </ng-template>
+        </p-fileUpload>
+      </div>
     </div>
-
     <div formGroupName="deliveryReceipt">
-
       <div class="p-col-12">
         <div class="p-fluid p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label class="col-auto col-form-label">Date de livraison<span
-              style="font-weight: 900;color: red;">*</span></label>
-            <p-calendar
-              [maxDate]="maxDate"
-              [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
-              dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
-            ></p-calendar>
+          <div class="form-row">
+            <div class="p-field col-md-6">
+              <label class="col-auto col-form-label">Date de livraison<span
+                style="font-weight: 900;color: red;">*</span></label>
+              <p-calendar
+                [maxDate]="maxDate"
+                [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
+                dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
+              ></p-calendar>
+              <div
+                *ngIf="editForm.get('deliveryReceipt').get('receiptDate')!.invalid && (editForm.get('deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get('receiptDate')!.touched)">
+                <small *ngIf="editForm.get('deliveryReceipt').get('receiptDate')?.errors?.required"
+                       class="form-text text-danger"
+                       style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
 
-            <div
-              *ngIf="editForm.get('deliveryReceipt').get('receiptDate')!.invalid && (editForm.get('deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get('receiptDate')!.touched)">
-              <small *ngIf="editForm.get('deliveryReceipt').get('receiptDate')?.errors?.required"
-                     class="form-text text-danger"
-                     style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+              </div>
+            </div>
+            <div class="p-field col-md-6">
+              <label class="col-auto col-form-label">Référence Bon<span
+                style="font-weight: 900;color: red;">*</span></label>
+              <input autocomplete="off" class="form-control"
+                     formControlName="receiptRefernce" name="receiptRefernce" pInputText
+                     type="text" />
+              <div
+                *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')!.invalid && (editForm.get('deliveryReceipt').get('receiptRefernce')!.dirty || editForm.get('deliveryReceipt').get('receiptRefernce')!.touched)">
+                <small
+                  *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')?.errors?.required"
+                  class="form-text text-danger"
+                  style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
 
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="p-field p-col">
-          <label class="col-auto col-form-label">Référence Bon<span
-            style="font-weight: 900;color: red;">*</span></label>
-
-          <input autocomplete="off" class="form-control"
-                 formControlName="receiptRefernce" name="receiptRefernce" pInputText type="text" />
-          <div
-            *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')!.invalid && (editForm.get('deliveryReceipt').get('receiptRefernce')!.dirty || editForm.get('deliveryReceipt').get('receiptRefernce')!.touched)">
-            <small *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')?.errors?.required"
-                   class="form-text text-danger"
-                   style="color: red;">
-              Ce champ est obligatoire.
-            </small>
-
-          </div>
-        </div>
         <div class="form-row">
-
           <div class="p-field col-md-6">
             <label class="col-auto col-form-label">Montant TTC<span
               style="font-weight: 900;color: red;">*</span></label>
@@ -117,11 +116,9 @@
 
             </div>
           </div>
-
           <div class="p-field col-md-6">
             <label class="col-auto col-form-label">Montant Taxe<span
               style="font-weight: 900;color: red;">*</span></label>
-
             <input [pKeyFilter]="'int'" autocomplete="off"
                    class="form-control" formControlName="taxAmount" name="taxAmount" pInputText
                    type="text" />
@@ -140,18 +137,12 @@
 
         <div class="p-field p-col" hidden="true">
           <label class="col-auto col-form-label">Séquence Bon</label>
-
           <input autocomplete="off" class="form-control"
                  formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
-
         </div>
       </div>
-
-
     </div>
   </form>
-
-
   <ng-template pTemplate="footer">
     <button (click)="save()" [disabled]="editForm.invalid || isSaving || !isValidForm()"
             class="p-button-success mr-2 p-button-raised" icon="pi pi-check"

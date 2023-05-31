@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from './commande.service';
-import { OrderLineService } from '../order-line/order-line.service';
 import { ProduitService } from '../produit/produit.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +25,7 @@ import { IDelivery } from '../../shared/model/delevery.model';
 import { IDeliveryItem } from '../../shared/model/delivery-item';
 import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
 import { ReceiptStatusComponent } from './status/receipt-status.component';
+import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -43,7 +43,6 @@ export class CommandeStockEntryComponent implements OnInit {
   filtres: any[] = [];
   search?: string;
   isSaving = false;
-  windowWidth = 0;
   columnDefs: any[];
   @ViewChild('orderLineGrid') productGrid!: AgGridAngular;
   defaultColDef: any;
@@ -51,7 +50,7 @@ export class CommandeStockEntryComponent implements OnInit {
   context: any;
   showLotBtn = true;
   disableActionBtn = false;
-  showEditBtn = false;
+  showEditBtn = true;
   ref?: DynamicDialogRef;
 
   private gridApi!: GridApi;
@@ -59,7 +58,6 @@ export class CommandeStockEntryComponent implements OnInit {
   constructor(
     protected commandeService: CommandeService,
     protected service: DeliveryService,
-    protected orderLineService: OrderLineService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
     protected modalService: NgbModal,
@@ -72,13 +70,14 @@ export class CommandeStockEntryComponent implements OnInit {
   ) {
     this.filtres = [
       { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
+      { label: 'Prix de vente différent', value: 'PU_NOT_EQUAL' },
       { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
       { label: 'Tous', value: 'ALL' },
     ];
     this.columnDefs = [
       {
         headerName: '#',
-        flex: 0.1,
+        flex: 0.2,
         //   cellStyle: this.cellStyle,
         valueGetter: (params: any) => params.node.rowIndex + 1,
       },
@@ -134,8 +133,8 @@ export class CommandeStockEntryComponent implements OnInit {
         field: 'regularUnitPrice',
         type: ['rightAligned', 'numericColumn'],
         editable: false,
-        sortable: true,
-        flex: 0.4,
+        sortable: false,
+        flex: 0.3,
         valueFormatter: formatNumberToString,
         // cellStyle: this.cellStyle,
       },
@@ -188,7 +187,7 @@ export class CommandeStockEntryComponent implements OnInit {
       {
         field: 'Status',
         cellRenderer: 'statusCellRenderer',
-        flex: 0.3,
+        flex: 0.2,
         hide: false,
         suppressToolPanel: false,
         cellStyle: this.statusCellStyle,
@@ -196,7 +195,7 @@ export class CommandeStockEntryComponent implements OnInit {
       {
         field: ' ',
         cellRenderer: 'btnCellRenderer',
-        flex: 0.2,
+        flex: 0.3,
         hide: false,
         suppressToolPanel: false,
         cellStyle: this.btnCellStyle,
@@ -316,9 +315,9 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   btnCellStyle(params: any): any {
-    //  const orderLine = params.data;
-    const toBeUpdated = false; // orderLine.provisionalCode || !(orderLine.regularUnitPrice === orderLine.orderUnitPrice) || !(orderLine.orderCostAmount === orderLine.costAmount);
+    const toBeUpdated = false;
     let backgroundColor = '';
+    const padding = { paddingLeft: 0, paddingRight: 0 };
     if (toBeUpdated) {
       backgroundColor = '#b8daff';
       return {
@@ -326,12 +325,14 @@ export class CommandeStockEntryComponent implements OnInit {
         borderLeft: 'solid 0.25px  rgb(184, 218, 255)',
         textAlign: 'right',
         backgroundColor,
+        ...padding,
       };
     } else {
       return {
         borderRight: 'solid 0.25px  rgb(150, 150, 200)',
         textAlign: 'right',
         borderLeft: 'solid 0.25px  rgb(150, 150, 200)',
+        ...padding,
       };
     }
   }
@@ -352,16 +353,20 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onFilterReceiptItems(): void {
-    const query = {
-      deliveryId: this.delivery?.id,
-      search: this.search,
-      filter: this.selectedFilter,
-      size: 99999,
-      orderBy: 'PRODUIT_LIBELLE',
-    };
-    this.service.filterItems(query).subscribe(res => {
-      this.receiptItems = res.body!;
-    });
+    if (this.selectedFilter === 'ALL') {
+      this.service.find(this.delivery.id).subscribe({
+        next: res => {
+          this.delivery = res.body;
+          this.receiptItems = this.delivery.receiptItems;
+        },
+      });
+    } else if (this.selectedFilter === 'PROVISOL_CIP') {
+      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip?.length === 0);
+    } else if (this.selectedFilter === 'NOT_EQUAL') {
+      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
+    } else {
+      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.regularUnitPrice !== item.orderUnitPrice);
+    }
   }
 
   orderLineTableColor(deliveryItem: IDeliveryItem): string {
@@ -376,7 +381,6 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onCellValueChanged(params: any): void {
-    // console.error(params.newValue, params.oldValue, params.value, params.column.colId, params.data);
     switch (params.column.colId) {
       case 'ugQuantity':
         this.onUpdatequantityUG(params);
@@ -399,20 +403,26 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   editLigneInfos(deliveryItem: IDeliveryItem): void {
-    this.gotoProduitPageEdit(deliveryItem.fournisseurProduitId);
+    this.ref = this.dialogService.open(EditProduitComponent, {
+      data: { deliveryItem },
+      width: '70%',
+      header: `EDITION DU PRODUIT ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
+    });
+
+    this.ref.onClose.subscribe(() => this.reloadDelivery());
   }
 
   onAddLot(deliveryItem: IDeliveryItem): void {
     const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
     if (quantityReceived > 1) {
       this.ref = this.dialogService.open(ListLotComponent, {
-        data: { deliveryItem, commandeId: this.commande.id },
+        data: { deliveryItem },
         width: '60%',
         header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
       });
     } else {
       this.ref = this.dialogService.open(FormLotComponent, {
-        data: { entity: null, deliveryItem, commandeId: this.commande.id },
+        data: { entity: null, deliveryItem },
         width: '40%',
         header: 'Ajout de lot',
       });
@@ -545,7 +555,6 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   openInfoDialog(error: any, infoClass: string): void {
-    console.error(error, 'deux');
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
       centered: true,
@@ -565,12 +574,12 @@ export class CommandeStockEntryComponent implements OnInit {
   findCommande(): void {
     this.commandeService.findByReference(this.delivery.orderReference).subscribe(res => {
       this.commande = res.body;
-      this.orderLines = this.commande?.orderLines!;
+      this.orderLines = this.commande?.orderLines;
     });
   }
 
   reloadDelivery(): void {
-    this.service.find(this.delivery.id!).subscribe(res => {
+    this.service.find(this.delivery.id).subscribe(res => {
       this.delivery = res.body;
       this.receiptItems = this.delivery?.receiptItems;
     });

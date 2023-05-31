@@ -49,7 +49,7 @@ public final class Utils {
         }
         if (contentType == null) {
             contentType = defaultContentType;
-            //   contentType = "text/csv";
+
         }
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(contentType))

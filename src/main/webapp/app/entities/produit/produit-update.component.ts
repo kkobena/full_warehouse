@@ -7,7 +7,6 @@ import moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 import { IProduit, Produit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
-import { CategorieService } from 'app/entities/categorie/categorie.service';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { IRayon } from '../../shared/model/rayon.model';
@@ -37,23 +36,22 @@ export class ProduitUpdateComponent implements OnInit {
   isDeconditionnable = false;
   isDatePeremptionChecked = false;
   etiquettes: ITypeEtiquette[] = [];
-  etiquetteSelected!: ITypeEtiquette | null;
+
   formeProduits: IFormProduit[] = [];
-  formeSelected!: IFormProduit | null;
+
   familleProduits: IFamilleProduit[] = [];
-  familleSelected!: IFamilleProduit | null;
+
   laboratoires: ILaboratoire[] = [];
-  laboratoireSelected!: ILaboratoire | null;
+
   gammes: IGammeProduit[] = [];
-  gammeSelected!: IGammeProduit | null;
+
   tvas: ITva[] = [];
-  tvaSelected!: ITva | null;
+
   fournisseurs: IFournisseur[] = [];
-  fournisseurSelected!: IFournisseur | null;
-  rayonSelected!: IRayon | null;
+
   rayons: IRayon[] = [];
   remisesProduits: IRemiseProduit[] = [];
-  remiseSelected!: IRemiseProduit | null;
+
   editForm = this.fb.group({
     id: [],
 
@@ -85,7 +83,6 @@ export class ProduitUpdateComponent implements OnInit {
 
   constructor(
     protected produitService: ProduitService,
-    protected categorieService: CategorieService,
     protected activatedRoute: ActivatedRoute,
     private fb: UntypedFormBuilder,
     protected rayonService: RayonService,
@@ -122,13 +119,9 @@ export class ProduitUpdateComponent implements OnInit {
     }
     this.typeEtiquetteService.query().subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
       this.etiquettes = res.body || [];
-      if (produit) {
-        this.etiquetteSelected = this.etiquettes.find(e => e.id === produit.typeEtiquetteId) || null;
-      }
     });
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
       this.tvas = res.body || [];
-      this.tvaSelected = this.tvas.find(e => e.id === produit.tvaId) || null;
     });
 
     this.fournisseurService
@@ -138,27 +131,21 @@ export class ProduitUpdateComponent implements OnInit {
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
-        this.fournisseurSelected = this.fournisseurs.find(e => e.id === produit.fournisseurId) || null;
       });
     this.rayonService.query().subscribe((res: HttpResponse<IRayon[]>) => {
       this.rayons = res.body || [];
-      this.rayonSelected = this.rayons.find(e => e.id === produit.rayonId) || null;
     });
     this.laboratoireService.query().subscribe((res: HttpResponse<ILaboratoire[]>) => {
       this.laboratoires = res.body || [];
-      this.laboratoireSelected = this.laboratoires.find(e => e.id === produit.laboratoireId) || null;
     });
     this.gammeProduitService.query().subscribe((res: HttpResponse<IGammeProduit[]>) => {
       this.gammes = res.body || [];
-      this.gammeSelected = this.gammes.find(e => e.id === produit.gammeId) || null;
     });
     this.familleService.query().subscribe((res: HttpResponse<IFamilleProduit[]>) => {
       this.familleProduits = res.body || [];
-      this.familleSelected = this.familleProduits.find(e => e.id === produit.familleId) || null;
     });
     this.formeProduitService.query().subscribe((res: HttpResponse<IFormProduit[]>) => {
       this.formeProduits = res.body || [];
-      this.formeSelected = this.formeProduits.find(e => e.id === produit.formeId) || null;
     });
   }
 
@@ -320,22 +307,22 @@ export class ProduitUpdateComponent implements OnInit {
       itemCostAmount: this.editForm.get(['itemCostAmount'])!.value,
       itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice'])!.value,
       typeProduit: TypeProduit.PACKAGE,
-      typeEtiquetteId: this.editForm.get(['typeEtiquetteId'])!.value?.id,
-      tvaId: this.editForm.get(['tvaId'])!.value?.id,
-      familleId: this.editForm.get(['familleId'])!.value?.id,
+      typeEtiquetteId: this.editForm.get(['typeEtiquetteId'])!.value,
+      tvaId: this.editForm.get(['tvaId'])!.value,
+      familleId: this.editForm.get(['familleId'])!.value,
       codeCip: this.editForm.get(['codeCip'])!.value,
-      rayonId: this.editForm.get(['rayonId'])!.value?.id,
+      rayonId: this.editForm.get(['rayonId'])!.value,
       codeEan: this.editForm.get(['codeEan'])!.value,
       qtyAppro: this.editForm.get(['qtyAppro'])!.value,
       qtySeuilMini: this.editForm.get(['qtySeuilMini'])!.value,
-      remiseId: this.editForm.get(['remiseId'])!.value?.id,
-      gammeId: this.editForm.get(['gammeId'])!.value?.id,
-      fournisseurId: this.editForm.get(['fournisseurId'])!.value?.id,
-      laboratoireId: this.editForm.get(['laboratoireId'])!.value?.id,
+      remiseId: this.editForm.get(['remiseId'])!.value,
+      gammeId: this.editForm.get(['gammeId'])!.value,
+      fournisseurId: this.editForm.get(['fournisseurId'])!.value,
+      laboratoireId: this.editForm.get(['laboratoireId'])!.value,
       deconditionnable: this.editForm.get(['deconditionnable'])!.value,
       dateperemption: this.editForm.get(['dateperemption'])!.value,
       expirationDate: this.editForm.get(['expirationDate'])!.value,
-      formeId: this.editForm.get(['formeId'])!.value?.id,
+      formeId: this.editForm.get(['formeId'])!.value,
     };
   }
 }

@@ -1,47 +1,65 @@
 import { Component, OnInit } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
-import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
-import { ProduitService } from '../produit.service';
-import { ErrorService } from '../../../shared/error.service';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
-
-import { IFournisseur } from '../../../shared/model/fournisseur.model';
-import { FournisseurService } from '../../fournisseur/fournisseur.service';
+import { IFournisseur } from '../../../../../shared/model/fournisseur.model';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { FournisseurService } from '../../../../fournisseur/fournisseur.service';
+import { IProduit } from '../../../../../shared/model/produit.model';
+import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ProduitService } from '../../../../produit/produit.service';
+import { ErrorService } from '../../../../../shared/error.service';
+import { ITva } from '../../../../../shared/model/tva.model';
+import { IRayon } from '../../../../../shared/model/rayon.model';
+import { ITypeEtiquette } from '../../../../../shared/model/type-etiquette.model';
+import { IDeliveryItem } from '../../../../../shared/model/delivery-item';
+import { RayonService } from '../../../../rayon/rayon.service';
+import { TvaService } from '../../../../tva/tva.service';
+import { TypeEtiquetteService } from '../../../../type-etiquette/type-etiquette.service';
 
 @Component({
-  selector: 'jhi-form-produit-fournisseur',
-  templateUrl: './form-produit-fournisseur.component.html',
+  selector: 'jhi-edit-produit',
+  templateUrl: './edit-produit.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
 })
-export class FormProduitFournisseurComponent implements OnInit {
-  produit?: IProduit;
-  entity?: IFournisseurProduit;
-  isSaving = false;
-  isValid = true;
-  fournisseurSelected!: IFournisseur | null;
-  fournisseurSelectedId!: number;
+export class EditProduitComponent implements OnInit {
+  appendTo = 'body';
+  deliveryItem: IDeliveryItem | null;
+  tvas: ITva[] = [];
+  rayons: IRayon[] = [];
+  etiquettes: ITypeEtiquette[] = [];
   fournisseurs: IFournisseur[] = [];
+  isSaving = false;
+  produit?: IProduit;
+  isValid = true;
+  disabledFournisseur = true;
+  fournisseurPrduit: IFournisseurProduit | null;
   editForm = this.fb.group({
     id: [],
-    prixUni: [null, [Validators.required, Validators.min(1)]],
-    prixAchat: [null, [Validators.required, Validators.min(1)]],
+    tvaId: [null, [Validators.required]],
+    typeEtiquetteId: [null, [Validators.required]],
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
+    rayonId: [null, [Validators.required]],
+    prixAchat: [null, [Validators.required]],
+    prixUni: [null, [Validators.required]],
     fournisseurId: [null, [Validators.required]],
-    principal: [null, [Validators.required]],
+    codeEan: [],
+    expirationDate: [],
+    cmuAmount: [],
   });
 
   constructor(
-    protected produitService: ProduitService,
-    protected errorService: ErrorService,
     private fb: UntypedFormBuilder,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
-    protected fournisseurService: FournisseurService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private fournisseurService: FournisseurService,
+    protected produitService: ProduitService,
+    protected errorService: ErrorService,
+    protected rayonService: RayonService,
+    protected tvaService: TvaService,
+    protected typeEtiquetteService: TypeEtiquetteService
   ) {}
 
   save(): void {
@@ -56,30 +74,17 @@ export class FormProduitFournisseurComponent implements OnInit {
 
   ngOnInit(): void {
     this.produit = this.config.data.produit;
-    this.entity = this.config.data.entity;
+    this.deliveryItem = this.config.data.deliveryItem;
 
-    if (this.entity) {
-      this.updateForm(this.entity);
-      if (this.entity.fournisseurId) {
-        this.fournisseurSelectedId = this.entity.fournisseurId;
-      }
+    if (this.deliveryItem) {
+      this.produitService.findFournisseurProduit(this.deliveryItem.fournisseurProduitId).subscribe({
+        next: (res: HttpResponse<IFournisseurProduit>) => {
+          this.fournisseurPrduit = res.body;
+          this.updateForm(this.fournisseurPrduit);
+          this.populate();
+        },
+      });
     }
-
-    this.populate();
-    if (!this.hasPrincipal() && !this.entity) {
-      this.editForm.get('principal')!.setValue(true);
-    } else if (this.entity) {
-      this.editForm.get('principal')!.setValue(this.entity.principal);
-    } else {
-      this.editForm.get('principal')!.setValue(false);
-    }
-  }
-
-  hasPrincipal(): boolean {
-    if (this.isEmpty()) return false;
-    const principal = this.produit?.fournisseurProduits?.some(e => e.principal);
-    if (principal) return principal;
-    return false;
   }
 
   isEmpty(): boolean {
@@ -101,45 +106,39 @@ export class FormProduitFournisseurComponent implements OnInit {
     });
   }
 
-  cancel(): void {
-    this.ref.close();
-  }
-
   populate(): void {
-    if (this.entity) {
-      this.fournisseurService
-        .query({
-          page: 0,
-          size: 9999,
-        })
-        .subscribe((res: HttpResponse<IFournisseur[]>) => {
-          this.fournisseurs = res.body || [];
-        });
-    } else {
-      this.fournisseurService.query().subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
-      });
-    }
+    this.fournisseurService.query().subscribe((res: HttpResponse<IFournisseur[]>) => {
+      this.fournisseurs = res.body || [];
+    });
+    this.typeEtiquetteService.query().subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
+      this.etiquettes = res.body || [];
+    });
+    this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
+      this.tvas = res.body || [];
+    });
+    this.rayonService.query().subscribe((res: HttpResponse<IRayon[]>) => {
+      this.rayons = res.body || [];
+    });
   }
 
   handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(['prixUni'])!.value);
-    if (value >= unitPrice) {
+    this.isValid = value < unitPrice;
+  }
+
+  handlePrixUnitaireInput(event: any): void {
+    const value = Number(event.target.value);
+    const costAmount = Number(this.editForm.get(['prixAchat'])!.value);
+    if (costAmount >= value) {
       this.isValid = false;
     } else {
       this.isValid = true;
     }
   }
 
-  handlePrixUnitaireInput(event: any): void {
-    const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(['prixAchat'])!.value);
-    this.isValid = costAmount < value;
-  }
-
-  onChange(event: any): void {
-    this.fournisseurSelectedId = event.value;
+  cancel(): void {
+    this.ref.close();
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {

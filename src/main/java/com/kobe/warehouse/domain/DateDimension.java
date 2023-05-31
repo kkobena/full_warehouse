@@ -1,18 +1,18 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 /**
  * A DateDimension.
@@ -23,7 +23,7 @@ public class DateDimension implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @Column(name = "date_key", nullable = false, unique = true)
+    @Column(name = "date_key")
     private Integer dateKey;
 
     @NotNull

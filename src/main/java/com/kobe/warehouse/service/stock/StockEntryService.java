@@ -9,15 +9,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface StockEntryService {
 
-
   void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
   DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
   DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
-  CommandeResponseDTO importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt,
-      MultipartFile multipartFile) throws IOException;
+  CommandeResponseDTO importNewBon(
+      UploadDeleiveryReceiptDTO uploadDeleiveryReceipt, MultipartFile multipartFile)
+      throws IOException;
 
   void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 

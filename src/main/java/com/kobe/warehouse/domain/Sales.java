@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import javax.validation.constraints.NotNull;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Sales implements Serializable, Cloneable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

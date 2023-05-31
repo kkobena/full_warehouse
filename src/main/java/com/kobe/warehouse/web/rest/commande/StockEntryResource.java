@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,63 +43,72 @@ public class StockEntryResource {
     this.commandService = commandService;
   }
 
-
   @PutMapping("/commandes/entree-stock/finalize")
   public ResponseEntity<Void> finalizeSaisieEntreeStock(
       @Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
     stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite);
-    return ResponseEntity.ok().headers(
-        HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
-            deliveryReceiptLite.getId().toString())).build();
+    return ResponseEntity.ok()
+        .headers(
+            HeaderUtil.createEntityCreationAlert(
+                applicationName, true, ENTITY_NAME, deliveryReceiptLite.getId().toString()))
+        .build();
   }
 
   @PutMapping("/commandes/entree-stock/update-order-line-cost-amount")
   public ResponseEntity<CommandeEntryDTO> updateOrderCostAmount(
       @Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
-    CommandeEntryDTO result = new CommandeEntryDTO(
-        commandService.updateOrderCostAmount(orderLineDTO));
-    return ResponseEntity.created(new URI("/api/commandes/" + result.getId())).headers(
-        HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
-            result.getId().toString())).body(result);
+    CommandeEntryDTO result =
+        new CommandeEntryDTO(commandService.updateOrderCostAmount(orderLineDTO));
+    return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
+        .headers(
+            HeaderUtil.createEntityCreationAlert(
+                applicationName, true, ENTITY_NAME, result.getId().toString()))
+        .body(result);
   }
 
   @PutMapping("/commandes/entree-stock/update-order-line-unit-price")
   public ResponseEntity<Void> updateOrderUnitPrice(
-      @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem)
-      throws URISyntaxException {
+      @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
 
     stockEntryService.updateOrderUnitPrice(deliveryReceiptItem);
-    return ResponseEntity.ok().headers(
-        HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-            deliveryReceiptItem.getId().toString())).build();
+    return ResponseEntity.ok()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(
+                applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
+        .build();
   }
 
   @PutMapping("/commandes/entree-stock/update-order-line-quantity-received")
   public ResponseEntity<Void> updateQuantityReceived(
       @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
     stockEntryService.updateQuantityReceived(deliveryReceiptItem);
-    return ResponseEntity.ok().headers(
-        HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-            deliveryReceiptItem.getId().toString())).build();
+    return ResponseEntity.ok()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(
+                applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
+        .build();
   }
 
   @PutMapping("/commandes/entree-stock/update-provisional-cip")
   public ResponseEntity<Void> updateCodeCip(@Valid @RequestBody OrderLineDTO orderLineDTO) {
     commandService.updateCodeCip(orderLineDTO);
-    return ResponseEntity.noContent().headers(
-        HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-            orderLineDTO.getId().toString())).build();
+    return ResponseEntity.noContent()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(
+                applicationName, true, ENTITY_NAME, orderLineDTO.getId().toString()))
+        .build();
   }
 
   @PutMapping("/commandes/entree-stock/update-order-line-quantity-ug")
   public ResponseEntity<Void> updateQuantityUG(
       @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
     stockEntryService.updateQuantityUG(deliveryReceiptItem);
-    return ResponseEntity.ok().headers(
-        HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-            deliveryReceiptItem.getId().toString())).build();
+    return ResponseEntity.ok()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(
+                applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
+        .build();
   }
-
 
   @PostMapping("/commandes/entree-stock/create")
   public ResponseEntity<DeliveryReceiptLiteDTO> createBon(
@@ -114,11 +124,13 @@ public class StockEntryResource {
     return ResponseEntity.accepted().body(stockEntryService.updateBon(deliveryReceiptLiteDTO));
   }
 
-  @PostMapping("/commandes/entree-stock/upload-new")
+  @PostMapping(
+      path = "/commandes/entree-stock/upload-new",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<CommandeResponseDTO> importerReponseCommande(
       @RequestPart("deliveryReceipt") UploadDeleiveryReceiptDTO deliveryReceipt,
-      @RequestPart("fichier") MultipartFile file) throws IOException {
+      @RequestPart("fichier") MultipartFile file)
+      throws IOException {
     return ResponseEntity.ok(stockEntryService.importNewBon(deliveryReceipt, file));
   }
-
 }

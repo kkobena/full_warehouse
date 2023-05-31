@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import javax.persistence.Table;
 @Table(name = "warehouse_calendar")
 public class WarehouseCalendar implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
   @Id private LocalDate workDay;
   private int workMonth;

@@ -1,95 +1,102 @@
 <p-toast position="center"></p-toast>
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-    <div class="modal-body">
-        <div class="form-group" [hidden]="true">
-            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
-
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
-                <label class="form-control-label"
-                       for="field_fournisseurId">Fournisseurs</label>
-                <p-dropdown [options]="fournisseurs" (onChange)="onChange($event)"  [(ngModel)]="fournisseurSelectedId" formControlName="fournisseurId"
-                            id="field_fournisseurId"
-                            [filter]="false" placeholder="Séléctionner un fournisseur "
-                            styleClass="form-control ngCombo" optionLabel="libelle" optionValue="id">
-                </p-dropdown>
-                <div
-                    *ngIf="editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('fournisseurId')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
-                <label class="form-control-label"
-                       for="field_codeCip">Code cip</label>
-                <input type="text" pInputText pKeyFilter="int" class="form-control" name="codeCip" id="field_codeCip"
-                       formControlName="codeCip" autocomplete="off"/>
-
-                <div
-                    *ngIf="editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('codeCip')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
-                <label class="form-control-label"
-                       for="field_prixAchat">Prix achat</label>
-                <input type="number" class="form-control" name="prixAchat" id="field_prixAchat"
-                       formControlName="prixAchat" autocomplete="off" (keyup)="handlePrixAchatInput($event)" />
-                <div
-                    *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('prixAchat')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
-                <label class="form-control-label"
-                       for="field_prixUni">Prix unitaire</label>
-                <input type="number" class="form-control" name="prixAchat" id="field_prixUni"
-                       formControlName="prixUni" autocomplete="off" (keyup)="handlePrixUnitaireInput($event)"/>
-                <div
-                    *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">
-                    <small class="form-text text-danger" *ngIf="editForm.get('prixUni')?.errors?.required"
-                           jhiTranslate="entity.validation.required">
-                        This field is required.
-                    </small>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-check  pt-1">
-                <p-inputSwitch formControlName="principal" [disabled]="hasPrincipal()"
-                               id="principal"></p-inputSwitch>
-                <label class="form-check-label form-control-label ml-3" for="principal">Est-il le fournisseur principal
-                     ?</label>
-            </div>
-        </div>
-
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
 
     </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_fournisseurId">Fournisseurs</label>
+        <p-dropdown (onChange)="onChange($event)" [filter]="false"
+                    [options]="fournisseurs"
+                    formControlName="fournisseurId"
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-        </button>
-
-        <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving || !isValid"
-                class="btn btn-primary">
-            <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
-        </button>
+                    id="field_fournisseurId" optionLabel="libelle"
+                    optionValue="id" placeholder="Séléctionner un fournisseur " styleClass="form-control ngCombo">
+        </p-dropdown>
+        <div
+          *ngIf="editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)">
+          <small *ngIf="editForm.get('fournisseurId')?.errors?.required"
+                 class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
     </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_codeCip">Code cip</label>
+        <input autocomplete="off" class="form-control" formControlName="codeCip" id="field_codeCip" name="codeCip"
+               pInputText
+               pKeyFilter="int" type="text" />
+
+        <div
+          *ngIf="editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)">
+          <small *ngIf="editForm.get('codeCip')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_prixAchat">Prix achat</label>
+        <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control" formControlName="prixAchat"
+               id="field_prixAchat" name="prixAchat"
+               type="number" />
+        <div
+          *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
+          <small *ngIf="editForm.get('prixAchat')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_prixUni">Prix unitaire</label>
+        <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control" formControlName="prixUni"
+               id="field_prixUni" name="prixAchat"
+               type="number" />
+        <div
+          *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">
+          <small *ngIf="editForm.get('prixUni')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-check  pt-1">
+        <p-inputSwitch [disabled]="hasPrincipal()" formControlName="principal"
+                       id="principal"></p-inputSwitch>
+        <label class="form-check-label form-control-label ml-3" for="principal">Est-il le
+          fournisseur principal
+          ?</label>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+    </button>
+
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+            type="submit">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
+    </button>
+  </div>
 </form>
 

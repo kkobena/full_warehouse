@@ -1,16 +1,14 @@
 package com.kobe.warehouse.domain;
 
 
-import javax.persistence.*;
-
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.*;
 
 @Entity
-public class AssuredCustomer extends Customer implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class AssuredCustomer extends Customer {
+
     @ManyToOne
     private RemiseClient remise;
     @Column(name = "sexe")

@@ -1,12 +1,10 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.referential;
 
 
 import com.kobe.warehouse.service.dto.FormProduitDTO;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.Optional;
-
 
 public interface FormProduitService {
 

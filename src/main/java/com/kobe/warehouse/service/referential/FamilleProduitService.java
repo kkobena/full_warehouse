@@ -1,13 +1,12 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.referential;
 
 
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.io.InputStream;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.FamilleProduit}.

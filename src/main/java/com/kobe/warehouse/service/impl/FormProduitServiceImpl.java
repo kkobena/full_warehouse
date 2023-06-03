@@ -3,16 +3,15 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.repository.FormProduitRepository;
-import com.kobe.warehouse.service.FormProduitService;
 import com.kobe.warehouse.service.dto.FormProduitDTO;
+import com.kobe.warehouse.service.referential.FormProduitService;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional

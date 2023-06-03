@@ -1,8 +1,8 @@
 package com.kobe.warehouse.web.rest.referential;
 
-import com.kobe.warehouse.service.GammeProduitService;
 import com.kobe.warehouse.service.dto.GammeProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.referential.GammeProduitService;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.io.IOException;
 import java.net.URI;

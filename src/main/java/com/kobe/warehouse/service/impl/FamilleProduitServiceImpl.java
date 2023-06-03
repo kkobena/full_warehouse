@@ -5,9 +5,15 @@ import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.repository.CategorieRepository;
 import com.kobe.warehouse.repository.FamilleProduitRepository;
-import com.kobe.warehouse.service.FamilleProduitService;
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.referential.FamilleProduitService;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
@@ -17,13 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service Implementation for managing {@link FamilleProduit}.
@@ -111,9 +110,9 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
 				if (!StringUtils.isEmpty(record.get(2))) {
 					Optional<Categorie> op = categorieRepository.findOneByLibelle(record.get(2));
 					if (op.isPresent()) {
-						familleProduit.setCategorie(op.get());;
+						familleProduit.setCategorie(op.get());
 
-					}
+                    }
 
 				}
 

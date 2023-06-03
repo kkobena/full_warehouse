@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
@@ -23,12 +24,15 @@ public class FournisseurProduitService {
 
   private final FournisseurProduitRepository fournisseurProduitRepository;
   private final FournisseurRepository fournisseurRepository;
+  private final ProduitService produitService;
 
   public FournisseurProduitService(
       FournisseurProduitRepository fournisseurProduitRepository,
-      FournisseurRepository fournisseurRepository) {
+      FournisseurRepository fournisseurRepository,
+      ProduitService produitService) {
     this.fournisseurProduitRepository = fournisseurProduitRepository;
     this.fournisseurRepository = fournisseurRepository;
+    this.produitService = produitService;
   }
 
   private Produit produitFromId(Long idProduit) {
@@ -104,31 +108,11 @@ public class FournisseurProduitService {
     return fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
   }
 
-  public Optional<FournisseurProduitDTO> update(FournisseurProduitDTO dto) throws Exception {
+  public Optional<FournisseurProduitDTO> update(FournisseurProduitDTO dto) throws GenericError {
     long constraint;
     FournisseurProduit fournisseurProduit =
         fournisseurProduitRepository.getReferenceById(dto.getId());
-    if (!dto.getCodeCip().equals(fournisseurProduit.getCodeCip())) {
-      constraint =
-          fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(
-              dto.getCodeCip(), dto.getFournisseurId());
-      if (constraint > 0) {
-        throw new GenericError(
-            "produit",
-            String.format(
-                "Ce code %s est déjà associé à un produit pour ce grossiste", dto.getCodeCip()),
-            "duplicateCodeCip");
-      }
-      constraint =
-          fournisseurProduitRepository.countByCodeCipAndProduitId(
-              dto.getCodeCip(), dto.getProduitId());
-      if (constraint > 0) {
-        throw new GenericError(
-            "produit",
-            String.format("Ce code %s est déjà associé à un produit ", dto.getCodeCip()),
-            "codeCip");
-      }
-    }
+    valideCodeCip(dto, fournisseurProduit);
     if (fournisseurProduit.getFournisseur().getId().compareTo(dto.getFournisseurId()) != 0) {
 
       constraint =
@@ -150,7 +134,7 @@ public class FournisseurProduitService {
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
     fournisseurProduit.setUpdatedAt(Instant.now());
-    return Optional.ofNullable(fournisseurProduitRepository.saveAndFlush(fournisseurProduit))
+    return Optional.of(fournisseurProduitRepository.saveAndFlush(fournisseurProduit))
         .map(FournisseurProduitDTO::new);
   }
 
@@ -158,7 +142,7 @@ public class FournisseurProduitService {
     fournisseurProduitRepository.delete(fournisseurProduitRepository.getReferenceById(id));
   }
 
-  public void updateDefaultFournisseur(long id, Boolean isChecked)
+  public void updateDefaultFournisseur(long id, boolean isChecked)
       throws DefaultFournisseurException {
     FournisseurProduit fournisseurProduit = fournisseurProduitRepository.getReferenceById(id);
     long count =
@@ -257,5 +241,47 @@ public class FournisseurProduitService {
 
   public Optional<FournisseurProduitDTO> findOneById(Long id) {
     return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::new);
+  }
+
+  public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto)
+      throws GenericError, JsonProcessingException {
+
+    FournisseurProduit fournisseurProduit =
+        this.fournisseurProduitRepository.getReferenceById(dto.getId());
+    valideCodeCip(dto, fournisseurProduit);
+    fournisseurProduit.setPrincipal(dto.isPrincipal());
+    fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
+    fournisseurProduit.setPrixAchat(dto.getPrixAchat());
+    fournisseurProduit.setPrixUni(dto.getPrixUni());
+    fournisseurProduit.setUpdatedAt(Instant.now());
+    this.fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
+    this.produitService.updateFromCommande(dto.getProduit());
+  }
+
+  private void valideCodeCip(FournisseurProduitDTO dto, FournisseurProduit fournisseurProduit)
+      throws GenericError {
+    long constraint;
+    if (org.springframework.util.StringUtils.hasLength(dto.getCodeCip())
+        && !dto.getCodeCip().equals(fournisseurProduit.getCodeCip())) {
+      constraint =
+          this.fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(
+              dto.getCodeCip(), dto.getFournisseurId());
+      if (constraint > 0) {
+        throw new GenericError(
+            "produit",
+            String.format(
+                "Ce code %s est déjà associé à un produit pour ce grossiste", dto.getCodeCip()),
+            "duplicateCodeCip");
+      }
+      constraint =
+          this.fournisseurProduitRepository.countByCodeCipAndProduitId(
+              dto.getCodeCip(), dto.getProduitId());
+      if (constraint > 0) {
+        throw new GenericError(
+            "produit",
+            String.format("Ce code %s est déjà associé à un produit ", dto.getCodeCip()),
+            "codeCip");
+      }
+    }
   }
 }

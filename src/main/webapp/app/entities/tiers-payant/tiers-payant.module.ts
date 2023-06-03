@@ -7,6 +7,5 @@ import { TiersPayantComponent } from './tiers-payant.component';
 @NgModule({
   imports: [SharedModule, RouterModule.forChild(tiersPayantRoute)],
   declarations: [TiersPayantComponent],
-  entryComponents: [],
 })
 export class WarehouseTiersPayantModule {}

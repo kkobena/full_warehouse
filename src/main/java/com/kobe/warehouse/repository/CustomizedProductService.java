@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.domain.Fournisseur;
@@ -71,6 +72,7 @@ public interface CustomizedProductService {
     void updateDetail(ProduitDTO dto) throws Exception;
 
     StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg);
+    void updateFromCommande(ProduitDTO dto) throws JsonProcessingException;
 
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(
         FournisseurProduitDTO dto) {

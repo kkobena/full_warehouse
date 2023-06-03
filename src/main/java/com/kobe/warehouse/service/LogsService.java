@@ -47,4 +47,20 @@ public class LogsService {
 
     return messageSource.getMessage(key, args, null);
   }
+
+  public void create(
+      TransactionType transactionType,
+      String comments,
+      String indentityKey,
+      String old,
+      String newObject) {
+    Logs logs = new Logs();
+    logs.setComments(comments);
+    logs.setIndentityKey(indentityKey);
+    logs.setTransactionType(transactionType);
+    logs.setUser(userService.getUser());
+    logs.setNewObject(newObject);
+    logs.setOldObject(old);
+    logsRepository.save(logs);
+  }
 }

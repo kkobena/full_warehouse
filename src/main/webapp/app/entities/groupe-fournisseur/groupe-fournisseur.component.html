@@ -1,130 +1,141 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-            (click)="cd.reject()"></button>
-    </p-footer>
+<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
+  <p-footer>
+    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+  </p-footer>
 </p-confirmDialog>
-<p-dialog header="Importer un fichier" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
-    showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
-    <div class="ui-g form-group">
-        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
-            accept=".txt,.csv,.xls,.xlsx" [customUpload]="true" (uploadHandler)="onUpload($event)">
-        </p-fileUpload>
-    </div>
-    <p-footer>
-        <button type="button" class="p-button-danger p-mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
-            (click)="cancel()" label="Annuler"></button>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
+          [responsive]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
+  <div class="ui-g form-group">
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true" accept=".txt,.csv,.xls,.xlsx"
+                  cancelLabel="Annuler"
+                  chooseLabel="Importer un fichier" name="importcsv"
+                  uploadLabel="Enrégistrer">
+    </p-fileUpload>
+  </div>
+  <p-footer>
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+            pButton
+            pRipple type="button"></button>
 
-    </p-footer>
+  </p-footer>
 </p-dialog>
 <div><h3>Liste des groupes de grossiste</h3>
-            <p-toolbar>
-                <div class="p-toolbar-group-left p-md-7">
+  <p-toolbar>
+    <div class="p-toolbar-group-left p-md-7">
                     <span class="p-input-icon-left" style="width: 70%;">
                         <i class="pi pi-search"></i>
-                        <input type="text" style="width:98%;" pInputText placeholder="Taper pour rechercher"
-                            (keyup.enter)="search($event)">
+                        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                               style="width:98%;"
+                               type="text">
                     </span>
-                </div>
-                <div class="p-toolbar-group-right">
-                    <button pButton pRipple type="button" icon="pi pi-upload" (click)="showFileDialog()"
-                        class="p-button-raised p-button-help p-mr-2" label="Importer"></button>
-                    <button pButton pRipple type="button" icon="pi pi-check" iconPos="left" label="Nouveau"
-                        class="p-button-raised p-button-success" (click)="addNewEntity()"></button>
-                </div>
-            </p-toolbar>
-    <div class="alert alert-warning" id="no-result" *ngIf="entites?.length === 0">
-                <span>Aucune donnée trouvée</span>
-            </div>
-            <p-table *ngIf="entites && entites.length > 0" styleClass="ui-table-cars" [value]="entites"
-                [paginator]="true" [rows]="itemsPerPage" dataKey="id" selectionMode="single" [(selection)]="selectedEl"
-                [lazy]="true" [totalRecords]="totalItems" [loading]="loading" (onLazyLoad)="lazyLoading($event)">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th scope="col"><span>Libellé</span> </th>
-                        <th scope="col"><span>Code postale</span> </th>
-                        <!-- <th scope="col"><span >Email</span> </th> -->
-                        <th scope="col"><span>Téléphone</span> </th>
-                        <th scope="col"><span>Numéro Faxe</span> </th>
-                        <th scope="col"><span>Ordre d'affichage</span> </th>
-                        <th scope="col"></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-elRow let-columns="columns">
-                    <tr [pSelectableRow]="elRow" [pEditableRow]="elRow">
-                        <td>{{ elRow.libelle }}</td>
-                        <td>{{ elRow.addresspostale }}</td>
-                        <!-- <td>{{ elRow.email }}</td> -->
-                        <td>{{ elRow.tel }}</td>
-                        <td>{{ elRow.numFaxe }}</td>
-                        <td>{{ elRow.odre }}</td>
-                        <td style="text-align: center;">
-                            <button pButton pRipple icon="pi pi-pencil" type="submit" pTooltip="Supprimer"
-                                pTooltip="Editer" class="p-button-rounded p-button-success p-mr-2"
-                                (click)="onEdit(elRow)"></button>
-                            <button pButton pRipple icon="pi pi-trash" type="submit"
-                                class="p-button-rounded p-button-warning" (click)="delete(elRow)"></button>
-                        </td>
-                    </tr>
-                </ng-template>
+    </div>
+    <div class="p-toolbar-group-right">
+      <button (click)="showFileDialog()" class="p-button-raised p-button-help p-mr-2" icon="pi pi-upload" label="Importer" pButton
+              pRipple type="button"></button>
+      <button (click)="addNewEntity()" class="p-button-raised p-button-success" icon="pi pi-check" iconPos="left" label="Nouveau" pButton
+              pRipple type="button"></button>
+    </div>
+  </p-toolbar>
+  <div *ngIf="entites?.length === 0" class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="entites && entites.length > 0" [(selection)]="selectedEl"
+           [lazy]="true" [loading]="loading" [paginator]="true" [rows]="itemsPerPage"
+           [totalRecords]="totalItems"
+           [value]="entites" dataKey="id" selectionMode="single"
+           styleClass="ui-table-cars">
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col"><span>Libellé</span></th>
+        <th scope="col"><span>Code postale</span></th>
+        <!-- <th scope="col"><span >Email</span> </th> -->
+        <th scope="col"><span>Téléphone</span></th>
+        <th scope="col"><span>Numéro Faxe</span></th>
+        <th scope="col"><span>Ordre d'affichage</span></th>
+        <th scope="col"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-columns="columns" let-elRow pTemplate="body">
+      <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+        <td>{{ elRow.libelle }}</td>
+        <td>{{ elRow.addresspostale }}</td>
+        <!-- <td>{{ elRow.email }}</td> -->
+        <td>{{ elRow.tel }}</td>
+        <td>{{ elRow.numFaxe }}</td>
+        <td>{{ elRow.odre }}</td>
+        <td style="text-align: center;">
+          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil" pButton
+                  pRipple pTooltip="Editer"
+                  type="submit"></button>
+          <button (click)="delete(elRow)" class="p-button-rounded p-button-warning" icon="pi pi-trash" pButton pRipple
+                  pTooltip="Supprimer" type="button"></button>
+        </td>
+      </tr>
+    </ng-template>
 
-            </p-table>
-        </div>
+  </p-table>
+</div>
 <!-- formulaire de creation et d edition-->
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-    <p-dialog header="Créer ou éditer un grossiste" [(visible)]="displayDialog" [focusOnShow]="false"
-        [responsive]="true" showEffect="fade" [modal]="true" [style]="{width: '600px'}">
-        <ng-template pTemplate="content">
-            <div class="form-group" [hidden]="!editForm.get('id')!.value">
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
+            [responsive]="true" [style]="{width: '600px'}" header="Créer ou éditer un grossiste" showEffect="fade">
+    <ng-template pTemplate="content">
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
 
-                <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
-            </div>
-            <div class="ui-g form-group">
-                <label for="field_libelle">Libellé</label>
-                <div class="ui-g-12" style="margin-bottom:10px">
-                    <input pInputText class="form-control" name="libelle" id="field_libelle" formControlName="libelle"
-                        style="width: 100%;" autocomplete="off" />
-                </div>
-                <div
-                    *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
-                    <small class="form-text text-danger" style="color: red;"
-                        *ngIf="editForm.get('libelle')?.errors?.required">
-                        Ce champ est obligatoire.
-                    </small>
-                </div>
-            </div>
-            <div class="ui-g form-group">
-                <label for="field_odre">Orde de priorité</label>
-                <div class="ui-g-12" >
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_libelle">Libellé</label>
+        <div class="ui-g-12" style="margin-bottom:10px">
+          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle"
+                 name="libelle"
+                 pInputText style="width: 100%;" />
+        </div>
+        <div
+          *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+          <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_odre">Orde de priorité</label>
+        <div class="ui-g-12">
 
-                    <input style="width: 100%;" type="text" id="field_odre" name="odre" formControlName="odre"
-                        styleClass="form-control" pInputText pKeyFilter="int" autocomplete="off">
-                </div>
-            </div>
-            <div class="ui-g form-group">
-                <label for="field_tel">Téléphone</label>
-                <div class="ui-g-12" >
+          <input autocomplete="off" formControlName="odre" id="field_odre" name="odre" pInputText
+                 pKeyFilter="int" style="width: 100%;" styleClass="form-control" type="text">
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_tel">Téléphone</label>
+        <div class="ui-g-12">
 
-                    <input style="width: 100%;" type="text" name="tel" id="field_tel" formControlName="tel"
-                        styleClass="form-control" pInputText pKeyFilter="int" autocomplete="off">
-                </div>
-            </div>
-            <div class="ui-g form-group">
-                <label for="field_addresspostale">Adresse postale</label>
-                <div class="ui-g-12">
-                    <input style="width: 100%;" type='text' pInputText styleClass="form-control" name="addresspostale"
-                        id="field_addresspostale" formControlName="addresspostale" autocomplete="off" />
-                </div>
-            </div>
-        </ng-template>
-        <p-footer>
-            <button pButton pRipple type="submit" [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
-                class="p-button-success p-mr-2" (click)="save()" label="Enregistrer"></button>
-            <button type="button" class="p-button-danger p-mr-2" pButton pRipple icon="pi pi-times" (click)="cancel()"
-                label="Annuler"></button>
+          <input autocomplete="off" formControlName="tel" id="field_tel" name="tel" pInputText
+                 pKeyFilter="int" style="width: 100%;" styleClass="form-control" type="text">
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_addresspostale">Adresse postale</label>
+        <div class="ui-g-12">
+          <input autocomplete="off" formControlName="addresspostale" id="field_addresspostale" name="addresspostale"
+                 pInputText
+                 style="width: 100%;" styleClass="form-control" type="text" />
+        </div>
+      </div>
+    </ng-template>
+    <p-footer>
+      <button (click)="save()" [disabled]="editForm.invalid || isSaving" class="p-button-success p-mr-2" icon="pi pi-check"
+              label="Enregistrer"
+              pButton pRipple type="submit"></button>
+      <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler" pButton
+              pRipple
+              type="button"></button>
 
-        </p-footer>
-    </p-dialog>
+    </p-footer>
+  </p-dialog>
 </form>

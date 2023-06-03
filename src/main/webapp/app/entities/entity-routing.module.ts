@@ -115,6 +115,10 @@ import { RouterModule } from '@angular/router';
         path: 'gestion-entree',
         loadChildren: () => import('./commande/delevery/delivery.module').then(m => m.DeliveryModule),
       },
+      {
+        path: 'tableaux',
+        loadChildren: () => import('./tableau-produit/tableau-produit.module').then(m => m.WarehouseTableauProduitModule),
+      },
     ]),
   ],
 })

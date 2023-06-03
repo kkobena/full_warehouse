@@ -97,6 +97,10 @@ export class ProduitService {
     return this.http.put<IFournisseurProduit>(this.fournisseurProduitUrl, produitFournisseur, { observe: 'response' });
   }
 
+  updateProduitFournisseurFromCommande(produitFournisseur: IFournisseurProduit): Observable<HttpResponse<{}>> {
+    return this.http.put<{}>(this.fournisseurProduitUrl, produitFournisseur, { observe: 'response' });
+  }
+
   findFournisseurProduit(id: number): Observable<HttpResponse<IFournisseurProduit>> {
     return this.http.get<IFournisseurProduit>(`${this.fournisseurProduitUrl}/${id}`, { observe: 'response' });
   }

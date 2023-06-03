@@ -572,6 +572,9 @@ public final class ProduitBuilder {
     tva(produitDTO, produit);
     rayonProduits(produitDTO, produit);
     produitDTO.setStatus(produit.getStatus().ordinal());
+      produitDTO.setTableau(produit.getTableau());
     return produitDTO;
   }
+
+
 }

@@ -46,7 +46,8 @@
         "motifAjustement": "Motifs ajustement",
         "groupeTiersPayant": "Groupe tiers-payant",
         "tiersPayant": "Tiers-payants",
-        "delivery": "Entrée en stock"
+        "delivery": "Entrée en stock",
+        "tableau": "Tableaux"
       },
       "account": {
         "main": "Compte",

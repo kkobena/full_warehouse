@@ -142,8 +142,9 @@ public class FournisseurResource {
             .build();
     }
 
-    @PostMapping("/fournisseurs/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+  @PostMapping("/fournisseurs/importcsv")
+  public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file)
+      throws IOException {
         ResponseDTO responseDTO = fournisseurService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }

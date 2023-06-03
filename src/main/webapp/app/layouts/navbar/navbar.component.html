@@ -213,6 +213,18 @@
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
                 class="dropdown-item"
+                routerLink="tableaux"
+                routerLinkActive="active"
+              >
+                <i class="pi pi-book"></i>
+                <span jhiTranslate="global.menu.entities.tableau">Tableaux</span>
+              </a>
+            </li>
+            <li>
+              <a
+                (click)="collapseNavbar()"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="dropdown-item"
                 routerLink="fournisseur"
                 routerLinkActive="active"
               >

@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "tableau": {
+      "home": {
+        "title": "Tableaux",
+        "createLabel": "Nouveau tableaux produit",
+        "createOrEditLabel": "Créer ou éditer un nouveau  tableaux produit",
+        "notFound": "Aucune donnée trouvée"
+      },
+      "created": "Un nouveau  tableaux produit",
+      "updated": "Le  groupe fournisseur avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "Le  groupe fournisseur avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le  tableaux produit {{ id }} ?"
+      },
+      "detail": {
+        "title": "Tableaux"
+      }
+    }
+  }
+}

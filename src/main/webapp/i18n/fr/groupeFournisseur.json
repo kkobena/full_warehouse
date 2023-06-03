@@ -11,7 +11,7 @@
       "updated": "Le  groupe fournisseur avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "Le  groupe fournisseur avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Etes-vous certain de vouloir supprimer la groupe fournisseur {{ id }} ?"
+        "question": "Etes-vous certain de vouloir supprimer le groupe fournisseur {{ id }} ?"
       },
       "detail": {
         "title": "Groupe fournisseur"

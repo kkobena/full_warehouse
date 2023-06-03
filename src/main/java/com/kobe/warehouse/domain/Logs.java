@@ -43,10 +43,30 @@ public class Logs implements Serializable {
     @NotNull
     @Column(name = "indentity_key", nullable = false)
     private String indentityKey;
-
-
+    @Column(name = "old_object")
+    private String oldObject;
+    @Column(name = "new_object")
+    private String newObject;
     public Long getId() {
         return id;
+    }
+
+    public String getOldObject() {
+        return oldObject;
+    }
+
+    public Logs setOldObject(String oldObject) {
+        this.oldObject = oldObject;
+        return this;
+    }
+
+    public String getNewObject() {
+        return newObject;
+    }
+
+    public Logs setNewObject(String newObject) {
+        this.newObject = newObject;
+        return this;
     }
 
     public Logs setId(Long id) {

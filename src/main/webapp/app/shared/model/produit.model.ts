@@ -7,6 +7,7 @@ import { TypeProduit } from 'app/shared/model/enumerations/type-produit.model';
 import { IStockProduit } from './stock-produit.model';
 import { IFournisseurProduit } from './fournisseur-produit.model';
 import { IRayonProduit } from './rayon-produit.model';
+import { ITableau } from './tableau.model';
 
 export interface IProduit {
   id?: number;
@@ -68,6 +69,7 @@ export interface IProduit {
   displayField?: string;
   rayonProduits?: IRayonProduit[];
   cmuAmount?: number;
+  tableau?: ITableau;
 }
 
 export class Produit implements IProduit {

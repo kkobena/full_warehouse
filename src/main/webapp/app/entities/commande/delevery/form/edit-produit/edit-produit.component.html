@@ -60,8 +60,8 @@
         <label class="form-control-label"
                for="field_prixAchat">Prix achat</label>
         <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control"
-               formControlName="prixAchat"
-               id="field_prixAchat" name="prixAchat"
+               formControlName="prixAchat" id="field_prixAchat"
+               name="prixAchat" pKeyFilter="int"
                type="number" />
         <div
           *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
@@ -76,7 +76,7 @@
                for="field_prixUni">Prix unitaire</label>
         <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control"
                formControlName="prixUni"
-               id="field_prixUni" name="prixAchat"
+               id="field_prixUni" name="prixAchat" pKeyFilter="int"
                type="number" />
         <div
           *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">

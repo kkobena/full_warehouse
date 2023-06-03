@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
+import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -76,17 +77,16 @@ public class ProduitDTO {
   private int totalQuantity;
   private int qtyReserve;
   @Default private Boolean deconditionnable = false;
-  private String codeEan, rayonLibelle;
+  private String codeEan;
+  private String rayonLibelle;
   private Long remiseId;
   private long rayonId;
   private long storageId;
   private float tauxRemise;
   private Integer cmuAmount;
-
   @JsonDeserialize(using = LocalDateDeserializer.class)
   @JsonSerialize(using = LocalDateSerializer.class)
   private LocalDate perimeAt;
-
   private int status;
   private String displayStatut;
   private int saleOfPointStock;
@@ -96,8 +96,18 @@ public class ProduitDTO {
   @Singular private List<RayonProduitDTO> rayonProduits;
   @Singular private List<ParcoursProduit> parcoursProduits;
   @Singular private List<DailyStock> dailyStocks;
+  private Tableau tableau;
 
-  public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
+    public Tableau getTableau() {
+        return tableau;
+    }
+
+    public ProduitDTO setTableau(Tableau tableau) {
+        this.tableau = tableau;
+        return this;
+    }
+
+    public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
     this.saleOfPointStock = saleOfPointStock;
     return this;
   }

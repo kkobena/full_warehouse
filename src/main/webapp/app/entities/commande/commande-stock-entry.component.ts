@@ -110,7 +110,8 @@ export class CommandeStockEntryComponent implements OnInit {
       },
       {
         headerName: 'PA.M',
-        field: 'orderCostAmount',
+        field: 'costAmount',
+
         type: ['rightAligned', 'numericColumn'],
         editable: false,
         sortable: true,
@@ -120,7 +121,7 @@ export class CommandeStockEntryComponent implements OnInit {
       },
       {
         headerName: 'PA',
-        field: 'costAmount',
+        field: 'orderCostAmount',
         type: ['rightAligned', 'numericColumn'],
         editable: false,
         sortable: true,
@@ -353,20 +354,20 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onFilterReceiptItems(): void {
-    if (this.selectedFilter === 'ALL') {
-      this.service.find(this.delivery.id).subscribe({
-        next: res => {
-          this.delivery = res.body;
+    this.service.find(this.delivery.id).subscribe({
+      next: res => {
+        this.delivery = res.body;
+        if (this.selectedFilter === 'PROVISOL_CIP') {
+          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip?.length === 0);
+        } else if (this.selectedFilter === 'NOT_EQUAL') {
+          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
+        } else if (this.selectedFilter === 'PU_NOT_EQUAL') {
+          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.regularUnitPrice !== item.orderUnitPrice);
+        } else {
           this.receiptItems = this.delivery.receiptItems;
-        },
-      });
-    } else if (this.selectedFilter === 'PROVISOL_CIP') {
-      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip?.length === 0);
-    } else if (this.selectedFilter === 'NOT_EQUAL') {
-      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
-    } else {
-      this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.regularUnitPrice !== item.orderUnitPrice);
-    }
+        }
+      },
+    });
   }
 
   orderLineTableColor(deliveryItem: IDeliveryItem): string {
@@ -404,12 +405,12 @@ export class CommandeStockEntryComponent implements OnInit {
 
   editLigneInfos(deliveryItem: IDeliveryItem): void {
     this.ref = this.dialogService.open(EditProduitComponent, {
-      data: { deliveryItem },
+      data: { deliveryItem, delivery: this.delivery },
       width: '70%',
       header: `EDITION DU PRODUIT ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
     });
 
-    this.ref.onClose.subscribe(() => this.reloadDelivery());
+    this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 
   onAddLot(deliveryItem: IDeliveryItem): void {
@@ -427,7 +428,7 @@ export class CommandeStockEntryComponent implements OnInit {
         header: 'Ajout de lot',
       });
     }
-    this.ref.onClose.subscribe(() => this.reloadDelivery());
+    this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 
   onUpdateCip(params: any): void {
@@ -447,7 +448,7 @@ export class CommandeStockEntryComponent implements OnInit {
     if (Number(orderCostAmount) > 0) {
       this.subscribeOnEditCellResponse(this.service.updateOrderCostAmount(deliveryItem));
     } else {
-      this.reloadDelivery();
+      this.onFilterReceiptItems();
     }
   }
 
@@ -579,10 +580,11 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   reloadDelivery(): void {
-    this.service.find(this.delivery.id).subscribe(res => {
-      this.delivery = res.body;
-      this.receiptItems = this.delivery?.receiptItems;
-    });
+    this.onFilterReceiptItems();
+    /* this.service.find(this.delivery.id).subscribe(res => {
+       this.delivery = res.body;
+       this.receiptItems = this.delivery?.receiptItems;
+     });*/
   }
 
   onEditDelivery(): void {
@@ -598,10 +600,6 @@ export class CommandeStockEntryComponent implements OnInit {
     });
   }
 
-  gotoProduitPageEdit(id: number): void {
-    this.router.navigate(['/produit', id, 'edit']);
-  }
-
   private subscribeOnEditCellResponse(result: Observable<{}>): void {
     result.subscribe({
       next: () => this.reloadDelivery(), // see how to commit row insted reload
@@ -611,6 +609,6 @@ export class CommandeStockEntryComponent implements OnInit {
 
   private onEditCellError(error: any): void {
     this.onCommonError(error);
-    this.reloadDelivery(); // se how to reset ROW
+    this.onFilterReceiptItems(); // se how to reset ROW
   }
 }

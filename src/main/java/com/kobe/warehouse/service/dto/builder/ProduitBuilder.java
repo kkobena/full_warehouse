@@ -625,4 +625,58 @@ public final class ProduitBuilder {
               .orElse(produitDTO.getRegularUnitPrice()));
     }
   }
+
+  public static ProduitDTO fromEntity(Produit produit) {
+    ProduitDTO produitDTO = partialFromProduit(produit);
+    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+    TypeEtiquette(produitDTO, produit);
+    tva(produitDTO, produit);
+    rayonProduits(produitDTO, produit);
+    produitDTO.setStatus(produit.getStatus().ordinal());
+    produitDTO.setTableau(
+        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+    produitDTO.setDisplayField(buildDisplayName(produitDTO, fournisseurProduit));
+    setUnitPrice(produitDTO, fournisseurProduit);
+    return produitDTO;
+  }
+
+  public static String buildDisplayName(
+      ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
+
+    TableauDTO tableau = produitDTO.getTableau();
+    if (Objects.nonNull(fournisseurProduit)) {
+      return String.format(
+          "%s %s %s ",
+          produitDTO.getLibelle(),
+          fournisseurProduit.getCodeCip(),
+          NumberUtil.formatToString(
+              Optional.ofNullable(tableau)
+                  .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
+                  .orElse(fournisseurProduit.getPrixUni())));
+    }
+    return String.format(
+        "%s %s %s ",
+        produitDTO.getLibelle(),
+        produitDTO.getCodeEan(),
+        NumberUtil.formatToString(
+            Optional.ofNullable(tableau)
+                .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                .orElse(produitDTO.getRegularUnitPrice())));
+  }
+
+  public static void setUnitPrice(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
+
+    TableauDTO tableau = produitDTO.getTableau();
+    if (Objects.nonNull(fournisseurProduit)) {
+      produitDTO.setUnitPrice(
+          Optional.ofNullable(tableau)
+              .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
+              .orElse(fournisseurProduit.getPrixUni()));
+    } else {
+      produitDTO.setUnitPrice(
+          Optional.ofNullable(tableau)
+              .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+              .orElse(produitDTO.getRegularUnitPrice()));
+    }
+  }
 }

@@ -1,12 +1,16 @@
 <p-toast position="center"></p-toast>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+
+  <div [hidden]="true">
+    <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+  </div>
   <div class="p-col-12">
 
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Num.Lot<span
           style="font-weight: 900;color: red;">*</span></label>
-        <input (keyup)="onValidateNumLot($event)" [pKeyFilter]="blockSpace" autocomplete="off"
+        <input (blur)="onValidateNumLot($event)" [pKeyFilter]="blockSpace" autocomplete="off"
                class="form-control"
                formControlName="numLot" name="numLot" pInputText
                type="text"
@@ -25,7 +29,7 @@
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Quantité<span
           style="font-weight: 900;color: red;">*</span></label>
-        <input (keyup)="onValidateQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
+        <input (blur)="onValidateQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
                class="form-control" formControlName="quantityReceived"
                name="quantityReceived" pInputText type="text" />
         <div
@@ -42,7 +46,7 @@
     <div class="p-fluid p-formgrid p-grid">
       <div *ngIf="showUgControl" class="p-field p-col">
         <label class="col-auto col-form-label">Quantité UG</label>
-        <input (keyup)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
+        <input (blur)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
                class="form-control" formControlName="ugQuantityReceived"
                name="ugQuantityReceived" pInputText type="text" />
 
@@ -50,7 +54,8 @@
 
 
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Date de péremption</label>
+        <label class="col-auto col-form-label">Date de péremption<span
+          style="font-weight: 900;color: red;">*</span></label>
         <p-calendar [minDate]="minDate" [selectOtherMonths]="true" [showButtonBar]="true"
                     appendTo="body" dateFormat="dd/mm/yy" formControlName="expiryDate"
                     name="expiryDate"

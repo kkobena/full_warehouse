@@ -98,7 +98,7 @@ export class ProduitService {
   }
 
   updateProduitFournisseurFromCommande(produitFournisseur: IFournisseurProduit): Observable<HttpResponse<{}>> {
-    return this.http.put<{}>(this.fournisseurProduitUrl, produitFournisseur, { observe: 'response' });
+    return this.http.put<{}>(`${this.fournisseurProduitUrl}/update-from-commande`, produitFournisseur, { observe: 'response' });
   }
 
   findFournisseurProduit(id: number): Observable<HttpResponse<IFournisseurProduit>> {

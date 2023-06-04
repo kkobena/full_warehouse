@@ -23,12 +23,11 @@ import org.hibernate.annotations.Formula;
 @Table(
     name = "delivery_receipt_item",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"delivery_receipt_id", "fournisseur_produit_id"})
+      @UniqueConstraint(columnNames = {"delivery_receipt_id", "fournisseur_produit_id"})
     })
 public class DeliveryReceiptItem implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,6 +60,7 @@ public class DeliveryReceiptItem implements Serializable {
   @NotNull
   @Column(name = "created_date", nullable = false)
   private LocalDateTime createdDate;
+
   @Column(name = "updated_date")
   private LocalDateTime updatedDate = LocalDateTime.now();
 
@@ -101,7 +101,20 @@ public class DeliveryReceiptItem implements Serializable {
   @Column(name = "cost_amount")
   private Integer costAmount;
 
-  public Long getId() {
+  @NotNull
+  @Column(name = "after_stock")
+  private Integer afterStock;
+
+    public Integer getAfterStock() {
+        return afterStock;
+    }
+
+    public DeliveryReceiptItem setAfterStock(Integer afterStock) {
+        this.afterStock = afterStock;
+        return this;
+    }
+
+    public Long getId() {
     return id;
   }
 

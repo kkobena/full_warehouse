@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
@@ -11,6 +10,7 @@ import com.kobe.warehouse.web.rest.errors.DefaultFournisseurException;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -243,19 +243,27 @@ public class FournisseurProduitService {
     return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
   }
 
-  public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto)
-      throws GenericError, JsonProcessingException {
+  public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto) throws GenericError {
 
     FournisseurProduit fournisseurProduit =
         this.fournisseurProduitRepository.getReferenceById(dto.getId());
+    Produit produit = fournisseurProduit.getProduit();
+    if (dto.isPrincipal()) {
+      fournisseurProduit.setPrincipal(dto.isPrincipal());
+      FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
+      if (Objects.nonNull(fournisseurProduitPrincipal)) {
+        fournisseurProduitPrincipal.setPrincipal(false);
+        this.fournisseurProduitRepository.saveAndFlush(fournisseurProduitPrincipal);
+      }
+    }
     valideCodeCip(dto, fournisseurProduit);
-    fournisseurProduit.setPrincipal(dto.isPrincipal());
+
     fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
     fournisseurProduit.setUpdatedAt(Instant.now());
     this.fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
-    this.produitService.updateFromCommande(dto.getProduit());
+    this.produitService.updateFromCommande(dto.getProduit(), produit);
   }
 
   private void valideCodeCip(FournisseurProduitDTO dto, FournisseurProduit fournisseurProduit)

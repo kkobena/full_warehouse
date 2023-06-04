@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -76,7 +75,7 @@ public interface ProduitService {
     return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
   }
 
-  void updateFromCommande(ProduitDTO produitDTO) throws JsonProcessingException;
+  void updateFromCommande(ProduitDTO produitDTO, Produit produit) ;
 
 
 }

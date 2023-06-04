@@ -14,8 +14,6 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
   params!: any;
   @Input() status: boolean = false;
 
-  constructor() {}
-
   refresh(): boolean {
     return false;
   }
@@ -26,10 +24,14 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
 
   getStatus(): string {
     const receiptItem = this.params.data as IDeliveryItem;
-    if (receiptItem.orderUnitPrice !== receiptItem.regularUnitPrice) {
+    const mustBeUpdate =
+      receiptItem.orderUnitPrice !== receiptItem.regularUnitPrice ||
+      receiptItem.fournisseurProduitCip?.length === 0 ||
+      receiptItem.orderCostAmount !== receiptItem.costAmount;
+    if (mustBeUpdate) {
       return 'progress-bar bg-warning';
-    } else if (receiptItem.updated) return 'progress-bar bg-success';
-    return 'progress-bar bg-danger';
+    } else if (receiptItem.updated || !mustBeUpdate) return 'progress-bar bg-success';
+    return 'progress-bar bg-secondary';
   }
 
   ngOnChanges(changes: SimpleChanges): void {

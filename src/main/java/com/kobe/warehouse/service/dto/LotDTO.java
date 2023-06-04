@@ -1,41 +1,40 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.domain.LotSold;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import lombok.Getter;
+import java.util.Optional;
 import org.springframework.util.CollectionUtils;
 
-@Getter
 public class LotDTO {
-  private final Long id;
+  private Long id;
 
-  private final String numLot;
+  private String numLot;
 
-  private final String receiptRefernce;
+  private String receiptRefernce;
 
-  private final Long receiptItemId;
+  private Long receiptItemId;
 
-  private final Integer quantity;
+  private Integer quantity;
 
-  private final Integer ugQuantityReceived = 0;
+  private Integer ugQuantityReceived;
 
-  private final Integer quantityReceived;
+  private Integer quantityReceived;
 
-  private final LocalDateTime createdDate;
+  private LocalDateTime createdDate;
 
-  private final LocalDate manufacturingDate;
+  private LocalDate manufacturingDate;
 
-  private final LocalDate expiryDate;
+  private LocalDate expiryDate;
 
-  private final List<LotSoldDTO> lotSolds;
+  private List<LotSoldDTO> lotSolds;
 
   public LotDTO(Lot lot) {
     id = lot.getId();
     numLot = lot.getNumLot();
+    ugQuantityReceived = lot.getUgQuantityReceived();
     receiptRefernce = lot.getReceiptRefernce();
     receiptItemId = lot.getReceiptItem().getId();
     quantity = lot.getQuantity();
@@ -49,21 +48,115 @@ public class LotDTO {
             : Collections.emptyList();
   }
 
-  @Getter
-  private class LotSoldDTO {
-    private final Long id;
+  public LotDTO() {}
 
-    private final LocalDateTime createdDate;
+  public Long getId() {
+    return id;
+  }
 
-    private final String saleReference;
+  public LotDTO setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
-    private final Integer quantity;
+  public String getNumLot() {
+    return numLot;
+  }
 
-    public LotSoldDTO(LotSold lotSold) {
-      id = lotSold.getId();
-      createdDate = lotSold.getCreatedDate();
-      saleReference = lotSold.getSaleLine().getSales().getNumberTransaction();
-      quantity = lotSold.getQuantity();
-    }
+  public LotDTO setNumLot(String numLot) {
+    this.numLot = numLot;
+    return this;
+  }
+
+  public String getReceiptRefernce() {
+    return receiptRefernce;
+  }
+
+  public LotDTO setReceiptRefernce(String receiptRefernce) {
+    this.receiptRefernce = receiptRefernce;
+    return this;
+  }
+
+  public Long getReceiptItemId() {
+    return receiptItemId;
+  }
+
+  public LotDTO setReceiptItemId(Long receiptItemId) {
+    this.receiptItemId = receiptItemId;
+    return this;
+  }
+
+  public Integer getQuantity() {
+    return quantity;
+  }
+
+  public LotDTO setQuantity(Integer quantity) {
+    this.quantity = quantity;
+    return this;
+  }
+
+  public Integer getUgQuantityReceived() {
+    return ugQuantityReceived;
+  }
+
+  public LotDTO setUgQuantityReceived(Integer ugQuantityReceived) {
+    this.ugQuantityReceived = ugQuantityReceived;
+    return this;
+  }
+
+  public Integer getQuantityReceived() {
+    return quantityReceived;
+  }
+
+  public LotDTO setQuantityReceived(Integer quantityReceived) {
+    this.quantityReceived = quantityReceived;
+    return this;
+  }
+
+  public LocalDateTime getCreatedDate() {
+    return createdDate;
+  }
+
+  public LotDTO setCreatedDate(LocalDateTime createdDate) {
+    this.createdDate = createdDate;
+    return this;
+  }
+
+  public LocalDate getManufacturingDate() {
+    return manufacturingDate;
+  }
+
+  public LotDTO setManufacturingDate(LocalDate manufacturingDate) {
+    this.manufacturingDate = manufacturingDate;
+    return this;
+  }
+
+  public LocalDate getExpiryDate() {
+    return expiryDate;
+  }
+
+  public LotDTO setExpiryDate(LocalDate expiryDate) {
+    this.expiryDate = expiryDate;
+    return this;
+  }
+
+  public List<LotSoldDTO> getLotSolds() {
+    return lotSolds;
+  }
+
+  public LotDTO setLotSolds(List<LotSoldDTO> lotSolds) {
+    this.lotSolds = lotSolds;
+    return this;
+  }
+
+  public Lot toEntity() {
+    var ug = Optional.ofNullable(ugQuantityReceived).orElse(0);
+    return new Lot()
+        .setNumLot(numLot)
+        .setExpiryDate(expiryDate)
+        .setManufacturingDate(manufacturingDate)
+        .setQuantityReceived(quantityReceived)
+        .setQuantity(quantityReceived + ug)
+        .setUgQuantityReceived(ug);
   }
 }

@@ -1,9 +1,12 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +31,24 @@ public class LotResource {
   @PutMapping("/lot/remove-to-commande")
   public ResponseEntity<Void> removeLotToCommande(@RequestBody LotJsonValue lot) {
     lotService.remove(lot);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/lot/add")
+  public ResponseEntity<LotDTO> add(@Valid @RequestBody LotDTO lot) {
+
+    return ResponseEntity.ok().body(lotService.addLot(lot));
+  }
+
+  @PostMapping("/lot/edit")
+  public ResponseEntity<LotDTO> edit(@Valid @RequestBody LotDTO lot) {
+
+    return ResponseEntity.ok().body(lotService.editLot(lot));
+  }
+
+  @DeleteMapping("/lot/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    lotService.remove(id);
     return ResponseEntity.ok().build();
   }
 }

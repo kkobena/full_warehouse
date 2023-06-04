@@ -4,12 +4,15 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -20,14 +23,17 @@ public class LotServiceImpl implements LotService {
   private final LotRepository lotRepository;
   private final StorageService storageService;
   private final CommandeRepository commandeRepository;
+  private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
 
   public LotServiceImpl(
       LotRepository lotRepository,
       StorageService storageService,
-      CommandeRepository commandeRepository) {
+      CommandeRepository commandeRepository,
+      DeliveryReceiptItemRepository deliveryReceiptItemRepository) {
     this.lotRepository = lotRepository;
     this.storageService = storageService;
     this.commandeRepository = commandeRepository;
+    this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
   }
 
   @Override
@@ -58,13 +64,42 @@ public class LotServiceImpl implements LotService {
   }
 
   @Override
+  public LotDTO addLot(LotDTO lot) {
+    DeliveryReceiptItem deliveryReceiptItem =
+        this.deliveryReceiptItemRepository.getReferenceById(lot.getReceiptItemId());
+    Lot entity = lot.toEntity();
+    entity.setReceiptItem(deliveryReceiptItem);
+    entity.setReceiptRefernce(deliveryReceiptItem.getDeliveryReceipt().getReceiptRefernce());
+    return new LotDTO(this.lotRepository.saveAndFlush(entity));
+  }
+
+  @Override
+  public LotDTO editLot(LotDTO lot) {
+    Lot entity = this.lotRepository.getReferenceById(lot.getId());
+    entity.setQuantityReceived(lot.getQuantityReceived());
+    entity.setUgQuantityReceived(Optional.ofNullable(lot.getUgQuantityReceived()).orElse(0));
+    entity.setExpiryDate(lot.getExpiryDate());
+    entity.setManufacturingDate(lot.getManufacturingDate());
+    entity.setNumLot(lot.getNumLot());
+    entity.setQuantity(computeQuantity(lot));
+    return new LotDTO(this.lotRepository.saveAndFlush(entity));
+  }
+
+  @Override
   public void remove(LotJsonValue lot) {
     Commande commande = commandeRepository.getReferenceById(lot.getCommandeId());
     removeLotFromCommande(commande, lot);
     commandeRepository.saveAndFlush(commande);
   }
 
-  private void removeLotFromCommande(Commande commande, LotJsonValue lot) {
+  @Override
+  public void remove(Long lotId) {
+    this.lotRepository.deleteById(lotId);
+  }
+
+
+
+    private void removeLotFromCommande(Commande commande, LotJsonValue lot) {
     if (!CollectionUtils.isEmpty(commande.getLots())) {
       commande
           .getLots()
@@ -73,5 +108,9 @@ public class LotServiceImpl implements LotService {
                   e.getNumLot().equalsIgnoreCase(lot.getNumLot())
                       && e.getReceiptItem().equals(lot.getReceiptItem()));
     }
+  }
+
+  private int computeQuantity(LotDTO lot) {
+    return lot.getQuantityReceived() + Optional.ofNullable(lot.getUgQuantityReceived()).orElse(0);
   }
 }

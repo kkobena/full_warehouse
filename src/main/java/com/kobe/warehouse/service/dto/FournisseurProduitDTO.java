@@ -52,24 +52,19 @@ public class FournisseurProduitDTO {
     Produit p = f.getProduit();
 
     Fournisseur fr = f.getFournisseur();
-    FournisseurProduitDTO fournisseurProduitDTO =
-        new FournisseurProduitDTO()
-            .setId(f.getId())
-            .setCodeCip(f.getCodeCip())
-            .setPrixAchat(f.getPrixAchat())
-            .setPrixUni(f.getPrixUni())
-            .setFournisseurLibelle(fr.getLibelle())
-            .setProduitLibelle(p.getLibelle())
-            .setProduitId(p.getId())
-            .setFournisseurId(fr.getId())
-            .setCreatedAt(f.getCreatedAt())
-            .setUpdatedAt(f.getUpdatedAt())
-            .setPrincipal(f.isPrincipal());
-    ProduitDTO produitDTO = ProduitBuilder.fromProduitWithRequiredParentRelation(p);
-      produitDTO.setFournisseurProduit(fournisseurProduitDTO);
-      produitDTO.setDisplayField(ProduitBuilder.buildDisplayName(produitDTO));
-    fournisseurProduitDTO.setProduit(produitDTO);
-    return fournisseurProduitDTO;
+    return new FournisseurProduitDTO()
+        .setId(f.getId())
+        .setCodeCip(f.getCodeCip())
+        .setPrixAchat(f.getPrixAchat())
+        .setPrixUni(f.getPrixUni())
+        .setFournisseurLibelle(fr.getLibelle())
+        .setProduitLibelle(p.getLibelle())
+        .setProduitId(p.getId())
+        .setFournisseurId(fr.getId())
+        .setCreatedAt(f.getCreatedAt())
+        .setUpdatedAt(f.getUpdatedAt())
+        .setProduit(ProduitBuilder.fromEntity(p))
+        .setPrincipal(f.isPrincipal());
   }
 
   public ProduitDTO getProduit() {

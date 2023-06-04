@@ -12,7 +12,6 @@ import { IDeliveryItem } from '../../../../shared/model/delivery-item';
   providers: [MessageService, DialogService, ConfirmationService],
 })
 export class ListLotComponent implements OnInit {
-  isSaving = false;
   lots: ILot[] = [];
   selectedEl!: ILot;
   deliveryItem?: IDeliveryItem;
@@ -23,6 +22,7 @@ export class ListLotComponent implements OnInit {
   constructor(
     protected entityService: LotService,
     public ref: DynamicDialogRef,
+    public ref2: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private messageService: MessageService,
     private dialogService: DialogService,
@@ -76,8 +76,11 @@ export class ListLotComponent implements OnInit {
     });
   }
 
+  cancel(): void {
+    this.ref2.destroy();
+  }
+
   protected onSaveError(err: any): void {
-    this.isSaving = false;
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
@@ -95,7 +98,7 @@ export class ListLotComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.entityService.delete(lot).subscribe({
+        this.entityService.remove(lot.id).subscribe({
           next: () => {
             this.removeLotFromLotsArray(lot);
           },
@@ -109,5 +112,6 @@ export class ListLotComponent implements OnInit {
     const newLots = this.lots.filter(e => e.numLot !== lot.numLot);
     this.lots = newLots;
     this.deliveryItem.lots = newLots;
+    this.showAddBtn();
   }
 }

@@ -21,8 +21,8 @@ public class AppConfigurationService {
   public boolean isMono() {
     Optional<AppConfiguration> appConfiguration =
         appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
-    if (appConfiguration.isEmpty()) return true;
-    return Integer.valueOf(appConfiguration.get().getValue().trim()) == 0;
+      return appConfiguration.map(
+          configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);
   }
 
   @Transactional(readOnly = true)

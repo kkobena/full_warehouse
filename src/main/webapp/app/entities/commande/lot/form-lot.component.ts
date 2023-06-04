@@ -19,13 +19,13 @@ export class FormLotComponent implements OnInit {
   entity?: ILot;
   deliveryItem?: IDeliveryItem;
   commandeId?: number;
-
+  numLotAlreadyExist = false;
   maxDate = new Date();
   minDate = new Date();
   showUgControl = false;
-  numLotAlreadyExist = false;
   blockSpace = BLOCK_SPACE;
   editForm = this.fb.group({
+    id: new FormControl<number | null>(null, {}),
     numLot: new FormControl<string | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
@@ -74,34 +74,26 @@ export class FormLotComponent implements OnInit {
   updateForm(entity: ILot): void {
     this.editForm.patchValue({
       numLot: entity.numLot,
+      id: entity.id,
       quantityReceived: entity.quantityReceived,
       expiryDate: entity.expiryDate ? new Date(entity.expiryDate) : null,
       manufacturingDate: entity.manufacturingDate ? new Date(entity.manufacturingDate) : null,
       ugQuantityReceived: entity.ugQuantityReceived,
     });
-    this.editForm.get('numLot').disable();
   }
 
   save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();
-    this.subscribeToSaveResponse(this.entityService.create(entity));
+    if (entity.id != undefined) {
+      this.subscribeToSaveResponse(this.entityService.editLot(entity));
+    } else {
+      this.subscribeToSaveResponse(this.entityService.addLot(entity));
+    }
   }
 
   cancel(): void {
     this.ref.destroy();
-  }
-
-  onValidateNumLot(event: any): void {
-    const numLot = event.target.value;
-    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot);
-    if (this.numLotAlreadyExist) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'ERROR DE VALIDATION',
-        detail: `Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`,
-      });
-    }
   }
 
   onValidateQuantity(event: any): void {
@@ -113,6 +105,18 @@ export class FormLotComponent implements OnInit {
         severity: 'error',
         summary: 'ERROR DE VALIDATION',
         detail: `La quantité saisie ne peut être supérieure à ${maxQuantity}`,
+      });
+    }
+  }
+
+  onValidateNumLot(event: any): void {
+    const numLot = event.target.value;
+    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity?.id);
+    if (this.numLotAlreadyExist) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'ERROR DE VALIDATION',
+        detail: `Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`,
       });
     }
   }
@@ -152,6 +156,7 @@ export class FormLotComponent implements OnInit {
   private createFromForm(): ILot {
     return {
       ...new Lot(),
+      id: this.editForm.get(['id'])!.value,
       numLot: this.editForm.get(['numLot'])!.value,
       expiryDate: this.editForm.get(['expiryDate'])!.value
         ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['expiryDate'])!.value))
@@ -162,7 +167,7 @@ export class FormLotComponent implements OnInit {
       quantityReceived: this.editForm.get(['quantityReceived'])!.value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived'])!.value,
       commandeId: this.commandeId,
-      receiptItem: this.deliveryItem.id,
+      receiptItemId: this.deliveryItem.id,
     };
   }
 

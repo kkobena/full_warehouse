@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -219,8 +218,8 @@ public class ProduitServiceImpl implements ProduitService {
   }
 
   @Override
-  public void updateFromCommande(ProduitDTO produitDTO) throws JsonProcessingException {
-    this.customizedProductService.updateFromCommande(produitDTO);
+  public void updateFromCommande(ProduitDTO produitDTO, Produit produit) {
+    this.customizedProductService.updateFromCommande(produitDTO,produit);
   }
 
   private Storage getPointOfSale() {

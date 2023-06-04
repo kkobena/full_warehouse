@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -251,8 +250,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
   }
 
   @Override
-  public void updateFromCommande(ProduitDTO dto) throws JsonProcessingException {
-    Produit produit = this.produitRepository.getReferenceById(dto.getId());
+  public void updateFromCommande(ProduitDTO dto, Produit produit ) {
+
     produit.setTva(this.tvaFromId(dto.getTvaId()));
     if (StringUtils.hasLength(dto.getExpirationDate())) {
       produit.setPerimeAt(

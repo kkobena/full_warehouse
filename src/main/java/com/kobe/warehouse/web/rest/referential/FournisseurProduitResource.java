@@ -1,6 +1,5 @@
 package com.kobe.warehouse.web.rest.referential;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
@@ -86,7 +85,7 @@ public class FournisseurProduitResource {
   @PutMapping("/fournisseur-produits/update-from-commande")
   public ResponseEntity<Void> updateProduitFournisseurFromCommande(
       @Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO)
-      throws JsonProcessingException {
+      {
 
     fournisseurProduitService.updateProduitFournisseurFromCommande(fournisseurProduitDTO);
     return ResponseEntity.ok()

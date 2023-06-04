@@ -1,7 +1,7 @@
 export interface ILot {
   id?: number;
   commandeId?: number;
-  receiptItem?: number;
+  receiptItemId?: number;
   quantity?: number;
   numLot?: string;
   receiptRefernce?: string;
@@ -17,7 +17,7 @@ export class Lot implements ILot {
     public id?: number,
     public commandeId?: number,
     public receiptItemQuantityRequested?: number,
-    public receiptItem?: number,
+    public receiptItemId?: number,
     public quantity?: number,
     public numLot?: string,
     public receiptRefernce?: string,

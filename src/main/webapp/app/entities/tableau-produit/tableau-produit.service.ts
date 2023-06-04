@@ -41,4 +41,12 @@ export class TableauProduitService {
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {
     return this.http.post<IResponseDto>(`${this.resourceUrl}/importcsv`, file, { observe: 'response' });
   }
+
+  associer(id: number, prouitIds: number[]): Observable<{}> {
+    return this.http.put<{}>(`${this.resourceUrl}/associer/${id}`, prouitIds, { observe: 'response' });
+  }
+
+  dissocier(prouitIds: number[]): Observable<{}> {
+    return this.http.put<{}>(`${this.resourceUrl}/dissocier`, prouitIds, { observe: 'response' });
+  }
 }

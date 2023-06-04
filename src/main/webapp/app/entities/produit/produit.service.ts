@@ -113,6 +113,13 @@ export class ProduitService {
     return this.http.post<IRayonProduit>(this.rayonProduitUrl, rayonProduit, { observe: 'response' });
   }
 
+  queryLite(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http
+      .get<IProduit[]>(`${this.resourceUrl}/lite`, { params: options, observe: 'response' })
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+  }
+
   protected convertDateFromClient(produit: IProduit): IProduit {
     const copy: IProduit = Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,

@@ -198,7 +198,7 @@ public class CommandeReportService extends CommonService {
 
     return EtiquetteDTO.builder()
         .code(fournisseurProduit.getCodeCip())
-        .prix(String.format("%s CFA", NumberUtil.formatLong(item.getRegularUnitPrice())))
+        .prix(String.format("%s CFA", NumberUtil.formatToString(item.getRegularUnitPrice())))
         .print(true)
         .date(date)
         .order(order)

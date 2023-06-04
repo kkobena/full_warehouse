@@ -108,8 +108,6 @@ export class TableauProduitComponent implements OnInit {
     this.displayDialog = true;
   }
 
-  onAddProduits(entity: ITableau): void {}
-
   delete(entity: ITableau): void {
     if (entity && entity.id) {
       this.confirmDelete(entity.id);

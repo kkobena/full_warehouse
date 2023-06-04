@@ -240,7 +240,7 @@ public class FournisseurProduitService {
   }
 
   public Optional<FournisseurProduitDTO> findOneById(Long id) {
-    return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::new);
+    return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
   }
 
   public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto)

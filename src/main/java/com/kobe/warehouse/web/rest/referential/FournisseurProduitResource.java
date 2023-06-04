@@ -48,7 +48,7 @@ public class FournisseurProduitResource {
 
   @PutMapping("/fournisseur-produits")
   public ResponseEntity<FournisseurProduitDTO> update(@Valid @RequestBody FournisseurProduitDTO dto)
-      throws Exception {
+      {
     log.debug("REST request to update FournisseurProduit : {}", dto);
     if (dto.getId() == null) {
       throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -79,7 +79,7 @@ public class FournisseurProduitResource {
 
   @GetMapping("/fournisseur-produits/{id}")
   public ResponseEntity<FournisseurProduitDTO> getOne(@PathVariable Long id) {
-    log.debug("REST request to get GammeProduit : {}", id);
+
     return ResponseUtil.wrapOrNotFound(fournisseurProduitService.findOneById(id));
   }
 

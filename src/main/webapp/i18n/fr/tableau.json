@@ -5,7 +5,8 @@
         "title": "Tableaux",
         "createLabel": "Nouveau tableaux produit",
         "createOrEditLabel": "Créer ou éditer un nouveau  tableaux produit",
-        "notFound": "Aucune donnée trouvée"
+        "notFound": "Aucune donnée trouvée",
+        "associe": "Associer des produits à ce tableau"
       },
       "created": "Un nouveau  tableaux produit",
       "updated": "Le  groupe fournisseur avec l'identifiant {{ param }} a été mise à jour",

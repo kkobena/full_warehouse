@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -27,6 +26,7 @@ import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.StoreInventoryLine;
+import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -79,7 +79,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
   private final ProduitRepository produitRepository;
   private final RayonProduitRepository rayonProduitRepository;
   private final StorageService storageService;
-  private final ObjectMapper ObjectMapper;
   @PersistenceContext private EntityManager em;
 
   public CustomizedProductRepository(
@@ -87,14 +86,12 @@ public class CustomizedProductRepository implements CustomizedProductService {
       LogsService logsService,
       ProduitRepository produitRepository,
       RayonProduitRepository rayonProduitRepository,
-      StorageService storageService,
-      com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+      StorageService storageService) {
     this.stockProduitRepository = stockProduitRepository;
     this.logsService = logsService;
     this.produitRepository = produitRepository;
     this.rayonProduitRepository = rayonProduitRepository;
     this.storageService = storageService;
-    ObjectMapper = objectMapper;
   }
 
   @Override
@@ -256,7 +253,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
   @Override
   public void updateFromCommande(ProduitDTO dto) throws JsonProcessingException {
     Produit produit = this.produitRepository.getReferenceById(dto.getId());
-    String old = ObjectMapper.writeValueAsString(produit);
     produit.setTva(this.tvaFromId(dto.getTvaId()));
     if (StringUtils.hasLength(dto.getExpirationDate())) {
       produit.setPerimeAt(
@@ -273,9 +269,29 @@ public class CustomizedProductRepository implements CustomizedProductService {
     logsService.create(
         TransactionType.UPDATE_PRODUCT,
         String.format("Modification du produit %s", produit.getLibelle()),
-        produit.getId().toString(),
-        old,
-        ObjectMapper.writeValueAsString(produit));
+        produit.getId().toString());
+  }
+
+  @Override
+  public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
+    long total = findAllCount(produitCriteria);
+    List<ProduitDTO> list = new ArrayList<>();
+    if (total > 0) {
+      CriteriaBuilder cb = em.getCriteriaBuilder();
+      CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
+      Root<Produit> root = cq.from(Produit.class);
+      cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
+      List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
+      cq.where(cb.and(predicates.toArray(new Predicate[0])));
+      TypedQuery<Produit> q = em.createQuery(cq);
+      q.setFirstResult((int) pageable.getOffset());
+      q.setMaxResults(pageable.getPageSize());
+      list =
+          q.getResultList().stream()
+              .map(ProduitBuilder::fromProduitWithRequiredParentRelation)
+              .toList();
+    }
+    return new PageImpl<>(list, pageable, total);
   }
 
   @Override
@@ -552,6 +568,17 @@ public class CustomizedProductRepository implements CustomizedProductService {
       } else {
         predicates.add(cb.isFalse(root.get(Produit_.checkExpiryDate)));
       }
+    }
+    if (produitCriteria.getTableauId() != null) {
+      predicates.add(
+          cb.equal(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauId()));
+    }
+    if (produitCriteria.getTableauNot() != null) {
+      predicates.add(
+          cb.or(
+              cb.isNull(root.get(Produit_.tableau).get(Tableau_.id)),
+              cb.notEqual(
+                  root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauNot())));
     }
     return predicates;
   }

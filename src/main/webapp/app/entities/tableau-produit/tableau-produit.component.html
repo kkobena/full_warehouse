@@ -40,15 +40,16 @@
         <td style="text-align: right;">{{ elRow.value }}</td>
 
         <td style="text-align: center;">
-          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-2"
+          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-1"
                   icon="pi pi-pencil" pButton pRipple
                   pTooltip="Editer"
                   type="submit"></button>
-          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-help p-mr-2"
-                  icon="pi pi-pencil" pButton pRipple
+          <button [routerLink]=" ['/tableaux', elRow.id, 'associe']"
+                  class="p-button-rounded p-button-help p-mr-1" icon="pi pi-box" pButton
+                  pRipple
                   pTooltip="Associer des produits"
-                  type="submit"></button>
-          <button (click)="delete(elRow)" class="p-button-rounded p-button-warning"
+                  type="button"></button>
+          <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
                   icon="pi pi-trash" pButton pRipple
                   pTooltip="Supprimer" type="button"></button>
         </td>

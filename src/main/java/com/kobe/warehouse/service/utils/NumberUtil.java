@@ -9,7 +9,7 @@ public final class NumberUtil {
 
     private final static Logger log = LoggerFactory.getLogger(NumberUtil.class);
 
-    public static String formatLong(Number value) {
+    public static String formatToString(Number value) {
         String result = null;
         try {
 

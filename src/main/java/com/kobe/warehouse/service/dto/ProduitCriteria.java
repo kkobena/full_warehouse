@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-
 import java.io.Serializable;
 
 public class ProduitCriteria implements Serializable {
@@ -31,14 +30,45 @@ public class ProduitCriteria implements Serializable {
 	private String search;
 	private Boolean deconditionne;
 	private Long remiseId;
+	private Long tableauId;
     private Long storageId;
     private TypeProduit typeProduit;
+    private Long tableauNot;
+    private Long rayonNot;
+
     public Long getId() {
         return id;
     }
 
     public ProduitCriteria setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public Long getTableauId() {
+        return tableauId;
+    }
+
+    public ProduitCriteria setTableauId(Long tableauId) {
+        this.tableauId = tableauId;
+        return this;
+    }
+
+    public Long getTableauNot() {
+        return tableauNot;
+    }
+
+    public ProduitCriteria setTableauNot(Long tableauNot) {
+        this.tableauNot = tableauNot;
+        return this;
+    }
+
+    public Long getRayonNot() {
+        return rayonNot;
+    }
+
+    public ProduitCriteria setRayonNot(Long rayonNot) {
+        this.rayonNot = rayonNot;
         return this;
     }
 
@@ -244,6 +274,11 @@ public class ProduitCriteria implements Serializable {
         return remiseId;
     }
 
+    public ProduitCriteria setRemiseId(Long remiseId) {
+        this.remiseId = remiseId;
+        return this;
+    }
+
     public TypeProduit getTypeProduit() {
         return typeProduit;
     }
@@ -253,40 +288,34 @@ public class ProduitCriteria implements Serializable {
         return this;
     }
 
-    public ProduitCriteria setRemiseId(Long remiseId) {
-        this.remiseId = remiseId;
-        return this;
-    }
-
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ProduitCriteria{");
-        sb.append("id=").append(id);
-        sb.append(", codeEan='").append(codeEan).append('\'');
-        sb.append(", codeCip='").append(codeCip).append('\'');
-        sb.append(", libelle='").append(libelle).append('\'');
-        sb.append(", status=").append(status);
-        sb.append(", dateperemption=").append(dateperemption);
-        sb.append(", deconditionnable=").append(deconditionnable);
-        sb.append(", qtySeuilMini=").append(qtySeuilMini);
-        sb.append(", qtyAppro=").append(qtyAppro);
-        sb.append(", parentId=").append(parentId);
-        sb.append(", prixPaf=").append(prixPaf);
-        sb.append(", prixUni=").append(prixUni);
-        sb.append(", formeId=").append(formeId);
-        sb.append(", familleId=").append(familleId);
-        sb.append(", gammeId=").append(gammeId);
-        sb.append(", fabriquantId=").append(fabriquantId);
-        sb.append(", laboratoireId=").append(laboratoireId);
-        sb.append(", tvaId=").append(tvaId);
-        sb.append(", magasinId=").append(magasinId);
-        sb.append(", rayonId=").append(rayonId);
-        sb.append(", search='").append(search).append('\'');
-        sb.append(", deconditionne=").append(deconditionne);
-        sb.append(", remiseId=").append(remiseId);
-        sb.append(", storageId=").append(storageId);
-        sb.append(", typeProduit=").append(typeProduit);
-        sb.append('}');
-        return sb.toString();
+        String sb = "ProduitCriteria{" + "id=" + id
+            + ", codeEan='" + codeEan + '\''
+            + ", codeCip='" + codeCip + '\''
+            + ", libelle='" + libelle + '\''
+            + ", status=" + status
+            + ", dateperemption=" + dateperemption
+            + ", deconditionnable=" + deconditionnable
+            + ", qtySeuilMini=" + qtySeuilMini
+            + ", qtyAppro=" + qtyAppro
+            + ", parentId=" + parentId
+            + ", prixPaf=" + prixPaf
+            + ", prixUni=" + prixUni
+            + ", formeId=" + formeId
+            + ", familleId=" + familleId
+            + ", gammeId=" + gammeId
+            + ", fabriquantId=" + fabriquantId
+            + ", laboratoireId=" + laboratoireId
+            + ", tvaId=" + tvaId
+            + ", magasinId=" + magasinId
+            + ", rayonId=" + rayonId
+            + ", search='" + search + '\''
+            + ", deconditionne=" + deconditionne
+            + ", remiseId=" + remiseId
+            + ", storageId=" + storageId
+            + ", typeProduit=" + typeProduit
+            + '}';
+        return sb;
     }
 }

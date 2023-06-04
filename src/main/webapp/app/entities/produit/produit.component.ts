@@ -208,10 +208,10 @@ export class ProduitComponent implements OnInit {
         status: statut,
         familleId: this.criteria.familleId,
       })
-      .subscribe(
-        (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
+        error: () => this.onError(),
+      });
   }
 
   ngOnInit(): void {

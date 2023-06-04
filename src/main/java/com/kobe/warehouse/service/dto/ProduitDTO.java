@@ -6,7 +6,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
-import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -96,13 +95,32 @@ public class ProduitDTO {
   @Singular private List<RayonProduitDTO> rayonProduits;
   @Singular private List<ParcoursProduit> parcoursProduits;
   @Singular private List<DailyStock> dailyStocks;
-  private Tableau tableau;
+  private TableauDTO tableau;
+    private int unitPrice;
 
-    public Tableau getTableau() {
+    public int getUnitPrice() {
+        return unitPrice;
+    }
+
+    public ProduitDTO setUnitPrice(int unitPrice) {
+        this.unitPrice = unitPrice;
+        return this;
+    }
+
+    public String getDisplayField() {
+        return displayField;
+    }
+
+    public ProduitDTO setDisplayField(String displayField) {
+        this.displayField = displayField;
+        return this;
+    }
+
+    public TableauDTO getTableau() {
         return tableau;
     }
 
-    public ProduitDTO setTableau(Tableau tableau) {
+    public ProduitDTO setTableau(TableauDTO tableau) {
         this.tableau = tableau;
         return this;
     }

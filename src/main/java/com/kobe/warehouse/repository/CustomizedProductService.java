@@ -235,4 +235,5 @@ public interface CustomizedProductService {
         //  produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
         return produit;
     }
+    Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) ;
 }

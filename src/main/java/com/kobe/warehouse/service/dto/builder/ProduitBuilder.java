@@ -22,6 +22,8 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
+import com.kobe.warehouse.service.dto.TableauDTO;
+import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -283,6 +285,8 @@ public final class ProduitBuilder {
     remiseProduit(produitDTO, produit);
     produits(produitDTO, produit);
     fournisseurProduits(produitDTO, produit);
+    produitDTO.setTableau(
+        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
     return produitDTO;
   }
 
@@ -572,9 +576,53 @@ public final class ProduitBuilder {
     tva(produitDTO, produit);
     rayonProduits(produitDTO, produit);
     produitDTO.setStatus(produit.getStatus().ordinal());
-      produitDTO.setTableau(produit.getTableau());
+    produitDTO.setTableau(
+        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+    produitDTO.setFournisseurProduit(
+        Optional.ofNullable(produit.getFournisseurProduitPrincipal())
+            .map(FournisseurProduitDTO::new)
+            .orElse(null));
+    produitDTO.setDisplayField(buildDisplayName(produitDTO));
+    setUnitPrice(produitDTO);
     return produitDTO;
   }
 
+  public static String buildDisplayName(ProduitDTO produitDTO) {
+    FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
+    TableauDTO tableau = produitDTO.getTableau();
+    if (Objects.nonNull(fournisseurProduitDTO)) {
+      return String.format(
+          "%s %s %s ",
+          produitDTO.getLibelle(),
+          fournisseurProduitDTO.getCodeCip(),
+          NumberUtil.formatToString(
+              Optional.ofNullable(tableau)
+                  .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
+                  .orElse(fournisseurProduitDTO.getPrixUni())));
+    }
+    return String.format(
+        "%s %s %s ",
+        produitDTO.getLibelle(),
+        produitDTO.getCodeEan(),
+        NumberUtil.formatToString(
+            Optional.ofNullable(tableau)
+                .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                .orElse(produitDTO.getRegularUnitPrice())));
+  }
 
+  public static void setUnitPrice(ProduitDTO produitDTO) {
+    FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
+    TableauDTO tableau = produitDTO.getTableau();
+    if (Objects.nonNull(fournisseurProduitDTO)) {
+      produitDTO.setUnitPrice(
+          Optional.ofNullable(tableau)
+              .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
+              .orElse(fournisseurProduitDTO.getPrixUni()));
+    } else {
+      produitDTO.setUnitPrice(
+          Optional.ofNullable(tableau)
+              .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+              .orElse(produitDTO.getRegularUnitPrice()));
+    }
+  }
 }

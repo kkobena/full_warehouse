@@ -7,9 +7,10 @@ import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +32,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -115,6 +112,8 @@ public class ProduitResource {
         @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
         @RequestParam(required = false, name = "status") Status status,
         @RequestParam(required = false, name = "familleId") Long familleId,
+        @RequestParam(required = false, name = "tableauId") Long tableauId,
+        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
         Pageable pageable
     ) {
         Page<ProduitDTO> page = produitService.findAll(
@@ -124,6 +123,8 @@ public class ProduitResource {
                 .setDeconditionnable(deconditionnable)
                 .setDeconditionne(deconditionne)
                 .setFamilleId(familleId)
+                .setTableauId(tableauId)
+                .setTableauNot(tableauNot)
                 .setRayonId(rayonId)
                 .setStorageId(storageId),
             pageable
@@ -164,7 +165,7 @@ public class ProduitResource {
     }
 
     @PutMapping("/produits/detail")
-    public ResponseEntity<Void> updateDetail(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
+    public ResponseEntity<Void> updateDetail(@Valid @RequestBody ProduitDTO produitDTO)  {
         log.debug("REST request to update Produit : {}", produitDTO);
         if (produitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -172,4 +173,36 @@ public class ProduitResource {
         produitService.updateDetail(produitDTO);
         return ResponseEntity.ok().build();
     }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/produits/lite")
+    public ResponseEntity<List<ProduitDTO>> getAllLite(
+        @RequestParam(required = false, name = "search") String search,
+        @RequestParam(required = false, name = "storageId") Long storageId,
+        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
+        @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
+        @RequestParam(required = false, name = "status") Status status,
+        @RequestParam(required = false, name = "familleId") Long familleId,
+        @RequestParam(required = false, name = "tableauId") Long tableauId,
+        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+        Pageable pageable
+    ) {
+        Page<ProduitDTO> page = produitService.lite(
+            new ProduitCriteria()
+                .setSearch(search)
+                .setStatus(status)
+                .setDeconditionnable(deconditionnable)
+                .setDeconditionne(deconditionne)
+                .setFamilleId(familleId)
+                .setTableauId(tableauId)
+                .setTableauNot(tableauNot)
+                .setRayonId(rayonId)
+                .setStorageId(storageId),
+            pageable
+        );
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
 }

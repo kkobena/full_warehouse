@@ -46,19 +46,43 @@ public class FournisseurProduitDTO {
     fournisseurId = fr.getId();
     fournisseurLibelle = fr.getLibelle();
     principal = f.isPrincipal();
-    produit= ProduitBuilder.fromProduitWithRequiredParentRelation(p);
   }
 
-    public ProduitDTO getProduit() {
-        return produit;
-    }
+  public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
+    Produit p = f.getProduit();
 
-    public FournisseurProduitDTO setProduit(ProduitDTO produit) {
-        this.produit = produit;
-        return this;
-    }
+    Fournisseur fr = f.getFournisseur();
+    FournisseurProduitDTO fournisseurProduitDTO =
+        new FournisseurProduitDTO()
+            .setId(f.getId())
+            .setCodeCip(f.getCodeCip())
+            .setPrixAchat(f.getPrixAchat())
+            .setPrixUni(f.getPrixUni())
+            .setFournisseurLibelle(fr.getLibelle())
+            .setProduitLibelle(p.getLibelle())
+            .setProduitId(p.getId())
+            .setFournisseurId(fr.getId())
+            .setCreatedAt(f.getCreatedAt())
+            .setUpdatedAt(f.getUpdatedAt())
+            .setPrincipal(f.isPrincipal());
+    ProduitDTO produitDTO = ProduitBuilder.fromProduitWithRequiredParentRelation(p);
+      produitDTO.setFournisseurProduit(fournisseurProduitDTO);
+      produitDTO.setDisplayField(ProduitBuilder.buildDisplayName(produitDTO));
+    fournisseurProduitDTO.setProduit(produitDTO);
+    return fournisseurProduitDTO;
+  }
 
-    public Long getId() {
+  public ProduitDTO getProduit() {
+    return produit;
+  }
+
+  public FournisseurProduitDTO setProduit(ProduitDTO produit) {
+    this.produit = produit;
+
+    return this;
+  }
+
+  public Long getId() {
     return id;
   }
 

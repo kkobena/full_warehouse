@@ -1,1 +1,70 @@
-<p>produit-associes works!</p>
+<div>
+  <p-toolbar>
+    <div style="width: 100%;">
+      <p-button (click)="previousState()" icon="pi pi-angle-double-left"
+                label="Retour" styleClass="p-button-secondary float-right"></p-button>
+    </div>
+
+
+  </p-toolbar>
+  <br />
+  <p-pickList (onMoveAllToSource)="moveAllToSource($event)"
+              (onMoveAllToTarget)="moveAllToTarget($event)"
+              (onMoveToSource)="moveToSource($event)"
+              (onMoveToTarget)="moveToTarget($event)"
+              [dragdrop]="true"
+              [responsive]="true" [showSourceControls]="false"
+              [showTargetControls]="false"
+              [sourceStyle]="{ height: '30rem' }"
+              [source]="produitsSource"
+              [stripedRows]="true"
+              [targetStyle]="{ height: '30rem' }" [target]="produitsTarget"
+              [trackBy]="trackId"
+              breakpoint="1400px"
+              filterBy="displayField" sourceFilterPlaceholder="Taper pour rechercher"
+              sourceHeader="Produits non associés à ce tableau"
+              targetFilterPlaceholder="Taper pour rechercher"
+              targetHeader="Produits associés">
+    <ng-template let-options="options" pTemplate="sourceFilter">
+      <div class="p-picklist-filter">
+        <input
+          (keyup.enter)="sourceFilter()"
+          [(ngModel)]="searchSource"
+          class="p-picklist-filter-input p-inputtext p-component"
+          role="textbox"
+          type="text" />
+        <span
+          (click)=" searchSource = '';sourceFilter()"
+          *ngIf="searchSource"
+          class="p-picklist-filter-icon pi pi-times">
+                 </span>
+      </div>
+    </ng-template>
+
+    <ng-template let-options="options" pTemplate="targetFilter">
+      <div class="p-picklist-filter">
+        <input
+          (keyup.enter)="targeFilter()" [(ngModel)]="searchTarget"
+          class="p-picklist-filter-input
+                       p-inputtext p-component"
+          role="textbox" type="text" />
+        <span
+          (click)=" searchTarget = '';targeFilter()"
+          *ngIf="searchTarget"
+          class="p-picklist-filter-icon pi pi-times">
+                 </span>
+      </div>
+    </ng-template>
+
+    <ng-template let-index="index" let-item pTemplate="item">
+      <div>
+                        <span
+                          style="width:18%; display:inline-block">{{item.fournisseurProduit?.codeCip}}</span><span> {{item.libelle}}</span>
+        <span class="float-right font-bold text-900">{{item.unitPrice |number}}</span>
+      </div>
+
+    </ng-template>
+
+
+  </p-pickList>
+</div>

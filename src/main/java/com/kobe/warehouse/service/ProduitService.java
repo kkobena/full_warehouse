@@ -61,7 +61,7 @@ public interface ProduitService {
 
   void update(ProduitDTO produitDTO);
 
-  List<ProduitDTO> lite(String query);
+  Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable);
 
   void updateDetail(ProduitDTO produitDTO);
 
@@ -75,5 +75,8 @@ public interface ProduitService {
       int oldStock, int oldPrixAchat, int newStock, int newPrixAchat) {
     return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
   }
-    void updateFromCommande(ProduitDTO produitDTO) throws JsonProcessingException;
+
+  void updateFromCommande(ProduitDTO produitDTO) throws JsonProcessingException;
+
+
 }

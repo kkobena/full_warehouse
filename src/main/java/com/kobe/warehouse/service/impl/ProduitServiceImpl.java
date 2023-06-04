@@ -182,8 +182,14 @@ public class ProduitServiceImpl implements ProduitService {
   }
 
   @Override
-  public List<ProduitDTO> lite(String query) {
-    return Collections.emptyList();
+  public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
+
+    try {
+      return customizedProductService.lite(produitCriteria, pageable);
+    } catch (Exception e) {
+      log.debug("Request lite  Produits : {}", e);
+      return Page.empty();
+    }
   }
 
   @Override
@@ -214,7 +220,7 @@ public class ProduitServiceImpl implements ProduitService {
 
   @Override
   public void updateFromCommande(ProduitDTO produitDTO) throws JsonProcessingException {
-  this.customizedProductService.updateFromCommande(produitDTO);
+    this.customizedProductService.updateFromCommande(produitDTO);
   }
 
   private Storage getPointOfSale() {

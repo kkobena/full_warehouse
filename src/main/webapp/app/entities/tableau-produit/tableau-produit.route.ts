@@ -7,9 +7,10 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { TableauProduitService } from './tableau-produit.service';
 import { TableauProduitComponent } from './tableau-produit.component';
 import { ITableau, Tableau } from '../../shared/model/tableau.model';
+import { ProduitAssociesComponent } from './produits/produit-associes.component';
 
 @Injectable({ providedIn: 'root' })
-export class SalesResolve implements Resolve<ITableau> {
+export class TableauProduitResolve implements Resolve<ITableau> {
   constructor(private service: TableauProduitService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<ITableau> | Observable<never> {
@@ -38,6 +39,18 @@ export const tableauProduitRoute: Routes = [
       authorities: [Authority.USER],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.tableau.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':id/associe',
+    component: ProduitAssociesComponent,
+    resolve: {
+      tableau: TableauProduitResolve,
+    },
+    data: {
+      authorities: [Authority.USER],
+      pageTitle: 'warehouseApp.tableau.home.associe',
     },
     canActivate: [UserRouteAccessService],
   },

@@ -22,4 +22,7 @@ public interface StockEntryDataService {
     Resource printEtiquette(Long id, int startAt) throws IOException;
 
     Optional<DeliveryReceiptDTO> findOneByOrderReference(String orderReference);
+
+    Resource exportToPdf(Long id) throws IOException;
+
 }

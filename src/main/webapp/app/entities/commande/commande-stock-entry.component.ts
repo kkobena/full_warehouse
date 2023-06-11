@@ -542,16 +542,7 @@ export class CommandeStockEntryComponent implements OnInit {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
-      if (error?.error?.errorKey) {
-        this.errorService.getErrorMessageTranslation(error?.error?.errorKey).subscribe({
-          next: translatedErrorMessage => {
-            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-          },
-          error: () => this.openInfoDialog(error, 'alert alert-danger'),
-        });
-      } else {
-        this.openInfoDialog(error, 'alert alert-danger');
-      }
+      this.openInfoDialog(error, 'alert alert-danger');
     }
   }
 

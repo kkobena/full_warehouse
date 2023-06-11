@@ -10,6 +10,9 @@ import { EtiquetteComponent } from './etiquette/Etiquette.component';
 import { ImportDeliveryFormComponent } from './form/import/import-delivery-form.component';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
 
+import { saveAs } from 'file-saver';
+import { NgxSpinnerService } from 'ngx-spinner';
+
 @Component({
   selector: 'jhi-delevery',
   styles: [``],
@@ -33,7 +36,12 @@ export class DeliveryComponent implements OnInit {
   selectedFilter = 'ANY';
   loadingSelectedFilter = false;
 
-  constructor(protected router: Router, protected entityService: DeliveryService, private dialogService: DialogService) {}
+  constructor(
+    protected router: Router,
+    private spinner: NgxSpinnerService,
+    protected entityService: DeliveryService,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit(): void {
     this.filtres = [
@@ -89,6 +97,17 @@ export class DeliveryComponent implements OnInit {
       data: { entity: delivery },
       width: '40%',
       header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptRefernce} ] `,
+    });
+  }
+
+  exportPdf(delivery: IDelivery): void {
+    this.spinner.show();
+    this.entityService.exportToPdf(delivery.id).subscribe({
+      next: blod => {
+        this.spinner.hide();
+        saveAs(blod);
+      },
+      error: () => this.spinner.hide(),
     });
   }
 

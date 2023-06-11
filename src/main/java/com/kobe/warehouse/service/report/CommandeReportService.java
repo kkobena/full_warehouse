@@ -9,13 +9,8 @@ import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import com.kobe.warehouse.web.rest.errors.FileStorageException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,40 +29,22 @@ public class CommandeReportService extends CommonService {
 
   private final SpringTemplateEngine templateEngine;
   private final StorageService storageService;
-  private final Path fileStorageLocation;
-  private final FileStorageProperties fileStorageProperties;
+
   private final ReportService reportService;
+  private final Map<String, Object> variablesMap = new HashMap<>();
   private CommandeDTO commande;
   private String templateFile;
   private String contextAsString;
-  private Map<String, Object> variablesMap = new HashMap<>();
 
   public CommandeReportService(
       SpringTemplateEngine templateEngine,
       StorageService storageService,
       FileStorageProperties fileStorageProperties,
       ReportService reportService) {
+    super(fileStorageProperties);
     this.templateEngine = templateEngine;
     this.storageService = storageService;
-    this.fileStorageProperties = fileStorageProperties;
     this.reportService = reportService;
-    this.fileStorageLocation =
-        Paths.get(this.fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-
-    try {
-      Files.createDirectories(this.fileStorageLocation);
-    } catch (IOException ex) {
-      throw new FileStorageException(
-          "Could not create the directory where the uploaded files will be stored.", ex);
-    }
-  }
-
-  public Map<String, Object> getVariablesMap() {
-    return variablesMap;
-  }
-
-  public void setVariablesMap(Map<String, Object> variablesMap) {
-    this.variablesMap = variablesMap;
   }
 
   public String getContextAsString() {
@@ -78,30 +55,14 @@ public class CommandeReportService extends CommonService {
     this.contextAsString = contextAsString;
   }
 
-  public String getTemplateFile() {
-    return templateFile;
-  }
-
-  public void setTemplateFile(String templateFile) {
-    this.templateFile = templateFile;
-  }
-
-  public CommandeDTO getCommande() {
-    return commande;
-  }
-
-  public void setCommande(CommandeDTO commande) {
-    this.commande = commande;
-  }
-
   public String printCommandeEnCours(CommandeDTO commande) {
-    setCommande(commande);
+    this.commande = commande;
     Magasin magasin = storageService.getUser().getMagasin();
-    List<OrderLineDTO> orderLineDTOList = commande.getOrderLines();
+    List<OrderLineDTO> orderLineDTOList = this.commande.getOrderLines();
     orderLineDTOList.sort(Comparator.comparing(OrderLineDTO::getProduitLibelle));
-    setTemplateFile(Constant.COMMANDE_EN_COURS_TEMPLATE_FILE);
+    this.templateFile = Constant.COMMANDE_EN_COURS_TEMPLATE_FILE;
     this.variablesMap.put(Constant.MAGASIN, magasin);
-    this.variablesMap.put(Constant.COMMANDE, commande);
+    this.variablesMap.put(Constant.COMMANDE, this.commande);
     this.variablesMap.put(Constant.ITEM_SIZE, orderLineDTOList.size());
     this.variablesMap.put(Constant.DEVISE, Constant.DEVISE_CONSTANT);
     this.variablesMap.put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
@@ -121,19 +82,7 @@ public class CommandeReportService extends CommonService {
 
   @Override
   protected List<OrderLineDTO> getItems() {
-    return this.getCommande().getOrderLines();
-  }
-
-  @Override
-  protected String getDestFilePath() {
-    return this.fileStorageLocation
-        .resolve(
-            getCommande().getOrderRefernce()
-                + "_"
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
-                + ".pdf")
-        .toFile()
-        .getAbsolutePath();
+    return this.commande.getOrderLines();
   }
 
   @Override
@@ -143,13 +92,13 @@ public class CommandeReportService extends CommonService {
 
   @Override
   protected String getTemplateAsHtml() {
-    return templateEngine.process(getTemplateFile(), super.getContextVariables());
+    return templateEngine.process(templateFile, super.getContextVariables());
   }
 
   @Override
   protected String getTemplateAsHtml(Context context) {
     this.getParameters().forEach(context::setVariable);
-    return templateEngine.process(getTemplateFile(), context);
+    return templateEngine.process(templateFile, context);
   }
 
   @Override
@@ -157,14 +106,19 @@ public class CommandeReportService extends CommonService {
     return this.variablesMap;
   }
 
+  @Override
+  protected String getGenerateFileName() {
+    return this.commande.getOrderRefernce();
+  }
+
   private List<EtiquetteDTO> buildEtiquettes(
       Set<DeliveryReceiptItem> receiptItems, int startAt, String rasionSociale) {
     String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     List<EtiquetteDTO> etiquettes = new ArrayList<>();
-      var finalItems =
-          receiptItems.stream()
-              .filter(e -> StringUtils.isNotEmpty(e.getFournisseurProduit().getCodeCip()))
-              .toList();
+    var finalItems =
+        receiptItems.stream()
+            .filter(e -> StringUtils.isNotEmpty(e.getFournisseurProduit().getCodeCip()))
+            .toList();
     int index = 1;
     if (startAt > 1) {
       for (int i = 1; i <= startAt; i++) {
@@ -172,15 +126,30 @@ public class CommandeReportService extends CommonService {
         index++;
       }
 
-      for (DeliveryReceiptItem item : finalItems) {
-        for (int i = 0; i < item.getQuantityReceived(); i++) {
-          etiquettes.add(buildEtiquetteDTO(item, date, index, rasionSociale));
-          index++;
-        }
-      }
-      etiquettes.sort(Comparator.comparing(EtiquetteDTO::getOrder));
-      return etiquettes;
+      return getEtiquetteDTOS(
+          rasionSociale,
+          date,
+          etiquettes,
+          finalItems,
+          index,
+          Comparator.comparing(EtiquetteDTO::getOrder));
     }
+    return getEtiquetteDTOS(
+        rasionSociale,
+        date,
+        etiquettes,
+        finalItems,
+        index,
+        Comparator.comparing(EtiquetteDTO::getLibelle));
+  }
+
+  private List<EtiquetteDTO> getEtiquetteDTOS(
+      String rasionSociale,
+      String date,
+      List<EtiquetteDTO> etiquettes,
+      List<DeliveryReceiptItem> finalItems,
+      int index,
+      Comparator<EtiquetteDTO> comparing) {
     for (DeliveryReceiptItem item : finalItems) {
       for (int i = 0; i < item.getQuantityReceived(); i++) {
         etiquettes.add(buildEtiquetteDTO(item, date, index, rasionSociale));
@@ -188,7 +157,7 @@ public class CommandeReportService extends CommonService {
       }
     }
 
-    etiquettes.stream().sorted(Comparator.comparing(EtiquetteDTO::getLibelle));
+    etiquettes.sort(comparing);
     return etiquettes;
   }
 

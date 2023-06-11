@@ -25,6 +25,7 @@ export interface IDeliveryItem {
 
   ugQuantity?: number;
   quantityUG?: number;
+  afterStock?: number;
   fournisseurProduitId?: number;
   produitId?: number;
   fournisseurProduitLibelle?: string;

@@ -50,12 +50,12 @@ export class DeliveryService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  exportToCsv(commandeId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${commandeId}`, { responseType: 'blob' });
+  exportToCsv(entityId: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, { responseType: 'blob' });
   }
 
-  exportToPdf(commandeId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${commandeId}`, { responseType: 'blob' });
+  exportToPdf(entityId: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, { responseType: 'blob' });
   }
 
   printEtiquette(id: number, req: any): Observable<Blob> {
@@ -91,29 +91,29 @@ export class DeliveryService {
   }
 
   updateQuantityReceived(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrl + '/entree-stock/update-order-line-quantity-received', deliveryItem, {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-quantity-received', deliveryItem, {
       observe: 'response',
     });
   }
 
   updateQuantityUG(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrl + '/entree-stock/update-order-line-quantity-ug', deliveryItem, {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-quantity-ug', deliveryItem, {
       observe: 'response',
     });
   }
 
   updateCip(deliveryItem: IDeliveryItem): Observable<HttpResponse<{}>> {
-    return this.http.put<IDeliveryItem>(this.resourceUrl + '/entree-stock/update-provisional-cip', deliveryItem, { observe: 'response' });
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '//update-provisional-cip', deliveryItem, { observe: 'response' });
   }
 
   updateOrderUnitPriceOnStockEntry(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrl + '/entree-stock/update-order-line-unit-price', deliveryItem, {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-unit-price', deliveryItem, {
       observe: 'response',
     });
   }
 
   updateOrderCostAmount(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrl + '/entree-stock/update-order-line-cost-amount', deliveryItem, {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-cost-amount', deliveryItem, {
       observe: 'response',
     });
   }

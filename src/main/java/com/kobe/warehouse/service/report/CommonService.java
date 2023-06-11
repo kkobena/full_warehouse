@@ -1,7 +1,21 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.web.rest.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,21 +24,38 @@ import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 @Component
 public abstract class CommonService {
-  private final Logger LOG = LoggerFactory.getLogger(CommonService.class);
+  private final Logger log = LoggerFactory.getLogger(CommonService.class);
+   private  final FileStorageProperties fileStorageProperties;
 
-  protected abstract List<?> getItems();
+    protected CommonService(FileStorageProperties fileStorageProperties) {
+        this.fileStorageProperties = fileStorageProperties;
+    }
 
-  protected abstract String getDestFilePath();
+
+    protected abstract List<?> getItems();
+
+  protected  String getDestFilePath(){
+      Path fileStorageLocation =
+          Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+
+      try {
+          Files.createDirectories(fileStorageLocation);
+      } catch (IOException ex) {
+          throw new FileStorageException(
+              "Could not create the directory where the uploaded files will be stored.", ex);
+      }
+
+      return fileStorageLocation
+          .resolve(
+              this.getGenerateFileName()
+                  + "_"
+                  + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
+                  + ".pdf")
+          .toFile()
+          .getAbsolutePath();
+  }
 
   protected abstract int getMaxiRowCount();
 
@@ -34,9 +65,11 @@ public abstract class CommonService {
 
   protected abstract Map<String, Object> getParameters();
 
+  protected abstract String getGenerateFileName();
+
   public Context getContextVariables() {
     Context context = getContext();
-    this.getParameters().forEach((k, v) -> context.setVariable(k, v));
+    this.getParameters().forEach(context::setVariable);
     return context;
   }
 
@@ -58,9 +91,9 @@ public abstract class CommonService {
       renderer.layout();
       renderer.createPDF(outputStream);
     } catch (FileNotFoundException e) {
-      LOG.debug("printOneReceiptPage", e);
+      log.debug("printOneReceiptPage", e);
     } catch (IOException | DocumentException e) {
-      LOG.debug("printOneReceiptPage", e);
+      log.debug("printOneReceiptPage", e);
     }
     return filePath;
   }
@@ -104,9 +137,9 @@ public abstract class CommonService {
       renderer.finishPDF();
 
     } catch (FileNotFoundException e) {
-      LOG.debug("printMultiplesReceiptPage", e);
+      log.debug("printMultiplesReceiptPage", e);
     } catch (IOException | DocumentException e) {
-      LOG.debug("printMultiplesReceiptPage", e);
+      log.debug("printMultiplesReceiptPage", e);
     }
     return filePath;
   }

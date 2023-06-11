@@ -425,10 +425,7 @@ public class SaleDataService {
 
     List<Sales> results = q.getResultList();
 
-    return new PageImpl<>(
-        results.stream().map(this::buildSaleDTO).collect(Collectors.toList()),
-        pageable,
-        totalCount);
+    return new PageImpl<>(results.stream().map(this::buildSaleDTO).toList(), pageable, totalCount);
   }
 
   public List<SaleLineDTO> getAllItemsBySaleId(Long id) {
@@ -436,21 +433,21 @@ public class SaleDataService {
         .flatMap(List::stream)
         .map(SaleLineDTO::new)
         .sorted(Comparator.comparing(SaleLineDTO::getCode))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<PaymentDTO> getAllPaymentBySaleId(Long id) {
     return paymentRepository.findBySalesId(id).stream()
         .flatMap(List::stream)
         .map(PaymentDTO::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<TicketDTO> getAllTicketBySaleId(Long id) {
     return ticketRepository.findBySaleId(id).stream()
         .flatMap(List::stream)
         .map(TicketDTO::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private long countVentesTerminees(

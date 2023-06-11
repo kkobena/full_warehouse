@@ -1,7 +1,10 @@
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
+
 <h3 id="page-heading">
   <span jhiTranslate="warehouseApp.delivery.home.title">Gestion des entrées en stock</span>
 </h3>
-  <p-toolbar>
+<p-toolbar>
   <div class="p-toolbar-group-left commande" style="width: 40%;">
     <div class="row" style="width: 100%;">
 
@@ -13,9 +16,10 @@
 
       </div>
       <div class="col-md-8">
-        <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter" [items]="filtres!"
-                   bindLabel="label"
-                   bindValue="value" [hidden]="loadingSelectedFilter">
+        <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter"
+                   [hidden]="loadingSelectedFilter"
+                   [items]="filtres!"
+                   bindLabel="label" bindValue="value">
 
         </ng-select>
       </div>
@@ -30,9 +34,9 @@
                         label="Rechercher" pButton
                         pRipple
                         type="button"></button>
-                     <button class="p-button-raised p-button-help " icon="pi pi-upload"
-                             label="Importer directement un BL" pButton pRipple
-                             type="button" (click)="onImportNew()"></button>
+                     <button (click)="onImportNew()" class="p-button-raised p-button-help "
+                             icon="pi pi-upload" label="Importer directement un BL" pButton
+                             pRipple type="button"></button>
                  </span>
 
   </div>
@@ -93,74 +97,78 @@
       <td>{{row.modifiedUser}}</td>
 
       <td class="text-right">
-         <div class="btn-group">
-           <button
-                   class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
-                   pButton pRipple
-                   pTooltip="Editer" *ngIf="row.statut==='PENDING0'">
+        <div class="btn-group">
+          <button
+            *ngIf="row.statut==='PENDING0'" class="p-button-rounded p-button-success p-button-sm"
+            icon="pi pi-pencil" pButton
+            pRipple pTooltip="Editer">
 
-           </button>
+          </button>
 
-           <button class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                   pButton pRipple
-                   pTooltip="Faire l'entréé en  stock"
-                   [routerLink]="['/commande', row.id, 'stock-entry']"
-                   *ngIf="row.statut==='PENDING'"></button>
-           <button class="p-button-rounded p-button-secondary p-button-sm ml-sm-1"
-                   icon="pi pi-print" pButton
-                   pRipple
-                   pTooltip="Imprimer étiquettes" (click)="printEtiquette(row)"></button>
-         </div>
-       </td>
+          <button *ngIf="row.statut==='PENDING'" [routerLink]="['/commande', row.id, 'stock-entry']"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                  pButton
+                  pRipple
+                  pTooltip="Faire l'entréé en  stock"></button>
+          <button (click)="exportPdf(row)"
+                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
+                  icon="pi pi-file-pdf"
+                  pButton
+                  pRipple pTooltip="Imprimer"></button>
+          <button (click)="printEtiquette(row)"
+                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  pButton
+                  pRipple pTooltip="Imprimer étiquettes"></button>
+        </div>
+      </td>
     </tr>
   </ng-template>
   <ng-template let-item pTemplate="rowexpansion">
     <tr>
       <td colspan="12">
         <div class="p-3">
-          <p-table [value]="item.receiptItems" [paginator]="true" [rows]="10"
+          <p-table [paginator]="true" [rowsPerPageOptions]="[10,25,50]" [rows]="10"
                    [showCurrentPageReport]="true"
-                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
-                   [rowsPerPageOptions]="[10,25,50]">
+                   [value]="item.receiptItems"
+                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements">
             <ng-template pTemplate="header">
-    <tr>
-      <th>#</th>
-      <th pSortableColumn="fournisseurProduitCip">Code
-        <p-sortIcon field="fournisseurProduitCip"></p-sortIcon>
-      </th>
-      <th pSortableColumn="fournisseurProduitLibelle">Libellé
-        <p-sortIcon field="fournisseurProduitLibelle"></p-sortIcon>
-      </th>
-      <th pSortableColumn="initStock">Stock Init
-        <p-sortIcon field="initStock"></p-sortIcon>
-      </th>
-      <th pSortableColumn="quantityReceived">Qté
-        <p-sortIcon field="quantityReceived"></p-sortIcon>
-      </th>
-      <th pSortableColumn="orderCostAmount">Prix. A
-        <p-sortIcon field="orderCostAmount"></p-sortIcon>
-      </th>
-      <th pSortableColumn="orderUnitPrice">Prix. V
-        <p-sortIcon field="orderUnitPrice"></p-sortIcon>
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-receiptItem let-rowIndex="rowIndex">
-    <tr>
-      <td style="text-align: left;">{{rowIndex + 1}}</td>
-      <td> {{receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip}}</td>
-      <td> {{receiptItem.fournisseurProduitLibelle}}</td>
-      <td class="text-right">{{receiptItem.initStock |number}}</td>
-      <td class="text-right">{{receiptItem.quantityReceived |number}}</td>
-      <td class="text-right">{{receiptItem.orderCostAmount |number}}</td>
-      <td class="text-right">{{receiptItem.orderUnitPrice |number}}</td>
-    </tr>
-  </ng-template>
-</p-table>
-</div>
+              <tr>
+                <th>#</th>
+                <th pSortableColumn="fournisseurProduitCip">Code
+                  <p-sortIcon field="fournisseurProduitCip"></p-sortIcon>
+                </th>
+                <th pSortableColumn="fournisseurProduitLibelle">Libellé
+                  <p-sortIcon field="fournisseurProduitLibelle"></p-sortIcon>
+                </th>
+                <th>Stock.Init
+                </th>
+                <th>Stock.final
+                </th>
+                <th>Qté.Livrée
+                </th>
+                <th>Prix.Achat
+                </th>
+                <th>Prix.Vente
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
+              <tr>
+                <td style="text-align: left;">{{rowIndex + 1}}</td>
+                <td> {{receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip}}</td>
+                <td> {{receiptItem.fournisseurProduitLibelle}}</td>
+                <td class="text-right">{{receiptItem.initStock |number}}</td>
+                <td class="text-right">{{receiptItem.afterStock |number}}</td>
+                <td class="text-right">{{receiptItem.quantityReceived |number}}</td>
+                <td class="text-right">{{receiptItem.orderCostAmount |number}}</td>
+                <td class="text-right">{{receiptItem.orderUnitPrice |number}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
 
-</td>
-</tr>
-</ng-template>
+      </td>
+    </tr>
+  </ng-template>
 </p-table>
 

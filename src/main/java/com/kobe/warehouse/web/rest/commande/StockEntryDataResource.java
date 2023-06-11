@@ -29,57 +29,63 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class StockEntryDataResource {
 
-    private final StockEntryDataService stockEntryDataServicetryService;
+  private final StockEntryDataService stockEntryDataServicetryService;
 
-    public StockEntryDataResource(StockEntryDataService stockEntryDataServicetryService) {
-        this.stockEntryDataServicetryService = stockEntryDataServicetryService;
-    }
+  public StockEntryDataResource(StockEntryDataService stockEntryDataServicetryService) {
+    this.stockEntryDataServicetryService = stockEntryDataServicetryService;
+  }
 
-    @GetMapping("/commandes/data/entree-stock/list")
-    public ResponseEntity<List<DeliveryReceiptDTO>> list(
-        @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
-        @RequestParam(required = false, name = "toDate") LocalDate toDate,
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "fournisseurId") Long fournisseurId,
-        @RequestParam(required = false, name = "userId") Long userId,
-        @RequestParam(required = false, name = "statut", defaultValue = "ANY") ReceiptStatut statut,
-        Pageable pageable) {
-        Page<DeliveryReceiptDTO> page =
-            stockEntryDataServicetryService.fetchAllReceipts(
-                DeliveryReceiptFilterDTO.builder()
-                    .fromDate(fromDate)
-                    .fournisseurId(fournisseurId)
-                    .userId(userId)
-                    .search(search)
-                    .toDate(toDate)
-                    .statut(statut)
-                    .build(),
-                pageable);
-        HttpHeaders headers =
-            PaginationUtil.generatePaginationHttpHeaders(
-                ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
+  @GetMapping("/commandes/data/entree-stock/list")
+  public ResponseEntity<List<DeliveryReceiptDTO>> list(
+      @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
+      @RequestParam(required = false, name = "toDate") LocalDate toDate,
+      @RequestParam(required = false, name = "search") String search,
+      @RequestParam(required = false, name = "fournisseurId") Long fournisseurId,
+      @RequestParam(required = false, name = "userId") Long userId,
+      @RequestParam(required = false, name = "statut", defaultValue = "ANY") ReceiptStatut statut,
+      Pageable pageable) {
+    Page<DeliveryReceiptDTO> page =
+        stockEntryDataServicetryService.fetchAllReceipts(
+            DeliveryReceiptFilterDTO.builder()
+                .fromDate(fromDate)
+                .fournisseurId(fournisseurId)
+                .userId(userId)
+                .search(search)
+                .toDate(toDate)
+                .statut(statut)
+                .build(),
+            pageable);
+    HttpHeaders headers =
+        PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+    return ResponseEntity.ok().headers(headers).body(page.getContent());
+  }
 
-    @GetMapping("/commandes/data/entree-stock/{id}")
-    public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable Long id) {
-        return ResponseUtil.wrapOrNotFound(stockEntryDataServicetryService.findOneById(id));
-    }
+  @GetMapping("/commandes/data/entree-stock/{id}")
+  public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable Long id) {
+    return ResponseUtil.wrapOrNotFound(stockEntryDataServicetryService.findOneById(id));
+  }
 
-    @GetMapping("/commandes/data/entree-stock/etiquettes/{id}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Long id,
-        @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt,
-        HttpServletRequest request)
-        throws IOException {
-        final Resource resource = stockEntryDataServicetryService.printEtiquette(id, startAt);
-        return Utils.printPDF(resource, request);
+  @GetMapping("/commandes/data/entree-stock/etiquettes/{id}")
+  public ResponseEntity<Resource> getPdf(
+      @PathVariable Long id,
+      @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt,
+      HttpServletRequest request)
+      throws IOException {
+    final Resource resource = stockEntryDataServicetryService.printEtiquette(id, startAt);
+    return Utils.printPDF(resource, request);
+  }
 
-    }
+  @GetMapping("/commandes/data/entree-stock/by-order-reference{reference}")
+  public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable String reference) {
+    return ResponseUtil.wrapOrNotFound(
+        stockEntryDataServicetryService.findOneByOrderReference(reference));
+  }
 
-    @GetMapping("/commandes/data/entree-stock/by-order-reference{reference}")
-    public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable String reference) {
-        return ResponseUtil.wrapOrNotFound(
-            stockEntryDataServicetryService.findOneByOrderReference(reference));
-    }
-
+  @GetMapping("/commandes/data/entree-stock/pdf/{id}")
+  public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request)
+      throws IOException {
+    final Resource resource = stockEntryDataServicetryService.exportToPdf(id);
+    return Utils.printPDF(resource, request);
+  }
 }

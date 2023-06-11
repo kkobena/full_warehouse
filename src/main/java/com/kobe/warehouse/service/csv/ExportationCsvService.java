@@ -8,15 +8,6 @@ import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.web.rest.errors.FileStorageException;
 import com.kobe.warehouse.web.rest.errors.GenericError;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,6 +18,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ExportationCsvService {
@@ -44,20 +43,6 @@ public class ExportationCsvService {
     } catch (IOException ex) {
       throw new FileStorageException(
           "Could not create the directory where the uploaded files will be stored.", ex);
-    }
-  }
-
-  enum CommandeHeaders {
-    CODE("CIP/EAN"),
-    QUANTITY("Quantite");
-    private final String value;
-
-    CommandeHeaders(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
     }
   }
 
@@ -110,22 +95,14 @@ public class ExportationCsvService {
             .getAbsolutePath();
     try (final FileWriter writer = new FileWriter(filename);
         final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.withDelimiter(';'))) {
-      switch (commandeModel) {
-        case LABOREX:
-          printLaborexFormatCsv(printer, items);
-          break;
-        case DPCI:
-          printDPCIFormatCsv(printer, items);
-          break;
-        case TEDIS:
-          printTEDISFormatCsv(printer, items);
-          break;
-        case COPHARMED:
-          printCOPHARMEDFormatCsv(printer, items);
-          break;
-        default:
-          break;
-      }
+        switch (commandeModel) {
+            case LABOREX -> printLaborexFormatCsv(printer, items);
+            case DPCI -> printDPCIFormatCsv(printer, items);
+            case TEDIS -> printTEDISFormatCsv(printer, items);
+            case COPHARMED -> printCOPHARMEDFormatCsv(printer, items);
+            default -> throw new RuntimeException("Ce format n'est pas encore pris en compte");
+
+        }
       printer.flush();
 
     } catch (final IOException e) {
@@ -238,5 +215,19 @@ public class ExportationCsvService {
 
               "duplicateProvider");
       }
+  }
+
+  enum CommandeHeaders {
+    CODE("CIP/EAN"),
+    QUANTITY("Quantite");
+    private final String value;
+
+    CommandeHeaders(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
   }
 }

@@ -245,7 +245,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
     stockProduit.setQtyStock(stockProduit.getQtyStock() + stockIn);
     stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
     stockProduit.setQtyVirtual(stockProduit.getQtyStock());
-
     return stockProduitRepository.save(stockProduit);
   }
 

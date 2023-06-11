@@ -40,10 +40,10 @@ public class DeliveryReceiptItemDTO {
   private final Boolean updated;
   private final Integer quantityReceivedTmp;
   private final Integer costAmount;
+  private final Integer  afterStock;
 
-  public DeliveryReceiptItemDTO(DeliveryReceiptItem receiptItem) {
+    public DeliveryReceiptItemDTO(DeliveryReceiptItem receiptItem) {
     id = receiptItem.getId();
-
     ugQuantity = receiptItem.getUgQuantity();
     quantityReceived = receiptItem.getQuantityReceived();
     initStock = receiptItem.getInitStock();
@@ -69,6 +69,7 @@ public class DeliveryReceiptItemDTO {
     fournisseurProduitEan = produit.getCodeEan();
     fournisseurProduitLibelle = produit.getLibelle();
     updated = receiptItem.getUpdated();
+    afterStock=receiptItem.getAfterStock();
     quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
     List<Lot> lots1 = receiptItem.getLots();
     lots =

@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.DeliveryReceipt;
 import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
@@ -54,6 +55,7 @@ import java.util.function.Predicate;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +92,34 @@ public class StockEntryServiceImpl implements StockEntryService {
         }
         return false;
       };
-
+  private final Predicate<DeliveryReceiptItem> canEntreeStockIsAuthorize2 =
+      deliveryReceiptItem -> {
+        if (BooleanUtils.isTrue(deliveryReceiptItem.getUpdated())
+            && Objects.nonNull(deliveryReceiptItem.getQuantityReceived())) {
+          return (deliveryReceiptItem
+                  .getQuantityReceived()
+                  .compareTo(deliveryReceiptItem.getQuantityRequested())
+              == 0);
+        }
+        return true;
+      };
+  private final Predicate<DeliveryReceiptItem> lotPredicate =
+      deliveryReceiptItem -> {
+        if (BooleanUtils.isTrue(
+            deliveryReceiptItem.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
+          return !CollectionUtils.isEmpty(deliveryReceiptItem.getLots())
+              && deliveryReceiptItem.getLots().stream()
+                  .map(Lot::getExpiryDate)
+                  .allMatch(Objects::nonNull)
+              && deliveryReceiptItem.getLots().stream().mapToInt(Lot::getQuantityReceived).sum()
+                  == deliveryReceiptItem.getQuantityReceived();
+        }
+        return true;
+      };
+  private final Predicate<DeliveryReceiptItem> cipNotSet =
+      deliveryReceiptItem ->
+          org.springframework.util.StringUtils.hasLength(
+              deliveryReceiptItem.getFournisseurProduit().getCodeCip());
   private final BiPredicate<OrderLine, List<LotJsonValue>> cannotContinue =
       (orderLine, lotJsonValueList) -> {
         if (lotJsonValueList.isEmpty()) {
@@ -130,68 +159,104 @@ public class StockEntryServiceImpl implements StockEntryService {
   }
 
   private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-    Commande commande =
-        commandeRepository
-            .getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference())
-            .orElseThrow();
-    return commande
-        .setReceiptDate(deliveryReceiptLite.getReceiptDate())
-        .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
-        .taxAmount(deliveryReceiptLite.getTaxAmount())
-        .setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce())
-        .setSequenceBon(deliveryReceiptLite.getSequenceBon())
-        .setLastUserEdit(storageService.getUser())
-        .orderStatus(OrderStatut.CLOSED)
-        .updatedAt(Instant.now());
+    Optional<Commande> commandeOp =
+        commandeRepository.getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference());
+    return commandeOp
+        .map(
+            commande ->
+                commande
+                    .setReceiptDate(deliveryReceiptLite.getReceiptDate())
+                    .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
+                    .taxAmount(deliveryReceiptLite.getTaxAmount())
+                    .setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce())
+                    .setSequenceBon(deliveryReceiptLite.getSequenceBon())
+                    .setLastUserEdit(storageService.getUser())
+                    .orderStatus(OrderStatut.CLOSED)
+                    .updatedAt(Instant.now()))
+        .orElse(null);
   }
 
   @Override
   public void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite) {
     Commande commande = updateCommande(deliveryReceiptLite);
-    Set<OrderLine> orderLineSet = commande.getOrderLines();
+    DeliveryReceipt deliveryReceipt = finalizeSaisie(deliveryReceiptLite);
+
+    if (Objects.nonNull(commande)) {
+      deliveryReceipt.setOrderReference(commande.getOrderRefernce());
+       this.commandeRepository.saveAndFlush(commande);
+    }
+    this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
+  }
+
+  private DeliveryReceipt finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
+
     DeliveryReceipt deliveryReceipt =
         this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
-    // TODO liste des vente en avoir pour envoi possible de notif et de mail
-    orderLineSet.forEach(
-        orderLine -> {
-          if (isNotEntreeStockIsAuthorize.test(orderLine)
-              && cannotContinue.test(orderLine, getLotByOrderLine(orderLine, commande))) {
-            throw new GenericError(
-                "La reception de certains produits n'a pas ete faite. Veuillez verifier la saisie",
-                "commande",
-                "commandeManquante");
-          }
+    // TODO: liste des vente en avoir pour envoi possible de notif et de mail
+    deliveryReceipt
+        .getReceiptItems()
+        .forEach(
+            deliveryReceiptItem -> {
+              FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
+              Produit produit = fournisseurProduit.getProduit();
+              if (!cipNotSet.test(deliveryReceiptItem)) {
+                throw new GenericError(
+                    String.format(
+                        "%s [%s %s ]",
+                        "Code cip non renseigné pour ce produit ",
+                        produit.getLibelle(),
+                        Optional.ofNullable(produit.getCodeEan()).orElse("")),
+                    "commande",
+                    "codeCipManquant");
+              }
+              if (!canEntreeStockIsAuthorize2.test(deliveryReceiptItem)) {
+                throw new GenericError(
+                    String.format(
+                        "%s produit [%s %s]",
+                        "La reception de certains produits n'a pas ete faite. Veuillez verifier la saisie produit ",
+                        produit.getLibelle(),
+                        fournisseurProduit.getCodeCip()),
+                    "commande",
+                    "commandeManquante");
+              }
+              if (!lotPredicate.test(deliveryReceiptItem)) {
+                throw new GenericError(
+                    String.format(
+                        "%s [%s %s ]",
+                        "Tous les lots ne sont renseignés pour la ligne ",
+                        produit.getLibelle(),
+                        fournisseurProduit.getCodeCip()),
+                    "commande",
+                    "lotManquant");
+              }
+              updateFournisseurProduit(deliveryReceiptItem, fournisseurProduit, produit);
+              saveItem(deliveryReceiptItem);
 
-          DeliveryReceiptItem deliveryReceiptItem = addItem(orderLine, deliveryReceipt);
-          getLotByOrderLine(orderLine, commande)
-              .forEach(
-                  lotJsonValue ->
-                      lotService.addLot(
-                          lotJsonValue, deliveryReceiptItem, deliveryReceipt.getReceiptRefernce()));
-          FournisseurProduit fournisseurProduit = updateFournisseurProduit(deliveryReceiptItem);
-          StockProduit stockProduit =
-              produitService.updateTotalStock(
-                  fournisseurProduit.getProduit(),
-                  deliveryReceiptItem.getQuantityReceived(),
-                  deliveryReceiptItem.getUgQuantity());
-          Produit produit = stockProduit.getProduit();
+              StockProduit stockProduit =
+                  produitService.updateTotalStock(
+                      produit,
+                      deliveryReceiptItem.getQuantityReceived(),
+                      deliveryReceiptItem.getUgQuantity());
 
-          produit.setPrixMnp(
-              produitService.calculPrixMoyenPondereReception(
-                  deliveryReceiptItem.getInitStock(),
-                  orderLine.getGrossAmount(),
-                  getTotalStockQuantity(stockProduit),
-                  deliveryReceiptItem.getOrderCostAmount()));
-          produitService.update(produit);
-        });
+              produit.setPrixMnp(
+                  produitService.calculPrixMoyenPondereReception(
+                      deliveryReceiptItem.getInitStock(),
+                      deliveryReceiptItem.getCostAmount(),
+                      getTotalStockQuantity(stockProduit),
+                      deliveryReceiptItem.getOrderCostAmount()));
+              produit.setUpdatedAt(Instant.now());
+              produitService.update(produit);
+            });
     logsService.create(
         TransactionType.ENTREE_STOCK,
         "order.entry",
         new Object[] {deliveryReceipt.getReceiptRefernce()},
         deliveryReceipt.getId().toString());
     deliveryReceipt.setReceiptStatut(ReceiptStatut.UNPAID);
-    this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
-    commandeRepository.saveAndFlush(commande);
+    deliveryReceipt.setModifiedUser(storageService.getUser());
+    deliveryReceipt.setModifiedDate(LocalDateTime.now());
+    deliveryReceipt.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
+    return deliveryReceipt;
   }
 
   @Override
@@ -452,7 +517,7 @@ public class StockEntryServiceImpl implements StockEntryService {
       DeliveryReceipt deliveryReceipt) {
     DeliveryReceiptItem receiptItem = new DeliveryReceiptItem();
     receiptItem.setUgQuantity(quantityUg);
-      receiptItem.setCreatedDate(deliveryReceipt.getCreatedDate());
+    receiptItem.setCreatedDate(deliveryReceipt.getCreatedDate());
     receiptItem.setQuantityReceived(quantityReceived);
     receiptItem.setQuantityRequested(quantityRequested);
     receiptItem.setOrderUnitPrice(
@@ -868,32 +933,108 @@ public class StockEntryServiceImpl implements StockEntryService {
     List<OrderItem> items = new ArrayList<>();
     Map<Long, DeliveryReceiptItem> longOrderLineMap = new HashMap<>();
 
-    switch (commandeModel) {
-      case LABOREX:
-        commandeResponseDTO =
-            uploadLaborexModelCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-        break;
-      case COPHARMED:
-        commandeResponseDTO =
-            uploadCOPHARMEDCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-        break;
-      case DPCI:
-        commandeResponseDTO =
-            uploadDPCICSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-        break;
-      case TEDIS:
-        commandeResponseDTO =
-            uploadTEDISCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-        break;
-      default:
-        throw new GenericError(
-            String.format(
-                "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
-                commandeModel.name()),
-            "commande",
-            "modelimportation");
-    }
+    commandeResponseDTO =
+        switch (commandeModel) {
+          case LABOREX -> uploadLaborexModelCSVFormat(
+              deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case COPHARMED -> uploadCOPHARMEDCSVFormat(
+              deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case DPCI -> uploadDPCICSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case TEDIS -> uploadTEDISCSVFormat(
+              deliveryReceipt, multipartFile, items, longOrderLineMap);
+        };
     return commandeResponseDTO.setEntity(
         fromEntity(this.deliveryReceiptRepository.save(deliveryReceipt)));
+  }
+
+  private void finalyseSaisieStock(Commande commande, DeliveryReceiptLiteDTO deliveryReceiptLite) {
+    Set<OrderLine> orderLineSet = commande.getOrderLines();
+    DeliveryReceipt deliveryReceipt =
+        this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
+    // TODO: liste des vente en avoir pour envoi possible de notif et de mail
+    orderLineSet.forEach(
+        orderLine -> {
+          if (isNotEntreeStockIsAuthorize.test(orderLine)
+              && cannotContinue.test(orderLine, getLotByOrderLine(orderLine, commande))) {
+            throw new GenericError(
+                "La reception de certains produits n'a pas ete faite. Veuillez verifier la saisie",
+                "commande",
+                "commandeManquante");
+          }
+
+          DeliveryReceiptItem deliveryReceiptItem = addItem(orderLine, deliveryReceipt);
+          getLotByOrderLine(orderLine, commande)
+              .forEach(
+                  lotJsonValue ->
+                      lotService.addLot(
+                          lotJsonValue, deliveryReceiptItem, deliveryReceipt.getReceiptRefernce()));
+          FournisseurProduit fournisseurProduit = updateFournisseurProduit(deliveryReceiptItem);
+          StockProduit stockProduit =
+              produitService.updateTotalStock(
+                  fournisseurProduit.getProduit(),
+                  deliveryReceiptItem.getQuantityReceived(),
+                  deliveryReceiptItem.getUgQuantity());
+          Produit produit = stockProduit.getProduit();
+
+          produit.setPrixMnp(
+              produitService.calculPrixMoyenPondereReception(
+                  deliveryReceiptItem.getInitStock(),
+                  orderLine.getGrossAmount(),
+                  getTotalStockQuantity(stockProduit),
+                  deliveryReceiptItem.getOrderCostAmount()));
+          produitService.update(produit);
+        });
+    logsService.create(
+        TransactionType.ENTREE_STOCK,
+        "order.entry",
+        new Object[] {deliveryReceipt.getReceiptRefernce()},
+        deliveryReceipt.getId().toString());
+    deliveryReceipt.setReceiptStatut(ReceiptStatut.UNPAID);
+    this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
+    commandeRepository.saveAndFlush(commande);
+  }
+
+  private void saveItem(DeliveryReceiptItem receiptItem) {
+    FournisseurProduit fournisseurProduit = receiptItem.getFournisseurProduit();
+    receiptItem.setUpdatedDate(LocalDateTime.now());
+    receiptItem.setQuantityReceived(
+        Objects.nonNull(receiptItem.getQuantityReceived())
+            ? receiptItem.getQuantityReceived()
+            : receiptItem.getQuantityRequested());
+    receiptItem.setInitStock(
+        produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));
+    receiptItem.setCostAmount(fournisseurProduit.getPrixAchat());
+    receiptItem.setAfterStock(
+        receiptItem.getInitStock()
+            + receiptItem.getQuantityReceived()
+            + receiptItem.getUgQuantity());
+    receiptItem.setDiscountAmount(0);
+    receiptItem.setRegularUnitPrice(fournisseurProduit.getPrixUni());
+    receiptItem.setOrderUnitPrice(receiptItem.getOrderUnitPrice());
+
+    receiptItem.setNetAmount(0);
+    receiptItem.setTaxAmount(0);
+    receiptItem.setQuantityReturned(0);
+
+    deliveryReceiptItemRepository.saveAndFlush(receiptItem);
+  }
+
+  private void updateFournisseurProduit(
+      DeliveryReceiptItem deliveryReceiptItem,
+      FournisseurProduit fournisseurProduit,
+      Produit produit) {
+
+    int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
+    fournisseurProduit.setUpdatedAt(Instant.now());
+    if (deliveryReceiptItem.getOrderCostAmount().compareTo(fournisseurProduit.getPrixAchat())
+        != 0) {
+      fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
+    }
+    if ((deliveryReceiptItem.getOrderUnitPrice() + montantAdditionel)
+        != (fournisseurProduit.getPrixUni() + montantAdditionel)) {
+      fournisseurProduit.setPrixUni(deliveryReceiptItem.getOrderCostAmount());
+    }
+
+    fournisseurProduitService.update(fournisseurProduit);
   }
 }

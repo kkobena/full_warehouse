@@ -9,6 +9,7 @@ public final class Constant {
     public static final String COMMANDE = "commande";
     public static final String COMMANDE_ITEMS = "commande_items";
     public static  final  String COMMANDE_EN_COURS_TEMPLATE_FILE="commande/commande-en-cours";
+    public static  final  String DELIVERY_TEMPLATE_FILE="delivery/main";
     public static final String CURRENT_DATE = "currentDate";
     public static final String DTO_DATE = "dto_date";
     public static final String ITEM_SIZE = "item_size";
@@ -17,6 +18,8 @@ public final class Constant {
     public static final String DEVISE_CONSTANT = "CFA";
     public static final int COMMANDE_PAGE_SIZE = 55;
     public static final String PAGE_COUNT = "page_count";
-    public Constant() {
+    public static final String ITEMS = "items";
+    public static final String ENTITY = "entity";
+    private Constant() {
     }
 }

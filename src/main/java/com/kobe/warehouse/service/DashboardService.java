@@ -45,7 +45,7 @@ public class DashboardService {
                 cb.count(root)
             ));
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("dateDimension").get("dateKey"), ServiceUtil.DateDimensionKey(localDate)));
+            predicates.add(cb.equal(root.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate)));
             predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
             TypedQuery<DailyCa> q = em.createQuery(cq);
@@ -67,7 +67,7 @@ public class DashboardService {
                 cb.count(root)
             ));
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.greaterThanOrEqualTo(root.get("dateDimension").get("dateKey"), ServiceUtil.DateDimensionKey(localDate.minusDays(7))));
+            predicates.add(cb.greaterThanOrEqualTo(root.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate.minusDays(7))));
             predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
             TypedQuery<WeeklyCa> q = em.createQuery(cq);
@@ -89,7 +89,7 @@ public class DashboardService {
                 cb.count(root)
             ));
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.greaterThanOrEqualTo(root.get("dateDimension").get("dateKey"), ServiceUtil.DateDimensionKey(localDate.minusMonths(1))));
+            predicates.add(cb.greaterThanOrEqualTo(root.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate.minusMonths(1))));
             predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
             TypedQuery<MonthlyCa> q = em.createQuery(cq);
@@ -135,7 +135,7 @@ public class DashboardService {
                 )).groupBy(produitJoin.get("id"))
                 .orderBy(cb.desc(cb.sumAsLong(root.get("quantitySold"))));
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.greaterThanOrEqualTo(saleJoin.get("dateDimension").get("dateKey"), ServiceUtil.DateDimensionKey(localDate.minusMonths(1))));
+            predicates.add(cb.greaterThanOrEqualTo(saleJoin.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate.minusMonths(1))));
             predicates.add(cb.equal(saleJoin.get("statut"), SalesStatut.CLOSED));
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
             TypedQuery<StatistiqueProduit> q = em.createQuery(cq);
@@ -213,7 +213,7 @@ public class DashboardService {
                 )).groupBy(produitJoin.get("id"))
                 .orderBy(cb.desc(cb.sumAsLong(root.get("salesAmount"))));
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.greaterThanOrEqualTo(saleJoin.get("dateDimension").get("dateKey"), ServiceUtil.DateDimensionKey(localDate.minusMonths(1))));
+            predicates.add(cb.greaterThanOrEqualTo(saleJoin.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate.minusMonths(1))));
             predicates.add(cb.equal(saleJoin.get("statut"), SalesStatut.CLOSED));
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
             TypedQuery<StatistiqueProduit> q = em.createQuery(cq);

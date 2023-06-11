@@ -7,22 +7,23 @@ import org.slf4j.LoggerFactory;
 
 public final class NumberUtil {
 
-    private final static Logger log = LoggerFactory.getLogger(NumberUtil.class);
+  private static final Logger log = LoggerFactory.getLogger(NumberUtil.class);
 
-    public static String formatToString(Number value) {
-        String result = null;
-        try {
+  private NumberUtil() {}
 
-            DecimalFormatSymbols amountSymbols = new DecimalFormatSymbols();
+  public static String formatToString(Number value) {
+    String result = null;
+    try {
 
-            amountSymbols.setGroupingSeparator(' ');
+      DecimalFormatSymbols amountSymbols = new DecimalFormatSymbols();
 
-            DecimalFormat amountFormat = new DecimalFormat("###,###", amountSymbols);
-            result = amountFormat.format(value);
-        } catch (NumberFormatException ex) {
-            log.debug("", ex);
-        }
-        return result;
+      amountSymbols.setGroupingSeparator(' ');
+
+      DecimalFormat amountFormat = new DecimalFormat("###,###", amountSymbols);
+      result = amountFormat.format(value);
+    } catch (NumberFormatException ex) {
+      log.debug("", ex);
     }
-
+    return result;
+  }
 }

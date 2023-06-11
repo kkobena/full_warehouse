@@ -91,15 +91,16 @@
   <div class="card">
     <div class="card-header sale-card-header">OPERATEUR</div>
     <div class="card-body sale-card">
-      <ng-select #user (change)="onSelectUser()" (keyup)="searchUser($event)"
-                 [(ngModel)]="userSeller"
-                 [items]="users"
-                 [searchable]="false"
-                 autofocus="true" bindLabel="fullName"
-                 class="produitContainer"
-                 placeholder="Sélectionner un opérateur"
-      >
-      </ng-select>
+
+      <p-autoComplete #userBox (completeMethod)="searchUser($event)"
+                      (onSelect)="onSelectUser()"
+                      [(ngModel)]="userSeller"
+                      [appendTo]="appendTo"
+                      [autofocus]="true"
+                      [dataKey]="'id'"
+                      [dropdown]="true"
+                      [inputStyle]="{'width':'100%'}" [style]="{'width':'100%'}"
+                      [suggestions]="users" field="abbrName"></p-autoComplete>
     </div>
   </div>
 
@@ -138,7 +139,7 @@
 </span>
     </div>
   </div>
-  <div *ngIf="customerSelected && naturesVente?.code!=='COMPTANT';else uninsuredCustomer"
+  <div *ngIf="customerSelected && naturesVente?.code!==COMPTANT;else uninsuredCustomer"
        class="card"
        style="max-width:35rem;">
     <div class="card-header sale-card-header">
@@ -149,7 +150,7 @@
                         icon="pi pi-user" label="EDITER LE CLIENT" pButton
                         pRipple
                         type="button"></button>
-                <button (click)="loadAyantDoits()" *ngIf="naturesVente?.code==='ASSURANCE'"
+                <button (click)="loadAyantDoits()" *ngIf="naturesVente?.code===ASSURANCE"
                         class=" p-button-secondary p-button-sm" icon="pi pi-users"
                         label="AJOUTER UN AYANT DROIT"
                         pButton
@@ -227,7 +228,7 @@
 
   </div>
   <ng-template #uninsuredCustomer>
-    <div *ngIf="customerSelected && naturesVente?.code==='COMPTANT'" class="card">
+    <div *ngIf="customerSelected && naturesVente?.code===COMPTANT" class="card">
       <div class="card-header sale-card-header">
         {{clientBoxHeader}}
         <span *ngIf="customerSelected" class="float-right">
@@ -277,7 +278,7 @@
                      type="button"></button>
                     </span>
     </div>
-    <div #tierspayntDiv class="card-body sale-card tiersPayant">
+    <div #tierspayantDiv class="card-body sale-card tiersPayant">
       <div *ngFor="let tiersPayant of getTiersPayants(); let i = index"
            class="row sale-tiers-payant-control ">
 
@@ -327,34 +328,37 @@
     <div class="col-9">
       <div class="p-inputgroup">
 
-        <span class="p-inputgroup-addon">Produits</span>
-        <ng-select #produitbox (change)="onSelect()" (keydown)="onSelectKeyDow($event)"
-                   (keyup)="searchFn($event)"
-                   [(ngModel)]="produitSelected"
-                   [items]="produits"
-                   [notFoundText]="notFoundText" [openOnEnter]="false"
-                   [searchFn]="produitComponentSearch"
-                   [searchable]="true"
-                   [selectOnTab]="selectOnTab"
-                   autofocus="true"
-                   bindLabel="libelle"
-                   id="produitBox"
-                   placeholder="Sélectionner un produit"
-        >
-          <ng-template let-index="index" let-item="item" ng-option-tmp>
+        <span class="p-inputgroup-addon">PRODUITS</span>
+        <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                        (keydown)="onSelectKeyDow($event)"
+                        (onSelect)="onSelect()"
+                        [(ngModel)]="produitSelected"
+                        [appendTo]="appendTo"
+                        [autofocus]="true"
+                        [dataKey]="'id'"
+                        [dropdown]="true"
+                        [emptyMessage]="notFoundText"
+                        [inputStyle]="{'width':'100%'}"
+                        [minLength]="minLength" [showEmptyMessage]="true"
+                        [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
+
+          <ng-template let-item pTemplate="item">
+
             <div *ngIf="item.totalQuantity>0">
-                        <span
-                          style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
+            <span
+              style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
               <span class="float-right">{{item.regularUnitPrice |number}}</span>
             </div>
             <div *ngIf="item.totalQuantity<=0">
-                                <span class="stockless"
-                                      style="width:20%; display:inline-block">{{item.codeCip}}</span><span
+                                            <span class="stockless"
+                                                  style="width:20%; display:inline-block">{{item.codeCip}}</span><span
               class="stockless"> {{item.libelle}}</span> <span
               class="float-right stockless">{{item.regularUnitPrice |number}}</span>
             </div>
           </ng-template>
-        </ng-select>
+
+        </p-autoComplete>
+
 
       </div>
     </div>
@@ -517,7 +521,7 @@
         class="h6">MONNAIE</span><span
         class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
       <li class="list-group-item">
-        <p-button (click)="save()" [disabled]="!sale" icon="pi pi-check"
+        <p-button (click)="save($event)" [disabled]="!sale" icon="pi pi-check"
                   label="TERMINER"
                   styleClass="p-button-danger"></p-button>
 
@@ -529,91 +533,74 @@
 
   </div>
 </div>
-<div class="card-group">
-  <div *ngIf="sale?.amountToBePaid!>0" class="card">
-    <div class="card-header sale-card-header">MODE REGLEMENT <span class="float-right"><p-inputSwitch
+<div class="row sale-bottom-card">
+
+  <div *ngIf="showModeReglementCard" class="card col-md-7">
+    <div class="card-header sale-card-header">
+      MODE REGLEMENT
+    </div>
+
+    <div class="card-body sale-card">
+      <div class="row sale-chexkbox">
+        <div class="col-md-3">
+    <span class="float-left">
+        <span class="float-left wr-check-box">Vente différée ?</span><p-inputSwitch
       (onChange)="onDiffereChange()" [(ngModel)]="isDiffere">
 
-        </p-inputSwitch></span><span class="float-right mr-1">Est-elle une différé ?</span></div>
-    <div class="card-body sale-card" class="card-body sale-card">
-      <p-selectButton (onChange)="onModeReglementChange($event)" [(ngModel)]="modeReglementSelected"
-                      [multiple]="true"
-                      [options]="modeReglements" optionLabel="libelle"
-                      optionValue="code"></p-selectButton>
-    </div>
-
-
-  </div>
-  <div *ngIf="showModeReglementCard" class="card">
-    <div class="card-header sale-card-header"><span
-      class="float-left mr-1">Voulez-vous votre ticket de caisse ?</span><span class="float-left"><p-inputSwitch
-      [(ngModel)]="printTicket">
         </p-inputSwitch></span>
-      <span class="float-left mr-1 ml-3">Voulez-vous une facture ?</span><span class="float-left"><p-inputSwitch
-        [(ngModel)]="printInvoice">
-        </p-inputSwitch></span>
-      <span *ngIf="naturesVente?.code==='ASSURANCE'"
-            class="float-left mr-1 ml-3">Vente sans bon ?</span><span
-        *ngIf="naturesVente?.code==='ASSURANCE'" class="float-left"><p-inputSwitch
-        [(ngModel)]="sansBon">
-        </p-inputSwitch></span>
-    </div>
-    <div *ngIf="sale?.amountToBePaid!>0" class="card-body sale-card">
-      <div [ngClass]="reglementInputParentClass">
-        <div *ngIf="montantCashDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">CASH</span>
-          <input #montantCashInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantCash"
-                 min="0" pInputText type="number" />
         </div>
-        <div *ngIf="montantOrangeDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">OM</span>
-          <input #montantOMInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantOrange"
-                 min="0" pInputText type="number" />
-        </div>
-        <div *ngIf="montantMtnDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">MTN</span>
-          <input #montantMTNInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantMtn"
-                 min="0" pInputText type="number" />
+        <div class="col-md-3">
+             <span
+               class="float-left wr-check-box">Imprimer le ticket ?</span><span
+          class="float-left"><p-inputSwitch
+          [(ngModel)]="printTicket">
+        </p-inputSwitch></span>
 
         </div>
-        <div *ngIf="montantMoovDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">MOOV</span>
-          <input #montantMOOVInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantMoov"
-                 min="0" pInputText type="number" />
+        <div class="col-md-3">
+          <span class="float-left mr-1  wr-check-box">Imprimer la facture ?</span><span
+          class="float-left"><p-inputSwitch
+          [(ngModel)]="printInvoice">
+        </p-inputSwitch></span>
         </div>
-        <div *ngIf="montantWaveDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">WAVE</span>
-          <input #montantWAVEInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantWave"
-                 min="0" pInputText type="number" />
+        <div class="col-md-3">
+           <span *ngIf="naturesVente?.code===ASSURANCE"
+                 class="float-left mr-1 ml-3 wr-check-box">Vente sans bon ?</span><span
+          *ngIf="naturesVente?.code===ASSURANCE" class="float-left"><p-inputSwitch
+          [(ngModel)]="sansBon">
+        </p-inputSwitch></span>
+
         </div>
-        <div *ngIf="montantCbDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">CB</span>
-          <input #montantCbInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantCb"
-                 min="0" pInputText type="number" />
+      </div>
+      <div class="row" style="margin-top: 0.5rem;">
+        <div
+          *ngFor="let modePay of modeReglementSelected;trackBy: trackPaymentModeId; let index = index; let isFirst = first; let isLast = last;"
+          class="col-md-6 ">
+
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
+            <input (input)="manageCashPaymentMode($event)" (keydown.enter)="save($event)"
+                   [(ngModel)]="modePay.amount" [id]="modePay.code"
+                   [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
+                   class="payment-mode-input" pInputText />
+            <button (click)="onAddPaymentModeToggle(modePay,$event)"
+                    *ngIf="modeReglementSelected.length<maxModePayementNumber" class="p-button-info"
+                    icon="pi pi-plus" pButton
+                    type="button"></button>
+            <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
+                    icon="pi pi-times"
+                    pButton type="button"></button>
+          </div>
+
         </div>
-        <div *ngIf="montantVirementDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">VIREMENT</span>
-          <input #montantVirInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantVirement"
-                 min="0" pInputText type="number" />
-        </div>
-        <div *ngIf="montantChequeDiv" [ngClass]="reglementInputClass">
-          <span class="p-inputgroup-addon">CHEQUE</span>
-          <input #montantChInput (input)="onReglementInputChange()" (keydown.enter)="save()"
-                 [(ngModel)]="montantCheque"
-                 min="0" pInputText type="number" />
-        </div>
+
+
       </div>
 
     </div>
+
   </div>
-  <div *ngIf="showInfosComplementaireReglementCard" class="card">
+  <div *ngIf="showInfosComplementaireReglementCard" class="card col-md-5">
     <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
     <div class="card-body sale-card">
       <div *ngIf="isDiffere" class="p-inputgroup">
@@ -643,6 +630,34 @@
 
 </div>
 
+<p-overlayPanel #addOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
+  <ng-template pTemplate="content">
+    <div class="d-flex flex-wrap">
+      <ng-container
+        *ngFor="let modePay of reglements ;trackBy: trackPaymentModeId">
+        <div (click)="onAddPaymentMode(modePay)" class="p-2 mode-reglement-icon">
+          <span class="{{modePay.styleImageClass}}"></span>
+        </div>
+      </ng-container>
 
+    </div>
+  </ng-template>
 
+</p-overlayPanel>
 
+<p-overlayPanel #removeOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
+  <ng-template pTemplate="content">
+    <div class="d-flex flex-wrap">
+      <ng-container
+        *ngFor="let modePay of reglements ;trackBy: trackPaymentModeId">
+        <div (click)="onRemovePaymentMode(modePay)"
+
+             class="p-2  mode-reglement-icon">
+          <span class="{{modePay.styleImageClass}}"></span>
+        </div>
+      </ng-container>
+
+    </div>
+  </ng-template>
+
+</p-overlayPanel>

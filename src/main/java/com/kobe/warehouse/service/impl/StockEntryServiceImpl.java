@@ -183,7 +183,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     if (Objects.nonNull(commande)) {
       deliveryReceipt.setOrderReference(commande.getOrderRefernce());
-       this.commandeRepository.saveAndFlush(commande);
+      this.commandeRepository.saveAndFlush(commande);
     }
     this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
   }
@@ -410,10 +410,12 @@ public class StockEntryServiceImpl implements StockEntryService {
     deliveryReceipt.setModifiedUser(storageService.getUser());
     deliveryReceipt.setReceiptAmount(deliveryReceiptLite.getReceiptAmount());
     deliveryReceipt.setDiscountAmount(0);
-    deliveryReceipt.setNetAmount(0);
     deliveryReceipt.setTaxAmount(deliveryReceiptLite.getTaxAmount());
     deliveryReceipt.setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce());
     deliveryReceipt.setSequenceBon(deliveryReceiptLite.getSequenceBon());
+    deliveryReceipt.setNetAmount(
+        ServiceUtil.computeHtaxe(
+            deliveryReceipt.getReceiptAmount(), deliveryReceipt.getTaxAmount()));
     return deliveryReceipt;
   }
 

@@ -44,9 +44,23 @@
   </p-footer>
 
 </p-confirmDialog>
-
+<p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 appendTo="body"
+                 key="addModePaymentConfirmDialog">
+  <p-footer>
+    <button (click)="addModePaymentConfirmDialog.reject()" class="p-button-danger"
+            icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #addModePaymentConfirmDialogBtn (click)="addModePaymentConfirmDialog.accept()"
+            icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>
 <p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStock">
+
+
   <p-footer>
     <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
             pButton
@@ -236,27 +250,24 @@
                         icon="pi pi-user" label="EDITER LE CLIENT" pButton
                         pRipple
                         type="button"></button>
-                <button class=" p-button-secondary p-button-sm" icon="pi pi-users"
-                        label="AJOUTER UN AYANT DROIT" pButton
-                        pRipple
-                        type="button"></button>
+
 
                     </span>
       </div>
       <div class="card-body sale-card">
         <div class="row">
-          <div class="col-12  row">
-            <div class="col-7 row">
-              <label class="col-sm-5">Nom/Prénom(s):</label>
-              <div class="col-sm-6">
-                <span>{{customerSelected?.fullName}}</span>
-              </div>
+          <div class="col-md-10">
+            <div class="row customer-info">
+              <span>
+                <span>Nom/Prénom(s):</span> <span
+                class="badge text-bg-light">{{customerSelected?.fullName}}</span>
+              </span>
+
             </div>
-            <div class="col-5">
-              <label class="col-sm-5 col-form-label ">Téléphone:</label>
-              <div class="col-sm-6">
-                <span class="badge badge-primary mt-2 ">{{customerSelected?.phone}}</span>
-              </div>
+            <div class="row customer-info">
+                <span>
+              <span>Téléphone:</span> <span
+                  class="badge text-bg-light">{{customerSelected?.phone}}</span></span>
             </div>
 
           </div>
@@ -521,7 +532,7 @@
         class="h6">MONNAIE</span><span
         class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
       <li class="list-group-item">
-        <p-button (click)="save($event)" [disabled]="!sale" icon="pi pi-check"
+        <p-button (click)="save()" [disabled]="!sale" icon="pi pi-check"
                   label="TERMINER"
                   styleClass="p-button-danger"></p-button>
 
@@ -579,12 +590,12 @@
 
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
-            <input (input)="manageCashPaymentMode($event)" (keydown.enter)="save($event)"
+            <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
                    [(ngModel)]="modePay.amount" [id]="modePay.code"
                    [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
                    class="payment-mode-input" pInputText />
             <button (click)="onAddPaymentModeToggle(modePay,$event)"
-                    *ngIf="modeReglementSelected.length<maxModePayementNumber" class="p-button-info"
+                    *ngIf="showAddModePaimentBtn" class="p-button-info add-mode-payment-btn"
                     icon="pi pi-plus" pButton
                     type="button"></button>
             <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
@@ -603,10 +614,6 @@
   <div *ngIf="showInfosComplementaireReglementCard" class="card col-md-5">
     <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
     <div class="card-body sale-card">
-      <div *ngIf="isDiffere" class="p-inputgroup">
-        <span class="p-inputgroup-addon">Téléphone</span>
-        <input #telephoneDiffInput [(ngModel)]="telephone" pInputText type="text" />
-      </div>
       <div *ngIf="isDiffere" class="p-inputgroup mt-1">
         <span class="p-inputgroup-addon">Commentaire</span>
         <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />

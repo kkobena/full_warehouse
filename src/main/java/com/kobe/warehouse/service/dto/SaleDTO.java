@@ -12,14 +12,14 @@ import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -67,9 +67,74 @@ public class SaleDTO implements Serializable {
   private PaymentStatus paymentStatus;
   private CustomerDTO customer;
   private UserDTO cassier, seller;
+  private Long cassierId;
+  private Long sellerId;
   private List<TicketDTO> tickets = new ArrayList<>();
   private String caisseEndNum, caisseNum, categorie;
   private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
+
+  public SaleDTO() {}
+
+  public SaleDTO(Sales sale) {
+    this.id = sale.getId();
+    this.discountAmount = sale.getDiscountAmount();
+    if (sale instanceof ThirdPartySales thirdPartySales) {
+      this.customer = new CustomerDTO(thirdPartySales.getCustomer());
+      this.categorie = "VO";
+    } else if (sale instanceof CashSale cashSale) {
+      if (cashSale.getCustomer() != null) {
+        this.customer = new CustomerDTO(cashSale.getCustomer());
+      }
+      this.categorie = "VNO";
+    }
+    if (Objects.nonNull(this.customer)) {
+      this.customerId = this.customer.getId();
+    }
+    if (StringUtils.isEmpty(this.categorie)) {
+      switch (sale.getNatureVente()) {
+        case ASSURANCE:
+        case CARNET:
+          this.categorie = "VO";
+          break;
+        case COMPTANT:
+          this.categorie = "VNO";
+          break;
+        default:
+          break;
+      }
+    }
+    this.salesAmount = sale.getSalesAmount();
+    this.htAmount = sale.getHtAmount();
+    this.netAmount = sale.getNetAmount();
+    this.taxAmount = sale.getTaxAmount();
+    this.costAmount = sale.getCostAmount();
+    this.amountToBePaid = sale.getAmountToBePaid();
+    this.statut = sale.getStatut();
+    this.createdAt = sale.getCreatedAt();
+    this.updatedAt = sale.getUpdatedAt();
+    this.salesLines =
+        sale.getSalesLines().stream()
+            .map(SaleLineDTO::new)
+            .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
+            .collect(Collectors.toList());
+    this.payments = sale.getPayments().stream().map(PaymentDTO::new).collect(Collectors.toList());
+    User user = sale.getUser();
+    this.userFullName = user.getFirstName() + " " + user.getLastName();
+    this.numberTransaction = sale.getNumberTransaction();
+    this.natureVente = sale.getNatureVente();
+    this.typePrescription = sale.getTypePrescription();
+    this.seller = new UserDTO(sale.getSeller());
+    this.cassier = new UserDTO(sale.getCassier());
+    this.cassierId = this.cassier.getId();
+    this.sellerId = this.seller.getId();
+    this.differe = sale.isDiffere();
+    this.caisseEndNum = sale.getCaisseEndNum();
+    this.caisseNum = sale.getCaisseNum();
+    this.tvaEmbededs = Util.transformTvaEmbeded(sale.getTvaEmbeded());
+    this.montantRendu = sale.getMonnaie();
+    this.restToPay = sale.getRestToPay();
+    //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
+  }
 
   public List<TvaEmbeded> getTvaEmbededs() {
     return tvaEmbededs;
@@ -113,6 +178,24 @@ public class SaleDTO implements Serializable {
 
   public SaleDTO setCaisseEndNum(String caisseEndNum) {
     this.caisseEndNum = caisseEndNum;
+    return this;
+  }
+
+  public Long getCassierId() {
+    return cassierId;
+  }
+
+  public SaleDTO setCassierId(Long cassierId) {
+    this.cassierId = cassierId;
+    return this;
+  }
+
+  public Long getSellerId() {
+    return sellerId;
+  }
+
+  public SaleDTO setSellerId(Long sellerId) {
+    this.sellerId = sellerId;
     return this;
   }
 
@@ -197,11 +280,6 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public SaleDTO setCustomer(CustomerDTO customer) {
-    this.customer = customer;
-    return this;
-  }
-
   public Boolean getCopy() {
     return copy;
   }
@@ -278,16 +356,16 @@ public class SaleDTO implements Serializable {
     return id;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
   public String getUserFullName() {
     return userFullName;
   }
 
   public void setUserFullName(String userFullName) {
     this.userFullName = userFullName;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public Integer getDiscountAmount() {
@@ -300,6 +378,11 @@ public class SaleDTO implements Serializable {
 
   public CustomerDTO getCustomer() {
     return customer;
+  }
+
+  public SaleDTO setCustomer(CustomerDTO customer) {
+    this.customer = customer;
+    return this;
   }
 
   public Long getCustomerId() {
@@ -373,8 +456,6 @@ public class SaleDTO implements Serializable {
   public void setNumberTransaction(String numberTransaction) {
     this.numberTransaction = numberTransaction;
   }
-
-  public SaleDTO() {}
 
   public Integer getDateDimensionId() {
     return dateDimensionId;
@@ -473,65 +554,6 @@ public class SaleDTO implements Serializable {
   public SaleDTO setRestToPay(Integer restToPay) {
     this.restToPay = restToPay;
     return this;
-  }
-
-  public SaleDTO(Sales sale) {
-    this.id = sale.getId();
-    this.discountAmount = sale.getDiscountAmount();
-    if (sale instanceof ThirdPartySales) {
-      ThirdPartySales thirdPartySales = (ThirdPartySales) sale;
-      this.customer = new CustomerDTO(thirdPartySales.getCustomer());
-      this.categorie = "VO";
-    } else if (sale instanceof CashSale) {
-      CashSale cashSale = (CashSale) sale;
-      if (cashSale.getCustomer() != null) {
-        this.customer = new CustomerDTO(cashSale.getCustomer());
-      }
-      this.categorie = "VNO";
-    }
-
-    if (StringUtils.isEmpty(this.categorie)) {
-      switch (sale.getNatureVente()) {
-        case ASSURANCE:
-        case CARNET:
-          this.categorie = "VO";
-          break;
-        case COMPTANT:
-          this.categorie = "VNO";
-          break;
-        default:
-          break;
-      }
-    }
-    this.salesAmount = sale.getSalesAmount();
-    this.htAmount = sale.getHtAmount();
-    this.netAmount = sale.getNetAmount();
-    this.taxAmount = sale.getTaxAmount();
-    this.costAmount = sale.getCostAmount();
-    this.amountToBePaid = sale.getAmountToBePaid();
-    this.statut = sale.getStatut();
-    this.createdAt = sale.getCreatedAt();
-    this.updatedAt = sale.getUpdatedAt();
-    this.salesLines =
-        sale.getSalesLines().stream()
-            .map(SaleLineDTO::new)
-            .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
-            .collect(Collectors.toList());
-    this.payments = sale.getPayments().stream().map(PaymentDTO::new).collect(Collectors.toList());
-    User user = sale.getUser();
-    this.userFullName = user.getFirstName() + " " + user.getLastName();
-    this.numberTransaction = sale.getNumberTransaction();
-    this.natureVente = sale.getNatureVente();
-    this.typePrescription = sale.getTypePrescription();
-    this.seller = new UserDTO(sale.getSeller());
-    this.cassier = new UserDTO(sale.getCassier());
-    this.differe = sale.isDiffere();
-    this.caisseEndNum = sale.getCaisseEndNum();
-    this.caisseNum = sale.getCaisseNum();
-    this.tvaEmbededs = Util.transformTvaEmbeded(sale.getTvaEmbeded());
-    this.montantRendu = sale.getMonnaie();
-    this.restToPay = sale.getRestToPay();
-    //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
   }
 
   public List<TicketDTO> getTickets() {

@@ -644,8 +644,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {
     DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
     AssuredCustomer assuredCustomer =
-        dto.getCustomer() != null
-            ? assuredCustomerRepository.getReferenceById(dto.getCustomer().getId())
+        dto.getCustomerId() != null
+            ? assuredCustomerRepository.getReferenceById(dto.getCustomerId())
             : null;
     if (assuredCustomer == null)
       throw new GenericError("sale", "Veuillez saisir le client", "customerNotFound");
@@ -662,13 +662,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     c.setTypePrescription(dto.getTypePrescription());
     User user = storageService.getUser();
     User caissier = user;
-    if (user.getId().compareTo(dto.getCassier().getId()) != 0) {
-      caissier = userRepository.getReferenceById(dto.getCassier().getId());
+    if (user.getId().compareTo(dto.getCassierId()) != 0) {
+      caissier = userRepository.getReferenceById(dto.getCassierId());
     }
-    if (caissier.getId().compareTo(dto.getSeller().getId()) != 0) {
+    if (caissier.getId().compareTo(dto.getSellerId()) != 0) {
       c.setSeller(caissier);
     } else {
-      c.setSeller(userRepository.getReferenceById(dto.getSeller().getId()));
+      c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
     }
     c.setImported(false);
     c.setUser(user);

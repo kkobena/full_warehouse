@@ -652,3 +652,162 @@ label {
 .text-900 {
   color: var(--surface-900) !important;
 }
+
+.wr-check-box {
+  padding-left: 2px;
+  padding-right: 2px;
+  position: relative;
+  top: -5px;
+}
+
+.p-inputswitch {
+  height: 1.5rem;
+}
+
+.sale-chexkbox .col-md-3 {
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+.sale-chexkbox .col-md-3:first-child {
+  padding-left: 10px !important;
+}
+
+.sale-bottom-card .card {
+  padding: 0;
+}
+
+.sale-bottom-card .mode-reglement {
+  margin-top: 15px;
+
+}
+
+iconlist li .icon-holder .icon i {
+  font-size: 3em;
+  color: #34A835;
+}
+
+//content/images/selected.png
+.cash {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/cash180x60x5.png') no-repeat center center;
+}
+
+.cash-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/cashbtn.png') no-repeat center center;
+}
+
+.cb {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/cb180x80.png') no-repeat center center;
+}
+
+.wave {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/wave.png') no-repeat center center;
+}
+
+.om {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/om180x60.png') no-repeat center center;
+}
+
+.moov {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/moov180x60.png') no-repeat center center;
+}
+
+.mtn {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/mtn180x60.png') no-repeat center center;
+}
+
+.cheque {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/cheque.png') no-repeat center center;
+}
+
+.virement {
+  height: 60px;
+  width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background: url('../images/virement.png') no-repeat center center;
+}
+
+.mode-reglement-icon {
+  cursor: pointer;
+}
+
+.virement-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/virement150x50.png') no-repeat center center;
+}
+
+.cb-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/cb150x50.png') no-repeat center center;
+}
+
+.cheque-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/cheque150x50.png') no-repeat center center;
+}
+
+.om-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/om150x50.png') no-repeat center center;
+}
+
+.mtn-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/mtn150x50.png') no-repeat center center;
+}
+
+.wave-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/wave150x50.png') no-repeat center center;
+}
+
+.moov-btn {
+  height: 50px;
+  width: 150px;
+  background: url('../images/moov150x50.png') no-repeat center center;
+}

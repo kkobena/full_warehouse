@@ -32,7 +32,7 @@ public final class Util {
       try {
         return new ObjectMapper().writeValueAsString(tvaEmbededs);
       } catch (JsonProcessingException e) {
-        log.debug("{}", e);
+        log.debug("{0}", e);
         return null;
       }
     }

@@ -2,7 +2,7 @@ package com.kobe.warehouse.domain;
 
 
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
-
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import java.io.Serializable;
 
 /**
  * A PaymentMode.
@@ -32,12 +30,33 @@ public class PaymentMode implements Serializable {
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
-
+    @NotNull
+    @Column(name = "ordre_tri", nullable = false)
+    private short order;
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "payment_group", nullable = false)
     private PaymentGroup group;
+    @NotNull
+    @Column(name = "enable", nullable = false)
+    private boolean enable=true;
+    public short getOrder() {
+        return order;
+    }
 
+    public PaymentMode setOrder(short order) {
+        this.order = order;
+        return this;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public PaymentMode setEnable(boolean enable) {
+        this.enable = enable;
+        return this;
+    }
 
     public String getLibelle() {
         return libelle;

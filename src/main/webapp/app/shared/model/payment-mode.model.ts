@@ -8,7 +8,13 @@ export interface IPaymentMode {
   group?: PaymentGroup;
   paymentFournisseurs?: IPaymentFournisseur[];
   payments?: IPayment[];
+  enable?: boolean;
   disabled?: boolean;
+  order?: number;
+  amount?: number;
+  styleImageClass?: string;
+  styleBtnClass?: string;
+  isReadonly?: boolean;
 }
 
 export class PaymentMode implements IPaymentMode {
@@ -18,6 +24,12 @@ export class PaymentMode implements IPaymentMode {
     public group?: PaymentGroup,
     public paymentFournisseurs?: IPaymentFournisseur[],
     public payments?: IPayment[],
-    public disabled?: boolean
+    public enable?: boolean,
+    public disabled?: boolean,
+    public order?: number,
+    public amount?: number,
+    public styleImageClass?: string,
+    public styleBtnClass?: string,
+    public isReadonly?: boolean
   ) {}
 }

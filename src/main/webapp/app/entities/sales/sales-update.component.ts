@@ -39,9 +39,10 @@ import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/aya
 import { FormAyantDroitComponent } from '../customer/form-ayant-droit/form-ayant-droit.component';
 import { TiersPayantCustomerListComponent } from '../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
 import { AssuranceService } from './assurance.service';
-import { ModePaymentService } from '../mode-payments/mode-payment.service';
+
 import { map } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
+import { ModePaymentService } from '../mode-payments/mode-payment.service';
 
 type SelectableEntity = ICustomer | IProduit;
 

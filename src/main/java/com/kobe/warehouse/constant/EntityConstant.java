@@ -13,6 +13,7 @@ public final class EntityConstant {
   public static final long POINT_of_STORAGE = 2L;
   public static final long DEFAULT_MAGASIN = 1L;
   public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
+  public static final String APP_MODE_PAYMENTS = "APP_MODE_PAYMENTS";
   public static final long RESERVE_STORAGE = 3L;
   public static final String SANS_EMPLACEMENT_LIBELLE = "SANS EMPLACEMENT";
   public static final String POINT_DE_VENTE_CACHE = "POINT_DE_VENTE";

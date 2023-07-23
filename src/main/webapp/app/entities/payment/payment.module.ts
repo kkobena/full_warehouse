@@ -11,6 +11,5 @@ import { paymentRoute } from './payment.route';
 @NgModule({
   imports: [SharedModule, RouterModule.forChild(paymentRoute)],
   declarations: [PaymentComponent, PaymentDetailComponent, PaymentDeleteDialogComponent],
-  entryComponents: [PaymentDeleteDialogComponent],
 })
 export class WarehousePaymentModule {}

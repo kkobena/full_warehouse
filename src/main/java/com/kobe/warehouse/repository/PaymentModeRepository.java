@@ -1,11 +1,9 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.PaymentMode;
-
+import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /**
  * Spring Data  repository for the PaymentMode entity.
@@ -13,5 +11,5 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentModeRepository extends JpaRepository<PaymentMode, String> {
-
+List<PaymentMode> findAllByEnableTrue();
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ActivatedRoute } from '@angular/router';
@@ -11,7 +11,6 @@ import { IProduit } from 'app/shared/model/produit.model';
 import { ProduitService } from '../produit/produit.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
-import { SalesLineService } from '../sales-line/sales-line.service';
 import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
 import { saveAs } from 'file-saver';
 import { INatureVente } from '../../shared/model/nature-vente.model';
@@ -40,6 +39,9 @@ import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/aya
 import { FormAyantDroitComponent } from '../customer/form-ayant-droit/form-ayant-droit.component';
 import { TiersPayantCustomerListComponent } from '../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
 import { AssuranceService } from './assurance.service';
+import { ModePaymentService } from '../mode-payments/mode-payment.service';
+import { map } from 'rxjs/operators';
+import { DOCUMENT } from '@angular/common';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -55,11 +57,9 @@ type SelectableEntity = ICustomer | IProduit;
   templateUrl: './sales-update.component.html',
   providers: [ConfirmationService, DialogService],
 })
-export class SalesUpdateComponent implements OnInit {
+export class SalesUpdateComponent implements OnInit, AfterViewInit {
   isSaving = false;
   isPresale = false;
-  showTiersPayantCard = false;
-  showClientSearchCard = false;
   displayErrorModal = false;
   commonDialog = false;
   displayErrorEntryAmountModal = false;
@@ -75,24 +75,26 @@ export class SalesUpdateComponent implements OnInit {
   showInfosComplementaireReglementCard = true;
   naturesVentes: INatureVente[] = [];
   naturesVente: INatureVente | null = null;
-  users: IUser[] = [];
+  users: IUser[];
   modeReglements: IPaymentMode[] = [];
+  reglements: IPaymentMode[] = [];
   payments: IPayment[] = [];
-  modeReglementSelected: any[] = [];
+  modeReglementSelected: IPaymentMode[] = [];
+  cashModePayment: IPaymentMode | null;
   modeReglementEmitter = new Subject<any>();
   userCaissier?: IUser | null;
-  userSeller?: IUser | null = null;
+  userSeller?: IUser;
   typePrescriptions: ITypePrescription[] = [];
   typePrescription?: ITypePrescription | null;
   customers: ICustomer[] = [];
   produits: IProduit[] = [];
   produitSelected?: IProduit | null = null;
   searchValue?: string;
+  appendTo = 'body';
   imagesPath!: string;
   customerSelected: ICustomer | null = null;
   ayantDroit: ICustomer | null = null;
   selectedRowIndex?: number;
-  produitsSelected?: IProduit[] = [];
   remiseProduits: IRemiseProduit[] = [];
   remiseProduit?: IRemiseProduit | null;
   sale?: ISales | null = null;
@@ -106,6 +108,12 @@ export class SalesUpdateComponent implements OnInit {
   quantyBox?: ElementRef;
   @ViewChild('produitbox', { static: true })
   produitbox?: any;
+  @ViewChild('userBox', { static: true })
+  userBox?: any;
+  @ViewChild('removeOverlayPanel', { static: true })
+  removeOverlayPanel?: any;
+  @ViewChild('addOverlayPanel', { static: true })
+  addOverlayPanel?: any;
   @ViewChild('forcerStockBtn', { static: false })
   forcerStockBtn?: ElementRef;
   clientSearchValue?: string | null = null;
@@ -113,58 +121,36 @@ export class SalesUpdateComponent implements OnInit {
   stockSeverity = 'success';
   produitClass = 'col-6 row';
   rayonClass = 'col-2';
-  reglementInputClass = 'p-inputgroup';
-  reglementInputParentClass = '';
-  montantCash?: number | null = null;
-  montantCb?: number | null = null;
-  montantVirement?: number | null = null;
-  montantMtn?: number | null = null;
-  montantOrange?: number | null = null;
-  montantMoov?: number | null = null;
-  montantWave?: number | null = null;
-  montantCheque?: number | null = null;
   entryAmount?: number | null = null;
   commentaire?: string;
   telephone?: string;
   referenceBancaire?: string;
   banque?: string;
   lieux?: string;
-  montantCashDiv = false;
-  montantCbDiv = false;
-  montantVirementDiv = false;
-  montantMtnDiv = false;
-  montantOrangeDiv = false;
-  montantMoovDiv = false;
-  montantWaveDiv = false;
-  montantChequeDiv = false;
   qtyMaxToSel = 999999;
   derniereMonnaie = 0;
   monnaie = 0;
+  readonly minLength = 1;
+  readonly CASH = 'CASH';
+  readonly COMPTANT = 'COMPTANT';
+  readonly CARNET = 'CARNET';
+  readonly ASSURANCE = 'ASSURANCE';
+  readonly OM = 'OM';
+  readonly CB = 'CB';
+  readonly CH = 'CH';
+  readonly VIREMENT = 'VIREMENT';
+  readonly WAVE = 'WAVE';
+  readonly MOOV = 'MOOV';
+  readonly MTN = 'MTN';
   check = true; // mis pour le focus produit et dialogue button
   readonly notFoundText = 'Aucun produit';
-  @ViewChild('montantCashInput', { static: false })
-  montantCashInput?: ElementRef;
-  @ViewChild('montantOMInput', { static: false })
-  montantOMInput?: ElementRef;
-  @ViewChild('montantMTNInput', { static: false })
-  montantMTNInput?: ElementRef;
-  @ViewChild('montantMOOVInput', { static: false })
-  montantMOOVInput?: ElementRef;
-  @ViewChild('montantWAVEInput', { static: false })
-  montantWAVEInput?: ElementRef;
-  @ViewChild('montantCbInput', { static: false })
-  montantCbInput?: ElementRef;
-  @ViewChild('montantVirInput', { static: false })
-  montantVirInput?: ElementRef;
-  @ViewChild('montantChInput', { static: false })
-  montantChInput?: ElementRef;
   @ViewChild('clientSearchModalBtn', { static: false })
   clientSearchModalBtn?: ElementRef;
   @ViewChild('errorEntryAmountBtn', { static: false })
   errorEntryAmountBtn?: ElementRef;
   @ViewChild('commonDialogModalBtn', { static: false })
   commonDialogModalBtn?: ElementRef;
-  @ViewChild('tierspayntDiv', { static: false })
+  @ViewChild('tierspayantDiv', { static: false })
   tierspayntDiv?: ElementRef;
   ref!: DynamicDialogRef;
   primngtranslate: Subscription;
@@ -172,19 +158,16 @@ export class SalesUpdateComponent implements OnInit {
   showOrHideTiersPayantBtn = false;
   tiersPayantsOriginal = 0;
   sansBon = false;
+  isReadonly = false;
   canSaleWithoutSansBon = false;
-  selectOnTab = false;
+  selectedMode: IPaymentMode | null;
 
-  /*
-  @ViewChild('keyContainer', { static: true }) input: ElementRef |
-    undefined;*/
   constructor(
     protected salesService: SalesService,
     protected customerService: CustomerService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
     protected modalService: NgbModal,
-    protected saleItemService: SalesLineService,
     protected userService: UserService,
     private accountService: AccountService,
     protected confirmationService: ConfirmationService,
@@ -195,7 +178,9 @@ export class SalesUpdateComponent implements OnInit {
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
     private spinner: NgxSpinnerService,
-    private assuranceService: AssuranceService
+    private assuranceService: AssuranceService,
+    private modePaymentService: ModePaymentService,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
@@ -237,7 +222,7 @@ export class SalesUpdateComponent implements OnInit {
 nativeElement, 'keyup');
 logger$.subscribe(evt => this.keys += evt.key);
      */
-
+    this.loadPaymentMode();
     this.loadAllUsers();
     this.maxToSale();
     this.saleWithoutSansBon();
@@ -245,21 +230,8 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.accountService.identity().subscribe(account => {
       if (account) {
         this.userCaissier = account;
-        if (!this.userSeller) {
-          this.userSeller = account;
-        }
       }
     });
-
-    this.modeReglementEmitter.subscribe(() => {
-      this.manageShowInfosComplementaireReglementCard();
-      this.manageShowInfosBancaire();
-      this.manageReglementInputParentClass();
-      this.manageAmontDiv(null);
-      this.updateSelectedModeReglement();
-    });
-
-    this.resetModeReglement();
 
     this.resetNaturesVente();
     this.typePrescriptions = [
@@ -278,7 +250,7 @@ logger$.subscribe(evt => this.keys += evt.key);
         this.customerSelected = sales.customer;
         this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
         this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
-        this.buildPaymentFromSale(sales);
+        //  this.buildPaymentFromSale(sales);
       }
       if (!this.showStock) {
         if (this.remiseProduits.length === 0) {
@@ -301,6 +273,14 @@ logger$.subscribe(evt => this.keys += evt.key);
         this.isPresale = params.get('isPresale') === 'true';
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.userBox) {
+      if (!this.userSeller) {
+        this.userSeller = this.userCaissier;
+      }
+    }
   }
 
   getTiersPayants(): IClientTiersPayant[] {
@@ -328,105 +308,71 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.userService.query().subscribe((res: HttpResponse<User[]>) => (this.users = res.body || []));
   }
 
-  manageAmontDiv(modeRegle: string | null): void {
-    this.montantCashDiv = this.modeReglementSelected.find(e => e === 'CASH');
-    this.montantCbDiv = this.modeReglementSelected.find(e => e === 'CB');
-    this.montantVirementDiv = this.modeReglementSelected.find(e => e === 'VIREMENT');
-    this.montantMtnDiv = this.modeReglementSelected.find(e => e === 'MTN');
-    this.montantOrangeDiv = this.modeReglementSelected.find(e => e === 'OM');
-    this.montantMoovDiv = this.modeReglementSelected.find(e => e === 'MOOV');
-    this.montantWaveDiv = this.modeReglementSelected.find(e => e === 'WAVE');
-    this.montantChequeDiv = this.modeReglementSelected.find(e => e === 'CH');
+  manageAmountDiv(): void {
+    const input = this.getInputAtIndex(0);
 
-    if (modeRegle) {
+    if (input) {
+      this.modeReglementSelected.find((e: IPaymentMode) => e.code === input.id).amount = this.sale?.amountToBePaid!;
+      input.focus();
       setTimeout(() => {
-        this.manageReglementOnClickFocus(modeRegle);
-      }, 100);
+        input.select();
+      }, 50);
     }
-
-    this.resetReglementInput();
   }
 
-  resetReglementInput(): void {
-    if (!this.montantCashDiv) {
-      this.montantCash = null;
-    }
-    if (!this.montantCbDiv) {
-      this.montantCb = null;
+  computeAmounts(): void {
+    if (this.sale) {
+      let amountToBePaid = this.sale?.amountToBePaid ?? 0;
+      this.modeReglementSelected.forEach((paymentMode: IPaymentMode) => {
+        const restToPay = amountToBePaid - (paymentMode.amount ? paymentMode.amount : 0);
+      });
     }
 
-    if (!this.montantVirementDiv) {
-      this.montantVirement = null;
+    const input = this.getInputAtIndex(0);
+    console.log(input, 'on change');
+    if (input) {
+      input.focus();
+      // @ts-ignore
+      input.value = this.sale?.amountToBePaid ?? '';
+      input.select();
     }
-    if (!this.montantMtnDiv) {
-      this.montantMtn = null;
-    }
-    if (!this.montantOrangeDiv) {
-      this.montantOrange = null;
-    }
-    if (!this.montantMoovDiv) {
-      this.montantMoov = null;
-    }
-    if (!this.montantWaveDiv) {
-      this.montantWave = null;
-    }
-    if (!this.montantChequeDiv) {
-      this.montantCheque = null;
+  }
+
+  focusLastAddInput(): void {
+    const input = this.getInputAtIndex(null);
+    console.log(input, 'on change');
+    if (input) {
+      input.focus();
+      // @ts-ignore
+      input.value = this.sale?.restToPay ?? '';
+      input.select();
     }
   }
 
   manageShowInfosComplementaireReglementCard(): void {
-    const mode = (element: string) => {
-      return element === 'CB' || element === 'VIREMENT' || element === 'CH' || this.isDiffere;
+    const mode = (element: IPaymentMode) => {
+      return element.code === this.CB || element.code === this.VIREMENT || element.code === this.CH || this.isDiffere;
     };
     this.showInfosComplementaireReglementCard = this.modeReglementSelected.some(mode);
   }
 
   manageShowInfosBancaire(): void {
-    const mode = (element: string) => {
-      return element === 'CB' || element === 'VIREMENT' || element === 'CH';
+    const mode = (element: IPaymentMode) => {
+      return element.code === this.CB || this.VIREMENT || element.code === this.CH;
     };
     this.showInfosBancaire = this.modeReglementSelected.some(mode);
-  }
-
-  manageReglementInputParentClass(): void {
-    if (this.modeReglementSelected && this.modeReglementSelected.length < 2) {
-      this.reglementInputParentClass = '';
-      this.reglementInputClass = 'p-inputgroup';
-    } else {
-      if (this.modeReglementSelected.length === 2) {
-        this.reglementInputParentClass = 'row';
-        this.reglementInputClass = 'p-inputgroup col-6';
-      }
-      if (this.modeReglementSelected.length === 3 && !this.showInfosComplementaireReglementCard) {
-        this.reglementInputParentClass = 'row';
-        this.reglementInputClass = 'p-inputgroup col-4';
-      }
-      if (this.modeReglementSelected.length === 3 && this.showInfosComplementaireReglementCard) {
-        this.reglementInputParentClass = 'row';
-        this.reglementInputClass = 'p-inputgroup col-6';
-      }
-      if (this.modeReglementSelected.length > 3 && !this.showInfosComplementaireReglementCard) {
-        this.reglementInputParentClass = 'row';
-        this.reglementInputClass = 'p-inputgroup col-3';
-      }
-      if (this.modeReglementSelected.length > 3 && this.showInfosComplementaireReglementCard) {
-        this.reglementInputParentClass = 'row';
-        this.reglementInputClass = 'p-inputgroup col-6';
-      }
-    }
   }
 
   previousState(): void {
     window.history.back();
   }
 
-  save(): void {
+  save(evt: any | null): void {
     if (this.isPresale === false) {
       this.isSaving = true;
-      if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
         this.saveCashSale();
-      } else if (this.naturesVente && (this.naturesVente.code === 'CARNET' || this.naturesVente.code === 'ASSURANCE')) {
+      } else {
         this.saveAssuranceSale();
       }
     } else if (this.isPresale === true) {
@@ -447,11 +393,11 @@ logger$.subscribe(evt => this.keys += evt.key);
         this.commonDialogModalBtn?.nativeElement.focus();
       } else {
         this.computeMonnaie();
-        const restToPay = this.sale?.amountToBePaid! - thatentryAmount;
+        const restToPay = this.sale.amountToBePaid - thatentryAmount;
         this.sale.type = 'VO';
         this.sale.montantRendu = this.monnaie;
-        this.sale.montantVerse = this.montantCash ?? 0;
-        if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid!) {
+        this.sale.montantVerse = this.getCashAmount();
+        if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
           this.displayErrorEntryAmountModal = true;
           this.errorEntryAmountBtn?.nativeElement.focus();
         } else if (this.isDiffere && !this.customerSelected) {
@@ -465,6 +411,7 @@ logger$.subscribe(evt => this.keys += evt.key);
             this.sale.payrollAmount = thatentryAmount;
             this.sale.restToPay = restToPay;
           }
+          this.sale.payments = this.buildPayment();
           this.subscribeToFinalyseResponse(this.assuranceService.save(this.sale));
         }
       }
@@ -474,14 +421,13 @@ logger$.subscribe(evt => this.keys += evt.key);
   saveCashSale(): void {
     if (this.sale) {
       this.sale.differe = this.isDiffere;
-      this.sale.payments = this.buildPayment();
       const thatentryAmount = this.getEntryAmount();
       this.computeMonnaie();
-      const restToPay = this.sale?.amountToBePaid! - thatentryAmount;
+      const restToPay = this.sale?.amountToBePaid - thatentryAmount;
       this.sale.type = 'VNO';
       this.sale.montantRendu = this.monnaie;
-      this.sale.montantVerse = this.montantCash ?? 0;
-      if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid!) {
+      this.sale.montantVerse = this.getCashAmount();
+      if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
         this.displayErrorEntryAmountModal = true;
         this.errorEntryAmountBtn?.nativeElement.focus();
       } else if (this.isDiffere && !this.customerSelected) {
@@ -495,6 +441,7 @@ logger$.subscribe(evt => this.keys += evt.key);
           this.sale.payrollAmount = thatentryAmount;
           this.sale.restToPay = restToPay;
         }
+        this.sale.payments = this.buildPayment();
         this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
       }
     }
@@ -504,8 +451,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.clientSearchBox?.nativeElement.focus();
   }
 
-  onHideHideDialog(): void {
-  }
+  onHideHideDialog(): void {}
 
   cancelErrorModal(): void {
     this.displayErrorModal = false;
@@ -520,15 +466,15 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   onHidedisplayErrorEntryAmountModal(event: Event): void {
-    this.montantCashInput?.nativeElement.focus();
+    // this.montantCashInput?.nativeElement.focus();
   }
 
   putCurrentSaleOnHold(): void {
     if (this.sale) {
       this.isSaving = true;
-      if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
         this.putCurrentCashSaleOnHold();
-      } else if (this.naturesVente && (this.naturesVente.code === 'CARNET' || this.naturesVente.code === 'ASSURANCE')) {
+      } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
         this.putCurrentAssuranceSaleOnHold();
       }
     }
@@ -541,8 +487,8 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   putCurrentAssuranceSaleOnHold(): void {
-    this.sale!.payments = this.buildPayment();
-    this.sale!.type = 'VO';
+    this.sale.payments = this.buildPayment();
+    this.sale.type = 'VO';
     this.subscribeToPutOnHoldResponse(this.assuranceService.putCurrentSaleOnHold(this.sale!));
   }
 
@@ -552,41 +498,33 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   searchUser(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown'
-    ) {
-      this.loadAllUsers();
-    }
+    this.loadAllUsers();
   }
 
   onSelectUser(): void {
-    this.produitbox.focus();
+    setTimeout(() => {
+      this.produitbox.inputEL.nativeElement.focus();
+      this.produitbox.inputEL.nativeElement.select();
+    }, 50);
   }
 
   searchFn(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown' &&
-      key !== 'Backspace'
-    ) {
-      this.searchValue = event.target.value;
+    /*  const key = event.key;
+      if (
+        key !== 'ArrowDown' &&
+        key !== 'ArrowUp' &&
+        key !== 'ArrowRight' &&
+        key !== 'ArrowLeft' &&
+        key !== 'NumLock' &&
+        key !== 'CapsLock' &&
+        key !== 'Control' &&
+        key !== 'PageUp' &&
+        key !== 'PageDown' &&
+        key !== 'Backspace'
+      ) */
+
+    {
+      this.searchValue = event.query;
       this.loadProduits();
     }
   }
@@ -596,12 +534,12 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   onSelect(): void {
-    if (this.quantyBox) {
-      const el = this.quantyBox.nativeElement.focus();
-      el.focus();
-      el.select();
-    }
-    if (this.produitSelected?.totalQuantity! > 0) {
+    setTimeout(() => {
+      this.quantyBox.nativeElement.focus();
+      this.quantyBox.nativeElement.select();
+    }, 50);
+
+    if (this.produitSelected?.totalQuantity > 0) {
       this.stockSeverity = 'success';
     } else {
       this.stockSeverity = 'danger';
@@ -611,267 +549,65 @@ logger$.subscribe(evt => this.keys += evt.key);
   onSelectKeyDow(event: KeyboardEvent): void {
     if (event.key === 'Enter' && this.produitSelected) {
       if (this.quantyBox) {
-        const el = this.quantyBox.nativeElement.focus();
+        const el = this.quantyBox.nativeElement;
         el.focus();
         el.select();
       }
-      if (this.produitSelected.totalQuantity! > 0) {
+      if (this.produitSelected?.totalQuantity > 0) {
         this.stockSeverity = 'success';
       } else {
         this.stockSeverity = 'danger';
       }
     } else if (event.key === 'Enter' && this.sale && this.salesLines.length > 0) {
-      if ((this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') && this.sale.amountToBePaid === 0) {
-        this.save();
+      if ((this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) && this.sale.amountToBePaid === 0) {
+        this.save(null);
       } else {
-        this.montantCashInputAssignment2();
+        this.manageAmountDiv();
       }
-    }
-  }
-
-  montantCashInputAssignment2(): void {
-    if (this.montantCashInput) {
-      this.montantCashInput.nativeElement.focus();
-      this.montantCash = this.sale?.amountToBePaid;
-      setTimeout(() => {
-        this.montantCashInput?.nativeElement.select();
-      }, 50);
     }
   }
 
   montantCashInputAssignment(): void {
-    if (this.montantCashInput) {
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantCash = restTopay;
-        } else {
-          this.montantCash = 0;
-        }
-      } else {
-        this.montantCash = this.sale?.amountToBePaid;
-      }
-      this.montantCashInput.nativeElement.focus();
-      setTimeout(() => {
-        this.montantCashInput?.nativeElement.select();
-      }, 50);
-    }
+    /* if (this.montantCashInput) {
+       this.entryAmount = this.getEntryAmount();
+       if (this.entryAmount) {
+         const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
+         if (restTopay && restTopay > 0) {
+           this.montantCash = restTopay;
+         } else {
+           this.montantCash = 0;
+         }
+       } else {
+         this.montantCash = this.sale?.amountToBePaid;
+       }
+       this.montantCashInput.nativeElement.focus();
+       setTimeout(() => {
+         this.montantCashInput?.nativeElement.select();
+       }, 50);
+     }*/
   }
 
-  montantCbInputAssignment(): void {
-    if (this.montantCbInput) {
-      this.montantCbInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantCb = restTopay;
-        } else {
-          this.montantCb = 0;
-        }
-      } else {
-        this.montantCb = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantCbInput?.nativeElement.select();
-      }, 50);
-    }
+  changePaimentMode(newPaymentMode: IPaymentMode): void {
+    const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => (el.code = this.selectedMode?.code));
+    this.modeReglementSelected[oldIndex] = newPaymentMode;
+    this.updateComponent();
+    setTimeout(() => {
+      this.manageAmountDiv();
+    }, 50);
   }
 
-  montantOMInputAssignment(): void {
-    if (this.montantOMInput) {
-      this.montantOMInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantOrange = restTopay;
-        } else {
-          this.montantOrange = 0;
-        }
-      } else {
-        this.montantOrange = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantOMInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  montantVirementInputAssignment(): void {
-    if (this.montantVirInput) {
-      this.montantVirInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantVirement = restTopay;
-        } else {
-          this.montantVirement = 0;
-        }
-      } else {
-        this.montantVirement = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantVirInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  montantMtnInputAssignment(): void {
-    if (this.montantMTNInput) {
-      this.montantMTNInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantMtn = restTopay;
-        } else {
-          this.montantMtn = 0;
-        }
-      } else {
-        this.montantMtn = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantMTNInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  montantMOOVInputAssignment(): void {
-    if (this.montantMOOVInput) {
-      this.montantMOOVInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantMoov = restTopay;
-        } else {
-          this.montantMoov = 0;
-        }
-      } else {
-        this.montantMoov = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantMOOVInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  montantWAVEInputAssignment(): void {
-    if (this.montantWAVEInput) {
-      this.montantWAVEInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantWave = restTopay;
-        } else {
-          this.montantWave = 0;
-        }
-      } else {
-        this.montantWave = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantWAVEInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  montantCHInputAssignment(): void {
-    if (this.montantChInput) {
-      this.montantChInput.nativeElement.focus();
-      this.entryAmount = this.getEntryAmount();
-      if (this.entryAmount) {
-        const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-        if (restTopay && restTopay > 0) {
-          this.montantCheque = restTopay;
-        } else {
-          this.montantCheque = 0;
-        }
-      } else {
-        this.montantCheque = this.sale?.amountToBePaid;
-      }
-      setTimeout(() => {
-        this.montantChInput?.nativeElement.select();
-      }, 50);
-    }
-  }
-
-  manageReglementFocus(): void {
-    const cashInput = this.modeReglementSelected.find(mode => mode === 'CASH');
-    if (cashInput) {
-      this.montantCashInputAssignment();
-    } else {
-      const cb = this.modeReglementSelected.find(mode => mode === 'CB');
-      const om = this.modeReglementSelected.find(mode => mode === 'OM');
-      const VIREMENT = this.modeReglementSelected.find(mode => mode === 'VIREMENT');
-      const MTN = this.modeReglementSelected.find(mode => mode === 'MTN');
-      const MOOV = this.modeReglementSelected.find(mode => mode === 'MOOV');
-      const WAVE = this.modeReglementSelected.find(mode => mode === 'WAVE');
-      const CH = this.modeReglementSelected.find(mode => mode === 'CH');
-      if (cb) {
-        this.montantCbInputAssignment();
-      } else if (om) {
-        this.montantOMInputAssignment();
-      } else if (VIREMENT) {
-        this.montantVirementInputAssignment();
-      } else if (MTN) {
-        this.montantMtnInputAssignment();
-      } else if (MOOV) {
-        this.montantMOOVInputAssignment();
-      } else if (WAVE) {
-        this.montantWAVEInputAssignment();
-      } else if (CH) {
-        this.montantCHInputAssignment();
-      }
-    }
-  }
-
-  manageReglementOnClickFocus(modeSelected: string): void {
-    const selectedMode = this.modeReglementSelected.find(mode => mode === modeSelected);
-    if (selectedMode === 'CASH') {
-      this.montantCashInputAssignment();
-    } else if (selectedMode === 'CB') {
-      this.montantCbInputAssignment();
-    } else if (selectedMode === 'OM') {
-      this.montantOMInputAssignment();
-    } else if (selectedMode === 'VIREMENT') {
-      this.montantVirementInputAssignment();
-    } else if (selectedMode === 'MTN') {
-      this.montantMtnInputAssignment();
-    } else if (selectedMode === 'MOOV') {
-      this.montantMOOVInputAssignment();
-    } else if (selectedMode === 'WAVE') {
-      this.montantWAVEInputAssignment();
-    } else if (selectedMode === 'CH') {
-      this.montantCHInputAssignment();
-    }
-  }
-
-  onModeReglementChange(event: any): void {
-    let modeRegle = event.originalEvent.target.innerText;
+  updateComponent(): void {
+    this.getReglements();
     this.manageShowInfosComplementaireReglementCard();
     this.manageShowInfosBancaire();
-    this.manageReglementInputParentClass();
-    if (modeRegle === 'ORANGE') {
-      modeRegle = 'OM';
-    } else if (modeRegle === 'CHEQUE') {
-      modeRegle = 'CH';
-    } else if (modeRegle === 'ESPECE') {
-      modeRegle = 'CASH';
-    }
-    this.manageAmontDiv(modeRegle);
-    this.updateSelectedModeReglement();
   }
 
   showAyantDroit(): boolean {
-    return !!(this.naturesVente?.code === 'ASSURANCE' && this.ayantDroit);
+    return !!(this.naturesVente?.code === this.ASSURANCE && this.ayantDroit);
   }
 
   showTiersPayant(): boolean {
-    return !!((this.naturesVente?.code === 'ASSURANCE' || this.naturesVente?.code === 'CARNET') && this.customerSelected);
+    return !!((this.naturesVente?.code === this.ASSURANCE || this.naturesVente?.code === this.CARNET) && this.customerSelected);
   }
 
   showTiersPayantBtn(): void {
@@ -879,7 +615,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   showClientSearch(): boolean {
-    return !!((this.isDiffere && this.sale) || this.naturesVente?.code !== 'COMPTANT');
+    return !!((this.isDiffere && this.sale) || this.naturesVente?.code !== this.COMPTANT);
   }
 
   onDiffereChange(): void {
@@ -913,31 +649,26 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   getEntryAmount(): number {
-    return (
-      this.montantCash! +
-      this.montantCb! +
-      this.montantCheque! +
-      this.montantVirement! +
-      this.montantOrange! +
-      this.montantWave! +
-      this.montantMoov! +
-      this.montantMtn!
-    );
+    return this.modeReglementSelected.reduce((sum, current) => sum + current.amount, 0);
   }
 
   onReglementInputChange(): void {
     this.computeMonnaie();
   }
 
+  showInfoCustomer(): boolean {
+    return true;
+  }
+
   loadProduits(): void {
     this.produitService
-    .query({
-      page: 0,
-      size: 5,
-      withdetail: false,
-      search: this.searchValue,
-    })
-    .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
+      .query({
+        page: 0,
+        size: 5,
+        withdetail: false,
+        search: this.searchValue,
+      })
+      .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
 
   clickRow(item: IProduit): void {
@@ -996,19 +727,19 @@ logger$.subscribe(evt => this.keys += evt.key);
   onAddProduit(qytMvt: number): void {
     if (this.sale) {
       if (this.produitSelected) {
-        if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+        if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
           this.subscribeToSaveLineResponse(this.salesService.addItemComptant(this.createSalesLine(this.produitSelected, qytMvt)));
-        } else if (this.naturesVente && (this.naturesVente.code === 'CARNET' || this.naturesVente.code === 'ASSURANCE')) {
+        } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
           this.subscribeToSaveLineResponse(this.assuranceService.addItem(this.createSalesLine(this.produitSelected, qytMvt)));
         }
       }
     } else {
       if (this.produitSelected) {
-        if (this.naturesVente && this.naturesVente.code === 'COMPTANT') {
+        if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
           this.subscribeToCreateSaleComptantResponse(
             this.salesService.createComptant(this.createSaleComptant(this.produitSelected, qytMvt))
           );
-        } else if (this.naturesVente && (this.naturesVente.code === 'CARNET' || this.naturesVente.code === 'ASSURANCE')) {
+        } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
           this.subscribeToCreateSaleComptantResponse(this.assuranceService.create(this.createThirdPartySale(this.produitSelected, qytMvt)));
         }
       }
@@ -1048,7 +779,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   addNewCustomer(): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.addUninsuredCustomer();
     } else {
       this.addAssuredCustomer();
@@ -1056,7 +787,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   editCustomer(): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.editUninsuredCustomer();
     } else {
       this.editAssuredCustomer();
@@ -1064,7 +795,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   loadsCustomer(): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.loadUninsuredCustomers();
     } else {
       this.loadAssuredCustomers();
@@ -1072,7 +803,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   openCustomerListTable(customers: ICustomer[] | []): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.openUninsuredCustomerListTable(customers);
     } else {
       this.openAssuredCustomerListTable(customers);
@@ -1153,9 +884,9 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   removeLine(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.removeItemFromVNO(salesLine.id!);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+    } else if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
       this.removeItemFromCarnet(salesLine.id!);
     }
   }
@@ -1194,8 +925,8 @@ logger$.subscribe(evt => this.keys += evt.key);
 
   formatNumber(number: any): string {
     return Math.floor(number.value)
-    .toString()
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+      .toString()
+      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
   }
 
   openInfoDialog(message: string, infoClass: string): void {
@@ -1337,9 +1068,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.ayantDroit = null;
     this.tiersPayants = [];
     this.salesLines = [];
-    this.modeReglementSelected = [];
-    this.modeReglementSelected = ['CASH'];
-    this.modeReglementEmitter.next('CASH');
+    this.buildReglementInput();
     this.resetNaturesVente();
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.userSeller = this.userCaissier;
@@ -1347,14 +1076,6 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.derniereMonnaie = this.monnaie;
     this.monnaie = 0;
     this.payments = [];
-    this.montantCheque = null;
-    this.montantCash = null;
-    this.montantVirement = null;
-    this.montantCb = null;
-    this.montantWave = null;
-    this.montantMoov = null;
-    this.montantMtn = null;
-    this.montantOrange = null;
     this.sansBon = false;
     this.updateProduitQtyBox();
     this.loadProduits();
@@ -1373,55 +1094,34 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   buildPayment(): IPayment[] {
-    if (this.montantCash && this.montantCash > 0) {
-      this.payments.push(this.createPayment(this.montantCash, 'CASH'));
-    }
-    if (this.montantCb && this.montantCb > 0) {
-      this.payments.push(this.createPayment(this.montantCb, 'CB'));
-    }
-    if (this.montantVirement && this.montantVirement > 0) {
-      this.payments.push(this.createPayment(this.montantVirement, 'VIREMENT'));
-    }
-    if (this.montantCheque && this.montantCheque > 0) {
-      this.payments.push(this.createPayment(this.montantCheque, 'CH'));
-    }
-    if (this.montantOrange && this.montantOrange > 0) {
-      this.payments.push(this.createPayment(this.montantOrange, 'OM'));
-    }
-    if (this.montantWave && this.montantWave > 0) {
-      this.payments.push(this.createPayment(this.montantWave, 'WAVE'));
-    }
-    if (this.montantMtn && this.montantMtn > 0) {
-      this.payments.push(this.createPayment(this.montantMtn, 'MTN'));
-    }
-    if (this.montantMoov && this.montantMoov > 0) {
-      this.payments.push(this.createPayment(this.montantMoov, 'MOOV'));
-    }
-    return this.payments;
+    return this.modeReglementSelected.map((mode: IPaymentMode) => this.buildModePayment(mode));
+    /* this.modeReglementSelected.forEach((mode: IPaymentMode) => {
+       this.payments.push(this.buildModePayment(mode));
+     });*/
   }
 
   buildPaymentFromSale(sale: ISales): void {
     sale.payments?.forEach(payment => {
       if (payment.paymentMode) {
         const code = payment.paymentMode.code;
-        this.modeReglementSelected.push(code);
-        if (code === 'CASH') {
-          this.montantCash = payment.netAmount;
-        } else if (code === 'OM') {
-          this.montantOrange = payment.netAmount;
-        } else if (code === 'CB') {
-          this.montantCb = payment.netAmount;
-        } else if (code === 'CH') {
-          this.montantCheque = payment.netAmount;
-        } else if (code === 'VIREMENT') {
-          this.montantVirement = payment.netAmount;
-        } else if (code === 'WAVE') {
-          this.montantWave = payment.netAmount;
-        } else if (code === 'MOOV') {
-          this.montantMoov = payment.netAmount;
-        } else if (code === 'MTN') {
-          this.montantMtn = payment.netAmount;
-        }
+        //  this.modeReglementSelected.push(code);
+        /* if (code === 'CASH') {
+           this.montantCash = payment.netAmount;
+         } else if (code === 'OM') {
+           this.montantOrange = payment.netAmount;
+         } else if (code === 'CB') {
+           this.montantCb = payment.netAmount;
+         } else if (code === 'CH') {
+           this.montantCheque = payment.netAmount;
+         } else if (code === 'VIREMENT') {
+           this.montantVirement = payment.netAmount;
+         } else if (code === 'WAVE') {
+           this.montantWave = payment.netAmount;
+         } else if (code === 'MOOV') {
+           this.montantMoov = payment.netAmount;
+         } else if (code === 'MTN') {
+           this.montantMtn = payment.netAmount;
+         }*/
       }
     });
     this.modeReglementEmitter.next(1);
@@ -1458,34 +1158,34 @@ logger$.subscribe(evt => this.keys += evt.key);
     if (this.clientSearchValue) {
       this.spinner.show('salespinner');
       this.customerService
-      .queryAssuredCustomer({
-        search: this.clientSearchValue,
-        typeTiersPayant: this.naturesVente?.code,
-      })
-      .subscribe(
-        res => {
-          this.spinner.hide('salespinner');
-          const assuredCustomers = res.body;
-          if (assuredCustomers && assuredCustomers.length > 0) {
-            if (assuredCustomers.length === 1) {
-              this.customerSelected = assuredCustomers[0];
-              setTimeout(() => {
-                this.firstRefBonFocus();
-              }, 100);
-            } else {
-              this.openAssuredCustomerListTable(assuredCustomers);
-            }
+        .queryAssuredCustomer({
+          search: this.clientSearchValue,
+          typeTiersPayant: this.naturesVente?.code,
+        })
+        .subscribe(
+          res => {
+            this.spinner.hide('salespinner');
+            const assuredCustomers = res.body;
+            if (assuredCustomers && assuredCustomers.length > 0) {
+              if (assuredCustomers.length === 1) {
+                this.customerSelected = assuredCustomers[0];
+                setTimeout(() => {
+                  this.firstRefBonFocus();
+                }, 100);
+              } else {
+                this.openAssuredCustomerListTable(assuredCustomers);
+              }
 
-            this.clientSearchValue = null;
-          } else {
-            this.addAssuredCustomer();
-            this.clientSearchValue = null;
+              this.clientSearchValue = null;
+            } else {
+              this.addAssuredCustomer();
+              this.clientSearchValue = null;
+            }
+          },
+          () => {
+            this.spinner.hide('salespinner');
           }
-        },
-        () => {
-          this.spinner.hide('salespinner');
-        }
-      );
+        );
     }
   }
 
@@ -1498,18 +1198,18 @@ logger$.subscribe(evt => this.keys += evt.key);
   onNatureVenteChange(event: any): void {
     const selectNature = event.value;
 
-    if (selectNature.code !== 'COMPTANT' && this.sale && this.customerSelected) {
+    if (selectNature.code !== this.COMPTANT && this.sale && this.customerSelected) {
       const nature = (element: INatureVente) => {
-        return element.code === 'COMPTANT';
+        return element.code === this.COMPTANT;
       };
       this.naturesVentes.find(nature)!.disabled = true;
 
       //TODO si vente en cours et vente est de type VO, alors message si la nvelle est COMPTANT, ON ne peut transformer une VO en VNO
     }
-    if (selectNature.code !== 'COMPTANT' && !this.customerSelected) {
+    if (selectNature.code !== this.COMPTANT && !this.customerSelected) {
       this.setClientSearchBoxFocus();
     } else {
-      this.produitbox?.focus();
+      this.produitbox.inputEL.nativeElement.focus();
     }
   }
 
@@ -1592,51 +1292,161 @@ logger$.subscribe(evt => this.keys += evt.key);
     });
   }
 
+  manageCashPaymentMode(evt: any): void {
+    this.onReglementInputChange();
+  }
+
+  loadPaymentMode(): void {
+    this.modePaymentService
+      .query()
+      .pipe(map((res: HttpResponse<IPaymentMode[]>) => this.convertPaymentMode(res)))
+      .subscribe((res: HttpResponse<IPaymentMode[]>) => {
+        this.modeReglements = res.body;
+        this.cashModePayment = this.modeReglements.find(mode => mode.code === 'CASH');
+        this.buildReglementInput();
+      });
+  }
+
+  isAlreadySelected(modePayment: IPaymentMode): boolean {
+    return this.modeReglementSelected.some((e: IPaymentMode) => e.code === modePayment.code);
+  }
+
+  modeReglementDivRation(): string {
+    return this.modeReglementSelected.length === 1 ? ' mode-reglement-icon col-md-12' : ' mode-reglement-icon col-md-6';
+  }
+
+  buildReglementInput(): void {
+    if (this.sale && this.sale.payments?.length > 0) {
+      this.modeReglements.forEach((mode: IPaymentMode) => {
+        const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
+        if (el) {
+          el.paymentMode.amount = el.paidAmount;
+          this.modeReglementSelected.push(el.paymentMode);
+        }
+      });
+    } else {
+      this.resetCashInput();
+    }
+    this.getReglements();
+  }
+
+  resetCashInput(): void {
+    this.modeReglementSelected[0] = this.cashModePayment;
+    this.modeReglementSelected[0].amount = null;
+  }
+
+  getInputAtIndex(index: number | null): HTMLInputElement {
+    const modeInputs = this.getInputs() as HTMLInputElement[];
+    const indexAt = index === 0 ? index : modeInputs.length - 1;
+    if (modeInputs && modeInputs?.length > 0) return modeInputs[indexAt];
+    return null;
+  }
+
+  getCashAmount(): number {
+    let cashInput;
+    this.entryAmount = this.getEntryAmount();
+    if (this.modeReglementSelected.length > 0) {
+      cashInput = this.modeReglementSelected.find((input: IPaymentMode) => input.code === this.CASH);
+      if (cashInput) {
+        return cashInput.amount;
+      }
+      return 0;
+    } else {
+      cashInput = this.modeReglementSelected[0];
+      if (cashInput.code === this.CASH) return cashInput.amount;
+      return 0;
+    }
+  }
+
+  onAddPaymentModeToggle(old: IPaymentMode, evt: any): void {
+    this.onModeBtnClick(old);
+    this.addOverlayPanel.toggle(evt);
+  }
+
+  onRemovePaymentModeToggle(old: IPaymentMode, evt: any): void {
+    this.onModeBtnClick(old);
+    if (this.modeReglementSelected.length === 1) {
+      this.removeOverlayPanel.toggle(evt);
+    } else {
+      const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => (el.code = this.selectedMode?.code));
+      this.modeReglementSelected.splice(oldIndex, 1);
+    }
+  }
+
+  onRemovePaymentMode(newMode: IPaymentMode): void {
+    this.changePaimentMode(newMode);
+    this.removeOverlayPanel.hide();
+  }
+
+  onAddPaymentMode(newMode: IPaymentMode): void {
+    if (this.modeReglementSelected.length < this.maxModePayementNumber) {
+      this.modeReglementSelected[this.modeReglementSelected.length++] = newMode;
+      this.addOverlayPanel.hide();
+      this.updateComponent();
+      setTimeout(() => {
+        this.focusLastAddInput();
+      }, 50);
+    }
+  }
+
+  onModeBtnClick(paymentMode: IPaymentMode): void {
+    this.selectedMode = paymentMode;
+  }
+
+  trackPaymentModeId(index: number, item: IPaymentMode): string {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.code!;
+  }
+
+  getReglements(): void {
+    this.reglements = this.modeReglements.filter(x => !this.modeReglementSelected.includes(x));
+  }
+
   protected processQtyRequested(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.processQtyRequestedForVNO(salesLine);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+    } else if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
       this.processQtyRequestedForCarnet(salesLine);
     }
   }
 
   protected processQtyRequestedForVNO(salesLine: ISalesLine): void {
-    this.salesService.updateItemQtyRequested(salesLine).subscribe(
-      () => {
+    this.salesService.updateItemQtyRequested(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
         }
         this.check = true;
       },
-      error => {
+      error: error => {
         this.check = false;
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
         this.onStockError(salesLine, error);
-      }
-    );
+      },
+    });
   }
 
   protected processQtyRequestedForCarnet(salesLine: ISalesLine): void {
-    this.assuranceService.updateItemQtyRequested(salesLine).subscribe(
-      () => {
+    this.assuranceService.updateItemQtyRequested(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.assuranceService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.assuranceService.find(this.sale.id));
         }
         this.check = true;
       },
-      error => {
+      error: error => {
         this.check = false;
         this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
         this.onStockError(salesLine, error);
-      }
-    );
+      },
+    });
   }
 
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body?.saleId!)),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body?.saleId!)),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected updateProduitQtyBox(): void {
@@ -1644,7 +1454,7 @@ logger$.subscribe(evt => this.keys += evt.key);
       this.quantyBox.nativeElement.value = 1;
     }
     if (this.check) {
-      this.produitbox?.focus();
+      this.produitbox.inputEL.nativeElement.focus();
     } else {
       this.forcerStockBtn?.nativeElement.focus();
     }
@@ -1653,17 +1463,17 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected subscribeToUpdateItemPriceOrQuantityResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onProduitSuccess(data: IProduit[] | null): void {
@@ -1696,20 +1506,20 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   protected subscribeToFinalyseResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onFinalyseSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onFinalyseSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected subscribeToPutOnHoldResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      () => {
+    result.subscribe({
+      next: () => {
         this.isSaving = false;
         this.resetAll();
       },
-      () => this.onSaveError()
-    );
+      error: () => this.onSaveError(),
+    });
   }
 
   protected refresh(): void {
@@ -1717,10 +1527,10 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   protected subscribeToCreateSaleComptantResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-      error => this.onCommonError(error)
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
+      error: error => this.onCommonError(error),
+    });
   }
 
   protected onSaleComptantResponseSuccess(sale: ISales | null): void {
@@ -1786,19 +1596,76 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   protected processQtySold(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.updateVNOQuantitySold(salesLine);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+    } else if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
       this.updateCarnetQuantitySold(salesLine);
     }
   }
 
   protected processItemPrice(salesLine: ISalesLine): void {
-    if (this.naturesVente?.code === 'COMPTANT') {
+    if (this.naturesVente?.code === this.COMPTANT) {
       this.updateVNOItemPrice(salesLine);
-    } else if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+    } else if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
       this.updateCarnetItemPrice(salesLine);
     }
+  }
+
+  private getInputs(): Element[] {
+    const inputs = this.document.querySelectorAll('.payment-mode-input');
+    return Array.from(inputs);
+  }
+
+  private convertPaymentMode(res: HttpResponse<IPaymentMode[]>): HttpResponse<IPaymentMode[]> {
+    if (res.body) {
+      res.body.forEach((paymentMode: IPaymentMode) => {
+        paymentMode.disabled = false;
+        switch (paymentMode.code) {
+          case 'CASH':
+            paymentMode.styleImageClass = 'cash';
+            paymentMode.styleBtnClass = 'cash-btn';
+            break;
+          case 'WAVE':
+            paymentMode.styleImageClass = 'wave';
+            paymentMode.styleBtnClass = 'wave-btn';
+            paymentMode.isReadonly = this.isReadonly;
+            break;
+          case 'OM':
+            paymentMode.styleImageClass = 'om';
+            paymentMode.styleBtnClass = 'om-btn';
+            paymentMode.isReadonly = true;
+            break;
+          case 'CB':
+            paymentMode.styleImageClass = 'cb';
+            paymentMode.styleBtnClass = 'cb-btn';
+            paymentMode.isReadonly = this.isReadonly;
+            break;
+          case 'MOOV':
+            paymentMode.styleImageClass = 'moov';
+            paymentMode.styleBtnClass = 'moov-btn';
+            paymentMode.isReadonly = this.isReadonly;
+            break;
+          case 'MTN':
+            paymentMode.styleImageClass = 'mtn';
+            paymentMode.styleBtnClass = 'mtn-btn';
+            paymentMode.isReadonly = this.isReadonly;
+            break;
+          case 'CH':
+            paymentMode.styleImageClass = 'cheque';
+            paymentMode.styleBtnClass = 'cheque-btn';
+            paymentMode.isReadonly = true;
+            break;
+          case 'VIREMENT':
+            paymentMode.styleImageClass = 'virement';
+            paymentMode.styleBtnClass = 'virement-btn';
+            paymentMode.isReadonly = this.isReadonly;
+            break;
+          default:
+            break;
+        }
+      });
+    }
+    return res;
   }
 
   private addTiersPayant(resp: IClientTiersPayant): void {
@@ -1815,7 +1682,19 @@ logger$.subscribe(evt => this.keys += evt.key);
       paidAmount: amount,
       netAmount: amount,
       paymentMode: SalesUpdateComponent.createPaymentMode(code),
-      montantVerse: this.montantCash ?? 0,
+      montantVerse: this.getCashAmount(),
+    };
+  }
+
+  private buildModePayment(mode: IPaymentMode): Payment {
+    this.entryAmount = this.getEntryAmount();
+    const amount = this.sale?.amountToBePaid! - (this.entryAmount - mode.amount);
+    return {
+      ...new Payment(),
+      paidAmount: amount,
+      netAmount: amount,
+      paymentMode: mode,
+      montantVerse: mode.amount,
     };
   }
 
@@ -1881,76 +1760,80 @@ logger$.subscribe(evt => this.keys += evt.key);
 
   private disableComptant(): void {
     this.naturesVentes = [
-      { code: 'COMPTANT', name: 'COMPTANT', disabled: true },
-      { code: 'ASSURANCE', name: 'ASSURANCE', disabled: false },
       {
-        code: 'CARNET',
-        name: 'CARNET',
+        code: this.COMPTANT,
+        name: this.COMPTANT,
+        disabled: true,
+      },
+      { code: this.ASSURANCE, name: this.ASSURANCE, disabled: false },
+      {
+        code: this.CARNET,
+        name: this.CARNET,
         disabled: false,
       },
     ];
   }
 
   private updateVNOQuantitySold(salesLine: ISalesLine): void {
-    this.salesService.updateItemQtySold(salesLine).subscribe(
-      () => {
+    this.salesService.updateItemQtySold(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
         }
       },
-      () => {
+      error: () => {
         this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
-      }
-    );
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+      },
+    });
   }
 
   private updateCarnetQuantitySold(salesLine: ISalesLine): void {
-    this.assuranceService.updateItemQtySold(salesLine).subscribe(
-      () => {
+    this.assuranceService.updateItemQtySold(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
         }
       },
-      () => {
+      error: () => {
         this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
-      }
-    );
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+      },
+    });
   }
 
   private updateVNOItemPrice(salesLine: ISalesLine): void {
-    this.salesService.updateItemPrice(salesLine).subscribe(
-      () => {
+    this.salesService.updateItemPrice(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
         }
       },
-      () => {
+      error: () => {
         this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
-      }
-    );
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+      },
+    });
   }
 
   private updateCarnetItemPrice(salesLine: ISalesLine): void {
-    this.assuranceService.updateItemPrice(salesLine).subscribe(
-      () => {
+    this.assuranceService.updateItemPrice(salesLine).subscribe({
+      next: () => {
         if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
         }
       },
-      () => {
+      error: () => {
         this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id!));
-      }
-    );
+        this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+      },
+    });
   }
 
   private removeItemFromVNO(id: number): void {
     this.salesService.deleteItem(id).subscribe(() => {
       if (this.sale) {
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
       }
     });
   }
@@ -1958,17 +1841,17 @@ logger$.subscribe(evt => this.keys += evt.key);
   private removeItemFromCarnet(id: number): void {
     this.assuranceService.deleteItem(id).subscribe(() => {
       if (this.sale) {
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
       }
     });
   }
 
   private updateVenteTiersPayant(id: number): void {
     if (this.sale) {
-      if (this.naturesVente?.code === 'CARNET' || this.naturesVente?.code === 'ASSURANCE') {
+      if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
         this.assuranceService.removeVenteTiersPayant(id, this.sale.id!).subscribe(() => {
           if (this.sale) {
-            this.subscribeToSaveResponse(this.salesService.find(this.sale.id!));
+            this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
           }
         });
       }
@@ -1977,63 +1860,33 @@ logger$.subscribe(evt => this.keys += evt.key);
 
   private resetNaturesVente(): void {
     this.naturesVentes = [
-      { code: 'COMPTANT', name: 'COMPTANT', disabled: false },
-      { code: 'ASSURANCE', name: 'ASSURANCE', disabled: false },
       {
-        code: 'CARNET',
-        name: 'CARNET',
+        code: this.COMPTANT,
+        name: this.COMPTANT,
+        disabled: false,
+      },
+      { code: this.ASSURANCE, name: this.ASSURANCE, disabled: false },
+      {
+        code: this.CARNET,
+        name: this.CARNET,
         disabled: false,
       },
     ];
-    this.naturesVente = { code: 'COMPTANT', name: 'COMPTANT', disabled: false };
+    this.naturesVente = { code: this.COMPTANT, name: this.COMPTANT, disabled: false };
   }
 
-  private setModeReglement(): void {
-    this.modeReglements = [
-      { code: 'CASH', libelle: 'ESPECE', disabled: false },
-      { code: 'OM', libelle: 'ORANGE', disabled: false },
-      { code: 'MTN', libelle: 'MTN', disabled: false },
-      { code: 'MOOV', libelle: 'MOOV', disabled: false },
-      { code: 'WAVE', libelle: 'WAVE', disabled: false },
-      { code: 'CB', libelle: 'CB', disabled: false },
-      { code: 'VIREMENT', libelle: 'VIREMENT', disabled: false },
-      { code: 'CH', libelle: 'CHEQUE', disabled: false },
-    ];
-  }
-
-  private resetModeReglement(): void {
-    this.setModeReglement();
-    this.modeReglementSelected = ['CASH'];
-    this.modeReglementEmitter.next('CASH');
-  }
-
-  private updateSelectedModeReglement(): void {
-    if (this.modeReglementSelected.length === this.maxModePayementNumber) {
-      this.modeReglements = [
-        { code: 'CASH', libelle: 'ESPECE', disabled: !this.modeReglementSelected.includes('CASH') },
-        { code: 'OM', libelle: 'ORANGE', disabled: !this.modeReglementSelected.includes('OM') },
-        { code: 'MTN', libelle: 'MTN', disabled: !this.modeReglementSelected.includes('MTN') },
-        { code: 'MOOV', libelle: 'MOOV', disabled: !this.modeReglementSelected.includes('MOOV') },
-        { code: 'WAVE', libelle: 'WAVE', disabled: !this.modeReglementSelected.includes('WAVE') },
-        { code: 'CB', libelle: 'CB', disabled: !this.modeReglementSelected.includes('CB') },
-        {
-          code: 'VIREMENT',
-          libelle: 'VIREMENT',
-          disabled: !this.modeReglementSelected.includes('VIREMENT'),
-        },
-        { code: 'CH', libelle: 'CHEQUE', disabled: !this.modeReglementSelected.includes('CH') },
-      ];
-    } else {
-      this.setModeReglement();
+  private updateSelectedModeReglement(mode: IPaymentMode): void {
+    if (this.modeReglementSelected.length < this.maxModePayementNumber) {
+      this.modeReglementSelected.push(mode);
     }
   }
 
   private checkEmptyBon(): boolean {
-    if (this.naturesVente !== 'ASSURANCE') return false;
+    if (this.naturesVente !== this.ASSURANCE) return false;
     if (!this.sansBon) return true;
     const emptyBon = (element: IClientTiersPayant) => {
       return element.numBon === undefined || element.numBon === null || element.numBon === '';
     };
-    return !!this.sale?.tiersPayants!.some(emptyBon);
+    return !!this.sale?.tiersPayants.some(emptyBon);
   }
 }

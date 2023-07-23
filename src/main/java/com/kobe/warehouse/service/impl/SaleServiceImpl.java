@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -196,13 +197,14 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     c.setAmountToBeTakenIntoAccount(0);
   }
 
+  private UninsuredCustomer getUninsuredCustomerById(Long id) {
+    return id != null ? uninsuredCustomerRepository.getReferenceById(id) : null;
+  }
+
   @Override
   public CashSaleDTO createCashSale(CashSaleDTO dto) {
     DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
-    UninsuredCustomer uninsuredCustomer =
-        dto.getCustomer() != null
-            ? uninsuredCustomerRepository.getReferenceById(dto.getCustomer().getId())
-            : null;
+    UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
     CashSale c = new CashSale();
     c.setDateDimension(dateDimension);
     c.setCustomer(uninsuredCustomer);
@@ -210,13 +212,13 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     c.setTypePrescription(dto.getTypePrescription());
     User user = storageService.getUser();
     User caissier = user;
-    if (user.getId().compareTo(dto.getCassier().getId()) != 0) {
-      caissier = userRepository.getReferenceById(dto.getCassier().getId());
+    if (user.getId().compareTo(dto.getCassierId()) != 0) {
+      caissier = userRepository.getReferenceById(dto.getCassierId());
     }
-    if (caissier.getId().compareTo(dto.getSeller().getId()) != 0) {
+    if (caissier.getId().compareTo(dto.getSellerId()) != 0) {
       c.setSeller(caissier);
     } else {
-      c.setSeller(userRepository.getReferenceById(dto.getSeller().getId()));
+      c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
     }
     c.setImported(false);
     c.setUser(user);
@@ -341,6 +343,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     ResponseDTO response = new ResponseDTO();
     Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     CashSale p = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
+    UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
+    if (Objects.nonNull(uninsuredCustomer)) {
+      p.setCustomer(uninsuredCustomer);
+    }
     salesLineService.createInventory(p.getSalesLines(), user, id);
     p.setStatut(SalesStatut.CLOSED);
     p.setStatutCaisse(SalesStatut.CLOSED);

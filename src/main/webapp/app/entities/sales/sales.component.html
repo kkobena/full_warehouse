@@ -1,323 +1,342 @@
-<p-confirmDialog [style]="{width: '40vw'}" #deleteVente key="deleteVente" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-                (click)="deleteVente.reject()"></button>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="deleteVente.accept()"></button>
-    </p-footer>
+<p-confirmDialog #deleteVente [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteVente">
+  <p-footer>
+    <button (click)="deleteVente.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="deleteVente.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
 
 </p-confirmDialog>
 
 <h4 id="page-heading">
-    <span>Liste des ventes terminées</span>
+  <span>Liste des ventes terminées</span>
 </h4>
 <p-toolbar>
-    <div class="p-toolbar-group-left p-md-8 sale-toolbar">
+  <div class="p-toolbar-group-left p-md-8 sale-toolbar">
 
 
-        <p-dropdown [options]="typeVentes" [(ngModel)]="typeVenteSelected" [filter]="false"
-                    (onChange)="onTypeVenteChange()" placeholder="Filtrer par critère"
-                    styleClass="dropdown-width" [style]="{'width':'115px'}" [panelStyle]="{'width':'115px'}">
-        </p-dropdown>
-        <p-divider layout="vertical"></p-divider>
+    <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [filter]="false"
+                [options]="typeVentes" [panelStyle]="{'width':'115px'}"
+                [style]="{'width':'115px'}" placeholder="Filtrer par critère"
+                styleClass="dropdown-width">
+    </p-dropdown>
+    <p-divider layout="vertical"></p-divider>
 
 
-        <span class="p-input-icon-left">
+    <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
-                                <input type="text" pInputText [(ngModel)]="search" placeholder="Recherge globale"
-                                       (keyup.enter)="onSearch()" class="toobar-input-search">
+                                <input (keyup.enter)="onSearch()" [(ngModel)]="search"
+                                       class="toobar-input-search"
+                                       pInputText
+                                       placeholder="Recherge globale" type="text">
                             </span>
-        <p-divider layout="vertical"></p-divider>
-        <p-checkbox [(ngModel)]="global" [binary]="true" label="Global"></p-checkbox>
+    <p-divider layout="vertical"></p-divider>
+    <p-checkbox [(ngModel)]="global" [binary]="true" label="Global"></p-checkbox>
 
 
-        <p-divider layout="vertical"></p-divider>
-        <label class="mr-sm-1">Du</label>
-        <p-calendar [(ngModel)]="fromDate" dateFormat="dd/mm/yy" [showButtonBar]="true" [selectOtherMonths]="true"
-                    [maxDate]="toDate"
-        >
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1">Du</label>
+    <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+    >
 
-        </p-calendar>
-        <p-divider layout="vertical"></p-divider>
-        <label class="mr-sm-1 ml-sm-1">Au</label>
-        <p-calendar [(ngModel)]="toDate" dateFormat="dd/mm/yy" [showButtonBar]="true" [selectOtherMonths]="true"
-                    [minDate]="fromDate"
-        ></p-calendar>
-        <p-divider layout="vertical"></p-divider>
-        <label class="mr-sm-1 ml-sm-1">De</label>
-        <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
-        <p-divider layout="vertical"></p-divider>
-        <label class="mr-sm-1 ml-sm-1">A</label>
-        <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
-        <p-divider layout="vertical"></p-divider>
+    </p-calendar>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">Au</label>
+    <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+    ></p-calendar>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">De</label>
+    <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">A</label>
+    <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
+    <p-divider layout="vertical"></p-divider>
 
-        <p-dropdown [options]="users" [(ngModel)]="user" optionLabel="fullName"
-                    (onChange)="onSelectUser()"></p-dropdown>
-    </div>
-    <div class="p-toolbar-group-right sale">
+    <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                optionLabel="fullName"></p-dropdown>
+  </div>
+  <div class="p-toolbar-group-right sale">
 
-<span class="p-buttonset" *ngIf="isLargeScreen;else actionBtnForSmallScreen">
-        <p-button icon="pi pi-search" styleClass="p-button-info" label="Rechercher"
-                  (click)="loadPage()"></p-button>
-        <p-splitButton icon="pi pi-upload" [model]="splitbuttons"
-                       styleClass="p-button-raised p-button-help" label="Exporter"
+<span *ngIf="isLargeScreen;else actionBtnForSmallScreen" class="p-buttonset">
+        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
+        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                       label="Exporter" styleClass="p-button-raised p-button-help"
         ></p-splitButton>
-        <p-button icon="pi pi-plus"
-                  styleClass="p-button-raised   p-button-danger " [routerLink]="['/sales', false, 'new']"
+        <p-button [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
                   label="Nouvelle vente"
+                  styleClass="p-button-raised   p-button-danger "
         >
         </p-button></span>
-        <ng-template #actionBtnForSmallScreen>
+    <ng-template #actionBtnForSmallScreen>
            <span class="p-buttonset">
-        <p-button icon="pi pi-search" styleClass="p-button-info" pTooltip="Rechercher"
-                  tooltipPosition="top" (click)="loadPage()"></p-button>
-        <p-splitButton icon="pi pi-upload" [model]="splitbuttons"
-                       styleClass="p-button-raised p-button-help" pTooltip="Exporter"
+        <p-button (click)="loadPage()" icon="pi pi-search" pTooltip="Rechercher"
+                  styleClass="p-button-info" tooltipPosition="top"></p-button>
+        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                       pTooltip="Exporter" styleClass="p-button-raised p-button-help"
                        tooltipPosition="top"></p-splitButton>
-        <p-button icon="pi pi-plus"
-                  styleClass="p-button-raised   p-button-danger " [routerLink]="['/sales', false, 'new']"
+        <p-button [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
                   pTooltip="Vouvelle vente"
+                  styleClass="p-button-raised   p-button-danger "
                   tooltipPosition="top">
         </p-button></span>
-        </ng-template>
-    </div>
+    </ng-template>
+  </div>
 </p-toolbar>
-<div class="alert alert-warning" id="no-result" *ngIf="sales?.length === 0">
-    <span>Aucune donnée trouvée</span>
+<div *ngIf="sales?.length === 0" class="alert alert-warning" id="no-result">
+  <span>Aucune donnée trouvée</span>
 </div>
-<p-table *ngIf="sales && sales.length > 0" [value]="sales" dataKey="id" styleClass="p-datatable-striped mt-2"
-         dataKey="id" [paginator]="true"
+<p-table (onLazyLoad)="lazyLoading($event)" *ngIf="sales && sales.length > 0"
+         [(selection)]="selectedEl"
+         [lazy]="true"
+         [loading]="loading" [paginator]="true"
+         [rowsPerPageOptions]="[5,10,15,20,30,50]"
          [rows]="itemsPerPage"
          [showCurrentPageReport]="true"
+         [totalRecords]="totalItems" [value]="sales"
          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
-         [rowsPerPageOptions]="[5,10,15,20,30,50]" selectionMode="single"
-         [lazy]="true"
-         [(selection)]="selectedEl"
-         [totalRecords]="totalItems"
-         [loading]="loading"
-         (onLazyLoad)="lazyLoading($event)"
+         dataKey="id"
+         dataKey="id"
+         selectionMode="single"
+         styleClass="p-datatable-striped mt-2"
 >
-    <ng-template pTemplate="header">
-        <tr>
-            <th style="width:3%"></th>
-            <th style="width:13%">Date</th>
-            <th style="width:9%">Référence</th>
-            <th style="width:7%">Nbre d'articles</th>
-            <th style="width:7%">Montant</th>
-            <th style="width:16%">Client</th>
-            <th style="width:17%">Vendeur</th>
-            <th style="width:17%">Caissier</th>
-            <th style="width:11%"></th>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-sale let-expanded="expanded">
-        <tr>
-            <td>
-                <button type="button" pButton pRipple [pRowToggler]="sale"
-                        class="p-button-text p-button-rounded p-button-plain"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-            </td>
-            <td>{{sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-            <td>{{sale.numberTransaction}}</td>
-            <td class="text-right">{{sale.salesLines.length |number}}</td>
-            <td class="text-right">{{sale.salesAmount |number}}</td>
-            <td>{{sale.customer?.fullName}}</td>
-            <td>{{sale.seller?.fullName}}</td>
-            <td>{{sale.cassier?.fullName}}</td>
-            <td class="text-center">
-                <div class="btn-group">
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width:3%"></th>
+      <th style="width:13%">Date</th>
+      <th style="width:9%">Référence</th>
+      <th style="width:7%">Nbre d'articles</th>
+      <th style="width:7%">Montant</th>
+      <th style="width:16%">Client</th>
+      <th style="width:17%">Vendeur</th>
+      <th style="width:17%">Caissier</th>
+      <th style="width:11%"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-expanded="expanded" let-sale pTemplate="body">
+    <tr>
+      <td>
+        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [pRowToggler]="sale" class="p-button-text p-button-rounded p-button-plain" pButton
+                pRipple
+                type="button"></button>
+      </td>
+      <td>{{sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+      <td>{{sale.numberTransaction}}</td>
+      <td class="text-right">{{sale.salesLines.length |number}}</td>
+      <td class="text-right">{{sale.salesAmount |number}}</td>
+      <td>{{sale.customer?.fullName}}</td>
+      <td>{{sale.seller?.abbrName}}</td>
+      <td>{{sale.cassier?.abbrName}}</td>
+      <td class="text-center">
+        <div class="btn-group">
 
-                    <button pButton pRipple icon="pi pi-pencil" *ngIf="canEdit"
-                            pTooltip="Editer" [routerLink]="['/sales', sale.id,false, 'edit']"
-                            class="p-button-rounded p-button-success p-button-sm">
+          <button *ngIf="canEdit" [routerLink]="['/sales', sale.id,false, 'edit']"
+                  class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
+                  pButton pRipple
+                  pTooltip="Editer">
 
-                    </button>
-                    <button pButton pRipple icon="pi pi-print"
-                            pTooltip="Imprimer" (click)="print(sale)"
-                            class="p-button-rounded p-button-secondary p-button-sm ml-2"></button>
-                    <button pButton pRipple icon="pi pi-trash"
-                            pTooltip="Annuler" (click)="confirmRemove(sale)"
-                            class="p-button-rounded p-button-danger p-button-sm ml-2"></button>
-                </div>
-            </td>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="rowexpansion" let-elRow>
-        <tr>
-            <td colspan="9">
-                <div class="card" *ngIf="elRow.categorie==='VNO';else ventVo">
-                    <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                    <div class="card-body">
-                        <p-table [value]="elRow.salesLines" dataKey="id" [paginator]="true" [rows]="10"
-                                 [showCurrentPageReport]="true"
-                                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                                 [rowsPerPageOptions]="[10,15,20,30,50]" selectionMode="single"  styleClass="p-datatable-striped rowexpansion-table"
-                        >
-
-                            <ng-template pTemplate="header">
-        <tr>
-            <th style="width:5%">
-                #
-            </th>
-            <th style="width:10%">CODE</th>
-            <th style="width:44%">LIBELLE</th>
-            <th style="width:8%">QTE.D</th>
-            <th style="width:8%">QTE.S</th>
-            <th style="width:9%">PU</th>
-            <th style="width:10%">TOTAL</th>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-saleLine let-rowIndex="rowIndex">
-        <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-            <td style="text-align: left;">{{rowIndex + 1}}</td>
-            <td>{{saleLine.code}}</td>
-            <td>{{saleLine.produitLibelle}}</td>
-            <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-            <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-            <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
-            <td style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
-
-        </tr>
-
-    </ng-template>
-</p-table>
-
-</div>
-</div>
-
-
-<ng-template #ventVo>
-    <div class="row">
-        <div class="col-6 vo-item">
-            <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-            <p-table [value]="elRow.salesLines" dataKey="id" [paginator]="true" [rows]="10"
+          </button>
+          <button (click)="print(sale)" class="p-button-rounded p-button-secondary p-button-sm ml-2"
+                  icon="pi pi-print"
+                  pButton pRipple
+                  pTooltip="Imprimer"></button>
+          <button (click)="confirmRemove(sale)"
+                  class="p-button-rounded p-button-danger p-button-sm ml-2" icon="pi pi-trash"
+                  pButton pRipple
+                  pTooltip="Annuler"></button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template let-elRow pTemplate="rowexpansion">
+    <tr>
+      <td colspan="9">
+        <div *ngIf="elRow.categorie==='VNO';else ventVo" class="card">
+          <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+          <div class="card-body">
+            <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
                      [showCurrentPageReport]="true"
+                     [value]="elRow.salesLines"
                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                     [rowsPerPageOptions]="[10,15,20,30,50]" selectionMode="single" styleClass="p-datatable-striped rowexpansion-table"
+                     dataKey="id" selectionMode="single"
+                     styleClass="p-datatable-striped rowexpansion-table"
             >
 
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th style="width:3%">
-                            #
-                        </th>
-                        <th style="width:12%">CODE</th>
-                        <th style="width:42%">LIBELLE</th>
-                        <th style="width:9%">QTE.D</th>
-                        <th style="width:9%">QTE.S</th>
-                        <th style="width:9%">PU</th>
-                        <th style="width:10%">TOTAL</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-saleLine let-rowIndex="rowIndex">
-                    <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                        <td style="text-align: left;">{{rowIndex + 1}}</td>
-                        <td>{{saleLine.code}}</td>
-                        <td>{{saleLine.produitLibelle}}</td>
-                        <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-                        <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-                        <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
-                        <td style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width:5%">
+                    #
+                  </th>
+                  <th style="width:10%">CODE</th>
+                  <th style="width:44%">LIBELLE</th>
+                  <th style="width:8%">QTE.D</th>
+                  <th style="width:8%">QTE.S</th>
+                  <th style="width:9%">PU</th>
+                  <th style="width:10%">TOTAL</th>
+                </tr>
+              </ng-template>
+              <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                  <td style="text-align: left;">{{rowIndex + 1}}</td>
+                  <td>{{saleLine.code}}</td>
+                  <td>{{saleLine.produitLibelle}}</td>
+                  <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
+                  <td class="text-right">  {{saleLine.quantitySold |number}}</td>
+                  <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
+                  <td
+                    style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
 
-                    </tr>
+                </tr>
 
-                </ng-template>
+              </ng-template>
             </p-table>
 
+          </div>
         </div>
 
-        <div class="col-6 vo-item">
-            <div class="card-header bg-secondary text-white">INFOS COMPLEMENTAIRES</div>
-            <table class="table table-bordered invoice-table">
+
+        <ng-template #ventVo>
+          <div class="row">
+            <div class="col-6 vo-item">
+              <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+              <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
+                       [showCurrentPageReport]="true"
+                       [value]="elRow.salesLines"
+                       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                       dataKey="id" selectionMode="single"
+                       styleClass="p-datatable-striped rowexpansion-table"
+              >
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width:3%">
+                      #
+                    </th>
+                    <th style="width:12%">CODE</th>
+                    <th style="width:42%">LIBELLE</th>
+                    <th style="width:9%">QTE.D</th>
+                    <th style="width:9%">QTE.S</th>
+                    <th style="width:9%">PU</th>
+                    <th style="width:10%">TOTAL</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                  <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                    <td style="text-align: left;">{{rowIndex + 1}}</td>
+                    <td>{{saleLine.code}}</td>
+                    <td>{{saleLine.produitLibelle}}</td>
+                    <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
+                    <td class="text-right">  {{saleLine.quantitySold |number}}</td>
+                    <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
+                    <td
+                      style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+
+                  </tr>
+
+                </ng-template>
+              </p-table>
+
+            </div>
+
+            <div class="col-6 vo-item">
+              <div class="card-header bg-secondary text-white">INFOS COMPLEMENTAIRES</div>
+              <table class="table table-bordered invoice-table">
                 <tbody>
                 <tr>
-                    <td class="firstColumn">
-                        MONTANT ASSURE
-                    </td>
-                    <td class="secondColumn">{{elRow?.partAssure |number}}
-                    </td>
+                  <td class="firstColumn">
+                    MONTANT ASSURE
+                  </td>
+                  <td class="secondColumn">{{elRow?.partAssure |number}}
+                  </td>
 
-                    <td class="firstColumn">
-                        MONTANT ASSURANCE
-                    </td>
-                    <td class="secondColumn">{{elRow?.partTiersPayant |number
-                        }}
-                    </td>
-
-                </tr>
-
-                <tr>
-                    <td class="firstColumn">
-                        MONTANT  TTC
-                    </td>
-                    <td class="secondColumn">{{elRow?.salesAmount  }}
-                    </td>
-                    <td class="firstColumn">
-                        MONTANT HT1
-                    </td>
-                    <td class="secondColumn">{{elRow?.htAmount | number }}
-                    </td>
+                  <td class="firstColumn">
+                    MONTANT ASSURANCE
+                  </td>
+                  <td class="secondColumn">{{elRow?.partTiersPayant |number
+                    }}
+                  </td>
 
                 </tr>
 
                 <tr>
-                    <td class="firstColumn">
-                        MONTANT TAXE
-                    </td>
-                    <td class="secondColumn">{{elRow?.taxAmount |number }}
-                    </td>
-                    <td class="firstColumn">
-                     REMISE
-                    </td>
-                    <td class="secondColumn">{{elRow?.discountAmount |number }}
-                    </td>
+                  <td class="firstColumn">
+                    MONTANT TTC
+                  </td>
+                  <td class="secondColumn">{{elRow?.salesAmount  }}
+                  </td>
+                  <td class="firstColumn">
+                    MONTANT HT1
+                  </td>
+                  <td class="secondColumn">{{elRow?.htAmount | number }}
+                  </td>
+
+                </tr>
+
+                <tr>
+                  <td class="firstColumn">
+                    MONTANT TAXE
+                  </td>
+                  <td class="secondColumn">{{elRow?.taxAmount |number }}
+                  </td>
+                  <td class="firstColumn">
+                    REMISE
+                  </td>
+                  <td class="secondColumn">{{elRow?.discountAmount |number }}
+                  </td>
 
                 </tr>
                 <tr>
-                    <td class="firstColumn">
-                        MONTANT A PAYER
-                    </td>
-                    <td class="secondColumn">{{elRow?.amountToBePaid| number }}
-                    </td>
-                    <td class="firstColumn">
-                        RESTE A PAYER
-                    </td>
-                    <td class="secondColumn">{{elRow?.restToPay }}
+                  <td class="firstColumn">
+                    MONTANT A PAYER
+                  </td>
+                  <td class="secondColumn">{{elRow?.amountToBePaid| number }}
+                  </td>
+                  <td class="firstColumn">
+                    RESTE A PAYER
+                  </td>
+                  <td class="secondColumn">{{elRow?.restToPay }}
 
-                    </td>
+                  </td>
                 </tr>
-                <tr   *ngFor="let tp of elRow?.thirdPartySaleLines; let i = index">
-                    <td class="firstColumn">
-                        {{tp?.tiersPayantFullName }}
-                    </td>
-                    <td class="secondColumn">{{tp?.taux +'%'}}
-                    </td>
-                    <td class="firstColumn">
-                       MONTANT
-                    </td>
-                    <td class="secondColumn">{{tp?.montant | number}}
+                <tr *ngFor="let tp of elRow?.thirdPartySaleLines; let i = index">
+                  <td class="firstColumn">
+                    {{tp?.tiersPayantFullName }}
+                  </td>
+                  <td class="secondColumn">{{tp?.taux + '%'}}
+                  </td>
+                  <td class="firstColumn">
+                    MONTANT
+                  </td>
+                  <td class="secondColumn">{{tp?.montant | number}}
 
-                    </td>
+                  </td>
                 </tr>
-                <tr   *ngFor="let payment of elRow?.payments; let i = index">
-                    <td class="firstColumn" colspan="3">
-                        {{payment?.paymentMode?.libelle }}
-                    </td>
+                <tr *ngFor="let payment of elRow?.payments; let i = index">
+                  <td class="firstColumn" colspan="3">
+                    {{payment?.paymentMode?.libelle }}
+                  </td>
 
-                    <td class="secondColumn">{{payment?.paidAmount | number}}
+                  <td class="secondColumn">{{payment?.paidAmount | number}}
 
-                    </td>
+                  </td>
                 </tr>
-
-
                 </tbody>
-            </table>
-        </div>
+              </table>
+            </div>
 
 
-    </div>
-</ng-template>
-</td>
-</tr>
-</ng-template>
+          </div>
+        </ng-template>
+      </td>
+    </tr>
+  </ng-template>
 </p-table>
 

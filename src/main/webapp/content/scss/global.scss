@@ -811,3 +811,21 @@ iconlist li .icon-holder .icon i {
   width: 150px;
   background: url('../images/moov150x50.png') no-repeat center center;
 }
+
+.customer-info {
+  margin: 0.2rem 0.5rem;
+
+  & > span {
+    span:first-child {
+      width: 130px;
+      display: inline-flex;
+
+    }
+
+    span:last-child {
+
+    }
+
+  }
+
+}

@@ -46,7 +46,11 @@ export class SalesService {
       .get<ISales>(`${this.resourceUrl}/${id}`, {observe: 'response'})
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
-
+  findForEdit(id: number): Observable<EntityResponseType> {
+    return this.http
+    .get<ISales>(`${this.resourceUrl}/edit/${id}`, {observe: 'response'})
+    .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http

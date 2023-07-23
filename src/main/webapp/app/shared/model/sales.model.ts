@@ -30,6 +30,8 @@ export interface ISales {
   seller?: IUser;
   user?: IUser;
   cassier?: IUser;
+  cassierId?: number;
+  sellerId?: number;
   type?: string;
   amountToBePaid?: number;
   categorie?: string;
@@ -64,6 +66,8 @@ export class Sales implements ISales {
     public customer?: ICustomer,
     public numberTransaction?: string,
     public customerId?: number,
+    public cassierId?: number,
+    public sellerId?: number,
     public natureVente?: string,
     public typePrescription?: string,
     public categorieVente?: string,

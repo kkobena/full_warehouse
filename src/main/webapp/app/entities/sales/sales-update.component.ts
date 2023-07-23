@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ActivatedRoute } from '@angular/router';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subscription } from 'rxjs';
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 import { ICustomer } from 'app/shared/model/customer.model';
@@ -73,7 +73,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   showInfosBancaire = false;
   showModeReglementCard = true;
   canForceStock = true;
-  showInfosComplementaireReglementCard = true;
+  showInfosComplementaireReglementCard = false;
   naturesVentes: INatureVente[] = [];
   naturesVente: INatureVente | null = null;
   users: IUser[];
@@ -82,7 +82,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   payments: IPayment[] = [];
   modeReglementSelected: IPaymentMode[] = [];
   cashModePayment: IPaymentMode | null;
-  modeReglementEmitter = new Subject<any>();
   userCaissier?: IUser | null;
   userSeller?: IUser;
   typePrescriptions: ITypePrescription[] = [];
@@ -117,6 +116,8 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   addOverlayPanel?: any;
   @ViewChild('forcerStockBtn', { static: false })
   forcerStockBtn?: ElementRef;
+  @ViewChild('addModePaymentConfirmDialogBtn', { static: false })
+  addModePaymentConfirmDialogBtn?: ElementRef;
   clientSearchValue?: string | null = null;
   clientBoxHeader = 'INFO CLIENT';
   stockSeverity = 'success';
@@ -161,6 +162,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   sansBon = false;
   isReadonly = false;
   canSaleWithoutSansBon = false;
+  showAddModePaimentBtn = false;
   selectedMode: IPaymentMode | null;
 
   constructor(
@@ -168,6 +170,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     protected customerService: CustomerService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
+    protected router: Router,
     protected modalService: NgbModal,
     protected userService: UserService,
     private accountService: AccountService,
@@ -244,6 +247,7 @@ logger$.subscribe(evt => this.keys += evt.key);
       { code: 'DEPOT', name: 'DEPÔT' },
     ];
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
+
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
         this.sale = sales;
@@ -251,7 +255,6 @@ logger$.subscribe(evt => this.keys += evt.key);
         this.customerSelected = sales.customer;
         this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
         this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
-        //  this.buildPaymentFromSale(sales);
       }
       if (!this.showStock) {
         if (this.remiseProduits.length === 0) {
@@ -270,6 +273,7 @@ logger$.subscribe(evt => this.keys += evt.key);
       this.loadProduits();
     });
     this.activatedRoute.paramMap.subscribe(params => {
+      console.warn(params);
       if (params.has('isPresale')) {
         this.isPresale = params.get('isPresale') === 'true';
       }
@@ -321,32 +325,17 @@ logger$.subscribe(evt => this.keys += evt.key);
     }
   }
 
-  computeAmounts(): void {
-    if (this.sale) {
-      let amountToBePaid = this.sale?.amountToBePaid ?? 0;
-      this.modeReglementSelected.forEach((paymentMode: IPaymentMode) => {
-        const restToPay = amountToBePaid - (paymentMode.amount ? paymentMode.amount : 0);
-      });
-    }
-
-    const input = this.getInputAtIndex(0);
-    console.log(input, 'on change');
-    if (input) {
-      input.focus();
-      // @ts-ignore
-      input.value = this.sale?.amountToBePaid ?? '';
-      input.select();
-    }
-  }
-
   focusLastAddInput(): void {
     const input = this.getInputAtIndex(null);
-    console.log(input, 'on change');
     if (input) {
       input.focus();
-      // @ts-ignore
-      input.value = this.sale?.restToPay ?? '';
-      input.select();
+      const secondInputDefaultAmount =
+        this.sale?.amountToBePaid - this.modeReglementSelected.find((e: IPaymentMode) => e.code !== input.id).amount;
+      this.modeReglementSelected.find((e: IPaymentMode) => e.code === input.id).amount = secondInputDefaultAmount;
+
+      setTimeout(() => {
+        input.select();
+      }, 50);
     }
   }
 
@@ -368,40 +357,41 @@ logger$.subscribe(evt => this.keys += evt.key);
     window.history.back();
   }
 
-  save(evt: any | null): void {
-    if (this.isPresale === false) {
-      this.isSaving = true;
-      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
-        this.saveCashSale();
-      } else {
-        this.saveAssuranceSale();
-      }
-    } else if (this.isPresale === true) {
-      this.isSaving = true;
-      this.putCurrentSaleOnHold();
-    }
+  onHidedisplayErrorEntryAmountModal(event: Event): void {
+    // this.montantCashInput?.nativeElement.focus();
   }
 
-  saveAssuranceSale(): void {
+  addModeConfirmDialog(): void {
+    this.confirmationService.confirm({
+      message: 'Voullez-vous ajouter un autre moyen  de payment',
+      header: "AJOUT D'UN AUTRE MOYEN DE PAYMENT",
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.addOverlayPanel.toggle(this.getAddModePaymentButton());
+      },
+      reject: () => {
+        this.displayErrorEntryAmountModal = true;
+        this.errorEntryAmountBtn?.nativeElement.focus();
+      },
+      key: 'addModePaymentConfirmDialog',
+    });
+    this.addModePaymentConfirmDialogBtn?.nativeElement.focus();
+  }
+
+  save(): void {
     if (this.sale) {
+      this.isSaving = true;
+      this.sale.customerId = this.customerSelected?.id;
       this.sale.differe = this.isDiffere;
-      this.sale.sansBon = this.sansBon;
-      this.sale.payments = this.buildPayment();
-      const thatentryAmount = this.getEntryAmount();
-      this.sale.tiersPayants = this.buildTiersPayants();
-      if (this.checkEmptyBon() && !this.canSaleWithoutSansBon) {
-        this.commonDialog = true;
-        this.commonDialogModalBtn?.nativeElement.focus();
-      } else {
-        this.computeMonnaie();
-        const restToPay = this.sale.amountToBePaid - thatentryAmount;
-        this.sale.type = 'VO';
+      if (this.isPresale === false) {
+        const thatentryAmount = this.getEntryAmount();
+        this.computeMonnaie(thatentryAmount);
+        const restToPay = this.sale?.amountToBePaid - thatentryAmount;
         this.sale.montantRendu = this.monnaie;
         this.sale.montantVerse = this.getCashAmount();
         if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
-          this.displayErrorEntryAmountModal = true;
-          this.errorEntryAmountBtn?.nativeElement.focus();
-        } else if (this.isDiffere && !this.customerSelected) {
+          this.addModeConfirmDialog();
+        } else if (this.isDiffere && !this.sale.customerId) {
           this.displayErrorModal = true;
           this.clientSearchModalBtn?.nativeElement.focus();
         } else {
@@ -413,39 +403,33 @@ logger$.subscribe(evt => this.keys += evt.key);
             this.sale.restToPay = restToPay;
           }
           this.sale.payments = this.buildPayment();
-          this.subscribeToFinalyseResponse(this.assuranceService.save(this.sale));
+          if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
+            this.saveCashSale();
+          } else {
+            this.saveAssuranceSale();
+          }
         }
+      } else if (this.isPresale === true) {
+        this.putCurrentSaleOnHold();
       }
     }
   }
 
-  saveCashSale(): void {
-    if (this.sale) {
-      this.sale.differe = this.isDiffere;
-      const thatentryAmount = this.getEntryAmount();
-      this.computeMonnaie();
-      const restToPay = this.sale?.amountToBePaid - thatentryAmount;
-      this.sale.type = 'VNO';
-      this.sale.montantRendu = this.monnaie;
-      this.sale.montantVerse = this.getCashAmount();
-      if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
-        this.displayErrorEntryAmountModal = true;
-        this.errorEntryAmountBtn?.nativeElement.focus();
-      } else if (this.isDiffere && !this.customerSelected) {
-        this.displayErrorModal = true;
-        this.clientSearchModalBtn?.nativeElement.focus();
-      } else {
-        if (restToPay <= 0) {
-          this.sale.payrollAmount = this.sale.amountToBePaid;
-          this.sale.restToPay = 0;
-        } else {
-          this.sale.payrollAmount = thatentryAmount;
-          this.sale.restToPay = restToPay;
-        }
-        this.sale.payments = this.buildPayment();
-        this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
-      }
+  saveAssuranceSale(): void {
+    this.sale.sansBon = this.sansBon;
+    this.sale.type = 'VO';
+    this.sale.tiersPayants = this.buildTiersPayants();
+    if (this.checkEmptyBon() && !this.canSaleWithoutSansBon) {
+      this.commonDialog = true;
+      this.commonDialogModalBtn?.nativeElement.focus();
+    } else {
+      this.subscribeToFinalyseResponse(this.assuranceService.save(this.sale));
     }
+  }
+
+  saveCashSale(): void {
+    this.sale.type = 'VNO';
+    this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
   }
 
   onHideClientErrorDialog(event: Event): void {
@@ -466,18 +450,11 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.displayErrorEntryAmountModal = false;
   }
 
-  onHidedisplayErrorEntryAmountModal(event: Event): void {
-    // this.montantCashInput?.nativeElement.focus();
-  }
-
   putCurrentSaleOnHold(): void {
-    if (this.sale) {
-      this.isSaving = true;
-      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
-        this.putCurrentCashSaleOnHold();
-      } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
-        this.putCurrentAssuranceSaleOnHold();
-      }
+    if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
+      this.putCurrentCashSaleOnHold();
+    } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
+      this.putCurrentAssuranceSaleOnHold();
     }
   }
 
@@ -561,36 +538,17 @@ logger$.subscribe(evt => this.keys += evt.key);
       }
     } else if (event.key === 'Enter' && this.sale && this.salesLines.length > 0) {
       if ((this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) && this.sale.amountToBePaid === 0) {
-        this.save(null);
+        this.save();
       } else {
         this.manageAmountDiv();
       }
     }
   }
 
-  montantCashInputAssignment(): void {
-    /* if (this.montantCashInput) {
-       this.entryAmount = this.getEntryAmount();
-       if (this.entryAmount) {
-         const restTopay = this.sale?.amountToBePaid! - this.entryAmount;
-         if (restTopay && restTopay > 0) {
-           this.montantCash = restTopay;
-         } else {
-           this.montantCash = 0;
-         }
-       } else {
-         this.montantCash = this.sale?.amountToBePaid;
-       }
-       this.montantCashInput.nativeElement.focus();
-       setTimeout(() => {
-         this.montantCashInput?.nativeElement.select();
-       }, 50);
-     }*/
-  }
-
   changePaimentMode(newPaymentMode: IPaymentMode): void {
     const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => (el.code = this.selectedMode?.code));
     this.modeReglementSelected[oldIndex] = newPaymentMode;
+    this.getReglements();
     this.updateComponent();
     setTimeout(() => {
       this.manageAmountDiv();
@@ -598,7 +556,6 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   updateComponent(): void {
-    this.getReglements();
     this.manageShowInfosComplementaireReglementCard();
     this.manageShowInfosBancaire();
   }
@@ -638,23 +595,14 @@ logger$.subscribe(evt => this.keys += evt.key);
     return item.id;
   }
 
-  onFilterTextBoxChanged(event: any): void {
-    this.searchValue = event.target.value;
-    this.loadProduits();
-  }
-
-  computeMonnaie(): void {
-    const thatentryAmount = this.getEntryAmount();
+  computeMonnaie(amount: number | null): void {
+    const thatentryAmount = amount || this.getEntryAmount();
     const thatMonnaie = thatentryAmount - this.sale?.amountToBePaid!;
     this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
   }
 
   getEntryAmount(): number {
-    return this.modeReglementSelected.reduce((sum, current) => sum + current.amount, 0);
-  }
-
-  onReglementInputChange(): void {
-    this.computeMonnaie();
+    return this.modeReglementSelected.reduce((sum, current) => sum + Number(current.amount), 0);
   }
 
   showInfoCustomer(): boolean {
@@ -745,7 +693,7 @@ logger$.subscribe(evt => this.keys += evt.key);
         }
       }
     }
-    this.computeMonnaie();
+    this.computeMonnaie(null);
   }
 
   openUninsuredCustomerListTable(customers: ICustomer[] | []): void {
@@ -758,6 +706,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.ref.onClose.subscribe((resp: ICustomer) => {
       if (resp) {
         this.customerSelected = resp;
+        this.produitbox.inputEL.nativeElement.focus();
       }
     });
   }
@@ -820,6 +769,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.ref.onClose.subscribe((resp: ICustomer) => {
       if (resp) {
         this.customerSelected = resp;
+        this.produitbox.inputEL.nativeElement.focus();
       }
     });
   }
@@ -1078,6 +1028,9 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.monnaie = 0;
     this.payments = [];
     this.sansBon = false;
+    this.isDiffere = false;
+    this.showAddModePaimentBtn = false;
+    this.updateComponent();
     this.updateProduitQtyBox();
     this.loadProduits();
   }
@@ -1095,49 +1048,28 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   buildPayment(): IPayment[] {
-    return this.modeReglementSelected.map((mode: IPaymentMode) => this.buildModePayment(mode));
-    /* this.modeReglementSelected.forEach((mode: IPaymentMode) => {
-       this.payments.push(this.buildModePayment(mode));
-     });*/
+    return this.modeReglementSelected.filter((m: IPaymentMode) => m.amount).map((mode: IPaymentMode) => this.buildModePayment(mode));
   }
 
   buildPaymentFromSale(sale: ISales): void {
     sale.payments?.forEach(payment => {
       if (payment.paymentMode) {
         const code = payment.paymentMode.code;
-        //  this.modeReglementSelected.push(code);
-        /* if (code === 'CASH') {
-           this.montantCash = payment.netAmount;
-         } else if (code === 'OM') {
-           this.montantOrange = payment.netAmount;
-         } else if (code === 'CB') {
-           this.montantCb = payment.netAmount;
-         } else if (code === 'CH') {
-           this.montantCheque = payment.netAmount;
-         } else if (code === 'VIREMENT') {
-           this.montantVirement = payment.netAmount;
-         } else if (code === 'WAVE') {
-           this.montantWave = payment.netAmount;
-         } else if (code === 'MOOV') {
-           this.montantMoov = payment.netAmount;
-         } else if (code === 'MTN') {
-           this.montantMtn = payment.netAmount;
-         }*/
       }
     });
-    this.modeReglementEmitter.next(1);
   }
 
   loadUninsuredCustomers(): void {
     if (this.clientSearchValue) {
       this.spinner.show('salespinner');
-      this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe(
-        res => {
+      this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe({
+        next: (res: HttpResponse<ICustomer[]>) => {
           this.spinner.hide('salespinner');
           const uninsuredCustomers = res.body;
           if (uninsuredCustomers && uninsuredCustomers.length > 0) {
             if (uninsuredCustomers.length === 1) {
               this.customerSelected = uninsuredCustomers[0];
+              this.produitbox.inputEL.nativeElement.focus();
             } else {
               this.openUninsuredCustomerListTable(uninsuredCustomers);
             }
@@ -1148,10 +1080,10 @@ logger$.subscribe(evt => this.keys += evt.key);
             this.clientSearchValue = null;
           }
         },
-        () => {
+        error: () => {
           this.spinner.hide('salespinner');
-        }
-      );
+        },
+      });
     }
   }
 
@@ -1163,8 +1095,8 @@ logger$.subscribe(evt => this.keys += evt.key);
           search: this.clientSearchValue,
           typeTiersPayant: this.naturesVente?.code,
         })
-        .subscribe(
-          res => {
+        .subscribe({
+          next: (res: HttpResponse<ICustomer[]>) => {
             this.spinner.hide('salespinner');
             const assuredCustomers = res.body;
             if (assuredCustomers && assuredCustomers.length > 0) {
@@ -1183,10 +1115,10 @@ logger$.subscribe(evt => this.keys += evt.key);
               this.clientSearchValue = null;
             }
           },
-          () => {
+          error: () => {
             this.spinner.hide('salespinner');
-          }
-        );
+          },
+        });
     }
   }
 
@@ -1293,8 +1225,17 @@ logger$.subscribe(evt => this.keys += evt.key);
     });
   }
 
-  manageCashPaymentMode(evt: any): void {
-    this.onReglementInputChange();
+  manageCashPaymentMode(evt: any, modePay: IPaymentMode): void {
+    if (this.modeReglementSelected.length === 2) {
+      const secondInputDefaultAmount = this.sale?.amountToBePaid - modePay.amount; /* Number(evt.target.value)*/
+      this.modeReglementSelected.find((e: IPaymentMode) => e.code !== evt.target.id).amount = secondInputDefaultAmount;
+      const amount = this.getEntryAmount();
+
+      this.computeMonnaie(amount);
+    } else {
+      this.computeMonnaie(null);
+    }
+    this.showAddModePaymentButton(modePay);
   }
 
   loadPaymentMode(): void {
@@ -1306,14 +1247,6 @@ logger$.subscribe(evt => this.keys += evt.key);
         this.cashModePayment = this.modeReglements.find(mode => mode.code === 'CASH');
         this.buildReglementInput();
       });
-  }
-
-  isAlreadySelected(modePayment: IPaymentMode): boolean {
-    return this.modeReglementSelected.some((e: IPaymentMode) => e.code === modePayment.code);
-  }
-
-  modeReglementDivRation(): string {
-    return this.modeReglementSelected.length === 1 ? ' mode-reglement-icon col-md-12' : ' mode-reglement-icon col-md-6';
   }
 
   buildReglementInput(): void {
@@ -1332,6 +1265,7 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   resetCashInput(): void {
+    this.modeReglementSelected = [];
     this.modeReglementSelected[0] = this.cashModePayment;
     this.modeReglementSelected[0].amount = null;
   }
@@ -1364,13 +1298,18 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.addOverlayPanel.toggle(evt);
   }
 
+  showAddModePaymentButton(mode: IPaymentMode): void {
+    this.showAddModePaimentBtn = this.modeReglementSelected.length < this.maxModePayementNumber && mode.amount < this.sale?.amountToBePaid;
+  }
+
   onRemovePaymentModeToggle(old: IPaymentMode, evt: any): void {
-    this.onModeBtnClick(old);
     if (this.modeReglementSelected.length === 1) {
+      this.onModeBtnClick(old);
       this.removeOverlayPanel.toggle(evt);
     } else {
-      const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => (el.code = this.selectedMode?.code));
+      const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => el.code === old.code);
       this.modeReglementSelected.splice(oldIndex, 1);
+      this.showAddModePaymentButton(this.modeReglementSelected[0]);
     }
   }
 
@@ -1383,6 +1322,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     if (this.modeReglementSelected.length < this.maxModePayementNumber) {
       this.modeReglementSelected[this.modeReglementSelected.length++] = newMode;
       this.addOverlayPanel.hide();
+      this.getReglements();
       this.updateComponent();
       setTimeout(() => {
         this.focusLastAddInput();
@@ -1485,7 +1425,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.isSaving = false;
     this.sale = sale!;
     this.salesLines = this.sale.salesLines!;
-    this.computeMonnaie();
+    this.computeMonnaie(null);
     this.updateProduitQtyBox();
   }
 
@@ -1617,8 +1557,14 @@ logger$.subscribe(evt => this.keys += evt.key);
     return Array.from(inputs);
   }
 
+  private getAddModePaymentButton(): HTMLInputElement {
+    const inputs = this.document.querySelectorAll('.add-mode-payment-btn')[0] as HTMLInputElement;
+    return inputs;
+  }
+
   private convertPaymentMode(res: HttpResponse<IPaymentMode[]>): HttpResponse<IPaymentMode[]> {
     if (res.body) {
+      this.isReadonly = this.modeReglementSelected.length > 1;
       res.body.forEach((paymentMode: IPaymentMode) => {
         paymentMode.disabled = false;
         switch (paymentMode.code) {
@@ -1675,19 +1621,8 @@ logger$.subscribe(evt => this.keys += evt.key);
     });
   }
 
-  private createPayment(montant: number, code: string): Payment {
-    this.entryAmount = this.getEntryAmount();
-    const amount = this.sale?.amountToBePaid! - (this.entryAmount - montant);
-    return {
-      ...new Payment(),
-      paidAmount: amount,
-      netAmount: amount,
-      paymentMode: SalesUpdateComponent.createPaymentMode(code),
-      montantVerse: this.getCashAmount(),
-    };
-  }
-
   private buildModePayment(mode: IPaymentMode): Payment {
+    console.warn(mode);
     this.entryAmount = this.getEntryAmount();
     const amount = this.sale?.amountToBePaid! - (this.entryAmount - mode.amount);
     return {
@@ -1703,11 +1638,13 @@ logger$.subscribe(evt => this.keys += evt.key);
     return {
       ...new Sales(),
       salesLines: [this.createSalesLine(produit, quantitySold)],
-      customer: this.customerSelected!,
+      customerId: this.customerSelected?.id,
       natureVente: this.naturesVente?.code,
       typePrescription: this.typePrescription?.code,
-      cassier: this.userCaissier!,
-      seller: this.userSeller!,
+      //cassier: this.userCaissier!,
+      //  seller: this.userSeller!,
+      cassierId: this.userCaissier.id,
+      sellerId: this.userSeller.id,
       type: 'VNO',
       categorie: 'VNO',
     };
@@ -1736,11 +1673,11 @@ logger$.subscribe(evt => this.keys += evt.key);
     return {
       ...new Sales(),
       salesLines: [this.createSalesLine(produit, quantitySold)],
-      customer: this.customerSelected!,
+      customerId: this.customerSelected.id,
       natureVente: this.naturesVente?.code,
       typePrescription: this.typePrescription?.code,
-      cassier: this.userCaissier!,
-      seller: this.userSeller!,
+      cassierId: this.userCaissier.id,
+      sellerId: this.userSeller.id,
       type: 'VO',
       categorie: 'VO',
       tiersPayants: this.buildTiersPayants(),
@@ -1765,13 +1702,13 @@ logger$.subscribe(evt => this.keys += evt.key);
         code: this.COMPTANT,
         name: this.COMPTANT,
         disabled: true,
-      },
+      } /*,
       { code: this.ASSURANCE, name: this.ASSURANCE, disabled: false },
       {
         code: this.CARNET,
         name: this.CARNET,
         disabled: false,
-      },
+      },*/,
     ];
   }
 
@@ -1866,12 +1803,12 @@ logger$.subscribe(evt => this.keys += evt.key);
         name: this.COMPTANT,
         disabled: false,
       },
-      { code: this.ASSURANCE, name: this.ASSURANCE, disabled: false },
-      {
-        code: this.CARNET,
-        name: this.CARNET,
-        disabled: false,
-      },
+      /* { code: this.ASSURANCE, name: this.ASSURANCE, disabled: false },
+       {
+         code: this.CARNET,
+         name: this.CARNET,
+         disabled: false,
+       },*/
     ];
     this.naturesVente = { code: this.COMPTANT, name: this.COMPTANT, disabled: false };
   }

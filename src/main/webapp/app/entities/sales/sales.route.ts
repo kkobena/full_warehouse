@@ -20,13 +20,13 @@ export class SalesResolve implements Resolve<ISales> {
   resolve(route: ActivatedRouteSnapshot): Observable<ISales> | Observable<never> {
     const id = route.params['id'];
     if (id) {
-      return this.service.find(id).pipe(
+      return this.service.findForEdit(id).pipe(
         switchMap((sales: HttpResponse<Sales>) => {
           if (sales.body) {
             return of(sales.body);
           } else {
-            this.router.navigate(['404']);
-            return EMPTY;
+            return of(new Sales());
+
           }
         })
       );

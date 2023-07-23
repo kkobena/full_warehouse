@@ -7,9 +7,10 @@ import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * REST controller for managing {@link Sales}.
@@ -78,7 +75,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/save")
-    public ResponseEntity<ResponseDTO> closeCashSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) throws URISyntaxException {
+    public ResponseEntity<ResponseDTO> closeSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) throws URISyntaxException {
         if (thirdPartySaleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }

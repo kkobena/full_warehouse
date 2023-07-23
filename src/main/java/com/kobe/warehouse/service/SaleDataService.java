@@ -209,7 +209,7 @@ public class SaleDataService {
     }
   }
 
-  public SaleDTO purchaseBy(Long id) {
+  public SaleDTO fetchPurchaseBy(Long id) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
     Root<Sales> root = cq.from(Sales.class);
@@ -226,6 +226,28 @@ public class SaleDataService {
     } else {
       return new SaleDTO(sales);
     }
+  }
+
+  public Optional<SaleDTO> fetchPurchaseForEditBy(Long id) {
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
+    Root<Sales> root = cq.from(Sales.class);
+    root.fetch("salesLines", JoinType.LEFT);
+    root.fetch("payments", JoinType.LEFT);
+    cq.select(root).distinct(true);
+    List<Predicate> predicates = new ArrayList<>();
+    predicates.add(cb.equal(root.get("id"), id));
+    cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+    TypedQuery<Sales> q = em.createQuery(cq);
+    Sales sales = q.getSingleResult();
+    if (sales.getStatut() == SalesStatut.ACTIVE) {
+      if (sales instanceof ThirdPartySales) {
+        return Optional.of(buildFromEntity((ThirdPartySales) sales));
+      } else {
+        return Optional.of(new SaleDTO(sales));
+      }
+    }
+    return Optional.empty();
   }
 
   @Transactional(readOnly = true)

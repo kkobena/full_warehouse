@@ -3,7 +3,7 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,7 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "ajust")
 public class Ajust implements Serializable {
@@ -25,7 +27,7 @@ public class Ajust implements Serializable {
     private Long id;
     @NotNull
     @Column(name = "date_mtv", nullable = false)
-    private Instant dateMtv = Instant.now();
+    private LocalDateTime dateMtv = LocalDateTime.now();
     @ManyToOne(optional = false)
     @NotNull
     private DateDimension dateDimension;
@@ -42,24 +44,12 @@ public class Ajust implements Serializable {
     @Column(name = "commentaire")
     private String commentaire;
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
 
-    public SalesStatut getStatut() {
-        return statut;
-    }
-
     public void setStatut(SalesStatut statut) {
         this.statut = statut;
-    }
-
-    public String getCommentaire() {
-        return commentaire;
     }
 
     public Ajust setCommentaire(String commentaire) {
@@ -67,32 +57,16 @@ public class Ajust implements Serializable {
         return this;
     }
 
-    public Instant getDateMtv() {
-        return dateMtv;
-    }
-
-    public void setDateMtv(Instant dateMtv) {
+    public void setDateMtv(LocalDateTime dateMtv) {
         this.dateMtv = dateMtv;
-    }
-
-    public DateDimension getDateDimension() {
-        return dateDimension;
     }
 
     public void setDateDimension(DateDimension dateDimension) {
         this.dateDimension = dateDimension;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Storage getStorage() {
-        return storage;
     }
 
     public Ajust setStorage(Storage storage) {

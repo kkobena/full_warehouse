@@ -13,10 +13,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /**
  * A DateDimension.
  */
+@Getter
 @Entity
 @Table(name = "date_dimension")
 public class DateDimension implements Serializable {
@@ -118,8 +120,7 @@ public class DateDimension implements Serializable {
     @Column(name = "same_day_year_ago_date", nullable = false)
     private LocalDate sameDayYearAgoDate;
 
-    @OneToMany(mappedBy = "dateDimension")
-    private Set<StoreInventory> storeInventories = new HashSet<>();
+
 
     @OneToMany(mappedBy = "dateDimension")
     private Set<Commande> commandes = new HashSet<>();
@@ -134,10 +135,6 @@ public class DateDimension implements Serializable {
     private List<Decondition> deconditions = new ArrayList<>();
 
 
-    public Integer getDateKey() {
-        return dateKey;
-    }
-
     public void setDateKey(Integer dateKey) {
         this.dateKey = dateKey;
     }
@@ -145,10 +142,6 @@ public class DateDimension implements Serializable {
     public DateDimension dateKey(Integer dateKey) {
         this.dateKey = dateKey;
         return this;
-    }
-
-    public LocalDate getFullDate() {
-        return fullDate;
     }
 
     public void setFullDate(LocalDate fullDate) {
@@ -160,10 +153,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getDayOfWeek() {
-        return dayOfWeek;
-    }
-
     public void setDayOfWeek(Integer dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
@@ -171,10 +160,6 @@ public class DateDimension implements Serializable {
     public DateDimension dayOfWeek(Integer dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
         return this;
-    }
-
-    public Integer getDayNumInMonth() {
-        return dayNumInMonth;
     }
 
     public void setDayNumInMonth(Integer dayNumInMonth) {
@@ -186,10 +171,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getDayNumOverall() {
-        return dayNumOverall;
-    }
-
     public void setDayNumOverall(Integer dayNumOverall) {
         this.dayNumOverall = dayNumOverall;
     }
@@ -197,10 +178,6 @@ public class DateDimension implements Serializable {
     public DateDimension dayNumOverall(Integer dayNumOverall) {
         this.dayNumOverall = dayNumOverall;
         return this;
-    }
-
-    public String getDayName() {
-        return dayName;
     }
 
     public void setDayName(String dayName) {
@@ -212,10 +189,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public String getDayAbbrev() {
-        return dayAbbrev;
-    }
-
     public void setDayAbbrev(String dayAbbrev) {
         this.dayAbbrev = dayAbbrev;
     }
@@ -225,24 +198,12 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public String getWeekdayFlag() {
-        return weekdayFlag;
-    }
-
     public void setWeekdayFlag(String weekdayFlag) {
         this.weekdayFlag = weekdayFlag;
     }
 
-    public String getLastDayInMonthFlag() {
-        return lastDayInMonthFlag;
-    }
-
     public void setLastDayInMonthFlag(String lastDayInMonthFlag) {
         this.lastDayInMonthFlag = lastDayInMonthFlag;
-    }
-
-    public Integer getWeekNumInYear() {
-        return weekNumInYear;
     }
 
     public void setWeekNumInYear(Integer weekNumInYear) {
@@ -254,10 +215,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getWeekNumOverall() {
-        return weekNumOverall;
-    }
-
     public void setWeekNumOverall(Integer weekNumOverall) {
         this.weekNumOverall = weekNumOverall;
     }
@@ -265,10 +222,6 @@ public class DateDimension implements Serializable {
     public DateDimension weekNumOverall(Integer weekNumOverall) {
         this.weekNumOverall = weekNumOverall;
         return this;
-    }
-
-    public LocalDate getWeekBeginDate() {
-        return weekBeginDate;
     }
 
     public void setWeekBeginDate(LocalDate weekBeginDate) {
@@ -280,10 +233,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getWeekBeginDateKey() {
-        return weekBeginDateKey;
-    }
-
     public void setWeekBeginDateKey(Integer weekBeginDateKey) {
         this.weekBeginDateKey = weekBeginDateKey;
     }
@@ -291,10 +240,6 @@ public class DateDimension implements Serializable {
     public DateDimension weekBeginDateKey(Integer weekBeginDateKey) {
         this.weekBeginDateKey = weekBeginDateKey;
         return this;
-    }
-
-    public Integer getMonth() {
-        return month;
     }
 
     public void setMonth(Integer month) {
@@ -306,10 +251,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getMonthNumOverall() {
-        return monthNumOverall;
-    }
-
     public void setMonthNumOverall(Integer monthNumOverall) {
         this.monthNumOverall = monthNumOverall;
     }
@@ -317,10 +258,6 @@ public class DateDimension implements Serializable {
     public DateDimension monthNumOverall(Integer monthNumOverall) {
         this.monthNumOverall = monthNumOverall;
         return this;
-    }
-
-    public String getMonthName() {
-        return monthName;
     }
 
     public void setMonthName(String monthName) {
@@ -332,10 +269,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public String getMonthAbbrev() {
-        return monthAbbrev;
-    }
-
     public void setMonthAbbrev(String monthAbbrev) {
         this.monthAbbrev = monthAbbrev;
     }
@@ -343,10 +276,6 @@ public class DateDimension implements Serializable {
     public DateDimension monthAbbrev(String monthAbbrev) {
         this.monthAbbrev = monthAbbrev;
         return this;
-    }
-
-    public Integer getQuarter() {
-        return quarter;
     }
 
     public void setQuarter(Integer quarter) {
@@ -358,10 +287,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getYear() {
-        return year;
-    }
-
     public void setYear(Integer year) {
         this.year = year;
     }
@@ -369,10 +294,6 @@ public class DateDimension implements Serializable {
     public DateDimension year(Integer year) {
         this.year = year;
         return this;
-    }
-
-    public Integer getYearmo() {
-        return yearmo;
     }
 
     public void setYearmo(Integer yearmo) {
@@ -384,10 +305,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getFiscalMonth() {
-        return fiscalMonth;
-    }
-
     public void setFiscalMonth(Integer fiscalMonth) {
         this.fiscalMonth = fiscalMonth;
     }
@@ -395,10 +312,6 @@ public class DateDimension implements Serializable {
     public DateDimension fiscalMonth(Integer fiscalMonth) {
         this.fiscalMonth = fiscalMonth;
         return this;
-    }
-
-    public Integer getFiscalQuarter() {
-        return fiscalQuarter;
     }
 
     public void setFiscalQuarter(Integer fiscalQuarter) {
@@ -410,10 +323,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Integer getFiscalYear() {
-        return fiscalYear;
-    }
-
     public void setFiscalYear(Integer fiscalYear) {
         this.fiscalYear = fiscalYear;
     }
@@ -421,10 +330,6 @@ public class DateDimension implements Serializable {
     public DateDimension fiscalYear(Integer fiscalYear) {
         this.fiscalYear = fiscalYear;
         return this;
-    }
-
-    public LocalDate getSameDayYearAgoDate() {
-        return sameDayYearAgoDate;
     }
 
     public void setSameDayYearAgoDate(LocalDate sameDayYearAgoDate) {
@@ -436,34 +341,6 @@ public class DateDimension implements Serializable {
         return this;
     }
 
-    public Set<StoreInventory> getStoreInventories() {
-        return storeInventories;
-    }
-
-    public void setStoreInventories(Set<StoreInventory> storeInventories) {
-        this.storeInventories = storeInventories;
-    }
-
-    public DateDimension storeInventories(Set<StoreInventory> storeInventories) {
-        this.storeInventories = storeInventories;
-        return this;
-    }
-
-    public DateDimension addStoreInventory(StoreInventory storeInventory) {
-        storeInventories.add(storeInventory);
-        storeInventory.setDateDimension(this);
-        return this;
-    }
-
-    public DateDimension removeStoreInventory(StoreInventory storeInventory) {
-        storeInventories.remove(storeInventory);
-        storeInventory.setDateDimension(null);
-        return this;
-    }
-
-    public Set<Commande> getCommandes() {
-        return commandes;
-    }
 
     public void setCommandes(Set<Commande> commandes) {
         this.commandes = commandes;
@@ -487,10 +364,6 @@ public class DateDimension implements Serializable {
     }
 
 
-    public Set<Payment> getPayments() {
-        return payments;
-    }
-
     public void setPayments(Set<Payment> payments) {
         this.payments = payments;
     }
@@ -513,10 +386,6 @@ public class DateDimension implements Serializable {
     }
 
 
-    public Set<Sales> getSales() {
-        return sales;
-    }
-
     public void setSales(Set<Sales> sales) {
         this.sales = sales;
     }
@@ -536,10 +405,6 @@ public class DateDimension implements Serializable {
         this.sales.remove(sales);
         sales.setDateDimension(null);
         return this;
-    }
-
-    public List<Decondition> getDeconditions() {
-        return deconditions;
     }
 
     public void setDeconditions(List<Decondition> deconditions) {

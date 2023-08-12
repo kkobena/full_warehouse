@@ -31,7 +31,7 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -186,7 +186,7 @@ public class ImportationProduitService {
         produit.setTypeProduit(TypeProduit.DETAIL);
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCreatedAt(Instant.now());
+        produit.setCreatedAt(LocalDateTime.now());
         produit.setParent(parent);
         produit.setUpdatedAt(produit.getCreatedAt());
         produit.setCostAmount(produitDTO.getCostAmount());
@@ -233,7 +233,7 @@ public class ImportationProduitService {
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setTypeProduit(TypeProduit.PACKAGE);
-        produit.setCreatedAt(Instant.now());
+        produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(produit.getCreatedAt());
         produit.setCostAmount(produitDTO.getCostAmount());
         produit.setItemCostAmount(produitDTO.getItemCostAmount());
@@ -299,8 +299,8 @@ public class ImportationProduitService {
             .qtyStock(p.getTotalQuantity())
             .qtyUG(p.getQtyUG()).
             qtyVirtual(p.getTotalQuantity())
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
             .setStorage(storage);
     }
 
@@ -313,8 +313,8 @@ public class ImportationProduitService {
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setPrincipal(p.isPrincipal());
         fournisseurProduit.setCodeCip(p.getCodeCip());
-        fournisseurProduit.setCreatedAt(Instant.now());
-        fournisseurProduit.setUpdatedAt(Instant.now());
+        fournisseurProduit.setCreatedAt(LocalDateTime.now());
+        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         return fournisseurProduit;
     }
 
@@ -322,7 +322,7 @@ public class ImportationProduitService {
         Importation importation = new Importation();
         importation.setImportationStatus(ImportationStatus.PROCESSING);
         importation.setImportationType(ImportationType.STOCK_PRODUIT);
-        importation.setCreated(Instant.now());
+        importation.setCreated(LocalDateTime.now());
         importation.setUser(user);
         return importation;
     }
@@ -350,7 +350,7 @@ public class ImportationProduitService {
                     Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
                         ImportationType.STOCK_PRODUIT);
                     if (importation != null) {
-                        importation.setUpdated(Instant.now());
+                        importation.setUpdated(LocalDateTime.now());
                         importation.setSize(size);
                         importation.setErrorSize(errorSize);
                         importation.setImportationStatus(

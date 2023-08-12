@@ -15,6 +15,7 @@ export interface IInventoryTransaction {
   quantityAfter?: number;
   produit?: IProduit;
   user?: User;
+  abbrName?: string;
 }
 
 export class InventoryTransaction implements IInventoryTransaction {
@@ -28,6 +29,7 @@ export class InventoryTransaction implements IInventoryTransaction {
     public quantityBefor?: number,
     public quantityAfter?: number,
     public produit?: IProduit,
-    public user?: User
+    public user?: User,
+    public abbrName?: string
   ) {}
 }

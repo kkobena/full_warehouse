@@ -16,17 +16,16 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.web.rest.errors.GenericError;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -82,14 +81,14 @@ public class OrderLineServiceImpl implements OrderLineService {
           .getParcoursProduits()
           .add(new ParcoursProduit().setEvtDate(LocalDate.now()).setProduitStatut(produitStatut));
     }*/
-        produit.setUpdatedAt(Instant.now());
+        produit.setUpdatedAt(LocalDateTime.now());
     }
 
     @Override
     public OrderLine buildOrderLine(
         OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit) {
         OrderLine orderLine = new OrderLine();
-        orderLine.createdAt(Instant.now());
+        orderLine.createdAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setInitStock(orderLineDTO.getTotalQuantity());
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
@@ -114,7 +113,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
         orderLine.setOrderAmount(orderLine.getRegularUnitPrice() * orderLine.getQuantityRequested());
         orderLine.setGrossAmount(orderLine.getCostAmount() * orderLine.getQuantityRequested());
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
     }
@@ -125,13 +124,13 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(orderLine.getQuantityRequested() + quantityRequested);
         orderLine.setOrderAmount(orderLine.getRegularUnitPrice() * orderLine.getQuantityRequested());
         orderLine.setGrossAmount(orderLine.getCostAmount() * orderLine.getQuantityRequested());
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
     }
 
     @Override
     public void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived) {
         orderLine.setQuantityReceived(quantityReceived);
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.save(orderLine);
     }
 
@@ -139,7 +138,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     public void updateOrderLineQuantityUG(Long id, int quantityUg) {
         OrderLine orderLine = orderLineRepository.getReferenceById(id);
         orderLine.setQuantityUg(quantityUg);
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.save(orderLine);
     }
 
@@ -164,7 +163,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderUnitPrice(orderLineDTO.getOrderUnitPrice());
         orderLine.setOrderAmount(orderLineDTO.getOrderUnitPrice() * orderLine.getQuantityRequested());
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
     }
@@ -175,7 +174,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderCostAmount(orderLineDTO.getOrderCostAmount());
         orderLine.setGrossAmount(orderLine.getOrderCostAmount() * orderLine.getQuantityRequested());
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
     }
@@ -205,8 +204,8 @@ public class OrderLineServiceImpl implements OrderLineService {
         return fournisseurProduitService.createNewFournisseurProduit(
             new FournisseurProduitDTO()
                 .setCodeCip(fournisseurProduit.getCodeCip())
-                .setCreatedAt(Instant.now())
-                .setUpdatedAt(Instant.now())
+                .setCreatedAt(LocalDateTime.now())
+                .setUpdatedAt(LocalDateTime.now())
                 .setFournisseurId(orderLineDTO.getCommande().getFournisseur().getId())
                 .setPrincipal(false)
                 .setPrixAchat(fournisseurProduit.getPrixAchat())
@@ -242,7 +241,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         fournisseurProduitService.updateCip(
             orderLineDTO.getProduitCip(), orderLine.getFournisseurProduit());
         orderLine.setProvisionalCode(Boolean.FALSE);
-        orderLine.setUpdatedAt(Instant.now());
+        orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.save(orderLine);
     }
 

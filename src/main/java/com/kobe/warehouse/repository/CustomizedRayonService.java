@@ -4,10 +4,9 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.dto.RayonDTO;
+import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.time.Instant;
 
 public interface CustomizedRayonService {
 	Page<RayonDTO> listRayonsByStorageId(Long magasinId, String query, Pageable pageable);
@@ -32,7 +31,7 @@ public interface CustomizedRayonService {
 	default Rayon buildRayonFromRayonDTO(RayonDTO dto, Rayon rayon) {
 		rayon.setCode(dto.getCode());
 		rayon.setLibelle(dto.getLibelle());
-		rayon.setUpdatedAt(Instant.now());
+		rayon.setUpdatedAt(LocalDateTime.now());
 		return rayon;
 
 	}
@@ -41,8 +40,8 @@ public interface CustomizedRayonService {
 		Rayon rayon = new Rayon();
 		rayon.setCode(dto.getCode());
 		rayon.setLibelle(dto.getLibelle());
-		rayon.setUpdatedAt(Instant.now());
-		rayon.setCreatedAt(Instant.now());
+		rayon.setUpdatedAt(LocalDateTime.now());
+		rayon.setCreatedAt(LocalDateTime.now());
 		rayon.setStorage(fromId(dto.getStorageId()));
 		return rayon;
 
@@ -51,8 +50,8 @@ public interface CustomizedRayonService {
         Rayon rayon = new Rayon();
         rayon.setCode(dto.getCode());
         rayon.setLibelle(dto.getLibelle());
-        rayon.setUpdatedAt(Instant.now());
-        rayon.setCreatedAt(Instant.now());
+        rayon.setUpdatedAt(LocalDateTime.now());
+        rayon.setCreatedAt(LocalDateTime.now());
         rayon.setStorage(storage);
         return rayon;
 
@@ -68,8 +67,8 @@ public interface CustomizedRayonService {
 		dto.setCode(rayon.getCode());
 		dto.setLibelle(rayon.getLibelle());
 		dto.setExclude(rayon.isExclude());
-		dto.setUpdatedAt(Instant.now());
-		dto.setCreatedAt(Instant.now());
+		dto.setUpdatedAt(LocalDateTime.now());
+		dto.setCreatedAt(LocalDateTime.now());
 		return dto;
 
 	}

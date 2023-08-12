@@ -8,7 +8,7 @@ import com.kobe.warehouse.repository.TableauRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.TableauDTO;
 import com.kobe.warehouse.service.referential.TableauService;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -70,7 +70,7 @@ public class TableauServiceImpl implements TableauService {
           Produit produit = this.produitRepository.getReferenceById(p);
           try {
             produit.setTableau(tableau);
-            produit.setUpdatedAt(Instant.now());
+            produit.setUpdatedAt(LocalDateTime.now());
             this.produitRepository.save(produit);
             logsService.create(
                 TransactionType.UPDATE_PRODUCT,
@@ -93,7 +93,7 @@ public class TableauServiceImpl implements TableauService {
           Produit produit = this.produitRepository.getReferenceById(p);
           try {
             produit.setTableau(null);
-            produit.setUpdatedAt(Instant.now());
+            produit.setUpdatedAt(LocalDateTime.now());
             this.produitRepository.save(produit);
             logsService.create(
                 TransactionType.UPDATE_PRODUCT,

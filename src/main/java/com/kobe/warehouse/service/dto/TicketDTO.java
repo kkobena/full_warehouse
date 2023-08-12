@@ -2,12 +2,12 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Ticket;
 import com.kobe.warehouse.domain.User;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.Getter;
 
+@Getter
 public class TicketDTO {
     private String code;
 
@@ -17,7 +17,7 @@ public class TicketDTO {
 
     private Integer montantRendu;
 
-    private Instant created;
+    private LocalDateTime created;
 
     private String user;
 
@@ -26,87 +26,6 @@ public class TicketDTO {
     private Set<PaymentDTO> payments = new HashSet<>();
 
     private CustomerDTO customer;
-
-    public String getCode() {
-        return code;
-    }
-
-    public TicketDTO setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public Integer getMontantAttendu() {
-        return montantAttendu;
-    }
-
-    public TicketDTO setMontantAttendu(Integer montantAttendu) {
-        this.montantAttendu = montantAttendu;
-        return this;
-    }
-
-    public Integer getMontantPaye() {
-        return montantPaye;
-    }
-
-    public TicketDTO setMontantPaye(Integer montantPaye) {
-        this.montantPaye = montantPaye;
-        return this;
-    }
-
-    public Integer getMontantRendu() {
-        return montantRendu;
-    }
-
-    public TicketDTO setMontantRendu(Integer montantRendu) {
-        this.montantRendu = montantRendu;
-        return this;
-    }
-
-    public Instant getCreated() {
-        return created;
-    }
-
-    public TicketDTO setCreated(Instant created) {
-        this.created = created;
-        return this;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public TicketDTO setUser(String user) {
-        this.user = user;
-        return this;
-    }
-
-    public SaleDTO getSale() {
-        return sale;
-    }
-
-    public TicketDTO setSale(SaleDTO sale) {
-        this.sale = sale;
-        return this;
-    }
-
-    public Set<PaymentDTO> getPayments() {
-        return payments;
-    }
-
-    public TicketDTO setPayments(Set<PaymentDTO> payments) {
-        this.payments = payments;
-        return this;
-    }
-
-    public CustomerDTO getCustomer() {
-        return customer;
-    }
-
-    public TicketDTO setCustomer(CustomerDTO customer) {
-        this.customer = customer;
-        return this;
-    }
 
     public TicketDTO(Ticket ticket) {
         this.code = ticket.getCode();
@@ -135,5 +54,50 @@ public class TicketDTO {
         User user = ticket.getUser();
         dto.setUser(user.getFirstName() + " " + user.getLastName());
         return dto;
+    }
+
+  public TicketDTO setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+  public TicketDTO setMontantAttendu(Integer montantAttendu) {
+        this.montantAttendu = montantAttendu;
+        return this;
+    }
+
+  public TicketDTO setMontantPaye(Integer montantPaye) {
+        this.montantPaye = montantPaye;
+        return this;
+    }
+
+  public TicketDTO setMontantRendu(Integer montantRendu) {
+        this.montantRendu = montantRendu;
+        return this;
+    }
+
+  public TicketDTO setCreated(LocalDateTime created) {
+        this.created = created;
+        return this;
+    }
+
+  public TicketDTO setUser(String user) {
+        this.user = user;
+        return this;
+    }
+
+  public TicketDTO setSale(SaleDTO sale) {
+        this.sale = sale;
+        return this;
+    }
+
+  public TicketDTO setPayments(Set<PaymentDTO> payments) {
+        this.payments = payments;
+        return this;
+    }
+
+  public TicketDTO setCustomer(CustomerDTO customer) {
+        this.customer = customer;
+        return this;
     }
 }

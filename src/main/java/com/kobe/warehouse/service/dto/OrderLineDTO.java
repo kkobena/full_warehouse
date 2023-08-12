@@ -4,14 +4,15 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.springframework.util.CollectionUtils;
 
+@Getter
 public class OrderLineDTO {
   private int totalQuantity;
   private int regularUnitPrice;
@@ -26,8 +27,8 @@ public class OrderLineDTO {
   private Integer grossAmount;
   private Integer netAmount;
   private Integer taxAmount;
-  private Instant createdAt;
-  private Instant updatedAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
   private Integer costAmount;
   private CommandeDTO commande;
   private Long produitId;
@@ -92,21 +93,9 @@ public class OrderLineDTO {
             : Collections.emptySet();
   }
 
-  public Set<LotJsonValue> getLots() {
-    return lots;
-  }
-
-  public Integer getUgQuantity() {
-    return ugQuantity;
-  }
-
   public OrderLineDTO setUgQuantity(Integer ugQuantity) {
     this.ugQuantity = ugQuantity;
     return this;
-  }
-
-  public Boolean getProvisionalCode() {
-    return provisionalCode;
   }
 
   public OrderLineDTO setProvisionalCode(Boolean provisionalCode) {
@@ -114,17 +103,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Integer getQuantityUg() {
-    return quantityUg;
-  }
-
   public OrderLineDTO setQuantityUg(Integer quantityUg) {
     this.quantityUg = quantityUg;
     return this;
-  }
-
-  public long getCommandeId() {
-    return commandeId;
   }
 
   public OrderLineDTO setCommandeId(long commandeId) {
@@ -132,17 +113,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public String getCommandeOrderRefernce() {
-    return commandeOrderRefernce;
-  }
-
   public OrderLineDTO setCommandeOrderRefernce(String commandeOrderRefernce) {
     this.commandeOrderRefernce = commandeOrderRefernce;
     return this;
-  }
-
-  public String getCommandeReceiptRefernce() {
-    return commandeReceiptRefernce;
   }
 
   public OrderLineDTO setCommandeReceiptRefernce(String commandeReceiptRefernce) {
@@ -150,17 +123,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public int getInitStock() {
-    return initStock;
-  }
-
   public OrderLineDTO setInitStock(int initStock) {
     this.initStock = initStock;
     return this;
-  }
-
-  public int getTotalQuantity() {
-    return totalQuantity;
   }
 
   public OrderLineDTO setTotalQuantity(int totalQuantity) {
@@ -168,17 +133,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public int getRegularUnitPrice() {
-    return regularUnitPrice;
-  }
-
   public OrderLineDTO setRegularUnitPrice(int regularUnitPrice) {
     this.regularUnitPrice = regularUnitPrice;
     return this;
-  }
-
-  public int getOrderUnitPrice() {
-    return orderUnitPrice;
   }
 
   public OrderLineDTO setOrderUnitPrice(int orderUnitPrice) {
@@ -186,17 +143,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Long getId() {
-    return id;
-  }
-
   public OrderLineDTO setId(Long id) {
     this.id = id;
     return this;
-  }
-
-  public LocalDateTime getReceiptDate() {
-    return receiptDate;
   }
 
   public OrderLineDTO setReceiptDate(LocalDateTime receiptDate) {
@@ -204,17 +153,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Integer getQuantityReceived() {
-    return quantityReceived;
-  }
-
   public OrderLineDTO setQuantityReceived(Integer quantityReceived) {
     this.quantityReceived = quantityReceived;
     return this;
-  }
-
-  public Integer getQuantityRequested() {
-    return quantityRequested;
   }
 
   public OrderLineDTO setQuantityRequested(Integer quantityRequested) {
@@ -222,17 +163,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Integer getQuantityReturned() {
-    return quantityReturned;
-  }
-
   public OrderLineDTO setQuantityReturned(Integer quantityReturned) {
     this.quantityReturned = quantityReturned;
     return this;
-  }
-
-  public Integer getDiscountAmount() {
-    return discountAmount;
   }
 
   public OrderLineDTO setDiscountAmount(Integer discountAmount) {
@@ -240,17 +173,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Integer getOrderAmount() {
-    return orderAmount;
-  }
-
   public OrderLineDTO setOrderAmount(Integer orderAmount) {
     this.orderAmount = orderAmount;
     return this;
-  }
-
-  public Integer getGrossAmount() {
-    return grossAmount;
   }
 
   public OrderLineDTO setGrossAmount(Integer grossAmount) {
@@ -258,17 +183,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Integer getNetAmount() {
-    return netAmount;
-  }
-
   public OrderLineDTO setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
     return this;
-  }
-
-  public Integer getTaxAmount() {
-    return taxAmount;
   }
 
   public OrderLineDTO setTaxAmount(Integer taxAmount) {
@@ -276,26 +193,14 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public OrderLineDTO setCreatedAt(Instant createdAt) {
+  public OrderLineDTO setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public OrderLineDTO setUpdatedAt(Instant updatedAt) {
+  public OrderLineDTO setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public Integer getCostAmount() {
-    return costAmount;
   }
 
   public OrderLineDTO setCostAmount(Integer costAmount) {
@@ -303,17 +208,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public CommandeDTO getCommande() {
-    return commande;
-  }
-
   public OrderLineDTO setCommande(CommandeDTO commande) {
     this.commande = commande;
     return this;
-  }
-
-  public Long getProduitId() {
-    return produitId;
   }
 
   public OrderLineDTO setProduitId(Long produitId) {
@@ -321,17 +218,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public Long getFournisseurProduitId() {
-    return fournisseurProduitId;
-  }
-
   public OrderLineDTO setFournisseurProduitId(Long fournisseurProduitId) {
     this.fournisseurProduitId = fournisseurProduitId;
     return this;
-  }
-
-  public String getProduitLibelle() {
-    return produitLibelle;
   }
 
   public OrderLineDTO setProduitLibelle(String produitLibelle) {
@@ -339,17 +228,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public String getProduitCip() {
-    return produitCip;
-  }
-
   public OrderLineDTO setProduitCip(String produitCip) {
     this.produitCip = produitCip;
     return this;
-  }
-
-  public String getProduitCodeEan() {
-    return produitCodeEan;
   }
 
   public OrderLineDTO setProduitCodeEan(String produitCodeEan) {
@@ -357,17 +238,9 @@ public class OrderLineDTO {
     return this;
   }
 
-  public int getOrderCostAmount() {
-    return orderCostAmount;
-  }
-
   public OrderLineDTO setOrderCostAmount(int orderCostAmount) {
     this.orderCostAmount = orderCostAmount;
     return this;
-  }
-
-  public Integer getQuantityReceivedTmp() {
-    return quantityReceivedTmp;
   }
 
   public OrderLineDTO setQuantityReceivedTmp(Integer quantityReceivedTmp) {

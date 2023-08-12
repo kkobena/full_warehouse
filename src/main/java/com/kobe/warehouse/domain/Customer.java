@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -22,6 +22,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /**
  * A Customer.
@@ -32,59 +33,56 @@ import javax.validation.constraints.NotNull;
 public class Customer implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Getter
     @NotNull
     @NotEmpty
     @Column(name = "first_name", nullable = false)
     private String firstName;
+    @Getter
     @NotNull
     @NotEmpty
     @Column(name = "last_name", nullable = false)
     private String lastName;
+    @Getter
     @Column(name = "phone")
     private String phone;
+    @Getter
     @Email
     @Column(name = "email")
     private String email;
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt = Instant.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Getter
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
+    @Getter
     @OneToMany(mappedBy = "customer")
     private Set<Payment> payments = new HashSet<>();
+    @Getter
     @NotNull
     @Column(name = "code", nullable = false, unique = true)
     private String code;
+    @Getter
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type_assure", nullable = false, length = 15)
     private TypeAssure typeAssure;
-
-    public TypeAssure getTypeAssure() {
-        return typeAssure;
-    }
 
     public Customer setTypeAssure(TypeAssure typeAssure) {
         this.typeAssure = typeAssure;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
     }
 
     public void setFirstName(String firstName) {
@@ -96,16 +94,8 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public String getLastName() {
-        return lastName;
     }
 
     public void setLastName(String lastName) {
@@ -117,17 +107,9 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public Customer setCode(String code) {
         this.code = code;
         return this;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public void setPhone(String phone) {
@@ -139,10 +121,6 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -152,40 +130,36 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         if (createdAt == null) {
-            createdAt = Instant.now();
+            createdAt = LocalDateTime.now();
         }
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Customer createdAt(Instant createdAt) {
+    public Customer createdAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         if (updatedAt == null) {
-            updatedAt = Instant.now();
+            updatedAt = LocalDateTime.now();
         }
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Customer updatedAt(Instant updatedAt) {
+    public Customer updatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
-    }
-
-    public Set<Payment> getPayments() {
-        return payments;
     }
 
     public void setPayments(Set<Payment> payments) {

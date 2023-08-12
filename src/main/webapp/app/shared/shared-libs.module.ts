@@ -71,6 +71,7 @@ import { DividerModule } from 'primeng/divider';
 import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { SidebarModule } from 'primeng/sidebar';
 
 @NgModule({
   exports: [
@@ -150,6 +151,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     TagModule,
     BadgeModule,
     NgSelectModule,
+    SidebarModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
 })

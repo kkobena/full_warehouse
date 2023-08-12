@@ -7,40 +7,49 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-/**
- * REST controller for managing {@link com.kobe.warehouse.domain.InventoryTransaction}.
- */
+/** REST controller for managing {@link com.kobe.warehouse.domain.InventoryTransaction}. */
 @RestController
 @RequestMapping("/api")
 @Transactional
 public class InventoryTransactionResource {
 
-    private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);
-    private final InventoryTransactionService inventoryTransactionService;
+  private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);
+  private final InventoryTransactionService inventoryTransactionService;
 
-    public InventoryTransactionResource(InventoryTransactionService inventoryTransactionService) {
-        this.inventoryTransactionService = inventoryTransactionService;
-    }
+  public InventoryTransactionResource(InventoryTransactionService inventoryTransactionService) {
+    this.inventoryTransactionService = inventoryTransactionService;
+  }
 
-    @GetMapping("/inventory-transactions")
-    public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
-        @RequestParam(name = "produitId", required = false) Long produitId,
-        @RequestParam(name = "endDate", required = false) String endDate,
-        @RequestParam(name = "startDate", required = false) String startDate,
-        @RequestParam(name = "type", required = false) Integer type
-    ) {
-        return ResponseEntity.ok().body(inventoryTransactionService.getAllInventoryTransactions(produitId, startDate, endDate, type));
-    }
+  @GetMapping("/inventory-transactions")
+  public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
+      @RequestParam(name = "produitId", required = false) Long produitId,
+      @RequestParam(name = "endDate", required = false) String endDate,
+      @RequestParam(name = "startDate", required = false) String startDate,
+      @RequestParam(name = "type", required = false) Integer type,
+      Pageable pageable) {
+    Page<InventoryTransactionDTO> page =
+        inventoryTransactionService.getAllInventoryTransactions(
+            pageable, produitId, startDate, endDate, type);
+    HttpHeaders headers =
+        PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+    return ResponseEntity.ok().headers(headers).body(page.getContent());
+  }
 
-    @GetMapping("/inventory-transactions/{id}")
-    public ResponseEntity<InventoryTransaction> getInventoryTransaction(@PathVariable Long id) {
-        log.debug("REST request to get InventoryTransaction : {}", id);
-        Optional<InventoryTransaction> inventoryTransaction = inventoryTransactionService.findById(id);
-        return ResponseUtil.wrapOrNotFound(inventoryTransaction);
-    }
+  @GetMapping("/inventory-transactions/{id}")
+  public ResponseEntity<InventoryTransaction> getInventoryTransaction(@PathVariable Long id) {
+    log.debug("REST request to get InventoryTransaction : {}", id);
+    Optional<InventoryTransaction> inventoryTransaction = inventoryTransactionService.findById(id);
+    return ResponseUtil.wrapOrNotFound(inventoryTransaction);
+  }
 }

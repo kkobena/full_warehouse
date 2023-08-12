@@ -1,5 +1,8 @@
 package com.kobe.warehouse.domain;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -7,10 +10,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "ticket")
 public class Ticket implements Serializable, Cloneable {
@@ -37,7 +39,7 @@ public class Ticket implements Serializable, Cloneable {
     private Integer restToPay = 0;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant created;
+    private LocalDateTime created;
     @NotNull
     @ManyToOne(optional = false)
     private User user;
@@ -54,129 +56,73 @@ public class Ticket implements Serializable, Cloneable {
     @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
     private Boolean canceled = false;
 
-    public String getTva() {
-        return tva;
-    }
-
-    public Ticket setTva(String tva) {
+  public Ticket setTva(String tva) {
         this.tva = tva;
         return this;
     }
 
-    public Boolean getCanceled() {
-        return canceled;
-    }
-
-    public Ticket setCanceled(Boolean canceled) {
+  public Ticket setCanceled(Boolean canceled) {
         this.canceled = canceled;
         return this;
     }
 
-    public Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public Ticket setRestToPay(Integer restToPay) {
+  public Ticket setRestToPay(Integer restToPay) {
         this.restToPay = restToPay;
         return this;
     }
 
-    public Integer getPartAssure() {
-        return partAssure;
-    }
-
-    public Ticket setPartAssure(Integer partAssure) {
+  public Ticket setPartAssure(Integer partAssure) {
         this.partAssure = partAssure;
         return this;
     }
 
-    public Integer getPartTiersPayant() {
-        return partTiersPayant;
-    }
-
-    public Ticket setPartTiersPayant(Integer partTiersPayant) {
+  public Ticket setPartTiersPayant(Integer partTiersPayant) {
         this.partTiersPayant = partTiersPayant;
         return this;
     }
 
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public Ticket setCustomer(Customer customer) {
+  public Ticket setCustomer(Customer customer) {
         this.customer = customer;
         return this;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public Ticket setCode(String code) {
+  public Ticket setCode(String code) {
         this.code = code;
         return this;
     }
 
-    public Integer getMontantAttendu() {
-        return montantAttendu;
-    }
-
-    public Ticket setMontantAttendu(Integer montantAttendu) {
+  public Ticket setMontantAttendu(Integer montantAttendu) {
         this.montantAttendu = montantAttendu;
         return this;
     }
 
-    public Integer getMontantPaye() {
-        return montantPaye;
-    }
-
-    public Ticket setMontantPaye(Integer montantPaye) {
+  public Ticket setMontantPaye(Integer montantPaye) {
         this.montantPaye = montantPaye;
         return this;
     }
 
-    public Integer getMontantRendu() {
-        return montantRendu;
-    }
-
-    public Ticket setMontantRendu(Integer montantRendu) {
+  public Ticket setMontantRendu(Integer montantRendu) {
         this.montantRendu = montantRendu;
         return this;
     }
 
-    public Instant getCreated() {
-        return created;
-    }
-
-    public Ticket setCreated(Instant created) {
+  public Ticket setCreated(LocalDateTime created) {
         this.created = created;
         return this;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public Ticket setUser(User user) {
+  public Ticket setUser(User user) {
         this.user = user;
         return this;
     }
 
-    public Sales getSale() {
-        return sale;
-    }
-
-    public Ticket setSale(Sales sale) {
+  public Ticket setSale(Sales sale) {
         this.sale = sale;
         return this;
     }
 
 
-    public Integer getMontantVerse() {
-        return montantVerse;
-    }
-
-    public Ticket setMontantVerse(Integer montantVerse) {
+  public Ticket setMontantVerse(Integer montantVerse) {
         this.montantVerse = montantVerse;
         return this;
     }

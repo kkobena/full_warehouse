@@ -3,15 +3,15 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.User;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.Getter;
 
 /**
  * A DTO representing a user, with only the public attributes.
@@ -20,41 +20,54 @@ public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Getter
     private Long id;
 
+    @Getter
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 70)
     private String login;
 
+    @Getter
     @Size(max = 100)
     private String firstName;
 
+    @Getter
     @Size(max = 100)
     private String lastName;
 
+    @Getter
     @Email
     @Size(min = 0, max = 254)
     private String email;
 
+    @Getter
     @Size(max = 256)
     private String imageUrl;
 
+    @Getter
     private boolean activated = false;
 
     @Size(min = 2, max = 10)
     private String langKey = "fr";
 
+    @Getter
     private String createdBy;
 
-    private Instant createdDate;
+    @Getter
+    private LocalDateTime createdDate;
 
+    @Getter
     private String lastModifiedBy;
 
-    private Instant lastModifiedDate;
+    private LocalDateTime lastModifiedDate;
 
+    @Getter
     private Set<String> authorities;
+    @Getter
     private String fullName;
+    @Getter
     private String abbrName;
 
     public UserDTO() {
@@ -89,17 +102,9 @@ public class UserDTO implements Serializable {
         return userDTO;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
     public UserDTO setFullName(String fullName) {
         this.fullName = fullName;
         return this;
-    }
-
-    public String getAbbrName() {
-        return abbrName;
     }
 
     public UserDTO setAbbrName(String abbrName) {
@@ -107,56 +112,28 @@ public class UserDTO implements Serializable {
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
     }
 
     public void setLogin(String login) {
         this.login = login;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
     }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public boolean isActivated() {
-        return activated;
     }
 
     public void setActivated(boolean activated) {
@@ -174,40 +151,24 @@ public class UserDTO implements Serializable {
         this.langKey = langKey;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    public Instant getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Instant createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
     }
 
     public void setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    public Instant getLastModifiedDate() {
+    public LocalDateTime getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public void setLastModifiedDate(Instant lastModifiedDate) {
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public Set<String> getAuthorities() {
-        return authorities;
     }
 
     public void setAuthorities(Set<String> authorities) {

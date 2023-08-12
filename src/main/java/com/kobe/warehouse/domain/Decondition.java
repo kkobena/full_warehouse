@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,10 +15,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /**
  * A Decondition.
  */
+@Getter
 @Entity
 @Table(name = "decondition")
 public class Decondition implements Serializable {
@@ -36,7 +38,7 @@ public class Decondition implements Serializable {
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
-    private Instant dateMtv;
+    private LocalDateTime dateMtv;
 
     @NotNull
     @Column(name = "stock_before", nullable = false)
@@ -62,16 +64,8 @@ public class Decondition implements Serializable {
     @NotNull
     private DateDimension dateDimension;
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getQtyMvt() {
-        return qtyMvt;
     }
 
     public void setQtyMvt(Integer qtyMvt) {
@@ -83,30 +77,18 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public TypeDeconditionnement getTypeDeconditionnement() {
-        return typeDeconditionnement;
-    }
-
     public Decondition setTypeDeconditionnement(TypeDeconditionnement typeDeconditionnement) {
         this.typeDeconditionnement = typeDeconditionnement;
         return this;
     }
 
-    public Instant getDateMtv() {
-        return dateMtv;
-    }
-
-    public void setDateMtv(Instant dateMtv) {
+    public void setDateMtv(LocalDateTime dateMtv) {
         this.dateMtv = dateMtv;
     }
 
-    public Decondition dateMtv(Instant dateMtv) {
+    public Decondition dateMtv(LocalDateTime dateMtv) {
         this.dateMtv = dateMtv;
         return this;
-    }
-
-    public Integer getStockBefore() {
-        return stockBefore;
     }
 
     public void setStockBefore(Integer stockBefore) {
@@ -118,10 +100,6 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public Integer getStockAfter() {
-        return stockAfter;
-    }
-
     public void setStockAfter(Integer stockAfter) {
         this.stockAfter = stockAfter;
     }
@@ -129,10 +107,6 @@ public class Decondition implements Serializable {
     public Decondition stockAfter(Integer stockAfter) {
         this.stockAfter = stockAfter;
         return this;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public void setUser(User user) {
@@ -144,10 +118,6 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public Produit getProduit() {
-        return produit;
-    }
-
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
@@ -155,10 +125,6 @@ public class Decondition implements Serializable {
     public Decondition produit(Produit produit) {
         this.produit = produit;
         return this;
-    }
-
-    public DateDimension getDateDimension() {
-        return dateDimension;
     }
 
     public void setDateDimension(DateDimension dateDimension) {

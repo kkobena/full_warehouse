@@ -16,6 +16,7 @@ import {UninsuredCustomerListComponent} from './uninsured-customer-list/uninsure
 import {PresaleComponent} from './presale/presale.component';
 import {VenteEnCoursComponent} from './vente-en-cours/vente-en-cours.component';
 import {AssuredCustomerListComponent} from './assured-customer-list/assured-customer-list.component';
+import { PreventeModalComponent } from './prevente-modal/prevente-modal/prevente-modal.component';
 
 @NgModule({
   imports: [SharedModule, NgSelectModule, AgGridModule, RouterModule.forChild(salesRoute)],
@@ -31,6 +32,7 @@ import {AssuredCustomerListComponent} from './assured-customer-list/assured-cust
     PresaleComponent,
     VenteEnCoursComponent,
     AssuredCustomerListComponent,
+    PreventeModalComponent,
   ],
   entryComponents: [SalesDeleteDialogComponent, PackDialogueComponent, DetailDialogueComponent],
 })

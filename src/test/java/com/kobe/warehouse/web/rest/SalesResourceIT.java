@@ -1,10 +1,20 @@
 package com.kobe.warehouse.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesRepository;
-
 import com.kobe.warehouse.web.rest.sales.SalesResource;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 
 /**
  * Integration tests for the {@link SalesResource} REST controller.
@@ -58,11 +54,11 @@ public class SalesResourceIT {
     private static final SalesStatut DEFAULT_STATUT = SalesStatut.PROCESSING;
     private static final SalesStatut UPDATED_STATUT = SalesStatut.PENDING;
 
-    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_CREATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_CREATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_UPDATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_UPDATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_UPDATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
     @Autowired
     private SalesRepository salesRepository;

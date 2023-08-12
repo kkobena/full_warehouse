@@ -9,7 +9,11 @@ import com.kobe.warehouse.repository.ImportationRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.service.dto.*;
-import org.apache.commons.lang3.RandomStringUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +22,6 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ImportationCustomer {
@@ -124,7 +122,7 @@ public class ImportationCustomer {
         uninsuredCustomer.setLastName(dto.getLastName());
         uninsuredCustomer.setEmail(StringUtils.isNotEmpty(dto.getEmail()) ? dto.getEmail() : null);
         uninsuredCustomer.setPhone(dto.getPhone());
-        uninsuredCustomer.setCreatedAt(Instant.now());
+        uninsuredCustomer.setCreatedAt(LocalDateTime.now());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
         uninsuredCustomer.setStatus(Status.ENABLE);
         uninsuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
@@ -140,7 +138,7 @@ public class ImportationCustomer {
         assuredCustomer.setLastName(dto.getLastName());
         assuredCustomer.setEmail(StringUtils.isNotEmpty(dto.getEmail()) ? dto.getEmail() : null);
         assuredCustomer.setPhone(dto.getPhone());
-        assuredCustomer.setCreatedAt(Instant.now());
+        assuredCustomer.setCreatedAt(LocalDateTime.now());
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
@@ -161,7 +159,7 @@ public class ImportationCustomer {
     private void buildClientTiersPayantExternalFromDto(final List<ClientTiersPayantDTO> dtos, final AssuredCustomer assuredCustomer) {
         dtos.forEach(c -> {
             ClientTiersPayant o = new ClientTiersPayant();
-            o.setCreated(Instant.now());
+            o.setCreated(LocalDateTime.now());
             o.setTiersPayant(tiersPayantRepository.findOneByNameOrFullName(c.getTiersPayantName(), c.getTiersPayantFullName()).orElse(null));
             o.setNum(c.getNum());
             o.setPlafondConso(c.getPlafondConso());
@@ -179,7 +177,7 @@ public class ImportationCustomer {
         Importation importation = new Importation();
         importation.setImportationStatus(ImportationStatus.PROCESSING);
         importation.setImportationType(ImportationType.CLIENTS);
-        importation.setCreated(Instant.now());
+        importation.setCreated(LocalDateTime.now());
         importation.setUser(user);
         return importation;
     }
@@ -202,7 +200,7 @@ public class ImportationCustomer {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
-                        importation.setUpdated(Instant.now());
+                        importation.setUpdated(LocalDateTime.now());
                         importation.setSize(size);
                         importation.setErrorSize(errorSize);
                         importation.setImportationStatus(errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);

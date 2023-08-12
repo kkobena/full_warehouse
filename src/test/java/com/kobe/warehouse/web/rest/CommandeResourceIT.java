@@ -16,8 +16,8 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.web.rest.commande.CommandeResource;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -61,11 +61,11 @@ public class CommandeResourceIT {
     private static final Integer DEFAULT_TAX_AMOUNT = 1;
     private static final Integer UPDATED_TAX_AMOUNT = 2;
 
-    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_CREATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_CREATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_UPDATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_UPDATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_UPDATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final OrderStatut DEFAULT_ORDER_STATUS = OrderStatut.REQUESTED;
     private static final OrderStatut UPDATED_ORDER_STATUS = OrderStatut.RECEIVED;

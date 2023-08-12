@@ -2,15 +2,20 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.CustomizedRayonService;
-import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.RayonRepository;
-import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -19,14 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service Implementation for managing {@link Rayon}.
@@ -122,8 +119,8 @@ public class RayonServiceImpl implements RayonService {
                 } catch (Exception e) {
                     log.debug("importation",e);
                 }
-                rayon.setCreatedAt(Instant.now());
-                rayon.setUpdatedAt(Instant.now());
+                rayon.setCreatedAt(LocalDateTime.now());
+                rayon.setUpdatedAt(LocalDateTime.now());
                 rayon.setStorage(customizedRayonService.fromId(storageId2));
                 rayonRepository.save(rayon);
                 count.incrementAndGet();

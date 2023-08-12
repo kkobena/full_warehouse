@@ -1,13 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Formula;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,13 +13,18 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-
+import lombok.Getter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Formula;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * A StockProduit.
  */
+@Getter
 @Entity
 @Table(name = "stock_produit",
     uniqueConstraints =
@@ -49,10 +49,10 @@ public class StockProduit implements Serializable {
     private Integer qtyUG;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
@@ -65,37 +65,21 @@ public class StockProduit implements Serializable {
     @Formula("qty_ug+qty_stock")
     private Integer totalStockQuantity;
 
-    public Integer getTotalStockQuantity() {
-        return totalStockQuantity;
-    }
-
-    public StockProduit setTotalStockQuantity(Integer totalStockQuantity) {
+  public StockProduit setTotalStockQuantity(Integer totalStockQuantity) {
         this.totalStockQuantity = totalStockQuantity;
         return this;
     }
 
-    public Storage getStorage() {
-        return storage;
-    }
-
-    public StockProduit setStorage(Storage storage) {
+  public StockProduit setStorage(Storage storage) {
         this.storage = storage;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+  public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getQtyStock() {
-        return qtyStock;
-    }
-
-    public void setQtyStock(Integer qtyStock) {
+  public void setQtyStock(Integer qtyStock) {
         this.qtyStock = qtyStock;
     }
 
@@ -104,11 +88,7 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public Integer getQtyVirtual() {
-        return qtyVirtual;
-    }
-
-    public void setQtyVirtual(Integer qtyVirtual) {
+  public void setQtyVirtual(Integer qtyVirtual) {
         this.qtyVirtual = qtyVirtual;
     }
 
@@ -117,11 +97,7 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public Integer getQtyUG() {
-        return qtyUG;
-    }
-
-    public void setQtyUG(Integer qtyUG) {
+  public void setQtyUG(Integer qtyUG) {
         this.qtyUG = qtyUG;
     }
 
@@ -130,37 +106,25 @@ public class StockProduit implements Serializable {
         return this;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public StockProduit createdAt(Instant createdAt) {
+    public StockProduit createdAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public StockProduit updatedAt(Instant updatedAt) {
+    public StockProduit updatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
     }
 
-    public Produit getProduit() {
-        return produit;
-    }
-
-    public void setProduit(Produit produit) {
+  public void setProduit(Produit produit) {
         this.produit = produit;
     }
 

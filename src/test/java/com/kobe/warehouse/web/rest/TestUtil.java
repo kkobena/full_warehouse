@@ -1,28 +1,27 @@
 package com.kobe.warehouse.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility class for testing REST controllers.
@@ -69,11 +68,11 @@ public final class TestUtil {
     }
 
     /**
-     * Creates a matcher that matches when the examined string represents the same instant as the reference datetime.
+     * Creates a matcher that matches when the examined string represents the same LocalDateTime as the reference datetime.
      *
      * @param date the reference datetime against which the examined string is checked.
      */
-    public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
+    public static ZonedDateTimeMatcher sameLocalDateTime(ZonedDateTime date) {
         return new ZonedDateTimeMatcher(date);
     }
 
@@ -136,7 +135,7 @@ public final class TestUtil {
     }
 
     /**
-     * A matcher that tests that the examined string represents the same instant as the reference datetime.
+     * A matcher that tests that the examined string represents the same LocalDateTime as the reference datetime.
      */
     public static class ZonedDateTimeMatcher extends TypeSafeDiagnosingMatcher<String> {
 
@@ -162,7 +161,7 @@ public final class TestUtil {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("a String representing the same Instant as ").appendValue(date);
+            description.appendText("a String representing the same LocalDateTime as ").appendValue(date);
         }
     }
 

@@ -1,18 +1,15 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
-import com.kobe.warehouse.service.utils.ServiceUtil;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,12 +49,12 @@ public class InventaireService {
     public void init() throws Exception {
         long inventoryValueCostBegin = 0, inventoryAmountBegin = 0;
         StoreInventory storeInventory = new StoreInventory();
-        storeInventory.setCreatedAt(Instant.now());
+        storeInventory.setCreatedAt(LocalDateTime.now());
         storeInventory.setUpdatedAt(storeInventory.getCreatedAt());
         storeInventory.setUser(userService.getUser());
         storeInventory.setInventoryAmountAfter(0L);
         storeInventory.setInventoryValueCostAfter(0L);
-        storeInventory.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
+
         List<StoreInventoryLine> storeInventoryLines = intitLines(storeInventory);
         for (StoreInventoryLine line : storeInventoryLines) {
             inventoryValueCostBegin += ((long) line.getInventoryValueCost() * line.getQuantityInit());
@@ -72,9 +69,9 @@ public class InventaireService {
     public void close(Long id) throws Exception {
         long inventoryValueCostAfter = 0, inventoryAmountAfter = 0;
         StoreInventory storeInventory = storeInventoryRepository.getReferenceById(id);
-        DateDimension dateDimension = storeInventory.getDateDimension();
-        storeInventory.setStatut(SalesStatut.CLOSED);
-        storeInventory.setUpdatedAt(Instant.now());
+
+        storeInventory.setStatut(InventoryStatut.CLOSED);
+        storeInventory.setUpdatedAt(LocalDateTime.now());
         List<StoreInventoryLine> storeInventoryLines = storeInventoryLineRepository.findAllByStoreInventoryId(id);
         for (StoreInventoryLine line : storeInventoryLines) {
             inventoryValueCostAfter += ((long) line.getInventoryValueCost() * line.getQuantityOnHand());

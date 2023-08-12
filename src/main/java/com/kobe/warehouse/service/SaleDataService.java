@@ -36,7 +36,6 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.TicketDTO;
 import com.kobe.warehouse.service.report.ReportService;
-import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
@@ -251,7 +251,7 @@ public class SaleDataService {
   }
 
   @Transactional(readOnly = true)
-  public String printInvoice(Long saleId) throws IOException {
+  public String printInvoice(Long saleId) {
     Optional<Sales> ptSale = salesRepository.findOneWithEagerSalesLines(saleId);
     Sales sales = ptSale.get();
     Map<String, Object> parameters = reportService.buildMagasinInfo();
@@ -260,7 +260,7 @@ public class SaleDataService {
     return reportService.buildReportToPDF(
         parameters,
         "warehouse_facture",
-        sales.getSalesLines().stream().map(SaleLineDTO::new).collect(Collectors.toList()));
+        sales.getSalesLines().stream().map(SaleLineDTO::new).toList());
   }
 
   private User getUser() {
@@ -269,14 +269,15 @@ public class SaleDataService {
     return user.orElseGet(null);
   }
 
-  public List<SaleDTO> allPrevente(String query, String type) {
-    if (StringUtils.isEmpty(type) || type.equals(EntityConstant.TOUT)) return allPreventes(query);
-    if (type.equals(EntityConstant.VNO)) return allPreventeVNO(query);
-    if (type.equals(EntityConstant.VO)) return allPreventeVO(query);
-    else return allPreventes(query);
+  public List<SaleDTO> allPrevente(String query, String type, Long userId) {
+    if (StringUtils.isEmpty(type) || type.equals(EntityConstant.TOUT))
+      return allPreventes(query, userId);
+    if (type.equals(EntityConstant.VNO)) return allPreventeVNO(query, userId);
+    if (type.equals(EntityConstant.VO)) return allPreventeVO(query, userId);
+    else return allPreventes(query, userId);
   }
 
-  public List<SaleDTO> allPreventeVNO(String query) {
+  public List<SaleDTO> allPreventeVNO(String query, Long userId) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
     Root<Sales> root = cq.from(Sales.class);
@@ -286,13 +287,13 @@ public class SaleDataService {
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(
         cb.equal(cashSaleRoot.get(CashSale_.user).get(User_.magasin), getUser().getMagasin()));
-    predicatesPreventeVNO(query, predicates, cb, cashSaleRoot);
+    predicatesPreventeVNO(query, predicates, cb, cashSaleRoot, userId);
     cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Sales> q = em.createQuery(cq);
-    return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
+    return q.getResultList().stream().map(this::buildSaleDTO).toList();
   }
 
-  public List<SaleDTO> allPreventes(String query) {
+  public List<SaleDTO> allPreventes(String query, Long userId) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
     Root<Sales> root = cq.from(Sales.class);
@@ -300,13 +301,13 @@ public class SaleDataService {
     root.fetch(Sales_.SALES_LINES);
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(cb.equal(root.get(Sales_.user).get(User_.magasin), getUser().getMagasin()));
-    predicatesPrevente(query, predicates, cb, root);
+    predicatesPrevente(query, predicates, cb, root, userId);
     cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Sales> q = em.createQuery(cq);
-    return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
+    return q.getResultList().stream().map(this::buildSaleDTO).toList();
   }
 
-  public List<SaleDTO> allPreventeVO(String query) {
+  public List<SaleDTO> allPreventeVO(String query, Long userId) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
     Root<Sales> root = cq.from(Sales.class);
@@ -320,14 +321,18 @@ public class SaleDataService {
         cb.equal(
             thirdPartySalesRoot.get(ThirdPartySales_.user).get(User_.magasin),
             getUser().getMagasin()));
-    predicatesPreventeVO(query, predicates, cb, thirdPartySalesRoot);
+    predicatesPreventeVO(query, predicates, cb, thirdPartySalesRoot, userId);
     cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Sales> q = em.createQuery(cq);
-    return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
+    return q.getResultList().stream().map(this::buildSaleDTO).toList();
   }
 
   private void predicatesPreventeVNO(
-      String query, List<Predicate> predicates, CriteriaBuilder cb, Root<CashSale> root) {
+      String query,
+      List<Predicate> predicates,
+      CriteriaBuilder cb,
+      Root<CashSale> root,
+      Long userId) {
     if (StringUtils.isNotEmpty(query)) {
       query = query.toUpperCase() + "%";
       SetJoin<CashSale, SalesLine> lineSetJoin = root.joinSet(CashSale_.SALES_LINES);
@@ -341,6 +346,9 @@ public class SaleDataService {
               cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)));
     }
     predicates.add(cb.equal(root.get(CashSale_.statut), SalesStatut.ACTIVE));
+    if (Objects.nonNull(userId)) {
+      predicates.add(cb.equal(root.get(Sales_.seller).get(User_.id), userId));
+    }
     predicates.add(
         cb.between(
             cb.function("DATE", Date.class, root.get(CashSale_.updatedAt)),
@@ -349,7 +357,8 @@ public class SaleDataService {
   }
 
   private void predicatesPrevente(
-      String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root) {
+      String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, Long userId) {
+    LocalDate now = LocalDate.now();
     if (StringUtils.isNotEmpty(query)) {
       query = query.toUpperCase() + "%";
       SetJoin<Sales, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
@@ -357,21 +366,26 @@ public class SaleDataService {
       SetJoin<Produit, FournisseurProduit> fp =
           produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
       predicates.add(
-          cb.or(
+          cb.or( cb.like(cb.upper(root.get(Sales_.numberTransaction)), query),
               cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
               cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), query),
               cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)));
     }
+    if (Objects.nonNull(userId)) {
+      predicates.add(cb.equal(root.get(Sales_.seller).get(User_.id), userId));
+    }
+
     predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE));
-    predicates.add(
-        cb.between(
-            cb.function("DATE", Date.class, root.get(Sales_.updatedAt)),
-            Date.valueOf(LocalDate.now()),
-            Date.valueOf(LocalDate.now())));
+    predicates.add(cb.greaterThanOrEqualTo(root.get(Sales_.updatedAt),now.atStartOfDay()));
+
   }
 
   private void predicatesPreventeVO(
-      String query, List<Predicate> predicates, CriteriaBuilder cb, Root<ThirdPartySales> root) {
+      String query,
+      List<Predicate> predicates,
+      CriteriaBuilder cb,
+      Root<ThirdPartySales> root,
+      Long userId) {
     if (StringUtils.isNotEmpty(query)) {
       query = query.toUpperCase() + "%";
       SetJoin<ThirdPartySales, SalesLine> lineSetJoin = root.joinSet(ThirdPartySales_.SALES_LINES);
@@ -383,6 +397,9 @@ public class SaleDataService {
               cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
               cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), query),
               cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)));
+    }
+    if (Objects.nonNull(userId)) {
+      predicates.add(cb.equal(root.get(Sales_.seller).get(User_.id), userId));
     }
     predicates.add(cb.equal(root.get(ThirdPartySales_.statut), SalesStatut.ACTIVE));
     predicates.add(

@@ -3,7 +3,7 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,10 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /**
  * A SalesLine.
  */
+@Getter
 @Entity
 @Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable, Cloneable {
@@ -74,10 +76,10 @@ public class SalesLine implements Serializable, Cloneable {
     private Integer costAmount = 0;
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
     @NotNull
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "salesLines", allowSetters = true)
@@ -88,23 +90,21 @@ public class SalesLine implements Serializable, Cloneable {
     private Produit produit;
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
-    private Instant effectiveUpdateDate;
+    private LocalDateTime effectiveUpdateDate;
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
     @Column(name = "amount_to_be_taken_into_account", nullable = false, columnDefinition = "int default '0'")
     private Integer amountToBeTakenIntoAccount = 0;
 
-    public Integer getDiscountAmountHorsUg() {
-        return discountAmountHorsUg;
-    }
+    @Column(name = "after_stock")
+    private Integer afterStock;
+
+    @Column(name = "init_stock")
+    private Integer initStock;
 
     public SalesLine setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
         this.discountAmountHorsUg = discountAmountHorsUg;
         return this;
-    }
-
-    public Integer getDiscountAmountUg() {
-        return discountAmountUg;
     }
 
     public SalesLine setDiscountAmountUg(Integer discountAmountUg) {
@@ -112,17 +112,9 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getTaxValue() {
-        return taxValue;
-    }
-
     public SalesLine setTaxValue(Integer taxValue) {
         this.taxValue = taxValue;
         return this;
-    }
-
-    public Integer getQuantityUg() {
-        return quantityUg;
     }
 
     public SalesLine setQuantityUg(Integer quantityUg) {
@@ -130,8 +122,14 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getQuantityRequested() {
-        return quantityRequested;
+    public SalesLine setAfterStock(Integer afterStock) {
+        this.afterStock = afterStock;
+        return this;
+    }
+
+    public SalesLine setInitStock(Integer initStock) {
+        this.initStock = initStock;
+        return this;
     }
 
     public SalesLine setQuantityRequested(Integer quantityRequested) {
@@ -139,17 +137,9 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getQuantityAvoir() {
-        return quantityAvoir;
-    }
-
     public SalesLine setQuantityAvoir(Integer quantiyAvoir) {
         quantityAvoir = quantiyAvoir;
         return this;
-    }
-
-    public Integer getMontantTvaUg() {
-        return montantTvaUg;
     }
 
     public SalesLine setMontantTvaUg(Integer montantTvaUg) {
@@ -157,17 +147,9 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getAmountToBeTakenIntoAccount() {
-        return amountToBeTakenIntoAccount;
-    }
-
     public SalesLine setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         return this;
-    }
-
-    public boolean isToIgnore() {
-        return toIgnore;
     }
 
     public SalesLine setToIgnore(boolean toIgnore) {
@@ -175,25 +157,13 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Instant getEffectiveUpdateDate() {
-        return effectiveUpdateDate;
-    }
-
-    public SalesLine setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+    public SalesLine setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
         this.effectiveUpdateDate = effectiveUpdateDate;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getQuantitySold() {
-        return quantitySold;
     }
 
     public void setQuantitySold(Integer quantitySold) {
@@ -205,10 +175,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getRegularUnitPrice() {
-        return regularUnitPrice;
-    }
-
     public void setRegularUnitPrice(Integer regularUnitPrice) {
         this.regularUnitPrice = regularUnitPrice;
     }
@@ -216,10 +182,6 @@ public class SalesLine implements Serializable, Cloneable {
     public SalesLine regularUnitPrice(Integer regularUnitPrice) {
         this.regularUnitPrice = regularUnitPrice;
         return this;
-    }
-
-    public Integer getDiscountUnitPrice() {
-        return discountUnitPrice;
     }
 
     public void setDiscountUnitPrice(Integer discountUnitPrice) {
@@ -231,10 +193,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getNetUnitPrice() {
-        return netUnitPrice;
-    }
-
     public void setNetUnitPrice(Integer netUnitPrice) {
         this.netUnitPrice = netUnitPrice;
     }
@@ -242,10 +200,6 @@ public class SalesLine implements Serializable, Cloneable {
     public SalesLine netUnitPrice(Integer netUnitPrice) {
         this.netUnitPrice = netUnitPrice;
         return this;
-    }
-
-    public Integer getDiscountAmount() {
-        return discountAmount;
     }
 
     public void setDiscountAmount(Integer discountAmount) {
@@ -257,10 +211,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getSalesAmount() {
-        return salesAmount;
-    }
-
     public void setSalesAmount(Integer salesAmount) {
         this.salesAmount = salesAmount;
     }
@@ -268,10 +218,6 @@ public class SalesLine implements Serializable, Cloneable {
     public SalesLine salesAmount(Integer salesAmount) {
         this.salesAmount = salesAmount;
         return this;
-    }
-
-    public Integer getNetAmount() {
-        return netAmount;
     }
 
     public void setNetAmount(Integer netAmount) {
@@ -283,10 +229,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getCostAmount() {
-        return costAmount;
-    }
-
     public void setCostAmount(Integer costAmount) {
         this.costAmount = costAmount;
     }
@@ -296,34 +238,22 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public SalesLine createdAt(Instant createdAt) {
+    public SalesLine createdAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public SalesLine updatedAt(Instant updatedAt) {
+    public SalesLine updatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
-    }
-
-    public Sales getSales() {
-        return sales;
     }
 
     public void setSales(Sales sales) {
@@ -333,10 +263,6 @@ public class SalesLine implements Serializable, Cloneable {
     public SalesLine sales(Sales sales) {
         this.sales = sales;
         return this;
-    }
-
-    public Produit getProduit() {
-        return produit;
     }
 
     public void setProduit(Produit produit) {

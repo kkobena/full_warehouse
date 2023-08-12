@@ -3,29 +3,26 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.WarehouseCalendar;
-import com.kobe.warehouse.repository.WarehouseCalendarRepository;
 import com.kobe.warehouse.service.ReferenceService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SaleCommonService {
   private final ReferenceService referenceService;
-  private final WarehouseCalendarRepository warehouseCalendarRepository;
+  private final WarehouseCalendarService warehouseCalendarService;
 
   public SaleCommonService(
-      ReferenceService referenceService, WarehouseCalendarRepository warehouseCalendarRepository) {
+      ReferenceService referenceService, WarehouseCalendarService warehouseCalendarService) {
     this.referenceService = referenceService;
-    this.warehouseCalendarRepository = warehouseCalendarRepository;
+    this.warehouseCalendarService = warehouseCalendarService;
   }
 
   public void computeSaleEagerAmount(Sales c, int amount, int oldSalesAmount) {
@@ -244,18 +241,8 @@ public class SaleCommonService {
     }
   }
 
-  @Async
-  public void initCalendar() {
-    LocalDate now = LocalDate.now();
-    Optional<WarehouseCalendar> optionalWarehouseCalendar =
-        warehouseCalendarRepository.findById(now);
-    if (optionalWarehouseCalendar.isEmpty()) {
 
-      warehouseCalendarRepository.save(
-          new WarehouseCalendar()
-              .setWorkDay(now)
-              .setWorkMonth(now.getMonthValue())
-              .setWorkYear(now.getYear()));
-    }
+  public void initCalendar() {
+    this.warehouseCalendarService.initCalendar();
   }
 }

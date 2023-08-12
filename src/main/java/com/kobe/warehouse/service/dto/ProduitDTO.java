@@ -7,8 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -36,8 +36,8 @@ public class ProduitDTO {
   private Integer costAmount;
   private Integer regularUnitPrice;
   private Integer netUnitPrice;
-  private Instant createdAt;
-  private Instant updatedAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
   private Integer itemQty;
   private Integer itemCostAmount;
   private Integer itemRegularUnitPrice;
@@ -45,9 +45,9 @@ public class ProduitDTO {
   private String produitLibelle;
   private int quantityReceived;
   @Singular private List<ProduitDTO> produits;
-  private Instant lastDateOfSale;
-  private Instant lastOrderDate;
-  private Instant lastInventoryDate;
+  private LocalDateTime lastDateOfSale;
+  private LocalDateTime lastOrderDate;
+  private LocalDateTime lastInventoryDate;
   @Default private Integer prixMnp = 0;
   private Long parentId;
   private Long fournisseurId;
@@ -91,36 +91,27 @@ public class ProduitDTO {
   private int saleOfPointStock;
   private int saleOfPointVirtualStock;
   private String expirationDate;
+  @Getter
   private String displayField;
   @Singular private List<RayonProduitDTO> rayonProduits;
   @Singular private List<ParcoursProduit> parcoursProduits;
   @Singular private List<DailyStock> dailyStocks;
+  @Getter
   private TableauDTO tableau;
+    @Getter
     private int unitPrice;
 
-    public int getUnitPrice() {
-        return unitPrice;
-    }
-
-    public ProduitDTO setUnitPrice(int unitPrice) {
+  public ProduitDTO setUnitPrice(int unitPrice) {
         this.unitPrice = unitPrice;
         return this;
     }
 
-    public String getDisplayField() {
-        return displayField;
-    }
-
-    public ProduitDTO setDisplayField(String displayField) {
+  public ProduitDTO setDisplayField(String displayField) {
         this.displayField = displayField;
         return this;
     }
 
-    public TableauDTO getTableau() {
-        return tableau;
-    }
-
-    public ProduitDTO setTableau(TableauDTO tableau) {
+  public ProduitDTO setTableau(TableauDTO tableau) {
         this.tableau = tableau;
         return this;
     }
@@ -250,12 +241,12 @@ public class ProduitDTO {
     return this;
   }
 
-  public ProduitDTO setCreatedAt(Instant createdAt) {
+  public ProduitDTO setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public ProduitDTO setUpdatedAt(Instant updatedAt) {
+  public ProduitDTO setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -295,17 +286,17 @@ public class ProduitDTO {
     return this;
   }
 
-  public ProduitDTO setLastDateOfSale(Instant lastDateOfSale) {
+  public ProduitDTO setLastDateOfSale(LocalDateTime lastDateOfSale) {
     this.lastDateOfSale = lastDateOfSale;
     return this;
   }
 
-  public ProduitDTO setLastOrderDate(Instant lastOrderDate) {
+  public ProduitDTO setLastOrderDate(LocalDateTime lastOrderDate) {
     this.lastOrderDate = lastOrderDate;
     return this;
   }
 
-  public ProduitDTO setLastInventoryDate(Instant lastInventoryDate) {
+  public ProduitDTO setLastInventoryDate(LocalDateTime lastInventoryDate) {
     this.lastInventoryDate = lastInventoryDate;
     return this;
   }

@@ -3,8 +3,10 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
-import org.hibernate.annotations.Type;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,11 +19,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.Getter;
+import org.hibernate.annotations.Type;
 
+@Getter
 @Entity
 
 @Table(name = "tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}),
@@ -78,9 +79,9 @@ public class TiersPayant implements Serializable {
     @ManyToOne
     private GroupeTiersPayant groupeTiersPayant;
     @Column(name = "created", nullable = false)
-    private Instant created;
+    private LocalDateTime created;
     @Column(name = "updated", nullable = false)
-    private Instant updated = Instant.now();
+    private LocalDateTime updated = LocalDateTime.now();
     @NotNull
     @ManyToOne(optional = false)
     private User updatedBy;
@@ -91,218 +92,122 @@ public class TiersPayant implements Serializable {
     public TiersPayant() {
     }
 
-    public Set<Consommation> getConsommations() {
-        return consommations;
-    }
-
-    public TiersPayant setConsommations(Set<Consommation> consommations) {
+  public TiersPayant setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
         return this;
     }
 
-    public User getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public TiersPayant setUpdatedBy(User updatedBy) {
+  public TiersPayant setUpdatedBy(User updatedBy) {
         this.updatedBy = updatedBy;
         return this;
     }
 
-    public Instant getCreated() {
-        return created;
-    }
-
-    public TiersPayant setCreated(Instant created) {
+  public TiersPayant setCreated(LocalDateTime created) {
         this.created = created;
         return this;
     }
 
-    public Instant getUpdated() {
-        return updated;
-    }
-
-    public TiersPayant setUpdated(Instant updated) {
+  public TiersPayant setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public TiersPayant setId(Long id) {
+  public TiersPayant setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public TiersPayant setName(String name) {
+  public TiersPayant setName(String name) {
         this.name = name;
         return this;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public TiersPayant setFullName(String fullName) {
+  public TiersPayant setFullName(String fullName) {
         this.fullName = fullName;
         return this;
     }
 
-    public Integer getNbreBons() {
-        return nbreBons;
-    }
-
-    public TiersPayant setNbreBons(Integer nbreBons) {
+  public TiersPayant setNbreBons(Integer nbreBons) {
         this.nbreBons = nbreBons;
         return this;
     }
 
-    public Long getMontantMaxParFcture() {
-        return montantMaxParFcture;
-    }
-
-    public TiersPayant setMontantMaxParFcture(Long montantMaxParFcture) {
+  public TiersPayant setMontantMaxParFcture(Long montantMaxParFcture) {
         this.montantMaxParFcture = montantMaxParFcture;
         return this;
     }
 
-    public String getCodeOrganisme() {
-        return codeOrganisme;
-    }
-
-    public TiersPayant setCodeOrganisme(String codeOrganisme) {
+  public TiersPayant setCodeOrganisme(String codeOrganisme) {
         this.codeOrganisme = codeOrganisme;
         return this;
     }
 
-    public String getCodeRegroupement() {
-        return codeRegroupement;
-    }
-
-    public TiersPayant setCodeRegroupement(String coeRegroupement) {
+  public TiersPayant setCodeRegroupement(String coeRegroupement) {
         codeRegroupement = coeRegroupement;
         return this;
     }
 
-    public Long getConsoMensuelle() {
-        return consoMensuelle;
-    }
-
-    public TiersPayant setConsoMensuelle(Long consoMensuelle) {
+  public TiersPayant setConsoMensuelle(Long consoMensuelle) {
         this.consoMensuelle = consoMensuelle;
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
-        return plafondAbsolu;
-    }
-
-    public TiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
+  public TiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
         this.plafondAbsolu = plafondAbsolu;
         return this;
     }
 
-    public String getAdresse() {
-        return adresse;
-    }
-
-    public TiersPayant setAdresse(String adresse) {
+  public TiersPayant setAdresse(String adresse) {
         this.adresse = adresse;
         return this;
     }
 
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public TiersPayant setTelephone(String telephone) {
+  public TiersPayant setTelephone(String telephone) {
         this.telephone = telephone;
         return this;
     }
 
-    public String getTelephoneFixe() {
-        return telephoneFixe;
-    }
-
-    public TiersPayant setTelephoneFixe(String telephoneFixe) {
+  public TiersPayant setTelephoneFixe(String telephoneFixe) {
         this.telephoneFixe = telephoneFixe;
         return this;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public TiersPayant setEmail(String email) {
+  public TiersPayant setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public Boolean getToBeExclude() {
-        return toBeExclude;
-    }
-
-    public TiersPayant setToBeExclude(Boolean toBeExclude) {
+  public TiersPayant setToBeExclude(Boolean toBeExclude) {
         this.toBeExclude = toBeExclude;
         return this;
     }
 
-    public Long getPlafondConso() {
-        return plafondConso;
-    }
-
-    public TiersPayant setPlafondConso(Long plafondConso) {
+  public TiersPayant setPlafondConso(Long plafondConso) {
         this.plafondConso = plafondConso;
         return this;
     }
 
-    public TiersPayantStatut getStatut() {
-        return statut;
-    }
-
-    public TiersPayant setStatut(TiersPayantStatut statut) {
+  public TiersPayant setStatut(TiersPayantStatut statut) {
         this.statut = statut;
         return this;
     }
 
-    public TiersPayantCategorie getCategorie() {
-        return categorie;
-    }
-
-    public TiersPayant setCategorie(TiersPayantCategorie categorie) {
+  public TiersPayant setCategorie(TiersPayantCategorie categorie) {
         this.categorie = categorie;
         return this;
     }
 
-    public Long getRemiseForfaitaire() {
-        return remiseForfaitaire;
-    }
-
-    public TiersPayant setRemiseForfaitaire(Long remiseForfaitaire) {
+  public TiersPayant setRemiseForfaitaire(Long remiseForfaitaire) {
         this.remiseForfaitaire = remiseForfaitaire;
         return this;
     }
 
-    public Integer getNbreBordereaux() {
-        return nbreBordereaux;
-    }
-
-    public TiersPayant setNbreBordereaux(Integer nbreBordereaux) {
+  public TiersPayant setNbreBordereaux(Integer nbreBordereaux) {
         this.nbreBordereaux = nbreBordereaux;
         return this;
     }
 
-    public GroupeTiersPayant getGroupeTiersPayant() {
-        return groupeTiersPayant;
-    }
-
-    public TiersPayant setGroupeTiersPayant(GroupeTiersPayant groupeTiersPayant) {
+  public TiersPayant setGroupeTiersPayant(GroupeTiersPayant groupeTiersPayant) {
         this.groupeTiersPayant = groupeTiersPayant;
         return this;
     }

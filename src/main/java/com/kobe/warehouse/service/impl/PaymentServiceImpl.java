@@ -14,7 +14,7 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   public void clonePayment(Payment payment, List<Ticket> tickets, Sales copy) {
-    payment.setUpdatedAt(Instant.now());
+    payment.setUpdatedAt(LocalDateTime.now());
     payment.setEffectiveUpdateDate(payment.getUpdatedAt());
     payment.setCanceled(true);
     Payment paymentCopy = (Payment) payment.clone();
@@ -124,7 +124,7 @@ public class PaymentServiceImpl implements PaymentService {
   private Payment buildPaymentFromFromPaymentDTO(
       Sales sales, PaymentDTO paymentDTO, User user, Ticket ticket) {
     Payment payment = new Payment();
-    payment.setCreatedAt(Instant.now());
+    payment.setCreatedAt(LocalDateTime.now());
     payment.setUpdatedAt(payment.getCreatedAt());
     payment.setEffectiveUpdateDate(payment.getCreatedAt());
     payment.setSales(sales);

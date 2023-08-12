@@ -1,8 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Formula;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,13 +12,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import org.hibernate.annotations.Formula;
 
 /**
  * A OrderLine.
  */
+@Getter
 @Entity
 @Table(
     name = "order_line",
@@ -66,11 +66,11 @@ public class OrderLine implements Serializable, Cloneable {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "receipt_date")
     private LocalDateTime receiptDate;
@@ -115,17 +115,9 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "provisional_code")
     private Boolean provisionalCode = Boolean.FALSE;
 
-    public Integer getEffectifGrossIncome() {
-        return effectifGrossIncome;
-    }
-
     public OrderLine setEffectifGrossIncome(Integer effectifGrossIncome) {
         this.effectifGrossIncome = effectifGrossIncome;
         return this;
-    }
-
-    public LocalDateTime getReceiptDate() {
-        return receiptDate;
     }
 
     public OrderLine setReceiptDate(LocalDateTime receiptDate) {
@@ -133,17 +125,9 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getQuantityUg() {
-        return quantityUg;
-    }
-
     public OrderLine setQuantityUg(Integer quantityUg) {
         this.quantityUg = quantityUg;
         return this;
-    }
-
-    public Integer getEffectifOrderAmount() {
-        return effectifOrderAmount;
     }
 
     public OrderLine setEffectifOrderAmount(Integer effectifOrderAmount) {
@@ -151,17 +135,9 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Boolean getProvisionalCode() {
-        return provisionalCode;
-    }
-
     public OrderLine setProvisionalCode(Boolean provisionalCode) {
         this.provisionalCode = provisionalCode;
         return this;
-    }
-
-    public Integer getInitStock() {
-        return initStock;
     }
 
     public OrderLine setInitStock(Integer initStock) {
@@ -169,17 +145,9 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getOrderCostAmount() {
-        return orderCostAmount;
-    }
-
     public OrderLine setOrderCostAmount(Integer orderCostAmount) {
         this.orderCostAmount = orderCostAmount;
         return this;
-    }
-
-    public Integer getOrderUnitPrice() {
-        return orderUnitPrice;
     }
 
     public OrderLine setOrderUnitPrice(Integer orderUnitPrice) {
@@ -187,25 +155,13 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public FournisseurProduit getFournisseurProduit() {
-        return fournisseurProduit;
-    }
-
     public OrderLine setFournisseurProduit(FournisseurProduit fournisseurProduit) {
         this.fournisseurProduit = fournisseurProduit;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getQuantityReceived() {
-        return quantityReceived;
     }
 
     public void setQuantityReceived(Integer quantityReceived) {
@@ -217,10 +173,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getQuantityRequested() {
-        return quantityRequested;
-    }
-
     public void setQuantityRequested(Integer quantityRequested) {
         this.quantityRequested = quantityRequested;
     }
@@ -228,10 +180,6 @@ public class OrderLine implements Serializable, Cloneable {
     public OrderLine quantityRequested(Integer quantityRequested) {
         this.quantityRequested = quantityRequested;
         return this;
-    }
-
-    public Integer getQuantityReturned() {
-        return quantityReturned;
     }
 
     public void setQuantityReturned(Integer quantityReturned) {
@@ -243,10 +191,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getDiscountAmount() {
-        return discountAmount;
-    }
-
     public void setDiscountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
     }
@@ -254,10 +198,6 @@ public class OrderLine implements Serializable, Cloneable {
     public OrderLine discountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
         return this;
-    }
-
-    public Integer getOrderAmount() {
-        return orderAmount;
     }
 
     public void setOrderAmount(Integer orderAmount) {
@@ -269,10 +209,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getGrossAmount() {
-        return grossAmount;
-    }
-
     public void setGrossAmount(Integer grossAmount) {
         this.grossAmount = grossAmount;
     }
@@ -280,10 +216,6 @@ public class OrderLine implements Serializable, Cloneable {
     public OrderLine grossAmount(Integer grossAmount) {
         this.grossAmount = grossAmount;
         return this;
-    }
-
-    public Integer getNetAmount() {
-        return netAmount;
     }
 
     public void setNetAmount(Integer netAmount) {
@@ -295,10 +227,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getTaxAmount() {
-        return taxAmount;
-    }
-
     public void setTaxAmount(Integer taxAmount) {
         this.taxAmount = taxAmount;
     }
@@ -308,34 +236,22 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OrderLine createdAt(Instant createdAt) {
+    public OrderLine createdAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public OrderLine updatedAt(Instant updatedAt) {
+    public OrderLine updatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
-    }
-
-    public Integer getCostAmount() {
-        return costAmount;
     }
 
     public void setCostAmount(Integer costAmount) {
@@ -347,10 +263,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Commande getCommande() {
-        return commande;
-    }
-
     public void setCommande(Commande commande) {
         this.commande = commande;
     }
@@ -360,10 +272,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Produit getProduit() {
-        return produit;
-    }
-
     public void setProduit(Produit produit) {
         this.produit = produit;
     }
@@ -371,10 +279,6 @@ public class OrderLine implements Serializable, Cloneable {
     public OrderLine produit(Produit produit) {
         this.produit = produit;
         return this;
-    }
-
-    public Integer getRegularUnitPrice() {
-        return regularUnitPrice;
     }
 
     public OrderLine setRegularUnitPrice(Integer regularUnitPrice) {

@@ -11,11 +11,10 @@ import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.TvaEmbeded;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.List;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -54,7 +53,7 @@ public class TicketServiceImpl implements TicketService {
   public   Ticket buildTicket(ThirdPartySales thirdPartySales, ThirdPartySaleDTO thirdPartySaleDTO, User user,String tvaDatas) {
         Ticket ticket = new Ticket();
         ticket.setCode(RandomStringUtils.randomNumeric(8));
-        ticket.setCreated(Instant.now());
+        ticket.setCreated(LocalDateTime.now());
         ticket.setUser(user);
         ticket.setSale(thirdPartySales);
         ticket.setMontantAttendu(thirdPartySales.getAmountToBePaid());
@@ -72,7 +71,7 @@ public class TicketServiceImpl implements TicketService {
     public Ticket buildTicket(SaleDTO saleDTO, Sales sales,User user,String tvaDatas) {
         Ticket ticket = new Ticket();
         ticket.setCode(RandomStringUtils.randomNumeric(8));
-        ticket.setCreated(Instant.now());
+        ticket.setCreated(LocalDateTime.now());
         ticket.setUser(user);
         ticket.setSale(sales);
         ticket.setMontantAttendu(sales.getAmountToBePaid());

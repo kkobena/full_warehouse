@@ -10,7 +10,6 @@ import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -153,7 +152,7 @@ public class StockReapproServiceImpl implements StockReapproService {
                     Root<Produit> root = update.from(Produit.class);
                     update.set(Produit_.qtyAppro, quantityReappro);
                     update.set(Produit_.qtySeuilMini, seuilMin);
-                    update.set(Produit_.updatedAt, Instant.now());
+                    update.set(Produit_.updatedAt, LocalDateTime.now());
                     update.where(cb.equal(root.get(Produit_.id), id));
                     entityManager.createQuery(update).executeUpdate();
                 }

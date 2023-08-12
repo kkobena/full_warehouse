@@ -5,10 +5,11 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.User;
-
+import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
+import lombok.Getter;
 
+@Getter
 public class AjustementDTO {
     private Long id;
     private int qtyMvt;
@@ -16,7 +17,7 @@ public class AjustementDTO {
     private Long produitId;
     private Long ajustId;
     private Long storageId;
-    private Instant dateMtv;
+    private LocalDateTime dateMtv;
     private int stockBefore;
     private int stockAfter;
     private String produitLibelle, codeCip;
@@ -52,75 +53,39 @@ public class AjustementDTO {
     public AjustementDTO() {
     }
 
-    public int getQtyMvt() {
-        return qtyMvt;
-    }
-
-    public void setQtyMvt(int qtyMvt) {
+  public void setQtyMvt(int qtyMvt) {
         this.qtyMvt = qtyMvt;
     }
 
-    public String getUserFullName() {
-        return userFullName;
-    }
-
-    public void setUserFullName(String userFullName) {
+  public void setUserFullName(String userFullName) {
         this.userFullName = userFullName;
     }
 
-    public Long getProduitId() {
-        return produitId;
-    }
-
-    public void setProduitId(Long produitId) {
+  public void setProduitId(Long produitId) {
         this.produitId = produitId;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+  public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getAjustId() {
-        return ajustId;
-    }
-
-    public void setAjustId(Long ajustId) {
+  public void setAjustId(Long ajustId) {
         this.ajustId = ajustId;
     }
 
-    public Instant getDateMtv() {
-        return dateMtv;
-    }
-
-    public void setDateMtv(Instant dateMtv) {
+  public void setDateMtv(LocalDateTime dateMtv) {
         this.dateMtv = dateMtv;
     }
 
-    public int getStockBefore() {
-        return stockBefore;
-    }
-
-    public void setStockBefore(int stockBefore) {
+  public void setStockBefore(int stockBefore) {
         this.stockBefore = stockBefore;
     }
 
-    public int getStockAfter() {
-        return stockAfter;
-    }
-
-    public void setStockAfter(int stockAfter) {
+  public void setStockAfter(int stockAfter) {
         this.stockAfter = stockAfter;
     }
 
-    public String getProduitLibelle() {
-        return produitLibelle;
-    }
-
-    public AjustementDTO setProduitLibelle(String produitLibelle) {
+  public AjustementDTO setProduitLibelle(String produitLibelle) {
         this.produitLibelle = produitLibelle;
         return this;
     }
@@ -129,47 +94,27 @@ public class AjustementDTO {
         produitLibelle = produitlibelle;
     }
 
-    public String getCodeCip() {
-        return codeCip;
-    }
-
-    public AjustementDTO setCodeCip(String codeCip) {
+  public AjustementDTO setCodeCip(String codeCip) {
         this.codeCip = codeCip;
         return this;
     }
 
-    public Long getMotifAjustementId() {
-        return motifAjustementId;
-    }
-
-    public AjustementDTO setMotifAjustementId(Long motifAjustementId) {
+  public AjustementDTO setMotifAjustementId(Long motifAjustementId) {
         this.motifAjustementId = motifAjustementId;
         return this;
     }
 
-    public String getMotifAjustementLibelle() {
-        return motifAjustementLibelle;
-    }
-
-    public AjustementDTO setMotifAjustementLibelle(String motifAjustementLibelle) {
+  public AjustementDTO setMotifAjustementLibelle(String motifAjustementLibelle) {
         this.motifAjustementLibelle = motifAjustementLibelle;
         return this;
     }
 
-    public String getCommentaire() {
-        return commentaire;
-    }
-
-    public AjustementDTO setCommentaire(String commentaire) {
+  public AjustementDTO setCommentaire(String commentaire) {
         this.commentaire = commentaire;
         return this;
     }
 
-    public Long getStorageId() {
-        return storageId;
-    }
-
-    public AjustementDTO setStorageId(Long storageId) {
+  public AjustementDTO setStorageId(Long storageId) {
         this.storageId = storageId;
         return this;
     }

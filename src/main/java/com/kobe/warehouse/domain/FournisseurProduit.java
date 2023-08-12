@@ -2,7 +2,7 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -42,42 +43,51 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
   @SequenceGenerator(name = "sequenceGenerator")
   private Long id;
 
+  @Getter
   @NotNull
   @Column(name = "code_cip", nullable = false)
   private String codeCip;
 
+  @Getter
   @NotNull
   @Min(value = 1)
   @Column(name = "prix_achat", nullable = false)
   private Integer prixAchat;
 
+  @Getter
   @NotNull
   @Min(value = 1)
   @Column(name = "prix_uni", nullable = false)
   private Integer prixUni;
 
+  @Getter
   @NotNull
   @Column(name = "created_at", nullable = false)
-  private Instant createdAt = Instant.now();
+  private LocalDateTime createdAt = LocalDateTime.now();
 
+  @Getter
   @NotNull
   @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
+  private LocalDateTime updatedAt;
 
+  @Getter
   @NotNull
   @Column(name = "principal", nullable = false, columnDefinition = "boolean default false")
   private Boolean principal;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
   private Produit produit;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
   private Fournisseur fournisseur;
 
+  @Getter
   @OneToMany(mappedBy = "fournisseurProduit")
   private Set<OrderLine> orderLines = new HashSet<>();
 
@@ -90,17 +100,9 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     this.id = id;
   }
 
-  public Set<OrderLine> getOrderLines() {
-    return orderLines;
-  }
-
   public FournisseurProduit setOrderLines(Set<OrderLine> orderLines) {
     this.orderLines = orderLines;
     return this;
-  }
-
-  public String getCodeCip() {
-    return codeCip;
   }
 
   public void setCodeCip(String codeCip) {
@@ -112,10 +114,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     return this;
   }
 
-  public Integer getPrixAchat() {
-    return prixAchat;
-  }
-
   public void setPrixAchat(Integer prixAchat) {
     this.prixAchat = prixAchat;
   }
@@ -123,10 +121,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
   public FournisseurProduit prixAchat(Integer prixAchat) {
     this.prixAchat = prixAchat;
     return this;
-  }
-
-  public Integer getPrixUni() {
-    return prixUni;
   }
 
   public void setPrixUni(Integer prixUni) {
@@ -138,28 +132,20 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     return this;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
-  public FournisseurProduit createdAt(Instant createdAt) {
+  public FournisseurProduit createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
 
-  public FournisseurProduit updatedAt(Instant updatedAt) {
+  public FournisseurProduit updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -173,10 +159,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     return this;
   }
 
-  public Produit getProduit() {
-    return produit;
-  }
-
   public void setProduit(Produit produit) {
     this.produit = produit;
   }
@@ -186,16 +168,8 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     return this;
   }
 
-  public Boolean getPrincipal() {
-    return principal;
-  }
-
   public void setPrincipal(Boolean principal) {
     this.principal = principal;
-  }
-
-  public Fournisseur getFournisseur() {
-    return fournisseur;
   }
 
   public void setFournisseur(Fournisseur fournisseur) {

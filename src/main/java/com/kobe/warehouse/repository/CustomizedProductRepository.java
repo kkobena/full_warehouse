@@ -40,8 +40,8 @@ import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -204,7 +204,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
   public FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
     FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
     fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     fournisseurProduit.setCodeCip(dto.getCodeCip());
     fournisseurProduit.setPrixAchat(dto.getCostAmount());
     fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
@@ -241,7 +241,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
             .findFirst()
             .orElseThrow();
 
-    stockProduit.setUpdatedAt(Instant.now());
+    stockProduit.setUpdatedAt(LocalDateTime.now());
     stockProduit.setQtyStock(stockProduit.getQtyStock() + stockIn);
     stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
     stockProduit.setQtyVirtual(stockProduit.getQtyStock());
@@ -260,7 +260,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         .setCmuAmount(dto.getCmuAmount())
         .setTypeEtyquette(this.typeEtiquetteFromId(dto.getTypeEtiquetteId()));
 
-    produit.setUpdatedAt(Instant.now());
+    produit.setUpdatedAt(LocalDateTime.now());
     Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
     buildRayonProduits(produit, dto, rayonProduits);
     em.merge(produit);

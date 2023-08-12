@@ -1,7 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,19 +11,20 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
+import lombok.Getter;
 
 /**
  * A PaymentFournisseur.
  */
+@Getter
 @Entity
 @Table(name = "payment_fournisseur")
 public class PaymentFournisseur implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
+  // jhipster-needle-entity-add-field - JHipster will add fields here
+  @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -40,11 +42,11 @@ public class PaymentFournisseur implements Serializable {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
@@ -55,20 +57,11 @@ public class PaymentFournisseur implements Serializable {
     private PaymentMode paymentMode;
 
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+  public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getNetAmount() {
-        return netAmount;
-    }
-
-    public void setNetAmount(Integer netAmount) {
+  public void setNetAmount(Integer netAmount) {
         this.netAmount = netAmount;
     }
 
@@ -77,11 +70,7 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public Integer getPaidAmount() {
-        return paidAmount;
-    }
-
-    public void setPaidAmount(Integer paidAmount) {
+  public void setPaidAmount(Integer paidAmount) {
         this.paidAmount = paidAmount;
     }
 
@@ -90,11 +79,7 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public void setRestToPay(Integer restToPay) {
+  public void setRestToPay(Integer restToPay) {
         this.restToPay = restToPay;
     }
 
@@ -103,46 +88,30 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public PaymentFournisseur createdAt(Instant createdAt) {
+    public PaymentFournisseur createdAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public PaymentFournisseur updatedAt(Instant updatedAt) {
+    public PaymentFournisseur updatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
     }
 
-    public DeliveryReceipt getDeliveryReceipt() {
-        return deliveryReceipt;
-    }
-
-    public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
+  public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
         this.deliveryReceipt = deliveryReceipt;
         return this;
     }
 
-    public PaymentMode getPaymentMode() {
-        return paymentMode;
-    }
-
-    public void setPaymentMode(PaymentMode paymentMode) {
+  public void setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
     }
 

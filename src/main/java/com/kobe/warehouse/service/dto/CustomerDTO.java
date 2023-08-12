@@ -1,11 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -13,7 +7,14 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Payment;
 import com.kobe.warehouse.domain.UninsuredCustomer;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import lombok.Getter;
 
+@Getter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
     @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD")
@@ -31,105 +32,7 @@ public class CustomerDTO {
     private List<SaleDTO> sales = new ArrayList<>();
     private Set<Payment> payments = new HashSet<>();
     private String code;
-    private Instant updatedAt, createdAt;
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public CustomerDTO setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public CustomerDTO setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-        return this;
-    }
-
-    public String getCategorie() {
-        return categorie;
-    }
-
-    public CustomerDTO setCategorie(String categorie) {
-        this.categorie = categorie;
-        return this;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public CustomerDTO setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public CustomerDTO setFirstName(String firstName) {
-        this.firstName = firstName;
-        return this;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public CustomerDTO setLastName(String lastName) {
-        this.lastName = lastName;
-        return this;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public CustomerDTO setPhone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public CustomerDTO setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public int getEncours() {
-        return encours;
-    }
-
-    public CustomerDTO setEncours(int encours) {
-        this.encours = encours;
-        return this;
-    }
-
-    public List<SaleDTO> getSales() {
-        return sales;
-    }
-
-    public CustomerDTO setSales(List<SaleDTO> sales) {
-        this.sales = sales;
-        return this;
-    }
-
-    public Set<Payment> getPayments() {
-        return payments;
-    }
-
-    public void setPayments(Set<Payment> payments) {
-        this.payments = payments;
-    }
+    private LocalDateTime updatedAt, createdAt;
 
     public CustomerDTO() {
         super();
@@ -156,19 +59,65 @@ public class CustomerDTO {
 
     }
 
-    public Long getId() {
-        return id;
+  public CustomerDTO setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
     }
 
-    public void setId(Long id) {
+  public CustomerDTO setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+  public CustomerDTO setCategorie(String categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+
+  public CustomerDTO setFirstName(String firstName) {
+        this.firstName = firstName;
+        return this;
+    }
+
+  public CustomerDTO setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+  public CustomerDTO setLastName(String lastName) {
+        this.lastName = lastName;
+        return this;
+    }
+
+  public CustomerDTO setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
+  public CustomerDTO setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+  public CustomerDTO setEncours(int encours) {
+        this.encours = encours;
+        return this;
+    }
+
+  public CustomerDTO setSales(List<SaleDTO> sales) {
+        this.sales = sales;
+        return this;
+    }
+
+  public void setPayments(Set<Payment> payments) {
+        this.payments = payments;
+    }
+
+  public void setId(Long id) {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
+  public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 

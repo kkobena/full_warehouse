@@ -7,15 +7,14 @@ import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.time.Instant;
-import java.util.List;
 
 /**
  * Spring Data repository for the InventoryTransaction entity.
@@ -52,7 +51,7 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
 
     default InventoryTransaction buildInventoryTransaction(SalesLine salesLine, User user) {
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
-        inventoryTransaction.setCreatedAt(Instant.now());
+        inventoryTransaction.setCreatedAt(LocalDateTime.now());
         inventoryTransaction.setProduit(salesLine.getProduit());
         inventoryTransaction.setUser(user);
         inventoryTransaction.setMagasin(user.getMagasin());
@@ -71,15 +70,15 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.produit).get(Produit_.id), produitId);
     }
 
-    default Specification<InventoryTransaction> specialisationDateMvt(Instant startDate, Instant endDate) {
+    default Specification<InventoryTransaction> specialisationDateMvt(LocalDateTime startDate, LocalDateTime endDate) {
         return (root, query, cb) -> cb.between(root.get(InventoryTransaction_.createdAt), startDate, endDate);
     }
 
-    default Specification<InventoryTransaction> specialisationDateGreaterThanOrEqualTo(Instant startDate) {
+    default Specification<InventoryTransaction> specialisationDateGreaterThanOrEqualTo(LocalDateTime startDate) {
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(InventoryTransaction_.createdAt), startDate);
     }
 
-    default Specification<InventoryTransaction> specialisationDateLessThanOrEqualTo(Instant endDate) {
+    default Specification<InventoryTransaction> specialisationDateLessThanOrEqualTo(LocalDateTime endDate) {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(InventoryTransaction_.createdAt), endDate);
     }
 

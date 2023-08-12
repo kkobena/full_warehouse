@@ -1,27 +1,5 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.WarehouseApp;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.repository.OrderLineRepository;
-
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -32,6 +10,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.kobe.warehouse.WarehouseApp;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.repository.OrderLineRepository;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import javax.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests for the {@link OrderLineResource} REST controller.
@@ -68,11 +64,11 @@ public class OrderLineResourceIT {
     private static final Integer DEFAULT_TAX_AMOUNT = 1;
     private static final Integer UPDATED_TAX_AMOUNT = 2;
 
-    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_CREATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_CREATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_UPDATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDateTime DEFAULT_UPDATED_AT = LocalDateTime.now();
+    private static final LocalDateTime UPDATED_UPDATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final Integer DEFAULT_COST_AMOUNT = 1;
     private static final Integer UPDATED_COST_AMOUNT = 2;

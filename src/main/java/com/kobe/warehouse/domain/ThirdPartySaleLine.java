@@ -1,7 +1,9 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
-
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,9 +15,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(
     name = "third_party_saleLine",
@@ -45,15 +47,15 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private Instant created;
+    private LocalDateTime created;
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private Instant updated = Instant.now();
+    private LocalDateTime updated = LocalDateTime.now();
 
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
-    private Instant effectiveUpdateDate;
+    private LocalDateTime effectiveUpdateDate;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -69,92 +71,52 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
     @Column(name = "invoice_statut", nullable = false)
     private ThirdPartySaleStatut invoiceStatut = ThirdPartySaleStatut.ACTIF;
 
-    public short getTaux() {
-        return taux;
-    }
-
-    public ThirdPartySaleLine setTaux(short taux) {
+  public ThirdPartySaleLine setTaux(short taux) {
         this.taux = taux;
         return this;
     }
 
-    public ThirdPartySaleStatut getInvoiceStatut() {
-        return invoiceStatut;
-    }
-
-    public ThirdPartySaleLine setInvoiceStatut(ThirdPartySaleStatut invoiceStatut) {
+  public ThirdPartySaleLine setInvoiceStatut(ThirdPartySaleStatut invoiceStatut) {
         this.invoiceStatut = invoiceStatut;
         return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public ThirdPartySaleLine setId(Long id) {
+  public ThirdPartySaleLine setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public ThirdPartySales getSale() {
-        return sale;
-    }
-
-    public ThirdPartySaleLine setSale(ThirdPartySales sale) {
+  public ThirdPartySaleLine setSale(ThirdPartySales sale) {
         this.sale = sale;
         return this;
     }
 
-    public String getNumBon() {
-        return numBon;
-    }
-
-    public ThirdPartySaleLine setNumBon(String numBon) {
+  public ThirdPartySaleLine setNumBon(String numBon) {
         this.numBon = numBon;
         return this;
     }
 
-    public ClientTiersPayant getClientTiersPayant() {
-        return clientTiersPayant;
-    }
-
-    public ThirdPartySaleLine setClientTiersPayant(ClientTiersPayant clientTiersPayant) {
+  public ThirdPartySaleLine setClientTiersPayant(ClientTiersPayant clientTiersPayant) {
         this.clientTiersPayant = clientTiersPayant;
         return this;
     }
 
-    public Integer getMontant() {
-        return montant;
-    }
-
-    public ThirdPartySaleLine setMontant(Integer montant) {
+  public ThirdPartySaleLine setMontant(Integer montant) {
         this.montant = montant;
         return this;
     }
 
-    public Instant getCreated() {
-        return created;
-    }
-
-    public ThirdPartySaleLine setCreated(Instant created) {
+  public ThirdPartySaleLine setCreated(LocalDateTime created) {
         this.created = created;
         return this;
     }
 
-    public Instant getUpdated() {
-        return updated;
-    }
-
-    public ThirdPartySaleLine setUpdated(Instant updated) {
+  public ThirdPartySaleLine setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
     }
 
-    public Instant getEffectiveUpdateDate() {
-        return effectiveUpdateDate;
-    }
-
-    public ThirdPartySaleLine setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+  public ThirdPartySaleLine setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
         this.effectiveUpdateDate = effectiveUpdateDate;
         return this;
     }
@@ -165,7 +127,7 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         ThirdPartySaleLine that = (ThirdPartySaleLine) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        return Objects.equals(id, that.id);
     }
 
     @Override
@@ -173,11 +135,7 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
         return id != null ? id.hashCode() : 0;
     }
 
-    public ThirdPartySaleStatut getStatut() {
-        return statut;
-    }
-
-    public ThirdPartySaleLine setStatut(ThirdPartySaleStatut statut) {
+  public ThirdPartySaleLine setStatut(ThirdPartySaleStatut statut) {
         this.statut = statut;
         return this;
     }

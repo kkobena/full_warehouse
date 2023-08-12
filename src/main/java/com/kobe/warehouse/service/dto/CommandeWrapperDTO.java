@@ -2,10 +2,11 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import lombok.Getter;
 
+@Getter
 public abstract class CommandeWrapperDTO {
     private Long id;
     private String orderRefernce;
@@ -16,8 +17,8 @@ public abstract class CommandeWrapperDTO {
     private Integer grossAmount;
     private Integer netAmount;
     private Integer taxAmount;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private OrderStatut orderStatus;
 
     private int totalProduits;
@@ -45,17 +46,9 @@ public abstract class CommandeWrapperDTO {
     public CommandeWrapperDTO() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public CommandeWrapperDTO setId(Long id) {
         this.id = id;
         return this;
-    }
-
-    public String getOrderRefernce() {
-        return orderRefernce;
     }
 
     public CommandeWrapperDTO setOrderRefernce(String orderRefernce) {
@@ -63,17 +56,9 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
-    }
-
     public CommandeWrapperDTO setReceiptRefernce(String receiptRefernce) {
         this.receiptRefernce = receiptRefernce;
         return this;
-    }
-
-    public LocalDate getReceiptDate() {
-        return receiptDate;
     }
 
     public CommandeWrapperDTO setReceiptDate(LocalDate receiptDate) {
@@ -81,17 +66,9 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public Integer getDiscountAmount() {
-        return discountAmount;
-    }
-
     public CommandeWrapperDTO setDiscountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
         return this;
-    }
-
-    public Integer getOrderAmount() {
-        return orderAmount;
     }
 
     public CommandeWrapperDTO setOrderAmount(Integer orderAmount) {
@@ -99,17 +76,9 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public Integer getGrossAmount() {
-        return grossAmount;
-    }
-
     public CommandeWrapperDTO setGrossAmount(Integer grossAmount) {
         this.grossAmount = grossAmount;
         return this;
-    }
-
-    public Integer getNetAmount() {
-        return netAmount;
     }
 
     public CommandeWrapperDTO setNetAmount(Integer netAmount) {
@@ -117,35 +86,19 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public Integer getTaxAmount() {
-        return taxAmount;
-    }
-
     public CommandeWrapperDTO setTaxAmount(Integer taxAmount) {
         this.taxAmount = taxAmount;
         return this;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public CommandeWrapperDTO setCreatedAt(Instant createdAt) {
+    public CommandeWrapperDTO setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public CommandeWrapperDTO setUpdatedAt(Instant updatedAt) {
+    public CommandeWrapperDTO setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
         return this;
-    }
-
-    public OrderStatut getOrderStatus() {
-        return orderStatus;
     }
 
     public CommandeWrapperDTO setOrderStatus(OrderStatut orderStatus) {
@@ -153,26 +106,14 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public int getTotalProduits() {
-        return totalProduits;
-    }
-
     public CommandeWrapperDTO setTotalProduits(int totalProduits) {
         this.totalProduits = totalProduits;
         return this;
     }
 
-    public Integer getReceiptAmount() {
-        return receiptAmount;
-    }
-
     public CommandeWrapperDTO setReceiptAmount(Integer receiptAmount) {
         this.receiptAmount = receiptAmount;
         return this;
-    }
-
-    public String getSequenceBon() {
-        return sequenceBon;
     }
 
     public CommandeWrapperDTO setSequenceBon(String sequenceBon) {

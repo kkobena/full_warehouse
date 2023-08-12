@@ -21,7 +21,7 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -77,8 +77,8 @@ public interface CustomizedProductService {
         FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
         fournisseurProduit.setCodeCip(dto.getCodeCip());
-        fournisseurProduit.setCreatedAt(Instant.now());
-        fournisseurProduit.setUpdatedAt(Instant.now());
+        fournisseurProduit.setCreatedAt(LocalDateTime.now());
+        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
         fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
@@ -95,7 +95,7 @@ public interface CustomizedProductService {
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(
         FournisseurProduitDTO dto, FournisseurProduit fournisseurProduit) {
         fournisseurProduit.setCodeCip(dto.getCodeCip());
-        fournisseurProduit.setUpdatedAt(Instant.now());
+        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
         fournisseurProduit.setPrincipal(dto.isPrincipal());
@@ -106,7 +106,7 @@ public interface CustomizedProductService {
     default StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto,
         StockProduit stockProduit) {
         stockProduit.setQtyStock(dto.getQtyStock());
-        stockProduit.setUpdatedAt(Instant.now());
+        stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
         stockProduit.setQtyUG(dto.getQtyUG());
         stockProduit.setStorage(storageFromId(dto.getStorageId()));
@@ -115,9 +115,9 @@ public interface CustomizedProductService {
 
     default StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto) {
         StockProduit stockProduit = new StockProduit();
-        stockProduit.setCreatedAt(Instant.now());
+        stockProduit.setCreatedAt(LocalDateTime.now());
         stockProduit.setQtyStock(dto.getQtyStock());
-        stockProduit.setUpdatedAt(Instant.now());
+        stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyVirtual(dto.getQtyVirtual());
         stockProduit.setQtyUG(dto.getQtyUG());
         stockProduit.setStorage(storageFromId(dto.getStorageId()));
@@ -225,7 +225,7 @@ public interface CustomizedProductService {
 
 
     default Produit buildDetailProduitFromProduitDTO(ProduitDTO produitDTO, Produit produit) {
-        produit.setUpdatedAt(Instant.now());
+        produit.setUpdatedAt(LocalDateTime.now());
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCostAmount(produitDTO.getCostAmount());

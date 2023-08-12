@@ -47,4 +47,6 @@ public interface SalesLineService {
   void createInventory(SalesLine salesLine, User user, Long storageId);
 
   void createInventory(Set<SalesLine> salesLines, User user, Long storageId);
+
+  void save(Set<SalesLine> salesLines, User user, Long storageId);
 }

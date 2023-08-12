@@ -7,14 +7,13 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.web.rest.errors.GenericError;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -67,7 +66,7 @@ public class TiersPayantServiceImpl implements TiersPayantService {
 
     @Override
     public void desable(Long id) {
-        tiersPayantRepository.save(tiersPayantRepository.getReferenceById(id).setStatut(TiersPayantStatut.DISABLED).setUpdated(Instant.now()).setUpdatedBy(storageService.getUser()));
+        tiersPayantRepository.save(tiersPayantRepository.getReferenceById(id).setStatut(TiersPayantStatut.DISABLED).setUpdated(LocalDateTime.now()).setUpdatedBy(storageService.getUser()));
     }
 
     @Override

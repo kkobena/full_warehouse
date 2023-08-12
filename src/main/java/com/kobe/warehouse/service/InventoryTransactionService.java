@@ -9,19 +9,16 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.criteria.InventoryTransactionSpec;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
-import java.time.Instant;
-import java.time.LocalDate;
+import com.kobe.warehouse.service.dto.filter.InventoryTransactionFilterDTO;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +33,15 @@ public class InventoryTransactionService {
   private final InventoryTransactionRepository inventoryTransactionRepository;
 
   private final ProduitRepository produitRepository;
+  private final InventoryTransactionSpec inventoryTransactionSpec;
 
   public InventoryTransactionService(
       InventoryTransactionRepository inventoryTransactionRepository,
-      ProduitRepository produitRepository) {
+      ProduitRepository produitRepository,
+      InventoryTransactionSpec inventoryTransactionSpec) {
     this.inventoryTransactionRepository = inventoryTransactionRepository;
     this.produitRepository = produitRepository;
+    this.inventoryTransactionSpec = inventoryTransactionSpec;
   }
 
   @Transactional(readOnly = true)
@@ -79,51 +79,9 @@ public class InventoryTransactionService {
     return current;
   }
 
-  @Transactional(readOnly = true)
-  public List<InventoryTransactionDTO> getAllInventoryTransactions(
-      Long produitId, String startDate, String endDate, Integer type) {
-    Instant dtStart = null;
-    Instant dtEnd = null;
-    Specification<InventoryTransaction> specification = null;
-    if (type != null && type != -1) {
-      TransactionType transactionType = TransactionType.values()[type];
-      specification =
-          Specification.where(
-              inventoryTransactionRepository.specialisationTypeTransaction(transactionType));
-    }
-    if (produitId != null) {
-      add(inventoryTransactionRepository.specialisationProduitId(produitId), specification);
-    }
-    if (org.apache.commons.lang3.StringUtils.isEmpty(startDate)
-        || org.apache.commons.lang3.StringUtils.isEmpty(endDate)) {
-      if (org.apache.commons.lang3.StringUtils.isNotEmpty(startDate)) {
-        LocalDateTime dateStart =
-            LocalDateTime.of(LocalDate.parse(startDate, dateTimeFormatter), LocalTime.of(0, 0, 0));
-        dtStart = dateStart.toInstant(ZoneOffset.UTC);
-        add(
-            inventoryTransactionRepository.specialisationDateGreaterThanOrEqualTo(dtStart),
-            specification);
-      }
-      if (org.apache.commons.lang3.StringUtils.isNotEmpty(endDate)) {
-        LocalDateTime dateEnd =
-            LocalDateTime.of(LocalDate.parse(endDate, dateTimeFormatter), LocalTime.of(23, 59, 59));
-        dtEnd = dateEnd.toInstant(ZoneOffset.UTC);
-        add(
-            inventoryTransactionRepository.specialisationDateLessThanOrEqualTo(dtEnd),
-            specification);
-      }
-    } else {
-      add(inventoryTransactionRepository.specialisationDateMvt(dtStart, dtEnd), specification);
-    }
-    return inventoryTransactionRepository
-        .findAll(specification, Sort.by(Sort.Direction.ASC, "createdAt"))
-        .stream()
-        .map(InventoryTransactionDTO::new)
-        .collect(Collectors.toList());
-  }
-
+  
   public void buildInventoryTransaction(
-      StoreInventoryLine storeInventoryLine, Instant now, User user) {
+      StoreInventoryLine storeInventoryLine, LocalDateTime now, User user) {
     InventoryTransaction inventoryTransaction = new InventoryTransaction();
     inventoryTransaction.setCreatedAt(now);
     inventoryTransaction.setProduit(storeInventoryLine.getProduit());
@@ -144,7 +102,7 @@ public class InventoryTransactionService {
   public void saveInventoryTransaction(DeliveryReceiptItem deliveryReceiptItem, User user) {
     FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
     InventoryTransaction inventoryTransaction = new InventoryTransaction();
-    inventoryTransaction.setCreatedAt(Instant.now());
+    inventoryTransaction.setCreatedAt(LocalDateTime.now());
     inventoryTransaction.setDeliveryReceiptItem(deliveryReceiptItem);
     inventoryTransaction.setFournisseurProduit(fournisseurProduit);
     inventoryTransaction.setProduit(fournisseurProduit.getProduit());
@@ -159,5 +117,21 @@ public class InventoryTransactionService {
     inventoryTransaction.setCostAmount(deliveryReceiptItem.getOrderCostAmount());
     inventoryTransaction.setRegularUnitPrice(deliveryReceiptItem.getOrderUnitPrice());
     inventoryTransactionRepository.save(inventoryTransaction);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<InventoryTransactionDTO> getAllInventoryTransactions(
+      Pageable pageable, Long produitId, String startDate, String endDate, Integer type) {
+    this.inventoryTransactionSpec.setInventoryTransactionFilter(
+        InventoryTransactionFilterDTO.builder()
+            .endDate(endDate)
+            .produitId(produitId)
+            .startDate(startDate)
+            .type(type)
+            .build());
+
+    return inventoryTransactionRepository
+        .findAll(this.inventoryTransactionSpec, pageable)
+        .map(InventoryTransactionDTO::new);
   }
 }

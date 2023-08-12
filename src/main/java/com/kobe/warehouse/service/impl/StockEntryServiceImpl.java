@@ -39,7 +39,6 @@ import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -172,7 +171,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     .setSequenceBon(deliveryReceiptLite.getSequenceBon())
                     .setLastUserEdit(storageService.getUser())
                     .orderStatus(OrderStatut.CLOSED)
-                    .updatedAt(Instant.now()))
+                    .updatedAt(LocalDateTime.now()))
         .orElse(null);
   }
 
@@ -244,7 +243,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                       deliveryReceiptItem.getCostAmount(),
                       getTotalStockQuantity(stockProduit),
                       deliveryReceiptItem.getOrderCostAmount()));
-              produit.setUpdatedAt(Instant.now());
+              produit.setUpdatedAt(LocalDateTime.now());
               produitService.update(produit);
             });
     logsService.create(
@@ -392,7 +391,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
     Produit produit = fournisseurProduit.getProduit();
     int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
     fournisseurProduit.setPrixUni(deliveryReceiptItem.getOrderUnitPrice() + montantAdditionel);
     return fournisseurProduitService.update(fournisseurProduit);
@@ -1027,7 +1026,7 @@ public class StockEntryServiceImpl implements StockEntryService {
       Produit produit) {
 
     int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     if (deliveryReceiptItem.getOrderCostAmount().compareTo(fournisseurProduit.getPrixAchat())
         != 0) {
       fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());

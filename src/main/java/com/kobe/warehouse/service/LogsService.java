@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Logs;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.LogsRepository;
 import org.springframework.context.MessageSource;
@@ -63,4 +64,13 @@ public class LogsService {
     logs.setOldObject(old);
     logsRepository.save(logs);
   }
+    public void create(TransactionType transactionType, String comments, String indentityKey,
+        Produit produit) {
+        Logs logs = new Logs();
+        logs.setComments(comments);
+        logs.setIndentityKey(indentityKey);
+        logs.setTransactionType(transactionType);
+        logs.setUser(userService.getUser());
+        logsRepository.save(logs);
+    }
 }

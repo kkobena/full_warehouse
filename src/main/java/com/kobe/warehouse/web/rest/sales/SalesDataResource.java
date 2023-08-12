@@ -106,9 +106,10 @@ public class SalesDataResource {
   @GetMapping("/sales/prevente")
   public ResponseEntity<List<SaleDTO>> getAllSalesPreventes(
       @RequestParam(name = "search", required = false) String search,
-      @RequestParam(name = "type", required = false) String typeVente) {
+      @RequestParam(name = "type", required = false) String typeVente,
+      @RequestParam(name = "userId", required = false) Long userId) {
     log.debug("REST request to get a page of Sales");
-    List<SaleDTO> data = saleDataService.allPrevente(search, typeVente);
+    List<SaleDTO> data = saleDataService.allPrevente(search, typeVente,userId);
     return ResponseEntity.ok().body(data);
   }
 
@@ -164,13 +165,13 @@ public class SalesDataResource {
   }*/
 
   @GetMapping("/sales/print/VNO-receipt/{id}")
-  public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) throws IOException {
+  public ResponseEntity<Void> printCashReceipt(@PathVariable Long id)  {
     receiptPrinterService.printCashSale(id);
     return ResponseEntity.ok().build();
   }
 
   @GetMapping("/sales/print/VO-receipt/{id}")
-  public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) throws IOException {
+  public ResponseEntity<Void> printVoReceipt(@PathVariable Long id)  {
     receiptPrinterService.printVoSale(id);
     return ResponseEntity.ok().build();
   }

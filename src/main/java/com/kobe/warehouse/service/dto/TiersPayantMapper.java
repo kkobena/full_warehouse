@@ -2,8 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public interface TiersPayantMapper {
     default TiersPayantDto fromEntity(TiersPayant tiersPayant) {
@@ -40,8 +39,8 @@ public interface TiersPayantMapper {
             .setConsoMensuelle(tiersPayant.getConsoMensuelle())
             .setPlafondConso(tiersPayant.getPlafondConso())
             .setPlafondAbsolu(tiersPayant.getPlafondAbsolu())
-            .setCreated(Instant.now())
-            .setUpdated(Instant.now())
+            .setCreated(LocalDateTime.now())
+            .setUpdated(LocalDateTime.now())
             .setEmail(tiersPayant.getEmail())
             .setName(tiersPayant.getName())
             .setGroupeTiersPayant(fromId(tiersPayant.getGroupeTiersPayantId()))
@@ -68,7 +67,7 @@ public interface TiersPayantMapper {
             .setConsoMensuelle(dto.getConsoMensuelle())
             .setPlafondConso(dto.getPlafondConso())
             .setPlafondAbsolu(dto.getPlafondAbsolu())
-            .setUpdated(Instant.now())
+            .setUpdated(LocalDateTime.now())
             .setEmail(dto.getEmail())
             .setName(dto.getName())
             .setGroupeTiersPayant(fromId(dto.getGroupeTiersPayantId()))

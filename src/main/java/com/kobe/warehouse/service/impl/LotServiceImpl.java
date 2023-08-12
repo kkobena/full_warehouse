@@ -10,7 +10,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -57,7 +56,7 @@ public class LotServiceImpl implements LotService {
     Commande commande = commandeRepository.getReferenceById(lot.getCommandeId());
     removeLotFromCommande(commande, lot);
     commande.getLots().add(lot);
-    commande.setUpdatedAt(Instant.now());
+    commande.setUpdatedAt(LocalDateTime.now());
     commande.setLastUserEdit(storageService.getUser());
     commandeRepository.saveAndFlush(commande);
     return lot;

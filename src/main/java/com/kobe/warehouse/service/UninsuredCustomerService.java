@@ -7,17 +7,16 @@ import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.CustomerAlreadyExistException;
 import com.kobe.warehouse.web.rest.errors.GenericError;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,7 +32,7 @@ public class UninsuredCustomerService {
         Optional<UninsuredCustomer> uninsuredCustomerOptional = findOne(dto);
         if (uninsuredCustomerOptional.isPresent()) throw new CustomerAlreadyExistException();
         var uninsuredCustomer = new UninsuredCustomer();
-        uninsuredCustomer.setCreatedAt(Instant.now());
+        uninsuredCustomer.setCreatedAt(LocalDateTime.now());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
         uninsuredCustomer.setFirstName(dto.getFirstName());
         uninsuredCustomer.setLastName(dto.getLastName());

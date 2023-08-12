@@ -1,9 +1,18 @@
 package com.kobe.warehouse.repository;
 
+import static com.kobe.warehouse.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.config.audit.AuditEventConverter;
 import com.kobe.warehouse.domain.PersistentAuditEvent;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +22,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpSession;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.kobe.warehouse.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link CustomAuditEventRepository}.
@@ -43,7 +42,7 @@ public class CustomAuditEventRepositoryIT {
     public void setup() {
         customAuditEventRepository = new CustomAuditEventRepository(persistenceAuditEventRepository, auditEventConverter);
         persistenceAuditEventRepository.deleteAll();
-        Instant oneHourAgo = Instant.now().minusSeconds(3600);
+        LocalDateTime oneHourAgo = LocalDateTime.now().minusSeconds(3600);
 
         PersistentAuditEvent testUserEvent = new PersistentAuditEvent();
         testUserEvent.setPrincipal("test-user");

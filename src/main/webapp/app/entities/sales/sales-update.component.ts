@@ -39,10 +39,9 @@ import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/aya
 import { FormAyantDroitComponent } from '../customer/form-ayant-droit/form-ayant-droit.component';
 import { TiersPayantCustomerListComponent } from '../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
 import { AssuranceService } from './assurance.service';
-
-import { map } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
 import { ModePaymentService } from '../mode-payments/mode-payment.service';
+import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -132,7 +131,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   qtyMaxToSel = 999999;
   derniereMonnaie = 0;
   monnaie = 0;
-  readonly minLength = 1;
+  readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly CASH = 'CASH';
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -145,7 +144,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   readonly MOOV = 'MOOV';
   readonly MTN = 'MTN';
   check = true; // mis pour le focus produit et dialogue button
-  readonly notFoundText = 'Aucun produit';
+  readonly notFoundText = PRODUIT_NOT_FOUND;
   @ViewChild('clientSearchModalBtn', { static: false })
   clientSearchModalBtn?: ElementRef;
   @ViewChild('errorEntryAmountBtn', { static: false })
@@ -164,6 +163,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   canSaleWithoutSansBon = false;
   showAddModePaimentBtn = false;
   selectedMode: IPaymentMode | null;
+  pendingSalesSidebar = false;
 
   constructor(
     protected salesService: SalesService,
@@ -220,12 +220,18 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     };
   }
 
+  onLoadPrevente(sales: ISales): void {
+    this.modeReglementSelected = [];
+    this.sale = sales;
+    this.salesLines = sales.salesLines;
+    this.customerSelected = sales.customer;
+    this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
+    this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
+    this.userSeller = this.users.find(e => e.id === sales.sellerId) || this.userSeller;
+    this.buildReglementInput();
+  }
+
   ngOnInit(): void {
-    /*
-    const logger$ = fromEvent<KeyboardEvent>(this.inpu
-nativeElement, 'keyup');
-logger$.subscribe(evt => this.keys += evt.key);
-     */
     this.loadPaymentMode();
     this.loadAllUsers();
     this.maxToSale();
@@ -250,11 +256,7 @@ logger$.subscribe(evt => this.keys += evt.key);
 
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
-        this.sale = sales;
-        this.salesLines = sales.salesLines;
-        this.customerSelected = sales.customer;
-        this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
-        this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
+        this.onLoadPrevente(sales);
       }
       if (!this.showStock) {
         if (this.remiseProduits.length === 0) {
@@ -475,7 +477,7 @@ logger$.subscribe(evt => this.keys += evt.key);
     //  this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale!));
   }
 
-  searchUser(event: any): void {
+  searchUser(): void {
     this.loadAllUsers();
   }
 
@@ -603,10 +605,6 @@ logger$.subscribe(evt => this.keys += evt.key);
 
   getEntryAmount(): number {
     return this.modeReglementSelected.reduce((sum, current) => sum + Number(current.amount), 0);
-  }
-
-  showInfoCustomer(): boolean {
-    return true;
   }
 
   loadProduits(): void {
@@ -1239,14 +1237,11 @@ logger$.subscribe(evt => this.keys += evt.key);
   }
 
   loadPaymentMode(): void {
-    this.modePaymentService
-      .query()
-      .pipe(map((res: HttpResponse<IPaymentMode[]>) => this.convertPaymentMode(res)))
-      .subscribe((res: HttpResponse<IPaymentMode[]>) => {
-        this.modeReglements = res.body;
-        this.cashModePayment = this.modeReglements.find(mode => mode.code === 'CASH');
-        this.buildReglementInput();
-      });
+    this.modePaymentService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
+      this.modeReglements = this.convertPaymentMode(res);
+      this.cashModePayment = this.modeReglements.find(mode => mode.code === 'CASH');
+      this.buildReglementInput();
+    });
   }
 
   buildReglementInput(): void {
@@ -1254,8 +1249,14 @@ logger$.subscribe(evt => this.keys += evt.key);
       this.modeReglements.forEach((mode: IPaymentMode) => {
         const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
         if (el) {
-          el.paymentMode.amount = el.paidAmount;
-          this.modeReglementSelected.push(el.paymentMode);
+          mode.amount = el.paidAmount;
+          if (mode.code === this.CASH && el.montantVerse) {
+            mode.amount = el.montantVerse;
+            this.sale.montantVerse = el.montantVerse;
+          }
+          this.modeReglementSelected.push(mode);
+          this.computeMonnaie(null);
+          this.setFirstInputFocused();
         }
       });
     } else {
@@ -1343,6 +1344,18 @@ logger$.subscribe(evt => this.keys += evt.key);
     this.reglements = this.modeReglements.filter(x => !this.modeReglementSelected.includes(x));
   }
 
+  openPindingSide(): void {
+    this.pendingSalesSidebar = true;
+  }
+
+  closeSideBar(booleanValue: boolean): void {
+    this.pendingSalesSidebar = booleanValue;
+  }
+
+  onSelectPrevente(prevente: ISales): void {
+    this.subscribeOnloadPreventeResponse(this.salesService.find(prevente.id!));
+  }
+
   protected processQtyRequested(salesLine: ISalesLine): void {
     if (this.naturesVente?.code === this.COMPTANT) {
       this.processQtyRequestedForVNO(salesLine);
@@ -1410,9 +1423,9 @@ logger$.subscribe(evt => this.keys += evt.key);
     });
   }
 
-  protected subscribeToUpdateItemPriceOrQuantityResponse(result: Observable<HttpResponse<ISales>>): void {
+  protected subscribeOnloadPreventeResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      next: (res: HttpResponse<ISales>) => this.onLoadPrevente(res.body),
       error: () => this.onSaveError(),
     });
   }
@@ -1552,6 +1565,16 @@ logger$.subscribe(evt => this.keys += evt.key);
     }
   }
 
+  private setFirstInputFocused(): void {
+    const input = this.getInputAtIndex(0);
+    if (input) {
+      input.focus();
+      setTimeout(() => {
+        input.select();
+      }, 50);
+    }
+  }
+
   private getInputs(): Element[] {
     const inputs = this.document.querySelectorAll('.payment-mode-input');
     return Array.from(inputs);
@@ -1562,57 +1585,57 @@ logger$.subscribe(evt => this.keys += evt.key);
     return inputs;
   }
 
-  private convertPaymentMode(res: HttpResponse<IPaymentMode[]>): HttpResponse<IPaymentMode[]> {
-    if (res.body) {
-      this.isReadonly = this.modeReglementSelected.length > 1;
-      res.body.forEach((paymentMode: IPaymentMode) => {
-        paymentMode.disabled = false;
-        switch (paymentMode.code) {
-          case 'CASH':
-            paymentMode.styleImageClass = 'cash';
-            paymentMode.styleBtnClass = 'cash-btn';
-            break;
-          case 'WAVE':
-            paymentMode.styleImageClass = 'wave';
-            paymentMode.styleBtnClass = 'wave-btn';
-            paymentMode.isReadonly = this.isReadonly;
-            break;
-          case 'OM':
-            paymentMode.styleImageClass = 'om';
-            paymentMode.styleBtnClass = 'om-btn';
-            paymentMode.isReadonly = true;
-            break;
-          case 'CB':
-            paymentMode.styleImageClass = 'cb';
-            paymentMode.styleBtnClass = 'cb-btn';
-            paymentMode.isReadonly = this.isReadonly;
-            break;
-          case 'MOOV':
-            paymentMode.styleImageClass = 'moov';
-            paymentMode.styleBtnClass = 'moov-btn';
-            paymentMode.isReadonly = this.isReadonly;
-            break;
-          case 'MTN':
-            paymentMode.styleImageClass = 'mtn';
-            paymentMode.styleBtnClass = 'mtn-btn';
-            paymentMode.isReadonly = this.isReadonly;
-            break;
-          case 'CH':
-            paymentMode.styleImageClass = 'cheque';
-            paymentMode.styleBtnClass = 'cheque-btn';
-            paymentMode.isReadonly = true;
-            break;
-          case 'VIREMENT':
-            paymentMode.styleImageClass = 'virement';
-            paymentMode.styleBtnClass = 'virement-btn';
-            paymentMode.isReadonly = this.isReadonly;
-            break;
-          default:
-            break;
-        }
-      });
+  private convertmodeReglement(paymentMode: IPaymentMode): IPaymentMode {
+    paymentMode.disabled = false;
+    switch (paymentMode.code) {
+      case 'CASH':
+        paymentMode.styleImageClass = 'cash';
+        paymentMode.styleBtnClass = 'cash-btn';
+        break;
+      case 'WAVE':
+        paymentMode.styleImageClass = 'wave';
+        paymentMode.styleBtnClass = 'wave-btn';
+        paymentMode.isReadonly = this.isReadonly;
+        break;
+      case 'OM':
+        paymentMode.styleImageClass = 'om';
+        paymentMode.styleBtnClass = 'om-btn';
+        paymentMode.isReadonly = true;
+        break;
+      case 'CB':
+        paymentMode.styleImageClass = 'cb';
+        paymentMode.styleBtnClass = 'cb-btn';
+        paymentMode.isReadonly = this.isReadonly;
+        break;
+      case 'MOOV':
+        paymentMode.styleImageClass = 'moov';
+        paymentMode.styleBtnClass = 'moov-btn';
+        paymentMode.isReadonly = this.isReadonly;
+        break;
+      case 'MTN':
+        paymentMode.styleImageClass = 'mtn';
+        paymentMode.styleBtnClass = 'mtn-btn';
+        paymentMode.isReadonly = this.isReadonly;
+        break;
+      case 'CH':
+        paymentMode.styleImageClass = 'cheque';
+        paymentMode.styleBtnClass = 'cheque-btn';
+        paymentMode.isReadonly = true;
+        break;
+      case 'VIREMENT':
+        paymentMode.styleImageClass = 'virement';
+        paymentMode.styleBtnClass = 'virement-btn';
+        paymentMode.isReadonly = this.isReadonly;
+        break;
+      default:
+        break;
     }
-    return res;
+    return paymentMode;
+  }
+
+  private convertPaymentMode(res: HttpResponse<IPaymentMode[]>): IPaymentMode[] {
+    this.isReadonly = this.modeReglementSelected.length > 1;
+    return res.body.map((paymentMode: IPaymentMode) => this.convertmodeReglement(paymentMode));
   }
 
   private addTiersPayant(resp: IClientTiersPayant): void {

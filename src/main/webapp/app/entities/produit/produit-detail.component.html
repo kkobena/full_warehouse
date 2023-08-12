@@ -1,56 +1,113 @@
 <div class="row justify-content-center">
-    <div class="col-12">
-        <div *ngIf="produit">
-           <!-- <h5 class="text-lg-left font-weight-bold"> {{ produit.libelle }}
-            </h5>-->
-<!--            <hr>-->
-            <p-toolbar>
-                <div class="p-toolbar-group-left row">
-                          <label class="mr-2 ml-2" for="produitBox">Produits</label>      <ng-select id="produitBox" autofocus="true"  #produitbox [items]="produits" bindLabel="libelle" placeholder="Sélectionner un produit"
-                                           [(ngModel)]="produit"   [searchable]="true"
-                                           (change)="onSelect(produitbox)" [clearable]="false"
-                                >
-                                </ng-select>
-                    <label class="ml-2" for="startDate">Du</label>
-                    <p-inputMask  class="ml-2" mask="99/99/9999" id="startDate" [(ngModel)]="startDate"
-                                             placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
-                    <label class="ml-2" for="endDate">Au</label>
-                                <p-inputMask class="ml-2" id="endDate" mask="99/99/9999" [(ngModel)]="endDate" placeholder="99/99/9999"
-                                             slotChar="dd/mm/yyyy"></p-inputMask>
+  <div class="col-12">
+    <div *ngIf="produit">
+      <!-- <h5 class="text-lg-left font-weight-bold"> {{ produit.libelle }}
+       </h5>-->
+      <!--            <hr>-->
+      <p-toolbar>
+        <div class="p-toolbar-group-left  p-md-8">
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">PRODUITS</span>
+            <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                            (onSelect)="onSelect($event)"
+                            [(ngModel)]="produit"
+                            [appendTo]="APPEND_TO"
+                            [autofocus]="true"
+                            [dataKey]="'id'"
+                            [dropdown]="true"
+                            [emptyMessage]="PRODUIT_NOT_FOUND"
+                            [inputStyle]="{'width':'100%'}"
+                            [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
+                            [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
 
-                    <label class="ml-2" for="type">Type</label>
-                                <p-dropdown class="ml-2" id="type" [options]="typeMouvement" (onChange)="filtreTypeMouvement($event)"
-                                            [(ngModel)]="selectedTypeMouvement" [filter]="false" placeholder="Filtrer par type"
-                                            styleClass="dropdown-width">
-                                </p-dropdown>
+              <ng-template let-item pTemplate="item">
 
+                <div *ngIf="item.totalQuantity>0">
+            <span
+              style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
+                  <span class="float-right">{{item.regularUnitPrice |number}}</span>
                 </div>
-                <div class="p-toolbar-group-right"> <button type="submit" (click)="loadPage()" class="btn btn-sm btn-success mr-1">
-                    <i class="pi pi-check"></i>
-                    Rechercher
-                </button>
-                    <button type="submit" (click)="previousState()" class="btn btn-sm btn-danger mr-1">
-                        <fa-icon icon="print"></fa-icon>&nbsp;<span
-                        jhiTranslate="entity.action.print">Imprimer</span>
-                    </button>
-
-                    <button type="submit" (click)="previousState()" class="btn btn-sm btn-info">
-                        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-                        jhiTranslate="entity.action.back">Back</span>
-                    </button>
+                <div *ngIf="item.totalQuantity<=0">
+                                            <span class="stockless"
+                                                  style="width:20%; display:inline-block">{{item.codeCip}}</span><span
+                  class="stockless"> {{item.libelle}}</span> <span
+                  class="float-right stockless">{{item.regularUnitPrice |number}}</span>
                 </div>
+              </ng-template>
 
-            </p-toolbar>
-            <hr>
+            </p-autoComplete>
 
-            <div class="row-md  ag-theme-alpine">
-                <ag-grid-angular style="width: 100%;height: 100%;" [rowData]="rowData"
-                                 [columnDefs]="columnDefs">
-                </ag-grid-angular>
+          </div>
+          <label class="ml-2" for="startDate">Du</label>
+          <p-inputMask [(ngModel)]="startDate" class="ml-2" id="startDate" mask="99/99/9999"
+                       placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
+          <label class="ml-2" for="endDate">Au</label>
+          <p-inputMask [(ngModel)]="endDate" class="ml-2" id="endDate" mask="99/99/9999"
+                       placeholder="99/99/9999"
+                       slotChar="dd/mm/yyyy"></p-inputMask>
 
-            </div>
-
+          <label class="ml-2" for="type">Type</label>
+          <p-dropdown (onChange)="filtreTypeMouvement($event)" [(ngModel)]="selectedTypeMouvement"
+                      [filter]="false"
+                      [options]="typeMouvement"
+                      class="ml-2" id="type"
+                      placeholder="Filtrer par type"
+                      styleClass="dropdown-width">
+          </p-dropdown>
 
         </div>
+        <div class="p-toolbar-group-right">
+          <button (click)="loadPage()" class="btn btn-sm btn-success mr-1" type="submit">
+            <i class="pi pi-check"></i>
+            Rechercher
+          </button>
+          <button (click)="previousState()" class="btn btn-sm btn-danger mr-1" type="submit">
+            <fa-icon icon="print"></fa-icon>&nbsp;<span
+            jhiTranslate="entity.action.print">Imprimer</span>
+          </button>
+
+          <button (click)="previousState()" class="btn btn-sm btn-info" type="submit">
+            <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+            jhiTranslate="entity.action.back">Back</span>
+          </button>
+        </div>
+
+      </p-toolbar>
+      <hr>
+      <p-table *ngIf="entites && entites.length > 0" [lazy]="true" [paginator]="true"
+               [resizableColumns]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
+               [value]="entites"
+
+               dataKey="id" selectionMode="single"
+               styleClass="ui-table-cars">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col" style="width:5%"><span>Date mouvement</span></th>
+            <th scope="col" style="width:28%"><span>Type mouvement</span></th>
+            <th scope="col" style="width:10%"><span>Quantité mouvement</span></th>
+            <th scope="col" style="width:15%"><span>Quantité avant</span></th>
+            <th scope="col" style="width:14%"><span>Quantité après</span></th>
+            <th scope="col" style="width:20%"><span>Opérateur</span></th>
+
+          </tr>
+        </ng-template>
+        <ng-template let-columns="columns" let-elRow pTemplate="body">
+          <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+            <td>{{ elRow.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+            <td>{{ elRow.transactionType }}</td>
+            <td>{{ elRow.quantity  }}</td>
+            <td>{{ elRow.quantityBefor }}</td>
+            <td>{{ elRow.quantityAfter }}</td>
+
+            <td>{{ elRow.abbrName }}</td>
+
+          </tr>
+        </ng-template>
+
+      </p-table>
+
+
     </div>
+  </div>
 </div>

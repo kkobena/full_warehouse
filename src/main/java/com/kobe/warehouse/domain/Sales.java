@@ -8,7 +8,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -25,8 +25,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /** A Sales. */
+@Getter
 @Entity
 @Table(
     name = "sales",
@@ -130,11 +132,11 @@ public class Sales implements Serializable, Cloneable {
 
   @NotNull
   @Column(name = "created_at", nullable = false)
-  private Instant createdAt;
+  private LocalDateTime createdAt;
 
   @NotNull
   @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
+  private LocalDateTime updatedAt;
 
   @OneToMany(mappedBy = "sales")
   private Set<SalesLine> salesLines = new HashSet<>();
@@ -172,7 +174,7 @@ public class Sales implements Serializable, Cloneable {
 
   @NotNull
   @Column(name = "effective_update_date", nullable = false)
-  private Instant effectiveUpdateDate;
+  private LocalDateTime effectiveUpdateDate;
 
   @Column(name = "to_ignore", nullable = false, columnDefinition = "boolean default false")
   private boolean toIgnore = false;
@@ -235,17 +237,9 @@ public class Sales implements Serializable, Cloneable {
   @Column(name = "monnaie", nullable = false, columnDefinition = "int default '0'")
   private Integer monnaie = 0;
 
-  public String getCaisseNum() {
-    return caisseNum;
-  }
-
   public Sales setCaisseNum(String caisseNum) {
     this.caisseNum = caisseNum;
     return this;
-  }
-
-  public Integer getMonnaie() {
-    return monnaie;
   }
 
   public Sales setMonnaie(Integer monnaie) {
@@ -253,17 +247,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public String getTvaEmbeded() {
-    return tvaEmbeded;
-  }
-
   public Sales setTvaEmbeded(String tvaEmbeded) {
     this.tvaEmbeded = tvaEmbeded;
     return this;
-  }
-
-  public User getLastUserEdit() {
-    return lastUserEdit;
   }
 
   public Sales setLastUserEdit(User lastUserEdit) {
@@ -271,16 +257,8 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public CategorieChiffreAffaire getCategorieChiffreAffaire() {
-    return categorieChiffreAffaire;
-  }
-
   public void setCategorieChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
     this.categorieChiffreAffaire = categorieChiffreAffaire;
-  }
-
-  public Boolean getCanceled() {
-    return canceled;
   }
 
   public Sales setCanceled(Boolean canceled) {
@@ -288,17 +266,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Set<Ticket> getTickets() {
-    return tickets;
-  }
-
   public Sales setTickets(Set<Ticket> tickets) {
     this.tickets = tickets;
     return this;
-  }
-
-  public String getCaisseEndNum() {
-    return caisseEndNum;
   }
 
   public Sales setCaisseEndNum(String caisseEndNum) {
@@ -306,17 +276,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Customer getCustomer() {
-    return customer;
-  }
-
   public Sales setCustomer(Customer customer) {
     this.customer = customer;
     return this;
-  }
-
-  public SalesStatut getStatutCaisse() {
-    return statutCaisse;
   }
 
   public Sales setStatutCaisse(SalesStatut statutCaisse) {
@@ -324,17 +286,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getNetUgAmount() {
-    return netUgAmount;
-  }
-
   public Sales setNetUgAmount(Integer netUgAmount) {
     this.netUgAmount = netUgAmount;
     return this;
-  }
-
-  public Integer getDiscountAmountHorsUg() {
-    return discountAmountHorsUg;
   }
 
   public Sales setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
@@ -342,17 +296,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getDiscountAmountUg() {
-    return discountAmountUg;
-  }
-
   public Sales setDiscountAmountUg(Integer discountAmountUg) {
     this.discountAmountUg = discountAmountUg;
     return this;
-  }
-
-  public boolean isDiffere() {
-    return differe;
   }
 
   public Sales setDiffere(boolean differe) {
@@ -360,17 +306,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getHtAmountUg() {
-    return htAmountUg;
-  }
-
   public Sales setHtAmountUg(Integer htAmountUg) {
     this.htAmountUg = htAmountUg;
     return this;
-  }
-
-  public User getCassier() {
-    return cassier;
   }
 
   public Sales setCassier(User cassier) {
@@ -378,17 +316,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public NatureVente getNatureVente() {
-    return natureVente;
-  }
-
   public Sales setNatureVente(NatureVente natureVente) {
     this.natureVente = natureVente;
     return this;
-  }
-
-  public TypePrescription getTypePrescription() {
-    return typePrescription;
   }
 
   public Sales setTypePrescription(TypePrescription typePrescription) {
@@ -396,17 +326,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public PaymentStatus getPaymentStatus() {
-    return paymentStatus;
-  }
-
   public Sales setPaymentStatus(PaymentStatus paymentStatus) {
     this.paymentStatus = paymentStatus;
     return this;
-  }
-
-  public Boolean getCopy() {
-    return copy;
   }
 
   public Sales setCopy(Boolean copy) {
@@ -414,17 +336,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public boolean isImported() {
-    return imported;
-  }
-
   public Sales setImported(boolean imported) {
     this.imported = imported;
     return this;
-  }
-
-  public Integer getMargeUg() {
-    return margeUg;
   }
 
   public Sales setMargeUg(Integer margeUg) {
@@ -432,17 +346,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getMontantttcUg() {
-    return montantttcUg;
-  }
-
   public Sales setMontantttcUg(Integer montantttcUg) {
     this.montantttcUg = montantttcUg;
     return this;
-  }
-
-  public Integer getMontantnetUg() {
-    return montantnetUg;
   }
 
   public Sales setMontantnetUg(Integer montantnetUg) {
@@ -450,17 +356,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getMontantTvaUg() {
-    return montantTvaUg;
-  }
-
   public Sales setMontantTvaUg(Integer montantTvaUg) {
     this.montantTvaUg = montantTvaUg;
     return this;
-  }
-
-  public Integer getRestToPay() {
-    return restToPay;
   }
 
   public Sales setRestToPay(Integer restToPay) {
@@ -468,16 +366,8 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public String getNumberTransaction() {
-    return numberTransaction;
-  }
-
   public void setNumberTransaction(String numberTransaction) {
     this.numberTransaction = numberTransaction;
-  }
-
-  public Integer getAmountToBeTakenIntoAccount() {
-    return amountToBeTakenIntoAccount;
   }
 
   public Sales setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
@@ -485,17 +375,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public boolean isToIgnore() {
-    return toIgnore;
-  }
-
   public Sales setToIgnore(boolean toIgnore) {
     this.toIgnore = toIgnore;
     return this;
-  }
-
-  public Sales getCanceledSale() {
-    return canceledSale;
   }
 
   public Sales setCanceledSale(Sales canceledSale) {
@@ -503,40 +385,20 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Magasin getMagasin() {
-    return magasin;
-  }
-
   public void setMagasin(Magasin magasin) {
     this.magasin = magasin;
-  }
-
-  public Set<Payment> getPayments() {
-    return payments;
   }
 
   public void setPayments(Set<Payment> payments) {
     this.payments = payments;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   public void setUser(User user) {
     this.user = user;
   }
 
-  public Long getId() {
-    return id;
-  }
-
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public Integer getDiscountAmount() {
-    return discountAmount;
   }
 
   public void setDiscountAmount(Integer discountAmount) {
@@ -548,17 +410,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Instant getEffectiveUpdateDate() {
-    return effectiveUpdateDate;
-  }
-
-  public Sales setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+  public Sales setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
     this.effectiveUpdateDate = effectiveUpdateDate;
     return this;
-  }
-
-  public Integer getAmountToBePaid() {
-    return amountToBePaid;
   }
 
   public Sales setAmountToBePaid(Integer amountToBePaid) {
@@ -566,25 +420,13 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getPayrollAmount() {
-    return payrollAmount;
-  }
-
   public Sales setPayrollAmount(Integer payrollAmount) {
     this.payrollAmount = payrollAmount;
     return this;
   }
 
-  public Remise getRemise() {
-    return remise;
-  }
-
   public void setRemise(Remise remise) {
     this.remise = remise;
-  }
-
-  public Integer getSalesAmount() {
-    return salesAmount;
   }
 
   public void setSalesAmount(Integer salesAmount) {
@@ -596,17 +438,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getHtAmount() {
-    return htAmount;
-  }
-
   public Sales setHtAmount(Integer htAmount) {
     this.htAmount = htAmount;
     return this;
-  }
-
-  public Integer getNetAmount() {
-    return netAmount;
   }
 
   public void setNetAmount(Integer netAmount) {
@@ -618,10 +452,6 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getTaxAmount() {
-    return taxAmount;
-  }
-
   public void setTaxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
   }
@@ -629,10 +459,6 @@ public class Sales implements Serializable, Cloneable {
   public Sales taxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
     return this;
-  }
-
-  public Integer getCostAmount() {
-    return costAmount;
   }
 
   public void setCostAmount(Integer costAmount) {
@@ -644,10 +470,6 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public SalesStatut getStatut() {
-    return statut;
-  }
-
   public void setStatut(SalesStatut statut) {
     this.statut = statut;
   }
@@ -657,34 +479,22 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
-  public Sales createdAt(Instant createdAt) {
+  public Sales createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
 
-  public Sales updatedAt(Instant updatedAt) {
+  public Sales updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public Set<SalesLine> getSalesLines() {
-    return salesLines;
   }
 
   public void setSalesLines(Set<SalesLine> salesLines) {
@@ -708,10 +518,6 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public DateDimension getDateDimension() {
-    return dateDimension;
-  }
-
   public void setDateDimension(DateDimension dateDimension) {
     this.dateDimension = dateDimension;
   }
@@ -719,10 +525,6 @@ public class Sales implements Serializable, Cloneable {
   public Sales dateDimension(DateDimension dateDimension) {
     this.dateDimension = dateDimension;
     return this;
-  }
-
-  public User getSeller() {
-    return seller;
   }
 
   public Sales setSeller(User seller) {

@@ -24,8 +24,8 @@ import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -49,7 +49,7 @@ public final class ProduitBuilder {
     produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
     produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
     produit.setTypeProduit(TypeProduit.PACKAGE);
-    produit.setCreatedAt(Instant.now());
+    produit.setCreatedAt(LocalDateTime.now());
     produit.setUpdatedAt(produit.getCreatedAt());
     produit.setCmuAmount(produitDTO.getCmuAmount());
     produit.setCostAmount(produitDTO.getCostAmount());
@@ -98,7 +98,7 @@ public final class ProduitBuilder {
       produit.setParent(fromId(produitDTO.getProduitId()));
     }
     produit.setTypeProduit(produitDTO.getTypeProduit());
-    produit.setCreatedAt(Instant.now());
+    produit.setCreatedAt(LocalDateTime.now());
     produit.setUpdatedAt(produit.getCreatedAt());
     produit.setCostAmount(produitDTO.getCostAmount());
     produit.setItemCostAmount(produitDTO.getItemCostAmount());
@@ -496,7 +496,7 @@ public final class ProduitBuilder {
     StockProduit stockProduit = new StockProduit();
     stockProduit.setQtyStock(0);
     stockProduit.setQtyVirtual(0);
-    stockProduit.setCreatedAt(Instant.now());
+    stockProduit.setCreatedAt(LocalDateTime.now());
     stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
     stockProduit.setQtyUG(0);
     stockProduit.setStorage(storage);
@@ -505,7 +505,7 @@ public final class ProduitBuilder {
 
   public static FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto) {
     FournisseurProduit fournisseurProduit = new FournisseurProduit();
-    fournisseurProduit.setCreatedAt(Instant.now());
+    fournisseurProduit.setCreatedAt(LocalDateTime.now());
     fournisseurProduit.setUpdatedAt(fournisseurProduit.getCreatedAt());
     fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
     fournisseurProduit.setCodeCip(dto.getCodeCip());
@@ -523,7 +523,7 @@ public final class ProduitBuilder {
   }
 
   public static Produit buildProduitFromProduitDTO(ProduitDTO produitDTO, Produit produit) {
-    produit.setUpdatedAt(Instant.now());
+    produit.setUpdatedAt(LocalDateTime.now());
     produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
     produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
     produit.setCostAmount(produitDTO.getCostAmount());
@@ -562,7 +562,7 @@ public final class ProduitBuilder {
   public static FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
     FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
     fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     fournisseurProduit.setCodeCip(dto.getCodeCip());
     fournisseurProduit.setPrixAchat(dto.getCostAmount());
     fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());

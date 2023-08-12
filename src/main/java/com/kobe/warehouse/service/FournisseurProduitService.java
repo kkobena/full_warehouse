@@ -8,7 +8,7 @@ import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.web.rest.errors.DefaultFournisseurException;
 import com.kobe.warehouse.web.rest.errors.GenericError;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -104,7 +104,7 @@ public class FournisseurProduitService {
     fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     return fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
   }
 
@@ -133,7 +133,7 @@ public class FournisseurProduitService {
     fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     return Optional.of(fournisseurProduitRepository.saveAndFlush(fournisseurProduit))
         .map(FournisseurProduitDTO::new);
   }
@@ -182,7 +182,7 @@ public class FournisseurProduitService {
           "produit", String.format("Ce code %s est déjà associé à un produit ", cip), "codeCip");
     }
     fournisseurProduit.setCodeCip(buildCodeCip(cip));
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
   }
 
@@ -235,7 +235,7 @@ public class FournisseurProduitService {
     fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     return fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
   }
 
@@ -261,7 +261,7 @@ public class FournisseurProduitService {
     fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
     fournisseurProduit.setPrixAchat(dto.getPrixAchat());
     fournisseurProduit.setPrixUni(dto.getPrixUni());
-    fournisseurProduit.setUpdatedAt(Instant.now());
+    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
     this.fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
     this.produitService.updateFromCommande(dto.getProduit(), produit);
   }

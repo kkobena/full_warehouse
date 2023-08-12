@@ -2,12 +2,14 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -43,16 +45,17 @@ public class ProduitResource {
 
     private static final String ENTITY_NAME = "produit";
     private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
-    private final UserRepository userRepository;
     private final ProduitRepository produitRepository;
     private final ProduitService produitService;
+    private final ProductActivityService productActivityService;
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    public ProduitResource(ProduitRepository produitRepository, UserRepository userRepository, ProduitService produitService) {
+    public ProduitResource(ProduitRepository produitRepository, ProduitService produitService,
+        ProductActivityService productActivityService) {
         this.produitRepository = produitRepository;
-        this.userRepository = userRepository;
         this.produitService = produitService;
+        this.productActivityService = productActivityService;
     }
 
     /**
@@ -205,4 +208,14 @@ public class ProduitResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @Transactional(readOnly = true)
+    @GetMapping("/produits/activity")
+    public ResponseEntity<List<ProductActivityDTO>> getProduitActivity(
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate
+
+    ) {
+        return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId,fromDate,toDate));
+    }
 }

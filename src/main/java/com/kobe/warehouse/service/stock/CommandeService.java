@@ -14,8 +14,8 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +38,8 @@ public class CommandeService {
         SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
 
     Commande commande = new Commande();
-    commande.setCreatedAt(Instant.now());
-    commande.setUpdatedAt(Instant.now());
+    commande.setCreatedAt(LocalDateTime.now());
+    commande.setUpdatedAt(LocalDateTime.now());
     commande.setReceiptDate(LocalDate.now());
     commande.setOrderRefernce(referenceService.buildNumCommande());
     commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
@@ -55,8 +55,8 @@ public class CommandeService {
       int quantityAfter = produitDTO2.getQuantityReceived() + quantityBefor;
       OrderLine orderLine = new OrderLine();
       orderLine.setProduit(produit);
-      orderLine.setCreatedAt(Instant.now());
-      orderLine.setUpdatedAt(Instant.now());
+      orderLine.setCreatedAt(LocalDateTime.now());
+      orderLine.setUpdatedAt(LocalDateTime.now());
       orderLine.setDiscountAmount(0);
       orderLine.setNetAmount(0);
       orderLine.setTaxAmount(0);

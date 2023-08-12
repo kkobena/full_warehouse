@@ -3,7 +3,7 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,8 +15,10 @@ import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 /** A InventoryTransaction. */
+@Getter
 @Entity
 @Table(
     name = "inventory_transaction",
@@ -39,7 +41,7 @@ public class InventoryTransaction implements Serializable {
 
   @NotNull
   @Column(name = "created_at", nullable = false)
-  private Instant createdAt = Instant.now();
+  private LocalDateTime createdAt = LocalDateTime.now();
 
   @NotNull
   @Column(name = "quantity", nullable = false)
@@ -80,16 +82,8 @@ public class InventoryTransaction implements Serializable {
   @ManyToOne private Decondition decondition;
   @ManyToOne private FournisseurProduit fournisseurProduit;
 
-  public User getUser() {
-    return user;
-  }
-
   public void setUser(User user) {
     this.user = user;
-  }
-
-  public FournisseurProduit getFournisseurProduit() {
-    return fournisseurProduit;
   }
 
   public InventoryTransaction setFournisseurProduit(FournisseurProduit fournisseurProduit) {
@@ -97,25 +91,13 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public Decondition getDecondition() {
-    return decondition;
-  }
-
   public InventoryTransaction setDecondition(Decondition decondition) {
     this.decondition = decondition;
     return this;
   }
 
-  public Long getId() {
-    return id;
-  }
-
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public TransactionType getTransactionType() {
-    return transactionType;
   }
 
   public void setTransactionType(TransactionType transactionType) {
@@ -127,30 +109,18 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public Magasin getMagasin() {
-    return magasin;
-  }
-
   public InventoryTransaction setMagasin(Magasin magasin) {
     this.magasin = magasin;
     return this;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
-  public InventoryTransaction createdAt(Instant createdAt) {
+  public InventoryTransaction createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
-  }
-
-  public Integer getQuantity() {
-    return quantity;
   }
 
   public void setQuantity(Integer quantity) {
@@ -162,10 +132,6 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public Integer getQuantityBefor() {
-    return quantityBefor;
-  }
-
   public void setQuantityBefor(Integer quantityBefor) {
     this.quantityBefor = quantityBefor;
   }
@@ -173,10 +139,6 @@ public class InventoryTransaction implements Serializable {
   public InventoryTransaction quantityBefor(Integer quantityBefor) {
     this.quantityBefor = quantityBefor;
     return this;
-  }
-
-  public Integer getQuantityAfter() {
-    return quantityAfter;
   }
 
   public void setQuantityAfter(Integer quantityAfter) {
@@ -188,10 +150,6 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public Produit getProduit() {
-    return produit;
-  }
-
   public void setProduit(Produit produit) {
     this.produit = produit;
   }
@@ -201,16 +159,8 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public Integer getCostAmount() {
-    return costAmount;
-  }
-
   public void setCostAmount(Integer costAmount) {
     this.costAmount = costAmount;
-  }
-
-  public Integer getRegularUnitPrice() {
-    return regularUnitPrice;
   }
 
   public void setRegularUnitPrice(Integer regularUnitPrice) {
@@ -233,17 +183,9 @@ public class InventoryTransaction implements Serializable {
     return 31;
   }
 
-  public Ajustement getAjustement() {
-    return ajustement;
-  }
-
   public InventoryTransaction setAjustement(Ajustement ajustement) {
     this.ajustement = ajustement;
     return this;
-  }
-
-  public SalesLine getSaleLine() {
-    return saleLine;
   }
 
   public InventoryTransaction setSaleLine(SalesLine saleLine) {
@@ -251,18 +193,10 @@ public class InventoryTransaction implements Serializable {
     return this;
   }
 
-  public RepartitionStockProduit getRepartitionStockProduit() {
-    return repartitionStockProduit;
-  }
-
   public InventoryTransaction setRepartitionStockProduit(
       RepartitionStockProduit repartitionStockProduit) {
     this.repartitionStockProduit = repartitionStockProduit;
     return this;
-  }
-
-  public DeliveryReceiptItem getDeliveryReceiptItem() {
-    return deliveryReceiptItem;
   }
 
   public InventoryTransaction setDeliveryReceiptItem(DeliveryReceiptItem deliveryReceiptItem) {

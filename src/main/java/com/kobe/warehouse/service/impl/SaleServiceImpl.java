@@ -18,7 +18,6 @@ import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.repository.WarehouseCalendarRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.CashRegisterService;
 import com.kobe.warehouse.service.PaymentService;
@@ -27,6 +26,7 @@ import com.kobe.warehouse.service.SaleService;
 import com.kobe.warehouse.service.SalesLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -37,8 +37,8 @@ import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
 import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -76,8 +76,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
       PaymentService paymentService,
       TicketService ticketService,
       ReferenceService referenceService,
-      WarehouseCalendarRepository warehouseCalendarRepository) {
-    super(referenceService, warehouseCalendarRepository);
+      WarehouseCalendarService warehouseCalendarService) {
+    super(referenceService, warehouseCalendarService);
     this.salesRepository = salesRepository;
     this.userRepository = userRepository;
     this.uninsuredCustomerRepository = uninsuredCustomerRepository;
@@ -225,7 +225,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     c.setLastUserEdit(c.getUser());
     c.setCassier(caissier);
     c.setCopy(dto.getCopy());
-    c.setCreatedAt(Instant.now());
+    c.setCreatedAt(LocalDateTime.now());
     c.setUpdatedAt(c.getCreatedAt());
     c.setEffectiveUpdateDate(c.getUpdatedAt());
     c.setPayrollAmount(0);
@@ -347,7 +347,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     if (Objects.nonNull(uninsuredCustomer)) {
       p.setCustomer(uninsuredCustomer);
     }
-    salesLineService.createInventory(p.getSalesLines(), user, id);
+    salesLineService.save(p.getSalesLines(), user, id);
     p.setStatut(SalesStatut.CLOSED);
     p.setStatutCaisse(SalesStatut.CLOSED);
     p.setDiffere(dto.isDiffere());
@@ -357,7 +357,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     if (p.isDiffere() && p.getCustomer() == null) throw new SaleNotFoundCustomerException();
     p.setPayrollAmount(dto.getPayrollAmount());
     p.setRestToPay(dto.getRestToPay());
-    p.setUpdatedAt(Instant.now());
+    p.setUpdatedAt(LocalDateTime.now());
     p.setMonnaie(dto.getMontantRendu());
     p.setEffectiveUpdateDate(p.getUpdatedAt());
     if (p.getRestToPay() == 0) {
@@ -398,7 +398,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     CashSale sales = (CashSale) salesLine.getSales();
     sales.removeSalesLine(salesLine);
     upddateCashSaleAmountsOnRemovingItem(sales, salesLine);
-    sales.setUpdatedAt(Instant.now());
+    sales.setUpdatedAt(LocalDateTime.now());
     sales.setLastUserEdit(storageService.getUser());
     sales.setEffectiveUpdateDate(sales.getUpdatedAt());
     cashSaleRepository.save(sales);
@@ -442,7 +442,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             sales -> {
               CashSale copy = (CashSale) sales.clone();
               copySale(sales, copy);
-              sales.setUpdatedAt(Instant.now());
+              sales.setUpdatedAt(LocalDateTime.now());
               sales.setEffectiveUpdateDate(sales.getUpdatedAt());
               sales.setCanceled(true);
               sales.setLastUserEdit(user);
@@ -451,10 +451,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
               List<Ticket> tickets = ticketService.findAllBySaleId(sales.getId());
               paymentService
                   .findAllBySalesId(sales.getId())
-                  .forEach(
-                      payment -> {
-                        paymentService.clonePayment(payment, tickets, copy);
-                      });
+                  .forEach(payment -> paymentService.clonePayment(payment, tickets, copy));
               salesLineService.cloneSalesLine(
                   sales.getSalesLines(),
                   copy,
@@ -465,7 +462,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
   private void copySale(Sales sales, Sales copy) {
     copy.setId(null);
-    copy.setUpdatedAt(Instant.now());
+    copy.setUpdatedAt(LocalDateTime.now());
     copy.setCreatedAt(copy.getUpdatedAt());
     copy.setEffectiveUpdateDate(copy.getUpdatedAt());
     buildReference(copy);

@@ -13,14 +13,16 @@ import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+@Getter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"),
@@ -38,14 +40,14 @@ public class SaleDTO implements Serializable {
   private Integer taxAmount;
   private Integer costAmount;
   private SalesStatut statut;
-  private Instant createdAt;
-  private Instant updatedAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
   private List<SaleLineDTO> salesLines = new ArrayList<>();
   private List<PaymentDTO> payments = new ArrayList<>();
   private Integer dateDimensionId;
   private String sellerUserName;
   private SaleDTO canceledSale;
-  private Instant effectiveUpdateDate;
+  private LocalDateTime effectiveUpdateDate;
   private boolean toIgnore;
   private String ticketNumber;
   private Integer payrollAmount;
@@ -136,17 +138,9 @@ public class SaleDTO implements Serializable {
     //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
   }
 
-  public List<TvaEmbeded> getTvaEmbededs() {
-    return tvaEmbededs;
-  }
-
   public SaleDTO setTvaEmbededs(List<TvaEmbeded> tvaEmbededs) {
     this.tvaEmbededs = tvaEmbededs;
     return this;
-  }
-
-  public String getCategorie() {
-    return categorie;
   }
 
   public SaleDTO setCategorie(String categorie) {
@@ -154,17 +148,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Integer getMontantVerse() {
-    return montantVerse;
-  }
-
   public SaleDTO setMontantVerse(Integer montantVerse) {
     this.montantVerse = montantVerse;
     return this;
-  }
-
-  public Integer getMontantRendu() {
-    return montantRendu;
   }
 
   public SaleDTO setMontantRendu(Integer montantRendu) {
@@ -172,17 +158,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public String getCaisseEndNum() {
-    return caisseEndNum;
-  }
-
   public SaleDTO setCaisseEndNum(String caisseEndNum) {
     this.caisseEndNum = caisseEndNum;
     return this;
-  }
-
-  public Long getCassierId() {
-    return cassierId;
   }
 
   public SaleDTO setCassierId(Long cassierId) {
@@ -190,17 +168,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Long getSellerId() {
-    return sellerId;
-  }
-
   public SaleDTO setSellerId(Long sellerId) {
     this.sellerId = sellerId;
     return this;
-  }
-
-  public String getCaisseNum() {
-    return caisseNum;
   }
 
   public SaleDTO setCaisseNum(String caisseNum) {
@@ -208,17 +178,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public boolean isDiffere() {
-    return differe;
-  }
-
   public SaleDTO setDiffere(boolean differe) {
     this.differe = differe;
     return this;
-  }
-
-  public int getMontantRendue() {
-    return montantRendue;
   }
 
   public SaleDTO setMontantRendue(int montantRendue) {
@@ -226,17 +188,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public UserDTO getCassier() {
-    return cassier;
-  }
-
   public SaleDTO setCassier(UserDTO cassier) {
     this.cassier = cassier;
     return this;
-  }
-
-  public UserDTO getSeller() {
-    return seller;
   }
 
   public SaleDTO setSeller(UserDTO seller) {
@@ -244,17 +198,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public NatureVente getNatureVente() {
-    return natureVente;
-  }
-
   public SaleDTO setNatureVente(NatureVente natureVente) {
     this.natureVente = natureVente;
     return this;
-  }
-
-  public Integer getHtAmount() {
-    return htAmount;
   }
 
   public SaleDTO setHtAmount(Integer htAmount) {
@@ -262,17 +208,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public TypePrescription getTypePrescription() {
-    return typePrescription;
-  }
-
   public SaleDTO setTypePrescription(TypePrescription typePrescription) {
     this.typePrescription = typePrescription;
     return this;
-  }
-
-  public PaymentStatus getPaymentStatus() {
-    return paymentStatus;
   }
 
   public SaleDTO setPaymentStatus(PaymentStatus paymentStatus) {
@@ -280,17 +218,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Boolean getCopy() {
-    return copy;
-  }
-
   public SaleDTO setCopy(Boolean copy) {
     this.copy = copy;
     return this;
-  }
-
-  public boolean isImported() {
-    return imported;
   }
 
   public SaleDTO setImported(boolean imported) {
@@ -298,17 +228,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Integer getMargeUg() {
-    return margeUg;
-  }
-
   public SaleDTO setMargeUg(Integer margeUg) {
     this.margeUg = margeUg;
     return this;
-  }
-
-  public Integer getMontantttcUg() {
-    return montantttcUg;
   }
 
   public SaleDTO setMontantttcUg(Integer montantttcUg) {
@@ -316,17 +238,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Integer getMontantnetUg() {
-    return montantnetUg;
-  }
-
   public SaleDTO setMontantnetUg(Integer montantnetUg) {
     this.montantnetUg = montantnetUg;
     return this;
-  }
-
-  public Integer getMontantTvaUg() {
-    return montantTvaUg;
   }
 
   public SaleDTO setMontantTvaUg(Integer montantTvaUg) {
@@ -334,17 +248,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Integer getMarge() {
-    return marge;
-  }
-
   public SaleDTO setMarge(Integer marge) {
     this.marge = marge;
     return this;
-  }
-
-  public String getCustomerNum() {
-    return customerNum;
   }
 
   public SaleDTO setCustomerNum(String customerNum) {
@@ -352,32 +258,16 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Long getId() {
-    return id;
-  }
-
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public String getUserFullName() {
-    return userFullName;
   }
 
   public void setUserFullName(String userFullName) {
     this.userFullName = userFullName;
   }
 
-  public Integer getDiscountAmount() {
-    return discountAmount;
-  }
-
   public void setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
-  }
-
-  public CustomerDTO getCustomer() {
-    return customer;
   }
 
   public SaleDTO setCustomer(CustomerDTO customer) {
@@ -385,80 +275,40 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Long getCustomerId() {
-    return customerId;
-  }
-
   public void setCustomerId(Long customerId) {
     this.customerId = customerId;
-  }
-
-  public Integer getSalesAmount() {
-    return salesAmount;
   }
 
   public void setSalesAmount(Integer salesAmount) {
     this.salesAmount = salesAmount;
   }
 
-  public Integer getNetAmount() {
-    return netAmount;
-  }
-
   public void setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
-  }
-
-  public Integer getTaxAmount() {
-    return taxAmount;
   }
 
   public void setTaxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
   }
 
-  public Integer getCostAmount() {
-    return costAmount;
-  }
-
   public void setCostAmount(Integer costAmount) {
     this.costAmount = costAmount;
-  }
-
-  public SalesStatut getStatut() {
-    return statut;
   }
 
   public void setStatut(SalesStatut statut) {
     this.statut = statut;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
-  }
-
-  public String getNumberTransaction() {
-    return numberTransaction;
   }
 
   public void setNumberTransaction(String numberTransaction) {
     this.numberTransaction = numberTransaction;
-  }
-
-  public Integer getDateDimensionId() {
-    return dateDimensionId;
   }
 
   public SaleDTO setDateDimensionId(Integer dateDimensionId) {
@@ -466,17 +316,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public String getSellerUserName() {
-    return sellerUserName;
-  }
-
   public SaleDTO setSellerUserName(String sellerUserName) {
     this.sellerUserName = sellerUserName;
     return this;
-  }
-
-  public SaleDTO getCanceledSale() {
-    return canceledSale;
   }
 
   public SaleDTO setCanceledSale(SaleDTO canceledSale) {
@@ -484,17 +326,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Instant getEffectiveUpdateDate() {
-    return effectiveUpdateDate;
-  }
-
-  public SaleDTO setEffectiveUpdateDate(Instant effectiveUpdateDate) {
+  public SaleDTO setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
     this.effectiveUpdateDate = effectiveUpdateDate;
     return this;
-  }
-
-  public boolean isToIgnore() {
-    return toIgnore;
   }
 
   public SaleDTO setToIgnore(boolean toIgnore) {
@@ -502,17 +336,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public String getTicketNumber() {
-    return ticketNumber;
-  }
-
   public SaleDTO setTicketNumber(String ticketNumber) {
     this.ticketNumber = ticketNumber;
     return this;
-  }
-
-  public Integer getPayrollAmount() {
-    return payrollAmount;
   }
 
   public SaleDTO setPayrollAmount(Integer payrollAmount) {
@@ -520,17 +346,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Integer getAmountToBePaid() {
-    return amountToBePaid;
-  }
-
   public SaleDTO setAmountToBePaid(Integer amountToBePaid) {
     this.amountToBePaid = amountToBePaid;
     return this;
-  }
-
-  public Integer getAmountToBeTakenIntoAccount() {
-    return amountToBeTakenIntoAccount;
   }
 
   public SaleDTO setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
@@ -538,17 +356,9 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public Remise getRemise() {
-    return remise;
-  }
-
   public SaleDTO setRemise(Remise remise) {
     this.remise = remise;
     return this;
-  }
-
-  public Integer getRestToPay() {
-    return restToPay;
   }
 
   public SaleDTO setRestToPay(Integer restToPay) {
@@ -556,26 +366,14 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public List<TicketDTO> getTickets() {
-    return tickets;
-  }
-
   public SaleDTO setTickets(List<TicketDTO> tickets) {
     this.tickets = tickets;
     return this;
   }
 
-  public List<SaleLineDTO> getSalesLines() {
-    return salesLines;
-  }
-
   public SaleDTO setSalesLines(List<SaleLineDTO> salesLines) {
     this.salesLines = salesLines;
     return this;
-  }
-
-  public List<PaymentDTO> getPayments() {
-    return payments;
   }
 
   public SaleDTO setPayments(List<PaymentDTO> payments) {

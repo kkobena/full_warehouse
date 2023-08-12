@@ -20,13 +20,13 @@ import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.repository.WarehouseCalendarRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.SalesLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.ThirdPartySaleService;
 import com.kobe.warehouse.service.TicketService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -40,8 +40,8 @@ import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
 import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import com.kobe.warehouse.web.rest.errors.ThirdPartySalesTiersPayantException;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -87,8 +87,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
       UserRepository userRepository,
       PaymentService paymentService,
       ReferenceService referenceService,
-      WarehouseCalendarRepository warehouseCalendarRepository) {
-    super(referenceService, warehouseCalendarRepository);
+      WarehouseCalendarService warehouseCalendarService) {
+    super(referenceService, warehouseCalendarService);
     this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     this.clientTiersPayantRepository = clientTiersPayantRepository;
     this.tiersPayantRepository = tiersPayantRepository;
@@ -252,7 +252,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         clientTiersPayant.getConsoMensuelle() != null
             ? clientTiersPayant.getConsoMensuelle() + thirdPartySaleLine.getMontant()
             : thirdPartySaleLine.getMontant());
-    clientTiersPayant.setUpdated(Instant.now());
+    clientTiersPayant.setUpdated(LocalDateTime.now());
     clientTiersPayantRepository.save(clientTiersPayant);
   }
 
@@ -290,7 +290,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         tiersPayant.getConsoMensuelle() != null
             ? tiersPayant.getConsoMensuelle() + thirdPartySaleLine.getMontant()
             : thirdPartySaleLine.getMontant());
-    tiersPayant.setUpdated(Instant.now());
+    tiersPayant.setUpdated(LocalDateTime.now());
     tiersPayant.setUpdatedBy(storageService.getUser());
     tiersPayantRepository.save(tiersPayant);
   }
@@ -305,7 +305,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
       ClientTiersPayant clientTiersPayant,
       int partTiersPayant) {
     ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
-    thirdPartySaleLine.setCreated(Instant.now());
+    thirdPartySaleLine.setCreated(LocalDateTime.now());
     thirdPartySaleLine.setUpdated(thirdPartySaleLine.getCreated());
     thirdPartySaleLine.setEffectiveUpdateDate(thirdPartySaleLine.getCreated());
     thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
@@ -396,7 +396,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     ThirdPartySales sales = (ThirdPartySales) salesLine.getSales();
     sales.removeSalesLine(salesLine);
     upddateSaleAmountsOnRemovingItem(sales, salesLine);
-    sales.setUpdatedAt(Instant.now());
+    sales.setUpdatedAt(LocalDateTime.now());
     sales.setEffectiveUpdateDate(sales.getUpdatedAt());
     sales.setLastUserEdit(storageService.getUser());
     thirdPartySaleRepository.save(sales);
@@ -439,7 +439,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             sales -> {
               ThirdPartySales copy = (ThirdPartySales) sales.clone();
               copySale(sales, copy);
-              sales.setUpdatedAt(Instant.now());
+              sales.setUpdatedAt(LocalDateTime.now());
               sales.setEffectiveUpdateDate(sales.getUpdatedAt());
               sales.setCanceled(true);
               sales.setLastUserEdit(user);
@@ -477,7 +477,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     ThirdPartySales p =
         thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
-    salesLineService.createInventory(p.getSalesLines(), user, id);
+      salesLineService.save(p.getSalesLines(), user, id);
 
     p.setStatut(SalesStatut.CLOSED);
     p.setStatutCaisse(SalesStatut.CLOSED);
@@ -487,7 +487,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     if (p.getCustomer() == null) throw new SaleNotFoundCustomerException();
     p.setPayrollAmount(dto.getPayrollAmount());
     p.setRestToPay(dto.getRestToPay());
-    p.setUpdatedAt(Instant.now());
+    p.setUpdatedAt(LocalDateTime.now());
     p.setMonnaie(dto.getMontantRendu());
     p.setEffectiveUpdateDate(p.getUpdatedAt());
     p.setLastUserEdit(user);
@@ -675,7 +675,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     c.setLastUserEdit(c.getUser());
     c.setCassier(caissier);
     c.setCopy(dto.getCopy());
-    c.setCreatedAt(Instant.now());
+    c.setCreatedAt(LocalDateTime.now());
     c.setUpdatedAt(c.getCreatedAt());
     c.setEffectiveUpdateDate(c.getUpdatedAt());
     c.setPayrollAmount(0);

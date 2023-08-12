@@ -4,62 +4,35 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 public class ThirdPartySaleDTO extends SaleDTO {
+  @Getter
   private Long ayantDroitId;
+  @Getter
   private String ayantDroitFirstName;
+  @Getter
   private String ayantDroitLastName;
+  @Getter
   private String ayantDroitNum;
   private List<ClientTiersPayantDTO> tiersPayants = new ArrayList<>();
+  @Getter
   private List<ThirdPartySaleLineDTO> thirdPartySaleLines = new ArrayList<>();
+  @Getter
   private Integer partTiersPayant;
+  @Getter
   private Integer partAssure;
+  @Getter
   private String numBon;
+  @Getter
   private boolean sansBon;
-
-  public boolean isSansBon() {
-    return sansBon;
-  }
-
-  public ThirdPartySaleDTO setSansBon(boolean sansBon) {
-    this.sansBon = sansBon;
-    return this;
-  }
 
   public ThirdPartySaleDTO() {
     super();
-  }
-
-  public Integer getPartAssure() {
-    return partAssure;
-  }
-
-  public ThirdPartySaleDTO setPartAssure(Integer partAssure) {
-    this.partAssure = partAssure;
-    return this;
-  }
-
-  public Integer getPartTiersPayant() {
-    return partTiersPayant;
-  }
-
-  public ThirdPartySaleDTO setPartTiersPayant(Integer partTiersPayant) {
-    this.partTiersPayant = partTiersPayant;
-    return this;
-  }
-
-  public String getNumBon() {
-    return numBon;
-  }
-
-  public ThirdPartySaleDTO setNumBon(String numBon) {
-    this.numBon = numBon;
-    return this;
   }
 
   public ThirdPartySaleDTO(ThirdPartySales thirdPartySales) {
@@ -77,8 +50,24 @@ public class ThirdPartySaleDTO extends SaleDTO {
     buildTiersPayantDTOFromSale(thirdPartySales.getThirdPartySaleLines());
   }
 
-  public Long getAyantDroitId() {
-    return ayantDroitId;
+  public ThirdPartySaleDTO setSansBon(boolean sansBon) {
+    this.sansBon = sansBon;
+    return this;
+  }
+
+  public ThirdPartySaleDTO setPartAssure(Integer partAssure) {
+    this.partAssure = partAssure;
+    return this;
+  }
+
+  public ThirdPartySaleDTO setPartTiersPayant(Integer partTiersPayant) {
+    this.partTiersPayant = partTiersPayant;
+    return this;
+  }
+
+  public ThirdPartySaleDTO setNumBon(String numBon) {
+    this.numBon = numBon;
+    return this;
   }
 
   public ThirdPartySaleDTO setAyantDroitId(Long ayantDroitId) {
@@ -86,26 +75,14 @@ public class ThirdPartySaleDTO extends SaleDTO {
     return this;
   }
 
-  public String getAyantDroitFirstName() {
-    return ayantDroitFirstName;
-  }
-
   public ThirdPartySaleDTO setAyantDroitFirstName(String ayantDroitFirstName) {
     this.ayantDroitFirstName = ayantDroitFirstName;
     return this;
   }
 
-  public String getAyantDroitLastName() {
-    return ayantDroitLastName;
-  }
-
   public ThirdPartySaleDTO setAyantDroitLastName(String ayantDroitLastName) {
     this.ayantDroitLastName = ayantDroitLastName;
     return this;
-  }
-
-  public String getAyantDroitNum() {
-    return ayantDroitNum;
   }
 
   public ThirdPartySaleDTO setAyantDroitNum(String ayantDroitNum) {
@@ -123,10 +100,6 @@ public class ThirdPartySaleDTO extends SaleDTO {
   public ThirdPartySaleDTO setTiersPayants(List<ClientTiersPayantDTO> tiersPayants) {
     this.tiersPayants = tiersPayants;
     return this;
-  }
-
-  public List<ThirdPartySaleLineDTO> getThirdPartySaleLines() {
-    return thirdPartySaleLines;
   }
 
   public ThirdPartySaleDTO setThirdPartySaleLines(List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
@@ -148,7 +121,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
               new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant())
                   .setNumBon(thirdPartySaleLine.getNumBon()));
         });
-    if (StringUtils.isEmpty(this.numBon)) {
+    if (StringUtils.isEmpty(this.numBon) && !thirdPartySaleLineDTOS.isEmpty()) {
       this.numBon = thirdPartySaleLines.get(0).getNumBon();
     }
     this.setThirdPartySaleLines(thirdPartySaleLineDTOS);

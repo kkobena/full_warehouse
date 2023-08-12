@@ -9,13 +9,11 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.GenericError;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import java.time.Instant;
-import java.util.List;
 
 public interface AssuredCustomerService {
     default AssuredCustomer fromDto(AssuredCustomerDTO dto) {
@@ -26,7 +24,7 @@ public interface AssuredCustomerService {
         assuredCustomer.setLastName(dto.getLastName());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
-        assuredCustomer.setCreatedAt(Instant.now());
+        assuredCustomer.setCreatedAt(LocalDateTime.now());
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
@@ -48,7 +46,7 @@ public interface AssuredCustomerService {
 
     default ClientTiersPayant getClientTiersPayantFromDto(AssuredCustomerDTO dto) {
         ClientTiersPayant o = new ClientTiersPayant();
-        o.setCreated(Instant.now());
+        o.setCreated(LocalDateTime.now());
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(dto.getNum());
@@ -62,7 +60,7 @@ public interface AssuredCustomerService {
     }
 
     default ClientTiersPayant getClientTiersPayantFromDto(AssuredCustomerDTO dto, ClientTiersPayant o) {
-        o.setUpdated(Instant.now());
+        o.setUpdated(LocalDateTime.now());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(dto.getNum());
         o.setPlafondConso(dto.getPlafondConso());
@@ -75,7 +73,7 @@ public interface AssuredCustomerService {
     default ClientTiersPayant getClientTiersPayantFromDto(ClientTiersPayantDTO dto) {
         ClientTiersPayant o = new ClientTiersPayant();
         o.setId(dto.getId());
-        o.setCreated(Instant.now());
+        o.setCreated(LocalDateTime.now());
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(dto.getNum());
@@ -106,7 +104,7 @@ public interface AssuredCustomerService {
         assuredCustomer.setLastName(dto.getLastName());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
-        assuredCustomer.setUpdatedAt(Instant.now());
+        assuredCustomer.setUpdatedAt(LocalDateTime.now());
         assuredCustomer.setNumAyantDroit(dto.getNumAyantDroit());
         return assuredCustomer;
     }
@@ -131,7 +129,7 @@ public interface AssuredCustomerService {
         assuredCustomer.setLastName(dto.getLastName());
         assuredCustomer.setEmail(StringUtils.isNotEmpty(dto.getEmail()) ? dto.getEmail() : null);
         assuredCustomer.setPhone(dto.getPhone());
-        assuredCustomer.setCreatedAt(Instant.now());
+        assuredCustomer.setCreatedAt(LocalDateTime.now());
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
@@ -141,7 +139,7 @@ public interface AssuredCustomerService {
     default void clientTiersPayantExternalFromDto(final List<ClientTiersPayantDTO> dtos, final TiersPayant tiersPayant, final AssuredCustomer assuredCustomer) {
         dtos.forEach(c -> {
             ClientTiersPayant o = new ClientTiersPayant();
-            o.setCreated(Instant.now());
+            o.setCreated(LocalDateTime.now());
             o.setTiersPayant(tiersPayant);
             o.setNum(c.getNum());
             o.setPlafondConso(c.getPlafondConso());
@@ -157,7 +155,7 @@ public interface AssuredCustomerService {
     }
 
     default ClientTiersPayant updateClientTiersPayantFromDto(ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
-        o.setUpdated(Instant.now());
+        o.setUpdated(LocalDateTime.now());
         o.setNum(c.getNum());
         o.setPlafondConso(c.getPlafondConso());
         o.setPlafondJournalier(c.getPlafondJournalier());
@@ -177,7 +175,7 @@ public interface AssuredCustomerService {
         assuredCustomer.setLastName(dto.getLastName());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
-        assuredCustomer.setCreatedAt(Instant.now());
+        assuredCustomer.setCreatedAt(LocalDateTime.now());
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.AYANT_DROIT);

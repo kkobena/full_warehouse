@@ -1,3 +1,12 @@
+<p-sidebar [(visible)]="pendingSalesSidebar" position="right" styleClass="p-sidebar-lg">
+  <ng-template pTemplate="header">VENTE EN ATTENTES</ng-template>
+  <ng-template pTemplate="content">
+    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
+                        (selectedPreventeSale)="onSelectPrevente($event)" [user]="userCaissier">
+
+    </jhi-prevente-modal>
+  </ng-template>
+</p-sidebar>
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
              size="medium"
              type="timer">
@@ -106,7 +115,7 @@
     <div class="card-header sale-card-header">OPERATEUR</div>
     <div class="card-body sale-card">
 
-      <p-autoComplete #userBox (completeMethod)="searchUser($event)"
+      <p-autoComplete #userBox (completeMethod)="searchUser()"
                       (onSelect)="onSelectUser()"
                       [(ngModel)]="userSeller"
                       [appendTo]="appendTo"
@@ -121,7 +130,7 @@
   <div class="card bg-light">
 
     <div class="card-body sale-card">
-      <p-button icon="pi pi-search" label="VENTE EN ATTENTE"
+      <p-button (click)="openPindingSide()" icon="pi pi-search" label="VENTE EN ATTENTE"
                 styleClass="p-button-info p-button-sm"></p-button>
 
       <p-button (click)="previousState()" icon="pi pi-arrow-left" label="RETOUR"

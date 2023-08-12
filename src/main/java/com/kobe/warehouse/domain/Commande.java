@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -20,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 import org.hibernate.annotations.Type;
 
 /** A Commande. */
@@ -29,79 +30,100 @@ public class Commande implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 1L;
 
+  @Getter
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Getter
   @Column(name = "order_refernce")
   private String orderRefernce;
 
+  @Getter
   @Column(name = "sequence_bon")
   private String sequenceBon;
 
+  @Getter
   @Column(name = "receipt_refernce")
   private String receiptRefernce;
 
+  @Getter
   @Column(name = "receipt_date")
   private LocalDate receiptDate;
 
+  @Getter
   @Column(name = "discount_amount", columnDefinition = "int default '0'")
   private Integer discountAmount = 0;
 
+  @Getter
   @NotNull
   @Column(name = "order_amount", nullable = false)
   private Integer orderAmount;
 
+  @Getter
   @NotNull
   @Column(name = "gross_amount", nullable = false)
   private Integer grossAmount;
 
+  @Getter
   @Column(name = "net_amount", columnDefinition = "int default '0'")
   private Integer netAmount = 0;
 
+  @Getter
   @Column(name = "tax_amount", columnDefinition = "int default '0'")
   private Integer taxAmount = 0;
 
+  @Getter
   @Column(name = "receipt_amount")
   private Integer receiptAmount;
 
+  @Getter
   @NotNull
   @Column(name = "created_at", nullable = false)
-  private Instant createdAt;
+  private LocalDateTime createdAt;
 
+  @Getter
   @NotNull
   @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
+  private LocalDateTime updatedAt;
 
+  @Getter
   @NotNull
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "order_status")
   private OrderStatut orderStatus;
 
+  @Getter
   @OneToMany(
       mappedBy = "commande",
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private Set<OrderLine> orderLines = new HashSet<>();
 
+  @Getter
   @ManyToOne(optional = false)
   @JsonIgnoreProperties(value = "commandes", allowSetters = true)
   private DateDimension dateDimension;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   private Magasin magasin;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   private User user;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   private User lastUserEdit;
 
+  @Getter
   @Column(name = "type_suggession")
   private String typeSuggession;
 
+  @Getter
   @ManyToOne(optional = false)
   @NotNull
   private Fournisseur fournisseur;
@@ -122,17 +144,9 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public String getSequenceBon() {
-    return sequenceBon;
-  }
-
   public Commande setSequenceBon(String sequenceBon) {
     this.sequenceBon = sequenceBon;
     return this;
-  }
-
-  public String getReceiptRefernce() {
-    return receiptRefernce;
   }
 
   public Commande setReceiptRefernce(String receiptRefernce) {
@@ -140,17 +154,9 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public User getLastUserEdit() {
-    return lastUserEdit;
-  }
-
   public Commande setLastUserEdit(User lastUserEdit) {
     this.lastUserEdit = lastUserEdit;
     return this;
-  }
-
-  public Integer getReceiptAmount() {
-    return receiptAmount;
   }
 
   public Commande setReceiptAmount(Integer receiptAmount) {
@@ -158,17 +164,9 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public Fournisseur getFournisseur() {
-    return fournisseur;
-  }
-
   public Commande setFournisseur(Fournisseur fournisseur) {
     this.fournisseur = fournisseur;
     return this;
-  }
-
-  public String getTypeSuggession() {
-    return typeSuggession;
   }
 
   public Commande setTypeSuggession(String typeSuggession) {
@@ -176,32 +174,16 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   public void setUser(User user) {
     this.user = user;
-  }
-
-  public Magasin getMagasin() {
-    return magasin;
   }
 
   public void setMagasin(Magasin magasin) {
     this.magasin = magasin;
   }
 
-  public Long getId() {
-    return id;
-  }
-
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public String getOrderRefernce() {
-    return orderRefernce;
   }
 
   public void setOrderRefernce(String orderRefernce) {
@@ -213,17 +195,9 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public LocalDate getReceiptDate() {
-    return receiptDate;
-  }
-
   public Commande setReceiptDate(LocalDate receiptDate) {
     this.receiptDate = receiptDate;
     return this;
-  }
-
-  public Integer getDiscountAmount() {
-    return discountAmount;
   }
 
   public void setDiscountAmount(Integer discountAmount) {
@@ -235,10 +209,6 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getOrderAmount() {
-    return orderAmount;
-  }
-
   public void setOrderAmount(Integer orderAmount) {
     this.orderAmount = orderAmount;
   }
@@ -246,10 +216,6 @@ public class Commande implements Serializable, Cloneable {
   public Commande orderAmount(Integer orderAmount) {
     this.orderAmount = orderAmount;
     return this;
-  }
-
-  public Integer getGrossAmount() {
-    return grossAmount;
   }
 
   public void setGrossAmount(Integer grossAmount) {
@@ -261,10 +227,6 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public Integer getNetAmount() {
-    return netAmount;
-  }
-
   public void setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
   }
@@ -272,10 +234,6 @@ public class Commande implements Serializable, Cloneable {
   public Commande netAmount(Integer netAmount) {
     this.netAmount = netAmount;
     return this;
-  }
-
-  public Integer getTaxAmount() {
-    return taxAmount;
   }
 
   public void setTaxAmount(Integer taxAmount) {
@@ -287,34 +245,22 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
-  public Commande createdAt(Instant createdAt) {
+  public Commande createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(Instant updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
 
-  public Commande updatedAt(Instant updatedAt) {
+  public Commande updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public OrderStatut getOrderStatus() {
-    return orderStatus;
   }
 
   public void setOrderStatus(OrderStatut orderStatus) {
@@ -324,10 +270,6 @@ public class Commande implements Serializable, Cloneable {
   public Commande orderStatus(OrderStatut orderStatus) {
     this.orderStatus = orderStatus;
     return this;
-  }
-
-  public Set<OrderLine> getOrderLines() {
-    return orderLines;
   }
 
   public void setOrderLines(Set<OrderLine> orderLines) {
@@ -349,10 +291,6 @@ public class Commande implements Serializable, Cloneable {
     orderLines.remove(orderLine);
     orderLine.setCommande(null);
     return this;
-  }
-
-  public DateDimension getDateDimension() {
-    return dateDimension;
   }
 
   public void setDateDimension(DateDimension dateDimension) {

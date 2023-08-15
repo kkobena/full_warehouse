@@ -3,9 +3,10 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.OrderLine}.
@@ -87,13 +84,13 @@ public class OrderLineResource {
     /**
      * {@code GET  /order-lines} : get all the orderLines.
      *
-     * @param pageable the pagination information.
+
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of orderLines in body.
      */
     @GetMapping("/order-lines/{id}")
     public ResponseEntity<List<OrderLine>> getAllOrderLines(@PathVariable Long id) {
         log.debug("REST request to get a page of OrderLines");
-        List<OrderLine> listOrderLines = orderLineRepository.findByCommandeIdOrderByProduitLibelleAsc(id);
+        List<OrderLine> listOrderLines = orderLineRepository.findByCommandeIdOrderByFournisseurProduitProduitLibelleAsc(id);
         return ResponseEntity.ok().body(listOrderLines);
     }
 }

@@ -191,4 +191,14 @@ public class CommandeResource {
             commandService.uploadNewCommande(fournisseurId, commandeModel, file);
         return ResponseEntity.ok(commandeResponseDTO);
     }
+    @DeleteMapping("/commandes/rollback/{id}")
+    public ResponseEntity<Void> rollback(@PathVariable Long id) {
+        commandService.rollback(id);
+        return ResponseEntity.noContent()
+            .headers(
+                HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
+                    id.toString()))
+            .build();
+    }
+
 }

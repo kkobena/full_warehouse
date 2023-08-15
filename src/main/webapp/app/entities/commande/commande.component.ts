@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,21 +7,20 @@ import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CommandeService } from './commande.service';
 import { IOrderLine } from 'app/shared/model/order-line.model';
 import { ProduitService } from '../produit/produit.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { ErrorService } from '../../shared/error.service';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { saveAs } from 'file-saver';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
 import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
-import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ImportationNewCommandeComponent } from './importation-new-commande.component';
-import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
-import { DeliveryService } from './delevery/delivery.service';
 import { IDelivery } from '../../shared/model/delevery.model';
+import { CommandeEnCoursComponent } from './commande-en-cours/commande-en-cours.component';
+import { CommandePassesComponent } from './commande-passes/commande-passes.component';
+import { CommandeRecusComponent } from './commande-recus/commande-recus.component';
 
 @Component({
   selector: 'jhi-commande',
@@ -60,31 +58,30 @@ export class CommandeComponent implements OnInit {
   selectedRowOrderLines?: IOrderLine[] = [];
   eventSubscriber?: Subscription;
   totalItems = 0;
-
   itemsPerPage = ITEMS_PER_PAGE;
-  search = '';
-
   predicate!: string;
   ascending!: boolean;
   ngbPaginationPage = 1;
   tooltipPosition = 'left';
   index = 0;
-  filtres: any[] = [];
   selectedFilter = 'REQUESTED';
-  commandebuttons: MenuItem[];
-  rowExpandMode = 'single';
   loading!: boolean;
-  loadingSelectedFilter = true;
+  loadingSelectedFilter = false;
   page = 0;
   selectedtypeSuggession = 'ALL';
   typeSuggessions: any[] = [];
-  selections: ICommande[];
-  searchCommande = '';
   fileDialog = false;
-  modelSelected!: string;
-  models: any[];
-  commandeFournisseur?: IFournisseur;
   ref!: DynamicDialogRef;
+  protected searchCommande = '';
+  protected active = 'REQUESTED';
+  protected search = '';
+  protected selectionLength: number = 0;
+  @ViewChild(CommandeEnCoursComponent)
+  private commandeEnCoursComponent: CommandeEnCoursComponent;
+  @ViewChild(CommandePassesComponent)
+  private commandePasses: CommandePassesComponent;
+  @ViewChild(CommandeRecusComponent)
+  private commandeRecues: CommandeRecusComponent;
 
   constructor(
     protected commandeService: CommandeService,
@@ -92,161 +89,32 @@ export class CommandeComponent implements OnInit {
     protected router: Router,
     protected modalService: NgbModal,
     private errorService: ErrorService,
-    protected deliveryService: DeliveryService,
     protected produitService: ProduitService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService
-  ) {
-    this.selections = [];
-    this.models = [
-      { label: 'LABOREX', value: 'LABOREX' },
-      { label: 'COPHARMED', value: 'COPHARMED' },
-      { label: 'DPCI', value: 'DPCI' },
-      { label: 'TEDIS', value: 'TEDIS' },
-    ];
-    this.filtres = [
-      { label: 'Commande en cours', value: 'REQUESTED' },
-      { label: 'Commande passées', value: 'PASSED' },
-      { label: 'Commande reçues', value: 'RECEIVED' },
-    ];
-    this.typeSuggessions = [
-      { label: 'Tous', value: 'ALL' },
-      { label: 'Auto', value: 'AUTO' },
-      { label: 'Manuelle', value: 'MANUELLE' },
-    ];
+  ) {}
 
-    this.commandebuttons = [
-      /*  {
-                                label: 'Excel',
-                                icon: 'pi pi-file-excel'
-
-                              },*/
-      {
-        label: 'Csv',
-        icon: 'pi pi-folder-open',
-      },
-    ];
-  }
-
-  loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
-    this.commandeService
-      .query({
-        page: pageToLoad,
-        size: this.itemsPerPage,
-        search: this.search,
-        searchCommande: this.searchCommande,
-        orderStatut: this.selectedFilter,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
-  }
-
-  ngOnInit(): void {
-    this.onSearch();
-  }
+  ngOnInit(): void {}
 
   onSearch(): void {
-    if (this.index == 0) {
-      this.loadPage(0);
+    switch (this.active) {
+      case 'REQUESTED':
+        this.commandeEnCoursComponent.onSearch();
+        break;
+      case 'PASSED':
+        this.commandePasses.onSearch();
+        break;
+      case 'RECEIVED':
+        this.commandeRecues.onSearch();
+
+        break;
     }
-  }
-
-  lazyLoading(event: LazyLoadEvent): void {
-    if (event) {
-      this.page = event.first! / event.rows!;
-      this.loading = true;
-      this.commandeService
-        .query({
-          page: this.page,
-          size: event.rows,
-          search: this.search,
-          searchCommande: this.searchCommande,
-          orderStatut: this.selectedFilter,
-          typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
-        })
-        .subscribe({
-          next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
-    }
-  }
-
-  delete(commandeId: number): void {
-    this.spinner.show('gestion-commande-spinner');
-    this.commandeService.delete(commandeId).subscribe(
-      () => {
-        this.loadPage();
-        this.spinner.hide('gestion-commande-spinner');
-      },
-      error => {
-        this.onCommonError(error);
-        this.spinner.hide('gestion-commande-spinner');
-      }
-    );
-  }
-
-  sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'updatedAt') {
-      result.push('updatedAt');
-    }
-    return result;
-  }
-
-  onRowExpand(event: any): void {
-    if (!event.data.orderLines) {
-      this.commandeService.fetchOrderLinesByCommandeId(event.data.id).subscribe(res => {
-        event.data.orderLines = res.body;
-      });
-    }
-  }
-
-  exportCSV(commande: ICommande): void {
-    this.commandeService.exportToCsv(commande.id!).subscribe(blod => saveAs(blod));
-  }
-
-  exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.id!).subscribe(blod => saveAs(blod));
-  }
-
-  orderLineTableColor(orderLine: IOrderLine): string {
-    if (orderLine) {
-      if (orderLine.costAmount !== orderLine.orderCostAmount) {
-        return 'table-danger';
-      } else if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
-        return 'table-warning';
-      }
-    }
-    return '';
   }
 
   fusionner(): void {
-    const ids = this.selections.map(e => e.id!);
-    const fournisseursIdArray = this.selections.map(e => e.fournisseur?.id!);
-    const firstId = fournisseursIdArray[0];
-    const isSameProviderFn = (currentValue: number) => currentValue === firstId;
-    const isSameProvider = fournisseursIdArray.every(isSameProviderFn);
-    if (!isSameProvider) {
-      this.openInfoDialog('Veillez sélectionner des commandes du même grossiste', 'alert alert-info');
-    } else {
-      this.spinner.show('gestion-commande-spinner');
-      this.commandeService.fusionner(ids).subscribe(
-        () => {
-          this.selections = [];
-          this.loadPage();
-          this.spinner.hide('gestion-commande-spinner');
-        },
-        error => {
-          this.onCommonError(error);
-          this.spinner.hide('gestion-commande-spinner');
-        }
-      );
+    if (this.active === 'REQUESTED') {
+      this.commandeEnCoursComponent.fusionner();
     }
   }
 
@@ -265,8 +133,8 @@ export class CommandeComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe(
-      res => {
+    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe({
+      next: res => {
         this.cancel();
         this.spinner.hide('gestion-commande-spinner');
 
@@ -276,11 +144,11 @@ export class CommandeComponent implements OnInit {
 
         this.openImporterReponseCommandeDialog(res.body!);
       },
-      error => {
+      error: error => {
         this.spinner.hide('gestion-commande-spinner');
         this.onCommonError(error);
-      }
-    );
+      },
+    });
   }
 
   openImportResponseDialogComponent(responseCommande: ICommandeResponse): void {
@@ -309,12 +177,8 @@ export class CommandeComponent implements OnInit {
     });
     this.ref.onClose.subscribe((resp: ICommandeResponse) => {
       if (resp) {
-        if (resp.items?.length === 0) {
-          this.selectedFilter = 'PASSED';
-        } else {
-          this.selectedFilter = 'REQUESTED';
-        }
-        this.loadPage(0); //affichier la tab correspondante
+        this.active = 'REQUESTED';
+        this.onSearch();
         this.openImportResponseDialogComponent(resp);
       }
     });
@@ -326,48 +190,30 @@ export class CommandeComponent implements OnInit {
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
       accept: () => {
-        this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id!)).subscribe(() => {
-          this.loadPage();
-          this.selections = [];
-        });
+        if (this.active === 'REQUESTED') {
+          this.commandeEnCoursComponent.removeAll();
+        }
       },
       key: 'deleteCommande',
     });
   }
 
-  confirmDelete(commande: ICommande): void {
+  confirmRollback(): void {
     this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cette commande  ?',
+      message: ' Voullez-vous LES retourner dans commande en cours ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      accept: () => this.delete(commande?.id!),
+      accept: () => {
+        if (this.active === 'PASSED') {
+          this.commandePasses.rollbackAll();
+        }
+      },
       key: 'deleteCommande',
     });
   }
 
-  //  this.router.navigate(['404']);
   gotoEntreeStockComponent(delivery: IDelivery): void {
     this.router.navigate(['/commande', delivery.id, 'stock-entry']);
-  }
-
-  onCreateBon(commande: ICommande): void {
-    this.deliveryService.findByOrderReference(commande.orderRefernce).subscribe({
-      next: (res: HttpResponse<IDelivery>) => {
-        this.gotoEntreeStockComponent(res.body);
-      },
-      error: () => {
-        this.ref = this.dialogService.open(DeliveryModalComponent, {
-          data: { entity: null, commande },
-          header: 'CREATION DU BON DE LIVRAISON',
-          width: '40%',
-        });
-        this.ref.onClose.subscribe((delivery: IDelivery) => {
-          if (delivery) {
-            this.gotoEntreeStockComponent(delivery);
-          }
-        });
-      },
-    });
   }
 
   test(): void {
@@ -398,23 +244,7 @@ export class CommandeComponent implements OnInit {
     modalRef.componentInstance.infoClass = infoClass;
   }
 
-  protected onSuccess(data: ICommande[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/commande'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search,
-        orderStatut: this.selectedFilter,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
-      },
-    });
-    this.commandes = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
+  protected updateSelectionLength(lgth: number): void {
+    this.selectionLength = lgth;
   }
 }

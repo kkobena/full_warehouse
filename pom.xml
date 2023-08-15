@@ -1285,7 +1285,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.2.5</maven.version>
-        <modernizer-maven-plugin.version>2.4.0</modernizer-maven-plugin.version>
+        <modernizer-maven-plugin.version>2.6.0</modernizer-maven-plugin.version>
         <node.version>v16.17.0</node.version>
         <nohttp-checkstyle.version>0.0.10</nohttp-checkstyle.version>
         <npm.version>8.19.1</npm.version>
@@ -1307,5 +1307,5 @@
     <repositories>
         <!-- jhipster-needle-maven-repository -->
     </repositories>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 </project>

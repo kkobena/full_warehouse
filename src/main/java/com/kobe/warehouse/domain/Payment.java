@@ -41,14 +41,11 @@ public class Payment implements Serializable, Cloneable {
     private LocalDateTime createdAt;
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt ;
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private PaymentMode paymentMode;
-    @NotNull
-    @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "payments", allowSetters = true)
-    private DateDimension dateDimension;
+
     @NotNull
     @ManyToOne(optional = false)
     private User user;
@@ -170,14 +167,7 @@ public class Payment implements Serializable, Cloneable {
         return this;
     }
 
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-    }
 
-    public Payment dateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-        return this;
-    }
 
     public void setCustomer(Customer customer) {
         this.customer = customer;

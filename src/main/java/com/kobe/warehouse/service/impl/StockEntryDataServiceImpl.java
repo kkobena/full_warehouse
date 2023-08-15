@@ -37,6 +37,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class StockEntryDataServiceImpl implements StockEntryDataService {
@@ -91,8 +92,6 @@ public class StockEntryDataServiceImpl implements StockEntryDataService {
         .map(DeliveryReceiptDTO::new);
   }
 
-
-
   @Override
   public Resource exportToPdf(Long id) throws IOException {
     return getResource(receiptReportService.print(deliveryReceiptRepository.getReferenceById(id)));
@@ -104,7 +103,7 @@ public class StockEntryDataServiceImpl implements StockEntryDataService {
     Root<DeliveryReceiptItem> root = cq.from(DeliveryReceiptItem.class);
     cq.select(cb.countDistinct(root.get(DeliveryReceiptItem_.deliveryReceipt)));
     List<Predicate> predicates = predicatesFetch(deliveryReceiptFilterDTO, cb, root);
-    cq.where(cb.and(predicates.toArray(new javax.persistence.criteria.Predicate[0])));
+    cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Long> q = em.createQuery(cq);
     Long v = q.getSingleResult();
     return v != null ? v : 0;
@@ -143,8 +142,21 @@ public class StockEntryDataServiceImpl implements StockEntryDataService {
               root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptStatut),
               deliveryReceiptFilterDTO.getStatut()));
     }
-
-    if (org.apache.commons.lang3.StringUtils.isNotEmpty(deliveryReceiptFilterDTO.getSearch())) {
+    if (StringUtils.hasLength(deliveryReceiptFilterDTO.getSearchByRef())) {
+      predicates.add(
+          cb.or(
+              cb.like(
+                  cb.upper(
+                      root.get(DeliveryReceiptItem_.deliveryReceipt)
+                          .get(DeliveryReceipt_.receiptRefernce)),
+                  deliveryReceiptFilterDTO.getSearchByRef() + "%"),
+              cb.like(
+                  cb.upper(
+                      root.get(DeliveryReceiptItem_.deliveryReceipt)
+                          .get(DeliveryReceipt_.numberTransaction)),
+                  deliveryReceiptFilterDTO.getSearchByRef() + "%")));
+    }
+    if (StringUtils.hasLength(deliveryReceiptFilterDTO.getSearch())) {
       String search = deliveryReceiptFilterDTO.getSearch().toUpperCase() + "%";
       predicates.add(
           cb.or(

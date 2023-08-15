@@ -182,7 +182,7 @@ SELECT a.stock_before AS init_stock,a.stock_after AS after_stock  FROM ajustemen
       Long produitId, LocalDate fromDate, LocalDate toDate) {
     return getProduitVente(VENTE_QUERY, produitId, fromDate, toDate, false, SalesStatut.CLOSED);
   }
-
+// a revoir
   private List<VenteActivityDTO> getCanceledProduitVente(
       Long produitId, LocalDate fromDate, LocalDate toDate) {
     return getProduitVente(CANCELED_QUERY, produitId, fromDate, toDate, true, SalesStatut.REMOVE);

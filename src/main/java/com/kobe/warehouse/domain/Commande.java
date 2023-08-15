@@ -1,7 +1,7 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -24,13 +24,13 @@ import lombok.Getter;
 import org.hibernate.annotations.Type;
 
 /** A Commande. */
+@Getter
 @Entity
 @Table(name = "commande")
 public class Commande implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 1L;
 
-  @Getter
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -99,10 +99,6 @@ public class Commande implements Serializable, Cloneable {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private Set<OrderLine> orderLines = new HashSet<>();
 
-  @Getter
-  @ManyToOne(optional = false)
-  @JsonIgnoreProperties(value = "commandes", allowSetters = true)
-  private DateDimension dateDimension;
 
   @Getter
   @ManyToOne(optional = false)
@@ -119,9 +115,12 @@ public class Commande implements Serializable, Cloneable {
   @NotNull
   private User lastUserEdit;
 
+
   @Getter
-  @Column(name = "type_suggession")
-  private String typeSuggession;
+
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "type_suggession",length = 3)
+  private TypeSuggession typeSuggession;
 
   @Getter
   @ManyToOne(optional = false)
@@ -169,7 +168,7 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public Commande setTypeSuggession(String typeSuggession) {
+  public Commande setTypeSuggession(TypeSuggession typeSuggession) {
     this.typeSuggession = typeSuggession;
     return this;
   }
@@ -293,15 +292,6 @@ public class Commande implements Serializable, Cloneable {
     return this;
   }
 
-  public void setDateDimension(DateDimension dateDimension) {
-    this.dateDimension = dateDimension;
-  }
-
-  public Commande dateDimension(DateDimension dateDimension) {
-    this.dateDimension = dateDimension;
-    return this;
-  }
-  // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
   @Override
   public boolean equals(Object o) {

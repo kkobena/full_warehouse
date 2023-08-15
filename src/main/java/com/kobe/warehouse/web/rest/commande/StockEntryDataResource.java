@@ -1,14 +1,13 @@
 package com.kobe.warehouse.web.rest.commande;
 
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,24 +36,9 @@ public class StockEntryDataResource {
 
   @GetMapping("/commandes/data/entree-stock/list")
   public ResponseEntity<List<DeliveryReceiptDTO>> list(
-      @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
-      @RequestParam(required = false, name = "toDate") LocalDate toDate,
-      @RequestParam(required = false, name = "search") String search,
-      @RequestParam(required = false, name = "fournisseurId") Long fournisseurId,
-      @RequestParam(required = false, name = "userId") Long userId,
-      @RequestParam(required = false, name = "statut", defaultValue = "ANY") ReceiptStatut statut,
-      Pageable pageable) {
+      @Valid DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
     Page<DeliveryReceiptDTO> page =
-        stockEntryDataServicetryService.fetchAllReceipts(
-            DeliveryReceiptFilterDTO.builder()
-                .fromDate(fromDate)
-                .fournisseurId(fournisseurId)
-                .userId(userId)
-                .search(search)
-                .toDate(toDate)
-                .statut(statut)
-                .build(),
-            pageable);
+        stockEntryDataServicetryService.fetchAllReceipts(receiptFilter, pageable);
     HttpHeaders headers =
         PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -76,7 +60,7 @@ public class StockEntryDataResource {
     return Utils.printPDF(resource, request);
   }
 
-  @GetMapping("/commandes/data/entree-stock/by-order-reference{reference}")
+  @GetMapping("/commandes/data/entree-stock/by-order-reference/{reference}")
   public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable String reference) {
     return ResponseUtil.wrapOrNotFound(
         stockEntryDataServicetryService.findOneByOrderReference(reference));

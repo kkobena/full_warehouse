@@ -323,6 +323,15 @@ body .ui-dropdown {
   .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
     width: 115px;
   }*/
+
+
+}
+
+@media (max-width: 1500px) {
+  .home-ca .nav-home .p-card .p-card-body .nav-link {
+    padding-right: 0.3rem;
+    padding-left: 0.2rem;
+  }
 }
 
 @media (min-width: 1700px) {
@@ -822,10 +831,79 @@ iconlist li .icon-holder .icon i {
 
     }
 
-    span:last-child {
-
-    }
 
   }
 
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  font-size: 13px;
+}
+
+.highlight-col {
+  font-weight: bold;
+
+}
+
+.card-header-board {
+  font-size: 1rem;
+}
+
+.home-ca .nav-home .p-card .p-card-body {
+  padding: 0;
+
+}
+
+.home-ca .container-home .p-card .p-card-body, .graphe-content .p-card .p-card-body {
+  padding-top: 0;
+  padding-bottom: 0;
+
+}
+
+.graphe-content {
+  padding: 0;
+}
+
+.graphe-content .time-based {
+  margin-top: 0.4rem
+}
+
+.graphe-content .card {
+  padding: 0;
+}
+
+.graphe-content .time-based canvas {
+  // max-height: 400px !important;
+}
+
+/*
+@media screen and (max-width: 1500px) {
+  .alerts .jhi-toast {
+    width: 50%;
+  }
+  canvas {
+    max-height: 400px !important;
+  }
+}
+
+@media screen and (max-width: 1700px) {
+  .alerts .jhi-toast {
+    width: 50%;
+  }
+  canvas {
+    max-height: 600px !important;
+  }
+}
+*/
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 0.2rem 0.2rem;
+  font-size: 0.8rem;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  font-size: 0.8rem;
+}
+
+.table-all-checkbos {
+  text-align: center !important;
 }

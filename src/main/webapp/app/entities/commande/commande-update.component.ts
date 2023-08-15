@@ -20,6 +20,7 @@ import { saveAs } from 'file-saver';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
 import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -40,14 +41,19 @@ import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-resp
         justify-content: space-between;
       }
 
-      .ag-theme-alpine {
-        max-height: 700px;
-        height: 500px;
-        min-height: 400px;
-      }
-
       .commande-toolbar {
         margin-bottom: 2px !important;
+      }
+
+      .p-toolbar-group-left .col-md-4,
+      .p-toolbar-group-left .col-sm-2,
+      .p-toolbar-group-left .col-md-6 {
+        padding-right: 0;
+        padding-left: 3px;
+      }
+
+      .p-toolbar-group-left .row {
+        margin-left: 0.1rem;
       }
     `,
   ],
@@ -59,20 +65,15 @@ export class CommandeUpdateComponent implements OnInit {
   produits: IProduit[] = [];
   commande?: ICommande | null = null;
   orderLines: IOrderLine[] = [];
-  produitSelect?: IProduit[] = [];
   searchValue?: string;
   search?: string;
   produitSelected?: IProduit | null = null;
-  selectedProvider?: IFournisseur | null = null;
+  selectedProvider?: number | null = null;
   fournisseurs: IFournisseur[] = [];
-  readonly notFoundText = 'Aucun produit';
   quantiteSaisie = 1;
-  selectOnTab = false;
-  clearOnBackspace = true;
-  minTermLength = 1;
   @ViewChild('quantyBox', { static: false })
   quantyBox?: ElementRef;
-  @ViewChild('produitbox', { static: false })
+  @ViewChild('produitbox', { static: true })
   produitbox?: any;
   @ViewChild('fournisseurBox')
   fournisseurBox?: any;
@@ -82,6 +83,9 @@ export class CommandeUpdateComponent implements OnInit {
   selectedEl: IOrderLine[];
   commandebuttons: MenuItem[];
   fileDialog = false;
+  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
+  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
+  protected readonly APPEND_TO = APPEND_TO;
 
   constructor(
     protected commandeService: CommandeService,
@@ -123,7 +127,7 @@ export class CommandeUpdateComponent implements OnInit {
         this.commande = commande;
         this.orderLines = commande.orderLines;
         this.fournisseurDisabled = true;
-        this.selectedProvider = this.commande?.fournisseur;
+        this.selectedProvider = this.commande.fournisseurId;
       }
     });
     this.loadFournisseurs();
@@ -216,7 +220,7 @@ export class CommandeUpdateComponent implements OnInit {
     this.commandeService.deleteOrderLinesByIds(this.commande?.id!, ids).subscribe(() => {
       this.refreshCommande();
       this.selectedEl = [];
-      this.produitbox.focus();
+      this.focusPrdoduitBox();
     });
   }
 
@@ -247,21 +251,8 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   searchFn(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown'
-    ) {
-      this.searchValue = event.target.value;
-      this.loadProduits();
-    }
+    this.searchValue = event.query;
+    this.loadProduits();
   }
 
   produitComponentSearch(term: string, item: IProduit): boolean {
@@ -269,18 +260,27 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   onSelect(): void {
-    const el = this.quantyBox?.nativeElement;
-    el.focus();
-    el.select();
+    setTimeout(() => {
+      const el = this.quantyBox?.nativeElement;
+      el.focus();
+      el.select();
+    }, 50);
   }
 
   onProviderSelect(): void {
-    this.produitbox.focus();
+    this.focusPrdoduitBox();
+  }
+
+  focusPrdoduitBox(): void {
+    setTimeout(() => {
+      this.produitbox.inputEL.nativeElement.focus();
+      this.produitbox.inputEL.nativeElement.select();
+    }, 50);
   }
 
   loadProduits(): void {
     this.produitService
-      .query({
+      .queryLite({
         page: 0,
         size: 5,
         withdetail: false,
@@ -319,7 +319,6 @@ export class CommandeUpdateComponent implements OnInit {
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!),
-
         error: () => this.onError(),
       });
   }
@@ -372,19 +371,19 @@ export class CommandeUpdateComponent implements OnInit {
     formData.append('commande', file, file.name);
 
     this.showsPinner('commandeEnCourspinner');
-    this.commandeService.importerReponseCommande(this.commande?.id!, formData).subscribe(
-      res => {
+    this.commandeService.importerReponseCommande(this.commande?.id!, formData).subscribe({
+      next: res => {
         this.hidePinner('commandeEnCourspinner');
         this.refreshCommande();
         this.cancel();
         this.openImporterReponseCommandeDialog(res.body!);
       },
-      error => {
+      error: error => {
         this.hidePinner('commandeEnCourspinner');
 
         this.onCommonError(error);
-      }
-    );
+      },
+    });
   }
 
   openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
@@ -405,7 +404,8 @@ export class CommandeUpdateComponent implements OnInit {
     this.fournisseurDisabled = false;
     this.selectedFilter = 'ALL';
     setTimeout(() => {
-      this.fournisseurBox.focus();
+      //  this.fournisseurBox.focus();
+      this.fournisseurBox.inputEL.nativeElement.focus();
     }, 100);
   }
 
@@ -413,6 +413,7 @@ export class CommandeUpdateComponent implements OnInit {
     this.commandeService.find(this.commande?.id!).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande?.orderLines!;
+      this.focusPrdoduitBox();
     });
   }
 
@@ -421,7 +422,7 @@ export class CommandeUpdateComponent implements OnInit {
       this.quantyBox.nativeElement.value = 1;
     }
     this.produitSelected = null;
-    this.produitbox.focus();
+    this.focusPrdoduitBox();
     if (this.commande && this.commande.id) {
       this.fournisseurDisabled = true;
     }
@@ -490,7 +491,7 @@ export class CommandeUpdateComponent implements OnInit {
           ? this.commande
           : {
               ...new Commande(),
-              fournisseur: this.selectedProvider!,
+              fournisseurId: this.selectedProvider,
             },
       quantityRequested,
     };
@@ -499,7 +500,7 @@ export class CommandeUpdateComponent implements OnInit {
   private createCommande(produit: IProduit, quantityRequested: number): ICommande {
     return {
       ...new Commande(),
-      fournisseur: this.selectedProvider!,
+      fournisseurId: this.selectedProvider,
       orderLines: [this.createOrderLine(produit, quantityRequested)],
     };
   }

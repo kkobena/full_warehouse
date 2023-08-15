@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.Payment;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Sales;
@@ -31,13 +30,11 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
 import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -115,7 +112,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   public CashSale fromDTOOldCashSale(CashSaleDTO dto) {
     CashSale c = new CashSale();
     c.setAmountToBePaid(dto.getAmountToBePaid());
-    c.setDateDimension(DateDimension(dto.getDateDimensionId()));
     c.setCopy(dto.getCopy());
     c.setAmountToBeTakenIntoAccount(dto.getAmountToBeTakenIntoAccount());
     c.setImported(true);
@@ -161,12 +157,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     return c;
   }
 
-  private DateDimension DateDimension(int dateKey) {
-    DateDimension dateDimension = new DateDimension();
-    dateDimension.setDateKey(dateKey);
-    return dateDimension;
-  }
-
   @Override
   public Payment buildPaymentFromDTO(PaymentDTO dto, Sales s) {
     Payment payment = new Payment();
@@ -187,7 +177,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             .orElse(paymentModeRepository.getReferenceById("CASH"));
     payment.setPaymentMode(paymentMode);
     payment.setSales(s);
-    payment.setDateDimension(s.getDateDimension());
     return payment;
   }
 
@@ -203,10 +192,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
   @Override
   public CashSaleDTO createCashSale(CashSaleDTO dto) {
-    DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
     UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
     CashSale c = new CashSale();
-    c.setDateDimension(dateDimension);
     c.setCustomer(uninsuredCustomer);
     c.setNatureVente(dto.getNatureVente());
     c.setTypePrescription(dto.getTypePrescription());
@@ -356,6 +343,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
       throw new PaymentAmountException();
     if (p.isDiffere() && p.getCustomer() == null) throw new SaleNotFoundCustomerException();
     p.setPayrollAmount(dto.getPayrollAmount());
+
     p.setRestToPay(dto.getRestToPay());
     p.setUpdatedAt(LocalDateTime.now());
     p.setMonnaie(dto.getMontantRendu());
@@ -442,9 +430,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             sales -> {
               CashSale copy = (CashSale) sales.clone();
               copySale(sales, copy);
-              sales.setUpdatedAt(LocalDateTime.now());
-              sales.setEffectiveUpdateDate(sales.getUpdatedAt());
+              sales.setEffectiveUpdateDate(LocalDateTime.now());
               sales.setCanceled(true);
+              copy.setCanceled(true);
               sales.setLastUserEdit(user);
               cashSaleRepository.save(sales);
               cashSaleRepository.save(copy);
@@ -467,7 +455,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     copy.setEffectiveUpdateDate(copy.getUpdatedAt());
     buildReference(copy);
     copy.setCanceledSale(sales);
-    copy.dateDimension(ServiceUtil.DateDimension(LocalDate.now()));
+    copy.setStatut(SalesStatut.CANCELED);
     copy.setMontantttcUg(copy.getMontantttcUg() * (-1));
     copy.setHtAmountUg(copy.getHtAmountUg() * (-1));
     copy.setCostAmount(copy.getCostAmount() * (-1));
@@ -481,7 +469,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
     copy.setDiscountAmountUg(copy.getDiscountAmountUg() * (-1));
     copy.setDiscountAmountHorsUg(copy.getDiscountAmountHorsUg() * (-1));
-    copy.setStatut(SalesStatut.REMOVE);
     copy.setTaxAmount(copy.getTaxAmount() * (-1));
     copy.setUser(sales.getUser());
     copy.setLastUserEdit(storageService.getUser());

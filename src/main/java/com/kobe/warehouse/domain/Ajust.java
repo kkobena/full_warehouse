@@ -28,9 +28,7 @@ public class Ajust implements Serializable {
     @NotNull
     @Column(name = "date_mtv", nullable = false)
     private LocalDateTime dateMtv = LocalDateTime.now();
-    @ManyToOne(optional = false)
-    @NotNull
-    private DateDimension dateDimension;
+
     @ManyToOne(optional = false)
     @NotNull
     private User user;
@@ -61,9 +59,7 @@ public class Ajust implements Serializable {
         this.dateMtv = dateMtv;
     }
 
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-    }
+   
 
     public void setUser(User user) {
         this.user = user;

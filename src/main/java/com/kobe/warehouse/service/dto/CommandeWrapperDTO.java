@@ -20,10 +20,13 @@ public abstract class CommandeWrapperDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private OrderStatut orderStatus;
-
+    @Getter
+    private Long fournisseurId;
     private int totalProduits;
     private Integer receiptAmount;
     private String sequenceBon;
+    @Getter
+    private FournisseurDTO fournisseur;
 
     public CommandeWrapperDTO(Commande commande) {
         id = commande.getId();
@@ -118,6 +121,16 @@ public abstract class CommandeWrapperDTO {
 
     public CommandeWrapperDTO setSequenceBon(String sequenceBon) {
         this.sequenceBon = sequenceBon;
+        return this;
+    }
+
+    public CommandeWrapperDTO setFournisseurId(Long fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
+
+    public CommandeWrapperDTO setFournisseur(FournisseurDTO fournisseur) {
+        this.fournisseur = fournisseur;
         return this;
     }
 }

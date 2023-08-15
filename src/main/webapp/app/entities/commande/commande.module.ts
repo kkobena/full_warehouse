@@ -12,6 +12,9 @@ import { ImportationNewCommandeComponent } from './importation-new-commande.comp
 import { AgGridModule } from 'ag-grid-angular';
 import { CommandeUpdateComponent } from './commande-update.component';
 import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
+import { CommandeEnCoursComponent } from './commande-en-cours/commande-en-cours.component';
+import { CommandePassesComponent } from './commande-passes/commande-passes.component';
+import { CommandeRecusComponent } from './commande-recus/commande-recus.component';
 
 @NgModule({
   imports: [SharedModule, AgGridModule, RouterModule.forChild(commandeRoute)],
@@ -24,6 +27,9 @@ import { DeliveryModalComponent } from './delevery/form/delivery-modal.component
     CommandeImportResponseDialogComponent,
     ImportationNewCommandeComponent,
     DeliveryModalComponent,
+    CommandeEnCoursComponent,
+    CommandePassesComponent,
+    CommandeRecusComponent,
   ],
 })
 export class WarehouseCommandeModule {}

@@ -39,8 +39,7 @@ public class DeliveryReceiptItem implements Serializable {
   @Column(name = "quantity_received", nullable = false)
   private Integer quantityReceived;
 
-  @NotNull
-  @Column(name = "init_stock", nullable = false)
+  @Column(name = "init_stock")
   private Integer initStock;
 
   @NotNull

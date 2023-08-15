@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
-import com.kobe.warehouse.domain.DateDimension;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -32,7 +31,6 @@ import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
-import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.NumBonAlreadyUseException;
@@ -470,14 +468,15 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
   @Override
   public ResponseDTO save(ThirdPartySaleDTO dto)
-      throws PaymentAmountException, SaleNotFoundCustomerException,
+      throws PaymentAmountException,
+          SaleNotFoundCustomerException,
           ThirdPartySalesTiersPayantException {
     ResponseDTO response = new ResponseDTO();
     User user = storageService.getUser();
     Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     ThirdPartySales p =
         thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
-      salesLineService.save(p.getSalesLines(), user, id);
+    salesLineService.save(p.getSalesLines(), user, id);
 
     p.setStatut(SalesStatut.CLOSED);
     p.setStatutCaisse(SalesStatut.CLOSED);
@@ -642,7 +641,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   }
 
   private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {
-    DateDimension dateDimension = ServiceUtil.DateDimension(LocalDate.now());
+
     AssuredCustomer assuredCustomer =
         dto.getCustomerId() != null
             ? assuredCustomerRepository.getReferenceById(dto.getCustomerId())
@@ -650,7 +649,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     if (assuredCustomer == null)
       throw new GenericError("sale", "Veuillez saisir le client", "customerNotFound");
     ThirdPartySales c = new ThirdPartySales();
-    c.setDateDimension(dateDimension);
     c.setCustomer(assuredCustomer);
     c.setAyantDroit(assuredCustomer);
     getAyantDroitFromId(dto.getAyantDroitId())

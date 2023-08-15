@@ -34,6 +34,7 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
 /** not an ignored comment */
+@Getter
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Entity
 @Table(
@@ -48,7 +49,6 @@ public class Produit implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Getter
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -130,30 +130,14 @@ public class Produit implements Serializable {
   @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
   private Integer prixMnp = 0;
 
-  @Getter
-  @NotAudited
-  @OneToMany(mappedBy = "produit")
-  private Set<SalesLine> salesLines = new HashSet<>();
+
+
 
   @Getter
   @NotNull
   @Column(name = "deconditionnable", nullable = false)
   private Boolean deconditionnable;
 
-  @Getter
-  @NotAudited
-  @OneToMany(mappedBy = "produit")
-  private Set<StoreInventoryLine> storeInventoryLines = new HashSet<>();
-
-  @Getter
-  @NotAudited
-  @OneToMany(mappedBy = "produit")
-  private Set<OrderLine> orderLines = new HashSet<>();
-
-  @Getter
-  @NotAudited
-  @OneToMany(mappedBy = "produit")
-  private Set<InventoryTransaction> inventoryTransactions = new HashSet<>();
 
   @Getter
   @NotAudited
@@ -460,56 +444,15 @@ public class Produit implements Serializable {
     return this;
   }
 
-  public void setSalesLines(Set<SalesLine> salesLines) {
-    this.salesLines = salesLines;
-  }
 
-  public Produit salesLines(Set<SalesLine> salesLines) {
-    this.salesLines = salesLines;
-    return this;
-  }
 
-  public Produit addSalesLine(SalesLine salesLine) {
-    salesLines.add(salesLine);
-    salesLine.setProduit(this);
-    return this;
-  }
 
-  public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
-    this.storeInventoryLines = storeInventoryLines;
-  }
 
-  public Produit storeInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
-    this.storeInventoryLines = storeInventoryLines;
-    return this;
-  }
 
-  public Produit addStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-    storeInventoryLines.add(storeInventoryLine);
-    storeInventoryLine.setProduit(this);
-    return this;
-  }
 
-  public Produit removeStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
-    storeInventoryLines.remove(storeInventoryLine);
-    storeInventoryLine.setProduit(null);
-    return this;
-  }
 
-  public void setOrderLines(Set<OrderLine> orderLines) {
-    this.orderLines = orderLines;
-  }
 
-  public Produit orderLines(Set<OrderLine> orderLines) {
-    this.orderLines = orderLines;
-    return this;
-  }
 
-  public Produit addOrderLine(OrderLine orderLine) {
-    orderLines.add(orderLine);
-    orderLine.setProduit(this);
-    return this;
-  }
 
   public Produit addProduit(Produit produit) {
     produits.add(produit);
@@ -517,26 +460,8 @@ public class Produit implements Serializable {
     return this;
   }
 
-  public void setInventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
-    this.inventoryTransactions = inventoryTransactions;
-  }
 
-  public Produit inventoryTransactions(Set<InventoryTransaction> inventoryTransactions) {
-    this.inventoryTransactions = inventoryTransactions;
-    return this;
-  }
 
-  public Produit addInventoryTransaction(InventoryTransaction inventoryTransaction) {
-    inventoryTransactions.add(inventoryTransaction);
-    inventoryTransaction.setProduit(this);
-    return this;
-  }
-
-  public Produit removeInventoryTransaction(InventoryTransaction inventoryTransaction) {
-    inventoryTransactions.remove(inventoryTransaction);
-    inventoryTransaction.setProduit(null);
-    return this;
-  }
 
   public void setParent(Produit parent) {
     this.parent = parent;

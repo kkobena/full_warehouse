@@ -1,166 +1,63 @@
 <div [ngSwitch]="account !== null">
-  <div *ngSwitchCase="true" class="row">
-    <!--        <span *ngIf="account" [translateValues]="{ username: account.login }" id="home-logged-message"-->
-    <!--              jhiTranslate="home.logged.message"-->
-    <!--        >Vous êtes connecté en tant que "{{ account.login }}".</span-->
-    <!--        >-->
+  <div *ngSwitchCase="true" class="row home-ca ">
+    <div class="col-1 col-md-1 col-sm-2 nav-home">
+      <p-card>
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills flex-sm-row "
+             ngbNav
+             orientation="vertical">
+          <ng-container ngbNavItem="daily">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Journalier</a>
+            <ng-template ngbNavContent>
+              <jhi-daily-data></jhi-daily-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="weekly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Hebdomadaire</a>
+            <ng-template ngbNavContent>
+              <jhi-weekly-data></jhi-weekly-data>
+            </ng-template>
+          </ng-container>
 
-    <div class="row">
-      <div class="card  col" style="width:20rem;">
-        <div class="card-header bg-primary text-white"><span><fa-icon
-          [icon]="faShoppingBasket"></fa-icon></span>&nbsp;&nbsp;<span>Chiffes d'affaires jour</span>
+          <ng-container ngbNavItem="monthly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Mensuel</a>
+            <ng-template ngbNavContent>
+              <jhi-monthly-data></jhi-monthly-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="halfyearly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Semestriel</a>
+            <ng-template ngbNavContent>
+              <jhi-halfyearly-data></jhi-halfyearly-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="yearly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Annuel</a>
+            <ng-template ngbNavContent>
+              <jhi-yearly-data></jhi-yearly-data>
+            </ng-template>
+          </ng-container>
+          <!-- <ng-container ngbNavItem="home-rapport">
+             <a class="flex-sm-fill nav-link " ngbNavLink>Rapport</a>
+             <ng-template ngbNavContent>
+               <jhi-rapport-activity></jhi-rapport-activity>
+             </ng-template>
+           </ng-container>-->
+          <ng-container ngbNavItem="home-graphe">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Graphes</a>
+            <ng-template ngbNavContent>
+              <jhi-home-graphe></jhi-home-graphe>
+            </ng-template>
+          </ng-container>
         </div>
-        <div class="card-body bg-transparent card-item">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Montant des ventes
-              <span class="badge bg-primary rounded-pill">{{dailyCa?.amount | number}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Nombre de clients
-              <span
-                class="badge bg-primary rounded-pill">{{dailyCa?.numberTransaction | number}}</span>
-            </li>
-
-          </ul>
-        </div>
-      </div>
-      <div class="card  col" style="width:20rem;">
-        <div class="card-header text-white bg-secondary"><span><fa-icon
-          [icon]="faShippingFast"></fa-icon></span>&nbsp;&nbsp;Chiffes
-          d'affaires de la semaine
-        </div>
-        <div class="card-body bg-transparent card-item">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Montant des ventes
-              <span class="badge bg-primary rounded-pill">{{weeklyCa?.amount | number}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Nombre de clients
-              <span
-                class="badge bg-primary rounded-pill">{{weeklyCa?.numberTransaction | number}}</span>
-            </li>
-
-          </ul>
-        </div>
-      </div>
-      <div class="card  col" style="width:20rem;">
-        <div class="card-header text-white bg-success"><span><fa-icon
-          [icon]="faShoppingCart"></fa-icon></span>&nbsp;&nbsp;Chiffes
-          d'affaires du mois
-        </div>
-        <div class="card-body bg-transparent card-item">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Montant des ventes
-              <span class="badge bg-primary rounded-pill">{{monthlyCa?.amount | number}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Nombre de clients
-              <span
-                class="badge bg-primary rounded-pill">{{monthlyCa?.numberTransaction | number}}</span>
-            </li>
-
-          </ul>
-        </div>
-      </div>
-      <div class="card  col" style="width:20rem;">
-        <div class="card-header text-white bg-warning"><span><fa-icon
-          [icon]="faCommentsDollar"></fa-icon></span>&nbsp;&nbsp;Chiffes
-          d'affaires de l'année
-        </div>
-        <div class="card-body bg-transparent card-item">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Montant des ventes
-              <span class="badge bg-primary rounded-pill">{{yearlyCa?.amount | number}}</span>
-
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Nombre de clients
-              <span
-                class="badge bg-primary rounded-pill">{{yearlyCa?.numberTransaction | number}}</span>
-            </li>
-
-          </ul>
-        </div>
-      </div>
+      </p-card>
     </div>
-    <hr>
-    <div class="row">
-      <div class="card col ag-theme-card-item">
-        <div class="card-header bg-primary text-white">
 
-          <span style="font-width:9000;"><span>  <fa-icon
-            [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
-            Top {{TOP_MAX_RESULT}} des ventes en quantité du mois
-          </span>
-        </div>
-        <div class="card-body ag-theme-alpine " style="min-height:300px;">
-          <ag-grid-angular [columnDefs]="columnDefs" [rowData]="rowQuantityMonthly"
-                           style="width: 100%;height:100%;">
-          </ag-grid-angular>
-
-        </div>
-
-      </div>
-
-      <div class="card col ag-theme-card-item">
-        <div class="card-header bg-warning text-white">
-
-          <span style="font-width:9000;"><span>
-                                <fa-icon
-                                  [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
-                            </span>
-            Top {{TOP_MAX_RESULT}} des articles du mois
-          </span>
-        </div>
-        <div class="card-body ag-theme-alpine" style="min-height:300px;">
-          <ag-grid-angular [columnDefs]="columnDefsMonthAmount" [rowData]="rowAmountMonthly"
-                           style="width: 100%;height:100%;">
-          </ag-grid-angular>
-
-        </div>
-
-      </div>
-
+    <div class="col-11 col-md-11 col-sm-10 container-home">
+      <p-card>
+        <div [ngbNavOutlet]="nav"></div>
+      </p-card>
     </div>
-    <hr>
-    <div class="row">
-      <div class="card col ag-theme-card-item">
-        <div class="card-header bg-info text-white">
 
-          <span style="font-width:9000;"><span><fa-icon
-            [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span> Top {{TOP_MAX_RESULT}}
-            des ventes en quatité de l'année
-          </span>
-        </div>
-        <div class="card-body ag-theme-alpine" style="min-height:300px;">
-          <ag-grid-angular [columnDefs]="columnDefsYearQunatity" [rowData]="rowQuantityYear"
-                           style="width: 100%;height:100%;">
-          </ag-grid-angular>
-
-        </div>
-
-      </div>
-      <div class="card col ag-theme-card-item">
-        <div class="card-header bg-success text-white">
-
-          <span style="font-width:9000;"><span> <fa-icon
-            [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;</span>
-            Top {{TOP_MAX_RESULT}} des articles de l'année
-          </span>
-        </div>
-        <div class="card-body ag-theme-alpine" style="min-height:300px;">
-          <ag-grid-angular [columnDefs]="columnDefsYearAmount" [rowData]="rowAmountYear"
-                           style="width: 100%;height:100%;">
-          </ag-grid-angular>
-
-        </div>
-
-      </div>
-    </div>
   </div>
 
   <div *ngSwitchCase="false" class="alert alert-warning">

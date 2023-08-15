@@ -1,0 +1,32 @@
+<div class="row graphe-content ">
+
+  <div class=" row time-based ">
+    <div class=" col-md-6">
+      <div class=" card-header bg-success text-white">
+
+          <span style="font-width:9000;"><span>  <fa-icon
+            [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
+
+            <span class="card-header-board">Evolution du CA par heure</span>
+          </span>
+      </div>
+      <div>
+        <p-chart [data]="lineChart?.data" [options]="lineChart?.options" [responsive]="true"
+                 type="line"
+        ></p-chart>
+      </div>
+    </div>
+    <div class="col-md-6 ">
+      <div class="card-header bg-info text-white">
+
+          <span style="font-width:9000;"><span>  <fa-icon
+            [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
+
+            <span class="card-header-board">Top des clients</span>
+          </span>
+      </div>
+    </div>
+  </div>
+
+
+</div>

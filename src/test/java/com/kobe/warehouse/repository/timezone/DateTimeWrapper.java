@@ -29,8 +29,6 @@ public class DateTimeWrapper implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
-    @Column(name = "LocalDateTime")
-    private LocalDateTime LocalDateTime;
 
     @Column(name = "local_date_time")
     private LocalDateTime localDateTime;
@@ -54,13 +52,7 @@ public class DateTimeWrapper implements Serializable {
         this.id = id;
     }
 
-  public void setLocalDateTime(LocalDateTime LocalDateTime) {
-        this.LocalDateTime = LocalDateTime;
-    }
 
-    public void setLocalDateTime(LocalDateTime localDateTime) {
-        this.localDateTime = localDateTime;
-    }
 
   public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
         this.offsetDateTime = offsetDateTime;
@@ -105,8 +97,6 @@ public class DateTimeWrapper implements Serializable {
     public String toString() {
         return "TimeZoneTest{" +
             "id=" + id +
-            ", LocalDateTime=" + LocalDateTime +
-            ", localDateTime=" + localDateTime +
             ", offsetDateTime=" + offsetDateTime +
             ", zonedDateTime=" + zonedDateTime +
             '}';

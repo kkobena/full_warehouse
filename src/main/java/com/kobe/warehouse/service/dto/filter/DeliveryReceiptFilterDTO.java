@@ -21,6 +21,7 @@ public class DeliveryReceiptFilterDTO {
     private LocalDate fromDate;
     private LocalDate toDate;
     private String search;
+    private String searchByRef;
     private int start;
     private int limit;
 

@@ -1,6 +1,6 @@
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
 <div class="p-col-6">
-
-
   <div class="p-fluid p-formgrid p-grid">
     <div class="p-field p-col">
       <label class="col-auto col-form-label">Quantité<span
@@ -22,15 +22,17 @@
 
 </div>
 <div class="mt-2" style="float: right;">
-  <button (click)="save()"
-          [disabled]=" isSaving || (startAt===0 || startAt > 64)" class="p-button-success mr-2 p-button-raised"
-          icon="pi pi-check"
-          label="Enregistrer" pButton
-          pRipple type="submit"></button>
+
   <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
           label="Annuler"
           pButton
           pRipple type="button"></button>
+  <button (click)="save()"
+          [disabled]=" isSaving || (startAt===0 || startAt > 64)"
+          class="p-button-success mr-2 p-button-raised"
+          icon="pi pi-check"
+          label="Enregistrer" pButton
+          pRipple type="submit"></button>
 </div>
 
 

@@ -107,6 +107,7 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   protected onSaveError(): void {
+    this.spinner.hide();
     this.isSaving = false;
     this.messageService.add({
       severity: 'error',

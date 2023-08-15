@@ -32,6 +32,8 @@ public interface CommandService {
 
   void deleteById(Long id);
 
+  void rollback(Long id);
+
   void updateCodeCip(OrderLineDTO orderLineDTO);
 
   void deleteOrderLinesByIds(Long commandeId, List<Long> ids);

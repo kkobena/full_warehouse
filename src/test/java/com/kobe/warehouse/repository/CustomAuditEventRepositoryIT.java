@@ -47,7 +47,7 @@ public class CustomAuditEventRepositoryIT {
         PersistentAuditEvent testUserEvent = new PersistentAuditEvent();
         testUserEvent.setPrincipal("test-user");
         testUserEvent.setAuditEventType("test-type");
-        testUserEvent.setAuditEventDate(oneHourAgo);
+       // testUserEvent.setAuditEventDate(oneHourAgo);
         Map<String, String> data = new HashMap<>();
         data.put("test-key", "test-value");
         testUserEvent.setData(data);
@@ -55,12 +55,12 @@ public class CustomAuditEventRepositoryIT {
         PersistentAuditEvent testOldUserEvent = new PersistentAuditEvent();
         testOldUserEvent.setPrincipal("test-user");
         testOldUserEvent.setAuditEventType("test-type");
-        testOldUserEvent.setAuditEventDate(oneHourAgo.minusSeconds(10000));
+      //  testOldUserEvent.setAuditEventDate(oneHourAgo.minusSeconds(10000));
 
         PersistentAuditEvent testOtherUserEvent = new PersistentAuditEvent();
         testOtherUserEvent.setPrincipal("other-test-user");
         testOtherUserEvent.setAuditEventType("test-type");
-        testOtherUserEvent.setAuditEventDate(oneHourAgo);
+      //  testOtherUserEvent.setAuditEventDate(oneHourAgo);
     }
 
     @Test

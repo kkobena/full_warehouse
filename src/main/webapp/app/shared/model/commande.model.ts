@@ -8,6 +8,7 @@ import { IFournisseur } from 'app/shared/model/fournisseur.model';
 
 export interface ICommande {
   id?: number;
+  fournisseurId?: number;
   orderRefernce?: string;
   receiptDate?: Moment;
   discountAmount?: number;
@@ -33,6 +34,7 @@ export interface ICommande {
 export class Commande implements ICommande {
   constructor(
     public id?: number,
+    public fournisseurId?: number,
     public orderRefernce?: string,
     public receiptDate?: Moment,
     public discountAmount?: number,

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -12,7 +13,6 @@ import com.kobe.warehouse.domain.GammeProduit_;
 import com.kobe.warehouse.domain.Laboratoire;
 import com.kobe.warehouse.domain.Laboratoire_;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.Rayon;
@@ -28,7 +28,7 @@ import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -177,17 +177,17 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
   @Override
   @Transactional(readOnly = true)
-  public OrderLine lastOrder(ProduitCriteria produitCriteria) {
+  public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
     try {
-      TypedQuery<OrderLine> q =
+      TypedQuery<DeliveryReceiptItem> q =
           em.createQuery(
-              "SELECT o FROM OrderLine o WHERE o.commande.orderStatus=?1 AND o.produit.id=?2 "
-                  + " AND o.commande.magasin.id=?3 ORDER BY  o.commande.updatedAt DESC",
-              OrderLine.class);
+              "SELECT o FROM DeliveryReceiptItem o WHERE o.deliveryReceipt.receiptStatut<>?1 AND o.fournisseurProduit.produit.id=?2 "
+                  + " ORDER BY  o.deliveryReceipt.modifiedDate DESC",
+              DeliveryReceiptItem.class);
       q.setMaxResults(1);
-      q.setParameter(1, OrderStatut.CLOSED);
+      q.setParameter(1, ReceiptStatut.PENDING);
       q.setParameter(2, produitCriteria.getId());
-      q.setParameter(3, produitCriteria.getMagasinId());
+
       return q.getSingleResult();
     } catch (Exception e) {
       //  LOG.debug("lastOrder =====>>>> {}", e);
@@ -218,7 +218,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
   }
 
   @Override
-  public void updateDetail(ProduitDTO dto) throws Exception {
+  public void updateDetail(ProduitDTO dto) {
     final Produit produit =
         buildDetailProduitFromProduitDTO(dto, em.find(Produit.class, dto.getId()));
     em.merge(produit);
@@ -249,7 +249,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
   }
 
   @Override
-  public void updateFromCommande(ProduitDTO dto, Produit produit ) {
+  public void updateFromCommande(ProduitDTO dto, Produit produit) {
 
     produit.setTva(this.tvaFromId(dto.getTvaId()));
     if (StringUtils.hasLength(dto.getExpirationDate())) {
@@ -343,9 +343,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 if (detailsInventaire != null) {
                   dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
                 }
-                OrderLine commandeItem = lastOrder(produitCriteria);
-                if (commandeItem != null) {
-                  dto.setLastOrderDate(commandeItem.getUpdatedAt());
+                DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
+                if (deliveryReceiptItem != null) {
+                  dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
                 }
                 list.add(dto);
               });
@@ -623,6 +623,66 @@ public class CustomizedProductRepository implements CustomizedProductService {
       predicates.add(
           cb.equal(st.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
     }
+    return predicates;
+  }
+
+  @Override
+  public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
+      Magasin magasin = storageService.getConnectedUserMagasin();
+      Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
+    Root<Produit> root = cq.from(Produit.class);
+    cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
+    List<Predicate> predicates = produitLitePredicate(cb, root, produitCriteria);
+    cq.where(cb.and(predicates.toArray(new Predicate[0])));
+    TypedQuery<Produit> q = em.createQuery(cq);
+    q.setFirstResult((int) pageable.getOffset());
+    q.setMaxResults(pageable.getPageSize());
+    return q.getResultList().stream()
+        .map(e->ProduitBuilder.fromProductLiteList(e,e.getStockProduits().stream()
+            .filter(s -> s.getStorage().equals(userStorage))
+            .findFirst()
+            .orElse(null),magasin))
+        .toList();
+  }
+
+  private List<Predicate> produitLitePredicate(
+      CriteriaBuilder cb, Root<Produit> root, ProduitCriteria produitCriteria) {
+    List<Predicate> predicates = new ArrayList<>();
+    if (StringUtils.hasLength(produitCriteria.getSearch())) {
+      String search = produitCriteria.getSearch().toUpperCase() + "%";
+      SetJoin<Produit, FournisseurProduit> fp =
+          root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+      predicates.add(
+          cb.or(
+              cb.like(cb.upper(root.get(Produit_.libelle)), search),
+              cb.like(cb.upper(root.get(Produit_.codeEan)), search),
+              cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search)));
+    }
+    if (!ObjectUtils.isEmpty(produitCriteria.getStatus())) {
+      predicates.add(cb.equal(root.get(Produit_.status), produitCriteria.getStatus()));
+    }
+    if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
+      SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
+      if (produitCriteria.getStorageId() != null) {
+        predicates.add(
+            cb.equal(
+                st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getMagasinId()));
+      }
+      if (produitCriteria.getRayonId() != null) {
+        SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
+        predicates.add(
+            cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+      }
+    }
+
+
+    if (produitCriteria.getTypeProduit() != null) {
+      predicates.add(cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
+    }
+
+
     return predicates;
   }
 }

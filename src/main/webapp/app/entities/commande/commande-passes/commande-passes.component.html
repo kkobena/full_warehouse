@@ -1,0 +1,152 @@
+<p-table (onLazyLoad)="lazyLoading($event)" (onRowExpand)="onRowExpand($event)"
+         (onRowSelect)="onRowSelected()"
+         (onRowUnselect)="onRowUnselect()"
+         *ngIf="commandes && commandes.length > 0"
+         [(selection)]="selections" [lazy]="true"
+         [loading]="loading" [paginator]="true"
+         [rowExpandMode]="rowExpandMode"
+         [rowsPerPageOptions]="[5,10,15,20,30,50]"
+         [rows]="itemsPerPage" [showCurrentPageReport]="false"
+         [totalRecords]="totalItems"
+         [value]="commandes"
+         dataKey="id"
+         selectionMode="multiple"
+         styleClass="p-datatable-striped mt-2"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width:3%"></th>
+      <th style="width:12%">Date</th>
+      <th style="width:9%">Référence</th>
+      <th style="width:8%">Nbre d'articles</th>
+      <th style="width:8%">Montant Achat</th>
+      <th style="width:9%">Montant Vente</th>
+      <th style="width:17%">Fournisseur</th>
+      <th style="width:15%">Opérateur</th>
+      <th class="table-all-checkbos">
+        <p-tableHeaderCheckbox (click)="selectAllClik()"></p-tableHeaderCheckbox>
+      </th>
+      <th style="width:14%"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-commande let-expanded="expanded" pTemplate="body">
+    <tr>
+      <td>
+        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain"
+                pButton
+                pRipple
+                type="button"></button>
+      </td>
+      <td>{{commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+      <td>{{commande.orderRefernce}}</td>
+      <td class="text-right">{{commande.itemSize |number}}</td>
+      <td class="text-right">{{commande.grossAmount |number}}</td>
+      <td class="text-right">{{commande.orderAmount |number}}</td>
+      <td>{{commande.fournisseur?.libelle}}</td>
+      <td>{{commande.lastUserEdit?.abbrName}}</td>
+      <td class="text-center">
+        <p-tableCheckbox [value]="commande"></p-tableCheckbox>
+      </td>
+      <td class="text-right">
+        <div class="btn-group">
+
+          <button (click)="onCreateBon(commande)"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                  pButton
+                  pRipple
+                  pTooltip="Faire l'entréé en  stock"></button>
+          <button (click)="onShowFileDialog(commande)"
+                  [hidden]="true"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                  pButton pRipple
+                  pTooltip="Importer la reponse "></button>
+          <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
+                     class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
+                     icon="pi pi-shopping-cart" pButton
+                     pRipple
+                     pTooltip="Envoi par Pharma-ML"></button>-->
+
+
+          <button (click)="exportCSV(commande)"
+                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
+                  icon="pi pi-file-excel"
+                  pButton pRipple
+                  pTooltip="Exporter en CSV">
+
+
+          </button>
+          <button (click)="exportPdf(commande)"
+                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  pButton
+                  pRipple pTooltip="Imprimer"></button>
+          <button (click)="confirmRollback(commande)"
+                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
+                  icon="pi pi-undo"
+                  pButton pRipple
+                  pTooltip="Envoyer dans commande en cours"
+                  type="submit"></button>
+
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template let-elRow pTemplate="rowexpansion">
+    <tr class="commande-rowexpansion">
+      <td colspan="10">
+        <p-table [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]" [rows]="30"
+                 [showCurrentPageReport]="false" [value]="elRow.orderLines" dataKey="id"
+                 responsiveLayout="scroll" styleClass="p-datatable-striped rowexpansion-table"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:3%">
+                #
+              </th>
+              <th style="width:8%">CODE</th>
+              <th style="width:30%">LIBELLE</th>
+              <th style="width:6%">STOCK.INIT</th>
+              <th style="width:7%">P.ACHAT</th>
+              <th style="width:9%">P.ACHAT.MACHINE</th>
+              <th style="width:6%">P.U</th>
+              <th style="width:6%">P.U.MACHINE</th>
+              <th style="width:7%">QUANTITE</th>
+              <th style="width:7%">TOTAL.ACHAT</th>
+
+
+            </tr>
+          </ng-template>
+          <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
+            <tr [ngClass]="orderLineTableColor(orderLine)">
+              <td style="text-align: left;">{{rowIndex + 1}}</td>
+              <td>{{orderLine.produitCip}}</td>
+
+              <td>{{orderLine.produitLibelle}}</td>
+              <td style="text-align: right;">{{orderLine.initStock |number}}</td>
+
+              <td style="text-align: right;">
+                {{orderLine.orderCostAmount |number}}
+              </td>
+              <td style="text-align: right;">{{orderLine.costAmount |number}}</td>
+
+              <td style="text-align: right;">
+                {{orderLine.orderUnitPrice |number}}
+              </td>
+              <td style="text-align: right;">{{orderLine.regularUnitPrice |number}}</td>
+              <td style="text-align: right;">
+                {{orderLine.quantityRequested |number}}
+              </td>
+              <td style="text-align: right;">{{orderLine.quantityRequested
+              * orderLine.orderCostAmount |number}}</td>
+
+            </tr>
+          </ng-template>
+
+        </p-table>
+      </td>
+    </tr>
+
+  </ng-template>
+</p-table>
+
+

@@ -13,9 +13,7 @@ import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
-import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.StockException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -55,7 +53,6 @@ public class DeconditionService {
         decondition.setQtyMvt(mvtQty);
         decondition.setStockBefore(beforeStock);
         decondition.setStockAfter(afterStock);
-        decondition.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
         decondition.setUser(user);
         decondition.setTypeDeconditionnement(typeDeconditionnement);
      return    deconditionRepository.save(decondition);

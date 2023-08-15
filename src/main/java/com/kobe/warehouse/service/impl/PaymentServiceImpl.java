@@ -38,15 +38,14 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   public void clonePayment(Payment payment, List<Ticket> tickets, Sales copy) {
-    payment.setUpdatedAt(LocalDateTime.now());
-    payment.setEffectiveUpdateDate(payment.getUpdatedAt());
+    payment.setEffectiveUpdateDate(LocalDateTime.now());
     payment.setCanceled(true);
     Payment paymentCopy = (Payment) payment.clone();
     paymentCopy.setId(null);
     paymentCopy.setCanceled(true);
-    paymentCopy.setCreatedAt(payment.getUpdatedAt());
+    paymentCopy.setCreatedAt(copy.getCreatedAt());
+      paymentCopy.setUpdatedAt(copy.getCreatedAt());
     paymentCopy.setUser(copy.getUser());
-    paymentCopy.setDateDimension(copy.getDateDimension());
     paymentCopy.setSales(copy);
     paymentCopy.setMontantVerse(paymentCopy.getMontantVerse() * (-1));
     paymentCopy.setNetAmount(paymentCopy.getNetAmount() * (-1));
@@ -61,7 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
       }
     }
-    paymentCopy.setStatut(SalesStatut.REMOVE);
+    paymentCopy.setStatut(SalesStatut.CANCELED);
     paymentRepository.save(paymentCopy);
     paymentRepository.save(payment);
   }
@@ -130,7 +129,6 @@ public class PaymentServiceImpl implements PaymentService {
     payment.setSales(sales);
     payment.setUser(user);
     payment.setCustomer(sales.getCustomer());
-    payment.setDateDimension(sales.getDateDimension());
     if (paymentDTO.getPaymentMode() != null) {
       PaymentMode paymentMode =
           paymentModeRepository.getReferenceById(paymentDTO.getPaymentMode().getCode());

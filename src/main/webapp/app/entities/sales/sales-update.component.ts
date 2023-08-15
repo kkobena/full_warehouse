@@ -609,7 +609,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   loadProduits(): void {
     this.produitService
-      .query({
+      .queryLite({
         page: 0,
         size: 5,
         withdetail: false,

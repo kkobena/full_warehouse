@@ -28,7 +28,7 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
     default InventoryTransaction buildInventoryTransaction(OrderLine orderLine, User user) {
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setCreatedAt(orderLine.getCreatedAt());
-        inventoryTransaction.setProduit(orderLine.getProduit());
+    inventoryTransaction.setProduit(orderLine.getFournisseurProduit().getProduit());
         inventoryTransaction.setUser(user);
         inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
         inventoryTransaction.setTransactionType(TransactionType.COMMANDE);

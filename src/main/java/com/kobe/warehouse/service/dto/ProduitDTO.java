@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -83,40 +84,39 @@ public class ProduitDTO {
   private long storageId;
   private float tauxRemise;
   private Integer cmuAmount;
+
   @JsonDeserialize(using = LocalDateDeserializer.class)
   @JsonSerialize(using = LocalDateSerializer.class)
   private LocalDate perimeAt;
+
   private int status;
   private String displayStatut;
   private int saleOfPointStock;
   private int saleOfPointVirtualStock;
   private String expirationDate;
-  @Getter
-  private String displayField;
+  @Getter private String displayField;
   @Singular private List<RayonProduitDTO> rayonProduits;
   @Singular private List<ParcoursProduit> parcoursProduits;
   @Singular private List<DailyStock> dailyStocks;
-  @Getter
-  private TableauDTO tableau;
-    @Getter
-    private int unitPrice;
+  @Getter private TableauDTO tableau;
+  @Getter private int unitPrice;
 
   public ProduitDTO setUnitPrice(int unitPrice) {
-        this.unitPrice = unitPrice;
-        return this;
-    }
+    this.unitPrice = unitPrice;
+    return this;
+  }
 
   public ProduitDTO setDisplayField(String displayField) {
-        this.displayField = displayField;
-        return this;
-    }
+    this.displayField = displayField;
+    return this;
+  }
 
   public ProduitDTO setTableau(TableauDTO tableau) {
-        this.tableau = tableau;
-        return this;
-    }
+    this.tableau = tableau;
+    return this;
+  }
 
-    public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
+  public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
     this.saleOfPointStock = saleOfPointStock;
     return this;
   }
@@ -313,6 +313,9 @@ public class ProduitDTO {
 
   public ProduitDTO setFournisseurProduit(FournisseurProduitDTO fournisseurProduit) {
     this.fournisseurProduit = fournisseurProduit;
+    if (Objects.nonNull(fournisseurProduit)) {
+      this.codeCip = fournisseurProduit.getCodeCip();
+    }
     return this;
   }
 

@@ -66,3 +66,39 @@ INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES (
 INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'CB', 'CARTE BANCAIRE', 3);
 INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'VIREMENT', 'VIREMENT', 4);
 INSERT IGNORE INTO `payment_mode` ( `code`, `libelle`, `payment_group`) VALUES ( 'CH', 'CHEQUE', 5);
+INSERT IGNORE INTO  rayon (id,code,exclude,libelle,updated_at,storage_id,created_at) VALUES(1,'SANS',0,'SANS EMPLACEMENT',CURRENT_DATE,2,CURRENT_DATE);
+INSERT IGNORE INTO  rayon (id,code,exclude,libelle,updated_at,storage_id,created_at) VALUES(2,'SANS',0,'SANS EMPLACEMENT',CURRENT_DATE,1,CURRENT_DATE);
+INSERT IGNORE INTO  rayon (id,code,exclude,libelle,updated_at,storage_id,created_at) VALUES(3,'SANS',0,'SANS EMPLACEMENT',CURRENT_DATE,3,CURRENT_DATE);
+INSERT IGNORE INTO `app_configuration` (`name`,`value`,`description`) VALUES ('APP_QTY_MAX','9999999','Quantité maximale à vendre ');
+INSERT
+IGNORE
+INTO app_configuration(name, description, value, other_value)
+values ('APP_CASH_FUND', 'Ouverture automatique de la caisse du caissier', '0', null);
+INSERT
+IGNORE
+INTO app_configuration(name, description, value, other_value)
+values ('APP_SANS_NUM_BON', 'Autorisation de vente sans numéro de bon', '0', null);
+INSERT
+IGNORE
+INTO app_configuration(name, description, value, other_value)
+values ('APP_ENTREE_STOCK_SANS_EXPIRY_DATE',
+        'Autorisation entrée stock sans control date péremption', '0', null);
+INSERT
+IGNORE
+INTO warehouse_sequence(`name`, `increment`, `seq_value`)
+VALUES ('ENTREE_STOCK', 1, 1);
+
+INSERT IGNORE INTO app_configuration(name, description, value, other_value)
+values ('APP_DAY_STOCK',
+        'Nombre de jours par stock', '10', null);
+INSERT IGNORE INTO app_configuration(name, description, value, other_value)
+values ('APP_LAST_DAY_REAPPRO',
+        'Dernière date de mise à jour des seuils de réappro', null, null);
+
+INSERT IGNORE INTO app_configuration(name, description, value, other_value)
+values ('APP_LIMIT_NBR_DAY_REAPPRO',
+        'Nombre de jour de delai de réapprovisionnement', '8', null);
+INSERT IGNORE INTO app_configuration(name, description, value, other_value)
+values ('APP_DENOMINATEUR_REAPPRO',
+        'denominateur du calcul de réappro', '84', null);
+

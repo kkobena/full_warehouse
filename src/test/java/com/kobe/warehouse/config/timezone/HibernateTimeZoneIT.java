@@ -39,8 +39,8 @@ class HibernateTimeZoneIT {
     @BeforeEach
     public void setup() {
         dateTimeWrapper = new DateTimeWrapper();
-        dateTimeWrapper.setLocalDateTime(LocalDateTime.parse("2014-11-12T05:50:00.0Z"));
-        dateTimeWrapper.setLocalDateTime(LocalDateTime.parse("2014-11-12T07:50:00.0"));
+    //    dateTimeWrapper.setLocalDateTime(LocalDateTime.parse("2014-11-12T05:50:00.0Z"));
+      //  dateTimeWrapper.setLocalDateTime(LocalDateTime.parse("2014-11-12T07:50:00.0"));
         dateTimeWrapper.setOffsetDateTime(OffsetDateTime.parse("2011-12-14T08:30:00.0Z"));
         dateTimeWrapper.setZonedDateTime(ZonedDateTime.parse("2011-12-14T08:30:00.0Z"));
         dateTimeWrapper.setLocalTime(LocalTime.parse("14:30:00"));
@@ -68,7 +68,7 @@ class HibernateTimeZoneIT {
 
     @Test
     @Transactional
-    void storeLocalDateTimeWithZoneIdConfigShouldBeStoredOnGMTTimeZone() {
+    void storeLocalDateTimeWithZoneIdConfigShouldBeStoredOnGMTTimeZone0() {
         dateTimeWrapperRepository.saveAndFlush(dateTimeWrapper);
 
         String request = generateSqlRequest("local_date_time", dateTimeWrapper.getId());

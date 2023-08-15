@@ -7,10 +7,12 @@ import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.ProductState;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
@@ -22,6 +24,7 @@ import com.kobe.warehouse.repository.WarehouseSequenceRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
+import com.kobe.warehouse.service.ProductStateService;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeModel;
@@ -39,7 +42,6 @@ import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,6 +83,7 @@ public class StockEntryServiceImpl implements StockEntryService {
   private final WarehouseSequenceRepository warehouseSequenceRepository;
   private final FournisseurRepository fournisseurRepository;
   private final OrderLineService orderLineService;
+  private final ProductStateService productStateService;
 
   private final Predicate<OrderLine> isNotEntreeStockIsAuthorize =
       orderLine -> {
@@ -142,7 +145,8 @@ public class StockEntryServiceImpl implements StockEntryService {
       LogsService logsService,
       WarehouseSequenceRepository warehouseSequenceRepository,
       FournisseurRepository fournisseurRepository,
-      OrderLineService orderLineService) {
+      OrderLineService orderLineService,
+      ProductStateService productStateService) {
     this.commandeRepository = commandeRepository;
     this.produitService = produitService;
     this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
@@ -155,6 +159,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     this.fournisseurRepository = fournisseurRepository;
     this.orderLineService = orderLineService;
+    this.productStateService = productStateService;
   }
 
   private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
@@ -244,6 +249,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                       getTotalStockQuantity(stockProduit),
                       deliveryReceiptItem.getOrderCostAmount()));
               produit.setUpdatedAt(LocalDateTime.now());
+              updateProductState(produit);
               produitService.update(produit);
             });
     logsService.create(
@@ -254,7 +260,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     deliveryReceipt.setReceiptStatut(ReceiptStatut.UNPAID);
     deliveryReceipt.setModifiedUser(storageService.getUser());
     deliveryReceipt.setModifiedDate(LocalDateTime.now());
-    deliveryReceipt.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
+
     return deliveryReceipt;
   }
 
@@ -263,7 +269,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
     deliveryReceipt.setCreatedDate(LocalDateTime.now());
     deliveryReceipt.setCreatedUser(storageService.getUser());
-    deliveryReceipt.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
+
     Commande commande =
         commandeRepository
             .getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference())
@@ -350,8 +356,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         Objects.nonNull(orderLine.getQuantityReceived())
             ? orderLine.getQuantityReceived()
             : orderLine.getQuantityRequested());
-    receiptItem.setInitStock(
-        produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));
+    /*  receiptItem.setInitStock(
+    produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));*/
     receiptItem.setDiscountAmount(0);
     receiptItem.setUgQuantity(orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0);
     receiptItem.setOrderCostAmount(orderLine.getOrderCostAmount());
@@ -364,7 +370,25 @@ public class StockEntryServiceImpl implements StockEntryService {
     receiptItem.setQuantityReturned(0);
     receiptItem.setCostAmount(orderLine.getCostAmount());
     receiptItem = deliveryReceiptItemRepository.save(receiptItem);
+    setProductState(fournisseurProduit.getProduit());
     return receiptItem;
+  }
+
+  private void setProductState(List<Produit> produits) {
+    produits.forEach(this::setProductState);
+  }
+
+  private void setProductState(Produit produit) {
+    List<ProductState> productStates =
+        this.productStateService.fetchByProduitAndState(produit, ProductStateEnum.COMMANDE_PASSE);
+    if (!CollectionUtils.isEmpty(productStates)) {
+      if (productStates.size() == 1) {
+        productStates.forEach(this.productStateService::remove);
+      } else {
+        this.productStateService.remove(productStates.get(0));
+      }
+    }
+    this.productStateService.addState(produit, ProductStateEnum.ENTREE);
   }
 
   private List<LotJsonValue> getLotByOrderLine(OrderLine orderLine, Commande commande) {
@@ -436,7 +460,6 @@ public class StockEntryServiceImpl implements StockEntryService {
     deliveryReceipt.setType(TypeDeliveryReceipt.DIRECT);
     deliveryReceipt.setCreatedDate(LocalDateTime.now());
     deliveryReceipt.setCreatedUser(storageService.getUser());
-    deliveryReceipt.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
     deliveryReceipt.setFournisseur(
         this.fournisseurRepository.getReferenceById(uploadDeleiveryReceipt.getFournisseurId()));
     deliveryReceipt.setReceiptStatut(ReceiptStatut.PENDING);
@@ -560,6 +583,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                   taxAmount,
                   deliveryReceipt));
       longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
+      setProductState(fournisseurProduit.getProduit());
     } catch (Exception e) {
       throw e;
     }
@@ -1037,5 +1061,19 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     fournisseurProduitService.update(fournisseurProduit);
+  }
+
+  private void updateProductState(Produit produit) {
+    List<ProductState> productStates = this.productStateService.fetchByProduit(produit);
+    if (!CollectionUtils.isEmpty(productStates)) {
+      if (productStates.size() == 1) {
+        productStates.forEach(this.productStateService::remove);
+      } else {
+        productStates.stream()
+            .filter(s -> s.getState() == ProductStateEnum.ENTREE)
+            .limit(1)
+            .forEach(this.productStateService::remove);
+      }
+    }
   }
 }

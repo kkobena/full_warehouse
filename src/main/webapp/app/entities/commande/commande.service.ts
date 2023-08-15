@@ -45,6 +45,10 @@ export class CommandeService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+  rollback(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/rollback/${id}`, { observe: 'response' });
+  }
+
   createOrUpdateOrderLine(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .post<IOrderLine>(this.resourceUrl + '/add-order-line', orderLine, { observe: 'response' })

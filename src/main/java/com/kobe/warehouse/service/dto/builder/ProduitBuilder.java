@@ -679,4 +679,18 @@ public final class ProduitBuilder {
               .orElse(produitDTO.getRegularUnitPrice()));
     }
   }
+  public static ProduitDTO fromProductLiteList(Produit produit, StockProduit stockProduitPointOfSale,Magasin magasin) {
+    ProduitDTO produitDTO = partialFromProduit(produit);
+    rayonProduits(produitDTO, produit);
+    produitDTO.setStatus(produit.getStatus().ordinal());
+      stockProduits(produitDTO, produit, magasin.getId());
+      stockProduit(produitDTO, stockProduitPointOfSale);
+    produitDTO.setFournisseurProduit(
+        Optional.ofNullable(produit.getFournisseurProduitPrincipal())
+            .map(FournisseurProduitDTO::new)
+            .orElse(null));
+  //  produitDTO.setDisplayField(buildDisplayName(produitDTO));
+    setUnitPrice(produitDTO);
+    return produitDTO;
+  }
 }

@@ -6,7 +6,7 @@ import { DeliveryService } from './delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { Router } from '@angular/router';
-import { EtiquetteComponent } from './etiquette/Etiquette.component';
+import { EtiquetteComponent } from './etiquette/etiquette.component';
 import { ImportDeliveryFormComponent } from './form/import/import-delivery-form.component';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
 

@@ -1,5 +1,16 @@
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
              type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
+<p-confirmDialog #printTicket [baseZIndex]="10000" [style]="{width: '40vw'}" key="printTicket">
+  <p-footer>
+    <button (click)="printTicket.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="printTicket.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+
 <div class="commande-entry">
 
   <div class="row">

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -142,10 +141,6 @@ public class Sales implements Serializable, Cloneable {
   private Set<SalesLine> salesLines = new HashSet<>();
 
   @ManyToOne private Remise remise;
-
-  @ManyToOne(optional = false)
-  @JsonIgnoreProperties(value = "sales", allowSetters = true)
-  private DateDimension dateDimension;
 
   @NotNull
   @ManyToOne(optional = false)
@@ -518,14 +513,6 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public void setDateDimension(DateDimension dateDimension) {
-    this.dateDimension = dateDimension;
-  }
-
-  public Sales dateDimension(DateDimension dateDimension) {
-    this.dateDimension = dateDimension;
-    return this;
-  }
 
   public Sales setSeller(User seller) {
     this.seller = seller;
@@ -602,7 +589,6 @@ public class Sales implements Serializable, Cloneable {
             + ", remise="
             + remise
             + ", dateDimension="
-            + dateDimension
             + ", effectiveUpdateDate="
             + effectiveUpdateDate
             + ", toIgnore="

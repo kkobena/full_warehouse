@@ -9,7 +9,7 @@ import { CommandeStockEntryComponent } from '../commande-stock-entry.component';
 import { CommandeBtnComponent } from '../btn/commande-btn.component';
 import { FormLotComponent } from '../lot/form-lot.component';
 import { ListLotComponent } from '../lot/list/list-lot.component';
-import { EtiquetteComponent } from './etiquette/Etiquette.component';
+import { EtiquetteComponent } from './etiquette/etiquette.component';
 import { ImportDeliveryFormComponent } from './form/import/import-delivery-form.component';
 import { ReceiptStatusComponent } from '../status/receipt-status.component';
 import { EditProduitComponent } from './form/edit-produit/edit-produit.component';

@@ -20,12 +20,10 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.utils.FileUtil;
-import com.kobe.warehouse.service.utils.ServiceUtil;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +89,6 @@ public class CommandServiceImpl implements CommandService {
   public Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
     User user = storageService.getUser();
     Commande commande = new Commande();
-    commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
     commande.setCreatedAt(LocalDateTime.now());
     commande.setUpdatedAt(commande.getCreatedAt());
     commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -104,7 +101,7 @@ public class CommandServiceImpl implements CommandService {
     commande.addOrderLine(orderLine);
     commande.setGrossAmount(orderLine.getGrossAmount());
     commande.setOrderAmount(orderLine.getOrderAmount());
-    commande.setFournisseur(buildFournisseurFromId(commandeDTO.getFournisseur().getId()));
+    commande.setFournisseur(buildFournisseurFromId(commandeDTO.getFournisseurId()));
     return commande;
   }
 
@@ -116,7 +113,7 @@ public class CommandServiceImpl implements CommandService {
         orderLineService.findOneFromCommande(
             orderLineDTO.getProduitId(),
             orderLineDTO.getCommande().getId(),
-            orderLineDTO.getCommande().getFournisseur().getId());
+            orderLineDTO.getCommande().getFournisseurId());
     OrderLine orderLine = null;
     if (optionalOrderLine.isPresent()) {
       orderLine = optionalOrderLine.get();
@@ -198,11 +195,23 @@ public class CommandServiceImpl implements CommandService {
               orderLineService.deleteOrderLine(orderLine);
               commandeRepository.save(commande);
             });
+
   }
 
   @Override
   public void deleteById(Long id) {
-    commandeRepository.delete(commandeRepository.getReferenceById(id));
+    Commande commande=commandeRepository.getReferenceById(id);
+    orderLineService.removeProductState(commande.getOrderLines().stream().map(e->e.getFournisseurProduit().getProduit()).toList());
+    commandeRepository.delete(commande);
+  }
+  @Override
+  public void rollback(Long id) {
+    Commande commande=commandeRepository.getReferenceById(id);
+    commande.setOrderStatus(OrderStatut.REQUESTED);
+    commande.setUpdatedAt(LocalDateTime.now());
+    commande.setLastUserEdit(storageService.getUser());
+    orderLineService.rollbackProductState(commande.getOrderLines().stream().map(e->e.getFournisseurProduit().getProduit()).toList());
+    commandeRepository.save(commande);
   }
 
   @Override
@@ -337,7 +346,6 @@ public class CommandServiceImpl implements CommandService {
     commande.setDiscountAmount(0);
     commande.setCreatedAt(LocalDateTime.now());
     commande.setUpdatedAt(commande.getCreatedAt());
-    commande.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
     commande.setMagasin(commande.getUser().getMagasin());
     return commande;
   }

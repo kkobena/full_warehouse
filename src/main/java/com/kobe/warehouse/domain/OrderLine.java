@@ -82,9 +82,6 @@ public class OrderLine implements Serializable, Cloneable {
     @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
     private Commande commande;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
-    private Produit produit;
 
     @NotNull
     @Column(name = "order_unit_price", nullable = false)
@@ -272,14 +269,7 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
 
-    public OrderLine produit(Produit produit) {
-        this.produit = produit;
-        return this;
-    }
 
     public OrderLine setRegularUnitPrice(Integer regularUnitPrice) {
         this.regularUnitPrice = regularUnitPrice;

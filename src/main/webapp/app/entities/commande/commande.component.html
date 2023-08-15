@@ -16,14 +16,16 @@
           [responsive]="true"
           [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true" accept=".csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"
+                  accept=".csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv"
                   uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler"
             pButton
             pRipple type="button"></button>
 
@@ -34,8 +36,17 @@
   <span jhiTranslate="warehouseApp.commande.home.title">Gestion des commandes</span>
 </h3>
 <p-toolbar>
-  <div class="p-toolbar-group-left commande" style="width: 40%;">
+  <div class="p-toolbar-group-left commande" style="width: 50%;">
     <div class="row" style="width: 100%;">
+      <div class="col-md-4">
+        <p-dropdown (onChange)="onSearch()" [(ngModel)]="selectedFilter"
+                    [appendTo]="'body'"
+                    [options]="filtres" [style]="{width: '100%'}"
+                    optionLabel="label" optionValue="value"
+                    placeholder="Séléctionner un type "
+        >
+        </p-dropdown>
+      </div>
       <div class="col-md-4">
 
         <input (keyup.enter)="onSearch()" [(ngModel)]="searchCommande" pInputText
@@ -50,13 +61,7 @@
                style="width: 100%;" type="text">
 
       </div>
-      <div class="col-md-4">
-        <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter" [hidden]="loadingSelectedFilter"
-                   [items]="filtres!"
-                   bindLabel="label" bindValue="value">
 
-        </ng-select>
-      </div>
 
     </div>
 
@@ -107,8 +112,9 @@
                     <button *ngIf="selections!.length>0" class="p-button-raised p-button-danger"
                             pButton
                             pRipple type="button">
-                    <fa-icon icon="times"></fa-icon>&nbsp;<span (click)="confirmDeleteSelectedRows()"
-                                                                jhiTranslate="entity.action.delete">Supprimer</span>
+                    <fa-icon icon="times"></fa-icon>&nbsp;<span
+                      (click)="confirmDeleteSelectedRows()"
+                      jhiTranslate="entity.action.delete">Supprimer</span>
                 </button>
                  </span>
   </div>
@@ -167,8 +173,9 @@
       <td class="text-right">
         <div class="btn-group">
 
-          <button *ngIf="commande.orderStatus!=='CLOSED'"
-                  [routerLink]="['/commande', commande.id, 'edit']" class="p-button-rounded p-button-success p-button-sm"
+          <button *ngIf="commande.orderStatus==='REQUESTED'"
+                  [routerLink]="['/commande', commande.id, 'edit']"
+                  class="p-button-rounded p-button-success p-button-sm"
                   icon="pi pi-pencil" pButton
                   pRipple pTooltip="Editer">
 
@@ -185,14 +192,15 @@
                   class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
                   pButton pRipple
                   pTooltip="Importer la reponse "></button>
-          <button *ngIf="commande.orderStatus!=='CLOSED'"
-                  class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
-                  icon="pi pi-shopping-cart" pButton
-                  pRipple
-                  pTooltip="Envoi par Pharma-ML"></button>
+          <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
+                     class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
+                     icon="pi pi-shopping-cart" pButton
+                     pRipple
+                     pTooltip="Envoi par Pharma-ML"></button>-->
 
 
-          <button (click)="exportCSV(commande)" class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
+          <button (click)="exportCSV(commande)"
+                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
                   icon="pi pi-file-excel"
                   pButton pRipple
                   pTooltip="Exporter en CSV">
@@ -203,11 +211,17 @@
                   class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
                   pButton
                   pRipple pTooltip="Imprimer"></button>
-          <button (click)="confirmDelete(commande)"
+          <button (click)="confirmDelete(commande)" *ngIf="commande.orderStatus==='REQUESTED'"
                   class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
                   icon="pi pi-trash"
                   pButton pRipple
                   pTooltip="Supprimer"
+                  type="submit"></button>
+          <button (click)="confirmRollback(commande)" *ngIf="commande.orderStatus==='PASSED'"
+                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
+                  icon="pi pi-undo"
+                  pButton pRipple
+                  pTooltip="Retour en commande en cours"
                   type="submit"></button>
         </div>
       </td>

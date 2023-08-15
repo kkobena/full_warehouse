@@ -191,7 +191,7 @@ public class ProduitResource {
         @RequestParam(required = false, name = "tableauNot") Long tableauNot,
         Pageable pageable
     ) {
-        Page<ProduitDTO> page = produitService.lite(
+        List<ProduitDTO> list = produitService.productsLiteList(
             new ProduitCriteria()
                 .setSearch(search)
                 .setStatus(status)
@@ -204,8 +204,8 @@ public class ProduitResource {
                 .setStorageId(storageId),
             pageable
         );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+
+        return ResponseEntity.ok().body(list);
     }
 
     @Transactional(readOnly = true)

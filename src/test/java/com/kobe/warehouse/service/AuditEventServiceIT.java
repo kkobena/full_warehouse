@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.PersistentAuditEvent;
 import com.kobe.warehouse.repository.PersistenceAuditEventRepository;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +37,21 @@ public class AuditEventServiceIT {
     @BeforeEach
     public void init() {
         auditEventOld = new PersistentAuditEvent();
-        auditEventOld.setAuditEventDate(LocalDateTime.now()
-            .minusDays(jHipsterProperties.getAuditEvents().getRetentionPeriod() + 1));
+        /*auditEventOld.setAuditEventDate(Instant.now()
+            .minusDays(jHipsterProperties.getAuditEvents().getRetentionPeriod() + 1));*/
         auditEventOld.setPrincipal("test-user-old");
         auditEventOld.setAuditEventType("test-type");
 
         auditEventWithinRetention = new PersistentAuditEvent();
-        auditEventWithinRetention.setAuditEventDate(
+       /* auditEventWithinRetention.setAuditEventDate(
             LocalDateTime.now()
                 .minusDays(jHipsterProperties.getAuditEvents().getRetentionPeriod() - 1)
-        );
+        );*/
         auditEventWithinRetention.setPrincipal("test-user-retention");
         auditEventWithinRetention.setAuditEventType("test-type");
 
         auditEventNew = new PersistentAuditEvent();
-        auditEventNew.setAuditEventDate(LocalDateTime.now());
+      //  auditEventNew.setAuditEventDate(LocalDateTime.now());
         auditEventNew.setPrincipal("test-user-new");
         auditEventNew.setAuditEventType("test-type");
     }

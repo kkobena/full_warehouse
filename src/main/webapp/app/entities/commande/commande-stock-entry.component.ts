@@ -9,7 +9,6 @@ import { ErrorService } from '../../shared/error.service';
 import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
@@ -26,6 +25,7 @@ import { IDeliveryItem } from '../../shared/model/delivery-item';
 import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
 import { ReceiptStatusComponent } from './status/receipt-status.component';
 import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
+import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -243,7 +243,6 @@ export class CommandeStockEntryComponent implements OnInit {
 
   findParamAddLot(): void {
     const paramGesntionLot = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
-
     if (paramGesntionLot) {
       this.showLotBtn = Number(paramGesntionLot.value) === 0;
     }
@@ -513,8 +512,10 @@ export class CommandeStockEntryComponent implements OnInit {
     this.service.finalizeSaisieEntreeStock(this.delivery).subscribe({
       next: () => {
         this.hidePinner();
-        this.delivery = null;
-        this.previousState();
+        console.error('ddd ', this.delivery);
+        this.confirmPrintTicket(this.delivery);
+
+        //  this.previousState();
       },
       error: error => {
         this.onCommonError(error);
@@ -523,10 +524,33 @@ export class CommandeStockEntryComponent implements OnInit {
     });
   }
 
-  subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
-      next: () => this.onSaveOrderLineSuccess(),
-      error: err => this.onCommonError(err),
+  confirmPrintTicket(delivery: IDelivery): void {
+    console.log('confirmPrintTicket', delivery);
+    this.confirmationService.confirm({
+      message: ' Voullez-vous imprimer les étiquettes ?',
+      header: 'IMPRESSION',
+      icon: 'pi pi-info-circle',
+      accept: () => this.printEtiquette(delivery),
+      reject: () => {
+        this.previousState();
+      },
+      key: 'printTicket',
+    });
+  }
+
+  printEtiquette(delivery: IDelivery): void {
+    this.ref = this.dialogService.open(EtiquetteComponent, {
+      data: { entity: delivery },
+      width: '40%',
+      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptRefernce} ] `,
+    });
+    this.ref.onDestroy.subscribe(() => {
+      this.delivery = null;
+      this.previousState();
+    });
+    this.ref.onClose.subscribe(() => {
+      this.delivery = null;
+      this.previousState();
     });
   }
 
@@ -572,10 +596,6 @@ export class CommandeStockEntryComponent implements OnInit {
 
   reloadDelivery(): void {
     this.onFilterReceiptItems();
-    /* this.service.find(this.delivery.id).subscribe(res => {
-       this.delivery = res.body;
-       this.receiptItems = this.delivery?.receiptItems;
-     });*/
   }
 
   onEditDelivery(): void {

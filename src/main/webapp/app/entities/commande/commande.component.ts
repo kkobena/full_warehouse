@@ -74,7 +74,7 @@ export class CommandeComponent implements OnInit {
   commandebuttons: MenuItem[];
   rowExpandMode = 'single';
   loading!: boolean;
-  loadingSelectedFilter = true;
+  loadingSelectedFilter = false;
   page = 0;
   selectedtypeSuggession = 'ALL';
   typeSuggessions: any[] = [];
@@ -177,9 +177,23 @@ export class CommandeComponent implements OnInit {
     }
   }
 
-  delete(commandeId: number): void {
+  deleteCommande(commandeId: number): void {
     this.spinner.show('gestion-commande-spinner');
     this.commandeService.delete(commandeId).subscribe(
+      () => {
+        this.loadPage();
+        this.spinner.hide('gestion-commande-spinner');
+      },
+      error => {
+        this.onCommonError(error);
+        this.spinner.hide('gestion-commande-spinner');
+      }
+    );
+  }
+
+  rollbackCommande(commandeId: number): void {
+    this.spinner.show('gestion-commande-spinner');
+    this.commandeService.rollback(commandeId).subscribe(
       () => {
         this.loadPage();
         this.spinner.hide('gestion-commande-spinner');
@@ -340,7 +354,17 @@ export class CommandeComponent implements OnInit {
       message: ' Voullez-vous supprimer cette commande  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      accept: () => this.delete(commande?.id!),
+      accept: () => this.deleteCommande(commande?.id!),
+      key: 'deleteCommande',
+    });
+  }
+
+  confirmRollback(commande: ICommande): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous la retourner dans commande en cours ?',
+      header: ' SUPPRESSION',
+      icon: 'pi pi-info-circle',
+      accept: () => this.rollbackCommande(commande?.id!),
       key: 'deleteCommande',
     });
   }

@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
@@ -131,9 +131,9 @@ public class ProduitServiceImpl implements ProduitService {
       if (detailsInventaire != null) {
         dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
       }
-      OrderLine commandeItem = lastOrder(produitCriteria);
-      if (commandeItem != null) {
-        dto.setLastOrderDate(commandeItem.getUpdatedAt());
+      DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
+      if (deliveryReceiptItem != null) {
+        dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
       }
     }
 
@@ -154,7 +154,7 @@ public class ProduitServiceImpl implements ProduitService {
 
   @Override
   @Transactional(readOnly = true)
-  public OrderLine lastOrder(ProduitCriteria produitCriteria) {
+  public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
     return customizedProductService.lastOrder(produitCriteria);
   }
 
@@ -189,6 +189,11 @@ public class ProduitServiceImpl implements ProduitService {
       log.debug("Request lite  Produits : {}", e);
       return Page.empty();
     }
+  }
+
+  @Override
+  public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
+    return customizedProductService.productsLiteList(produitCriteria, pageable);
   }
 
   @Override

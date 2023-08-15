@@ -25,7 +25,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(
     name = "delivery_receipt",
@@ -106,51 +108,24 @@ public class DeliveryReceipt implements Serializable {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private DateDimension dateDimension;
 
-  public TypeDeliveryReceipt getType() {
-    return type;
-  }
-
-  public DeliveryReceipt setType(TypeDeliveryReceipt type) {
+    public DeliveryReceipt setType(TypeDeliveryReceipt type) {
     this.type = type;
     return this;
   }
 
-  public Integer getNetAmount() {
-    return netAmount;
-  }
-
-  public DeliveryReceipt setNetAmount(Integer netAmount) {
+    public DeliveryReceipt setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
     return this;
   }
 
-  public DateDimension getDateDimension() {
-    return dateDimension;
-  }
 
-  public DeliveryReceipt setDateDimension(DateDimension dateDimension) {
-    this.dateDimension = dateDimension;
-    return this;
-  }
-
-  public String getOrderReference() {
-    return orderReference;
-  }
-
-  public DeliveryReceipt setOrderReference(String orderReference) {
+    public DeliveryReceipt setOrderReference(String orderReference) {
     this.orderReference = orderReference;
     return this;
   }
 
-  public Integer getTaxAmount() {
-    return taxAmount;
-  }
-
-  public DeliveryReceipt setTaxAmount(Integer taxAmount) {
+    public DeliveryReceipt setTaxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
     return this;
   }
@@ -159,128 +134,72 @@ public class DeliveryReceipt implements Serializable {
     return id;
   }
 
-  public String getNumberTransaction() {
-    return numberTransaction;
-  }
-
-  public DeliveryReceipt setNumberTransaction(String numberTransaction) {
+    public DeliveryReceipt setNumberTransaction(String numberTransaction) {
     this.numberTransaction = numberTransaction;
     return this;
   }
 
-  public String getSequenceBon() {
-    return sequenceBon;
-  }
-
-  public DeliveryReceipt setSequenceBon(String sequenceBon) {
+    public DeliveryReceipt setSequenceBon(String sequenceBon) {
     this.sequenceBon = sequenceBon;
     return this;
   }
 
-  public String getReceiptRefernce() {
-    return receiptRefernce;
-  }
-
-  public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
+    public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
     this.receiptRefernce = receiptRefernce;
     return this;
   }
 
-  public LocalDate getReceiptDate() {
-    return receiptDate;
-  }
-
-  public DeliveryReceipt setReceiptDate(LocalDate receiptDate) {
+    public DeliveryReceipt setReceiptDate(LocalDate receiptDate) {
     this.receiptDate = receiptDate;
     return this;
   }
 
-  public Integer getDiscountAmount() {
-    return discountAmount;
-  }
-
-  public DeliveryReceipt setDiscountAmount(Integer discountAmount) {
+    public DeliveryReceipt setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
     return this;
   }
 
-  public Integer getReceiptAmount() {
-    return receiptAmount;
-  }
-
-  public DeliveryReceipt setReceiptAmount(Integer receiptAmount) {
+    public DeliveryReceipt setReceiptAmount(Integer receiptAmount) {
     this.receiptAmount = receiptAmount;
     return this;
   }
 
-  public LocalDateTime getCreatedDate() {
-    return createdDate;
-  }
-
-  public DeliveryReceipt setCreatedDate(LocalDateTime createdDate) {
+    public DeliveryReceipt setCreatedDate(LocalDateTime createdDate) {
     this.createdDate = createdDate;
     return this;
   }
 
-  public LocalDateTime getModifiedDate() {
-    return modifiedDate;
-  }
-
-  public DeliveryReceipt setModifiedDate(LocalDateTime modifiedDate) {
+    public DeliveryReceipt setModifiedDate(LocalDateTime modifiedDate) {
     this.modifiedDate = modifiedDate;
     return this;
   }
 
-  public User getCreatedUser() {
-    return createdUser;
-  }
-
-  public DeliveryReceipt setCreatedUser(User createdUser) {
+    public DeliveryReceipt setCreatedUser(User createdUser) {
     this.createdUser = createdUser;
     return this;
   }
 
-  public User getModifiedUser() {
-    return modifiedUser;
-  }
-
-  public DeliveryReceipt setModifiedUser(User modifiedUser) {
+    public DeliveryReceipt setModifiedUser(User modifiedUser) {
     this.modifiedUser = modifiedUser;
     return this;
   }
 
-  public ReceiptStatut getReceiptStatut() {
-    return receiptStatut;
-  }
-
-  public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
+    public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
     this.receiptStatut = receiptStatut;
     return this;
   }
 
-  public Set<PaymentFournisseur> getPaymentFournisseurs() {
-    return paymentFournisseurs;
-  }
-
-  public DeliveryReceipt setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
+    public DeliveryReceipt setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
     this.paymentFournisseurs = paymentFournisseurs;
     return this;
   }
 
-  public Fournisseur getFournisseur() {
-    return fournisseur;
-  }
-
-  public DeliveryReceipt setFournisseur(Fournisseur fournisseur) {
+    public DeliveryReceipt setFournisseur(Fournisseur fournisseur) {
     this.fournisseur = fournisseur;
     return this;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public DeliveryReceipt setId(Long id) {
+    public DeliveryReceipt setId(Long id) {
     this.id = id;
     return this;
   }
@@ -297,11 +216,7 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
-  public List<DeliveryReceiptItem> getReceiptItems() {
-    return receiptItems;
-  }
-
-  public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
+    public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
     this.receiptItems = receiptItems;
     return this;
   }

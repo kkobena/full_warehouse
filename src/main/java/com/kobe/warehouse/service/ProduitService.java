@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
@@ -52,7 +52,7 @@ public interface ProduitService {
 
   StoreInventoryLine lastInventory(ProduitCriteria produitCriteria);
 
-  OrderLine lastOrder(ProduitCriteria produitCriteria);
+  DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria);
 
   ProduitDTO findOne(ProduitCriteria produitCriteria);
 
@@ -61,6 +61,7 @@ public interface ProduitService {
   void update(ProduitDTO produitDTO);
 
   Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable);
+  List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable);
 
   void updateDetail(ProduitDTO produitDTO);
 

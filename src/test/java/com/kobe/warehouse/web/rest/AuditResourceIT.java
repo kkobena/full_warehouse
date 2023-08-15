@@ -9,7 +9,9 @@ import com.kobe.warehouse.WarehouseApp;
 import com.kobe.warehouse.domain.PersistentAuditEvent;
 import com.kobe.warehouse.repository.PersistenceAuditEventRepository;
 import com.kobe.warehouse.security.AuthoritiesConstants;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,8 @@ public class AuditResourceIT {
 
     private static final String SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL";
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
-    private static final LocalDateTime SAMPLE_TIMESTAMP = LocalDateTime.parse("2015-08-04T10:11:30Z");
+    private static final Instant SAMPLE_TIMESTAMP = LocalDateTime.parse("2015-08-04T10:11:30Z"). toInstant(
+        ZoneOffset.UTC);
     private static final long SECONDS_PER_DAY = 60 * 60 * 24;
 
     @Autowired

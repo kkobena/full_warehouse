@@ -17,8 +17,6 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustementDTO;
-import com.kobe.warehouse.service.utils.ServiceUtil;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +71,6 @@ public class AjustementService {
     if (id == null) {
       Ajust ajust = new Ajust();
       ajust.setCommentaire(comment);
-      ajust.setDateDimension(ServiceUtil.DateDimension(LocalDate.now()));
       ajust.setUser(getUser());
       ajust.setDateMtv(LocalDateTime.now());
       if (storageId != null) {

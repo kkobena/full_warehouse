@@ -60,9 +60,7 @@ public class Decondition implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type_deconditionnement", nullable = false)
     private TypeDeconditionnement typeDeconditionnement;
-    @ManyToOne(optional = false)
-    @NotNull
-    private DateDimension dateDimension;
+
 
     public void setId(Long id) {
         this.id = id;
@@ -127,14 +125,7 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public void setDateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-    }
 
-    public Decondition dateDimension(DateDimension dateDimension) {
-        this.dateDimension = dateDimension;
-        return this;
-    }
 
     @Override
     public boolean equals(Object o) {

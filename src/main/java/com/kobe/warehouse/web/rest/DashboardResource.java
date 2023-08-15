@@ -2,6 +2,9 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
+import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
+import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
+import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.DashboardService;
 import java.time.LocalDate;
@@ -62,5 +65,23 @@ public class DashboardResource {
     List<StatistiqueProduit> data =
         dashboardService.statistiqueProduitsAmountMonthly(LocalDate.now(), maxResul);
     return ResponseEntity.ok().body(data);
+  }
+
+  @GetMapping("/dashboard/ca-by-type-vente")
+  public ResponseEntity<List<VenteByTypeRecord>> getCaByTypeVente(
+      @Valid VenteRecordParamDTO venteRecordParam) {
+    return ResponseEntity.ok().body(dashboardService.getCaGroupingByType(venteRecordParam));
+  }
+
+  @GetMapping("/dashboard/ca-by-mode-paiment")
+  public ResponseEntity<List<VenteModePaimentRecord>> getCaByModePaiment(
+      @Valid VenteRecordParamDTO venteRecordParam) {
+    return ResponseEntity.ok().body(dashboardService.getCaGroupingByPaimentMode(venteRecordParam));
+  }
+
+  @GetMapping("/dashboard/ca-by-periode")
+  public ResponseEntity<List<VentePeriodeRecord>> getCaGroupingByPeriode(
+      @Valid VenteRecordParamDTO venteRecordParam) {
+    return ResponseEntity.ok().body(dashboardService.getCaGroupingByPeriode(venteRecordParam));
   }
 }

@@ -8,13 +8,12 @@ import com.kobe.warehouse.domain.SalesLine_;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.AchatRecordParamDTO;
-import com.kobe.warehouse.service.dto.DailyCa;
-import com.kobe.warehouse.service.dto.MonthlyCa;
 import com.kobe.warehouse.service.dto.StatistiqueProduit;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
-import com.kobe.warehouse.service.dto.WeeklyCa;
-import com.kobe.warehouse.service.dto.YearlyCa;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
+import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
+import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
+import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.AchatStatService;
 import com.kobe.warehouse.service.stat.DashboardService;
@@ -52,89 +51,6 @@ public class DashboardServiceImpl implements DashboardService {
     this.em = em;
     this.saleStatService = saleStatService;
     this.achatStatService = achatStatService;
-  }
-
-  public DailyCa getDailyCa(LocalDate localDate) {
-    try {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<DailyCa> cq = cb.createQuery(DailyCa.class);
-      Root<Sales> root = cq.from(Sales.class);
-      cq.select(cb.construct(DailyCa.class, cb.sumAsLong(root.get("salesAmount")), cb.count(root)));
-      List<Predicate> predicates = new ArrayList<>();
-      predicates.add(
-          cb.equal(
-              root.get("dateDimension").get("dateKey"), ServiceUtil.dateDimensionKey(localDate)));
-      predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-      TypedQuery<DailyCa> q = em.createQuery(cq);
-      return q.getSingleResult();
-    } catch (Exception e) {
-      //  LOG.debug("getDailyCa ===>>",e);
-      return new DailyCa(0, 0);
-    }
-  }
-
-  public WeeklyCa getWeeklyCa(LocalDate localDate) {
-    try {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<WeeklyCa> cq = cb.createQuery(WeeklyCa.class);
-      Root<Sales> root = cq.from(Sales.class);
-      cq.select(
-          cb.construct(WeeklyCa.class, cb.sumAsLong(root.get("salesAmount")), cb.count(root)));
-      List<Predicate> predicates = new ArrayList<>();
-      predicates.add(
-          cb.greaterThanOrEqualTo(
-              root.get("dateDimension").get("dateKey"),
-              ServiceUtil.dateDimensionKey(localDate.minusDays(7))));
-      predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-      TypedQuery<WeeklyCa> q = em.createQuery(cq);
-      return q.getSingleResult();
-    } catch (Exception e) {
-      //  LOG.debug("getWeeklyCa ===>>",e);
-      return new WeeklyCa(0, 0);
-    }
-  }
-
-  public MonthlyCa getMonthlyCa(LocalDate localDate) {
-    try {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<MonthlyCa> cq = cb.createQuery(MonthlyCa.class);
-      Root<Sales> root = cq.from(Sales.class);
-      cq.select(
-          cb.construct(MonthlyCa.class, cb.sumAsLong(root.get("salesAmount")), cb.count(root)));
-      List<Predicate> predicates = new ArrayList<>();
-      predicates.add(
-          cb.greaterThanOrEqualTo(
-              root.get("dateDimension").get("dateKey"),
-              ServiceUtil.dateDimensionKey(localDate.minusMonths(1))));
-      predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-      TypedQuery<MonthlyCa> q = em.createQuery(cq);
-      return q.getSingleResult();
-    } catch (Exception e) {
-      // LOG.debug("getMonthlyCa ===>>",e);
-      return new MonthlyCa(0, 0);
-    }
-  }
-
-  public YearlyCa getYearlyCa(LocalDate localDate) {
-    try {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<YearlyCa> cq = cb.createQuery(YearlyCa.class);
-      Root<Sales> root = cq.from(Sales.class);
-      cq.select(
-          cb.construct(YearlyCa.class, cb.sumAsLong(root.get("salesAmount")), cb.count(root)));
-      List<Predicate> predicates = new ArrayList<>();
-      predicates.add(cb.equal(root.get("dateDimension").get("year"), localDate.getYear()));
-      predicates.add(cb.equal(root.get("statut"), SalesStatut.CLOSED));
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-      TypedQuery<YearlyCa> q = em.createQuery(cq);
-      return q.getSingleResult();
-    } catch (Exception e) {
-      LOG.debug("getYearlyCa ===>>", e);
-      return new YearlyCa(0, 0);
-    }
   }
 
   public List<StatistiqueProduit> statistiqueProduitsQunatityMonthly(
@@ -269,5 +185,21 @@ public class DashboardServiceImpl implements DashboardService {
   @Override
   public AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam) {
     return this.achatStatService.getAchatPeriode(achatRecordParam);
+  }
+
+  @Override
+  public List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {
+    return this.saleStatService.getCaGroupingByPeriode(venteRecordParamDTO);
+  }
+
+  @Override
+  public List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO) {
+    return this.saleStatService.getCaGroupingByType(venteRecordParamDTO);
+  }
+
+  @Override
+  public List<VenteModePaimentRecord> getCaGroupingByPaimentMode(
+      VenteRecordParamDTO venteRecordParamDTO) {
+    return this.saleStatService.getCaGroupingByPaimentMode(venteRecordParamDTO);
   }
 }

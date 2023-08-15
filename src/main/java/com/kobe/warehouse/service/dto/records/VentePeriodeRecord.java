@@ -1,5 +1,4 @@
 package com.kobe.warehouse.service.dto.records;
 
-import java.time.LocalDate;
 
-public record VentePeriodeRecord(LocalDate mvtDate, VenteRecord venteRecord) {}
+public record VentePeriodeRecord(String dateMvt, String statut, VenteRecord venteRecord) {}

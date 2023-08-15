@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
+import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
 import { DashboardService } from '../../dashboard.service';
 import { formatNumberToString } from '../../../shared/util/warehouse-util';
 import { TypeCa } from '../../../shared/model/enumerations/type-ca.model';
@@ -45,6 +45,10 @@ export class WeeklyDataComponent implements OnInit {
   columnDefsYearAmount: any[];
   TOP_MAX_RESULT = TOP_MAX_RESULT;
   protected achatRecord: AchatRecord | null = null;
+  protected assurance: VenteRecord | null = null;
+  protected vno: VenteRecord | null = null;
+  protected venteModePaiments: VenteModePaimentRecord[] = [];
+  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.weekly;
 
   constructor(private dashboardService: DashboardService) {
     this.columnDefs = [
@@ -114,12 +118,22 @@ export class WeeklyDataComponent implements OnInit {
     this.subscribeToCaResponse(
       this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: CaPeriodeFilter.weekly,
+        dashboardPeriode: this.dashboardPeriode,
       })
     );
     this.subscribeToCaAchatResponse(
       this.dashboardService.fetchCaAchat({
-        dashboardPeriode: CaPeriodeFilter.weekly,
+        dashboardPeriode: this.dashboardPeriode,
+      })
+    );
+    this.subscribeToCaTypeVenteResponse(
+      this.dashboardService.fetchCaByTypeVente({
+        dashboardPeriode: this.dashboardPeriode,
+      })
+    );
+    this.subscribeToByModePaimentResponse(
+      this.dashboardService.getCaByModePaiment({
+        dashboardPeriode: this.dashboardPeriode,
       })
     );
   }
@@ -139,5 +153,22 @@ export class WeeklyDataComponent implements OnInit {
 
   protected onCaAchatSuccess(achatRecordIn: AchatRecord | null): void {
     this.achatRecord = achatRecordIn;
+  }
+
+  protected subscribeToCaTypeVenteResponse(result: Observable<HttpResponse<VenteByTypeRecord[]>>): void {
+    result.subscribe((res: HttpResponse<VenteByTypeRecord[]>) => this.onCaByTypeVenteSuccess(res.body));
+  }
+
+  protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
+    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
+    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
+  }
+
+  protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {
+    result.subscribe((res: HttpResponse<VenteModePaimentRecord[]>) => this.getCaByModePaimentSuccess(res.body));
+  }
+
+  protected getCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
+    this.venteModePaiments = venteModePaimentRecords;
   }
 }

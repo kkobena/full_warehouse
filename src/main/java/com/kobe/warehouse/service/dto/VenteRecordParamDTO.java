@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
+import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class VenteRecordParamDTO {
   private TypeVente typeVente;
   private boolean canceled;
   private boolean differeOnly;
+  @Builder.Default private StatGroupBy venteStatGroupBy = StatGroupBy.DAY;
 
   @Builder.Default
   private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;

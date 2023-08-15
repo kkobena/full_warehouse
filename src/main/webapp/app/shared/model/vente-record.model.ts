@@ -29,3 +29,21 @@ export class VenteRecordWrapper {
   close: VenteRecord;
   canceled: VenteRecord;
 }
+
+export class VenteByTypeRecord {
+  typeVente: String;
+  venteRecord: VenteRecord;
+}
+
+export class VentePeriodeRecord {
+  dateMvt: String;
+  statut: String;
+  venteRecord: VenteRecord;
+}
+
+export class VenteModePaimentRecord {
+  code: string;
+  libelle: string;
+  netAmount: number;
+  paidAmount: number;
+}

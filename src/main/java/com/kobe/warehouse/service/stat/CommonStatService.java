@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stat;
 
 import com.kobe.warehouse.service.dto.DashboardPeriode;
+import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
 import java.time.LocalDate;
 import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,4 +26,11 @@ public interface CommonStatService {
       case yearly -> Pair.of(now.minusYears(1), now);
     };
   }
+    default String buildGroupBy(StatGroupBy statGroup) {
+        return switch (statGroup) {
+            case DAY -> " DATE_FORMAT(s.updated_at,'%Y-%m-%d') ";
+            case MONTH -> " MONTH(s.updated_at) ";
+            case YEAR -> " YEAR(s.updated_at) ";
+        };
+    }
 }

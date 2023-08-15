@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
+import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
 import {
   faChartArea,
   faChartBar,
@@ -26,26 +26,30 @@ import { AchatRecord } from '../../../shared/model/achat-record.model';
   styleUrls: ['./daily-data.component.scss'],
 })
 export class DailyDataComponent implements OnInit {
-  faShoppingBasket = faShoppingBasket;
-  faShippingFast = faShippingFast;
-  faShoppingCart = faShoppingCart;
-  faCommentsDollar = faCommentsDollar;
-  faChartArea = faChartArea;
-  faChartBar = faChartBar;
-  faChartLine = faChartLine;
-  faChartPie = faChartPie;
-  venteRecord: VenteRecord | null = null;
-  canceled: VenteRecord | null = null;
-  columnDefs: any[];
-  rowQuantityMonthly: any = [];
-  rowAmountMonthly: any = [];
-  columnDefsMonthAmount: any[];
-  rowQuantityYear: any = [];
-  rowAmountYear: any = [];
-  columnDefsYearQunatity: any[];
-  columnDefsYearAmount: any[];
-  TOP_MAX_RESULT = TOP_MAX_RESULT;
+  protected faShoppingBasket = faShoppingBasket;
+  protected faShippingFast = faShippingFast;
+  protected faShoppingCart = faShoppingCart;
+  protected faCommentsDollar = faCommentsDollar;
+  protected faChartArea = faChartArea;
+  protected faChartBar = faChartBar;
+  protected faChartLine = faChartLine;
+  protected faChartPie = faChartPie;
+  protected venteRecord: VenteRecord | null = null;
+  protected canceled: VenteRecord | null = null;
+  protected columnDefs: any[];
+  protected rowQuantityMonthly: any = [];
+  protected rowAmountMonthly: any = [];
+  protected columnDefsMonthAmount: any[];
+  protected rowQuantityYear: any = [];
+  protected rowAmountYear: any = [];
+  protected columnDefsYearQunatity: any[];
+  protected columnDefsYearAmount: any[];
+  protected TOP_MAX_RESULT = TOP_MAX_RESULT;
   protected achatRecord: AchatRecord | null = null;
+  protected assurance: VenteRecord | null = null;
+  protected vno: VenteRecord | null = null;
+  protected venteModePaiments: VenteModePaimentRecord[] = [];
+  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.daily;
 
   constructor(private dashboardService: DashboardService) {
     this.columnDefs = [
@@ -115,12 +119,23 @@ export class DailyDataComponent implements OnInit {
     this.subscribeToCaResponse(
       this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: CaPeriodeFilter.daily,
+        dashboardPeriode: this.dashboardPeriode,
       })
     );
     this.subscribeToCaAchatResponse(
       this.dashboardService.fetchCaAchat({
-        dashboardPeriode: CaPeriodeFilter.daily,
+        dashboardPeriode: this.dashboardPeriode,
+      })
+    );
+
+    this.subscribeToCaTypeVenteResponse(
+      this.dashboardService.fetchCaByTypeVente({
+        dashboardPeriode: this.dashboardPeriode,
+      })
+    );
+    this.subscribeToByModePaimentResponse(
+      this.dashboardService.getCaByModePaiment({
+        dashboardPeriode: this.dashboardPeriode,
       })
     );
   }
@@ -140,6 +155,23 @@ export class DailyDataComponent implements OnInit {
 
   protected onCaAchatSuccess(achatRecordIn: AchatRecord | null): void {
     this.achatRecord = achatRecordIn;
+  }
+
+  protected subscribeToCaTypeVenteResponse(result: Observable<HttpResponse<VenteByTypeRecord[]>>): void {
+    result.subscribe((res: HttpResponse<VenteByTypeRecord[]>) => this.onCaByTypeVenteSuccess(res.body));
+  }
+
+  protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
+    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
+    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
+  }
+
+  protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {
+    result.subscribe((res: HttpResponse<VenteModePaimentRecord[]>) => this.getCaByModePaimentSuccess(res.body));
+  }
+
+  protected getCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
+    this.venteModePaiments = venteModePaimentRecords;
   }
 
   protected subscribeToMonthlyQuantityResponse(result: Observable<HttpResponse<IStatistiqueProduit>>): void {

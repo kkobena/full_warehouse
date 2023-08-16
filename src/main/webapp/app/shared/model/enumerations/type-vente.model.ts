@@ -8,3 +8,8 @@ export const enum StatGroupBy {
   MONTH = 'MONTH',
   YEAR = 'DAYYEAR',
 }
+
+export const enum OrderBy {
+  QUANTITY_SOLD = 'QUANTITY_SOLD',
+  AMOUNT = 'AMOUNT',
+}

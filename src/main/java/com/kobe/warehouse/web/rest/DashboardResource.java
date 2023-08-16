@@ -7,13 +7,11 @@ import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.DashboardService;
-import java.time.LocalDate;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,38 +33,6 @@ public class DashboardResource {
     return ResponseEntity.ok().body(dashboardService.getAchatPeriode(achatRecordParam));
   }
 
-  @GetMapping("/dashboard/yearly-quantity")
-  public ResponseEntity<List<StatistiqueProduit>> statistiqueProduitsQunatityYearly(
-      @RequestParam(name = "maxResult", defaultValue = "5", required = false) int maxResul) {
-    List<StatistiqueProduit> data =
-        dashboardService.statistiqueProduitsQunatityYearly(LocalDate.now(), maxResul);
-    return ResponseEntity.ok().body(data);
-  }
-
-  @GetMapping("/dashboard/yearly-amount")
-  public ResponseEntity<List<StatistiqueProduit>> statistiqueProduitsAmountYearly(
-      @RequestParam(name = "maxResult", defaultValue = "5", required = false) int maxResul) {
-    List<StatistiqueProduit> data =
-        dashboardService.statistiqueProduitsAmountYearly(LocalDate.now(), maxResul);
-    return ResponseEntity.ok().body(data);
-  }
-
-  @GetMapping("/dashboard/monthly-quantity")
-  public ResponseEntity<List<StatistiqueProduit>> statistiqueProduitsQunatityMonthly(
-      @RequestParam(name = "maxResult", defaultValue = "5", required = false) int maxResul) {
-    List<StatistiqueProduit> data =
-        dashboardService.statistiqueProduitsQunatityMonthly(LocalDate.now(), maxResul);
-    return ResponseEntity.ok().body(data);
-  }
-
-  @GetMapping("/dashboard/monthly-amount")
-  public ResponseEntity<List<StatistiqueProduit>> statistiqueProduitsAmountMonthly(
-      @RequestParam(name = "maxResult", defaultValue = "5", required = false) int maxResul) {
-    List<StatistiqueProduit> data =
-        dashboardService.statistiqueProduitsAmountMonthly(LocalDate.now(), maxResul);
-    return ResponseEntity.ok().body(data);
-  }
-
   @GetMapping("/dashboard/ca-by-type-vente")
   public ResponseEntity<List<VenteByTypeRecord>> getCaByTypeVente(
       @Valid VenteRecordParamDTO venteRecordParam) {
@@ -84,4 +50,5 @@ public class DashboardResource {
       @Valid VenteRecordParamDTO venteRecordParam) {
     return ResponseEntity.ok().body(dashboardService.getCaGroupingByPeriode(venteRecordParam));
   }
+
 }

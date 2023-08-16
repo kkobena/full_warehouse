@@ -323,6 +323,15 @@ body .ui-dropdown {
   .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
     width: 115px;
   }*/
+
+
+}
+
+@media (max-width: 1500px) {
+  .home-ca .nav-home .p-card .p-card-body .nav-link {
+    padding-right: 0.3rem;
+    padding-left: 0.2rem;
+  }
 }
 
 @media (min-width: 1700px) {
@@ -822,10 +831,32 @@ iconlist li .icon-holder .icon i {
 
     }
 
-    span:last-child {
-
-    }
 
   }
 
 }
+
+.p-datatable .p-datatable-tbody > tr > td {
+  font-size: 13px;
+}
+
+.highlight-col {
+  font-weight: bold;
+
+}
+
+.card-header-board {
+  font-size: 1rem;
+}
+
+.home-ca .nav-home .p-card .p-card-body {
+  padding: 0;
+
+}
+
+.home-ca .container-home .p-card .p-card-body {
+  padding-top: 0;
+  padding-bottom: 0;
+
+}
+

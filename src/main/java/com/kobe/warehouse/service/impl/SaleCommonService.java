@@ -112,16 +112,21 @@ public class SaleCommonService {
     if (oldSaleLine == null) {
       if (saleLine.getTaxValue().compareTo(0) == 0) {
         c.setHtAmount(c.getHtAmount() + saleLine.getSalesAmount());
+        saleLine.setTaxAmount(0);
+        saleLine.setHtAmount(saleLine.getSalesAmount());
       } else {
         Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
         int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
         int montantTva = saleLine.getSalesAmount() - htAmont;
         c.setTaxAmount(c.getTaxAmount() + montantTva);
         c.setHtAmount(c.getHtAmount() + htAmont);
+        saleLine.setTaxAmount(montantTva);
+        saleLine.setHtAmount(htAmont);
       }
     } else {
       if (saleLine.getTaxValue().compareTo(0) == 0) {
         c.setHtAmount((c.getHtAmount() - oldSaleLine.getSalesAmount()) + saleLine.getSalesAmount());
+        saleLine.setHtAmount(saleLine.getSalesAmount());
       } else {
         Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
         int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
@@ -130,6 +135,8 @@ public class SaleCommonService {
         int montantTvaOld = oldSaleLine.getSalesAmount() - htAmontOld;
         c.setTaxAmount((c.getTaxAmount() - montantTvaOld) + montantTva);
         c.setHtAmount((c.getHtAmount() - htAmontOld) + htAmont);
+        saleLine.setTaxAmount(montantTva);
+        saleLine.setHtAmount(htAmont);
       }
     }
   }
@@ -240,7 +247,6 @@ public class SaleCommonService {
       }
     }
   }
-
 
   public void initCalendar() {
     this.warehouseCalendarService.initCalendar();

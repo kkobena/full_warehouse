@@ -15,11 +15,13 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A SalesLine.
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable, Cloneable {
@@ -69,6 +71,9 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "net_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer netAmount = 0;
     @NotNull
+    @Column(name = "ht_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer htAmount = 0;
+    @NotNull
     @Column(name = "tax_value", nullable = false, columnDefinition = "int default '0'")
     private Integer taxValue = 0;
     @NotNull
@@ -101,6 +106,9 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Column(name = "init_stock")
     private Integer initStock;
+
+    @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer taxAmount = 0;
 
     public SalesLine setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
         this.discountAmountHorsUg = discountAmountHorsUg;

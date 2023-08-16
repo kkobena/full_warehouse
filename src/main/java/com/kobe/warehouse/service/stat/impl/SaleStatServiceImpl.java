@@ -1,8 +1,6 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
@@ -10,6 +8,7 @@ import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.SaleStatService;
+import com.kobe.warehouse.service.utils.QueryBuilderConstant;
 import com.kobe.warehouse.service.utils.VenteStatQueryBuilder;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -61,10 +60,7 @@ public class SaleStatServiceImpl implements SaleStatService {
   }
 
   private Pair<LocalDate, LocalDate> getPeriode(VenteRecordParamDTO venteRecordParamDTO) {
-    return this.buildPeriode(
-        venteRecordParamDTO.getFromDate(),
-        venteRecordParamDTO.getToDate(),
-        venteRecordParamDTO.getDashboardPeriode());
+    return this.buildPeriode(venteRecordParamDTO);
   }
 
   private Tuple getCaQuery(
@@ -107,43 +103,17 @@ public class SaleStatServiceImpl implements SaleStatService {
     return buildModePaimentQuery(venteRecordParamDTO);
   }
 
-  private String buildQuery(String sql, VenteRecordParamDTO venteRecordParamDTO) {
 
-    String diff = "";
 
-    if (venteRecordParamDTO.isDiffereOnly()) {
-      diff = VenteStatQueryBuilder.DIFFERE;
-    }
 
-    return String.format(
-        sql,
-        buildChiffreAffaire(venteRecordParamDTO.getCategorieChiffreAffaire()),
-        diff,
-        buildType(venteRecordParamDTO.getTypeVente()));
-  }
 
-  private String buildChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
-    return switch (categorieChiffreAffaire) {
-      case CA -> VenteStatQueryBuilder.CA;
-      case CALLEBASE -> VenteStatQueryBuilder.CALLEBASE;
-      case CA_DEPOT -> VenteStatQueryBuilder.CA_DEPOT;
-      case TO_IGNORE -> VenteStatQueryBuilder.TO_IGNORE;
-    };
-  }
-
-  private String buildType(TypeVente typeVente) {
-    if (Objects.nonNull(typeVente)) {
-      return String.format(VenteStatQueryBuilder.TYPE_VENTE, typeVente);
-    }
-    return "";
-  }
 
   private List<Tuple> getGroupingByType(
       VenteRecordParamDTO venteRecordParamDTO, Pair<LocalDate, LocalDate> periode) {
     try {
       return this.em
           .createNativeQuery(
-              buildQuery(VenteStatQueryBuilder.PERIOQIQUE_CA_QUERY_BY_TYPE, venteRecordParamDTO),
+              this.buildQuery(VenteStatQueryBuilder.PERIOQIQUE_CA_QUERY_BY_TYPE, venteRecordParamDTO),
               Tuple.class)
           .setParameter(1, java.sql.Date.valueOf(periode.getLeft()))
           .setParameter(2, java.sql.Date.valueOf(periode.getRight()))
@@ -158,7 +128,7 @@ public class SaleStatServiceImpl implements SaleStatService {
     } catch (Exception e) {
       LOG.error(null, e);
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private List<VenteByTypeRecord> buildGroupingByType(VenteRecordParamDTO venteRecordParamDTO) {
@@ -201,14 +171,14 @@ public class SaleStatServiceImpl implements SaleStatService {
     String diff = "";
 
     if (venteRecordParamDTO.isDiffereOnly()) {
-      diff = VenteStatQueryBuilder.DIFFERE;
+      diff = QueryBuilderConstant.DIFFERE;
     }
     return String.format(
         sql,
         this.buildGroupBy(venteRecordParamDTO.getVenteStatGroupBy()),
-        buildChiffreAffaire(venteRecordParamDTO.getCategorieChiffreAffaire()),
+        this.buildChiffreAffaire(venteRecordParamDTO.getCategorieChiffreAffaire()),
         diff,
-        buildType(venteRecordParamDTO.getTypeVente()));
+        this.buildType(venteRecordParamDTO.getTypeVente()));
   }
 
   private List<VentePeriodeRecord> buildGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {

@@ -1,44 +1,63 @@
 <div [ngSwitch]="account !== null">
   <div *ngSwitchCase="true" class="row home-ca ">
-    <div class="col-1 col-md-1 col-sm-2">
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills flex-sm-row " ngbNav
-           orientation="vertical">
-        <ng-container ngbNavItem="daily">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Journalier</a>
-          <ng-template ngbNavContent>
-            <jhi-daily-data></jhi-daily-data>
-          </ng-template>
-        </ng-container>
-        <ng-container ngbNavItem="weekly">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Hebdomadaire</a>
-          <ng-template ngbNavContent>
-            <jhi-weekly-data></jhi-weekly-data>
-          </ng-template>
-        </ng-container>
+    <div class="col-1 col-md-1 col-sm-2 nav-home">
+      <p-card>
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills flex-sm-row "
+             ngbNav
+             orientation="vertical">
+          <ng-container ngbNavItem="daily">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Journalier</a>
+            <ng-template ngbNavContent>
+              <jhi-daily-data></jhi-daily-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="weekly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Hebdomadaire</a>
+            <ng-template ngbNavContent>
+              <jhi-weekly-data></jhi-weekly-data>
+            </ng-template>
+          </ng-container>
 
-        <ng-container ngbNavItem="monthly">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Mensuel</a>
-          <ng-template ngbNavContent>
-            <jhi-monthly-data></jhi-monthly-data>
-          </ng-template>
-        </ng-container>
-        <ng-container ngbNavItem="halfyearly">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Semestriel</a>
-          <ng-template ngbNavContent>
-            <jhi-halfyearly-data></jhi-halfyearly-data>
-          </ng-template>
-        </ng-container>
-        <ng-container ngbNavItem="yearly">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Annuel</a>
-          <ng-template ngbNavContent>
-            <jhi-yearly-data></jhi-yearly-data>
-          </ng-template>
-        </ng-container>
-      </div>
+          <ng-container ngbNavItem="monthly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Mensuel</a>
+            <ng-template ngbNavContent>
+              <jhi-monthly-data></jhi-monthly-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="halfyearly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Semestriel</a>
+            <ng-template ngbNavContent>
+              <jhi-halfyearly-data></jhi-halfyearly-data>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="yearly">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Annuel</a>
+            <ng-template ngbNavContent>
+              <jhi-yearly-data></jhi-yearly-data>
+            </ng-template>
+          </ng-container>
+          <!-- <ng-container ngbNavItem="home-rapport">
+             <a class="flex-sm-fill nav-link " ngbNavLink>Rapport</a>
+             <ng-template ngbNavContent>
+               <jhi-rapport-activity></jhi-rapport-activity>
+             </ng-template>
+           </ng-container>-->
+          <ng-container ngbNavItem="home-graphe">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Graphes</a>
+            <ng-template ngbNavContent>
+              <jhi-home-graphe></jhi-home-graphe>
+            </ng-template>
+          </ng-container>
+        </div>
+      </p-card>
+    </div>
 
+    <div class="col-11 col-md-11 col-sm-10 container-home">
+      <p-card>
+        <div [ngbNavOutlet]="nav"></div>
+      </p-card>
     </div>
-    <div [ngbNavOutlet]="nav" class="col-11 col-md-11 col-sm-10">
-    </div>
+
   </div>
 
   <div *ngSwitchCase="false" class="alert alert-warning">

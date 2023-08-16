@@ -1,4 +1,4 @@
-import { StatGroupBy, TypeVente } from './enumerations/type-vente.model';
+import { OrderBy, StatGroupBy, TypeVente } from './enumerations/type-vente.model';
 import { TypeCa } from './enumerations/type-ca.model';
 import { CaPeriodeFilter } from './enumerations/ca-periode-filter.model';
 
@@ -11,4 +11,9 @@ export class VenteRecordParam {
   categorieChiffreAffaire?: TypeCa;
   dashboardPeriode?: CaPeriodeFilter;
   venteStatGroupBy?: StatGroupBy;
+  start?: number;
+  limit?: number;
+  search?: string;
+  produitId?: number;
+  order?: OrderBy;
 }

@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOptions } from 'app/shared/util/request-util';
+import { VenteRecordParam } from '../../../shared/model/vente-record-param.model';
+import { ProductStatRecord } from '../../../shared/model/produit-record.model';
+
+@Injectable({ providedIn: 'root' })
+export class ProduitStatService {
+  public resourceUrl = SERVER_API_URL + 'api/produits/stat';
+
+  constructor(protected http: HttpClient) {}
+
+  fetchPoduitCa(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatRecord[]>> {
+    const options = createRequestOptions(venteRecordParam);
+    return this.http.get<ProductStatRecord[]>(`${this.resourceUrl}/ca`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  fetch20x80(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatRecord[]>> {
+    const options = createRequestOptions(venteRecordParam);
+    return this.http.get<ProductStatRecord[]>(`${this.resourceUrl}/vingt-quantre-vingt`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+}

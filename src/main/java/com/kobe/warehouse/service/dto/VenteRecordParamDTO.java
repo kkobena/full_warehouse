@@ -4,17 +4,16 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
 @ToString
 public class VenteRecordParamDTO {
@@ -29,4 +28,6 @@ public class VenteRecordParamDTO {
   private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
 
   @Builder.Default private DashboardPeriode dashboardPeriode = DashboardPeriode.daily;
+  private int start;
+  @Builder.Default private int limit = 10;
 }

@@ -25,10 +25,7 @@ public class AchatStatServiceImpl implements AchatStatService {
   @Override
   public AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam) {
     Pair<LocalDate, LocalDate> periode =
-        buildPeriode(
-            achatRecordParam.getFromDate(),
-            achatRecordParam.getToDate(),
-            achatRecordParam.getDashboardPeriode());
+        buildPeriode(achatRecordParam);
 
     try {
 

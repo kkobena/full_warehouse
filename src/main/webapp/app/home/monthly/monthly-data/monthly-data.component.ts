@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
 import { DashboardService } from '../../dashboard.service';
-import { formatNumberToString } from '../../../shared/util/warehouse-util';
 import { TypeCa } from '../../../shared/model/enumerations/type-ca.model';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
@@ -15,9 +14,12 @@ import {
   faShoppingBasket,
   faShoppingCart,
 } from '@fortawesome/free-solid-svg-icons';
-import { TOP_MAX_RESULT } from '../../../shared/constants/pagination.constants';
+import { TOP_MAX_RESULT, TOPS } from '../../../shared/constants/pagination.constants';
 import { AchatRecord } from '../../../shared/model/achat-record.model';
 import { CaPeriodeFilter } from '../../../shared/model/enumerations/ca-periode-filter.model';
+import { ProduitStatService } from '../../../entities/produit/stat/produit-stat.service';
+import { ProductStatRecord } from '../../../shared/model/produit-record.model';
+import { OrderBy } from '../../../shared/model/enumerations/type-vente.model';
 
 @Component({
   selector: 'jhi-monthly-data',
@@ -35,83 +37,32 @@ export class MonthlyDataComponent implements OnInit {
   faChartPie = faChartPie;
   venteRecord: VenteRecord | null = null;
   canceled: VenteRecord | null = null;
-  columnDefs: any[];
-  rowQuantityMonthly: any = [];
-  rowAmountMonthly: any = [];
-  columnDefsMonthAmount: any[];
-  rowQuantityYear: any = [];
-  rowAmountYear: any = [];
-  columnDefsYearQunatity: any[];
-  columnDefsYearAmount: any[];
   TOP_MAX_RESULT = TOP_MAX_RESULT;
+  protected rowQuantity: ProductStatRecord[] = [];
+  protected rowAmount: ProductStatRecord[] = [];
+  protected row20x80: ProductStatRecord[] = [];
   protected achatRecord: AchatRecord | null = null;
   protected assurance: VenteRecord | null = null;
   protected vno: VenteRecord | null = null;
   protected venteModePaiments: VenteModePaimentRecord[] = [];
   protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.monthly;
+  protected tops = TOPS;
+  protected TOP_MAX_QUANTITY: any;
+  protected TOP_MAX_AMOUNT: any;
+  protected TOP_MAX_TP: any;
+  protected totalAmountTopQuantity: number;
+  protected totalQuantityToQuantity: number;
+  protected totalAmountTopAmount: number;
+  protected totalQuantityTopAmount: number;
+  protected totalAmount20x80: number;
+  protected totalQuantityAvg: number;
+  protected totalAmountAvg: number;
+  protected totalQuantity20x80: number;
 
-  constructor(private dashboardService: DashboardService) {
-    this.columnDefs = [
-      {
-        headerName: 'Libellé',
-        field: 'libelleProduit',
-        flex: 1.3,
-      },
-      {
-        headerName: 'Quantité',
-        width: 120,
-        field: 'quantity',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: formatNumberToString,
-      },
-    ];
-    this.columnDefsYearQunatity = [
-      {
-        headerName: 'Libellé',
-        field: 'libelleProduit',
-        flex: 1.3,
-      },
-      {
-        headerName: 'Quantité',
-        width: 120,
-        field: 'quantity',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: formatNumberToString,
-      },
-    ];
-    this.columnDefsMonthAmount = [
-      {
-        headerName: 'Libellé',
-        field: 'libelleProduit',
-        flex: 1.3,
-      },
-      {
-        headerName: 'Montant',
-        width: 120,
-        field: 'amount',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: formatNumberToString,
-      },
-    ];
-
-    this.columnDefsYearAmount = [
-      {
-        headerName: 'Libellé',
-        field: 'libelleProduit',
-        flex: 1.3,
-      },
-      {
-        headerName: 'Montant',
-        width: 120,
-        field: 'amount',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: formatNumberToString,
-      },
-    ];
+  constructor(private dashboardService: DashboardService, private produitStatService: ProduitStatService) {
+    this.TOP_MAX_QUANTITY = this.tops[1];
+    this.TOP_MAX_AMOUNT = this.tops[1];
+    this.TOP_MAX_TP = this.tops[1];
   }
 
   ngOnInit(): void {
@@ -136,7 +87,48 @@ export class MonthlyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
       })
     );
+    this.subscribeToFetchPoduitCaResponse(
+      this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD,
+        limit: this.TOP_MAX_QUANTITY?.value,
+      })
+    );
+    this.subscribeToFetchPoduitAmountResponse(
+      this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT,
+        limit: this.TOP_MAX_AMOUNT?.value,
+      })
+    );
+    this.subscribeToFetch20x80Response(
+      this.produitStatService.fetch20x80({
+        dashboardPeriode: this.dashboardPeriode,
+      })
+    );
   }
+
+  onTopQuantityChange(): void {
+    this.subscribeToFetchPoduitCaResponse(
+      this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD,
+        limit: this.TOP_MAX_QUANTITY?.value,
+      })
+    );
+  }
+
+  onTopAmountChange(): void {
+    this.subscribeToFetchPoduitAmountResponse(
+      this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT,
+        limit: this.TOP_MAX_AMOUNT?.value,
+      })
+    );
+  }
+
+  onTopTiersPayantChange(): void {}
 
   protected subscribeToCaResponse(result: Observable<HttpResponse<VenteRecordWrapper>>): void {
     result.subscribe((res: HttpResponse<VenteRecordWrapper>) => this.onCaSuccess(res.body));
@@ -170,5 +162,71 @@ export class MonthlyDataComponent implements OnInit {
 
   protected getCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
     this.venteModePaiments = venteModePaimentRecords;
+  }
+
+  protected fetchPoduitCa(productStatRecords: ProductStatRecord[] | []): void {
+    this.rowQuantity = productStatRecords;
+    this.computeAmountTopQuantity();
+  }
+
+  protected fetchPoduitCaAmount(productStatRecords: ProductStatRecord[] | []): void {
+    this.rowAmount = productStatRecords;
+    this.computeAmountTopAmount();
+  }
+
+  protected onFetch20x80(productStatRecords: ProductStatRecord[] | []): void {
+    this.row20x80 = productStatRecords;
+    this.computeAmountrow20x80();
+  }
+
+  protected subscribeToFetchPoduitCaResponse(result: Observable<HttpResponse<ProductStatRecord[]>>): void {
+    result.subscribe((res: HttpResponse<ProductStatRecord[]>) => this.fetchPoduitCa(res.body));
+  }
+
+  protected subscribeToFetchPoduitAmountResponse(result: Observable<HttpResponse<ProductStatRecord[]>>): void {
+    result.subscribe((res: HttpResponse<ProductStatRecord[]>) => this.fetchPoduitCaAmount(res.body));
+  }
+
+  protected subscribeToFetch20x80Response(result: Observable<HttpResponse<ProductStatRecord[]>>): void {
+    result.subscribe((res: HttpResponse<ProductStatRecord[]>) => this.onFetch20x80(res.body));
+  }
+
+  private computeAmountTopQuantity(): void {
+    let quantity: number = 0;
+    let amount: number = 0;
+    for (const produit of this.rowQuantity) {
+      quantity += produit.quantitySold;
+      amount += produit.htAmount;
+    }
+    this.totalQuantityToQuantity = quantity;
+    this.totalAmountTopQuantity = amount;
+  }
+
+  private computeAmountTopAmount(): void {
+    let quantity: number = 0;
+    let amount: number = 0;
+    for (const produit of this.rowAmount) {
+      quantity += produit.quantitySold;
+      amount += produit.htAmount;
+    }
+    this.totalAmountTopAmount = amount;
+    this.totalQuantityTopAmount = quantity;
+  }
+
+  private computeAmountrow20x80(): void {
+    let quantity: number = 0;
+    let amount: number = 0;
+    let quantityAvg: number = 0;
+    let amountAvg: number = 0;
+    for (const produit of this.row20x80) {
+      quantity += produit.quantitySold;
+      amount += produit.htAmount;
+      quantityAvg += produit.quantityAvg;
+      amountAvg += produit.amountAvg;
+    }
+    this.totalAmount20x80 = amount;
+    this.totalQuantity20x80 = quantity;
+    this.totalQuantityAvg = quantityAvg;
+    this.totalAmountAvg = amountAvg;
   }
 }

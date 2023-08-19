@@ -13,6 +13,8 @@ import { EtiquetteComponent } from './etiquette/etiquette.component';
 import { ImportDeliveryFormComponent } from './form/import/import-delivery-form.component';
 import { ReceiptStatusComponent } from '../status/receipt-status.component';
 import { EditProduitComponent } from './form/edit-produit/edit-produit.component';
+import { BonEnCoursComponent } from './bon-en-cours/bon-en-cours.component';
+import { ListBonsComponent } from './list-bons/list-bons.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import { EditProduitComponent } from './form/edit-produit/edit-produit.component
     ImportDeliveryFormComponent,
     ReceiptStatusComponent,
     EditProduitComponent,
+    BonEnCoursComponent,
+    ListBonsComponent,
   ],
   imports: [SharedModule, AgGridModule, RouterModule.forChild(deliveryRoute)],
 })

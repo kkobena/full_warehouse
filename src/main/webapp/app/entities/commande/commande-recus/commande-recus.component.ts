@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ICommande } from '../../../shared/model/commande.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
 import { DeliveryService } from '../delevery/delivery.service';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -89,25 +88,6 @@ export class CommandeRecusComponent implements OnInit {
 
   onSearch(): void {
     this.loadPage(0);
-  }
-
-  lazyLoading(event: LazyLoadEvent): void {
-    if (event) {
-      this.page = event.first! / event.rows!;
-      this.loading = true;
-      this.entityService
-        .query({
-          page: this.page,
-          size: event.rows,
-          search: this.search,
-          statut: this.selectedFilter,
-          searchByRef: this.searchByRef,
-        })
-        .subscribe({
-          next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
-    }
   }
 
   protected onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {

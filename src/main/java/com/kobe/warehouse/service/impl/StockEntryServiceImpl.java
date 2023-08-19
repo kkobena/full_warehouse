@@ -257,7 +257,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         "order.entry",
         new Object[] {deliveryReceipt.getReceiptRefernce()},
         deliveryReceipt.getId().toString());
-    deliveryReceipt.setReceiptStatut(ReceiptStatut.UNPAID);
+    deliveryReceipt.setReceiptStatut(ReceiptStatut.CLOSE);
     deliveryReceipt.setModifiedUser(storageService.getUser());
     deliveryReceipt.setModifiedDate(LocalDateTime.now());
 
@@ -1014,7 +1014,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         "order.entry",
         new Object[] {deliveryReceipt.getReceiptRefernce()},
         deliveryReceipt.getId().toString());
-    deliveryReceipt.setReceiptStatut(ReceiptStatut.UNPAID);
+    deliveryReceipt.setReceiptStatut(ReceiptStatut.CLOSE);
     this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
     commandeRepository.saveAndFlush(commande);
   }

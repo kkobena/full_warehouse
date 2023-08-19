@@ -14,10 +14,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AchatRecordParamDTO extends VenteRecordParamDTO{
-  @Builder.Default
-  private Set<ReceiptStatut> receiptStatuts =
-      Set.of(ReceiptStatut.PAID, ReceiptStatut.NOT_SOLD, ReceiptStatut.UNPAID);
+public class AchatRecordParamDTO extends VenteRecordParamDTO {
+  @Builder.Default private Set<ReceiptStatut> receiptStatuts = Set.of(ReceiptStatut.CLOSE);
 
   private Long fournisseurId;
 }

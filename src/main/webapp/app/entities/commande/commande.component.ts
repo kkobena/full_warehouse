@@ -1,11 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from 'app/shared/model/commande.model';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CommandeService } from './commande.service';
-import { IOrderLine } from 'app/shared/model/order-line.model';
 import { ProduitService } from '../produit/produit.service';
 import { ConfirmationService } from 'primeng/api';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
@@ -26,25 +23,12 @@ import { CommandeRecusComponent } from './commande-recus/commande-recus.componen
   selector: 'jhi-commande',
   styles: [
     `
-      .table tr:hover {
+      .commande-gestion .table tr:hover {
         cursor: pointer;
       }
 
-      .active {
+      table .active {
         background-color: #95caf9 !important;
-      }
-
-      .master {
-        padding: 14px 12px;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgb(0 0 0 / 16%);
-        justify-content: space-between;
-      }
-
-      .ag-theme-alpine {
-        max-height: 700px;
-        height: 600px;
-        min-height: 500px;
       }
     `,
   ],
@@ -55,19 +39,9 @@ export class CommandeComponent implements OnInit {
   commandes: ICommande[] = [];
   commandeSelected?: ICommande;
   selectedRowIndex?: number;
-  selectedRowOrderLines?: IOrderLine[] = [];
-  eventSubscriber?: Subscription;
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  predicate!: string;
-  ascending!: boolean;
-  ngbPaginationPage = 1;
   tooltipPosition = 'left';
-  index = 0;
   selectedFilter = 'REQUESTED';
   loading!: boolean;
-  loadingSelectedFilter = false;
-  page = 0;
   selectedtypeSuggession = 'ALL';
   typeSuggessions: any[] = [];
   fileDialog = false;

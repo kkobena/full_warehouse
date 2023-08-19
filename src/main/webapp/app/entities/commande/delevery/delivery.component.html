@@ -1,35 +1,48 @@
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
              type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
 
-<h3 id="page-heading">
-  <span jhiTranslate="warehouseApp.delivery.home.title">Gestion des entrées en stock</span>
-</h3>
-<p-toolbar>
-  <div class="p-toolbar-group-left commande" style="width: 40%;">
-    <div class="row" style="width: 100%;">
+<div class="row entree-stock-gestion">
+  <div class="col-2 col-md-2 col-sm-2">
 
-      <div class="col-md-4">
-
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-               placeholder="Taper pour rechercher"
-               style="width: 100%;" type="text">
+    <p-card>
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+           orientation="vertical">
+        <ng-container ngbNavItem="pending">
+          <a class="flex-sm-fill nav-link " ngbNavLink>Bons en cours</a>
+          <ng-template ngbNavContent>
+            <jhi-bon-en-cours [search]="search"></jhi-bon-en-cours>
+          </ng-template>
+        </ng-container>
+        <ng-container ngbNavItem="close">
+          <a class="flex-sm-fill nav-link " ngbNavLink>Bons livrés</a>
+          <ng-template ngbNavContent>
+            <jhi-list-bons [search]="search"></jhi-list-bons>
+          </ng-template>
+        </ng-container>
 
       </div>
-      <div class="col-md-8">
-        <ng-select (change)="onSearch()" [(ngModel)]="selectedFilter"
-                   [hidden]="loadingSelectedFilter"
-                   [items]="filtres!"
-                   bindLabel="label" bindValue="value">
-
-        </ng-select>
-      </div>
-
-    </div>
-
+    </p-card>
   </div>
-  <div class="p-toolbar-group-right">
+  <div class="col-10 col-md-10 col-sm-10 row">
+    <div>
+      <p-toolbar>
+        <div class="p-toolbar-group-left commande">
+          <div class="row" style="width: 100%;">
+
+            <div class="col-md-6">
+
+              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                     placeholder="Taper pour rechercher">
+
+            </div>
+
+
+          </div>
+
+        </div>
+        <div class="p-toolbar-group-right">
                  <span class="p-buttonset">
-                <button (click)="loadPage()" class="p-button-raised p-button-info "
+                <button (click)="onSearch()" class="p-button-raised p-button-info "
                         icon="pi pi-search"
                         label="Rechercher" pButton
                         pRipple
@@ -39,136 +52,11 @@
                              pRipple type="button"></button>
                  </span>
 
+        </div>
+      </p-toolbar>
+    </div>
+    <div [ngbNavOutlet]="nav">
+
+    </div>
   </div>
-</p-toolbar>
-
-<p-table (onLazyLoad)="lazyLoading($event)"
-         *ngIf="deliveries && deliveries.length > 0"
-
-         [lazy]="true" [loading]="loading"
-         [paginator]="true"
-         [rowExpandMode]="rowExpandMode"
-         [rowsPerPageOptions]="[5,10,15,20,30,50]"
-         [rows]="itemsPerPage" [showCurrentPageReport]="true"
-         [totalRecords]="totalItems"
-         [value]="deliveries"
-         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
-         dataKey="id"
-         selectionMode="multiple"
-         styleClass="p-datatable-gridlines mt-2" styleClass="p-datatable-striped">
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width:1%"></th>
-      <th style="width:6%">#</th>
-      <th style="width:13%">Date</th>
-      <th style="width:8%">Date reception</th>
-      <th style="width:9%">Num.Bl</th>
-      <th style="width:8%">Montant TTC</th>
-      <th style="width:8%">Montant HT</th>
-      <th style="width:8%">Taxe</th>
-      <th style="width:7%">Nbre d'articles</th>
-
-      <th style="width:13%">Fournisseur</th>
-      <th style="width:12%">Opérateur</th>
-
-      <th style="width:7%"></th>
-    </tr>
-  </ng-template>
-  <ng-template let-expanded="expanded" let-row pTemplate="body">
-    <tr>
-      <td>
-        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [pRowToggler]="row" class="p-button-text p-button-rounded p-button-plain"
-                pButton
-                pRipple
-                type="button"></button>
-      </td>
-      <td>{{row.numberTransaction}}</td>
-      <td>{{row.createdDate |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-      <td>{{row.receiptDate |date: 'dd/MM/yyyy'}}</td>
-      <td>{{row.receiptRefernce}}</td>
-
-      <td class="text-right">{{row.receiptAmount |number}}</td>
-      <td class="text-right">{{row.netAmount |number}}</td>
-      <td class="text-right">{{row.taxAmount |number}}</td>
-
-      <td class="text-right">{{row.itemSize |number}}</td>
-      <td>{{row.fournisseurLibelle}}</td>
-      <td>{{row.modifiedUser}}</td>
-
-      <td class="text-right">
-        <div class="btn-group">
-          <button
-            *ngIf="row.statut==='PENDING0'" class="p-button-rounded p-button-success p-button-sm"
-            icon="pi pi-pencil" pButton
-            pRipple pTooltip="Editer">
-
-          </button>
-
-          <button *ngIf="row.statut==='PENDING'" [routerLink]="['/commande', row.id, 'stock-entry']"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                  pButton
-                  pRipple
-                  pTooltip="Faire l'entréé en  stock"></button>
-          <button (click)="exportPdf(row)"
-                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                  icon="pi pi-file-pdf"
-                  pButton
-                  pRipple pTooltip="Imprimer"></button>
-          <button (click)="printEtiquette(row)"
-                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
-                  pButton
-                  pRipple pTooltip="Imprimer étiquettes"></button>
-        </div>
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template let-item pTemplate="rowexpansion">
-    <tr>
-      <td colspan="12">
-        <div class="p-3">
-          <p-table [paginator]="true" [rowsPerPageOptions]="[10,25,50]" [rows]="10"
-                   [showCurrentPageReport]="true"
-                   [value]="item.receiptItems"
-                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>#</th>
-                <th pSortableColumn="fournisseurProduitCip">Code
-                  <p-sortIcon field="fournisseurProduitCip"></p-sortIcon>
-                </th>
-                <th pSortableColumn="fournisseurProduitLibelle">Libellé
-                  <p-sortIcon field="fournisseurProduitLibelle"></p-sortIcon>
-                </th>
-                <th>Stock.Init
-                </th>
-                <th>Stock.final
-                </th>
-                <th>Qté.Livrée
-                </th>
-                <th>Prix.Achat
-                </th>
-                <th>Prix.Vente
-                </th>
-              </tr>
-            </ng-template>
-            <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
-              <tr>
-                <td style="text-align: left;">{{rowIndex + 1}}</td>
-                <td> {{receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip}}</td>
-                <td> {{receiptItem.fournisseurProduitLibelle}}</td>
-                <td class="text-right">{{receiptItem.initStock |number}}</td>
-                <td class="text-right">{{receiptItem.afterStock |number}}</td>
-                <td class="text-right">{{receiptItem.quantityReceived |number}}</td>
-                <td class="text-right">{{receiptItem.orderCostAmount |number}}</td>
-                <td class="text-right">{{receiptItem.orderUnitPrice |number}}</td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </div>
-
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
-
+</div>

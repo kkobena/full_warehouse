@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import java.io.Serial;
@@ -37,6 +38,9 @@ import lombok.Getter;
     },
     indexes = {
       @Index(columnList = "receipt_date DESC", name = "receipt_date_index"),
+        @Index(columnList = "receipt_status", name = "receipt_status_index"),
+        @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
+
       @Index(columnList = "receipt_refernce", name = "receipt_refernce_index"),
       @Index(columnList = "number_transaction", name = "number_transaction_index")
     })
@@ -87,7 +91,10 @@ public class DeliveryReceipt implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "receipt_status")
   private ReceiptStatut receiptStatut;
-
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "paiment_status")
+  private PaimentStatut paimentStatut=PaimentStatut.UNPAID;
   @NotNull
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "receipt_type")
@@ -119,8 +126,12 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public DeliveryReceipt setPaimentStatut(PaimentStatut paimentStatut) {
+    this.paimentStatut = paimentStatut;
+    return this;
+  }
 
-    public DeliveryReceipt setOrderReference(String orderReference) {
+  public DeliveryReceipt setOrderReference(String orderReference) {
     this.orderReference = orderReference;
     return this;
   }

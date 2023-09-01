@@ -2,10 +2,10 @@ package com.kobe.warehouse.service.stat;
 
 import com.kobe.warehouse.service.dto.OrderBy;
 import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
+import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
+import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
-import com.kobe.warehouse.service.utils.ProductStatQueryBuilder;
-import com.kobe.warehouse.service.utils.QueryBuilderConstant;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.util.StringUtils;

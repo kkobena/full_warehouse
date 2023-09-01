@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
@@ -35,7 +35,8 @@ export class MagasinService {
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+
   async findPromise(): Promise<IMagasin> {
-    return await this.http.get<IMagasin>(this.resourceUrl).toPromise();
+    return await firstValueFrom(this.http.get<IMagasin>(this.resourceUrl));
   }
 }

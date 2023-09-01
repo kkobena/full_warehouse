@@ -34,10 +34,6 @@ import { RouterModule } from '@angular/router';
       },
 
       {
-        path: 'order-line',
-        loadChildren: () => import('./order-line/order-line.module').then(m => m.WarehouseOrderLineModule),
-      },
-      {
         path: 'commande',
         loadChildren: () => import('./commande/commande.module').then(m => m.WarehouseCommandeModule),
       },

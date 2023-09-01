@@ -19,3 +19,15 @@ export class Magasin implements IMagasin {
     public welcomeMessage?: string
   ) {}
 }
+
+export interface IStorage {
+  id?: number;
+  name?: string;
+  magasin?: IMagasin;
+}
+
+export const enum StorageType {
+  PRINCIPAL = 'Stockage principal',
+  SAFETY_STOCK = 'Reserve',
+  POINT_DE_VENTE = 'Point de vente',
+}

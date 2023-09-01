@@ -1,17 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ISales} from 'app/shared/model/sales.model';
-import {SalesService} from './sales.service';
-import {SalesLineService} from '../sales-line/sales-line.service';
-import {faPrint} from '@fortawesome/free-solid-svg-icons';
-import {ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig} from 'primeng/api';
-import {TranslateService} from '@ngx-translate/core';
-import {Subscription} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ISales } from 'app/shared/model/sales.model';
+import { SalesService } from './sales.service';
+import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import moment from 'moment';
-import {IUser, User} from '../../core/user/user.model';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {UserService} from '../../core/user/user.service';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import { IUser, User } from '../../core/user/user.model';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { UserService } from '../../core/user/user.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 
 @Component({
   selector: 'jhi-sales',
@@ -69,8 +67,6 @@ export class SalesComponent implements OnInit {
   search = '';
   global = true;
   showBtnDele: boolean;
-  saleSelected?: ISales;
-  faPrint = faPrint;
   fromDate: Date = new Date();
   toDate: Date = new Date();
   isLargeScreen = true;
@@ -133,7 +129,6 @@ export class SalesComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected confirmationService: ConfirmationService,
-    protected saleLineService: SalesLineService,
     protected userService: UserService,
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig
@@ -162,30 +157,13 @@ export class SalesComponent implements OnInit {
     this.loadPage();
   }
 
-  searchUser(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown'
-    ) {
-      this.loadAllUsers();
-    }
-  }
-
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
-      this.users.push({id: null, fullName: 'TOUT'});
+      this.users.push({ id: null, fullName: 'TOUT' });
       if (res.body) {
         this.users.push(...res.body);
       }
-      this.user = {id: null, fullName: 'TOUT'};
+      this.user = { id: null, fullName: 'TOUT' };
     });
   }
 
@@ -213,10 +191,10 @@ export class SalesComponent implements OnInit {
         global: this.global,
         userId: this.user?.id,
       })
-      .subscribe(
-        (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -236,36 +214,11 @@ export class SalesComponent implements OnInit {
           global: this.global,
           userId: this.user ? this.user.id : null,
         })
-        .subscribe(
-          (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
-          () => this.onError()
-        );
+        .subscribe({
+          next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: () => this.onError(),
+        });
     }
-  }
-
-  protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/sales'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search,
-        type: this.typeVenteSelected,
-        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-        fromHour: this.fromHour,
-        toHour: this.toHour,
-        global: this.global,
-        userId: this.user ? this.user.id : null,
-      },
-    });
-    this.sales = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.loading = false;
   }
 
   onSearch(): void {
@@ -301,5 +254,30 @@ export class SalesComponent implements OnInit {
 
   printSale(sale: ISales): void {
     this.salesService.printReceipt(sale.id!, sale.categorie!).subscribe();
+  }
+
+  protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/sales'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+        search: this.search,
+        type: this.typeVenteSelected,
+        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+        fromHour: this.fromHour,
+        toHour: this.toHour,
+        global: this.global,
+        userId: this.user ? this.user.id : null,
+      },
+    });
+    this.sales = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
   }
 }

@@ -1,9 +1,13 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import com.kobe.warehouse.domain.enumeration.InventoryStatut;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 /**
  * A StoreInventoryLine.
@@ -38,7 +41,7 @@ public class StoreInventoryLine implements Serializable {
 
     @NotNull
     @Column(name = "quantity_sold", nullable = false)
-    private Integer quantitySold;
+    private Integer quantitySold=0;
 
     @NotNull
     @Column(name = "inventory_value_cost", nullable = false)
@@ -46,19 +49,24 @@ public class StoreInventoryLine implements Serializable {
 
     @NotNull
     @Column(name = "inventory_value_latest_selling_price", nullable = false)
-    private Integer inventoryValueLatestSellingPrice;
+    private Integer inventoryValueLatestSellingPrice=0;
 
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "storeInventoryLines", allowSetters = true)
     private StoreInventory storeInventory;
-
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt=LocalDateTime.now();
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "storeInventoryLines", allowSetters = true)
     private Produit produit;
     @NotNull
     @Column(name = "updated", nullable = false)
     private Boolean updated = false;
-
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private InventoryStatut statut = InventoryStatut.CREATE;
     public Long getId() {
         return id;
     }
@@ -78,6 +86,14 @@ public class StoreInventoryLine implements Serializable {
     public StoreInventoryLine quantityOnHand(Integer quantityOnHand) {
         this.quantityOnHand = quantityOnHand;
         return this;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public InventoryStatut getStatut() {
+        return statut;
     }
 
     public Integer getQuantityInit() {

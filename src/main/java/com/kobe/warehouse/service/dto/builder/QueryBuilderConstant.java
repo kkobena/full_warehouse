@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.utils;
+package com.kobe.warehouse.service.dto.builder;
 
 public final class QueryBuilderConstant {
   public static final String CA = " AND s.ca='CA' ";

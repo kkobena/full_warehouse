@@ -1,152 +1,191 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventory;
-import com.kobe.warehouse.domain.StoreInventoryLine;
-import com.kobe.warehouse.domain.enumeration.InventoryStatut;
-import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.StoreInventoryLineRepository;
-import com.kobe.warehouse.repository.StoreInventoryRepository;
+import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
+import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
+import com.kobe.warehouse.service.dto.enumeration.StoreInventoryLineEnum;
+import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
+import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
+import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
+import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-@Service
-@Transactional
-public class InventaireService {
-    private static final Comparator<StoreInventoryDTO> COMPARATOR = Comparator.comparing(StoreInventoryDTO::getUpdatedAt, Comparator.reverseOrder());
-    private static final Comparator<StoreInventoryLineDTO> COMPARATOR_LINE = Comparator.comparing(
-        StoreInventoryLineDTO::getProduitLibelle);
-    private final Logger LOG = LoggerFactory.getLogger(InventaireService.class);
+public interface InventaireService {
 
-    private final ProduitRepository produitRepository;
+  void close(Long id);
 
-    private final UserService userService;
+  List<StoreInventoryLineDTO> storeInventoryList(Long storeInventoryId);
 
-    private final InventoryTransactionService inventoryTransactionService;
+  Page<StoreInventoryLineRecord> getAllByInventory(
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
 
-    private final StoreInventoryRepository storeInventoryRepository;
+  void remove(Long id);
 
-    private final StoreInventoryLineRepository storeInventoryLineRepository;
+    StoreInventoryLineRecord updateQuantityOnHand(StoreInventoryLineDTO storeInventoryLineDTO);
 
-    public InventaireService(ProduitRepository produitRepository, UserService userService, InventoryTransactionService inventoryTransactionService, StoreInventoryRepository storeInventoryRepository, StoreInventoryLineRepository storeInventoryLineRepository) {
-        this.produitRepository = produitRepository;
-        this.userService = userService;
-        this.inventoryTransactionService = inventoryTransactionService;
-        this.storeInventoryRepository = storeInventoryRepository;
-        this.storeInventoryLineRepository = storeInventoryLineRepository;
+  Optional<StoreInventoryDTO> getStoreInventory(Long id);
+
+  StoreInventoryDTO create(StoreInventoryRecord storeInventoryRecord);
+
+  Page<StoreInventoryDTO> storeInventoryList(
+      StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
+
+  Optional<StoreInventoryDTO> getProccessingStoreInventory(Long id);
+
+  default String buildFetchDetailQuery(
+      String baseQery,
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    if (storeInventory.getInventoryCategory() == InventoryCategory.STORAGE || !CollectionUtils.isEmpty(storeInventoryLineFilterRecord.storageIds())) {
+      return String.format(
+          baseQery,
+          String.format(
+              "%s %S",
+              buildFetchDetailStorageQuery(storeInventory, storeInventoryLineFilterRecord),
+              buildFilter(storeInventoryLineFilterRecord.selectedFilter())));
+    } else if (storeInventory.getInventoryCategory() == InventoryCategory.RAYON || Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
+      return String.format(
+          baseQery,
+          String.format(
+              "%s %S",
+              buildFetchDetailRayonQuery(storeInventory, storeInventoryLineFilterRecord),
+              buildFilter(storeInventoryLineFilterRecord.selectedFilter())));
     }
 
-    public void init() throws Exception {
-        long inventoryValueCostBegin = 0, inventoryAmountBegin = 0;
-        StoreInventory storeInventory = new StoreInventory();
-        storeInventory.setCreatedAt(LocalDateTime.now());
-        storeInventory.setUpdatedAt(storeInventory.getCreatedAt());
-        storeInventory.setUser(userService.getUser());
-        storeInventory.setInventoryAmountAfter(0L);
-        storeInventory.setInventoryValueCostAfter(0L);
+    String q = buildFilter(storeInventoryLineFilterRecord.selectedFilter());
+    if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
 
-        List<StoreInventoryLine> storeInventoryLines = intitLines(storeInventory);
-        for (StoreInventoryLine line : storeInventoryLines) {
-            inventoryValueCostBegin += ((long) line.getInventoryValueCost() * line.getQuantityInit());
-            inventoryAmountBegin += ((long) line.getInventoryValueLatestSellingPrice() * line.getQuantityInit());
+      return String.format(
+          baseQery, " WHERE " + buildSearchSection(storeInventoryLineFilterRecord) + q);
+    }
+    if (StringUtils.hasLength(q)) {
+      return String.format(
+          baseQery, " WHERE " + org.apache.commons.lang3.StringUtils.removeStart(q, "AND"));
+    }
+    return String.format(baseQery, " ");
+  }
+
+  default String buildFetchDetailQuery(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    return buildFetchDetailQuery(
+        StoreInventoryLineFilterBuilder.BASE_QUERY, storeInventory, storeInventoryLineFilterRecord);
+  }
+
+  default String buildFetchDetailQueryCount(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    return buildFetchDetailQuery(
+        StoreInventoryLineFilterBuilder.COUNT, storeInventory, storeInventoryLineFilterRecord);
+  }
+
+  default String buildSearchSection(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    String search = storeInventoryLineFilterRecord.search() + "%";
+    return String.format(
+        StoreInventoryLineFilterBuilder.LIKE_STATEMENT_WHERE, search, search, search);
+  }
+
+  default String buildRayonWhereClose(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    if (storeInventory.getInventoryCategory() == InventoryCategory.RAYON) {
+      return String.format(
+          StoreInventoryLineFilterBuilder.RAYON_STATEMENT_WHERE, storeInventory.getRayon().getId());
+    }
+    return String.format(
+        StoreInventoryLineFilterBuilder.RAYON_STATEMENT_WHERE,
+        storeInventoryLineFilterRecord.rayonId());
+  }
+
+  default String buildStorageWhereClose(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    if (storeInventory.getInventoryCategory() == InventoryCategory.STORAGE) {
+      return String.format(
+          StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT_WHERE,
+          storeInventory.getStorage().getId());
+    }
+    if (CollectionUtils.isEmpty(storeInventoryLineFilterRecord.storageIds())) return "";
+    return String.format(
+        StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT_WHERE,
+        storeInventoryLineFilterRecord.storageIds().stream()
+            .map(e -> e.toString())
+            .collect(Collectors.joining(",")));
+  }
+
+  default String buildFetchDetailStorageQuery(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+
+    if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
+      if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
+        return String.format(
+            "%s WHERE %s AND %s",
+            StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT,
+            buildSearchSection(storeInventoryLineFilterRecord),
+            buildRayonWhereClose(storeInventory, storeInventoryLineFilterRecord));
+      } else {
+        return String.format(
+            "%s WHERE %s ",
+            StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT,
+            buildRayonWhereClose(storeInventory, storeInventoryLineFilterRecord));
+      }
+    } else {
+      if (!CollectionUtils.isEmpty(storeInventoryLineFilterRecord.storageIds())
+          || storeInventory.getInventoryCategory() == InventoryCategory.STORAGE) {
+        if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
+          return String.format(
+              "%s WHERE %s AND %s",
+              StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT,
+              buildSearchSection(storeInventoryLineFilterRecord),
+              buildStorageWhereClose(storeInventory, storeInventoryLineFilterRecord));
         }
-        storeInventory.setInventoryAmountBegin(inventoryAmountBegin);
-        storeInventory.setInventoryValueCostBegin(inventoryValueCostBegin);
-        storeInventoryRepository.save(storeInventory);
-        storeInventoryLineRepository.saveAll(storeInventoryLines);
+        return String.format(
+            "%s WHERE %s ",
+            StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT,
+            buildStorageWhereClose(storeInventory, storeInventoryLineFilterRecord));
+      }
     }
+    return String.format(
+        "%s WHERE %s ",
+        StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT,
+        buildStorageWhereClose(storeInventory, storeInventoryLineFilterRecord));
+  }
 
-    public void close(Long id) throws Exception {
-        long inventoryValueCostAfter = 0, inventoryAmountAfter = 0;
-        StoreInventory storeInventory = storeInventoryRepository.getReferenceById(id);
+  default String buildFetchDetailRayonQuery(
+      StoreInventory storeInventory,
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
 
-        storeInventory.setStatut(InventoryStatut.CLOSED);
-        storeInventory.setUpdatedAt(LocalDateTime.now());
-        List<StoreInventoryLine> storeInventoryLines = storeInventoryLineRepository.findAllByStoreInventoryId(id);
-        for (StoreInventoryLine line : storeInventoryLines) {
-            inventoryValueCostAfter += ((long) line.getInventoryValueCost() * line.getQuantityOnHand());
-            inventoryAmountAfter += ((long) line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
-            inventoryTransactionService.buildInventoryTransaction(line, storeInventory.getUpdatedAt(), userService.getUser());
-            Produit produit = line.getProduit();
-            // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
-            produitRepository.save(produit);
-        }
-        storeInventory.setInventoryValueCostAfter(inventoryValueCostAfter);
-        storeInventory.setInventoryAmountAfter(inventoryAmountAfter);
-        storeInventoryRepository.save(storeInventory);
-        storeInventoryLineRepository.saveAll(storeInventoryLines);
+    if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
+      return String.format(
+          "%s WHERE %s AND %s",
+          StoreInventoryLineFilterBuilder.RAYON_STATEMENT,
+          buildSearchSection(storeInventoryLineFilterRecord),
+          buildRayonWhereClose(storeInventory, storeInventoryLineFilterRecord));
     }
+    return String.format(
+        "%s WHERE %s ",
+        StoreInventoryLineFilterBuilder.RAYON_STATEMENT,
+        buildRayonWhereClose(storeInventory, storeInventoryLineFilterRecord));
+  }
 
-    private StoreInventoryLine createStoreInventoryLine(Produit produit, int quantitySold, StoreInventory storeInventory) {
-        StoreInventoryLine storeInventoryLine = new StoreInventoryLine();
-        storeInventoryLine.setProduit(produit);
-        storeInventoryLine.setQuantitySold(quantitySold);
-        storeInventoryLine.setStoreInventory(storeInventory);
-        //  storeInventoryLine.setQuantityInit(produit.getQuantity());
-        storeInventoryLine.setQuantityOnHand(0);
-        storeInventoryLine.setUpdated(false);
-        storeInventoryLine.setInventoryValueCost(produit.getCostAmount());
-        storeInventoryLine.setInventoryValueLatestSellingPrice(produit.getRegularUnitPrice());
-        return storeInventoryLine;
-    }
-
-    private List<StoreInventoryLine> intitLines(StoreInventory storeInventory) {
-        List<StoreInventoryLine> storeInventoryLines = new ArrayList<>();
-        List<Produit> produits = produitRepository.findAllByParentIdIsNull();
-        for (Produit produit : produits) {
-            long quantitySold = inventoryTransactionService.quantitySoldIncludeChildQuantity(produit.getId());
-            storeInventoryLines.add(createStoreInventoryLine(produit, (int) quantitySold, storeInventory));
-            if (!produit.getProduits().isEmpty()) {
-                Produit detail = produit.getProduits().get(0);
-                quantitySold = inventoryTransactionService.quantitySold(detail.getId());
-                storeInventoryLines.add(createStoreInventoryLine(detail, (int) quantitySold, storeInventory));
-            }
-        }
-        return storeInventoryLines;
-    }
-
-    @Transactional(readOnly = true)
-    public List<StoreInventoryLineDTO> storeInventoryList(Long storeInventoryId) {
-        return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream().map(StoreInventoryLineDTO::new)
-            .sorted(COMPARATOR_LINE).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<StoreInventoryDTO> storeInventoryList() {
-        return storeInventoryRepository.findAll().stream()
-            .map(e -> new StoreInventoryDTO(e,
-                storeInventoryList(e.getId()))).sorted(COMPARATOR).collect(Collectors.toList());
-    }
-
-    public void remove(Long id) {
-        storeInventoryRepository.deleteById(id);
-    }
-
-    public void updateQuantityOnHand(StoreInventoryLineDTO storeInventoryLineDTO) {
-        StoreInventoryLine storeInventoryLine = storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
-        storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
-        storeInventoryLine.setUpdated(true);
-        storeInventoryLineRepository.save(storeInventoryLine);
-
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<StoreInventoryDTO> getStoreInventory(Long id) {
-        return storeInventoryRepository.findById(id).
-            map(e -> new StoreInventoryDTO(
-                e, storeInventoryList(e.getId())));
-
-    }
-
-
+  default String buildFilter(StoreInventoryLineEnum storeInventoryLineEnum) {
+    return switch (storeInventoryLineEnum) {
+      case NONE -> "";
+      case NOT_UPDATED -> " AND a.produit_id IS NULL ";
+      case UPDATED -> " AND a.produit_id IS NOT NULL ";
+      case GAP -> " AND a.produit_id IS NOT NULL AND  a.quantity_on_hand <> a.quantity_init ";
+      case GAP_NEGATIF -> " AND a.produit_id IS NOT NULL AND  a.quantity_on_hand < a.quantity_init ";
+      case GAP_POSITIF -> " AND a.produit_id IS NOT NULL AND  a.quantity_on_hand >= a.quantity_init ";
+    };
+  }
 }

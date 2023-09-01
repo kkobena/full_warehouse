@@ -10,9 +10,14 @@ export interface IStoreInventoryLine {
   inventoryValueCost?: number;
   inventoryValueLatestSellingPrice?: number;
   storeInventory?: IStoreInventory;
-  produit?: IProduit;
+  produitLibelle?: string;
+  produitCip?: string;
+  produitEan?: string;
+  produitId?: number;
   updated?: boolean;
   storeInventoryId?: number;
+  prixAchat?: number;
+  prixUni?: number;
 }
 
 export class StoreInventoryLine implements IStoreInventoryLine {

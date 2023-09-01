@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.stat.impl;
 
 import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
+import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import com.kobe.warehouse.service.stat.ProductStatService;
-import com.kobe.warehouse.service.utils.ProductStatQueryBuilder;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;

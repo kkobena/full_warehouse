@@ -5,7 +5,6 @@ import { CommandeService } from './commande.service';
 import { ProduitService } from '../produit/produit.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../shared/error.service';
 import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
@@ -62,7 +61,6 @@ export class CommandeStockEntryComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected modalService: NgbModal,
     private confirmationService: ConfirmationService,
-    private errorService: ErrorService,
     protected configurationService: ConfigurationService,
     private spinner: NgxSpinnerService,
     protected router: Router,

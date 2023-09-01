@@ -1,6 +1,8 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
+import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -58,34 +60,37 @@ public class StoreInventory implements Serializable {
   @OneToMany(mappedBy = "storeInventory")
   private Set<StoreInventoryLine> storeInventoryLines = new HashSet<>();
 
-
-
+  @NotNull
   @ManyToOne(optional = false)
   private User user;
 
   @NotNull
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "statut", nullable = false)
-  private InventoryStatut statut = InventoryStatut.PROCESSING;
+  private InventoryStatut statut = InventoryStatut.CREATE;
+
+  @ManyToOne private Storage storage;
+  @ManyToOne private Rayon rayon;
 
   @NotNull
-  @ManyToOne(optional = false)
-  private Magasin magasin;
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "inventory_type", nullable = false)
+  private InventoryType inventoryType = InventoryType.MANUEL;
 
-    public void setUser(User user) {
+  @NotNull
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "inventory_category", nullable = false)
+  private InventoryCategory inventoryCategory = InventoryCategory.MAGASIN;
+
+  public void setUser(User user) {
     this.user = user;
   }
 
-    public void setId(Long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
-    public StoreInventory setMagasin(Magasin magasin) {
-    this.magasin = magasin;
-    return this;
-  }
-
-    public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
+  public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
     this.inventoryValueCostBegin = inventoryValueCostBegin;
   }
 
@@ -94,7 +99,7 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setInventoryAmountBegin(Long inventoryAmountBegin) {
+  public void setInventoryAmountBegin(Long inventoryAmountBegin) {
     this.inventoryAmountBegin = inventoryAmountBegin;
   }
 
@@ -103,11 +108,11 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setStatut(InventoryStatut statut) {
+  public void setStatut(InventoryStatut statut) {
     this.statut = statut;
   }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 
@@ -116,7 +121,7 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+  public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
 
@@ -125,7 +130,7 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
+  public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
     this.inventoryValueCostAfter = inventoryValueCostAfter;
   }
 
@@ -134,7 +139,7 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setInventoryAmountAfter(Long inventoryAmountAfter) {
+  public void setInventoryAmountAfter(Long inventoryAmountAfter) {
     this.inventoryAmountAfter = inventoryAmountAfter;
   }
 
@@ -143,7 +148,7 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-    public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
+  public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
     this.storeInventoryLines = storeInventoryLines;
   }
 
@@ -161,6 +166,26 @@ public class StoreInventory implements Serializable {
   public StoreInventory removeStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
     storeInventoryLines.remove(storeInventoryLine);
     storeInventoryLine.setStoreInventory(null);
+    return this;
+  }
+
+  public StoreInventory setStorage(Storage storage) {
+    this.storage = storage;
+    return this;
+  }
+
+  public StoreInventory setRayon(Rayon rayon) {
+    this.rayon = rayon;
+    return this;
+  }
+
+  public StoreInventory setInventoryType(InventoryType inventoryType) {
+    this.inventoryType = inventoryType;
+    return this;
+  }
+
+  public StoreInventory setInventoryCategory(InventoryCategory inventoryCategory) {
+    this.inventoryCategory = inventoryCategory;
     return this;
   }
 

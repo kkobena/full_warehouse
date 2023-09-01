@@ -1,0 +1,79 @@
+<div *ngIf="rowData?.length === 0" class="alert alert-warning" id="no-result">
+  <span jhiTranslate="warehouseApp.ajustement.home.notFound">No ajustements found</span>
+</div>
+<p-table *ngIf="rowData?.length >0" [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
+         [rows]="itemsPerPage"
+         [value]="rowData"
+         dataKey="id"
+         styleClass="p-datatable-gridlines ">
+  <ng-template pTemplate="header">
+    <th style="width:3%"></th>
+    <th>Opérateur</th>
+    <th>Date opération</th>
+    <th>Nombre de produits</th>
+    <th>Commentaire</th>
+    <th>Magasin de stockage
+    </th>
+
+  </ng-template>
+  <ng-template let-ajust let-expanded="expanded" pTemplate="body">
+    <tr>
+      <td>
+        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [pRowToggler]="ajust" class="p-button-text p-button-rounded p-button-plain"
+                pButton
+                pRipple
+                type="button"></button>
+      </td>
+      <td>{{ ajust.userFullName }}</td>
+      <td>{{ ajust.dateMtv | date:'dd/MM/yy HH:mm'}}</td>
+      <td class="text-right">{{ ajust.ajustements.length }}</td>
+      <td>{{ ajust.commentaire }}</td>
+      <td>{{ ajust.storageLibelle }}</td>
+
+    </tr>
+  </ng-template>
+  <ng-template let-elRow pTemplate="rowexpansion">
+    <tr>
+      <td colspan="6">
+        <div class="card">
+          <div class="card-header bg-info text-white">DETAILS</div>
+          <div class="card-body">
+
+            <p-table [value]="elRow.ajustements">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>Code cip</th>
+                  <th>Libellé</th>
+                  <th>Quantité ajustée</th>
+                  <th>Stock avant</th>
+                  <th>Stock final</th>
+                  <th>Motif</th>
+                </tr>
+              </ng-template>
+              <ng-template let-ajustement let-rowIndex="rowIndex" pTemplate="body">
+                <tr>
+                  <td class="text-right">{{rowIndex + 1}}</td>
+                  <td>{{ajustement.codeCip}}</td>
+                  <td>{{ajustement.produitLibelle}}</td>
+                  <td class="text-right">{{ajustement.qtyMvt | number}}</td>
+                  <td class="text-right">{{ajustement.stockBefore | number}}</td>
+                  <td class="text-right">{{ajustement.stockAfter | number}}</td>
+                  <td>{{ajustement.motifAjustementLibelle}}</td>
+
+                </tr>
+              </ng-template>
+
+            </p-table>
+
+
+          </div>
+        </div>
+
+      </td>
+    </tr>
+
+  </ng-template>
+</p-table>
+

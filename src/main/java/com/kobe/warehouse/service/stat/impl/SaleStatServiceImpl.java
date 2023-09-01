@@ -2,14 +2,14 @@ package com.kobe.warehouse.service.stat.impl;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
+import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
+import com.kobe.warehouse.service.dto.builder.VenteStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.SaleStatService;
-import com.kobe.warehouse.service.utils.QueryBuilderConstant;
-import com.kobe.warehouse.service.utils.VenteStatQueryBuilder;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;

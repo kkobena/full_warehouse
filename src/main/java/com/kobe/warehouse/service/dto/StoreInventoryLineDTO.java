@@ -1,153 +1,199 @@
 package com.kobe.warehouse.service.dto;
 
-
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventoryLine;
-
 import java.io.Serializable;
 
 public class StoreInventoryLineDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private Long id;
-    private int quantityOnHand;
-    private int quantityInit;
-    private int quantitySold;
-    private int inventoryValueCost;
-    private int inventoryValueLatestSellingPrice;
-    private Long storeInventoryId;
-    private Long produitId;
-    private String produitLibelle;
-    private int inventoryValueTotalCost;
-    private int inventoryValueAmount;
-    private boolean updated;
-   private Integer gap;
+  private static final long serialVersionUID = 1L;
+  private Long id;
+  private Integer quantityOnHand;
+  private Integer quantityInit;
+  private Integer quantitySold;
+  private Integer inventoryValueCost;
+  private Integer inventoryValueLatestSellingPrice;
+  private Long storeInventoryId;
+  private Long produitId;
+  private String produitLibelle;
+  private int inventoryValueTotalCost;
+  private int inventoryValueAmount;
+  private boolean updated;
+  private Integer gap;
+  private Integer prixAchat;
+  private Integer prixUni;
+    private  String produitCip;
+    private String produitEan;
+
+  public StoreInventoryLineDTO() {}
+
+  public StoreInventoryLineDTO(StoreInventoryLine storeInventoryLine) {
+    this.id = storeInventoryLine.getId();
+    this.gap = storeInventoryLine.getGap();
+    this.quantityOnHand = storeInventoryLine.getQuantityOnHand();
+    this.quantityInit = storeInventoryLine.getQuantityInit();
+    Produit produit = storeInventoryLine.getProduit();
+    this.inventoryValueCost = produit.getCostAmount();
+    this.inventoryValueLatestSellingPrice = produit.getRegularUnitPrice();
+    this.storeInventoryId = storeInventoryLine.getStoreInventory().getId();
+    this.produitId = produit.getId();
+    this.produitLibelle = produit.getLibelle();
+    this.updated = storeInventoryLine.getUpdated();
+    this.quantitySold = storeInventoryLine.getQuantitySold();
+    this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
+    this.inventoryValueAmount =
+        storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getInventoryValueLatestSellingPrice();
+   
+  }
+
+    public String getProduitCip() {
+        return produitCip;
+    }
+
+    public StoreInventoryLineDTO setProduitCip(String produitCip) {
+        this.produitCip = produitCip;
+        return this;
+    }
+
+    public String getProduitEan() {
+        return produitEan;
+    }
+
+    public StoreInventoryLineDTO setProduitEan(String produitEan) {
+        this.produitEan = produitEan;
+        return this;
+    }
 
     public Long getId() {
-        return id;
-    }
+    return id;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public int getQuantityOnHand() {
+    public Integer getQuantityOnHand() {
         return quantityOnHand;
     }
 
-    public void setQuantityOnHand(int quantityOnHand) {
+    public StoreInventoryLineDTO setQuantityOnHand(Integer quantityOnHand) {
         this.quantityOnHand = quantityOnHand;
+        return this;
     }
 
-    public int getQuantityInit() {
+    public Integer getQuantityInit() {
         return quantityInit;
     }
 
-    public void setQuantityInit(int quantityInit) {
+    public StoreInventoryLineDTO setQuantityInit(Integer quantityInit) {
         this.quantityInit = quantityInit;
+        return this;
     }
 
-    public int getQuantitySold() {
+    public Integer getQuantitySold() {
         return quantitySold;
     }
 
-    public void setQuantitySold(int quantitySold) {
+    public StoreInventoryLineDTO setQuantitySold(Integer quantitySold) {
         this.quantitySold = quantitySold;
+        return this;
     }
 
-    public int getInventoryValueCost() {
+    public Integer getInventoryValueCost() {
         return inventoryValueCost;
     }
 
-    public void setInventoryValueCost(int inventoryValueCost) {
+    public StoreInventoryLineDTO setInventoryValueCost(Integer inventoryValueCost) {
         this.inventoryValueCost = inventoryValueCost;
+        return this;
     }
 
-    public int getInventoryValueLatestSellingPrice() {
+    public Integer getInventoryValueLatestSellingPrice() {
         return inventoryValueLatestSellingPrice;
     }
 
-    public void setInventoryValueLatestSellingPrice(int inventoryValueLatestSellingPrice) {
+    public StoreInventoryLineDTO setInventoryValueLatestSellingPrice(
+        Integer inventoryValueLatestSellingPrice) {
         this.inventoryValueLatestSellingPrice = inventoryValueLatestSellingPrice;
-    }
-
-    public Long getStoreInventoryId() {
-        return storeInventoryId;
-    }
-
-    public void setStoreInventoryId(Long storeInventoryId) {
-        this.storeInventoryId = storeInventoryId;
-    }
-
-    public Long getProduitId() {
-        return produitId;
-    }
-
-    public void setProduitId(Long produitId) {
-        this.produitId = produitId;
-    }
-
-    public String getProduitLibelle() {
-        return produitLibelle;
-    }
-
-    public void setProduitLibelle(String produitLibelle) {
-        this.produitLibelle = produitLibelle;
+        return this;
     }
 
     public int getInventoryValueTotalCost() {
         return inventoryValueTotalCost;
     }
 
-    public boolean isUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(boolean updated) {
-        this.updated = updated;
-    }
-
-    public void setInventoryValueTotalCost(int inventoryValueTotalCost) {
+    public StoreInventoryLineDTO setInventoryValueTotalCost(int inventoryValueTotalCost) {
         this.inventoryValueTotalCost = inventoryValueTotalCost;
+        return this;
     }
 
     public int getInventoryValueAmount() {
         return inventoryValueAmount;
     }
 
-    public void setInventoryValueAmount(int inventoryValueAmount) {
+    public StoreInventoryLineDTO setInventoryValueAmount(int inventoryValueAmount) {
         this.inventoryValueAmount = inventoryValueAmount;
-    }
-
-    public StoreInventoryLineDTO() {
-    }
-
-    public StoreInventoryLineDTO quantitySold(int quantitySold) {
-        this.quantitySold = quantitySold;
         return this;
     }
 
-    public StoreInventoryLineDTO(StoreInventoryLine storeInventoryLine) {
-        this.id = storeInventoryLine.getId();
-        this.gap=storeInventoryLine.getGap();
-        this.quantityOnHand = storeInventoryLine.getQuantityOnHand();
-        this.quantityInit = storeInventoryLine.getQuantityInit();
-        Produit produit = storeInventoryLine.getProduit();
-        this.inventoryValueCost = produit.getCostAmount();
-        this.inventoryValueLatestSellingPrice = produit.getRegularUnitPrice();
-        this.storeInventoryId = storeInventoryLine.getStoreInventory().getId();
-        this.produitId = produit.getId();
-        this.produitLibelle = produit.getLibelle();
-        this.updated = storeInventoryLine.getUpdated();
-        this.quantitySold = storeInventoryLine.getQuantitySold();
-        this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
-        this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getQuantityOnHand();
+    public Integer getPrixAchat() {
+        return prixAchat;
     }
 
-    public Integer getGap() {
-        return gap;
+    public StoreInventoryLineDTO setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
+        return this;
     }
 
-    public void setGap(Integer gap) {
-        this.gap = gap;
+    public Integer getPrixUni() {
+        return prixUni;
     }
+
+    public StoreInventoryLineDTO setPrixUni(Integer prixUni) {
+        this.prixUni = prixUni;
+        return this;
+    }
+
+    public Long getStoreInventoryId() {
+    return storeInventoryId;
+  }
+
+  public void setStoreInventoryId(Long storeInventoryId) {
+    this.storeInventoryId = storeInventoryId;
+  }
+
+  public Long getProduitId() {
+    return produitId;
+  }
+
+  public void setProduitId(Long produitId) {
+    this.produitId = produitId;
+  }
+
+  public String getProduitLibelle() {
+    return produitLibelle;
+  }
+
+  public void setProduitLibelle(String produitLibelle) {
+    this.produitLibelle = produitLibelle;
+  }
+
+
+  public boolean isUpdated() {
+    return updated;
+  }
+
+  public void setUpdated(boolean updated) {
+    this.updated = updated;
+  }
+
+
+
+
+  public Integer getGap() {
+    return gap;
+  }
+
+  public void setGap(Integer gap) {
+    this.gap = gap;
+  }
 }

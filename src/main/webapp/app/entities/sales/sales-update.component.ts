@@ -101,21 +101,21 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   quantiteSaisie = 1;
   base64!: string;
   event: any;
-  @ViewChild('clientSearchBox', { static: false })
+  @ViewChild('clientSearchBox')
   clientSearchBox?: ElementRef;
-  @ViewChild('quantyBox', { static: true })
+  @ViewChild('quantyBox')
   quantyBox?: ElementRef;
-  @ViewChild('produitbox', { static: true })
+  @ViewChild('produitbox')
   produitbox?: any;
-  @ViewChild('userBox', { static: true })
+  @ViewChild('userBox')
   userBox?: any;
-  @ViewChild('removeOverlayPanel', { static: true })
+  @ViewChild('removeOverlayPanel')
   removeOverlayPanel?: any;
-  @ViewChild('addOverlayPanel', { static: true })
+  @ViewChild('addOverlayPanel')
   addOverlayPanel?: any;
-  @ViewChild('forcerStockBtn', { static: false })
+  @ViewChild('forcerStockBtn')
   forcerStockBtn?: ElementRef;
-  @ViewChild('addModePaymentConfirmDialogBtn', { static: false })
+  @ViewChild('addModePaymentConfirmDialogBtn')
   addModePaymentConfirmDialogBtn?: ElementRef;
   clientSearchValue?: string | null = null;
   clientBoxHeader = 'INFO CLIENT';

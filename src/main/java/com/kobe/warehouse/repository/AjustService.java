@@ -1,11 +1,10 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.service.dto.AjustDTO;
+import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
-
 public interface AjustService {
-    Page<AjustDTO> loadAll(String search, LocalDate dtStart,LocalDate dtEnd, Pageable pageable);
+    Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord, Pageable pageable);
 }

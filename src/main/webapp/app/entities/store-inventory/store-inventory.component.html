@@ -1,82 +1,70 @@
-<div class="row">
-    <div class="col-6">
-        <h2 id="page-heading">
-            <span jhiTranslate="warehouseApp.storeInventory.home.title">Store Inventories</span>
+<div class="row inventory">
+  <div class="col-2 col-md-2 col-sm-2">
+    <p-card>
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+           orientation="vertical">
+        <ng-container ngbNavItem="CREATE">
+          <a class="flex-sm-fill nav-link " ngbNavLink>En cours</a>
+          <ng-template ngbNavContent>
+            <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
+          </ng-template>
+        </ng-container>
+        <ng-container ngbNavItem="CLOSED">
+          <a class="flex-sm-fill nav-link " ngbNavLink>Cloturés</a>
+          <ng-template ngbNavContent>
+            <jhi-clotures></jhi-clotures>
+          </ng-template>
+        </ng-container>
 
-            <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-store-inventory"
-                     type="button" (click)="init()">
-                <fa-icon icon="plus"></fa-icon>
-                <span jhiTranslate="warehouseApp.storeInventory.home.createLabel">
-            Create a new Store Inventory
-            </span>
-            </button>
-        </h2>
+      </div>
+    </p-card>
+  </div>
 
-        <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "timer" [fullScreen] = "false"><p style="color: white" > Traitement en cours... </p></ngx-spinner>
-        <div class="alert alert-warning" id="no-result" *ngIf="storeInventories?.length === 0">
-            <span jhiTranslate="warehouseApp.storeInventory.home.notFound">No storeInventories found</span>
+  <div class="col-10 col-md-10 col-sm-10 row">
+    <div>
+      <p-toolbar>
+        <div class="p-toolbar-group-left" style="width: 80%;">
+          <div class="row" style="width: 100%;">
+            <div *ngIf="showUserCombo" class="col-md-6 row">
+              <div class="col-md-3">Opérateurs</div>
+              <div class="col-md-9">
+                <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                            [showClear]="true" [style]="{width: '100%'}"
+                            optionLabel="fullName"></p-dropdown>
+              </div>
+            </div>
+            <div class="col-md-6 row">
+              <div class="col-md-2">Types</div>
+              <div class="col-md-10">
+                <p-multiSelect [(ngModel)]="inventoryCategories" [filter]="false"
+                               [options]="categories" [showClear]="true" [style]="{width: '100%'}"
+                               optionLabel="label" placeholder="Filter par type"></p-multiSelect>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="table-responsive" id="entities" *ngIf="storeInventories && storeInventories.length > 0">
-            <table class="table table-striped" aria-describedby="page-heading">
-                <thead>
-                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="reset.bind(this)">
-                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.updatedAt">Updated At</span></th>
-                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostBegin">Inventory Value Cost Begin</span>
-                    </th>
-                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountBegin">Inventory Amount Begin</span>
-                    </th>
-                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostAfter">Inventory Value Cost After</span>
-                    </th>
-                    <th scope="col"><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountAfter">Inventory Amount After</span>
-                    </th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let storeInventory of storeInventories ;trackBy: trackId"
-                    (click)="clickRow(storeInventory)"   [ngClass]="{'active' : selectedRowIndex == storeInventory.id }">
-                    <td>{{ storeInventory.updatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
-                    <td>{{ storeInventory.inventoryValueCostBegin | number}}</td>
-                    <td>{{ storeInventory.inventoryAmountBegin | number}}</td>
-                    <td>{{ storeInventory.inventoryValueCostAfter | number}}</td>
-                    <td>{{ storeInventory.inventoryAmountAfter | number}}</td>
-                    <td class="text-right">
-                        <div *ngIf="storeInventory.statut==='PROCESSING'" class="btn-group">
-                            <button type="submit"
-                                    [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
-                                    class="btn btn-primary btn-sm">
-                                <fa-icon icon="pencil-alt"></fa-icon>
 
-                            </button>
+        <div class="p-toolbar-group-right">
 
-                            <button type="submit" (click)="delete(storeInventory)"
-                                    class="btn btn-danger btn-sm">
-                                <fa-icon icon="times"></fa-icon>
+<span class="p-buttonset">
+        <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
 
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class=" col-6">
-        <div>
-            <input class="form-control mr-sm-2" type="text" placeholder="Taper pour rechercher"
-                   (keyup)="onFilterTextBoxChanged($event)">
-        </div>
-        <hr>
-        <ag-grid-angular class="ag-theme-alpine"
-                         [rowData]="rowData"
-                         [columnDefs]="columnDefs"
-                         [quickFilterText]="searchValue"
-
+        <p-button (click)="onCreateNew()"
+                  icon="pi pi-plus"
+                  label="Nouveau"
+                  styleClass="p-button-raised p-button-success"
         >
-        </ag-grid-angular>
+        </p-button></span>
+
+        </div>
+      </p-toolbar>
+    </div>
+
+    <div [ngbNavOutlet]="nav">
 
     </div>
+  </div>
 
 </div>

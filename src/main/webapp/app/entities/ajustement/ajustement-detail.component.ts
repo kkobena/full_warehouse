@@ -9,251 +9,204 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
 import { ModifAjustementService } from '../modif-ajustement/motif-ajustement.service';
-import { AjustementBtnRemoveComponent } from './btn-remove/ajustement-btn-remove.component';
-import { IAjust } from '../../shared/model/ajust.model';
+import { Ajust, IAjust } from '../../shared/model/ajust.model';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
+import { ConfirmationService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { saveAs } from 'file-saver';
+import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { ErrorService } from '../../shared/error.service';
+import { FinalyseComponent } from './finalyse/finalyse.component';
 
 @Component({
   selector: 'jhi-ajustement-detail',
   templateUrl: './ajustement-detail.component.html',
+  providers: [ConfirmationService, DialogService],
 })
 export class AjustementDetailComponent implements OnInit {
-  myId = -1;
-  ajustementId = -1;
-  columnDefs: any[];
-  rowData: any = [];
-  event: any;
-  motifCmp: any;
-  produitSelected!: IProduit | null;
-  motifSelected!: IMotifAjustement | null;
-  isSaving = false;
-  produits: IProduit[] = [];
-  motifs: IMotifAjustement[] = [];
-  @ViewChild('quantyBox', { static: false })
-  quantyBox?: ElementRef;
-  @ViewChild('comment', { static: false })
-  comment?: ElementRef;
-  search: string;
-  defaultColDef: any;
-  frameworkComponents: any;
-  context: any;
+  protected ajustement: IAjust | null = null;
+  protected produitSelected!: IProduit | null;
+  protected motifSelected!: IMotifAjustement | null;
+  protected isSaving = false;
+  protected produits: IProduit[] = [];
+  protected motifs: IMotifAjustement[] = [];
+  protected items: IAjustement[] = [];
+  @ViewChild('quantityBox')
+  protected quantityBox?: ElementRef;
+  @ViewChild('comment')
+  protected comment?: ElementRef;
+  protected search: string;
+  protected context: any;
+  @ViewChild('produitbox')
+  protected produitbox?: any;
+  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
+  protected readonly APPEND_TO = APPEND_TO;
+  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
+  protected selectedEl: IAjustement[];
+  protected ref?: DynamicDialogRef;
 
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected produitService: ProduitService,
     protected modalService: NgbModal,
+    private errorService: ErrorService,
     protected ajustementService: AjustementService,
-    protected modifAjustementService: ModifAjustementService
+    protected modifAjustementService: ModifAjustementService,
+    private confirmationService: ConfirmationService,
+    private dialogService: DialogService
   ) {
     this.search = '';
-    this.columnDefs = [
-      {
-        headerName: 'Code cip',
-        field: 'codeCip',
-        sortable: true,
-        filter: 'agTextColumnFilter',
-      },
-      {
-        headerName: 'Libellé produit',
-        field: 'produitLibelle',
-        sortable: true,
-        filter: 'agTextColumnFilter',
-        minWidth: 300,
-        flex: 1.5,
-      },
-      {
-        headerName: 'Quantité ajustée',
-        field: 'qtyMvt',
-        editable: true,
-        type: ['rightAligned', 'numericColumn'],
-      },
-
-      {
-        headerName: 'Stock avant ajustement',
-        field: 'stockBefore',
-        type: ['rightAligned', 'numericColumn'],
-        editable: true,
-
-        valueFormatter: this.formatNumber,
-      },
-      {
-        headerName: 'Stock après ajustement',
-        field: 'stockAfter',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: this.formatNumber,
-      },
-      {
-        field: ' ',
-        cellRenderer: 'btnCellRenderer',
-        width: 50,
-      },
-    ];
-    this.defaultColDef = {
-      // flex: 1,
-      // cellClass: 'align-right',
-      enableCellChangeFlash: true,
-      //   resizable: true,
-      /* valueFormatter: function (params) {
-         return formatNumber(params.value);
-       },*/
-    };
-    this.frameworkComponents = {
-      btnCellRenderer: AjustementBtnRemoveComponent,
-    };
-    this.context = { componentParent: this };
+    this.selectedEl = [];
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ ajustement }) => (this.ajustementId = ajustement));
-    this.loadProduits('');
-    this.loadMotifs('');
-  }
+    this.activatedRoute.data.subscribe(({ ajustement }) => {
+      if (ajustement.id) {
+        this.ajustement = ajustement;
+        this.items = ajustement.ajustements;
+      }
+    });
 
-  formatNumber(number: any): string {
-    return Math.floor(number.value)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+    this.loadProduits();
+    this.loadMotifs('');
   }
 
   previousState(): void {
     window.history.back();
   }
 
-  onCellValueChanged(params: any): void {
-    this.subscribeToAjustementResponse(this.ajustementService.update(this.updateFromForm(params.data)));
+  confirmGoBack(): void {
+    this.confirmationService.confirm({
+      message: ' Vous aller être rediriger à la parge précedente  ?',
+      header: ' REDIRECTION',
+      icon: 'pi pi-warning-circle',
+      accept: () => this.previousState(),
+      key: 'redirect',
+    });
   }
 
-  add(event: any): void {
-    if (this.myId === -1) {
-      this.subscribeToAjustementResponse(
-        this.ajustementService.create({
-          produitId: this.produitSelected?.id,
-          qtyMvt: event.target.value,
-          commentaire: this.comment!.nativeElement.value,
-          motifAjustementId: this.motifSelected?.id,
-        })
-      );
-    } else {
-      this.subscribeToAjustementResponse(
-        this.ajustementService.create({
-          produitId: this.produitSelected?.id,
-          qtyMvt: event.target.value,
-          ajustId: this.ajustementId,
-          commentaire: this.comment!.nativeElement.value,
-          motifAjustementId: this.motifSelected?.id,
-        })
-      );
+  deleteSelectedItems(): void {
+    const ids = this.selectedEl.map(e => e.id!);
+    this.ajustementService.deleteItemsByIds(ids).subscribe(() => {
+      this.selectedEl = [];
+      this.onSuccess();
+    });
+  }
+
+  exportPdf(): void {
+    this.ajustementService.exportToPdf(this.ajustement?.id!).subscribe(blod => saveAs(blod));
+  }
+
+  confirmDeleteItem(item: IAjustement): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer cette ligne ?',
+      header: 'SUPPRESSION  ',
+      icon: 'pi pi-info-circle',
+      accept: () => this.removeLine(item),
+      reject: () => {
+        this.focusPrdoduitBox();
+      },
+      key: 'deleteItem',
+    });
+  }
+
+  confirmDeleteItems(): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer toutes les lignes  ?',
+      header: 'SUPPRESSION  ',
+      icon: 'pi pi-info-circle',
+      accept: () => this.deleteSelectedItems(),
+      reject: () => {
+        this.focusPrdoduitBox();
+      },
+      key: 'deleteItem',
+    });
+  }
+
+  onUpdateQuantity(ajustement: IAjustement, event: any): void {
+    const newQuantityRequested: number = Number(event.target.value);
+    ajustement.qtyMvt = newQuantityRequested;
+    this.subscribeAddItemResponse(this.ajustementService.updateItem(ajustement));
+  }
+
+  protected onQuantityBoxAction(event: any): void {
+    const qytMvt = Number(event.target.value);
+    this.onAddItem(qytMvt);
+  }
+
+  protected onAddItem(qytMvt: number): void {
+    if (this.produitSelected) {
+      if (this.ajustement && this.ajustement.id !== undefined) {
+        this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
+      } else {
+        this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
+      }
     }
   }
 
-  loadAll(ajsut: number | null): void {
-    this.ajustementService.query({ id: ajsut }).subscribe((res: HttpResponse<IAjustement[]>) => (this.rowData = res.body || []));
+  protected loadAll(ajsut: number | null): void {
+    this.ajustementService.query({ ajustementId: ajsut }).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
   }
 
-  onFilterTextBoxChanged(event: any): void {
-    if (this.produitSelected !== null && this.produitSelected !== undefined && Number(event.target.value) !== 0) {
-      this.add(event);
-    }
-  }
-
-  loadProduits(query: string): void {
-    let search = '';
-    if (query) {
-      search = query;
-    }
+  protected loadProduits(query?: string): void {
     this.produitService
-      .query({
+      .queryLite({
         page: 0,
-        size: 4,
+        size: 10,
         withdetail: true,
-        search,
+        search: query,
       })
       .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
   }
 
-  loadMotifs(query: string): void {
-    let search = '';
-    if (query) {
-      search = query;
-    }
+  protected loadMotifs(query?: string): void {
     this.modifAjustementService
       .query({
         page: 0,
         size: 9999,
-        search,
+        search: query,
       })
       .subscribe((res: HttpResponse<IMotifAjustement[]>) => this.onMotifSuccess(res.body));
   }
 
-  save(): void {
-    this.isSaving = true;
-    this.subscribeToFinalyseResponse(
-      this.ajustementService.save({
-        ajustId: this.ajustementId,
-        produitId: 0,
-        commentaire: this.comment!.nativeElement.value,
-      })
-    );
-  }
-
-  onSelect(event: any): void {
-    this.event = event;
-    if (this.quantyBox) {
-      this.quantyBox.nativeElement.focus();
-      this.quantyBox.nativeElement.value = 1;
-    }
-  }
-
-  searchFn(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown'
-    ) {
-      this.loadProduits(event.target.value);
-    }
-  }
-
-  produitComponentSearch(term: string, item: IProduit): boolean {
-    if (item) return true;
-    return false;
-  }
-
-  searchMotif(event: any): void {
-    const key = event.key;
-    if (
-      key !== 'ArrowDown' &&
-      key !== 'ArrowUp' &&
-      key !== 'ArrowRight' &&
-      key !== 'ArrowLeft' &&
-      key !== 'NumLock' &&
-      key !== 'CapsLock' &&
-      key !== 'Control' &&
-      key !== 'PageUp' &&
-      key !== 'PageDown'
-    ) {
-      this.loadMotifs(event.target.value);
-    }
-  }
-
-  onSelectMotif(event: any): void {
-    this.motifCmp = event;
-    if (this.quantyBox) {
-      this.quantyBox.nativeElement.focus();
-      this.quantyBox.nativeElement.value = 1;
-    }
-  }
-
-  removeLine(data: any): void {
-    this.ajustementService.delete(data.id).subscribe(() => {
-      this.loadAll(this.ajustementId);
+  protected onSave(): void {
+    this.ref = this.dialogService.open(FinalyseComponent, {
+      data: { entity: this.ajustement },
+      width: '40%',
+      height: '350',
+      header: "Finalisation de l'ajustement",
     });
+    this.ref.onClose.subscribe(() => this.onSaveFinalyseSuccess());
+  }
+
+  protected onSelect(): void {
+    this.setQuantityBoxFocused();
+  }
+
+  protected searchFn(event: any): void {
+    this.loadProduits(event.query);
+  }
+
+  protected searchMotif(event: any): void {
+    this.loadMotifs(event.query);
+  }
+
+  protected onSelectMotif(event: any): void {
+    this.focusPrdoduitBox();
+  }
+
+  protected removeLine(ajustement: IAjustement): void {
+    this.ajustementService.deleteItem(ajustement.id).subscribe(() => {
+      this.loadAll(this.ajustement.id);
+    });
+  }
+
+  protected onFilterItems(): void {
+    const query = {
+      ajustementId: this.ajustement?.id,
+      search: this.search,
+    };
+    this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
   }
 
   protected onProduitSuccess(data: IProduit[] | null): void {
@@ -261,15 +214,14 @@ export class AjustementDetailComponent implements OnInit {
   }
 
   protected subscribeToFinalyseResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe(
-      () => this.onSaveFinalyseSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveFinalyseSuccess(),
+      error: (err: any) => this.onSaveError(err),
+    });
   }
 
   protected onSaveFinalyseSuccess(): void {
     this.isSaving = false;
-    this.myId = -1;
     this.previousState();
   }
 
@@ -277,15 +229,109 @@ export class AjustementDetailComponent implements OnInit {
     this.motifs = data || [];
   }
 
-  protected subscribeToAjustementResponse(result: Observable<HttpResponse<IAjustement>>): void {
-    result.subscribe(
-      (res: HttpResponse<IAjustement>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
-    );
+  protected subscribeCreateNewResponse(result: Observable<HttpResponse<IAjust>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<IAjust>) => this.onSaveSuccess(res.body),
+      error: (err: any) => this.onSaveError(err),
+    });
   }
 
-  protected onSaveError(): void {
+  protected subscribeAddItemResponse(result: Observable<HttpResponse<{}>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<{}>) => this.onSaveSuccess(),
+      error: (err: any) => this.onSaveError(err),
+    });
+  }
+
+  protected onSaveError(err: any): void {
     this.isSaving = false;
+    this.onCommonError(err);
+  }
+
+  protected onSaveSuccess(ajsut?: IAjustement): void {
+    this.isSaving = false;
+    this.onSuccess(ajsut);
+  }
+
+  protected onSuccess(ajsut?: IAjust): void {
+    if (ajsut) {
+      this.ajustement = ajsut;
+    }
+    this.loadAll(this.ajustement?.id);
+    this.produitSelected = null;
+    this.quantityBox!.nativeElement.value = 1;
+    this.focusPrdoduitBox();
+  }
+
+  protected refresh(): void {
+    this.subscribeToSaveResponse(this.ajustementService.find(this.ajustement?.id));
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAjust>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<IAjust>) => this.onUpdateLineSuccess(res.body),
+      error: () => this.onSaveLineError(),
+    });
+  }
+
+  protected onUpdateLineSuccess(ajsut: IAjust | null): void {
+    this.items = ajsut?.ajustements;
+  }
+
+  protected onSaveLineError(): void {}
+
+  private openInfoDialog(message: string, infoClass: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.infoClass = infoClass;
+  }
+
+  private onCommonError(error: any): void {
+    if (error.error && error.error.status === 500) {
+      this.openInfoDialog('Erreur applicative', 'alert alert-danger');
+    } else {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
+        next: translatedErrorMessage => {
+          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+        },
+        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+      });
+    }
+  }
+
+  private focusPrdoduitBox(): void {
+    setTimeout(() => {
+      this.produitbox.inputEL.nativeElement.focus();
+      this.produitbox.inputEL.nativeElement.select();
+    }, 50);
+  }
+
+  private createAjustement(produit: IProduit, quantity: number): IAjust {
+    return {
+      ...new Ajust(),
+      ajustements: [this.createItem(produit, quantity)],
+    };
+  }
+
+  private createItem(produit: IProduit, quantity: number): IAjustement {
+    return {
+      ...new Ajustement(),
+      produitId: produit.id,
+      qtyMvt: quantity,
+      ajustId: this.ajustement?.id,
+    };
+  }
+
+  private setQuantityBoxFocused(): void {
+    setTimeout(() => {
+      const el = this.quantityBox?.nativeElement;
+      el.focus();
+      el.value = 1;
+      el.select();
+    }, 100);
   }
 
   private updateFromForm(ajustement: IAjustement): IAjustement {
@@ -298,32 +344,4 @@ export class AjustementDetailComponent implements OnInit {
       commentaire: this.comment!.nativeElement.value,
     };
   }
-
-  protected onSaveSuccess(ajsut: IAjustement | null): void {
-    this.isSaving = false;
-    this.ajustementId = ajsut?.ajustId!;
-    this.myId = 0;
-    this.loadAll(this.ajustementId);
-    this.quantyBox!.nativeElement.value = 1;
-    this.event.searchInput.nativeElement.focus();
-    this.event.searchInput.nativeElement.value = '';
-    this.produitSelected = null;
-  }
-
-  protected refresh(): void {
-    this.subscribeToSaveResponse(this.ajustementService.find(this.ajustementId));
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAjust>>): void {
-    result.subscribe(
-      (res: HttpResponse<IAjust>) => this.onUpdateLineSuccess(res.body),
-      () => this.onSaveLineError()
-    );
-  }
-
-  protected onUpdateLineSuccess(ajsut: IAjust | null): void {
-    this.rowData = ajsut?.ajustements;
-  }
-
-  protected onSaveLineError(): void {}
 }

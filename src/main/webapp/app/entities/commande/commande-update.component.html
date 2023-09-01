@@ -67,14 +67,11 @@
 
       <div class="col-md-6">
         <div class="p-inputgroup">
-
           <span class="p-inputgroup-addon">Produits</span>
-
           <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
                           (onSelect)="onSelect()"
                           [(ngModel)]="produitSelected"
                           [appendTo]="APPEND_TO"
-
                           [dataKey]="'id'"
                           [dropdown]="true"
                           [emptyMessage]="PRODUIT_NOT_FOUND"
@@ -103,7 +100,7 @@
       <div class="col-md-2">
         <div class="p-inputgroup">
           <span class="p-inputgroup-addon">Qté</span>
-          <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
+          <input #quantityBox (keydown.enter)="onQuantityBoxAction($event)"
                  [(ngModel)]="quantiteSaisie" pInputText
                  type="number" />
         </div>

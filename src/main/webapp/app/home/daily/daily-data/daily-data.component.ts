@@ -44,7 +44,7 @@ export class DailyDataComponent implements OnInit {
   protected assurance: VenteRecord | null = null;
   protected vno: VenteRecord | null = null;
   protected venteModePaiments: VenteModePaimentRecord[] = [];
-  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.yearly;
+  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.daily;
   protected tops = TOPS;
   protected TOP_MAX_QUANTITY: any;
   protected TOP_MAX_AMOUNT: any;

@@ -6,7 +6,7 @@ export interface IAjustement {
   dateMtv?: Moment;
   produitId?: number;
   ajustId?: number;
-  produitlibelle?: string;
+  produitLibelle?: string;
   codeCip?: string;
   userFullName?: string;
   stockBefore?: number;
@@ -22,7 +22,7 @@ export class Ajustement implements IAjustement {
     public qtyMvt?: number,
     public dateMtv?: Moment,
     public produitId?: number,
-    public produitlibelle?: string,
+    public produitLibelle?: string,
     public commentaire?: string,
     public ajustId?: number,
     public userFullName?: string,

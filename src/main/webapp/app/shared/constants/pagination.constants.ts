@@ -3,6 +3,7 @@ export const DETAIL_PER_PAGE = 10;
 export const TOP_MAX_RESULT = 5;
 export const PRODUIT_COMBO_MIN_LENGTH = 2;
 export const PRODUIT_NOT_FOUND = 'Aucun produit';
+export const NOT_FOUND = 'Aucun element';
 export const APPEND_TO = 'body';
 export const TOPS: any[] = [
   { label: 'Top 5', value: 5 },

@@ -8,7 +8,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.AjustType;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.AjustRepository;
 import com.kobe.warehouse.repository.AjustementRepository;
@@ -16,14 +16,19 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /** Service Implementation for managing {@link Ajustement}. */
 @Service
@@ -40,6 +45,13 @@ public class AjustementService {
   private final StockProduitRepository stockProduitRepository;
   private final WarehouseCalendarService warehouseCalendarService;
   private final LogsService logsService;
+  private final BiPredicate<Ajustement, String> searchPredicate =
+      (ajustement, s) -> {
+        Produit produit = ajustement.getProduit();
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        return produit.getLibelle().toUpperCase().contains(s.toUpperCase())
+            || fournisseurProduit.getCodeCip().contains(s);
+      };
 
   public AjustementService(
       AjustementRepository ajustementRepository,
@@ -66,30 +78,22 @@ public class AjustementService {
     return user.orElseGet(null);
   }
 
-  private Ajust createAjsut(Long id, String comment, Long storageId) {
-
-    if (id == null) {
-      Ajust ajust = new Ajust();
-      ajust.setCommentaire(comment);
-      ajust.setUser(getUser());
-      ajust.setDateMtv(LocalDateTime.now());
-      if (storageId != null) {
-        ajust.setStorage(storageService.getOne(storageId));
-
-      } else {
-        ajust.setStorage(storageService.getDefaultConnectedUserMainStorage());
-      }
-      return ajustRepository.save(ajust);
+  public AjustDTO createAjsut(AjustDTO ajustDto) {
+    Ajust ajust = new Ajust();
+    ajust.setCommentaire(ajustDto.getCommentaire());
+    ajust.setUser(getUser());
+    ajust.setDateMtv(LocalDateTime.now());
+    if (Objects.nonNull(ajustDto.getStorageId())) {
+      ajust.setStorage(storageService.getOne(ajustDto.getStorageId()));
+    } else {
+      ajust.setStorage(storageService.getDefaultConnectedUserMainStorage());
     }
-    return ajustRepository.getReferenceById(id);
+    ajust = ajustRepository.save(ajust);
+    create(ajustDto.getAjustements().get(0), ajust);
+    return new AjustDTO(ajust);
   }
 
-  public AjustementDTO save(AjustementDTO ajustementDTO) {
-    Ajust ajust =
-        createAjsut(
-            ajustementDTO.getAjustId(),
-            ajustementDTO.getCommentaire(),
-            ajustementDTO.getStorageId());
+  private Ajustement create(AjustementDTO ajustementDTO, Ajust ajust) {
     Produit produit = produitRepository.getReferenceById(ajustementDTO.getProduitId());
     int stock =
         stockProduitRepository
@@ -97,17 +101,6 @@ public class AjustementService {
                 ajust.getStorage().getId(), ajustementDTO.getProduitId())
             .get()
             .getQtyStock();
-    Ajustement ajustement;
-    if (ajustementDTO.getAjustId() == null) {
-      ajustement = create(ajustementDTO, ajust, produit, stock);
-    } else {
-      ajustement = createOrUpdate(ajustementDTO, ajust, produit, stock);
-    }
-
-    return new AjustementDTO(ajustementRepository.save(ajustement));
-  }
-
-  private Ajustement create(AjustementDTO ajustementDTO, Ajust ajust, Produit produit, int stock) {
     Ajustement ajustement = new Ajustement();
     ajustement.setAjust(ajust);
     ajustement.setMotifAjustement(fromMotifId(ajustementDTO.getMotifAjustementId()));
@@ -116,32 +109,51 @@ public class AjustementService {
     ajustement.setQtyMvt(ajustementDTO.getQtyMvt());
     ajustement.setStockBefore(stock);
     ajustement.setStockAfter(stock + ajustementDTO.getQtyMvt());
-    return ajustement;
+    AjustType ajustType = AjustType.AJUSTEMENT_OUT;
+    if (ajustement.getQtyMvt() >= 0) {
+      ajustType = AjustType.AJUSTEMENT_IN;
+    }
+    ajustement.setType(ajustType);
+    return ajustementRepository.save(ajustement);
   }
 
-  private Ajustement createOrUpdate(
-      AjustementDTO ajustementDTO, Ajust ajust, Produit produit, int stock) {
+  public void deleteAll(List<Long> ids) {
+    ids.forEach(this.ajustementRepository::deleteById);
+  }
+
+  public void createOrUpdate(AjustementDTO ajustementDTO) {
     Optional<Ajustement> optionalAjustement =
         ajustementRepository.findFirstByAjustIdAndProduitId(
             ajustementDTO.getAjustId(), ajustementDTO.getProduitId());
-    if (optionalAjustement.isEmpty()) return create(ajustementDTO, ajust, produit, stock);
-    Ajustement ajustement = optionalAjustement.get();
-    ajustement.setDateMtv(LocalDateTime.now());
-    ajustement.setQtyMvt(ajustement.getQtyMvt() + ajustementDTO.getQtyMvt());
-    ajustement.setStockBefore(stock);
-    ajustement.setStockAfter(stock + ajustementDTO.getQtyMvt());
-    return ajustement;
+    Ajust ajust = this.ajustRepository.getReferenceById(ajustementDTO.getAjustId());
+    if (optionalAjustement.isEmpty()) {
+      create(ajustementDTO, ajust);
+    } else {
+      int stock =
+          stockProduitRepository
+              .findStockProduitByStorageIdAndProduitId(
+                  ajust.getStorage().getId(), ajustementDTO.getProduitId())
+              .get()
+              .getQtyStock();
+
+      Ajustement ajustement = optionalAjustement.get();
+      ajustement.setDateMtv(LocalDateTime.now());
+      ajustement.setQtyMvt(ajustement.getQtyMvt() + ajustementDTO.getQtyMvt());
+      ajustement.setStockBefore(stock);
+      ajustement.setStockAfter(stock + ajustement.getQtyMvt());
+      ajustementRepository.save(ajustement);
+    }
   }
 
-  public void saveAjust(AjustementDTO ajustementDTO) {
-    Ajust ajust = ajustRepository.getReferenceById(ajustementDTO.getAjustId());
+  public void saveAjust(AjustDTO ajustDto) {
+    Ajust ajust = ajustRepository.getReferenceById(ajustDto.getId());
     List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(ajust.getId());
-    save(ajustements);
-    ajust.setCommentaire(ajustementDTO.getCommentaire());
-    ajust.setStatut(SalesStatut.CLOSED);
+    saveItems(ajustements);
+    ajust.setCommentaire(ajustDto.getCommentaire());
+    ajust.setStatut(AjustementStatut.CLOSED);
   }
 
-  private void save(List<Ajustement> ajustements) {
+  private void saveItems(List<Ajustement> ajustements) {
 
     for (Ajustement ajustement : ajustements) {
       StockProduit p =
@@ -157,8 +169,8 @@ public class AjustementService {
         ajustType = AjustType.AJUSTEMENT_IN;
         transactionType = TransactionType.AJUSTEMENT_IN;
       }
-      ajustement.setStockBefore(initStock);
       ajustement.setType(ajustType);
+      ajustement.setStockBefore(initStock);
       p.setQtyStock(p.getQtyStock() + ajustement.getQtyMvt());
       p.setQtyVirtual(p.getQtyStock());
       ajustement.setStockAfter(p.getQtyStock());
@@ -175,20 +187,19 @@ public class AjustementService {
               initStock,
               ajustement.getQtyMvt(),
               p.getQtyStock());
-      logsService.create(transactionType, desc, ajustement.getId().toString(),produit);
+      logsService.create(transactionType, desc, ajustement.getId().toString(), produit);
     }
     this.warehouseCalendarService.initCalendar();
   }
 
   public AjustementDTO update(AjustementDTO ajustementDTO) {
     Ajustement ajustement = ajustementRepository.getReferenceById(ajustementDTO.getId());
-    int stock = 0;
-    Optional<StockProduit> stockProduit =
-        stockProduitRepository.findStockProduitByStorageIdAndProduitId(
-            ajustementDTO.getStorageId(), ajustementDTO.getProduitId());
-    if (stockProduit.isPresent()) {
-      stock = stockProduit.get().getQtyStock();
-    }
+    StockProduit stockProduit =
+        stockProduitRepository
+            .findStockProduitByStorageIdAndProduitId(
+                ajustement.getAjust().getStorage().getId(), ajustement.getProduit().getId())
+            .get();
+    int stock = stockProduit.getQtyStock();
     ajustement.setDateMtv(LocalDateTime.now());
     ajustement.setQtyMvt(ajustementDTO.getQtyMvt());
     ajustement.setStockBefore(stock);
@@ -203,19 +214,37 @@ public class AjustementService {
     return motifAjustement;
   }
 
-  @Transactional
-  public List<Ajustement> findAll(Long id) {
+  @Transactional(readOnly = true)
+  public List<Ajustement> findAll(Long id, String search) {
     log.debug("Request to get all Ajustements");
-    return ajustementRepository.findAllByAjustId(id);
+    Comparator<Ajustement> ajustementComparator =
+        (Comparator.comparing(Ajustement::getDateMtv, Comparator.reverseOrder()));
+
+    if (StringUtils.hasLength(search)) {
+      return ajustementRepository.findAllByAjustId(id).stream()
+          .sorted(ajustementComparator)
+          .filter(it -> this.searchPredicate.test(it, search))
+          .toList();
+    }
+    List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(id);
+    ajustements.sort(ajustementComparator);
+    return ajustements;
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public List<Ajustement> findAll() {
     log.debug("Request to get all Ajustements");
     return ajustementRepository.findAll();
   }
 
-  public void delete(Long id) {
+  public void deleteItem(Long id) {
     ajustementRepository.deleteById(id);
+  }
+
+  public void delete(Long id) {
+    Ajust ajust = this.ajustRepository.getReferenceById(id);
+    if (ajust.getStatut() == AjustementStatut.PENDING) {
+      this.ajustRepository.deleteById(id);
+    }
   }
 }

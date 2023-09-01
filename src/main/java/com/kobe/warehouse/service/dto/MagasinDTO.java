@@ -2,11 +2,10 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
+import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 public class MagasinDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -36,7 +35,7 @@ public class MagasinDTO implements Serializable {
         registre = magasin.getRegistre();
         compteContribuable = magasin.getCompteContribuable();
         numComptable = magasin.getNumComptable();
-        LOG.info("=== {}{}", new Object[]{magasin.getPrimaryStorage(), magasin.getPointOfSale()});
+        LOG.info("=== {}{}", magasin.getPrimaryStorage(), magasin.getPointOfSale());
         primaryStorage = magasin.getPrimaryStorage();
         pointOfSale = magasin.getPointOfSale();
         welcomeMessage = magasin.getWelcomeMessage();

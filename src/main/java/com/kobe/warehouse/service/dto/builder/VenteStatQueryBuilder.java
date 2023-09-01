@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.utils;
+package com.kobe.warehouse.service.dto.builder;
 
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
+import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;

@@ -1,9 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,12 +11,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 @Entity
 @Table(name = "rayon_produit", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "rayon_id"})
 })
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RayonProduit implements Serializable {
 
     private static final long serialVersionUID = 1L;

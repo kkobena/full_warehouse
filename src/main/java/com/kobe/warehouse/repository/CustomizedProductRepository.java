@@ -162,7 +162,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
       TypedQuery<StoreInventoryLine> q =
           em.createQuery(
               "SELECT o FROM StoreInventoryLine o WHERE o.storeInventory.statut=?1 AND o.produit.id=?2 "
-                  + " AND o.storeInventory.magasin.id=?3  ORDER BY  o.storeInventory.updatedAt DESC",
+                  + " AND o.storeInventory.storage.magasin.id=?3  ORDER BY  o.storeInventory.updatedAt DESC",
               StoreInventoryLine.class);
       q.setMaxResults(1);
       q.setParameter(1, SalesStatut.CLOSED);
@@ -459,12 +459,12 @@ public class CustomizedProductRepository implements CustomizedProductService {
   }
 
   @Override
-  public int produitTotalStockWithQantitUg(Produit produitt) {
-    return produitt.getStockProduits().stream()
+  public int produitTotalStockWithQantityUg(Produit produit) {
+    return produit.getStockProduits().stream()
         .map(StockProduit::getTotalStockQuantity)
         .reduce(0, Integer::sum);
   }
-
+   
   private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {
     for (Produit p : produits) {
       Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(p.getId());

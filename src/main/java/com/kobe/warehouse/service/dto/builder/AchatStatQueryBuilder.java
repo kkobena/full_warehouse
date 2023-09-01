@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.utils;
+package com.kobe.warehouse.service.dto.builder;
 
 import com.kobe.warehouse.service.dto.records.AchatRecord;
 import java.math.BigDecimal;

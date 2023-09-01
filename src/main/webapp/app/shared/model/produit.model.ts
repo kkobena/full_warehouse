@@ -39,6 +39,7 @@ export interface IProduit {
   deconditionnable?: boolean;
   prixMnp?: number;
   codeEan?: string;
+  rayonLibelle?: string;
   stockProduits?: IStockProduit[];
   fournisseurProduits?: IFournisseurProduit[];
   fournisseurProduit?: IFournisseurProduit;

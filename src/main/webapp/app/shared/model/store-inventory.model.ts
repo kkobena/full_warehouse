@@ -1,7 +1,12 @@
 import { Moment } from 'moment';
 import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
+import { IUser } from '../../core/user/user.model';
+import { IStorage } from './magasin.model';
+import { IRayon } from './rayon.model';
+
 export interface IStoreInventory {
   id?: number;
+  abbrName?: string;
   inventoryValueCostBegin?: number;
   inventoryAmountBegin?: number;
   createdAt?: Moment;
@@ -9,7 +14,12 @@ export interface IStoreInventory {
   inventoryValueCostAfter?: number;
   inventoryAmountAfter?: number;
   storeInventoryLines?: IStoreInventoryLine[];
-  statut?: string;
+  statut?: InventoryStatut;
+  user?: IUser;
+  storage?: IStorage;
+  rayon?: IRayon;
+  inventoryType?: InventoryType;
+  inventoryCategory?: InventoryCategory;
 }
 
 export class StoreInventory implements IStoreInventory {
@@ -22,6 +32,37 @@ export class StoreInventory implements IStoreInventory {
     public inventoryValueCostAfter?: number,
     public inventoryAmountAfter?: number,
     public storeInventoryLines?: IStoreInventoryLine[],
-    public statut?: string
-  ) {}
+    public inventoryType?: InventoryType,
+    public statut?: InventoryStatut
+  ) {
+    this.inventoryType = this.inventoryType || 'MANUEL';
+  }
 }
+
+export type InventoryStatut = 'CREATE' | 'CLOSED' | 'PROCESSING';
+export type InventoryType = 'MANUEL' | 'PROGRAMME';
+export type InventoryCategoryType = 'STORAGE' | 'RAYON' | 'MAGASIN';
+
+export class InventoryCategory {
+  name: InventoryCategoryType;
+  label: string;
+
+  constructor(name: InventoryCategoryType, label: string) {
+    this.name = name;
+    this.label = label;
+  }
+}
+
+export class StoreInventoryFilterRecord {
+  inventoryCategories: InventoryCategoryType[];
+  statuts: InventoryStatut[];
+  storageId?: number;
+  rayonId?: number;
+  userId?: number;
+}
+
+export const CATEGORY_INVENTORY: InventoryCategory[] = [
+  new InventoryCategory('MAGASIN', 'Inventaire global'),
+  new InventoryCategory('STORAGE', "Inventaire d'un emplacement"),
+  new InventoryCategory('RAYON', "Inventaire d'un rayon"),
+];

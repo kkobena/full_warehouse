@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
-import { OrderLineService } from '../order-line/order-line.service';
 import { ProduitService } from '../produit/produit.service';
 import { IProduit } from 'app/shared/model/produit.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -71,9 +70,9 @@ export class CommandeUpdateComponent implements OnInit {
   selectedProvider?: number | null = null;
   fournisseurs: IFournisseur[] = [];
   quantiteSaisie = 1;
-  @ViewChild('quantyBox', { static: false })
-  quantyBox?: ElementRef;
-  @ViewChild('produitbox', { static: true })
+  @ViewChild('quantityBox')
+  quantityBox?: ElementRef;
+  @ViewChild('produitbox')
   produitbox?: any;
   @ViewChild('fournisseurBox')
   fournisseurBox?: any;
@@ -89,7 +88,6 @@ export class CommandeUpdateComponent implements OnInit {
 
   constructor(
     protected commandeService: CommandeService,
-    protected orderLineService: OrderLineService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
     protected modalService: NgbModal,
@@ -148,7 +146,7 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   onQuantity(): void {
-    const qytMvt = Number(this.quantyBox?.nativeElement.value);
+    const qytMvt = Number(this.quantityBox?.nativeElement.value);
     if (qytMvt <= 0) return;
     this.onAddOrderLine(qytMvt);
   }
@@ -237,7 +235,7 @@ export class CommandeUpdateComponent implements OnInit {
       },
       error: error => {
         this.onCommonError(error);
-        this.spinner.hide('commandeEnCourspinner');
+        this.spinner.hide('commandeEnCour-spinner');
       },
     });
   }
@@ -261,7 +259,7 @@ export class CommandeUpdateComponent implements OnInit {
 
   onSelect(): void {
     setTimeout(() => {
-      const el = this.quantyBox?.nativeElement;
+      const el = this.quantityBox?.nativeElement;
       el.focus();
       el.select();
     }, 50);
@@ -336,8 +334,8 @@ export class CommandeUpdateComponent implements OnInit {
 
   confirmDeleteItem(item: IOrderLine): void {
     this.confirmationService.confirm({
-      message: ' Voullez-vous detacher  ce produit ?',
-      header: 'RUPPRESSION DE PRODUIT ',
+      message: ' Voullez-vous supprimer de la commande  ce produit ?',
+      header: 'SUPPRESSION DE PRODUIT ',
       icon: 'pi pi-info-circle',
       accept: () => this.onDeleteOrderLineById(item),
       reject: () => {
@@ -418,8 +416,8 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   protected updateProduitQtyBox(): void {
-    if (this.quantyBox) {
-      this.quantyBox.nativeElement.value = 1;
+    if (this.quantityBox) {
+      this.quantityBox.nativeElement.value = 1;
     }
     this.produitSelected = null;
     this.focusPrdoduitBox();

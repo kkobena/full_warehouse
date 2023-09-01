@@ -61,6 +61,7 @@ public interface ProduitService {
   void update(ProduitDTO produitDTO);
 
   Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable);
+
   List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable);
 
   void updateDetail(ProduitDTO produitDTO);
@@ -76,7 +77,5 @@ public interface ProduitService {
     return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
   }
 
-  void updateFromCommande(ProduitDTO produitDTO, Produit produit) ;
-
-
+  void updateFromCommande(ProduitDTO produitDTO, Produit produit);
 }

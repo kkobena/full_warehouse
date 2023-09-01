@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import org.hibernate.annotations.Cache;
@@ -45,8 +46,9 @@ public class StockProduit implements Serializable {
     @Column(name = "qty_virtual", nullable = false)
     private Integer qtyVirtual;
     @NotNull
+    @Min(0)
     @Column(name = "qty_ug", nullable = false)
-    private Integer qtyUG;
+    private Integer qtyUG=0;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

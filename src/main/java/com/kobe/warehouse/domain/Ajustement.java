@@ -45,7 +45,6 @@ public class Ajustement implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type_ajust", nullable = false)
     private AjustType type;
-
     @NotNull
     @Column(name = "stock_after", nullable = false)
     private Integer stockAfter;
@@ -55,6 +54,7 @@ public class Ajustement implements Serializable {
     private Produit produit;
     @ManyToOne(optional = false)
     @NotNull
+    @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
     private Ajust ajust;
     @ManyToOne
     private MotifAjustement motifAjustement;

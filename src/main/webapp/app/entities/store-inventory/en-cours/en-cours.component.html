@@ -1,0 +1,83 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+             size="medium"
+             type="timer"></ngx-spinner>
+<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="delete">
+  <p-footer>
+    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+<p-confirmDialog #saveAll [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="saveAll">
+  <p-footer>
+    <button (click)="saveAll.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="saveAll.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+<p-table
+
+  [paginator]="true"
+
+  [rowsPerPageOptions]="[5,10,15,20,30,50]"
+  [rows]="itemsPerPage" [showCurrentPageReport]="false"
+  [totalRecords]="totalItems"
+  [value]="rowData"
+  dataKey="id"
+  selectionMode="multiple"
+  styleClass="p-datatable-striped mt-2"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Emplacement</th>
+      <th>Date</th>
+      <th>Opérateur</th>
+
+      <th style="width:15%"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-expanded="expanded" let-storeInventory pTemplate="body">
+    <tr>
+      <td>{{storeInventory.storage?.name}}</td>
+      <td>{{storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+      <td>{{storeInventory.abbrName}}</td>
+      <td class="text-right">
+        <div class="btn-group">
+
+          <button
+            [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
+            class="p-button-rounded p-button-success p-button-sm"
+            icon="pi pi-pencil" pButton
+            pRipple pTooltip="Editer">
+          </button>
+          <button (click)="confirmSave(storeInventory)"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                  pButton pRipple
+                  pTooltip="Clôtuer"></button>
+          <button (click)="exportPdf(storeInventory)"
+                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  pButton
+                  pRipple pTooltip="Imprimer"></button>
+          <button (click)="confirmDelete(storeInventory)"
+                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
+                  icon="pi pi-trash"
+                  pButton pRipple
+                  pTooltip="Supprimer"
+                  type="submit"></button>
+
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+

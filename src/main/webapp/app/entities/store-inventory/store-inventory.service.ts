@@ -1,38 +1,58 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import moment from 'moment';
 
-import {SERVER_API_URL} from 'app/app.constants';
-import {createRequestOption} from 'app/shared/util/request-util';
-import {IStoreInventory} from 'app/shared/model/store-inventory.model';
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOptions } from 'app/shared/util/request-util';
+import { IStoreInventory } from 'app/shared/model/store-inventory.model';
+import { ICategorie } from '../../shared/model/categorie.model';
 
 type EntityResponseType = HttpResponse<IStoreInventory>;
 type EntityArrayResponseType = HttpResponse<IStoreInventory[]>;
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class StoreInventoryService {
   public resourceUrl = SERVER_API_URL + 'api/store-inventories';
 
-  constructor(protected http: HttpClient) {
+  constructor(protected http: HttpClient) {}
+
+  create(storeInventory: IStoreInventory): Observable<EntityResponseType> {
+    return this.http.post<IStoreInventory>(this.resourceUrl, storeInventory, { observe: 'response' });
+  }
+
+  update(storeInventory: ICategorie): Observable<EntityResponseType> {
+    return this.http.put<IStoreInventory>(this.resourceUrl, storeInventory, { observe: 'response' });
   }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
-      .get<IStoreInventory>(`${this.resourceUrl}/${id}`, {observe: 'response'})
+      .get<IStoreInventory>(`${this.resourceUrl}/${id}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+  query(req: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
     return this.http
-      .get<IStoreInventory[]>(this.resourceUrl, {params: options, observe: 'response'})
+      .get<IStoreInventory[]>(this.resourceUrl, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  init(): Observable<HttpResponse<{}>> {
+    return this.http.get<{}>(`${this.resourceUrl}/init`, { observe: 'response' });
+  }
+
+  close(id: number): Observable<HttpResponse<{}>> {
+    return this.http.get<{}>(`${this.resourceUrl}/close/${id}`, { observe: 'response' });
+  }
+
+  exportToPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/pdf/${id}`, { responseType: 'blob' });
   }
 
   protected convertDateFromClient(storeInventory: IStoreInventory): IStoreInventory {
@@ -59,13 +79,5 @@ export class StoreInventoryService {
       });
     }
     return res;
-  }
-
-  init(): Observable<HttpResponse<{}>> {
-    return this.http.get<{}>(`${this.resourceUrl}/init`, {observe: 'response'});
-  }
-
-  close(id: number): Observable<HttpResponse<{}>> {
-    return this.http.get<{}>(`${this.resourceUrl}/close/${id}`, {observe: 'response'});
   }
 }

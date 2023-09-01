@@ -2,9 +2,9 @@ package com.kobe.warehouse.service.stat.impl;
 
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.service.dto.AchatRecordParamDTO;
+import com.kobe.warehouse.service.dto.builder.AchatStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
 import com.kobe.warehouse.service.stat.AchatStatService;
-import com.kobe.warehouse.service.utils.AchatStatQueryBuilder;
 import java.time.LocalDate;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;

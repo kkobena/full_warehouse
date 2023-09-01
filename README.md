@@ -51,11 +51,11 @@ following code in `src/main/webapp/index.html`:
 ```html
 
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js').then(function() {
-            console.log('Service Worker Registered');
-        });
-    }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').then(function() {
+      console.log('Service Worker Registered');
+    });
+  }
 </script>
 ```
 
@@ -558,3 +558,4 @@ i=index">
 <input type="number" [formControlName]="i" />
 </div>
 </div>
+https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-codes/

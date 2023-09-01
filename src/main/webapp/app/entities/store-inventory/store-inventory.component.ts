@@ -1,25 +1,32 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable, Subscription} from 'rxjs';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { Observable, Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import {IStoreInventory} from 'app/shared/model/store-inventory.model';
+import { CATEGORY_INVENTORY, InventoryCategory, IStoreInventory } from 'app/shared/model/store-inventory.model';
 
-import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {StoreInventoryService} from './store-inventory.service';
-import {StoreInventoryDeleteDialogComponent} from './store-inventory-delete-dialog.component';
-import {NgxSpinnerService} from 'ngx-spinner';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { StoreInventoryService } from './store-inventory.service';
+import { StoreInventoryDeleteDialogComponent } from './store-inventory-delete-dialog.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { IUser, User } from '../../core/user/user.model';
+import { UserService } from '../../core/user/user.service';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { InventoryFormComponent } from './inventory-form/inventory-form.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'jhi-store-inventory',
   templateUrl: './store-inventory.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
   styles: [
     `
       .table tr:hover {
         cursor: pointer;
       }
 
-      .active {
+      .table .active {
         background-color: #95caf9 !important;
       }
 
@@ -32,24 +39,38 @@ import {NgxSpinnerService} from 'ngx-spinner';
   ],
 })
 export class StoreInventoryComponent implements OnInit {
-  storeInventories: IStoreInventory[];
-  eventSubscriber?: Subscription;
-  selectedRowIndex?: number;
-  itemsPerPage: number;
-  links: any;
-  page: number;
-  predicate: string;
-  ascending: boolean;
-  columnDefs: any[];
-  rowData: any = [];
-  event: any;
-  searchValue?: string;
+  protected storeInventories: IStoreInventory[];
+  protected eventSubscriber?: Subscription;
+  protected selectedRowIndex?: number;
+  protected itemsPerPage: number;
+  protected links: any;
+  protected page: number;
+  protected predicate: string;
+  protected ascending: boolean;
+  protected readonly showUserCombo: boolean = false;
+  protected columnDefs: any[];
+  protected rowData: any = [];
+  protected event: any;
+  protected searchValue?: string;
+  protected search: string = '';
+  protected fromDate: Date = new Date();
+  protected toDate: Date = new Date();
+  protected users: IUser[] = [];
+  protected user?: IUser | null;
+  protected active = 'CREATE';
+  protected ref?: DynamicDialogRef;
+  protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
+  protected inventoryCategories?: InventoryCategory[];
 
   constructor(
     protected storeInventoryService: StoreInventoryService,
     protected modalService: NgbModal,
-    private spinner: NgxSpinnerService
+    protected userService: UserService,
+    private spinner: NgxSpinnerService,
+    private dialogService: DialogService,
+    protected router: Router
   ) {
+    this.inventoryCategories = this.categories;
     this.storeInventories = [];
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;
@@ -95,7 +116,7 @@ export class StoreInventoryComponent implements OnInit {
   cellClass(params: any): any {
     if (params.data.updated) {
       const ecart = Number(params.data.quantityOnHand) - Number(params.data.quantityInit);
-      return ecart >= 0 ? {backgroundColor: 'lightgreen'} : {backgroundColor: 'lightcoral'};
+      return ecart >= 0 ? { backgroundColor: 'lightgreen' } : { backgroundColor: 'lightcoral' };
     }
     return;
   }
@@ -123,19 +144,20 @@ export class StoreInventoryComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadAllUsers();
     this.loadAll();
-    // this.registerChangeInStoreInventories();
   }
-
 
   trackId(index: number, item: IStoreInventory): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
   }
 
-
   delete(storeInventory: IStoreInventory): void {
-    const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
+    const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
     modalRef.componentInstance.storeInventory = storeInventory;
   }
 
@@ -161,14 +183,17 @@ export class StoreInventoryComponent implements OnInit {
       .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
   }
 
-  init(): void {
-    this.spinner.show();
-    this.subscribeToSaveResponse(this.storeInventoryService.init());
-    /* setTimeout(() => {
+  onCreateNew(): void {
+    this.ref = this.dialogService.open(InventoryFormComponent, {
+      data: { entity: null },
+      width: '40%',
+      header: 'Nouvel inventaire',
+    });
+    this.ref.onClose.subscribe((res: IStoreInventory) => this.goTo(res));
+  }
 
-      this.spinner.hide();
-    }, 5000);
-*/
+  goTo(entity: IStoreInventory): void {
+    this.router.navigate(['/store-inventory', entity.id, 'edit']);
   }
 
   clickRow(storeInventory: IStoreInventory): void {
@@ -176,21 +201,11 @@ export class StoreInventoryComponent implements OnInit {
     this.rowData = storeInventory.storeInventoryLines;
   }
 
-  protected paginateStoreInventories(data: IStoreInventory[] | null, headers: HttpHeaders): void {
-    const headersLink = headers.get('link');
-    //   this.links = this.parseLinks.parse(headersLink ? headersLink : '');
-    if (data) {
-      for (let i = 0; i < data.length; i++) {
-        this.storeInventories.push(data[i]);
-      }
-    }
-  }
-
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {
@@ -206,5 +221,21 @@ export class StoreInventoryComponent implements OnInit {
     if (data) {
       this.storeInventories = data;
     }
+  }
+
+  protected loadAllUsers(): void {
+    this.userService.query().subscribe((res: HttpResponse<User[]>) => {
+      this.users.push({ id: null, fullName: 'TOUT' });
+      if (res.body) {
+        this.users.push(...res.body);
+      }
+      this.user = { id: null, fullName: 'TOUT' };
+    });
+  }
+
+  protected onSearch(): void {}
+
+  protected onSelectUser(): void {
+    this.onSearch();
   }
 }

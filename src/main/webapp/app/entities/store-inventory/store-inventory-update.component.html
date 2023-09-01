@@ -1,28 +1,199 @@
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
+<p-confirmDialog #printTicket [baseZIndex]="10000" [style]="{width: '40vw'}" key="printTicket">
+  <p-footer>
+    <button (click)="printTicket.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="printTicket.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+
 <div class="row justify-content-center">
-  <div class="col-11">
-
-    <h2 class="text-center" id="page-heading">
-      <button (click)="previousState()" class="btn btn-secondary" id="cancel-save" type="button">
-        <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-      </button>
-
-      <button (click)="save()" class="btn btn-primary" id="save-entity" type="submit">
-        <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
-      </button>
-    </h2>
-    <div>
-      <div>
-        <input (keyup)="onFilterTextBoxChanged($event)" class="form-control mr-sm-2" placeholder="Taper pour rechercher"
-               type="text">
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        Informations sur l'inventaire
       </div>
-      <hr>
-      <ag-grid-angular #productGrid (cellValueChanged)="onCellValueChanged($event)" [columnDefs]="columnDefs" [enterMovesDownAfterEdit]="true"
-                       [enterMovesDown]="true" [quickFilterText]="searchValue"
-                       [rowData]="rowData" [suppressRowClickSelection]="true"
-                       class="ag-theme-alpine" style="height:500px;">
-      </ag-grid-angular>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px;">Emplacement</span>
+            <span class="text-primary">{{storeInventory?.storage?.name}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px;">Date</span>
+            <span class="text-primary">{{storeInventory?.createdAt | date: 'dd/MM/yyyy'}}</span>
+          </li>
+          <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
+              class="list-group-item d-flex justify-content-between align-items-center">
+            Rayon
+            <span class="text-primary">{{storeInventory?.rayon?.libelle }}</span>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <div class="card">
+      <div class="card-header">
+        Filtre
+      </div>
+      <div class="card-body">
+        <div *ngIf="storeInventory.inventoryCategory.name==='MAGASIN'" class="row">
+          <label>Emplacements</label>
+          <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="storages"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="name" placeholder="Séléctionner un emplacement"
+          >
+          </p-dropdown>
+        </div>
+        <div *ngIf="storeInventory.inventoryCategory.name!=='RAYON'" class="row"
+             style="margin-top: 0.5rem;">
+          <label>Rayons</label>
+          <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
+                          (onClear)="onClear()"
+                          (onSelect)="onSelect()"
+                          [(ngModel)]="selectedRayon"
+                          [appendTo]="APPEND_TO"
+                          [dataKey]="'id'"
+                          [dropdown]="true"
+                          [emptyMessage]="NOT_FOUND"
+                          [inputStyle]="{'width':'100%'}"
+                          [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
+                          [showEmptyMessage]="true"
+                          [style]="{'width':'100%'}" [suggestions]="rayons"
+                          field="libelle"></p-autoComplete>
+        </div>
+
+
+        <div class="row" style="margin-top: 0.5rem;">
+          <label>Filtrer par</label>
+          <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="filtres"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="label" placeholder="Filtrer par"
+          >
+          </p-dropdown>
+        </div>
+
+        <div class="row" style="margin-top: 0.5rem;">
+                   <span class="p-buttonset justify-content-center">
+    <button class="p-button-success p-button-raised" pButton
+            pRipple
+            type="button">  <fa-icon
+      icon="lock"></fa-icon>&nbsp;<span>Cloturer</span></button>
+                  <button
+                    class="p-button-warning p-button-raised" pButton
+                    pRipple
+                    type="button">  <fa-icon
+                    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+
+                   <p-button icon="pi pi-arrow-left" label="Retour"
+                             styleClass="p-button-raised p-button-secondary"></p-button>
+                </span>
+        </div>
+
+      </div>
 
     </div>
+  </div>
+
+  <div class="col-md-9">
+    <p-table #editTable (onEditComplete)="onEditComplete($event)"
+
+             (onLazyLoad)="lazyLoading($event)"
+             *ngIf="storeInventory"
+             [lazy]="true"
+
+             [loading]="loading"
+             [paginator]="true"
+             [responsive]="true" [rowsPerPageOptions]="[5,10,20,30,40,50]"
+             [rows]="itemsPerPage"
+             [showCurrentPageReport]="false" [showCurrentPageReport]="false"
+             [totalRecords]="totalItems" [value]="storeInventoryLines"
+
+             dataKey="produitId"
+
+
+    >
+      <ng-template pTemplate="caption">
+
+        <div class="row" style="margin: 0">
+          <div class="col-4" style="margin: 0; padding:0;">
+            <input
+              [style]="{'width':'98%'}" pInputText
+              placeholder="Taper pour rechercher"
+              type="text">
+          </div>
+          <div class="col-4">
+            <jhi-alert-error></jhi-alert-error>
+          </div>
+
+        </div>
+
+
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:2%">
+            #
+          </th>
+          <th style="width: 10%;">Cip</th>
+          <th>Libellé</th>
+          <th>Stock</th>
+          <th style="width:15%;">Quantité</th>
+          <th style="width:5%;">Statut</th>
+          <th>Ecart</th>
+        </tr>
+      </ng-template>
+      <ng-template let-editing="editing" let-item let-rowIndex="rowIndex" pTemplate="body">
+        <tr>
+          <td style="text-align: left;">{{rowIndex + 1}}</td>
+          <td>{{item.produitCip}}</td>
+
+          <td>{{item.produitLibelle}}</td>
+          <td *ngIf="showStock" style="text-align: right;">{{item.quantityInit |number}}</td>
+
+          <td [moveToNext]="moveToNext" [openCurrentCell]="openCurrentCell"
+              [pEditableColumnField]="'quantityOnHand'"
+              [pEditableColumn]="item.quantityOnHand" jhiTableEditor style="text-align: right;">
+            <p-cellEditor #cellEditor>
+              <ng-template pTemplate="input">
+                <input (focus)="$event.target.select()"
+                       (keydown)="onUpdateQuantity(item,$event,rowIndex,cellEditor)"
+                       [pKeyFilter]="'int'" [value]="item.quantityOnHand"
+                       pInputText
+                       required
+                       style="width: 100%;"
+                >
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{item.quantityOnHand |number}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+          <td [ngClass]="itemTableColor(item)"></td>
+          <td [ngStyle]="cellClass(item)" style="text-align: right;">{{item.gap | number}}</td>
+        </tr>
+      </ng-template>
+
+    </p-table>
 
   </div>
+
+
 </div>
+
+
+

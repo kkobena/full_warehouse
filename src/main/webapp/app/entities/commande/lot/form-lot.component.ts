@@ -98,7 +98,6 @@ export class FormLotComponent implements OnInit {
 
   onValidateQuantity(event: any): void {
     const quantity = Number(event.target.value);
-
     const maxQuantity = this.getValidLotQuantity();
     if (quantity > maxQuantity) {
       this.messageService.add({

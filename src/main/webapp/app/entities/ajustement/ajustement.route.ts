@@ -5,20 +5,20 @@ import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { AjustementService } from './ajustement.service';
 import { AjustementComponent } from './ajustement.component';
 import { AjustementDetailComponent } from './ajustement-detail.component';
+import { Ajust, IAjust } from '../../shared/model/ajust.model';
 
 @Injectable({ providedIn: 'root' })
-export class AjustementResolve implements Resolve<IAjustement> {
+export class AjustementResolve implements Resolve<IAjust> {
   constructor(private service: AjustementService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<IAjustement> | Observable<never> {
+  resolve(route: ActivatedRouteSnapshot): Observable<IAjust> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        mergeMap((ajustement: HttpResponse<Ajustement>) => {
+        mergeMap((ajustement: HttpResponse<IAjust>) => {
           if (ajustement.body) {
             return of(ajustement.body);
           } else {
@@ -28,7 +28,7 @@ export class AjustementResolve implements Resolve<IAjustement> {
         })
       );
     }
-    return of(new Ajustement());
+    return of(new Ajust());
   }
 }
 

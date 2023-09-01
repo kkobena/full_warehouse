@@ -26,6 +26,7 @@ import { ActiveMenuDirective } from './layouts/navbar/active-menu.directive';
 import { ErrorComponent } from './layouts/error/error.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { StorageComponent } from './entities/storage/storage.component';
 
 @NgModule({
   imports: [
@@ -50,7 +51,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     httpInterceptorProviders,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  declarations: [MainComponent, NavbarComponent, ErrorComponent, PageRibbonComponent, ActiveMenuDirective, FooterComponent],
+  declarations: [MainComponent, NavbarComponent, ErrorComponent, PageRibbonComponent, ActiveMenuDirective, FooterComponent, StorageComponent],
   bootstrap: [MainComponent],
 })
 export class AppModule {

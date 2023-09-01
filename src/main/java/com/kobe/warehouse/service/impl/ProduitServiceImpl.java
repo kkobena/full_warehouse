@@ -208,7 +208,7 @@ public class ProduitServiceImpl implements ProduitService {
 
   @Override
   public int getProductTotalStock(Long productId) {
-    return customizedProductService.produitTotalStockWithQantitUg(
+    return customizedProductService.produitTotalStockWithQantityUg(
         produitRepository.getReferenceById(productId));
   }
 

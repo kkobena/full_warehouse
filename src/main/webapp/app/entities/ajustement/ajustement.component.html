@@ -1,95 +1,86 @@
-<div>
-  <h4 id="page-heading">
-    <span jhiTranslate="warehouseApp.ajustement.home.title">Ajustements</span>
-    <button [routerLink]="['/ajustement/new']" class="btn btn-primary float-right jh-create-entity create-produit"
-            id="jh-create-entity">
-      <fa-icon icon="plus"></fa-icon>
-      <span jhiTranslate="warehouseApp.ajustement.home.createLabel">
-               Faire un ajustement
-            </span>
-    </button>
-  </h4>
+<div class="row ajustement">
+  <div class="col-2 col-md-2 col-sm-2">
 
-  <div *ngIf="rowData?.length === 0" class="alert alert-warning" id="no-result">
-    <span jhiTranslate="warehouseApp.ajustement.home.notFound">No ajustements found</span>
+    <p-card>
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+           orientation="vertical">
+        <ng-container ngbNavItem="PENDING">
+          <a class="flex-sm-fill nav-link " ngbNavLink>Ajustement en cours</a>
+          <ng-template ngbNavContent>
+            <jhi-ajustement-en-cours [fromDate]="fromDate" [search]="search" [toDate]="toDate"
+                                     [user]="user"></jhi-ajustement-en-cours>
+          </ng-template>
+        </ng-container>
+        <ng-container ngbNavItem="CLOSED">
+          <a class="flex-sm-fill nav-link " ngbNavLink>Ajustements</a>
+          <ng-template ngbNavContent>
+            <jhi-list-ajustement [fromDate]="fromDate" [search]="search" [toDate]="toDate"
+                                 [user]="user"></jhi-list-ajustement>
+          </ng-template>
+        </ng-container>
+
+      </div>
+    </p-card>
+
   </div>
-  <p-table [value]="rowData" dataKey="id" styleClass="p-datatable-gridlines ">
-    <ng-template pTemplate="header">
-      <th style="width:3%"></th>
-      <th>Opérateur</th>
-      <th>Date opération</th>
-      <th><span>Commentaire</span>
-      <th><span>Magasin de stockage</span>
-      </th>
 
-    </ng-template>
-    <ng-template let-ajust let-expanded="expanded" pTemplate="body">
-      <tr>
-        <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="ajust" class="p-button-text p-button-rounded p-button-plain" pButton
-                  pRipple
-                  type="button"></button>
-        </td>
-        <td>{{ ajust.userFullName }}</td>
-        <td>{{ ajust.dateMtv | date:'dd/MM/yy HH:mm'}}</td>
-        <td>{{ ajust.commentaire }}</td>
-        <td>{{ ajust.storageLibelle }}</td>
+  <div class="col-10 col-md-10 col-sm-10 row">
+    <div>
+      <p-toolbar>
+        <div class="p-toolbar-group-left" style="width: 80%;">
 
-      </tr>
-    </ng-template>
-    <ng-template let-elRow pTemplate="rowexpansion">
-      <tr>
-        <td colspan="5">
-          <div class="card">
-            <div class="card-header bg-info text-white">DETAILS</div>
-            <div class="card-body">
+          <label class="mr-sm-1">Du&nbsp;</label>
+          <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                      [showButtonBar]="true"
+                      dateFormat="dd/mm/yy"
+          >
 
-              <table class="table table-borderless">
-                <thead>
-                <tr>
-                  <th style="width: 50px;">#</th>
-                  <th>Code cip</th>
-                  <th style="width: 30%;">Libellé</th>
-                  <th>Quantité ajustée</th>
-                  <th>Stock avant</th>
-                  <th>Stock final</th>
-                  <th>Motif</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let ajustement of elRow?.ajustements; let i = index">
-                  <td>{{i + 1}}</td>
-                  <td>{{ajustement.codeCip}}</td>
-                  <td>{{ajustement.produitLibelle}}</td>
-                  <td>{{ajustement.qtyMvt | number}}</td>
-                  <td>{{ajustement.stockBefore | number}}</td>
-                  <td>{{ajustement.stockAfter | number}}</td>
-                  <td>{{ajustement.motifAjustementLibelle}}</td>
+          </p-calendar>
+          <p-divider layout="vertical"></p-divider>
+          <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
+          <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                      [showButtonBar]="true"
+                      dateFormat="dd/mm/yy"
+          ></p-calendar>
 
-                </tr>
-                </tbody>
-              </table>
+          <p-divider layout="vertical"></p-divider>
 
+          <label class="ml-sm-4">Opérateur&nbsp;</label>
+          <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                      optionLabel="fullName"></p-dropdown>
+          <p-divider layout="vertical"></p-divider>
+          <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input (keyup.enter)="onSearch()" [(ngModel)]="search"
+                                       class="toobar-input-search"
+                                       pInputText
+                                       placeholder="Recherge globale" type="text">
+                            </span>
 
-            </div>
-          </div>
+        </div>
+        <div class="p-toolbar-group-right">
 
-        </td>
-      </tr>
+<span class="p-buttonset">
+        <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
 
-    </ng-template>
-  </p-table>
-  <div *ngIf="rowData && rowData.length > 0">
-    <!--        <div class="row justify-content-center">-->
-    <!--            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>-->
-    <!--        </div>-->
+        <p-button [routerLink]="['/ajustement', 'new']"
+                  icon="pi pi-plus"
+                  label="Nouveau"
+                  styleClass="p-button-raised p-button-success"
+        >
+        </p-button></span>
 
-    <div class="row justify-content-center">
-      <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage" [boundaryLinks]="true"
-                      [collectionSize]="totalItems" [maxSize]="10" [pageSize]="itemsPerPage"
-                      [rotate]="true"></ngb-pagination>
+        </div>
+      </p-toolbar>
     </div>
+    <div [ngbNavOutlet]="nav">
 
-
+    </div>
   </div>
+</div>
+
+<div>
+
+
 </div>

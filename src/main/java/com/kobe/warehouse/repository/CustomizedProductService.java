@@ -56,7 +56,9 @@ public interface CustomizedProductService {
 
   int produitTotalStock(Produit produit);
 
-  int produitTotalStockWithQantitUg(Produit produit);
+  int produitTotalStockWithQantityUg(Produit produit);
+
+
 
   FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto);
 

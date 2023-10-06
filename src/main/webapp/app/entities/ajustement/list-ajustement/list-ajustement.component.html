@@ -7,16 +7,21 @@
          dataKey="id"
          styleClass="p-datatable-gridlines ">
   <ng-template pTemplate="header">
-    <th style="width:3%"></th>
-    <th>Opérateur</th>
-    <th>Date opération</th>
-    <th>Nombre de produits</th>
-    <th>Commentaire</th>
-    <th>Magasin de stockage
-    </th>
+
+    <tr>
+      <th style="width:3%"></th>
+      <th>Opérateur</th>
+      <th>Date opération</th>
+      <th>Nombre de produits</th>
+      <th>Commentaire</th>
+      <th>Magasin de stockage
+      </th>
+      <th style="width:7%"></th>
+    </tr>
 
   </ng-template>
   <ng-template let-ajust let-expanded="expanded" pTemplate="body">
+
     <tr>
       <td>
         <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
@@ -30,12 +35,25 @@
       <td class="text-right">{{ ajust.ajustements.length }}</td>
       <td>{{ ajust.commentaire }}</td>
       <td>{{ ajust.storageLibelle }}</td>
+      <td class="text-right">
+        <div class="btn-group">
+
+
+          <button (click)="exportPdf(ajust)"
+                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
+                  icon="pi pi-file-pdf"
+                  pButton
+                  pRipple pTooltip="Imprimer"></button>
+
+        </div>
+      </td>
 
     </tr>
+
   </ng-template>
   <ng-template let-elRow pTemplate="rowexpansion">
     <tr>
-      <td colspan="6">
+      <td colspan="7">
         <div class="card">
           <div class="card-header bg-info text-white">DETAILS</div>
           <div class="card-body">

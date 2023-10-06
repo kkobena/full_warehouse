@@ -1,0 +1,52 @@
+<table class="main-table">
+  <thead>
+  <tr>
+
+    <th class="text-left" style="width:15%;">CODE</th>
+    <th class="text-left" style="width:40%;">LIBELLE</th>
+    <th class="text-left" style="width:15%;">MOTIF</th>
+    <th class="text-right" style="width:10%;">QTE AJUSTEE</th>
+    <th class="text-right" style="width:10%;">STOCK AVANT</th>
+    <th class="text-right" style="width:10%;">STOCK FINAL</th>
+
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+    <td class="text-left" th:if="${#strings.isEmpty(itm.produit.codeEan)}"
+        th:text="${itm.produit.fournisseurProduitPrincipal.codeCip}"></td>
+    <td class="text-left" th:if="${!#strings.isEmpty(itm.produit.codeEan)}"
+        th:text="${itm.produit.codeEan}"></td>
+    <td class="text-left" th:text="${itm.produit.libelle}"></td>
+    <td class="text-left" th:text="${itm.motifAjustement.libelle}"></td>
+    <td class="unit" th:if="${itm.qtyMvt ge 1000}"
+        th:text="${#numbers.formatInteger(itm.qtyMvt,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.qtyMvt lt 1000}" th:text="${itm.qtyMvt}"></td>
+    <td class="unit" th:if="${itm.stockBefore ge 1000}"
+        th:text="${#numbers.formatInteger(itm.stockBefore,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.stockBefore lt 1000}" th:text="${itm.stockBefore}"></td>
+
+
+    <td class="qty" th:if="${itm.stockAfter ge 1000}"
+        th:text="${#numbers.formatInteger(itm.stockAfter,3,'WHITESPACE')}"></td>
+    <td class="qty" th:if="${itm.stockAfter lt 1000}"
+        th:text="${itm.stockAfter}"></td>
+
+
+  </tr>
+
+  </tbody>
+  <tfoot th:if="${isLastPage}">
+  <tr>
+
+    <td class="total-item" colspan="6"><span>NOMBRE DE PRODUITS <span
+      class="total item-size"
+      th:text="${'( '+ item_size}+' )'"></span></span>
+    </td>
+  </tr>
+  </tfoot>
+</table>
+<section th:if="${isLastPage}" th:replace="~{ajustement/table-footer}">
+
+
+</section>

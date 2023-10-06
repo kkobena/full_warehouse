@@ -13,7 +13,6 @@ import { Ajust, IAjust } from '../../shared/model/ajust.model';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { saveAs } from 'file-saver';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { ErrorService } from '../../shared/error.service';
 import { FinalyseComponent } from './finalyse/finalyse.component';
@@ -93,10 +92,6 @@ export class AjustementDetailComponent implements OnInit {
     });
   }
 
-  exportPdf(): void {
-    this.ajustementService.exportToPdf(this.ajustement?.id!).subscribe(blod => saveAs(blod));
-  }
-
   confirmDeleteItem(item: IAjustement): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer cette ligne ?',
@@ -107,6 +102,16 @@ export class AjustementDetailComponent implements OnInit {
         this.focusPrdoduitBox();
       },
       key: 'deleteItem',
+    });
+  }
+
+  showWarningMessage(): void {
+    this.confirmationService.confirm({
+      message: ' Vous devez selectionner le motif',
+      header: 'MOTIF AJUSTEMENT  ',
+      icon: 'pi pi-times-circle',
+      reject: () => {},
+      key: 'warningMessage',
     });
   }
 
@@ -136,10 +141,14 @@ export class AjustementDetailComponent implements OnInit {
 
   protected onAddItem(qytMvt: number): void {
     if (this.produitSelected) {
-      if (this.ajustement && this.ajustement.id !== undefined) {
-        this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
+      if (!this.motifSelected) {
+        this.showWarningMessage();
       } else {
-        this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
+        if (this.ajustement && this.ajustement.id !== undefined) {
+          this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
+        } else {
+          this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
+        }
       }
     }
   }
@@ -322,6 +331,7 @@ export class AjustementDetailComponent implements OnInit {
       produitId: produit.id,
       qtyMvt: quantity,
       ajustId: this.ajustement?.id,
+      motifAjustementId: this.motifSelected?.id,
     };
   }
 

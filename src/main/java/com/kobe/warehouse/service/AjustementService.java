@@ -33,7 +33,7 @@ import org.springframework.util.StringUtils;
 /** Service Implementation for managing {@link Ajustement}. */
 @Service
 @Transactional
-public class AjustementService {
+public class AjustementService extends FileResourceService {
 
   private final Logger log = LoggerFactory.getLogger(AjustementService.class);
 
@@ -45,6 +45,7 @@ public class AjustementService {
   private final StockProduitRepository stockProduitRepository;
   private final WarehouseCalendarService warehouseCalendarService;
   private final LogsService logsService;
+
   private final BiPredicate<Ajustement, String> searchPredicate =
       (ajustement, s) -> {
         Produit produit = ajustement.getProduit();

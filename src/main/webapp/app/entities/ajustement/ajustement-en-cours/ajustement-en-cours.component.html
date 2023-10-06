@@ -1,20 +1,33 @@
 <div *ngIf="rowData?.length === 0" class="alert alert-warning" id="no-result">
   <span jhiTranslate="warehouseApp.ajustement.home.notFound">No ajustements found</span>
 </div>
+<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="delete">
+  <p-footer>
+    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
 <p-table *ngIf="rowData?.length >0" [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
          [rows]="itemsPerPage"
          [value]="rowData"
          dataKey="id"
          styleClass="p-datatable-gridlines ">
   <ng-template pTemplate="header">
-    <th style="width:3%"></th>
-    <th>Opérateur</th>
-    <th>Date opération</th>
-    <th>Nombre de produits</th>
-    <th><span>Commentaire</span>
-    <th><span>Magasin de stockage</span>
-    </th>
-
+    <tr>
+      <th style="width:3%"></th>
+      <th>Opérateur</th>
+      <th>Date opération</th>
+      <th>Nombre de produits</th>
+      <th><span>Commentaire</span>
+      <th><span>Magasin de stockage</span>
+      <th style="width:8%">
+      </th>
+    </tr>
   </ng-template>
   <ng-template let-ajust let-expanded="expanded" pTemplate="body">
     <tr>
@@ -30,7 +43,24 @@
       <td class="text-right">{{ ajust.ajustements.length }}</td>
       <td>{{ ajust.commentaire }}</td>
       <td>{{ ajust.storageLibelle }}</td>
+      <td class="text-right">
+        <div class="btn-group">
 
+          <button
+            [routerLink]="['/ajustement', ajust.id, 'edit']"
+            class="p-button-rounded p-button-success p-button-sm"
+            icon="pi pi-pencil" pButton
+            pRipple pTooltip="Editer">
+          </button>
+          <button (click)="confirmDelete(ajust)"
+                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
+                  icon="pi pi-trash"
+                  pButton pRipple
+                  pTooltip="Supprimer"
+                  type="submit"></button>
+
+        </div>
+      </td>
     </tr>
   </ng-template>
   <ng-template let-elRow pTemplate="rowexpansion">
@@ -50,6 +80,7 @@
                   <th>Stock avant</th>
                   <th>Stock final</th>
                   <th>Motif</th>
+
                 </tr>
               </ng-template>
               <ng-template let-ajustement let-rowIndex="rowIndex" pTemplate="body">

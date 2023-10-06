@@ -9,14 +9,20 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.enumeration.AjustementStatut;
+import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
+import com.kobe.warehouse.service.report.AjustementReportService;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -28,6 +34,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +44,13 @@ import org.springframework.util.StringUtils;
 
 @Repository
 @Transactional(readOnly = true)
-public class CustomizedAjustRepository implements AjustService {
+public class CustomizedAjustRepository extends FileResourceService implements AjustService {
+  private final AjustementReportService ajustementReportService;
   @PersistenceContext private EntityManager em;
+
+  public CustomizedAjustRepository(AjustementReportService ajustementReportService) {
+    this.ajustementReportService = ajustementReportService;
+  }
 
   @Override
   public Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
@@ -119,5 +131,25 @@ public class CustomizedAjustRepository implements AjustService {
             java.sql.Date.valueOf(ajustementFilterRecord.toDate())));
 
     return predicates;
+  }
+
+  private Ajust findbyId(Long id) {
+    return this.em.find(Ajust.class, id);
+  }
+
+  public Resource exportToPdf(Long id) throws IOException {
+    return this.getResource(this.ajustementReportService.print(findbyId(id)));
+  }
+
+  public Optional<AjustDTO> getOneById(Long id) {
+    Ajust ajust = findbyId(id);
+    if (ajust.getStatut() == AjustementStatut.CLOSED) return Optional.empty();
+    return Optional.of(
+        new AjustDTO(ajust)
+            .setAjustements(
+                ajust.getAjustements().stream()
+                    .map(AjustementDTO::new)
+                    .sorted(Comparator.comparing(AjustementDTO::getCodeCip))
+                    .collect(Collectors.toList())));
   }
 }

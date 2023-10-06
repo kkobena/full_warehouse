@@ -10,6 +10,9 @@ import { AjustementService } from '../ajustement.service';
 import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import moment from 'moment';
+import { IDelivery } from '../../../shared/model/delevery.model';
+import { saveAs } from 'file-saver';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-list-ajustement',
@@ -34,7 +37,8 @@ export class ListAjustementComponent implements OnInit {
     protected userService: UserService,
     public translate: TranslateService,
     protected ajustementService: AjustementService,
-    protected router: Router
+    protected router: Router,
+    private spinner: NgxSpinnerService
   ) {}
 
   ngOnInit(): void {
@@ -51,6 +55,17 @@ export class ListAjustementComponent implements OnInit {
 
   onSearch(): void {
     this.loadPage();
+  }
+
+  exportPdf(delivery: IDelivery): void {
+    this.spinner.show();
+    this.ajustementService.exportToPdf(delivery.id).subscribe({
+      next: blod => {
+        this.spinner.hide();
+        saveAs(blod);
+      },
+      error: () => this.spinner.hide(),
+    });
   }
 
   protected onSuccess(data: IAjust[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {

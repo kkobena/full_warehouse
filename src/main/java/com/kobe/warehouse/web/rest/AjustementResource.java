@@ -5,12 +5,15 @@ import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}. */
 @RestController
@@ -47,10 +51,11 @@ public class AjustementResource {
 
   @GetMapping("/ajustements")
   public List<AjustementDTO> getAllAjustements(
-      @RequestParam( name = "ajustementId") Long id, @RequestParam( required = false, name = "search") String search) {
+      @RequestParam(name = "ajustementId") Long id,
+      @RequestParam(required = false, name = "search") String search) {
     log.debug("REST request to get all Ajustements");
 
-    return ajustementService.findAll(id,search).stream()
+    return ajustementService.findAll(id, search).stream()
         .map(AjustementDTO::new)
         .collect(Collectors.toList());
   }
@@ -62,8 +67,7 @@ public class AjustementResource {
   }
 
   @PutMapping("/ajustements/item")
-  public ResponseEntity<AjustementDTO> update(
-      @Valid @RequestBody AjustementDTO ajustementDTO) {
+  public ResponseEntity<AjustementDTO> update(@Valid @RequestBody AjustementDTO ajustementDTO) {
     log.debug("REST request to save ajustementDTO : {}", ajustementDTO);
     ajustementDTO = ajustementService.update(ajustementDTO);
     return ResponseEntity.ok().body(ajustementDTO);
@@ -109,9 +113,21 @@ public class AjustementResource {
     return ResponseEntity.ok().build();
   }
 
-    @PutMapping("/ajustements/delete/items")
-    public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
-        ajustementService.deleteAll(ids);
-        return ResponseEntity.ok().build();
-    }
+  @PutMapping("/ajustements/delete/items")
+  public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
+    ajustementService.deleteAll(ids);
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/ajustements/pdf/{id}")
+  public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request)
+      throws IOException {
+    final Resource resource = this.ajustService.exportToPdf(id);
+    return Utils.printPDF(resource, request);
+  }
+
+  @GetMapping("/ajustements/{id}")
+  public ResponseEntity<AjustDTO> getOne(@PathVariable Long id) {
+    return ResponseUtil.wrapOrNotFound(ajustService.getOneById(id));
+  }
 }

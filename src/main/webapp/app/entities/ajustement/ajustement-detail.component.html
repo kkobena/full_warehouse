@@ -18,6 +18,20 @@
   </p-footer>
 
 </p-confirmDialog>
+
+<p-confirmDialog #warningMessage [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="warningMessage">
+  <p-footer>
+    <button (click)="warningMessage.reject()" class="p-button-secondary" icon="pi pi-times"
+            label="Fermer"
+            pButton
+            type="button"></button>
+
+  </p-footer>
+
+</p-confirmDialog>
+
+
 <div class="ajustement">
   <div class=" master">
     <p-toolbar>
@@ -104,6 +118,7 @@
 
         </div>
 
+
       </ng-template>
       <div>
 
@@ -128,11 +143,7 @@
             pRipple
             type="button">  <fa-icon
       icon="lock"></fa-icon>&nbsp;<span>Cloturer</span></button>
-                  <button (click)="exportPdf()" *ngIf="ajustement"
-                          class="p-button-warning p-button-raised" pButton
-                          pRipple
-                          type="button">  <fa-icon
-                    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+
                     <button (click)="confirmDeleteItems()" *ngIf="selectedEl!.length>0"
                             class="p-button-raised p-button-danger" pButton
                             pRipple

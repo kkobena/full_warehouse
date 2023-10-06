@@ -10,10 +10,13 @@ import { AjustementService } from '../ajustement.service';
 import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import moment from 'moment/moment';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'jhi-ajustement-en-cours',
   templateUrl: './ajustement-en-cours.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {
   @Input() search: string;
@@ -34,6 +37,7 @@ export class AjustementEnCoursComponent implements OnInit {
     protected userService: UserService,
     public translate: TranslateService,
     protected ajustementService: AjustementService,
+    private confirmationService: ConfirmationService,
     protected router: Router
   ) {}
 
@@ -51,6 +55,27 @@ export class AjustementEnCoursComponent implements OnInit {
 
   onSearch(): void {
     this.loadPage();
+  }
+
+  confirmDelete(ajust: IAjust): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer cette ligne  ?',
+      header: ' SUPPRESSION',
+      icon: 'pi pi-info-circle',
+      accept: () => this.delete(ajust?.id),
+      key: 'delete',
+    });
+  }
+
+  delete(id: number): void {
+    this.ajustementService.delete(id).subscribe({
+      next: () => {
+        this.loadPage();
+      },
+      error: () => {
+        this.onError();
+      },
+    });
   }
 
   protected onSuccess(data: IAjust[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {

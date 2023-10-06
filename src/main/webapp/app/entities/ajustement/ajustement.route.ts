@@ -54,4 +54,16 @@ export const ajustementRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
+  {
+    path: ':id/edit',
+    component: AjustementDetailComponent,
+    resolve: {
+      ajustement: AjustementResolve,
+    },
+    data: {
+      authorities: [Authority.USER],
+      pageTitle: 'warehouseApp.ajustement.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
 ];

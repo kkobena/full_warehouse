@@ -11,14 +11,13 @@ import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
+import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.report.DeliveryReceiptReportService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +31,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +38,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
-public class StockEntryDataServiceImpl implements StockEntryDataService {
+public class StockEntryDataServiceImpl extends FileResourceService
+    implements StockEntryDataService {
 
   private final EntityManager em;
   private final DeliveryReceiptRepository deliveryReceiptRepository;
@@ -94,7 +93,8 @@ public class StockEntryDataServiceImpl implements StockEntryDataService {
 
   @Override
   public Resource exportToPdf(Long id) throws IOException {
-    return getResource(receiptReportService.print(deliveryReceiptRepository.getReferenceById(id)));
+    return this.getResource(
+        receiptReportService.print(deliveryReceiptRepository.getReferenceById(id)));
   }
 
   private long receiptCount(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO) {
@@ -253,9 +253,5 @@ public class StockEntryDataServiceImpl implements StockEntryDataService {
   public Resource printEtiquette(Long id, int startAt) throws IOException {
     return this.receiptReportService.printEtiquettes(
         this.deliveryReceiptItemRepository.findAllByDeliveryReceiptId(id), startAt);
-  }
-
-  private Resource getResource(String path) throws MalformedURLException {
-    return new UrlResource(Paths.get(path).toUri());
   }
 }

@@ -130,14 +130,10 @@ public class Produit implements Serializable {
   @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
   private Integer prixMnp = 0;
 
-
-
-
   @Getter
   @NotNull
   @Column(name = "deconditionnable", nullable = false)
   private Boolean deconditionnable;
-
 
   @Getter
   @NotAudited
@@ -255,14 +251,12 @@ public class Produit implements Serializable {
   @Column(columnDefinition = "json", name = "daily_stock_json")
   private Set<DailyStock> dailyStocks = new HashSet<>();
 
-  @Getter
-  @ManyToOne private Tableau tableau;
+  @Getter @ManyToOne private Tableau tableau;
 
   @Getter
   @Min(value = 0)
   @Column(name = "cmu_amount")
   private Integer cmuAmount;
-
 
   /*
     public List<ParcoursProduit> getParcoursProduits() {
@@ -444,24 +438,11 @@ public class Produit implements Serializable {
     return this;
   }
 
-
-
-
-
-
-
-
-
-
-
   public Produit addProduit(Produit produit) {
     produits.add(produit);
     produit.setParent(this);
     return this;
   }
-
-
-
 
   public void setParent(Produit parent) {
     this.parent = parent;

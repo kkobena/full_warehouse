@@ -62,6 +62,7 @@ import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../sh
 export class CommandeUpdateComponent implements OnInit {
   isSaving = false;
   produits: IProduit[] = [];
+
   commande?: ICommande | null = null;
   orderLines: IOrderLine[] = [];
   searchValue?: string;

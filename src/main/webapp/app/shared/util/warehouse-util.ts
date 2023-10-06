@@ -4,10 +4,12 @@ import { DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-export const formatNumberToString = (number: any): string => {
-  return Math.floor(number.value)
-    .toString()
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+export const formatNumberToString = (cellValue: any): string => {
+  if (cellValue?.value !== null && cellValue?.value !== undefined)
+    return Math.floor(cellValue.value)
+      .toString()
+      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+  return null;
 };
 export const checkIfAlineToBeUpdated = (orderLine: IOrderLine): boolean => {
   return (

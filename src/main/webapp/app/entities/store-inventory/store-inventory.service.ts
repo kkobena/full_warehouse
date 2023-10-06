@@ -6,7 +6,7 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
-import { IStoreInventory } from 'app/shared/model/store-inventory.model';
+import { IStoreInventory, ItemsCountRecord } from 'app/shared/model/store-inventory.model';
 import { ICategorie } from '../../shared/model/categorie.model';
 
 type EntityResponseType = HttpResponse<IStoreInventory>;
@@ -47,8 +47,8 @@ export class StoreInventoryService {
     return this.http.get<{}>(`${this.resourceUrl}/init`, { observe: 'response' });
   }
 
-  close(id: number): Observable<HttpResponse<{}>> {
-    return this.http.get<{}>(`${this.resourceUrl}/close/${id}`, { observe: 'response' });
+  close(id: number): Observable<HttpResponse<ItemsCountRecord>> {
+    return this.http.get<ItemsCountRecord>(`${this.resourceUrl}/close/${id}`, { observe: 'response' });
   }
 
   exportToPdf(id: number): Observable<Blob> {

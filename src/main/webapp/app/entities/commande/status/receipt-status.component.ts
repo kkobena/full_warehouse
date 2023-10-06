@@ -35,10 +35,5 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
     return 'progress-bar bg-secondary';
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const status = changes.status;
-    if (status) {
-      console.log(status);
-    }
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 }

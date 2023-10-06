@@ -5,7 +5,8 @@
     <jhi-alert-error></jhi-alert-error>
   </p>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler" pButton
             pRipple type="button"></button>
 
   </p-footer>
@@ -18,11 +19,14 @@
             type="button"></button>
   </p-footer>
 </p-confirmDialog>
-<p-confirmDialog #deleteFournisseur [baseZIndex]="10000" [style]="{width: '50vw'}" key="deleteFournisseur">
+<p-confirmDialog #deleteFournisseur [baseZIndex]="10000" [style]="{width: '50vw'}"
+                 key="deleteFournisseur">
   <p-footer>
-    <button (click)="deleteFournisseur.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+    <button (click)="deleteFournisseur.reject()" class="p-button-danger" icon="pi pi-times"
+            label="Non" pButton
             type="button"></button>
-    <button (click)="deleteFournisseur.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    <button (click)="deleteFournisseur.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
   </p-footer>
 
 </p-confirmDialog>
@@ -31,13 +35,15 @@
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
           [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true" accept=".txt,.csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
+                  accept=".txt,.csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler" pButton
             pRipple type="button"></button>
 
   </p-footer>
@@ -46,13 +52,15 @@
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
           [style]="{width: '50vw'}" header="Importer un fichier csv" showEffect="fade">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true" accept=".txt,.csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
+                  accept=".txt,.csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler" pButton
             pRipple type="button"></button>
 
   </p-footer>
@@ -67,21 +75,25 @@
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler" pButton
             pRipple type="button"></button>
   </p-footer>
 </p-dialog>
 <p-dialog [(visible)]="stockFileJsonDialog" [focusOnShow]="false" [modal]="true"
           [responsive]="true"
-          [style]="{width: '50vw'}" header="Mise du stock à partir d'un fichier json" showEffect="fade">
+          [style]="{width: '50vw'}" header="Mise du stock à partir d'un fichier json"
+          showEffect="fade">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true" accept=".txt,.csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
+                  accept=".txt,.csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="stockjson" uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler" pButton
             pRipple type="button"></button>
 
   </p-footer>
@@ -92,7 +104,8 @@
           [style]="{width: '500px'}"
           header="Message" showEffect="fade">
   <div class="ui-g form-group">
-    <p>Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px;"> {{responsedto?.size}}
+    <p>Le nombre de lignes insérées <span
+      style="font-weight: 900; margin-left: 10px;"> {{responsedto?.size}}
       /{{responsedto?.totalSize}}</span>
     </p>
   </div>
@@ -113,7 +126,8 @@
 
         <div class="col">
           <p-dropdown (onChange)="filtreRayon($event)" [(ngModel)]="selectedRayon" [filter]="true"
-                      [options]="rayons" placeholder="Séléctionner un rayon " styleClass="dropdown-width">
+                      [options]="rayons" placeholder="Séléctionner un rayon "
+                      styleClass="dropdown-width">
           </p-dropdown>
 
         </div>
@@ -126,7 +140,8 @@
         <div class="col">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher"
+                                <input (keyup.enter)="onSearch($event)" pInputText
+                                       placeholder="Taper pour rechercher"
                                        type="text">
                             </span>
         </div>
@@ -137,7 +152,8 @@
     <div class="p-toolbar-group-right">
       <p-splitButton [model]="splitbuttons" icon="pi pi-upload" label="Importation"
                      styleClass="p-button-raised p-button-help mr-2 mb-2"></p-splitButton>
-      <button [routerLink]="['/produit/new']" class="p-button-raised  mb-2 p-button-success " pButton
+      <button [routerLink]="['/produit/new']" class="p-button-raised  mb-2 p-button-success "
+              pButton
               pRipple type="button">
         <i class="pi pi-plus"></i>
         <span jhiTranslate="warehouseApp.produit.home.createLabel">
@@ -150,7 +166,8 @@
     <span jhiTranslate="warehouseApp.produit.home.notFound">No produits found</span>
   </div>
   <hr>
-  <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id" styleClass="p-datatable-gridlines ">
+  <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id"
+           styleClass="p-datatable-gridlines ">
     <ng-template pTemplate="header">
       <tr>
         <th style="width:3%"></th>
@@ -165,7 +182,8 @@
         <th style="text-align:right;width:8%"><span
           jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span>
         </th>
-        <th style="text-align:right;width:8%"><span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
+        <th style="text-align:right;width:8%"><span
+          jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
 
         </th>
         <th style="text-align:right;width:6%">Qté.Reap</th>
@@ -177,7 +195,8 @@
     <ng-template let-expanded="expanded" let-produit pTemplate="body">
       <tr>
         <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="produit"
+          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="produit"
                   class="p-button-text p-button-rounded p-button-plain" pButton
                   pRipple
                   type="button"></button>
@@ -199,25 +218,29 @@
 
             </button>
 
-            <button *ngIf="produit.typeProduit==='PACKAGE'" [routerLink]="['/produit', produit.id, 'edit']"
+            <button *ngIf="produit.typeProduit==='PACKAGE'"
+                    [routerLink]="['/produit', produit.id, 'edit']"
                     class="btn btn-primary btn-sm"
                     data-placement="left" data-toggle="tooltip" title="Tooltip on bottom"
                     type="submit">
               <fa-icon icon="pencil-alt"></fa-icon>
 
             </button>
-            <button (click)="editDetail(produit)" *ngIf="produit.typeProduit==='DETAIL'" class="btn btn-primary btn-sm"
+            <button (click)="editDetail(produit)" *ngIf="produit.typeProduit==='DETAIL'"
+                    class="btn btn-primary btn-sm"
                     data-placement="left" data-toggle="tooltip" title="Tooltip on bottom"
                     type="submit">
               <fa-icon icon="pencil-alt"></fa-icon>
 
             </button>
-            <button (click)="addDetail(produit)" *ngIf="produit.deconditionnable && produit.produits?.length==0"
+            <button (click)="addDetail(produit)"
+                    *ngIf="produit.deconditionnable && produit.produits?.length==0"
                     class="btn btn-warning btn-sm"
                     type="submit">
               <fa-icon [icon]="faPlusCircle"></fa-icon>
             </button>
-            <button (click)="decondition(produit)" *ngIf="produit.deconditionnable" class="btn btn-secondary btn-sm"
+            <button (click)="decondition(produit)" *ngIf="produit.deconditionnable"
+                    class="btn btn-secondary btn-sm"
                     type="button">
               <fa-icon [icon]="faCut"></fa-icon>
             </button>
@@ -282,7 +305,8 @@
                       <td class="firstColumn">
                         Date dernière inventaire
                       </td>
-                      <td class="secondColumn">{{elRow?.lastInventoryDate |date:'dd/MM/yyyy HH:mm' }}
+                      <td
+                        class="secondColumn">{{elRow?.lastInventoryDate |date:'dd/MM/yyyy HH:mm' }}
                       </td>
 
                     </tr>
@@ -357,7 +381,8 @@
                       <td>{{rayon.libelleRayon}}</td>
                       <td *ngIf="!isMono">{{rayon.libelleStorage}}</td>
                       <td *ngIf="!isMono">
-                        <button class="p-button-rounded p-button-danger p-button-sm  p-mb-3" icon="pi pi-trash" pButton
+                        <button class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
+                                icon="pi pi-trash" pButton
                                 pRipple
                                 pTooltip="Supprimer"></button>
                       </td>
@@ -391,7 +416,8 @@
                       <td>{{stock.storageName}}</td>
                       <td>{{stock.qtyStock | number}}</td>
                       <td style="text-align: right;">
-                        <button class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil" pButton
+                        <button class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil"
+                                pButton
                                 pRipple
                         ></button>
                         <button class="p-button-rounded p-button-danger" icon="pi pi-trash" pButton
@@ -441,7 +467,8 @@
                                 pTooltip="Editer"></button>
 
                         <button (click)="confirmDeleteProduitFournisseur(four,elRow)"
-                                class="p-button-rounded p-button-danger p-button-sm  p-mb-3" icon="pi pi-trash"
+                                class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
+                                icon="pi pi-trash"
                                 pButton
                                 pRipple
                                 pTooltip="Supprimer"></button>
@@ -464,12 +491,10 @@
 
   <div *ngIf="produits && produits.length > 0" class="mt-2">
 
-    <div class="d-flex justify-content-center">
-      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
-    </div>
 
     <div class="d-flex justify-content-center">
-      <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage" [boundaryLinks]="true"
+      <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage"
+                      [boundaryLinks]="true"
                       [collectionSize]="totalItems" [maxSize]="5" [pageSize]="itemsPerPage"
                       [rotate]="true"></ngb-pagination>
     </div>

@@ -11,4 +11,6 @@ public record StoreInventoryLineRecord(
     Integer gap,
     Integer quantityOnHand,
     int quantityInit,
-    boolean updated ,Integer prixAchat,Integer prixUni/*, LocalDateTime updatedAt*/) {}
+    boolean updated,
+    Integer prixAchat,
+    Integer prixUni) {}

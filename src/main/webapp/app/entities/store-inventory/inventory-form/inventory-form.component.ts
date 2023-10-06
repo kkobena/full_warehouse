@@ -17,6 +17,7 @@ import { Storage } from '../../storage/storage.model';
 import { RayonService } from '../../rayon/rayon.service';
 import { IRayon, Rayon } from '../../../shared/model/rayon.model';
 import { APPEND_TO } from '../../../shared/constants/pagination.constants';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-init-inventory',
@@ -39,7 +40,8 @@ export class InventoryFormComponent implements OnInit {
     private messageService: MessageService,
     private storeInventoryService: StoreInventoryService,
     private storageService: StorageService,
-    private rayonService: RayonService
+    private rayonService: RayonService,
+    private spinner: NgxSpinnerService
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +61,7 @@ export class InventoryFormComponent implements OnInit {
   protected save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();
-
+    this.spinner.show();
     if (entity.id) {
       this.subscribeToSaveResponse(this.storeInventoryService.update(entity));
     } else {
@@ -71,6 +73,7 @@ export class InventoryFormComponent implements OnInit {
     result.subscribe({
       next: (res: HttpResponse<IStoreInventory>) => this.onSaveSuccess(res.body),
       error: () => this.onSaveError(),
+      complete: () => this.spinner.hide(),
     });
   }
 
@@ -109,6 +112,7 @@ export class InventoryFormComponent implements OnInit {
   }
 
   private onSaveError(): void {
+    this.spinner.hide();
     this.isSaving = false;
     this.messageService.add({
       severity: 'error',
@@ -118,6 +122,7 @@ export class InventoryFormComponent implements OnInit {
   }
 
   private onSaveSuccess(response: IStoreInventory | null): void {
+    this.spinner.hide();
     this.ref.close(response);
   }
 

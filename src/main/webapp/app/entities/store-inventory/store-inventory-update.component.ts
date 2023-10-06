@@ -2,24 +2,25 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { IStoreInventory } from 'app/shared/model/store-inventory.model';
+import { IStoreInventory, ItemsCountRecord } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
 
 import { StoreInventoryLineService } from '../store-inventory-line/store-inventory-line.service';
-import { APPEND_TO, ITEMS_PER_PAGE, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH } from '../../shared/constants/pagination.constants';
+import { APPEND_TO, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH } from '../../shared/constants/pagination.constants';
 import { RayonService } from '../rayon/rayon.service';
 import { IRayon } from '../../shared/model/rayon.model';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Storage } from '../storage/storage.model';
 import { StorageService } from '../storage/storage.service';
 import { IStoreInventoryLine } from '../../shared/model/store-inventory-line.model';
-import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Table } from 'primeng/table';
-import { EditableColumn } from 'primeng/table/table';
+import { AgGridAngular } from 'ag-grid-angular';
+import { GridApi, GridReadyEvent } from 'ag-grid-community';
+import { formatNumberToString } from '../../shared/util/warehouse-util';
+import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -27,9 +28,10 @@ import { EditableColumn } from 'primeng/table/table';
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
-  isSaving = false;
-  @ViewChild('editTable') productGrid: Table;
-
+  @ViewChild('itemsGrid') productGrid!: AgGridAngular;
+  protected isSaving = false;
+  protected defaultColDef: any;
+  protected context: any;
   protected storages: Storage[];
   protected rayons: IRayon[] = [];
   protected storeInventoryLines?: IStoreInventoryLine[] = [];
@@ -50,15 +52,16 @@ export class StoreInventoryUpdateComponent implements OnInit {
     { name: 'GAP_POSITIF', label: 'Ecart positif' },
     { name: 'GAP_NEGATIF', label: 'Ecart négatif' },
   ];
+
   protected selectedfiltres: any | null;
-  protected showStock: boolean = true;
   protected page = 0;
   protected loading!: boolean;
-  protected itemsPerPage = 20;
-  protected editRowIndex: number;
-  protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
-  protected moveToNext: boolean = false;
-  protected openCurrentCell: boolean = false;
+  protected itemsPerPage = 10;
+  protected gridApi!: GridApi;
+  protected search?: string;
+  protected ngbPaginationPage = 1;
+  protected showStock: boolean = true;
+  protected readonly showFilterCombox: boolean = true;
 
   constructor(
     protected storeInventoryService: StoreInventoryService,
@@ -68,33 +71,68 @@ export class StoreInventoryUpdateComponent implements OnInit {
     private storageService: StorageService,
     protected modalService: NgbModal,
     private errorService: ErrorService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) {
     this.columnDefs = [
       {
+        headerName: 'Cip',
+        field: 'produitCip',
+        sortable: false,
+        flex: 0.4,
+      },
+      {
         headerName: 'Libellé',
         field: 'produitLibelle',
-        sortable: true,
-        filter: 'agTextColumnFilter',
+        sortable: false,
         minWidth: 300,
         flex: 1.2,
       },
+
       {
-        headerName: 'Quantité inventoriée',
+        headerName: 'Quantité',
         flex: 0.5,
         field: 'quantityOnHand',
         editable: true,
         type: ['rightAligned', 'numericColumn'],
+        valueFormatter: formatNumberToString,
         cellStyle: this.stockOnHandcellStyle,
+      },
+      /*  {
+          field: 'updated',
+          cellRenderer: 'statusInvCellRenderer',
+          flex: 0.4,
+          hide: true,
+          suppressToolPanel: false,
+        },*/
+      {
+        headerName: 'Stock',
+        hide: !this.showStock,
+        field: 'quantityInit',
+        type: ['rightAligned', 'numericColumn'],
+        valueFormatter: formatNumberToString,
+        //  cellStyle: this.cellStyle,
+        flex: 0.3,
       },
       {
         headerName: 'Ecart',
-        flex: 0.5,
+        field: 'gap',
+        flex: 0.2,
         type: ['rightAligned', 'numericColumn'],
-
+        valueFormatter: formatNumberToString,
         cellStyle: this.cellClass,
       },
     ];
+    this.defaultColDef = {
+      // flex: 1,
+      // cellClass: 'align-right',
+      enableCellChangeFlash: true,
+    };
+    /* this.frameworkComponents = {
+       statusInvCellRenderer: InventoryStatusComponent,
+     };*/
+    this.context = { componentParent: this };
   }
 
   ngOnInit(): void {
@@ -102,6 +140,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
       this.storeInventory = storeInventory;
       if (this.storeInventory) {
         this.loadStorage();
+        this.onSearch();
       }
     });
   }
@@ -110,60 +149,71 @@ export class StoreInventoryUpdateComponent implements OnInit {
     window.history.back();
   }
 
+  onGridReady(params: GridReadyEvent): void {
+    this.gridApi = params.api;
+  }
+
   onSelect(): void {
-    this.onSearch();
+    this.loadPage(0);
   }
 
-  save(): void {
-    this.isSaving = true;
+  confirmClose(): void {
+    this.confirmationService.confirm({
+      message: "Voullez-vous clôturer l'inventaire ?",
+      header: ' CLOTURE',
+      icon: 'pi pi-info-circle',
+      accept: () => this.close(),
+      key: 'saveAll',
+    });
+  }
+
+  close(): void {
     if (this.storeInventory && this.storeInventory.id != null) {
-      this.subscribeToSaveResponse(this.storeInventoryService.close(this.storeInventory.id));
-    }
-  }
+      this.isSaving = true;
+      this.spinner.show();
+      this.storeInventoryService.close(this.storeInventory.id).subscribe({
+        next: (res: HttpResponse<ItemsCountRecord>) => {
+          this.spinner.hide();
 
-  onFilterTextBoxChanged(event: any): void {
-    this.searchValue = event.target.value;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Nombre de produits de l'inventaire ${res.body.count}`,
+          });
+          this.isSaving = false;
+          setTimeout(() => {
+            this.previousState();
+          }, 10000);
+        },
+        error: error => {
+          this.onCloseError(error);
+          this.spinner.hide();
+        },
+      });
+    }
   }
 
   onCellValueChanged(params: any): void {
-    this.subscribeToLineResponse(
-      this.storeInventoryLineService.update({
-        id: params.data.id,
-        quantityOnHand: params.value,
-        storeInventoryId: this.storeInventory?.id,
-      })
-    );
+    const item: IStoreInventoryLine = params.data as IStoreInventoryLine;
+    if (!this.isCharNumeric(params.newValue)) {
+      this.editCurrentCell(params);
+    } else {
+      item.storeInventoryId = this.storeInventory.id;
+      this.subscribeToSaveItemResponse(params, this.storeInventoryLineService.update(item));
+    }
   }
 
-  cellClass(item: IStoreInventoryLine): any {
+  cellClass(params: any): any {
+    const item: IStoreInventoryLine = params.data as IStoreInventoryLine;
     if (item.updated) {
-      return item.gap >= 0 ? { backgroundColor: 'lightgreen' } : { backgroundColor: 'lightcoral' };
+      return item.gap >= 0 ? { 'background-color': 'lightgreen' } : { 'background-color': 'lightcoral' };
     }
-    return;
-  }
-
-  getGap(item: IStoreInventoryLine): number {
-    if (item.updated) {
-      return item.quantityOnHand - item.quantityInit;
-    }
-    return undefined;
   }
 
   stockOnHandcellStyle(params: any): any {
     if (params.data.updated) {
       return { backgroundColor: '#c6c6c6' };
     }
-    return;
-  }
-
-  itemTableColor(item: IStoreInventoryLine): string {
-    if (!item.updated) {
-      return 'bg-warning';
-    } else if (item.quantityInit > item.quantityOnHand) {
-      return 'bg-danger';
-    } else if (item.quantityInit <= item.quantityOnHand) {
-      return 'bg-success';
-    } else return '';
   }
 
   searchFn(event: any): void {
@@ -185,56 +235,12 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.onSearch();
   }
 
-  onEditComplete(evt: any): void {
-    //   console.log(evt);
-  }
-
-  onEditCancel(evt: any): void {
-    console.log(evt, 'onedit');
-  }
-
-  //(keydown.enter)="onUpdateQuantity(item,$event,rowIndex,editTable)"
-  onUpdateQuantity(item: IStoreInventoryLine, event: any, rowIndex: number, editTable: any): void {
-    const editableColumn = editTable.editableColumn as EditableColumn;
-
-    if (event.key === 'Enter') {
-      const oldQuantityOnHand = item.quantityOnHand;
-
-      const newQuantity = Number(event.target.value);
-
-      if (newQuantity !== undefined && newQuantity !== null) {
-        item.quantityOnHand = newQuantity;
-        item.storeInventoryId = this.storeInventory.id;
-        this.subscribeToSaveItemResponse(oldQuantityOnHand, item, this.storeInventoryLineService.update(item));
-      }
-    }
-  }
-
-  lazyLoading(event: LazyLoadEvent): void {
-    if (event) {
-      this.page = event.first! / event.rows!;
-      this.loading = true;
-      this.storeInventoryLineService
-        .query({
-          page: this.page,
-          size: event.rows,
-          ...this.buildQuery(),
-        })
-        .subscribe({
-          next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => {
-            this.loading = false;
-          },
-        });
-    }
-  }
-
   loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
+    const pageToLoad: number = page || this.page || 1;
     this.loading = true;
     this.storeInventoryLineService
       .query({
-        page: pageToLoad,
+        page: pageToLoad - 1,
         size: this.itemsPerPage,
         ...this.buildQuery(),
       })
@@ -247,11 +253,21 @@ export class StoreInventoryUpdateComponent implements OnInit {
       });
   }
 
+  protected editCurrentCell(params: any): void {
+    this.gridApi.stopEditing(true);
+    params.data.quantityOnHand = params.oldValue;
+    this.gridApi.startEditingCell({
+      rowIndex: params.rowIndex,
+      colKey: 'quantityOnHand',
+    });
+  }
+
   protected onSuccess(data: IStoreInventoryLine[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
     this.storeInventoryLines = data || [];
     this.loading = false;
+    this.ngbPaginationPage = this.page;
   }
 
   protected onSearch(): void {
@@ -264,7 +280,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   }
 
   protected onSelectStrorage(evt: any): void {
-    this.onSearch();
+    this.loadPage(0);
     this.loadRayons(null, evt.value.id);
   }
 
@@ -284,43 +300,54 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.isSaving = false;
   }
 
-  protected subscribeToLineResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IStoreInventory>) => this.onSaveLineSuccess(res.body),
-      error: () => this.onSaveError(),
-    });
-  }
-
   protected onLoadRayonSuccess(rayons: IRayon[] | null): void {
     this.rayons = rayons || [];
   }
 
-  protected onSaveLineSuccess(storeInventory: IStoreInventory | null): void {
-    if (storeInventory) {
-      this.storeInventory = storeInventory;
-      this.storeInventoryLines = this.storeInventory.storeInventoryLines;
-    }
-  }
-
-  protected onLoadItems(data: IStoreInventoryLine[] | null): void {
-    this.storeInventoryLines = data || [];
-  }
-
-  protected onUpadateIem(oldItem: IStoreInventoryLine, storeInventoryLine: IStoreInventoryLine): void {
+  protected onUpadateIem(params: any, storeInventoryLine: IStoreInventoryLine): void {
     if (storeInventoryLine) {
-      oldItem = storeInventoryLine;
-      this.moveToNext = true;
-      this.openCurrentCell = false;
+      this.goToNextPage(params);
     }
   }
 
-  protected subscribeLoadItemsResponse(result: Observable<HttpResponse<IStoreInventoryLine[]>>): void {
+  protected onSaveItemError(params: any): void {
+    this.editCurrentCell(params);
+  }
+
+  protected goToNextPage(params: any): void {
+    const rowIndex = params.rowIndex;
+
+    if (rowIndex === this.itemsPerPage - 1) {
+      this.loadPage(this.ngbPaginationPage + 1);
+      setTimeout(() => {
+        this.gridApi.startEditingCell({
+          rowIndex: 0,
+          colKey: 'quantityOnHand',
+        });
+      }, 100);
+    } else {
+      this.loadPage(this.ngbPaginationPage);
+    }
+  }
+
+  protected subscribeToSaveItemResponse(params: any, result: Observable<HttpResponse<IStoreInventoryLine>>): void {
     result.subscribe({
-      next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onLoadItems(res.body),
+      next: (res: HttpResponse<IStoreInventoryLine>) => this.onUpadateIem(params, res.body),
+
+      error: () => this.onSaveItemError(params),
     });
   }
 
-  protected onCommonError(error: any): void {
+  private openInfoDialog(message: string, infoClass: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.infoClass = infoClass;
+  }
+
+  private onCloseError(error: any): void {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
@@ -333,39 +360,15 @@ export class StoreInventoryUpdateComponent implements OnInit {
     }
   }
 
-  protected onSaveItemError(error: any, oldQuantityOnHand: number, item: IStoreInventoryLine): void {
-    item.quantityOnHand = oldQuantityOnHand;
-    this.moveToNext = false;
-    this.openCurrentCell = true;
-    console.log(this.openCurrentCell);
-    /*  if (error.error && error.error.status === 500) {
-        this.openInfoDialog('Erreur applicative', 'alert alert-danger');
-      } else {
-        this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-          next: translatedErrorMessage => {
-            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-          },
-          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-        });
-      }*/
-  }
-
-  protected subscribeToSaveItemResponse(
-    oldQuantityOnHand: number,
-    item: IStoreInventoryLine,
-    result: Observable<HttpResponse<IStoreInventoryLine>>
-  ): void {
-    result.subscribe({
-      next: (res: HttpResponse<IStoreInventoryLine>) => this.onUpadateIem(item, res.body),
-      error: (err: any) => this.onSaveItemError(err, oldQuantityOnHand, item),
-    });
+  private isCharNumeric(charStr: string): boolean {
+    return !!/\d/.test(charStr);
   }
 
   private buildQuery(): any {
     return {
       storeInventoryId: this.storeInventory.id,
       search: this.searchValue,
-      storageIds: [this.selectedStorage?.id],
+      storageId: this.selectedStorage?.id,
       rayonId: this.selectedRayon?.id,
       selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
     };
@@ -375,14 +378,5 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.storageService.query().subscribe((res: HttpResponse<Storage[]>) => {
       this.storages = res.body || [];
     });
-  }
-
-  private openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
   }
 }

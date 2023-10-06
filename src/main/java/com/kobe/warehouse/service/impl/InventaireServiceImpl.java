@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
@@ -11,7 +12,7 @@ import com.kobe.warehouse.domain.StoreInventory_;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
-import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
@@ -23,8 +24,11 @@ import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
+import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
+import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
+import com.kobe.warehouse.web.rest.errors.InventoryException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +37,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
@@ -59,8 +62,6 @@ public class InventaireServiceImpl implements InventaireService {
       Comparator.comparing(StoreInventoryLineDTO::getProduitLibelle);
   private final Logger LOG = LoggerFactory.getLogger(InventaireServiceImpl.class);
 
-  private final ProduitRepository produitRepository;
-
   private final UserService userService;
 
   private final StoreInventoryRepository storeInventoryRepository;
@@ -68,71 +69,80 @@ public class InventaireServiceImpl implements InventaireService {
   private final StoreInventoryLineRepository storeInventoryLineRepository;
   private final StorageService storageService;
   private final StockProduitRepository stockProduitRepository;
+  private final RayonRepository rayonRepository;
   @PersistenceContext private EntityManager em;
 
   public InventaireServiceImpl(
-      ProduitRepository produitRepository,
       UserService userService,
       StoreInventoryRepository storeInventoryRepository,
       StoreInventoryLineRepository storeInventoryLineRepository,
       StorageService storageService,
-      StockProduitRepository stockProduitRepository) {
-    this.produitRepository = produitRepository;
+      StockProduitRepository stockProduitRepository,
+      RayonRepository rayonRepository) {
+
     this.userService = userService;
     this.storeInventoryRepository = storeInventoryRepository;
     this.storeInventoryLineRepository = storeInventoryLineRepository;
     this.storageService = storageService;
     this.stockProduitRepository = stockProduitRepository;
+    this.rayonRepository = rayonRepository;
   }
 
   @Override
-  public void close(Long id) {
-    long inventoryValueCostAfter = 0, inventoryAmountAfter = 0;
-    StoreInventory storeInventory = storeInventoryRepository.getReferenceById(id);
+  public ItemsCountRecord close(Long id) throws InventoryException {
 
+    long count =
+        storeInventoryLineRepository.countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(id);
+    if (count > 0) throw new InventoryException();
+    StoreInventory storeInventory = storeInventoryRepository.getReferenceById(id);
     storeInventory.setStatut(InventoryStatut.CLOSED);
     storeInventory.setUpdatedAt(LocalDateTime.now());
-    List<StoreInventoryLine> storeInventoryLines =
-        storeInventoryLineRepository.findAllByStoreInventoryId(id);
-    for (StoreInventoryLine line : storeInventoryLines) {
-      inventoryValueCostAfter += ((long) line.getInventoryValueCost() * line.getQuantityOnHand());
-      inventoryAmountAfter +=
-          ((long) line.getInventoryValueLatestSellingPrice() * line.getQuantityOnHand());
-      Produit produit = line.getProduit();
-      // produit.setQuantity(line.getUpdated() ? line.getQuantityOnHand() : line.getQuantityInit());
-      produitRepository.save(produit);
-    }
-    storeInventory.setInventoryValueCostAfter(inventoryValueCostAfter);
-    storeInventory.setInventoryAmountAfter(inventoryAmountAfter);
+    StoreInventorySummaryRecord storeInventorySummaryRecord = fetchSummary(id);
+    storeInventory.setInventoryAmountBegin(
+        storeInventorySummaryRecord.amountValueBegin().longValue());
+    storeInventory.setInventoryValueCostAfter(
+        storeInventorySummaryRecord.costValueAfter().longValue());
+    storeInventory.setInventoryAmountAfter(
+        storeInventorySummaryRecord.amountValueAfter().longValue());
+    storeInventory.setInventoryValueCostBegin(
+        storeInventorySummaryRecord.costValueBegin().longValue());
+    int itemCount = closeItems(storeInventory.getId());
     storeInventoryRepository.save(storeInventory);
-    storeInventoryLineRepository.saveAll(storeInventoryLines);
+    return new ItemsCountRecord(itemCount);
   }
 
-  private StoreInventoryLine createStoreInventoryLine(StoreInventoryLineDTO storeInventoryLineDTO) {
-    Produit produit = this.produitRepository.getReferenceById(storeInventoryLineDTO.getProduitId());
-    StoreInventory storeInventory =
-        this.storeInventoryRepository.getReferenceById(storeInventoryLineDTO.getStoreInventoryId());
-    StoreInventoryLine storeInventoryLine = new StoreInventoryLine();
-    storeInventoryLine.setProduit(produit);
+  private int closeItems(Long id) {
+    return this.storeInventoryLineRepository.procCloseInventory(id.intValue());
+  }
+
+  private StoreInventorySummaryRecord fetchSummary(Long id) {
+    return StoreInventoryLineFilterBuilder.buildSammary(
+        (Tuple)
+            this.em
+                .createNativeQuery(StoreInventoryLineFilterBuilder.SUMMARY_SQL, Tuple.class)
+                .setParameter(1, id)
+                .getSingleResult());
+  }
+
+  private void updateStoreInventoryLine(
+      StoreInventoryLineDTO storeInventoryLineDTO, StoreInventoryLine storeInventoryLine) {
+    Produit produit = storeInventoryLine.getProduit();
+    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
     storeInventoryLine.setQuantitySold(0);
-    storeInventoryLine.setStoreInventory(storeInventory);
-    storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
-    storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
     storeInventoryLine.setUpdated(true);
-    storeInventoryLine.setInventoryValueCost(storeInventoryLineDTO.getPrixAchat());
-    storeInventoryLine.setInventoryValueLatestSellingPrice(storeInventoryLineDTO.getPrixUni());
+    storeInventoryLine.setUpdatedAt(LocalDateTime.now());
+    storeInventoryLine.setInventoryValueCost(
+        Objects.nonNull(fournisseurProduit)
+            ? fournisseurProduit.getPrixAchat()
+            : produit.getCostAmount());
+    storeInventoryLine.setLastUnitPrice(
+        Objects.nonNull(fournisseurProduit)
+            ? fournisseurProduit.getPrixUni()
+            : produit.getRegularUnitPrice());
+    storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
+    storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
     storeInventoryLine.setGap(
         storeInventoryLine.getQuantityOnHand() - storeInventoryLine.getQuantityInit());
-    return storeInventoryLine;
-  }
-
-  @Transactional(readOnly = true)
-  @Override
-  public List<StoreInventoryLineDTO> storeInventoryList(Long storeInventoryId) {
-    return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream()
-        .map(StoreInventoryLineDTO::new)
-        .sorted(COMPARATOR_LINE)
-        .collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
@@ -179,17 +189,12 @@ public class InventaireServiceImpl implements InventaireService {
   @Override
   public StoreInventoryLineRecord updateQuantityOnHand(
       StoreInventoryLineDTO storeInventoryLineDTO) {
-    StoreInventoryLine storeInventoryLine;
-    if (Objects.isNull(storeInventoryLineDTO.getId())) {
-      storeInventoryLine = createStoreInventoryLine(storeInventoryLineDTO);
-    } else {
-      storeInventoryLine =
-          storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
-      storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
-      storeInventoryLine.setGap(
-          storeInventoryLine.getQuantityOnHand() - storeInventoryLine.getQuantityInit());
-    }
-    storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
+
+    StoreInventoryLine storeInventoryLine =
+        storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
+    updateStoreInventoryLine(storeInventoryLineDTO, storeInventoryLine);
+
+    storeInventoryLine = storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
     return new StoreInventoryLineRecord(
         storeInventoryLineDTO.getProduitId().intValue(),
         storeInventoryLineDTO.getProduitCip(),
@@ -199,9 +204,9 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventoryLine.getGap(),
         storeInventoryLine.getQuantityOnHand(),
         storeInventoryLine.getQuantityInit(),
-        true,
-        storeInventoryLineDTO.getPrixAchat(),
-        storeInventoryLineDTO.getPrixUni());
+        storeInventoryLine.getUpdated(),
+        storeInventoryLine.getInventoryValueCost(),
+        storeInventoryLine.getLastUnitPrice());
   }
 
   @Override
@@ -224,20 +229,37 @@ public class InventaireServiceImpl implements InventaireService {
     storeInventory.setInventoryValueCostAfter(0L);
     if (Objects.isNull(storeInventoryRecord.storage())) {
       storeInventory.setStorage(this.storageService.getDefaultConnectedUserMainStorage());
-    } else {
+    }
+
+    if (storeInventory.getInventoryCategory() == InventoryCategory.RAYON) {
+      Rayon rayon = this.rayonRepository.getReferenceById(storeInventoryRecord.rayon());
+      storeInventory.setRayon(rayon);
+      storeInventory.setStorage(rayon.getStorage());
+    }
+    if (Objects.isNull(storeInventory.getStorage())) {
       storeInventory.setStorage(this.storageService.getOne(storeInventoryRecord.storage()));
     }
-    if (storeInventory.getInventoryCategory() == InventoryCategory.RAYON) {
-      storeInventory.setRayon(rayonFromId(storeInventoryRecord.rayon()));
-    }
-    return new StoreInventoryDTO(this.storeInventoryRepository.saveAndFlush(storeInventory));
+    storeInventory = this.storeInventoryRepository.saveAndFlush(storeInventory);
+    insertItems(storeInventory);
+    return new StoreInventoryDTO(storeInventory);
   }
 
-  private Rayon rayonFromId(Long id) {
-    if (Objects.nonNull(id)) {
-      return new Rayon().id(id);
-    }
-    return null;
+  private String buildInsertQuery(StoreInventory storeInventory) {
+
+    return switch (storeInventory.getInventoryCategory()) {
+      case MAGASIN -> String.format(
+          StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId());
+      case RAYON -> String.format(
+              StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId())
+          + String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
+      case STORAGE -> String.format(
+              StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId())
+          + String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
+    };
+  }
+
+  private void insertItems(StoreInventory storeInventory) {
+    this.em.createNativeQuery(buildInsertQuery(storeInventory)).executeUpdate();
   }
 
   private List<Predicate> predicates(
@@ -306,8 +328,7 @@ public class InventaireServiceImpl implements InventaireService {
       return ((BigInteger)
               this.em
                   .createNativeQuery(
-                      this.buildFetchDetailQueryCount(
-                          storeInventory, storeInventoryLineFilterRecord))
+                      this.buildFetchDetailQueryCount(storeInventoryLineFilterRecord))
                   .setParameter(1, storeInventory.getId())
                   .getSingleResult())
           .intValue();
@@ -326,8 +347,7 @@ public class InventaireServiceImpl implements InventaireService {
     try {
       return this.em
           .createNativeQuery(
-              this.buildFetchDetailQuery(storeInventory, storeInventoryLineFilterRecord),
-              Tuple.class)
+              this.buildFetchDetailQuery(storeInventoryLineFilterRecord), Tuple.class)
           .setParameter(1, storeInventoryLineFilterRecord.storeInventoryId())
           .setFirstResult((int) pageable.getOffset())
           .setMaxResults(pageable.getPageSize())

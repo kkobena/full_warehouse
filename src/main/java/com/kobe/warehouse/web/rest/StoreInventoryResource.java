@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
+import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +38,9 @@ public class StoreInventoryResource {
   }
 
   @GetMapping("/store-inventories/close/{id}")
-  public ResponseEntity<Void> closeInventory(@PathVariable Long id) {
-    inventaireService.close(id);
-    return ResponseEntity.ok().build();
+  public ResponseEntity<ItemsCountRecord> closeInventory(@PathVariable Long id) {
+
+    return ResponseEntity.ok(inventaireService.close(id));
   }
 
   @GetMapping("/store-inventories")

@@ -18,7 +18,6 @@ import { HttpResponse } from '@angular/common/http';
 })
 export class ImportationNewCommandeComponent implements OnInit {
   isSaving = false;
-  fournisseurSelected!: IFournisseur | null;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
   modelSelected!: string;
@@ -55,19 +54,19 @@ export class ImportationNewCommandeComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner.show('upload-commande-spinner');
-    this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData).subscribe(
-      res => {
+    this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData).subscribe({
+      next: res => {
         this.isSaving = false;
         this.spinner.hide('upload-commande-spinner');
         this.commandeResponse = res.body;
         this.cancel();
       },
-      error => {
+      error: error => {
         this.spinner.hide('upload-commande-spinner');
         this.isSaving = false;
         this.onCommonError(error);
-      }
-    );
+      },
+    });
   }
 
   uploadHandler(event: any, fileUpload: any): void {

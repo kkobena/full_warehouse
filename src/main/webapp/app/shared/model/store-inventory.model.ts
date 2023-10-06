@@ -61,6 +61,10 @@ export class StoreInventoryFilterRecord {
   userId?: number;
 }
 
+export class ItemsCountRecord {
+  count: number;
+}
+
 export const CATEGORY_INVENTORY: InventoryCategory[] = [
   new InventoryCategory('MAGASIN', 'Inventaire global'),
   new InventoryCategory('STORAGE', "Inventaire d'un emplacement"),

@@ -931,3 +931,14 @@ iconlist li .icon-holder .icon i {
 .p-datatable .p-datatable-header {
   padding: 0.457rem 1rem;
 }
+
+.inventory {
+  .ag-theme-alpine {
+    /* --ag-borders: none;*/
+
+
+    .ag-cell {
+      border-left: solid 0.3px rgb(150, 150, 200);
+    }
+  }
+}

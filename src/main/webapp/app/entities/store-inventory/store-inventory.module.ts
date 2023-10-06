@@ -12,6 +12,7 @@ import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
 import { InventoryFormComponent } from './inventory-form/inventory-form.component';
 import { TableEditorDirective } from './table-editor.directive';
+import { InventoryStatusComponent } from './inventory-status/inventory-status.component';
 
 @NgModule({
   imports: [SharedModule, AgGridModule, RouterModule.forChild(storeInventoryRoute)],
@@ -24,6 +25,7 @@ import { TableEditorDirective } from './table-editor.directive';
     CloturesComponent,
     InventoryFormComponent,
     TableEditorDirective,
+    InventoryStatusComponent,
   ],
 })
 export class WarehouseStoreInventoryModule {}

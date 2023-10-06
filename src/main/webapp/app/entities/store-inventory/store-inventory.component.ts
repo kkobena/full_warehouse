@@ -8,7 +8,6 @@ import { CATEGORY_INVENTORY, InventoryCategory, IStoreInventory } from 'app/shar
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { StoreInventoryService } from './store-inventory.service';
 import { StoreInventoryDeleteDialogComponent } from './store-inventory-delete-dialog.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { IUser, User } from '../../core/user/user.model';
 import { UserService } from '../../core/user/user.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -66,7 +65,6 @@ export class StoreInventoryComponent implements OnInit {
     protected storeInventoryService: StoreInventoryService,
     protected modalService: NgbModal,
     protected userService: UserService,
-    private spinner: NgxSpinnerService,
     private dialogService: DialogService,
     protected router: Router
   ) {
@@ -118,7 +116,7 @@ export class StoreInventoryComponent implements OnInit {
       const ecart = Number(params.data.quantityOnHand) - Number(params.data.quantityInit);
       return ecart >= 0 ? { backgroundColor: 'lightgreen' } : { backgroundColor: 'lightcoral' };
     }
-    return;
+    return {};
   }
 
   setGap(params: any): number {
@@ -209,13 +207,10 @@ export class StoreInventoryComponent implements OnInit {
   }
 
   protected onSaveSuccess(): void {
-    this.spinner.hide();
     this.loadAll();
   }
 
-  protected onSaveError(): void {
-    this.spinner.hide();
-  }
+  protected onSaveError(): void {}
 
   protected onSuccess(data: IStoreInventory[] | null): void {
     if (data) {

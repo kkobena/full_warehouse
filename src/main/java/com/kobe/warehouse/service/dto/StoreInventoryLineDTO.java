@@ -21,8 +21,8 @@ public class StoreInventoryLineDTO implements Serializable {
   private Integer gap;
   private Integer prixAchat;
   private Integer prixUni;
-    private  String produitCip;
-    private String produitEan;
+  private String produitCip;
+  private String produitEan;
 
   public StoreInventoryLineDTO() {}
 
@@ -41,29 +41,28 @@ public class StoreInventoryLineDTO implements Serializable {
     this.quantitySold = storeInventoryLine.getQuantitySold();
     this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
     this.inventoryValueAmount =
-        storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getInventoryValueLatestSellingPrice();
-   
+        storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
   }
 
-    public String getProduitCip() {
-        return produitCip;
-    }
+  public String getProduitCip() {
+    return produitCip;
+  }
 
-    public StoreInventoryLineDTO setProduitCip(String produitCip) {
-        this.produitCip = produitCip;
-        return this;
-    }
+  public StoreInventoryLineDTO setProduitCip(String produitCip) {
+    this.produitCip = produitCip;
+    return this;
+  }
 
-    public String getProduitEan() {
-        return produitEan;
-    }
+  public String getProduitEan() {
+    return produitEan;
+  }
 
-    public StoreInventoryLineDTO setProduitEan(String produitEan) {
-        this.produitEan = produitEan;
-        return this;
-    }
+  public StoreInventoryLineDTO setProduitEan(String produitEan) {
+    this.produitEan = produitEan;
+    return this;
+  }
 
-    public Long getId() {
+  public Long getId() {
     return id;
   }
 
@@ -71,89 +70,89 @@ public class StoreInventoryLineDTO implements Serializable {
     this.id = id;
   }
 
-    public Integer getQuantityOnHand() {
-        return quantityOnHand;
-    }
+  public Integer getQuantityOnHand() {
+    return quantityOnHand;
+  }
 
-    public StoreInventoryLineDTO setQuantityOnHand(Integer quantityOnHand) {
-        this.quantityOnHand = quantityOnHand;
-        return this;
-    }
+  public StoreInventoryLineDTO setQuantityOnHand(Integer quantityOnHand) {
+    this.quantityOnHand = quantityOnHand;
+    return this;
+  }
 
-    public Integer getQuantityInit() {
-        return quantityInit;
-    }
+  public Integer getQuantityInit() {
+    return quantityInit;
+  }
 
-    public StoreInventoryLineDTO setQuantityInit(Integer quantityInit) {
-        this.quantityInit = quantityInit;
-        return this;
-    }
+  public StoreInventoryLineDTO setQuantityInit(Integer quantityInit) {
+    this.quantityInit = quantityInit;
+    return this;
+  }
 
-    public Integer getQuantitySold() {
-        return quantitySold;
-    }
+  public Integer getQuantitySold() {
+    return quantitySold;
+  }
 
-    public StoreInventoryLineDTO setQuantitySold(Integer quantitySold) {
-        this.quantitySold = quantitySold;
-        return this;
-    }
+  public StoreInventoryLineDTO setQuantitySold(Integer quantitySold) {
+    this.quantitySold = quantitySold;
+    return this;
+  }
 
-    public Integer getInventoryValueCost() {
-        return inventoryValueCost;
-    }
+  public Integer getInventoryValueCost() {
+    return inventoryValueCost;
+  }
 
-    public StoreInventoryLineDTO setInventoryValueCost(Integer inventoryValueCost) {
-        this.inventoryValueCost = inventoryValueCost;
-        return this;
-    }
+  public StoreInventoryLineDTO setInventoryValueCost(Integer inventoryValueCost) {
+    this.inventoryValueCost = inventoryValueCost;
+    return this;
+  }
 
-    public Integer getInventoryValueLatestSellingPrice() {
-        return inventoryValueLatestSellingPrice;
-    }
+  public Integer getInventoryValueLatestSellingPrice() {
+    return inventoryValueLatestSellingPrice;
+  }
 
-    public StoreInventoryLineDTO setInventoryValueLatestSellingPrice(
-        Integer inventoryValueLatestSellingPrice) {
-        this.inventoryValueLatestSellingPrice = inventoryValueLatestSellingPrice;
-        return this;
-    }
+  public StoreInventoryLineDTO setInventoryValueLatestSellingPrice(
+      Integer inventoryValueLatestSellingPrice) {
+    this.inventoryValueLatestSellingPrice = inventoryValueLatestSellingPrice;
+    return this;
+  }
 
-    public int getInventoryValueTotalCost() {
-        return inventoryValueTotalCost;
-    }
+  public int getInventoryValueTotalCost() {
+    return inventoryValueTotalCost;
+  }
 
-    public StoreInventoryLineDTO setInventoryValueTotalCost(int inventoryValueTotalCost) {
-        this.inventoryValueTotalCost = inventoryValueTotalCost;
-        return this;
-    }
+  public StoreInventoryLineDTO setInventoryValueTotalCost(int inventoryValueTotalCost) {
+    this.inventoryValueTotalCost = inventoryValueTotalCost;
+    return this;
+  }
 
-    public int getInventoryValueAmount() {
-        return inventoryValueAmount;
-    }
+  public int getInventoryValueAmount() {
+    return inventoryValueAmount;
+  }
 
-    public StoreInventoryLineDTO setInventoryValueAmount(int inventoryValueAmount) {
-        this.inventoryValueAmount = inventoryValueAmount;
-        return this;
-    }
+  public StoreInventoryLineDTO setInventoryValueAmount(int inventoryValueAmount) {
+    this.inventoryValueAmount = inventoryValueAmount;
+    return this;
+  }
 
-    public Integer getPrixAchat() {
-        return prixAchat;
-    }
+  public Integer getPrixAchat() {
+    return prixAchat;
+  }
 
-    public StoreInventoryLineDTO setPrixAchat(Integer prixAchat) {
-        this.prixAchat = prixAchat;
-        return this;
-    }
+  public StoreInventoryLineDTO setPrixAchat(Integer prixAchat) {
+    this.prixAchat = prixAchat;
+    return this;
+  }
 
-    public Integer getPrixUni() {
-        return prixUni;
-    }
+  public Integer getPrixUni() {
+    return prixUni;
+  }
 
-    public StoreInventoryLineDTO setPrixUni(Integer prixUni) {
-        this.prixUni = prixUni;
-        return this;
-    }
+  public StoreInventoryLineDTO setPrixUni(Integer prixUni) {
+    this.prixUni = prixUni;
+    return this;
+  }
 
-    public Long getStoreInventoryId() {
+  public Long getStoreInventoryId() {
     return storeInventoryId;
   }
 
@@ -177,7 +176,6 @@ public class StoreInventoryLineDTO implements Serializable {
     this.produitLibelle = produitLibelle;
   }
 
-
   public boolean isUpdated() {
     return updated;
   }
@@ -185,9 +183,6 @@ public class StoreInventoryLineDTO implements Serializable {
   public void setUpdated(boolean updated) {
     this.updated = updated;
   }
-
-
-
 
   public Integer getGap() {
     return gap;

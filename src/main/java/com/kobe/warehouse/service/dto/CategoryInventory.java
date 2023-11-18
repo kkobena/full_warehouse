@@ -3,15 +3,18 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 
 public class CategoryInventory {
-  private  InventoryCategory name;
-  private  String label;
+  private InventoryCategory name;
+  private String label;
+
   public CategoryInventory(InventoryCategory name) {
     this.name = name;
-    this.label = switch (name){
-      case RAYON ->"Inventaire d'un rayon";
-      case MAGASIN -> "Inventaire global";
-      case STORAGE -> "Inventaire d'un emplacement";
-    };
+    this.label =
+        switch (name) {
+          case RAYON -> "Inventaire d'un rayon";
+          case MAGASIN -> "Inventaire global";
+          case STORAGE -> "Inventaire d'un emplacement";
+          case FAMILLY -> "Inventaire d'une famille de produit";
+        };
   }
 
   public InventoryCategory getName() {

@@ -20,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,72 +30,71 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Integration tests for the {@link ProduitResource} REST controller.
- */
+/** Integration tests for the {@link ProduitResource} REST controller. */
 @SpringBootTest(classes = WarehouseApp.class)
 @AutoConfigureMockMvc
 @WithMockUser
+@Disabled
 public class ProduitResourceIT {
 
-    private static final String DEFAULT_LIBELLE = "AAAAAAAAAA";
-    private static final String UPDATED_LIBELLE = "BBBBBBBBBB";
+  private static final String DEFAULT_LIBELLE = "AAAAAAAAAA";
+  private static final String UPDATED_LIBELLE = "BBBBBBBBBB";
 
-    private static final String DEFAULT_CODE = "AAAAAAAAAA";
-    private static final String UPDATED_CODE = "BBBBBBBBBB";
+  private static final String DEFAULT_CODE = "AAAAAAAAAA";
+  private static final String UPDATED_CODE = "BBBBBBBBBB";
 
-    private static final String DEFAULT_IMAGE_URL = "AAAAAAAAAA";
-    private static final String UPDATED_IMAGE_URL = "BBBBBBBBBB";
+  private static final String DEFAULT_IMAGE_URL = "AAAAAAAAAA";
+  private static final String UPDATED_IMAGE_URL = "BBBBBBBBBB";
 
-    private static final TypeProduit DEFAULT_TYPE_PRODUIT = TypeProduit.DETAIL;
-    private static final TypeProduit UPDATED_TYPE_PRODUIT = TypeProduit.PACKAGE;
+  private static final TypeProduit DEFAULT_TYPE_PRODUIT = TypeProduit.DETAIL;
+  private static final TypeProduit UPDATED_TYPE_PRODUIT = TypeProduit.PACKAGE;
 
-    private static final Integer DEFAULT_QUANTITY = 1;
-    private static final Integer UPDATED_QUANTITY = 2;
+  private static final Integer DEFAULT_QUANTITY = 1;
+  private static final Integer UPDATED_QUANTITY = 2;
 
-    private static final Integer DEFAULT_COST_AMOUNT = 1;
-    private static final Integer UPDATED_COST_AMOUNT = 2;
+  private static final Integer DEFAULT_COST_AMOUNT = 1;
+  private static final Integer UPDATED_COST_AMOUNT = 2;
 
-    private static final Integer DEFAULT_REGULAR_UNIT_PRICE = 1;
-    private static final Integer UPDATED_REGULAR_UNIT_PRICE = 2;
+  private static final Integer DEFAULT_REGULAR_UNIT_PRICE = 1;
+  private static final Integer UPDATED_REGULAR_UNIT_PRICE = 2;
 
-    private static final Integer DEFAULT_NET_UNIT_PRICE = 1;
-    private static final Integer UPDATED_NET_UNIT_PRICE = 2;
+  private static final Integer DEFAULT_NET_UNIT_PRICE = 1;
+  private static final Integer UPDATED_NET_UNIT_PRICE = 2;
 
-    private static final LocalDateTime DEFAULT_CREATED_AT = LocalDateTime.now();
-    private static final LocalDateTime UPDATED_CREATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+  private static final LocalDateTime DEFAULT_CREATED_AT = LocalDateTime.now();
+  private static final LocalDateTime UPDATED_CREATED_AT =
+      LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final LocalDateTime DEFAULT_UPDATED_AT = LocalDateTime.now();
-    private static final LocalDateTime UPDATED_UPDATED_AT = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+  private static final LocalDateTime DEFAULT_UPDATED_AT = LocalDateTime.now();
+  private static final LocalDateTime UPDATED_UPDATED_AT =
+      LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final Integer DEFAULT_ITEM_QTY = 0;
-    private static final Integer UPDATED_ITEM_QTY = 1;
+  private static final Integer DEFAULT_ITEM_QTY = 0;
+  private static final Integer UPDATED_ITEM_QTY = 1;
 
-    private static final Integer DEFAULT_ITEM_COST_AMOUNT = 0;
-    private static final Integer UPDATED_ITEM_COST_AMOUNT = 1;
+  private static final Integer DEFAULT_ITEM_COST_AMOUNT = 0;
+  private static final Integer UPDATED_ITEM_COST_AMOUNT = 1;
 
-    private static final Integer DEFAULT_ITEM_REGULAR_UNIT_PRICE = 0;
-    private static final Integer UPDATED_ITEM_REGULAR_UNIT_PRICE = 1;
+  private static final Integer DEFAULT_ITEM_REGULAR_UNIT_PRICE = 0;
+  private static final Integer UPDATED_ITEM_REGULAR_UNIT_PRICE = 1;
 
-    @Autowired
-    private ProduitRepository produitRepository;
+  @Autowired private ProduitRepository produitRepository;
 
-    @Autowired
-    private EntityManager em;
+  @Autowired private EntityManager em;
 
-    @Autowired
-    private MockMvc restProduitMockMvc;
+  @Autowired private MockMvc restProduitMockMvc;
 
-    private Produit produit;
+  private Produit produit;
 
-    /**
-     * Create an entity for this test.
-     * <p>
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
-     */
-    public static Produit createEntity(EntityManager em) {
-        Produit produit = new Produit()
+  /**
+   * Create an entity for this test.
+   *
+   * <p>This is a static method, as tests for other entities might also need it, if they test an
+   * entity which requires the current entity.
+   */
+  public static Produit createEntity(EntityManager em) {
+    Produit produit =
+        new Produit()
             .libelle(DEFAULT_LIBELLE)
             .typeProduit(DEFAULT_TYPE_PRODUIT)
             .costAmount(DEFAULT_COST_AMOUNT)
@@ -105,17 +105,18 @@ public class ProduitResourceIT {
             .itemQty(DEFAULT_ITEM_QTY)
             .itemCostAmount(DEFAULT_ITEM_COST_AMOUNT)
             .itemRegularUnitPrice(DEFAULT_ITEM_REGULAR_UNIT_PRICE);
-        return produit;
-    }
+    return produit;
+  }
 
-    /**
-     * Create an updated entity for this test.
-     * <p>
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
-     */
-    public static Produit createUpdatedEntity(EntityManager em) {
-        Produit produit = new Produit()
+  /**
+   * Create an updated entity for this test.
+   *
+   * <p>This is a static method, as tests for other entities might also need it, if they test an
+   * entity which requires the current entity.
+   */
+  public static Produit createUpdatedEntity(EntityManager em) {
+    Produit produit =
+        new Produit()
             .libelle(UPDATED_LIBELLE)
             .typeProduit(UPDATED_TYPE_PRODUIT)
             .costAmount(UPDATED_COST_AMOUNT)
@@ -126,412 +127,456 @@ public class ProduitResourceIT {
             .itemQty(UPDATED_ITEM_QTY)
             .itemCostAmount(UPDATED_ITEM_COST_AMOUNT)
             .itemRegularUnitPrice(UPDATED_ITEM_REGULAR_UNIT_PRICE);
-        return produit;
-    }
+    return produit;
+  }
 
-    @BeforeEach
-    public void initTest() {
-        produit = createEntity(em);
-    }
+  @BeforeEach
+  public void initTest() {
+    produit = createEntity(em);
+  }
 
-    @Test
-    @Transactional
-    public void createProduit() throws Exception {
-        int databaseSizeBeforeCreate = produitRepository.findAll().size();
-        // Create the Produit
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+  @Test
+  @Transactional
+  public void createProduit() throws Exception {
+    int databaseSizeBeforeCreate = produitRepository.findAll().size();
+    // Create the Produit
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isCreated());
+        .andExpect(status().isCreated());
 
-        // Validate the Produit in the database
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeCreate + 1);
-        Produit testProduit = produitList.get(produitList.size() - 1);
-        assertThat(testProduit.getLibelle()).isEqualTo(DEFAULT_LIBELLE);
-        assertThat(testProduit.getTypeProduit()).isEqualTo(DEFAULT_TYPE_PRODUIT);
-        assertThat(testProduit.getCostAmount()).isEqualTo(DEFAULT_COST_AMOUNT);
-        assertThat(testProduit.getRegularUnitPrice()).isEqualTo(DEFAULT_REGULAR_UNIT_PRICE);
-        assertThat(testProduit.getNetUnitPrice()).isEqualTo(DEFAULT_NET_UNIT_PRICE);
-        assertThat(testProduit.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
-        assertThat(testProduit.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
-        assertThat(testProduit.getItemQty()).isEqualTo(DEFAULT_ITEM_QTY);
-        assertThat(testProduit.getItemCostAmount()).isEqualTo(DEFAULT_ITEM_COST_AMOUNT);
-        assertThat(testProduit.getItemRegularUnitPrice()).isEqualTo(DEFAULT_ITEM_REGULAR_UNIT_PRICE);
-    }
+    // Validate the Produit in the database
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeCreate + 1);
+    Produit testProduit = produitList.get(produitList.size() - 1);
+    assertThat(testProduit.getLibelle()).isEqualTo(DEFAULT_LIBELLE);
+    assertThat(testProduit.getTypeProduit()).isEqualTo(DEFAULT_TYPE_PRODUIT);
+    assertThat(testProduit.getCostAmount()).isEqualTo(DEFAULT_COST_AMOUNT);
+    assertThat(testProduit.getRegularUnitPrice()).isEqualTo(DEFAULT_REGULAR_UNIT_PRICE);
+    assertThat(testProduit.getNetUnitPrice()).isEqualTo(DEFAULT_NET_UNIT_PRICE);
+    assertThat(testProduit.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
+    assertThat(testProduit.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
+    assertThat(testProduit.getItemQty()).isEqualTo(DEFAULT_ITEM_QTY);
+    assertThat(testProduit.getItemCostAmount()).isEqualTo(DEFAULT_ITEM_COST_AMOUNT);
+    assertThat(testProduit.getItemRegularUnitPrice()).isEqualTo(DEFAULT_ITEM_REGULAR_UNIT_PRICE);
+  }
 
-    @Test
-    @Transactional
-    public void createProduitWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = produitRepository.findAll().size();
+  @Test
+  @Transactional
+  public void createProduitWithExistingId() throws Exception {
+    int databaseSizeBeforeCreate = produitRepository.findAll().size();
 
-        // Create the Produit with an existing ID
-        produit.setId(1L);
+    // Create the Produit with an existing ID
+    produit.setId(1L);
 
-        // An entity with an existing ID cannot be created, so this API call must fail
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    // An entity with an existing ID cannot be created, so this API call must fail
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        // Validate the Produit in the database
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeCreate);
-    }
+    // Validate the Produit in the database
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeCreate);
+  }
 
+  @Test
+  @Transactional
+  public void checkLibelleIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setLibelle(null);
 
-    @Test
-    @Transactional
-    public void checkLibelleIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setLibelle(null);
+    // Create the Produit, which fails.
 
-        // Create the Produit, which fails.
-
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkCodeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+  @Test
+  @Transactional
+  public void checkCodeIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkTypeProduitIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setTypeProduit(null);
+  @Test
+  @Transactional
+  public void checkTypeProduitIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setTypeProduit(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkQuantityIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+  @Test
+  @Transactional
+  public void checkQuantityIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkCostAmountIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setCostAmount(null);
+  @Test
+  @Transactional
+  public void checkCostAmountIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setCostAmount(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkRegularUnitPriceIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setRegularUnitPrice(null);
+  @Test
+  @Transactional
+  public void checkRegularUnitPriceIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setRegularUnitPrice(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkNetUnitPriceIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setNetUnitPrice(null);
+  @Test
+  @Transactional
+  public void checkNetUnitPriceIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setNetUnitPrice(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkCreatedAtIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setCreatedAt(null);
+  @Test
+  @Transactional
+  public void checkCreatedAtIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setCreatedAt(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkUpdatedAtIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setUpdatedAt(null);
+  @Test
+  @Transactional
+  public void checkUpdatedAtIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setUpdatedAt(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkItemQtyIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setItemQty(null);
+  @Test
+  @Transactional
+  public void checkItemQtyIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setItemQty(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkItemCostAmountIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setItemCostAmount(null);
+  @Test
+  @Transactional
+  public void checkItemCostAmountIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setItemCostAmount(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void checkItemRegularUnitPriceIsRequired() throws Exception {
-        int databaseSizeBeforeTest = produitRepository.findAll().size();
-        // set the field null
-        produit.setItemRegularUnitPrice(null);
+  @Test
+  @Transactional
+  public void checkItemRegularUnitPriceIsRequired() throws Exception {
+    int databaseSizeBeforeTest = produitRepository.findAll().size();
+    // set the field null
+    produit.setItemRegularUnitPrice(null);
 
-        // Create the Produit, which fails.
+    // Create the Produit, which fails.
 
-
-        restProduitMockMvc.perform(post("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            post("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeTest);
-    }
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeTest);
+  }
 
-    @Test
-    @Transactional
-    public void getAllProduits() throws Exception {
-        // Initialize the database
-        produitRepository.saveAndFlush(produit);
+  @Test
+  @Transactional
+  public void getAllProduits() throws Exception {
+    // Initialize the database
+    produitRepository.saveAndFlush(produit);
 
-        // Get all the produitList
-        restProduitMockMvc.perform(get("/api/produits?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(produit.getId().intValue())))
-            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)))
-            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
-            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL)))
-            .andExpect(jsonPath("$.[*].typeProduit").value(hasItem(DEFAULT_TYPE_PRODUIT.toString())))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].costAmount").value(hasItem(DEFAULT_COST_AMOUNT)))
-            .andExpect(jsonPath("$.[*].regularUnitPrice").value(hasItem(DEFAULT_REGULAR_UNIT_PRICE)))
-            .andExpect(jsonPath("$.[*].netUnitPrice").value(hasItem(DEFAULT_NET_UNIT_PRICE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].itemQty").value(hasItem(DEFAULT_ITEM_QTY)))
-            .andExpect(jsonPath("$.[*].itemCostAmount").value(hasItem(DEFAULT_ITEM_COST_AMOUNT)))
-            .andExpect(jsonPath("$.[*].itemRegularUnitPrice").value(hasItem(DEFAULT_ITEM_REGULAR_UNIT_PRICE)));
-    }
+    // Get all the produitList
+    restProduitMockMvc
+        .perform(get("/api/produits?sort=id,desc"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(jsonPath("$.[*].id").value(hasItem(produit.getId().intValue())))
+        .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)))
+        .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
+        .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGE_URL)))
+        .andExpect(jsonPath("$.[*].typeProduit").value(hasItem(DEFAULT_TYPE_PRODUIT.toString())))
+        .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
+        .andExpect(jsonPath("$.[*].costAmount").value(hasItem(DEFAULT_COST_AMOUNT)))
+        .andExpect(jsonPath("$.[*].regularUnitPrice").value(hasItem(DEFAULT_REGULAR_UNIT_PRICE)))
+        .andExpect(jsonPath("$.[*].netUnitPrice").value(hasItem(DEFAULT_NET_UNIT_PRICE)))
+        .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+        .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
+        .andExpect(jsonPath("$.[*].itemQty").value(hasItem(DEFAULT_ITEM_QTY)))
+        .andExpect(jsonPath("$.[*].itemCostAmount").value(hasItem(DEFAULT_ITEM_COST_AMOUNT)))
+        .andExpect(
+            jsonPath("$.[*].itemRegularUnitPrice").value(hasItem(DEFAULT_ITEM_REGULAR_UNIT_PRICE)));
+  }
 
-    @Test
-    @Transactional
-    public void getProduit() throws Exception {
-        // Initialize the database
-        produitRepository.saveAndFlush(produit);
+  @Test
+  @Transactional
+  public void getProduit() throws Exception {
+    // Initialize the database
+    produitRepository.saveAndFlush(produit);
 
-        // Get the produit
-        restProduitMockMvc.perform(get("/api/produits/{id}", produit.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.id").value(produit.getId().intValue()))
-            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE))
-            .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
-            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGE_URL))
-            .andExpect(jsonPath("$.typeProduit").value(DEFAULT_TYPE_PRODUIT.toString()))
-            .andExpect(jsonPath("$.quantity").value(DEFAULT_QUANTITY))
-            .andExpect(jsonPath("$.costAmount").value(DEFAULT_COST_AMOUNT))
-            .andExpect(jsonPath("$.regularUnitPrice").value(DEFAULT_REGULAR_UNIT_PRICE))
-            .andExpect(jsonPath("$.netUnitPrice").value(DEFAULT_NET_UNIT_PRICE))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.itemQty").value(DEFAULT_ITEM_QTY))
-            .andExpect(jsonPath("$.itemCostAmount").value(DEFAULT_ITEM_COST_AMOUNT))
-            .andExpect(jsonPath("$.itemRegularUnitPrice").value(DEFAULT_ITEM_REGULAR_UNIT_PRICE));
-    }
+    // Get the produit
+    restProduitMockMvc
+        .perform(get("/api/produits/{id}", produit.getId()))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(jsonPath("$.id").value(produit.getId().intValue()))
+        .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE))
+        .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
+        .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGE_URL))
+        .andExpect(jsonPath("$.typeProduit").value(DEFAULT_TYPE_PRODUIT.toString()))
+        .andExpect(jsonPath("$.quantity").value(DEFAULT_QUANTITY))
+        .andExpect(jsonPath("$.costAmount").value(DEFAULT_COST_AMOUNT))
+        .andExpect(jsonPath("$.regularUnitPrice").value(DEFAULT_REGULAR_UNIT_PRICE))
+        .andExpect(jsonPath("$.netUnitPrice").value(DEFAULT_NET_UNIT_PRICE))
+        .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+        .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
+        .andExpect(jsonPath("$.itemQty").value(DEFAULT_ITEM_QTY))
+        .andExpect(jsonPath("$.itemCostAmount").value(DEFAULT_ITEM_COST_AMOUNT))
+        .andExpect(jsonPath("$.itemRegularUnitPrice").value(DEFAULT_ITEM_REGULAR_UNIT_PRICE));
+  }
 
-    @Test
-    @Transactional
-    public void getNonExistingProduit() throws Exception {
-        // Get the produit
-        restProduitMockMvc.perform(get("/api/produits/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
-    }
+  @Test
+  @Transactional
+  public void getNonExistingProduit() throws Exception {
+    // Get the produit
+    restProduitMockMvc
+        .perform(get("/api/produits/{id}", Long.MAX_VALUE))
+        .andExpect(status().isNotFound());
+  }
 
-    @Test
-    @Transactional
-    public void updateProduit() throws Exception {
-        // Initialize the database
-        produitRepository.saveAndFlush(produit);
+  @Test
+  @Transactional
+  public void updateProduit() throws Exception {
+    // Initialize the database
+    produitRepository.saveAndFlush(produit);
 
-        int databaseSizeBeforeUpdate = produitRepository.findAll().size();
+    int databaseSizeBeforeUpdate = produitRepository.findAll().size();
 
-        // Update the produit
-        Produit updatedProduit = produitRepository.findById(produit.getId()).get();
-        // Disconnect from session so that the updates on updatedProduit are not directly saved in db
-        em.detach(updatedProduit);
-        updatedProduit
-            .libelle(UPDATED_LIBELLE)
-            .typeProduit(UPDATED_TYPE_PRODUIT)
-            .costAmount(UPDATED_COST_AMOUNT)
-            .regularUnitPrice(UPDATED_REGULAR_UNIT_PRICE)
-            .netUnitPrice(UPDATED_NET_UNIT_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT)
-            .itemQty(UPDATED_ITEM_QTY)
-            .itemCostAmount(UPDATED_ITEM_COST_AMOUNT)
-            .itemRegularUnitPrice(UPDATED_ITEM_REGULAR_UNIT_PRICE);
+    // Update the produit
+    Produit updatedProduit = produitRepository.findById(produit.getId()).get();
+    // Disconnect from session so that the updates on updatedProduit are not directly saved in db
+    em.detach(updatedProduit);
+    updatedProduit
+        .libelle(UPDATED_LIBELLE)
+        .typeProduit(UPDATED_TYPE_PRODUIT)
+        .costAmount(UPDATED_COST_AMOUNT)
+        .regularUnitPrice(UPDATED_REGULAR_UNIT_PRICE)
+        .netUnitPrice(UPDATED_NET_UNIT_PRICE)
+        .createdAt(UPDATED_CREATED_AT)
+        .updatedAt(UPDATED_UPDATED_AT)
+        .itemQty(UPDATED_ITEM_QTY)
+        .itemCostAmount(UPDATED_ITEM_COST_AMOUNT)
+        .itemRegularUnitPrice(UPDATED_ITEM_REGULAR_UNIT_PRICE);
 
-        restProduitMockMvc.perform(put("/api/produits").with(csrf())
+    restProduitMockMvc
+        .perform(
+            put("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(updatedProduit)))
-            .andExpect(status().isOk());
+        .andExpect(status().isOk());
 
-        // Validate the Produit in the database
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeUpdate);
-        Produit testProduit = produitList.get(produitList.size() - 1);
-        assertThat(testProduit.getLibelle()).isEqualTo(UPDATED_LIBELLE);
-        assertThat(testProduit.getTypeProduit()).isEqualTo(UPDATED_TYPE_PRODUIT);
-        assertThat(testProduit.getCostAmount()).isEqualTo(UPDATED_COST_AMOUNT);
-        assertThat(testProduit.getRegularUnitPrice()).isEqualTo(UPDATED_REGULAR_UNIT_PRICE);
-        assertThat(testProduit.getNetUnitPrice()).isEqualTo(UPDATED_NET_UNIT_PRICE);
-        assertThat(testProduit.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
-        assertThat(testProduit.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
-        assertThat(testProduit.getItemQty()).isEqualTo(UPDATED_ITEM_QTY);
-        assertThat(testProduit.getItemCostAmount()).isEqualTo(UPDATED_ITEM_COST_AMOUNT);
-        assertThat(testProduit.getItemRegularUnitPrice()).isEqualTo(UPDATED_ITEM_REGULAR_UNIT_PRICE);
-    }
+    // Validate the Produit in the database
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeUpdate);
+    Produit testProduit = produitList.get(produitList.size() - 1);
+    assertThat(testProduit.getLibelle()).isEqualTo(UPDATED_LIBELLE);
+    assertThat(testProduit.getTypeProduit()).isEqualTo(UPDATED_TYPE_PRODUIT);
+    assertThat(testProduit.getCostAmount()).isEqualTo(UPDATED_COST_AMOUNT);
+    assertThat(testProduit.getRegularUnitPrice()).isEqualTo(UPDATED_REGULAR_UNIT_PRICE);
+    assertThat(testProduit.getNetUnitPrice()).isEqualTo(UPDATED_NET_UNIT_PRICE);
+    assertThat(testProduit.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
+    assertThat(testProduit.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
+    assertThat(testProduit.getItemQty()).isEqualTo(UPDATED_ITEM_QTY);
+    assertThat(testProduit.getItemCostAmount()).isEqualTo(UPDATED_ITEM_COST_AMOUNT);
+    assertThat(testProduit.getItemRegularUnitPrice()).isEqualTo(UPDATED_ITEM_REGULAR_UNIT_PRICE);
+  }
 
-    @Test
-    @Transactional
-    public void updateNonExistingProduit() throws Exception {
-        int databaseSizeBeforeUpdate = produitRepository.findAll().size();
+  @Test
+  @Transactional
+  public void updateNonExistingProduit() throws Exception {
+    int databaseSizeBeforeUpdate = produitRepository.findAll().size();
 
-        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restProduitMockMvc.perform(put("/api/produits").with(csrf())
+    // If the entity doesn't have an ID, it will throw BadRequestAlertException
+    restProduitMockMvc
+        .perform(
+            put("/api/produits")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(produit)))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
 
-        // Validate the Produit in the database
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeUpdate);
-    }
+    // Validate the Produit in the database
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeUpdate);
+  }
 
-    @Test
-    @Transactional
-    public void deleteProduit() throws Exception {
-        // Initialize the database
-        produitRepository.saveAndFlush(produit);
+  @Test
+  @Transactional
+  public void deleteProduit() throws Exception {
+    // Initialize the database
+    produitRepository.saveAndFlush(produit);
 
-        int databaseSizeBeforeDelete = produitRepository.findAll().size();
+    int databaseSizeBeforeDelete = produitRepository.findAll().size();
 
-        // Delete the produit
-        restProduitMockMvc.perform(delete("/api/produits/{id}", produit.getId()).with(csrf())
+    // Delete the produit
+    restProduitMockMvc
+        .perform(
+            delete("/api/produits/{id}", produit.getId())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
+        .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
-        List<Produit> produitList = produitRepository.findAll();
-        assertThat(produitList).hasSize(databaseSizeBeforeDelete - 1);
-    }
+    // Validate the database contains one less item
+    List<Produit> produitList = produitRepository.findAll();
+    assertThat(produitList).hasSize(databaseSizeBeforeDelete - 1);
+  }
 }

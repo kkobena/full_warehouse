@@ -6,8 +6,8 @@ import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -58,7 +58,7 @@ public class StoreInventory implements Serializable {
   private Long inventoryAmountAfter;
 
   @OneToMany(mappedBy = "storeInventory")
-  private Set<StoreInventoryLine> storeInventoryLines = new HashSet<>();
+  private List<StoreInventoryLine> storeInventoryLines = new ArrayList<>();
 
   @NotNull
   @ManyToOne(optional = false)
@@ -81,6 +81,30 @@ public class StoreInventory implements Serializable {
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "inventory_category", nullable = false)
   private InventoryCategory inventoryCategory = InventoryCategory.MAGASIN;
+
+  @Column(name = "gap_cost")
+  private Integer gapCost;
+
+  @Column(name = "gap_amount")
+  private Integer gapAmount;
+
+  public Integer getGapCost() {
+    return gapCost;
+  }
+
+  public StoreInventory setGapCost(Integer gapCost) {
+    this.gapCost = gapCost;
+    return this;
+  }
+
+  public Integer getGapAmount() {
+    return gapAmount;
+  }
+
+  public StoreInventory setGapAmount(Integer gapAmount) {
+    this.gapAmount = gapAmount;
+    return this;
+  }
 
   public void setUser(User user) {
     this.user = user;
@@ -148,11 +172,11 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-  public void setStoreInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
+  public void setStoreInventoryLines(List<StoreInventoryLine> storeInventoryLines) {
     this.storeInventoryLines = storeInventoryLines;
   }
 
-  public StoreInventory storeInventoryLines(Set<StoreInventoryLine> storeInventoryLines) {
+  public StoreInventory storeInventoryLines(List<StoreInventoryLine> storeInventoryLines) {
     this.storeInventoryLines = storeInventoryLines;
     return this;
   }
@@ -188,8 +212,6 @@ public class StoreInventory implements Serializable {
     this.inventoryCategory = inventoryCategory;
     return this;
   }
-
-
 
   @Override
   public boolean equals(Object o) {

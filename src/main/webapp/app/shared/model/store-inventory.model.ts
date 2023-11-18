@@ -20,6 +20,8 @@ export interface IStoreInventory {
   rayon?: IRayon;
   inventoryType?: InventoryType;
   inventoryCategory?: InventoryCategory;
+  gapCost?: number;
+  gapAmount?: number;
 }
 
 export class StoreInventory implements IStoreInventory {
@@ -41,7 +43,7 @@ export class StoreInventory implements IStoreInventory {
 
 export type InventoryStatut = 'CREATE' | 'CLOSED' | 'PROCESSING';
 export type InventoryType = 'MANUEL' | 'PROGRAMME';
-export type InventoryCategoryType = 'STORAGE' | 'RAYON' | 'MAGASIN';
+export type InventoryCategoryType = 'STORAGE' | 'RAYON' | 'MAGASIN' | 'FAMILLY' | 'NONE';
 
 export class InventoryCategory {
   name: InventoryCategoryType;
@@ -61,6 +63,11 @@ export class StoreInventoryFilterRecord {
   userId?: number;
 }
 
+export class StoreInventoryExportRecord {
+  exportGroupBy: string;
+  filterRecord: any;
+}
+
 export class ItemsCountRecord {
   count: number;
 }
@@ -69,4 +76,9 @@ export const CATEGORY_INVENTORY: InventoryCategory[] = [
   new InventoryCategory('MAGASIN', 'Inventaire global'),
   new InventoryCategory('STORAGE', "Inventaire d'un emplacement"),
   new InventoryCategory('RAYON', "Inventaire d'un rayon"),
+];
+export const GROUPING_BY: InventoryCategory[] = [
+  new InventoryCategory('RAYON', 'Grouper par rayon'),
+  new InventoryCategory('STORAGE', 'Grouper par emplacement'),
+  new InventoryCategory('FAMILLY', 'Grouper par famille'),
 ];

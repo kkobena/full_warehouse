@@ -1,0 +1,30 @@
+<table class="inventory-footer-table">
+  <thead>
+  <tr>
+    <th class="wr-font-bold-italic" colspan="6">TOTAUX <span th:text="${rayonLibelle}"></span></th>
+  </tr>
+  </thead>
+  <tbody class="tbody-footer">
+  <tr>
+    <td colspan="2">TOTAL PRODUITS</td>
+    <td th:if="${rayon_item_size ge 1000}"
+        th:text="${#numbers.formatInteger(rayon_item_size,3,'WHITESPACE')}"></td>
+    <td th:if="${rayon_item_size lt 1000}" th:text="${rayon_item_size }"></td>
+  </tr>
+  <tr>
+    <td colspan="2">VALEUR AVANT</td>
+    <td th:if="${rayon_before_amount ge 1000}"
+        th:text="${#numbers.formatInteger(rayon_before_amount,3,'WHITESPACE') }"></td>
+    <td th:if="${rayon_before_amount lt 1000}" th:text="${rayon_before_amount}"></td>
+  </tr>
+  <tr>
+    <td colspan="2">VALEUR APRES</td>
+    <td th:if="${rayon_after_amount ge 1000}"
+        th:text="${#numbers.formatInteger(rayon_after_amount,3,'WHITESPACE') }"></td>
+    <td th:if="${rayon_after_amount lt 1000}" th:text="${rayon_after_amount}"></td>
+  </tr>
+  </tbody>
+
+</table>
+
+

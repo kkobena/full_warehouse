@@ -26,35 +26,34 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Component
 public abstract class CommonService {
-  private final Logger log = LoggerFactory.getLogger(CommonService.class);
-   private  final FileStorageProperties fileStorageProperties;
+  protected final Logger log = LoggerFactory.getLogger(CommonService.class);
+  private final FileStorageProperties fileStorageProperties;
 
-    protected CommonService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageProperties = fileStorageProperties;
+  protected CommonService(FileStorageProperties fileStorageProperties) {
+    this.fileStorageProperties = fileStorageProperties;
+  }
+
+  protected abstract List<?> getItems();
+
+  protected String getDestFilePath() {
+    Path fileStorageLocation =
+        Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+
+    try {
+      Files.createDirectories(fileStorageLocation);
+    } catch (IOException ex) {
+      throw new FileStorageException(
+          "Could not create the directory where the uploaded files will be stored.", ex);
     }
 
-
-    protected abstract List<?> getItems();
-
-  protected  String getDestFilePath(){
-      Path fileStorageLocation =
-          Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-
-      try {
-          Files.createDirectories(fileStorageLocation);
-      } catch (IOException ex) {
-          throw new FileStorageException(
-              "Could not create the directory where the uploaded files will be stored.", ex);
-      }
-
-      return fileStorageLocation
-          .resolve(
-              this.getGenerateFileName()
-                  + "_"
-                  + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
-                  + ".pdf")
-          .toFile()
-          .getAbsolutePath();
+    return fileStorageLocation
+        .resolve(
+            this.getGenerateFileName()
+                + "_"
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
+                + ".pdf")
+        .toFile()
+        .getAbsolutePath();
   }
 
   protected abstract int getMaxiRowCount();
@@ -67,7 +66,7 @@ public abstract class CommonService {
 
   protected abstract String getGenerateFileName();
 
-  public Context getContextVariables() {
+  protected Context getContextVariables() {
     Context context = getContext();
     this.getParameters().forEach(context::setVariable);
     return context;
@@ -164,7 +163,7 @@ public abstract class CommonService {
     return builder;
   }
 
-  private Context getContext() {
+  protected Context getContext() {
     Locale locale = Locale.forLanguageTag("fr");
     return new Context(locale);
   }

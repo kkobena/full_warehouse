@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service;
 
-import static org.apache.pdfbox.pdmodel.PDDocument.load;
-
 import com.kobe.warehouse.domain.Printer;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.service.report.SaleReceiptService;
@@ -12,6 +10,7 @@ import java.nio.file.Paths;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.Orientation;
 import org.apache.pdfbox.printing.PDFPageable;
@@ -32,7 +31,7 @@ public class ReceiptPrinterService {
     Runnable runnableTask =
         () -> {
           try (PDDocument document =
-              load(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
+              Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             printerJob.setPrintService(findPrintService());
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
@@ -50,7 +49,7 @@ public class ReceiptPrinterService {
     Runnable runnableTask =
         () -> {
           try (PDDocument document =
-              load(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
+              Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             printerJob.setPrintService(findPrintService());
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));

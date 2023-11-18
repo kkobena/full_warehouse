@@ -1,1 +1,57 @@
-<p>clotures works!</p>
+<p-toast position="center"></p-toast>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+             size="medium"
+             type="timer"></ngx-spinner>
+
+<p-table
+
+  [paginator]="true"
+
+  [rowsPerPageOptions]="[5,10,15,20,30,50]"
+  [rows]="itemsPerPage" [showCurrentPageReport]="false"
+  [totalRecords]="totalItems"
+  [value]="rowData"
+  dataKey="id"
+  selectionMode="multiple"
+  styleClass="p-datatable-striped mt-2"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Emplacement</th>
+      <th>Date</th>
+      <th>Opérateur</th>
+      <th>Valeur Achat Avant</th>
+      <th>Valeur Vente Avant</th>
+      <th>Valeur Achat Après</th>
+      <th>Valeur Vente Après</th>
+      <th>Ecart Achat</th>
+      <th>Ecart Vente</th>
+      <th style="width:5%"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-expanded="expanded" let-storeInventory pTemplate="body">
+    <tr>
+      <td>{{storeInventory.storage?.name}}</td>
+      <td>{{storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+      <td>{{storeInventory.abbrName}}</td>
+      <td class="text-right">{{storeInventory.inventoryValueCostBegin | number}}</td>
+      <td class="text-right">{{storeInventory.inventoryAmountBegin | number}}</td>
+      <td class="text-right">{{storeInventory.inventoryValueCostAfter | number}}</td>
+      <td class="text-right">{{storeInventory.inventoryAmountAfter | number}}</td>
+      <td class="text-right">{{storeInventory.gapCost | number}}</td>
+      <td class="text-right">{{storeInventory.gapAmount | number}}</td>
+      <td class="text-right">
+        <div class="btn-group">
+          <button (click)="exportPdf(storeInventory)"
+                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  pButton
+                  pRipple pTooltip="Imprimer"></button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+
+

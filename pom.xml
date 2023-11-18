@@ -553,7 +553,7 @@
         <dependency>
             <artifactId>commons-csv</artifactId>
             <groupId>org.apache.commons</groupId>
-            <version>1.9.0</version>
+            <version>1.10.0</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>javax.annotation</groupId>-->
@@ -589,13 +589,19 @@
             <artifactId>springdoc-openapi-webmvc-core</artifactId>
             <groupId>org.springdoc</groupId>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/org.dhatim/fastexcel-reader -->
+        <!-- <dependency>
+             <groupId>org.dhatim</groupId>
+             <artifactId>fastexcel-reader</artifactId>
+             <version>0.15.7</version>
+         </dependency>-->
         <dependency>
             <artifactId>poi</artifactId>
             <groupId>org.apache.poi</groupId>
             <version>5.2.3</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
+
         <dependency>
             <artifactId>jasperreports</artifactId>
             <groupId>net.sf.jasperreports</groupId>
@@ -614,7 +620,7 @@
         <dependency>
             <artifactId>pdfbox</artifactId>
             <groupId>org.apache.pdfbox</groupId>
-            <version>2.0.22</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <artifactId>HikariCP</artifactId>
@@ -623,6 +629,7 @@
         <dependency>
             <artifactId>commons-lang3</artifactId>
             <groupId>org.apache.commons</groupId>
+            <version>3.13.0</version>
         </dependency>
         <dependency>
             <artifactId>hibernate-jpamodelgen</artifactId>

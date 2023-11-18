@@ -1,0 +1,76 @@
+<table class="main-table">
+  <thead>
+  <tr>
+
+    <th class="text-left" style="width:12%;">CODE</th>
+    <th class="text-left" style="width:38%;">DESCRIPTION</th>
+    <th class="text-right" style="width:8%;">PRIX.A</th>
+    <th class="text-right" style="width:8%;">PRIX.U</th>
+    <th class="text-right" style="width:6%;">STOCK.INIT</th>
+    <th class="text-right" style="width:6%;">QTE</th>
+    <th class="text-right" style="width:6%;">ECART</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:if="${isStartStorage}">
+    <td colspan="7"></td>
+  </tr>
+  <tr th:if="${isStartRayon}">
+    <td colspan="7"></td>
+  </tr>
+  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+    <td class="text-left" th:if="${#strings.isEmpty(itm.produitEan)}"
+        th:text="${itm.produitCip}"></td>
+    <td class="text-left" th:if="${!#strings.isEmpty(itm.produitEan)}"
+        th:text="${itm.produitEan}"></td>
+    <td class="text-left" th:text="${itm.produitLibelle}"></td>
+
+
+    <td class="unit" th:if="${itm.prixAchat ge 1000}"
+        th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.prixAchat lt 1000}" th:text="${itm.prixAchat}"></td>
+
+    <td class="qty" th:if="${itm.prixUni ge 1000}"
+        th:text="${#numbers.formatInteger(itm.prixUni,3,'WHITESPACE')}"></td>
+    <td class="qty" th:if="${itm.prixUni lt 1000}"
+        th:text="${itm.prixUni}"></td>
+
+    <td class="qty" th:if="${itm.quantityInit ge 1000}"
+        th:text="${#numbers.formatInteger(itm.quantityInit,3,'WHITESPACE')}"></td>
+    <td class="qty" th:if="${itm.quantityInit lt 1000}"
+        th:text="${itm.quantityInit}"></td>
+
+
+    <td class="qty" th:if="${itm.quantityOnHand ge 1000}"
+        th:text="${#numbers.formatInteger(itm.quantityOnHand,3,'WHITESPACE')}"></td>
+    <td class="qty" th:if="${itm.quantityOnHand lt 1000}"
+        th:text="${itm.quantityOnHand}"></td>
+
+    <td class="qty" th:if="${itm.gap ge 1000}"
+        th:text="${#numbers.formatInteger(itm.gap,3,'WHITESPACE')}"></td>
+    <td class="qty" th:if="${itm.gap lt 1000}"
+        th:text="${itm.gap}"></td>
+
+  </tr>
+
+  <tr th:if="${isEndRayon}">
+    <td colspan="7"></td>
+  </tr>
+  <tr th:if="${isEndStorage}">
+    <td colspan="7"></td>
+  </tr>
+
+  </tbody>
+  <tfoot th:if="${isLastPage}">
+  <tr>
+    <td style="text-align: left;"></td>
+    <td colspan="5" style="text-align: left;"><span>NOMBRE DE PRODUITS <span class="total item-size"
+                                                                             th:text="${'( '+ item_size}+' )'"></span></span>
+    </td>
+  </tr>
+  </tfoot>
+</table>
+<section th:if="${isLastPage}" th:replace="~{inventaire/table-footer}">
+
+
+</section>

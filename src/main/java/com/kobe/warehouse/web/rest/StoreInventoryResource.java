@@ -2,15 +2,19 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
+import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -84,5 +88,13 @@ public class StoreInventoryResource {
     Optional<StoreInventoryDTO> storeInventoryDTO =
         inventaireService.getProccessingStoreInventory(id);
     return ResponseUtil.wrapOrNotFound(storeInventoryDTO);
+  }
+
+  @PostMapping("/store-inventories/pdf")
+  public ResponseEntity<Resource> getPdf(
+      @RequestBody StoreInventoryExportRecord filterRecord, HttpServletRequest request)
+      throws MalformedURLException {
+    Resource resource = this.inventaireService.printToPdf(filterRecord);
+    return Utils.printPDF(resource, request);
   }
 }

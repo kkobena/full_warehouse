@@ -1,5 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { InventoryCategory, InventoryStatut, IStoreInventory, ItemsCountRecord } from '../../../shared/model/store-inventory.model';
+import {
+  GROUPING_BY,
+  InventoryCategory,
+  InventoryStatut,
+  IStoreInventory,
+  ItemsCountRecord,
+  StoreInventoryExportRecord,
+} from '../../../shared/model/store-inventory.model';
 import { IUser } from '../../../core/user/user.model';
 import { StoreInventoryService } from '../store-inventory.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -16,7 +23,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 @Component({
   selector: 'jhi-en-cours',
   templateUrl: './en-cours.component.html',
-  styleUrls: ['./en-cours.component.scss'],
+
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
@@ -50,7 +57,7 @@ export class EnCoursComponent implements OnInit {
   }
 
   exportPdf(storeInventory: IStoreInventory): void {
-    this.storeInventoryService.exportToPdf(storeInventory.id).subscribe(blod => saveAs(blod));
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory?.id)).subscribe(blod => saveAs(blod));
   }
 
   confirmDelete(storeInventory: IStoreInventory): void {
@@ -161,6 +168,16 @@ export class EnCoursComponent implements OnInit {
       userId: this.user?.id,
       inventoryCategories: this.inventoryCategories.map(e => e.name),
       statuts: this.statuts,
+    };
+  }
+
+  private buildPdfQuery(storeInventoryId: number): StoreInventoryExportRecord {
+    return {
+      exportGroupBy: GROUPING_BY[0].name,
+      filterRecord: {
+        storeInventoryId,
+        selectedFilter: 'NONE',
+      },
     };
   }
 }

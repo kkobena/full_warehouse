@@ -20,23 +20,29 @@ import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
+import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
+import com.kobe.warehouse.service.dto.StoreInventoryLineExport;
 import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
+import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
+import com.kobe.warehouse.service.report.InventoryReportService;
 import com.kobe.warehouse.web.rest.errors.InventoryException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
@@ -46,8 +52,10 @@ import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -58,9 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class InventaireServiceImpl implements InventaireService {
 
-  private static final Comparator<StoreInventoryLineDTO> COMPARATOR_LINE =
-      Comparator.comparing(StoreInventoryLineDTO::getProduitLibelle);
-  private final Logger LOG = LoggerFactory.getLogger(InventaireServiceImpl.class);
+  private final Logger log = LoggerFactory.getLogger(InventaireServiceImpl.class);
 
   private final UserService userService;
 
@@ -70,6 +76,7 @@ public class InventaireServiceImpl implements InventaireService {
   private final StorageService storageService;
   private final StockProduitRepository stockProduitRepository;
   private final RayonRepository rayonRepository;
+  private final InventoryReportService inventoryReportService;
   @PersistenceContext private EntityManager em;
 
   public InventaireServiceImpl(
@@ -78,7 +85,8 @@ public class InventaireServiceImpl implements InventaireService {
       StoreInventoryLineRepository storeInventoryLineRepository,
       StorageService storageService,
       StockProduitRepository stockProduitRepository,
-      RayonRepository rayonRepository) {
+      RayonRepository rayonRepository,
+      InventoryReportService inventoryReportService) {
 
     this.userService = userService;
     this.storeInventoryRepository = storeInventoryRepository;
@@ -86,6 +94,16 @@ public class InventaireServiceImpl implements InventaireService {
     this.storageService = storageService;
     this.stockProduitRepository = stockProduitRepository;
     this.rayonRepository = rayonRepository;
+    this.inventoryReportService = inventoryReportService;
+  }
+
+  @Override
+  public Resource printToPdf(StoreInventoryExportRecord filterRecord) throws MalformedURLException {
+    try {
+      return this.inventoryReportService.printToPdf(this.getStoreInventoryToExport(filterRecord));
+    } catch (MalformedURLException e) {
+      throw e;
+    }
   }
 
   @Override
@@ -106,9 +124,19 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventorySummaryRecord.amountValueAfter().longValue());
     storeInventory.setInventoryValueCostBegin(
         storeInventorySummaryRecord.costValueBegin().longValue());
+    storeInventory.setGapCost(storeInventorySummaryRecord.gapCost().intValue());
+    storeInventory.setGapAmount(storeInventorySummaryRecord.gapAmount().intValue());
     int itemCount = closeItems(storeInventory.getId());
     storeInventoryRepository.save(storeInventory);
     return new ItemsCountRecord(itemCount);
+  }
+
+  @Override
+  public List<StoreInventoryGroupExport> getStoreInventoryToExport(
+      StoreInventoryExportRecord filterRecord) {
+
+    return buildStoreInventoryGroupExportsFromTuple(
+        getAllByInventories(filterRecord), filterRecord);
   }
 
   private int closeItems(Long id) {
@@ -181,6 +209,98 @@ public class InventaireServiceImpl implements InventaireService {
     return Optional.of(new StoreInventoryDTO(storeInventory));
   }
 
+  private StoreInventoryGroupExport buildFromTuple(
+      StoreInventoryGroupExport storeInventoryGroupExport,
+      int id,
+      String code,
+      String libelle,
+      StoreInventoryLineExport storeInventoryLineExport) {
+    if (Objects.isNull(storeInventoryGroupExport)) {
+      storeInventoryGroupExport = new StoreInventoryGroupExport();
+      storeInventoryGroupExport.setId(id);
+      storeInventoryGroupExport.setCode(code);
+      storeInventoryGroupExport.setLibelle(libelle);
+    }
+
+    storeInventoryGroupExport.getItems().add(storeInventoryLineExport);
+    storeInventoryGroupExport.computeSummary(storeInventoryLineExport);
+    return storeInventoryGroupExport;
+  }
+
+  private Triple<Integer, String, String> getRayon(
+      BigInteger idRayon, StoreInventoryLineExport storeInventoryLineExport) {
+
+    if (Objects.isNull(idRayon)) {
+      return Triple.of(-1, "SANS", "RAYON");
+    }
+    int i = idRayon.intValue();
+    return Stream.of(1, 2, 3).anyMatch(e -> e == i)
+        ? Triple.of(-1, "SANS", "RAYON")
+        : Triple.of(
+            i, storeInventoryLineExport.getRayonCode(), storeInventoryLineExport.getRayonLibelle());
+  }
+
+  private List<StoreInventoryGroupExport> buildStoreInventoryGroupExportsFromTuple(
+      List<Tuple> tuples, StoreInventoryExportRecord storeInventoryExportRecord) {
+    LinkedHashMap<Integer, StoreInventoryGroupExport> map = new LinkedHashMap<>();
+    StoreInventoryGroupExport storeInventoryGroupExport;
+    switch (storeInventoryExportRecord.exportGroupBy()) {
+      case FAMILLY -> {
+        for (Tuple t : tuples) {
+          int id = t.get("famillyId", BigInteger.class).intValue();
+          StoreInventoryLineExport storeInventoryLineExport =
+              StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+          storeInventoryGroupExport = map.get(id);
+          storeInventoryGroupExport =
+              buildFromTuple(
+                  storeInventoryGroupExport,
+                  id,
+                  storeInventoryLineExport.getFamillyCode(),
+                  storeInventoryLineExport.getFamillyLibelle(),
+                  storeInventoryLineExport);
+          map.put(id, storeInventoryGroupExport);
+        }
+      }
+      case RAYON, NONE -> {
+        for (Tuple t : tuples) {
+          BigInteger idRayon = t.get("rayon_id", BigInteger.class);
+
+          StoreInventoryLineExport storeInventoryLineExport =
+              StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+          Triple<Integer, String, String> integerStringStringTriple =
+              getRayon(idRayon, storeInventoryLineExport);
+          int id = integerStringStringTriple.getLeft();
+          storeInventoryGroupExport = map.get(id);
+          storeInventoryGroupExport =
+              buildFromTuple(
+                  storeInventoryGroupExport,
+                  id,
+                  integerStringStringTriple.getMiddle(),
+                  integerStringStringTriple.getRight(),
+                  storeInventoryLineExport);
+          map.put(id, storeInventoryGroupExport);
+        }
+      }
+      case STORAGE -> {
+        for (Tuple t : tuples) {
+          int id = t.get("storage_id", BigInteger.class).intValue();
+          StoreInventoryLineExport storeInventoryLineExport =
+              StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+          storeInventoryGroupExport = map.get(id);
+          storeInventoryGroupExport =
+              buildFromTuple(
+                  storeInventoryGroupExport,
+                  id,
+                  storeInventoryLineExport.getStorageLibelle(),
+                  storeInventoryLineExport.getStorageLibelle(),
+                  storeInventoryLineExport);
+          map.put(id, storeInventoryGroupExport);
+        }
+      }
+    }
+    return new ArrayList<>(map.values());
+  }
+
   @Override
   public void remove(Long id) {
     storeInventoryRepository.deleteById(id);
@@ -227,6 +347,8 @@ public class InventaireServiceImpl implements InventaireService {
     storeInventory.setInventoryAmountBegin(0L);
     storeInventory.setInventoryValueCostBegin(0L);
     storeInventory.setInventoryValueCostAfter(0L);
+    storeInventory.setGapAmount(0);
+    storeInventory.setGapCost(0);
     if (Objects.isNull(storeInventoryRecord.storage())) {
       storeInventory.setStorage(this.storageService.getDefaultConnectedUserMainStorage());
     }
@@ -240,26 +362,36 @@ public class InventaireServiceImpl implements InventaireService {
       storeInventory.setStorage(this.storageService.getOne(storeInventoryRecord.storage()));
     }
     storeInventory = this.storeInventoryRepository.saveAndFlush(storeInventory);
-    insertItems(storeInventory);
+    insertItems(storeInventory, storeInventoryRecord);
     return new StoreInventoryDTO(storeInventory);
   }
 
-  private String buildInsertQuery(StoreInventory storeInventory) {
+  private String buildInsertQuery(
+      StoreInventory storeInventory, StoreInventoryRecord storeInventoryRecord) {
 
     return switch (storeInventory.getInventoryCategory()) {
       case MAGASIN -> String.format(
-          StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId());
+              StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId())
+          .replace("{famille_close}", "");
       case RAYON -> String.format(
               StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId())
           + String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
       case STORAGE -> String.format(
               StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId())
           + String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
+      case FAMILLY -> String.format(
+              StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId())
+          .replace(
+              "{famille_close}",
+              String.format(" AND p.famille_id=%d", storeInventoryRecord.famillyId()));
     };
   }
 
-  private void insertItems(StoreInventory storeInventory) {
-    this.em.createNativeQuery(buildInsertQuery(storeInventory)).executeUpdate();
+  private void insertItems(
+      StoreInventory storeInventory, StoreInventoryRecord storeInventoryRecord) {
+    this.em
+        .createNativeQuery(buildInsertQuery(storeInventory, storeInventoryRecord))
+        .executeUpdate();
   }
 
   private List<Predicate> predicates(
@@ -268,10 +400,10 @@ public class InventaireServiceImpl implements InventaireService {
       Root<StoreInventory> root) {
     List<Predicate> predicates = new ArrayList<>();
     In<InventoryCategory> inventoryCategoryIn = cb.in(root.get(StoreInventory_.inventoryCategory));
-    storeInventoryFilterRecord.inventoryCategories().forEach(s -> inventoryCategoryIn.value(s));
+    storeInventoryFilterRecord.inventoryCategories().forEach(inventoryCategoryIn::value);
     predicates.add(inventoryCategoryIn);
     In<InventoryStatut> inventoryStatutIn = cb.in(root.get(StoreInventory_.statut));
-    storeInventoryFilterRecord.statuts().forEach(s -> inventoryStatutIn.value(s));
+    storeInventoryFilterRecord.statuts().forEach(inventoryStatutIn::value);
     predicates.add(inventoryStatutIn);
     if (Objects.nonNull(storeInventoryFilterRecord.rayonId())) {
       predicates.add(
@@ -334,15 +466,13 @@ public class InventaireServiceImpl implements InventaireService {
           .intValue();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
       return 0;
     }
   }
 
-  private List<Tuple> getAllByInventory(
-      StoreInventory storeInventory,
-      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord,
-      Pageable pageable) {
+  private List<Tuple> getAllByInventories(
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable) {
 
     try {
       return this.em
@@ -354,7 +484,7 @@ public class InventaireServiceImpl implements InventaireService {
           .getResultList();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
     }
     return Collections.emptyList();
   }
@@ -363,7 +493,7 @@ public class InventaireServiceImpl implements InventaireService {
       StoreInventory storeInventory,
       StoreInventoryLineFilterRecord storeInventoryLineFilterRecord,
       Pageable pageable) {
-    return getAllByInventory(storeInventory, storeInventoryLineFilterRecord, pageable).stream()
+    return getAllByInventories(storeInventoryLineFilterRecord, pageable).stream()
         .map(
             tuple ->
                 StoreInventoryLineFilterBuilder.buildStoreInventoryLineRecordRecord(
@@ -379,5 +509,19 @@ public class InventaireServiceImpl implements InventaireService {
     return Objects.nonNull(stockProduit.getQtyUG())
         ? stockProduit.getQtyUG() + stockProduit.getQtyStock()
         : stockProduit.getQtyStock();
+  }
+
+  private List<Tuple> getAllByInventories(StoreInventoryExportRecord inventoryExportRecord) {
+
+    try {
+      return this.em
+          .createNativeQuery(this.buildExportQuery(inventoryExportRecord), Tuple.class)
+          .setParameter(1, inventoryExportRecord.filterRecord().storeInventoryId())
+          .getResultList();
+
+    } catch (Exception e) {
+      log.error(null, e);
+    }
+    return Collections.emptyList();
   }
 }

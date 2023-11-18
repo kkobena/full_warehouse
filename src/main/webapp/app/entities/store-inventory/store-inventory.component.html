@@ -12,7 +12,7 @@
         <ng-container ngbNavItem="CLOSED">
           <a class="flex-sm-fill nav-link " ngbNavLink>Cloturés</a>
           <ng-template ngbNavContent>
-            <jhi-clotures></jhi-clotures>
+            <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
           </ng-template>
         </ng-container>
 

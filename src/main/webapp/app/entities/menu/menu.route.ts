@@ -1,29 +1,28 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, Observable, of } from 'rxjs';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {IMenu, Menu} from 'app/shared/model/menu.model';
-import {MenuService} from './menu.service';
-import {MenuComponent} from './menu.component';
-import {MenuDetailComponent} from './menu-detail.component';
-import {MenuUpdateComponent} from './menu-update.component';
+import { MenuComponent } from './menu.component';
+import { MenuDetailComponent } from './menu-detail.component';
+import { MenuUpdateComponent } from './menu-update.component';
+import { IAuthority, Privilege } from '../../shared/model/authority.model';
+import { PrivillegeService } from './privillege.service';
+import { Authority } from '../../config/authority.constants';
+import { mergeMap } from 'rxjs/internal/operators/mergeMap';
 
-@Injectable({providedIn: 'root'})
-export class MenuResolve implements Resolve<IMenu> {
-  constructor(private service: MenuService, private router: Router) {
-  }
+@Injectable({ providedIn: 'root' })
+export class MenuResolve implements Resolve<IAuthority> {
+  constructor(private service: PrivillegeService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<IMenu> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        flatMap((menu: HttpResponse<Menu>) => {
-          if (menu.body) {
-            return of(menu.body);
+  resolve(route: ActivatedRouteSnapshot): Observable<IAuthority> | Observable<never> {
+    const name = route.params['name'];
+    if (name) {
+      return this.service.find(name).pipe(
+        mergeMap((privilege: HttpResponse<Privilege>) => {
+          if (privilege.body) {
+            return of(privilege.body);
           } else {
             this.router.navigate(['404']);
             return EMPTY;
@@ -31,7 +30,7 @@ export class MenuResolve implements Resolve<IMenu> {
         })
       );
     }
-    return of(new Menu());
+    return of(new Privilege());
   }
 }
 
@@ -46,10 +45,10 @@ export const menuRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
-    path: ':id/view',
+    path: ':name/view',
     component: MenuDetailComponent,
     resolve: {
-      menu: MenuResolve,
+      privilege: MenuResolve,
     },
     data: {
       authorities: [Authority.USER],
@@ -61,7 +60,7 @@ export const menuRoute: Routes = [
     path: 'new',
     component: MenuUpdateComponent,
     resolve: {
-      menu: MenuResolve,
+      privilege: MenuResolve,
     },
     data: {
       authorities: [Authority.USER],
@@ -73,7 +72,7 @@ export const menuRoute: Routes = [
     path: ':id/edit',
     component: MenuUpdateComponent,
     resolve: {
-      menu: MenuResolve,
+      privilege: MenuResolve,
     },
     data: {
       authorities: [Authority.USER],

@@ -1,34 +1,44 @@
 <div class="row justify-content-center">
-    <div class="col-8">
-        <div *ngIf="menu">
-            <h2><span jhiTranslate="warehouseApp.menu.detail.title">Menu</span> {{ menu.id }}</h2>
+  <div class="col-12">
+    <div>
+      <h3 id="page-heading"><span
+        jhiTranslate="warehouseApp.menu.detail.title">Menu</span> {{ entity?.libelle }}
+        <button (click)="previousState()" class="p-button-raised float-right  p-button-infos"
+                icon="pi pi-arrow-left"
+                iconPos="left" label="Retour"
+                pButton
+                pRipple style="float: right;"
+                type="button"></button>
+      </h3>
 
-            <hr>
+      <hr>
 
-            <jhi-alert-error></jhi-alert-error>
+      <jhi-alert-error></jhi-alert-error>
+      <p-pickList (onMoveAllToSource)="onMoveAllToSource()"
+                  (onMoveAllToTarget)="onMoveAllToTarget()"
+                  (onMoveToSource)="onMoveToSource()"
+                  (onMoveToTarget)="onMoveToTarget()"
+                  [dragdrop]="true" [responsive]="true"
+                  [sourceStyle]="{ height: '30rem' }"
+                  [source]="others" [targetStyle]="{ height: '30rem' }"
+                  [target]="associes"
+                  filterBy="libelle"
+                  sourceFilterPlaceholder="Rechercher par libelle" sourceHeader="Privillèges"
+                  targetFilterPlaceholder="Rechercher par libelle"
+                  targetHeader="Privillèges associés">
+        <ng-template let-menu pTemplate="item">
+          <div class="flex flex-wrap p-2 align-items-center">
 
-            <dl class="row-md jh-entity-details">
-                <dt><span jhiTranslate="warehouseApp.menu.libelle">Libelle</span></dt>
-                <dd>
-                    <span>{{ menu.libelle }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.menu.name">Name</span></dt>
-                <dd>
-                    <span>{{ menu.name }}</span>
-                </dd>
-            </dl>
+            <div class="flex-1 flex flex-column ">
+              <span class="font-bold">{{ menu.libelle }}</span>
 
-            <button type="submit"
-                    (click)="previousState()"
-                    class="btn btn-info">
-                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
-            </button>
+            </div>
 
-            <button type="button"
-                    [routerLink]="['/menu', menu.id, 'edit']"
-                    class="btn btn-primary">
-                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
-            </button>
-        </div>
+          </div>
+        </ng-template>
+      </p-pickList>
+
+
     </div>
+  </div>
 </div>

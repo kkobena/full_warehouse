@@ -1,25 +1,25 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {Subscription} from 'rxjs';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-
-import {IMenu} from 'app/shared/model/menu.model';
-import {MenuService} from './menu.service';
-import {MenuDeleteDialogComponent} from './menu-delete-dialog.component';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MenuDeleteDialogComponent } from './menu-delete-dialog.component';
+import { PrivillegeService } from './privillege.service';
+import { IAuthority } from '../../shared/model/authority.model';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-menu',
   templateUrl: './menu.component.html',
+  providers: [MessageService],
 })
 export class MenuComponent implements OnInit {
-  menus?: IMenu[];
-  eventSubscriber?: Subscription;
+  protected authorities?: IAuthority[];
+  protected eventSubscriber?: Subscription;
 
-  constructor(protected menuService: MenuService, protected modalService: NgbModal) {
-  }
+  constructor(private messageService: MessageService, protected privillegeService: PrivillegeService, protected modalService: NgbModal) {}
 
   loadAll(): void {
-    this.menuService.query().subscribe((res: HttpResponse<IMenu[]>) => (this.menus = res.body || []));
+    this.privillegeService.queryAuthorities().subscribe((res: HttpResponse<IAuthority[]>) => (this.authorities = res.body || []));
   }
 
   ngOnInit(): void {
@@ -27,18 +27,27 @@ export class MenuComponent implements OnInit {
     this.registerChangeInMenus();
   }
 
-
-  trackId(index: number, item: IMenu): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
-  }
-
   registerChangeInMenus(): void {
     this.loadAll();
   }
 
-  delete(menu: IMenu): void {
-    const modalRef = this.modalService.open(MenuDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
-    modalRef.componentInstance.menu = menu;
+  delete(authority: IAuthority): void {
+    const modalRef = this.modalService.open(MenuDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
+    modalRef.componentInstance.authority = authority;
+    modalRef.closed.subscribe({ complete: () => this.loadAll() });
+  }
+
+  onEdit(authority: IAuthority, evt: any): void {
+    const libelle = evt.target.value;
+    if (authority.libelle !== libelle && libelle !== '') {
+      authority.libelle = libelle;
+      this.privillegeService.create(authority).subscribe({
+        next: () => this.loadAll(),
+        error: () => this.loadAll(),
+      });
+    }
   }
 }

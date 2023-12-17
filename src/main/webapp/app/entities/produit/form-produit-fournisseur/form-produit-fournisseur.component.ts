@@ -125,11 +125,7 @@ export class FormProduitFournisseurComponent implements OnInit {
   handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(['prixUni'])!.value);
-    if (value >= unitPrice) {
-      this.isValid = false;
-    } else {
-      this.isValid = true;
-    }
+    this.isValid = value < unitPrice;
   }
 
   handlePrixUnitaireInput(event: any): void {

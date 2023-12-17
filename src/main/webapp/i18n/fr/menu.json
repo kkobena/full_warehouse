@@ -2,22 +2,22 @@
   "warehouseApp": {
     "menu": {
       "home": {
-        "title": "Menus",
-        "createLabel": "Créer un nouveau Menu",
-        "createOrEditLabel": "Créer ou éditer un Menu",
-        "notFound": "Aucun Menu trouvé"
+        "title": "Rôles et autorisations",
+        "createLabel": "  Ajouter un nouveau rôle",
+        "createOrEditLabel": "Ajouter ou éditer un rôle",
+        "notFound": "Aucun rôle trouvé"
       },
-      "created": "Un nouveau Menu a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Menu avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Menu avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau rôle a été créé avec l'identifiant {{ param }}",
+      "updated": "Le rôle avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le rôle avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Etes-vous certain de vouloir supprimer le Menu {{ id }} ?"
+        "question": "Etes-vous certain de vouloir supprimer le rôle {{ id }} ?"
       },
       "detail": {
-        "title": "Menu"
+        "title": "Rôle"
       },
-      "libelle": "Libelle",
-      "name": "Name"
+      "libelle": "Description",
+      "name": "Nom"
     }
   }
 }

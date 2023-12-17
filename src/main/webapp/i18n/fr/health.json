@@ -12,6 +12,8 @@
     },
     "indicator": {
       "diskSpace": "Espace disque",
+      "livenessState": "État de vivacité",
+      "readinessState": "État de préparation",
       "mail": "Email",
       "ping": "Application",
       "db": "Base de données"

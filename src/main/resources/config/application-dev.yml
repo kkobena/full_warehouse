@@ -38,9 +38,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mariadb://localhost:3306/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
-    username: root
-    password: 2802
+    url: jdbc:mariadb://localhost:3306/warehouse2?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
+    username: warehouse
+    password: warehouse2802
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -58,12 +58,7 @@ spring:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
-    flyway:
-      enabled: true
-      schemas: warehouse
-      baseline-on-migrate: true
-      create-schemas: false
-      installed-by: root
+
 
 server:
   port: 8090
@@ -107,5 +102,14 @@ jhipster:
 # More documentation is available at:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
-
+management:
+  endpoint:
+    flyway:
+      schemas: warehouse2
+      baseline-on-migrate: true
+      create-schemas: false
+      installed-by: warehouse
+      cache:
+        time-to-live:
+      enabled: true
 # application:

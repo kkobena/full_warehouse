@@ -11,14 +11,14 @@ import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
 import {
-  faStore,
   faFileInvoiceDollar,
+  faShippingFast,
+  faShoppingBag,
+  faShoppingBasket,
+  faStore,
+  faThList,
   faUserTimes,
   faWarehouse,
-  faShoppingBag,
-  faShippingFast,
-  faThList,
-  faShoppingBasket,
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -27,22 +27,24 @@ import {
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
-  inProduction?: boolean;
-  isNavbarCollapsed = true;
-  languages = LANGUAGES;
-  openAPIEnabled?: boolean;
-  version = '';
-  account: Account | null = null;
-  entitiesNavbarItems: any[] = [];
-  faUserTimes = faUserTimes;
-  hideLanguage?: boolean;
-  faFileInvoiceDollar = faFileInvoiceDollar;
-  faWarehouse = faWarehouse;
-  faShoppingBag = faShoppingBag;
-  faThList = faThList;
-  faShippingFast = faShippingFast;
-  faShoppingBasket = faShoppingBasket;
-  faStore = faStore;
+  protected inProduction?: boolean;
+  protected isNavbarCollapsed = true;
+  protected languages = LANGUAGES;
+  protected openAPIEnabled?: boolean = false;
+  protected version = '';
+  protected account: Account | null = null;
+  protected entitiesNavbarItems: any[] = [];
+  protected faUserTimes = faUserTimes;
+  protected hideLanguage?: boolean = true;
+  protected hideApiDoc?: boolean = true;
+  protected faFileInvoiceDollar = faFileInvoiceDollar;
+  protected faWarehouse = faWarehouse;
+  protected faShoppingBag = faShoppingBag;
+  protected faThList = faThList;
+  protected faShippingFast = faShippingFast;
+  protected faShoppingBasket = faShoppingBasket;
+  protected faStore = faStore;
+
   constructor(
     private loginService: LoginService,
     private translateService: TranslateService,
@@ -60,7 +62,6 @@ export class NavbarComponent implements OnInit {
     this.entitiesNavbarItems = EntityNavbarItems;
     this.profileService.getProfileInfo().subscribe(profileInfo => {
       this.inProduction = profileInfo.inProduction;
-      this.openAPIEnabled = profileInfo.openAPIEnabled;
     });
 
     this.accountService.getAuthenticationState().subscribe(account => {
@@ -80,9 +81,11 @@ export class NavbarComponent implements OnInit {
   login(): void {
     this.router.navigate(['/login']);
   }
+
   isAuthenticated(): boolean {
     return this.accountService.isAuthenticated();
   }
+
   logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
@@ -92,6 +95,7 @@ export class NavbarComponent implements OnInit {
   toggleNavbar(): void {
     this.isNavbarCollapsed = !this.isNavbarCollapsed;
   }
+
   getImageUrl(): string {
     return this.isAuthenticated() ? this.accountService.getImageUrl() : '';
   }

@@ -279,10 +279,10 @@ export class ProduitUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {

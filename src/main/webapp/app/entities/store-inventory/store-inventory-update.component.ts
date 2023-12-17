@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { IStoreInventory, ItemsCountRecord } from 'app/shared/model/store-inventory.model';
+import { GROUPING_BY, IStoreInventory, ItemsCountRecord, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
 
 import { StoreInventoryLineService } from '../store-inventory-line/store-inventory-line.service';
@@ -19,8 +19,9 @@ import { ErrorService } from '../../shared/error.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
-import { formatNumberToString } from '../../shared/util/warehouse-util';
+import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS, formatNumberToString } from '../../shared/util/warehouse-util';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -253,6 +254,16 @@ export class StoreInventoryUpdateComponent implements OnInit {
       });
   }
 
+  exportPdf(): void {
+    this.spinner.show();
+
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe(blod => {
+      const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+      saveAs(blod, 'inventaire_' + fileName);
+      this.spinner.hide();
+    });
+  }
+
   protected editCurrentCell(params: any): void {
     this.gridApi.stopEditing(true);
     params.data.quantityOnHand = params.oldValue;
@@ -336,6 +347,19 @@ export class StoreInventoryUpdateComponent implements OnInit {
 
       error: () => this.onSaveItemError(params),
     });
+  }
+
+  private buildPdfQuery(): StoreInventoryExportRecord {
+    return {
+      exportGroupBy: GROUPING_BY[0].name,
+      filterRecord: {
+        storeInventoryId: this.storeInventory?.id,
+        search: this.searchValue,
+        storageId: this.selectedStorage?.id,
+        rayonId: this.selectedRayon?.id,
+        selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
+      },
+    };
   }
 
   private openInfoDialog(message: string, infoClass: string): void {

@@ -13,5 +13,6 @@ public interface ProductStateService {
   void addState(Produit produit, ProductStateEnum state);
 
   List<ProductState> fetchByProduit(Produit produit);
-  List<ProductState> fetchByProduitAndState(Produit produit,ProductStateEnum state);
+
+  List<ProductState> fetchByProduitAndState(Produit produit, ProductStateEnum state);
 }

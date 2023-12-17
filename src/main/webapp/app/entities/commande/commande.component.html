@@ -48,7 +48,7 @@
           </ng-template>
         </ng-container>
         <ng-container ngbNavItem="PASSED">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Commande en passées</a>
+          <a class="flex-sm-fill nav-link " ngbNavLink>Commande passées</a>
           <ng-template ngbNavContent>
             <jhi-commande-passes (selectionLength)="updateSelectionLength($event)"
                                  [searchCommande]="searchCommande"
@@ -56,7 +56,7 @@
           </ng-template>
         </ng-container>
         <ng-container ngbNavItem="RECEIVED">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Commande en reçues</a>
+          <a class="flex-sm-fill nav-link" ngbNavLink>Commande reçues</a>
           <ng-template ngbNavContent>
             <jhi-commande-recus [searchByRef]="searchCommande"
                                 [search]="search"></jhi-commande-recus>

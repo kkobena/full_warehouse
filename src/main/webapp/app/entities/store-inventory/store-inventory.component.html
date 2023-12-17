@@ -23,7 +23,7 @@
   <div class="col-10 col-md-10 col-sm-10 row">
     <div>
       <p-toolbar>
-        <div class="p-toolbar-group-left" style="width: 80%;">
+        <div class="p-toolbar-group-left" style="width:70%;">
           <div class="row" style="width: 100%;">
             <div *ngIf="showUserCombo" class="col-md-6 row">
               <div class="col-md-3">Opérateurs</div>
@@ -33,7 +33,7 @@
                             optionLabel="fullName"></p-dropdown>
               </div>
             </div>
-            <div class="col-md-6 row">
+            <div class="col-md-10 row">
               <div class="col-md-2">Types</div>
               <div class="col-md-10">
                 <p-multiSelect [(ngModel)]="inventoryCategories" [filter]="false"

@@ -500,7 +500,11 @@
             <groupId>org.hibernate</groupId>
             <version>${hibernate.version}</version>
         </dependency>
-
+        <dependency>
+            <artifactId>json</artifactId>
+            <groupId>org.json</groupId>
+            <version>20231013</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.vladmihalcea/hibernate-types-52 -->
         <dependency>
             <artifactId>hypersistence-utils-hibernate-55</artifactId>

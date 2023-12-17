@@ -1,4 +1,3 @@
-import { IOrderLine } from '../model/order-line.model';
 import dayjs from 'dayjs';
 import { DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
@@ -11,14 +10,9 @@ export const formatNumberToString = (cellValue: any): string => {
       .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
   return null;
 };
-export const checkIfAlineToBeUpdated = (orderLine: IOrderLine): boolean => {
-  return (
-    //  orderLine.provisionalCode ||
-    !(orderLine.regularUnitPrice === orderLine.orderUnitPrice) || !(orderLine.orderCostAmount === orderLine.costAmount)
-  );
-};
+
 export const DATE_FORMAT_YYYY_MM_DD = (date: Date): string => {
-  return date ? date.toLocaleDateString('fr-CA') : null;
+  return date ? date.toLocaleDateString("fr-CA") : null;
 };
 export const BLOCK_SPACE: RegExp = /[^\s]/;
 export const DATE_FORMAT_DD_MM_YYYY_HH_MM_SS = (): string => {

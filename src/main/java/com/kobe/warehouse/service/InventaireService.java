@@ -22,6 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
 public interface InventaireService {
+  Page<StoreInventoryLineRecord> getInventoryItems(
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
+
   Resource printToPdf(StoreInventoryExportRecord filterRecord) throws MalformedURLException;
 
   ItemsCountRecord close(Long id) throws InventoryException;

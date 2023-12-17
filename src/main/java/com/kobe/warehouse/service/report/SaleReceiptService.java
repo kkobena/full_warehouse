@@ -12,16 +12,6 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.pdf.BarcodeImageReplacedElementFactory;
 import com.kobe.warehouse.web.rest.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ITextRenderer;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +24,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.xhtmlrenderer.layout.SharedContext;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,8 +43,8 @@ public class SaleReceiptService {
   private final StorageService storageService;
   private final Path fileStorageLocation;
   private final FileStorageProperties fileStorageProperties;
-  private String SIZE_VALUE = "80mm 80mm";
   private final AppConfigurationRepository appConfigurationRepository;
+  private String SIZE_VALUE = "80mm 80mm";
   private int maxiRowCount = 40;
 
   public SaleReceiptService(
@@ -61,6 +60,7 @@ public class SaleReceiptService {
     this.fileStorageProperties = fileStorageProperties;
     this.fileStorageLocation =
         Paths.get(this.fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+
 
     try {
       Files.createDirectories(this.fileStorageLocation);

@@ -1,95 +1,157 @@
 package com.kobe.warehouse.domain;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * A Menu.
- */
+/** A Menu. */
 @Entity
-@Table(name = "menu")
+@Table(
+    name = "menu",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 public class Menu implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotNull
-    @Column(name = "libelle", nullable = false)
-    private String libelle;
+  @NotNull
+  @Column(name = "libelle", nullable = false)
+  private String libelle;
 
-    @NotNull
-    @Column(name = "name", nullable = false)
-    private String name;
+  @NotNull
+  @Column(name = "name", nullable = false, length = 70, unique = true)
+  private String name;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
-    public Long getId() {
-        return id;
+  @Column(name = "racine", nullable = false)
+  private boolean root;
+
+  @OneToMany(mappedBy = "parent")
+  @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+  private Set<Menu> menus = new HashSet<>();
+
+  @ManyToOne
+  @JsonIgnoreProperties(value = "menus", allowSetters = true)
+  private Menu parent;
+
+  @Column(name = "enable", nullable = false)
+  private boolean enable = true;
+
+  public boolean isRoot() {
+    return root;
+  }
+
+  public Menu setRoot(boolean root) {
+    this.root = root;
+    return this;
+  }
+
+  public Set<Menu> getMenus() {
+    return menus;
+  }
+
+  public Menu setMenus(Set<Menu> menus) {
+    this.menus = menus;
+    return this;
+  }
+
+  public Menu getParent() {
+    return parent;
+  }
+
+  public Menu setParent(Menu parent) {
+    this.parent = parent;
+    return this;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getLibelle() {
+    return libelle;
+  }
+
+  public void setLibelle(String libelle) {
+    this.libelle = libelle;
+  }
+
+  public Menu libelle(String libelle) {
+    this.libelle = libelle;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Menu name(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public boolean isEnable() {
+    return enable;
+  }
+
+  public Menu setEnable(boolean enable) {
+    this.enable = enable;
+    return this;
+  }
+
+  // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public void setId(Long id) {
-        this.id = id;
+    if (!(o instanceof Menu)) {
+      return false;
     }
+    return id != null && id.equals(((Menu) o).id);
+  }
 
-    public String getLibelle() {
-        return libelle;
-    }
+  @Override
+  public int hashCode() {
+    return 31;
+  }
 
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public Menu libelle(String libelle) {
-        this.libelle = libelle;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Menu name(String name) {
-        this.name = name;
-        return this;
-    }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Menu)) {
-            return false;
-        }
-        return id != null && id.equals(((Menu) o).id);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "Menu{" +
-            "id=" + getId() +
-            ", libelle='" + getLibelle() + "'" +
-            ", name='" + getName() + "'" +
-            "}";
-    }
+  // prettier-ignore
+  @Override
+  public String toString() {
+    return "Menu{"
+        + "id="
+        + getId()
+        + ", libelle='"
+        + getLibelle()
+        + "'"
+        + ", name='"
+        + getName()
+        + "'"
+        + "}";
+  }
 }

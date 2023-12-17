@@ -22,7 +22,6 @@ import { NgxSpinnerService } from 'ngx-spinner';
 @Component({
   selector: 'jhi-init-inventory',
   templateUrl: './inventory-form.component.html',
-  styleUrls: ['./inventory-form.component.scss'],
 })
 export class InventoryFormComponent implements OnInit {
   protected isSaving: boolean = false;

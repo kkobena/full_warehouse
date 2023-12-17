@@ -1,12 +1,13 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 
-import {IMenu, Menu} from 'app/shared/model/menu.model';
-import {MenuService} from './menu.service';
+import { PrivillegeService } from './privillege.service';
+import { IAuthority, Privilege } from '../../shared/model/authority.model';
+import { BLOCK_SPACE } from '../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-menu-update',
@@ -14,29 +15,30 @@ import {MenuService} from './menu.service';
 })
 export class MenuUpdateComponent implements OnInit {
   isSaving = false;
-
   editForm = this.fb.group({
-    id: [],
     libelle: [null, [Validators.required]],
     name: [null, [Validators.required]],
   });
+  protected entity: IAuthority | null;
+  protected readonly BLOCK_SPACE = BLOCK_SPACE;
 
-  constructor(protected menuService: MenuService, protected activatedRoute: ActivatedRoute,
-              private fb: UntypedFormBuilder) {
-  }
+  constructor(protected privillegeService: PrivillegeService, protected activatedRoute: ActivatedRoute, private fb: UntypedFormBuilder) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({menu}) => {
-      this.updateForm(menu);
+    this.activatedRoute.data.subscribe(({ privilege }) => {
+      this.updateForm(privilege);
     });
   }
 
-  updateForm(menu: IMenu): void {
+  updateForm(authority: IAuthority): void {
     this.editForm.patchValue({
-      id: menu.id,
-      libelle: menu.libelle,
-      name: menu.name,
+      libelle: authority.libelle,
+      name: authority.name,
     });
+    if (authority.name) {
+      this.editForm.get(['name']).disable();
+      this.entity = authority;
+    }
   }
 
   previousState(): void {
@@ -45,19 +47,19 @@ export class MenuUpdateComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
-    const menu = this.createFromForm();
-    if (menu.id !== undefined) {
-      this.subscribeToSaveResponse(this.menuService.update(menu));
+    const privilege = this.createFromForm();
+    if (this.entity) {
+      this.subscribeToSaveResponse(this.privillegeService.update(privilege));
     } else {
-      this.subscribeToSaveResponse(this.menuService.create(menu));
+      this.subscribeToSaveResponse(this.privillegeService.create(privilege));
     }
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IMenu>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAuthority>>): void {
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {
@@ -69,10 +71,9 @@ export class MenuUpdateComponent implements OnInit {
     this.isSaving = false;
   }
 
-  private createFromForm(): IMenu {
+  private createFromForm(): IAuthority {
     return {
-      ...new Menu(),
-      id: this.editForm.get(['id'])!.value,
+      ...new Privilege(),
       libelle: this.editForm.get(['libelle'])!.value,
       name: this.editForm.get(['name'])!.value,
     };

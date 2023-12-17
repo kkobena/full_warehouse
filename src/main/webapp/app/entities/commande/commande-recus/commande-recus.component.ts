@@ -21,6 +21,7 @@ export class CommandeRecusComponent implements OnInit {
   @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
   protected deliveries: IDelivery[] = [];
   protected totalItems = 0;
+  protected page = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected predicate!: string;
   protected ascending!: boolean;
@@ -29,7 +30,6 @@ export class CommandeRecusComponent implements OnInit {
   protected selectedFilter = 'PENDING';
   protected rowExpandMode = 'single';
   protected loading!: boolean;
-  protected page = 0;
   protected selectedtypeSuggession = 'ALL';
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;

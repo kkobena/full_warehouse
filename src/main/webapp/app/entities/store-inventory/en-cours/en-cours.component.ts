@@ -19,6 +19,7 @@ import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogService } from 'primeng/dynamicdialog';
+import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-en-cours',
@@ -57,7 +58,12 @@ export class EnCoursComponent implements OnInit {
   }
 
   exportPdf(storeInventory: IStoreInventory): void {
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory?.id)).subscribe(blod => saveAs(blod));
+    this.spinner.show();
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory?.id)).subscribe(blod => {
+      const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+      saveAs(blod, 'inventaire_' + fileName);
+      this.spinner.hide();
+    });
   }
 
   confirmDelete(storeInventory: IStoreInventory): void {
@@ -87,7 +93,7 @@ export class EnCoursComponent implements OnInit {
         this.loadPage();
         this.spinner.hide();
       },
-      error: error => {
+      error: () => {
         this.onError();
         this.spinner.hide();
       },

@@ -1,26 +1,22 @@
-import {Component} from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-
-
-import {IMenu} from 'app/shared/model/menu.model';
-import {MenuService} from './menu.service';
+import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { IAuthority } from '../../shared/model/authority.model';
+import { PrivillegeService } from './privillege.service';
 
 @Component({
   templateUrl: './menu-delete-dialog.component.html',
 })
 export class MenuDeleteDialogComponent {
-  menu?: IMenu;
+  authority?: IAuthority;
 
-  constructor(protected menuService: MenuService, public activeModal: NgbActiveModal) {
-  }
+  constructor(protected privillegeService: PrivillegeService, public activeModal: NgbActiveModal) {}
 
   cancel(): void {
     this.activeModal.dismiss();
   }
 
-  confirmDelete(id: number): void {
-    this.menuService.delete(id).subscribe(() => {
-
+  confirmDelete(name: string): void {
+    this.privillegeService.deleteRole(name).subscribe(() => {
       this.activeModal.close();
     });
   }

@@ -12,6 +12,7 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.pdf.ImageReplacedElementFactory;
 import com.kobe.warehouse.web.rest.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -63,7 +66,11 @@ public class ReportService {
     this.fileStorageProperties = fileStorageProperties;
     this.fileStorageLocation =
         Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-
+    log.info(
+        String.format(
+            "report directory %s %s",
+            this.fileStorageLocation.getParent().toString(),
+            this.fileStorageLocation.getRoot().toString()));
     try {
       Files.createDirectories(this.fileStorageLocation);
     } catch (IOException ex) {
@@ -102,7 +109,7 @@ public class ReportService {
 
       return (JasperReport) JRLoader.loadObject(resource);
     } catch (FileNotFoundException ex) {
-      throw new FileNotFoundException(String.format("Le %s fichier n'existe", reportName));
+      return compileReport(reportName);
     }
   }
 
@@ -117,6 +124,7 @@ public class ReportService {
                     + ".pdf")
             .toFile()
             .getAbsolutePath();
+    log.info(String.format("destFilePath %s", destFilePath));
     try {
       JasperReport jasperReport = getReport(reportName);
       JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(datas);
@@ -177,6 +185,7 @@ public class ReportService {
                     + ".pdf")
             .toFile()
             .getAbsolutePath();
+    log.info(String.format(" buildInvoiceToPDF destFilePath %s", destFilePath));
     try {
 
       try (OutputStream outputStream = new FileOutputStream(destFilePath)) {
@@ -194,6 +203,48 @@ public class ReportService {
     }
 
     return destFilePath;
+  }
+
+  private JasperReport compileReport(String reportName) throws Exception {
+    InputStream in = null;
+    InputStream in2 = null;
+    FileOutputStream out = null;
+    File jasperFile = null;
+
+    try {
+      // File jrxmlFile = new File(ReportUtil.class.getResource(reportPath + reportName +
+      // ".jrxml").getFile());
+      File jrxmlFile = fileStorageLocation.resolve(reportName + ".jrxml").normalize().toFile();
+      File dir = jrxmlFile.getParentFile();
+      jasperFile = new File(dir, reportName + ".jasper");
+      in = new FileInputStream(jrxmlFile);
+      // in = ReportUtil.class.getResourceAsStream(reportPath + reportName + ".jrxml");
+      out = new FileOutputStream(jasperFile);
+      JasperCompileManager.compileReportToStream(in, out);
+      in2 =
+          new FileInputStream(
+              jasperFile); // ReportUtil.class.getResourceAsStream(reportPath + reportName +
+      // ".jasper");
+      return (JasperReport) JRLoader.loadObject(in2);
+
+    } catch (FileNotFoundException | JRException e) {
+
+      if (jasperFile != null) {
+        jasperFile.delete();
+      }
+
+      throw e;
+    } finally {
+      if (in != null) {
+        in.close();
+      }
+      if (in2 != null) {
+        in2.close();
+      }
+      if (out != null) {
+        out.close();
+      }
+    }
   }
 
   public Resource getResource(String path) throws MalformedURLException {

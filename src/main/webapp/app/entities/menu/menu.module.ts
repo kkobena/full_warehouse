@@ -11,6 +11,5 @@ import { menuRoute } from './menu.route';
 @NgModule({
   imports: [SharedModule, RouterModule.forChild(menuRoute)],
   declarations: [MenuComponent, MenuDetailComponent, MenuUpdateComponent, MenuDeleteDialogComponent],
-  entryComponents: [MenuDeleteDialogComponent],
 })
 export class WarehouseMenuModule {}

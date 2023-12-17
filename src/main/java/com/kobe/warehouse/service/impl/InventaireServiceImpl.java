@@ -190,6 +190,19 @@ public class InventaireServiceImpl implements InventaireService {
 
   @Transactional(readOnly = true)
   @Override
+  public Page<StoreInventoryLineRecord> getInventoryItems(
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable) {
+    StoreInventory storeInventory =
+        this.storeInventoryRepository.getReferenceById(
+            storeInventoryLineFilterRecord.storeInventoryId());
+    long count = getTotalCount(storeInventory, storeInventoryLineFilterRecord);
+    if (count == 0) return Page.empty(pageable);
+    return new PageImpl<>(
+        buildItems(storeInventory, storeInventoryLineFilterRecord, pageable), pageable, count);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
   public Page<StoreInventoryDTO> storeInventoryList(
       StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
     return new PageImpl<>(

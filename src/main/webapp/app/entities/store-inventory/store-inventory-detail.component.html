@@ -1,51 +1,185 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+             size="medium"
+             type="timer"></ngx-spinner>
 <div class="row justify-content-center">
-    <div class="col-8">
-        <div *ngIf="storeInventory">
-            <h2><span jhiTranslate="warehouseApp.storeInventory.detail.title">Store Inventory</span> {{ storeInventory.id }}</h2>
+  <div class="col-3">
+    <div class="card">
+      <div class="card-header">
+        Informations sur l'inventaire
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px;">Emplacement</span>
+            <span class="text-primary">{{storeInventory?.storage?.name}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px;">Date</span>
+            <span class="text-primary">{{storeInventory?.createdAt | date: 'dd/MM/yyyy'}}</span>
+          </li>
+          <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
+              class="list-group-item d-flex justify-content-between align-items-center">
+            Rayon
+            <span class="text-primary">{{storeInventory?.rayon?.libelle }}</span>
+          </li>
 
-            <hr>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Achat Avant
+            <span class="text-primary">{{storeInventory.inventoryValueCostBegin | number}}</span>
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Achat Après
+            <span class="text-primary">{{storeInventory.inventoryValueCostAfter | number}}</span>
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Vente Avent
+            <span class="text-primary">{{storeInventory.inventoryAmountBegin | number}}</span>
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Vente Après
+            <span class="text-primary">{{storeInventory.inventoryAmountAfter | number}}</span>
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Ecart Achat
+            <span class="text-primary">{{storeInventory.gapCost | number}}</span>
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center">
+            Ecart Vente
+            <span class="text-primary">{{storeInventory.gapAmount | number}}</span>
+          </li>
 
-            <jhi-alert-error></jhi-alert-error>
-
-            <dl class="row-md jh-entity-details">
-                <dt><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostBegin">Inventory Value Cost Begin</span></dt>
-                <dd>
-                    <span>{{ storeInventory.inventoryValueCostBegin }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountBegin">Inventory Amount Begin</span></dt>
-                <dd>
-                    <span>{{ storeInventory.inventoryAmountBegin }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.storeInventory.createdAt">Created At</span></dt>
-                <dd>
-                    <span>{{ storeInventory.createdAt }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.storeInventory.updatedAt">Updated At</span></dt>
-                <dd>
-                    <span>{{ storeInventory.updatedAt }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.storeInventory.inventoryValueCostAfter">Inventory Value Cost After</span></dt>
-                <dd>
-                    <span>{{ storeInventory.inventoryValueCostAfter }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.storeInventory.inventoryAmountAfter">Inventory Amount After</span></dt>
-                <dd>
-                    <span>{{ storeInventory.inventoryAmountAfter }}</span>
-                </dd>
-
-            </dl>
-
-            <button type="submit"
-                    (click)="previousState()"
-                    class="btn btn-info">
-                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
-            </button>
-
-            <button type="button"
-                    [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
-                    class="btn btn-primary">
-                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
-            </button>
-        </div>
+        </ul>
+      </div>
     </div>
+    <p-divider></p-divider>
+
+    <div class="card">
+      <div class="card-header">
+        Filtre
+      </div>
+      <div class="card-body">
+        <div *ngIf="storeInventory.inventoryCategory.name==='MAGASIN'" class="row">
+          <label>Emplacements</label>
+          <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="storages"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="name" placeholder="Séléctionner un emplacement"
+          >
+          </p-dropdown>
+        </div>
+        <div *ngIf="storeInventory.inventoryCategory.name!=='RAYON'" class="row"
+             style="margin-top: 0.5rem;">
+          <label>Rayons</label>
+          <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
+                          (onClear)="onClear()"
+                          (onSelect)="onSelect()"
+                          [(ngModel)]="selectedRayon"
+                          [appendTo]="APPEND_TO"
+                          [dataKey]="'id'"
+                          [dropdown]="true"
+                          [emptyMessage]="NOT_FOUND"
+                          [inputStyle]="{'width':'100%'}"
+                          [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
+                          [showEmptyMessage]="true"
+                          [style]="{'width':'100%'}" [suggestions]="rayons"
+                          field="libelle"></p-autoComplete>
+        </div>
+
+
+        <div class="row" style="margin-top: 0.5rem;">
+          <label>Filtrer par</label>
+          <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="filtres"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="label" placeholder="Filtrer par"
+          >
+          </p-dropdown>
+        </div>
+
+        <div class="row" style="margin-top: 0.5rem;">
+                   <span class="p-buttonset justify-content-center">
+
+                  <button (click)="exportPdf()"
+                          class="p-button-warning p-button-raised"
+                          pButton
+                          pRipple type="button">  <fa-icon
+                    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+
+                   <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
+                             styleClass="p-button-raised p-button-secondary"></p-button>
+                </span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <div class="col-md-9 row">
+
+    <p-table
+
+      [paginator]="true"
+
+      [rowsPerPageOptions]="[5,10,15,20,30,50]"
+      [rows]="itemsPerPage" [showCurrentPageReport]="false"
+      [totalRecords]="totalItems"
+      [value]="storeInventoryLines"
+      dataKey="id"
+      selectionMode="multiple"
+      styleClass="p-datatable-striped mt-2"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cip</th>
+          <th>Libellé</th>
+          <th>Prix Achat</th>
+          <th>Prix Unitaire</th>
+          <th>Quantité initiale</th>
+          <th>Quantité saisie</th>
+          <th>Ecart</th>
+          <th>Ecart Achat</th>
+          <th>Ecart Vente</th>
+          <th style="width:5%"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-storeInventory pTemplate="body">
+        <tr>
+          <td>{{storeInventory.produitCip}}</td>
+          <td>{{storeInventory.produitLibelle}}</td>
+          <td class="text-right">{{storeInventory.prixAchat | number}}</td>
+          <td class="text-right">{{storeInventory.prixUni | number}}</td>
+          <td class="text-right">{{storeInventory.quantityInit | number}}</td>
+          <td class="text-right">{{storeInventory.quantityOnHand | number}}</td>
+          <td class="text-right">{{storeInventory.gap  | number}}</td>
+          <td class="text-right">{{storeInventory.gap * storeInventory.prixAchat | number}}</td>
+          <td class="text-right">{{storeInventory.gap * storeInventory.prixUni | number}}</td>
+          <td class="text-right">
+            <div class="btn-group">
+
+              <button [routerLink]="['/produit', storeInventory.produitId, 'view']"
+                      class="btn btn-info btn-sm"
+                      type="submit">
+                <fa-icon icon="eye"></fa-icon>
+
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+
+  </div>
 </div>

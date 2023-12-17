@@ -57,4 +57,15 @@ public class StoreInventoryLineResource {
             ServletUriComponentsBuilder.fromCurrentRequest(), page);
     return ResponseEntity.ok().headers(headers).body(page.getContent());
   }
+
+  @GetMapping("/store-inventory-lines/items")
+  public ResponseEntity<List<StoreInventoryLineRecord>> getInventoryItems(
+      StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable) {
+    Page<StoreInventoryLineRecord> page =
+        this.inventaireService.getInventoryItems(storeInventoryLineFilterRecord, pageable);
+    HttpHeaders headers =
+        PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+    return ResponseEntity.ok().headers(headers).body(page.getContent());
+  }
 }

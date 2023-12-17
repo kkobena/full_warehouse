@@ -1,14 +1,15 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Menu;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.springframework.data.jpa.repository.*;
-import org.springframework.stereotype.Repository;
-
-/**
- * Spring Data  repository for the Menu entity.
- */
-@SuppressWarnings("unused")
-@Repository
+/** Spring Data JPA repository for the {@link Menu} entity. */
 public interface MenuRepository extends JpaRepository<Menu, Long> {
+  @EntityGraph(attributePaths = "menus")
+  List<Menu> findAll();
+
+  Optional<Menu> findMenuByName(String name);
 }

@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
 import { createRequestOptions } from '../../shared/util/request-util';
-import { IStoreInventory } from '../../shared/model/store-inventory.model';
-import { map } from 'rxjs/operators';
 
 type EntityArrayResponseType = HttpResponse<IStoreInventoryLine[]>;
 type EntityResponseType = HttpResponse<IStoreInventoryLine>;
@@ -27,5 +25,10 @@ export class StoreInventoryLineService {
   query(req: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http.get<IStoreInventoryLine[]>(this.resourceUrl, { params: options, observe: 'response' });
+  }
+
+  queryItems(req: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http.get<IStoreInventoryLine[]>(`${this.resourceUrl}/items`, { params: options, observe: 'response' });
   }
 }

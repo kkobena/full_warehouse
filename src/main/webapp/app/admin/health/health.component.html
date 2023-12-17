@@ -1,49 +1,55 @@
 <div>
   <h2>
-    <span id="health-page-heading" jhiTranslate="health.title" data-cy="healthPageHeading">Diagnostics</span>
+    <span data-cy="healthPageHeading" id="health-page-heading" jhiTranslate="health.title">Diagnostics</span>
 
-    <button class="btn btn-primary float-end" (click)="refresh()">
-      <fa-icon icon="sync"></fa-icon> <span jhiTranslate="health.refresh.button">Rafraîchir</span>
+    <button (click)="refresh()" class="btn btn-primary float-end">
+      <fa-icon icon="sync"></fa-icon>
+      <span jhiTranslate="health.refresh.button">Rafraîchir</span>
     </button>
   </h2>
 
   <div class="table-responsive">
-    <table id="healthCheck" class="table table-striped" aria-describedby="health-page-heading">
+    <table aria-describedby="health-page-heading" class="table table-striped" id="healthCheck">
       <thead>
-        <tr>
-          <th scope="col" jhiTranslate="health.table.service">Nom du service</th>
-          <th scope="col" class="text-center" jhiTranslate="health.table.status">État</th>
-          <th scope="col" class="text-center" jhiTranslate="health.details.details">Détails</th>
-        </tr>
+      <tr>
+        <th jhiTranslate="health.table.service" scope="col">Nom du service</th>
+        <th class="text-center" jhiTranslate="health.table.status" scope="col">État</th>
+        <th class="text-center" jhiTranslate="health.details.details" scope="col">Détails</th>
+      </tr>
       </thead>
       <tbody *ngIf="health">
-        <tr *ngFor="let componentHealth of health.components | keyvalue">
-          <td>
-            {{ 'health.indicator.' + componentHealth.key | translate }}
-          </td>
-          <td class="text-center">
+      <tr *ngFor="let componentHealth of health.components | keyvalue">
+        <td>
+          {{ 'health.indicator.' + componentHealth.key | translate }}
+        </td>
+        <td class="text-center">
             <span
-              class="badge"
               [ngClass]="getBadgeClass(componentHealth.value!.status)"
+              class="badge"
               jhiTranslate="{{ 'health.status.' + componentHealth.value!.status }}"
             >
               {{
-                { UNKNOWN: 'INCONNU', UP: 'DISPONIBLE', OUT_OF_SERVICE: 'OUT_OF_SERVICE', DOWN: 'HORS SERVICE' }[
-                  componentHealth.value!.status || 'UNKNOWN'
+              {
+                UNKNOWN: 'INCONNU',
+                UP: 'DISPONIBLE',
+                OUT_OF_SERVICE: 'OUT_OF_SERVICE',
+                DOWN: 'HORS SERVICE'
+              }[
+              componentHealth.value!.status || 'UNKNOWN'
                 ]
               }}
             </span>
-          </td>
-          <td class="text-center">
-            <a
-              class="hand"
-              (click)="showHealth({ key: componentHealth.key, value: componentHealth.value! })"
-              *ngIf="componentHealth.value!.details"
-            >
-              <fa-icon icon="eye"></fa-icon>
-            </a>
-          </td>
-        </tr>
+        </td>
+        <td class="text-center">
+          <a
+            (click)="showHealth({ key: componentHealth.key, value: componentHealth.value! })"
+            *ngIf="componentHealth.value!.details"
+            class="hand"
+          >
+            <fa-icon icon="eye"></fa-icon>
+          </a>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>

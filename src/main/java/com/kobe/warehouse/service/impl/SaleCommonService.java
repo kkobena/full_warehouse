@@ -9,9 +9,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 @Service

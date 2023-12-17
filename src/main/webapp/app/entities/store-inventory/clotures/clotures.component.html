@@ -26,10 +26,10 @@
       <th>Valeur Vente Après</th>
       <th>Ecart Achat</th>
       <th>Ecart Vente</th>
-      <th style="width:5%"></th>
+      <th style="width:8%"></th>
     </tr>
   </ng-template>
-  <ng-template let-expanded="expanded" let-storeInventory pTemplate="body">
+  <ng-template let-storeInventory pTemplate="body">
     <tr>
       <td>{{storeInventory.storage?.name}}</td>
       <td>{{storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
@@ -42,6 +42,12 @@
       <td class="text-right">{{storeInventory.gapAmount | number}}</td>
       <td class="text-right">
         <div class="btn-group">
+          <button [routerLink]="['/store-inventory', storeInventory.id, 'view']"
+                  class="btn btn-info btn-sm"
+                  type="submit">
+            <fa-icon icon="eye"></fa-icon>
+
+          </button>
           <button (click)="exportPdf(storeInventory)"
                   class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
                   pButton

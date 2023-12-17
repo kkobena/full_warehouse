@@ -19,10 +19,6 @@ export class MenuDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {
-      /* const wrapper = privilege;
-       this.associes = wrapper.associes;
-       this.others = wrapper.others;
-       this.cdr.markForCheck();*/
       this.entity = privilege;
       this.loadAll();
     });
@@ -62,8 +58,7 @@ export class MenuDetailComponent implements OnInit {
     const authoritiesName = this.associes.map(e => e.name);
     this.entity.privilleges = authoritiesName;
     this.privillegeService.update(this.entity).subscribe({
-      error: err => {
-        console.log(err);
+      error: () => {
         this.loadAll();
       },
     });

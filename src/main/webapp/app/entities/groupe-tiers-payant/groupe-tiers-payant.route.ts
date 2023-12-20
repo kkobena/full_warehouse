@@ -1,26 +1,24 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-import {GroupeTiersPayantService} from './groupe-tierspayant.service';
-import {GroupeTiersPayant, IGroupeTiersPayant} from '../../shared/model/groupe-tierspayant.model';
-import {GroupeTiersPayantComponent} from './groupe-tiers-payant.component';
+import { GroupeTiersPayantService } from './groupe-tierspayant.service';
+import { GroupeTiersPayant, IGroupeTiersPayant } from '../../shared/model/groupe-tierspayant.model';
+import { GroupeTiersPayantComponent } from './groupe-tiers-payant.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class GroupeTiersPayantResolve implements Resolve<IGroupeTiersPayant> {
-  constructor(private service: GroupeTiersPayantService, private router: Router) {
-  }
+  constructor(private service: GroupeTiersPayantService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<IGroupeTiersPayant> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((groupe: HttpResponse<IGroupeTiersPayant>) => {
+        mergeMap((groupe: HttpResponse<IGroupeTiersPayant>) => {
           if (groupe.body) {
             return of(groupe.body);
           } else {
@@ -39,7 +37,7 @@ export const groupeTiersPayantRoute: Routes = [
     path: '',
     component: GroupeTiersPayantComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.GROUPE_TIERS_PAYANT],
       pageTitle: 'warehouseApp.groupeTiersPayant.home.title',
     },
     canActivate: [UserRouteAccessService],

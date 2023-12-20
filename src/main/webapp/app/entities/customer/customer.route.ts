@@ -1,27 +1,25 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {Customer, ICustomer} from 'app/shared/model/customer.model';
-import {CustomerService} from './customer.service';
-import {CustomerComponent} from './customer.component';
-import {CustomerDetailComponent} from './customer-detail.component';
-import {CustomerUpdateComponent} from './customer-update.component';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { CustomerService } from './customer.service';
+import { CustomerComponent } from './customer.component';
+import { CustomerDetailComponent } from './customer-detail.component';
+import { CustomerUpdateComponent } from './customer-update.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CustomerResolve implements Resolve<ICustomer> {
-  constructor(private service: CustomerService, private router: Router) {
-  }
+  constructor(private service: CustomerService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<ICustomer> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((customer: HttpResponse<Customer>) => {
+        mergeMap((customer: HttpResponse<Customer>) => {
           if (customer.body) {
             return of(customer.body);
           } else {
@@ -40,7 +38,7 @@ export const customerRoute: Routes = [
     path: '',
     component: CustomerComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.CLIENT],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.customer.home.title',
     },
@@ -53,7 +51,7 @@ export const customerRoute: Routes = [
       customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.CLIENT],
       pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -65,7 +63,7 @@ export const customerRoute: Routes = [
       customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.CLIENT],
       pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -77,7 +75,7 @@ export const customerRoute: Routes = [
       customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.CLIENT],
       pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],

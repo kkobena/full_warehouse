@@ -52,7 +52,7 @@ export const commandeRoute: Routes = [
     path: '',
     component: CommandeComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.commande.home.title',
     },
@@ -65,7 +65,7 @@ export const commandeRoute: Routes = [
       commande: CommandeResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -82,7 +82,7 @@ export const commandeRoute: Routes = [
       commande: CommandeResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -94,7 +94,7 @@ export const commandeRoute: Routes = [
       commande: CommandeResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -118,7 +118,7 @@ export const commandeRoute: Routes = [
       delivery: DeliveryResolver,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title',
     },
     canActivate: [UserRouteAccessService],

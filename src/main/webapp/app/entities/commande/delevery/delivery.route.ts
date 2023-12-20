@@ -12,7 +12,7 @@ export const deliveryRoute: Routes = [
     path: '',
     component: DeliveryComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.GESTION_ENTREE_STOCK, Authority.COMMANDE],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.delivery.home.title',
     },
@@ -55,7 +55,7 @@ export const deliveryRoute: Routes = [
       delivery: DeliveryResolver,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.GESTION_ENTREE_STOCK, Authority.COMMANDE],
       pageTitle: 'warehouseApp.delivery.home.title',
     },
     canActivate: [UserRouteAccessService],

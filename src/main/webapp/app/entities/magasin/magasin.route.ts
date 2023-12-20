@@ -1,27 +1,25 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {IMagasin, Magasin} from 'app/shared/model/magasin.model';
-import {MagasinService} from './magasin.service';
-import {MagasinComponent} from './magasin.component';
-import {MagasinDetailComponent} from './magasin-detail.component';
-import {MagasinUpdateComponent} from './magasin-update.component';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
+import { MagasinService } from './magasin.service';
+import { MagasinComponent } from './magasin.component';
+import { MagasinDetailComponent } from './magasin-detail.component';
+import { MagasinUpdateComponent } from './magasin-update.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class MagasinResolve implements Resolve<IMagasin> {
-  constructor(private service: MagasinService, private router: Router) {
-  }
+  constructor(private service: MagasinService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<IMagasin> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((magasin: HttpResponse<Magasin>) => {
+        mergeMap((magasin: HttpResponse<Magasin>) => {
           if (magasin.body) {
             return of(magasin.body);
           } else {
@@ -40,7 +38,7 @@ export const magasinRoute: Routes = [
     path: '',
     component: MagasinComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MAGASIN],
       pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -52,7 +50,7 @@ export const magasinRoute: Routes = [
       magasin: MagasinResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MAGASIN],
       pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -64,7 +62,7 @@ export const magasinRoute: Routes = [
       magasin: MagasinResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MAGASIN],
       pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -76,7 +74,7 @@ export const magasinRoute: Routes = [
       magasin: MagasinResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MAGASIN],
       pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],

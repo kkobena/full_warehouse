@@ -9,8 +9,9 @@ import { MenuDetailComponent } from './menu-detail.component';
 import { MenuUpdateComponent } from './menu-update.component';
 import { IAuthority, Privilege } from '../../shared/model/authority.model';
 import { PrivillegeService } from './privillege.service';
-import { Authority } from '../../config/authority.constants';
+
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
+import { Authority } from '../../shared/constants/authority.constants';
 
 @Injectable({ providedIn: 'root' })
 export class MenuResolve implements Resolve<IAuthority> {
@@ -39,7 +40,7 @@ export const menuRoute: Routes = [
     path: '',
     component: MenuComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MENU],
       pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -51,7 +52,7 @@ export const menuRoute: Routes = [
       privilege: MenuResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MENU],
       pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -63,7 +64,7 @@ export const menuRoute: Routes = [
       privilege: MenuResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MENU],
       pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -75,7 +76,7 @@ export const menuRoute: Routes = [
       privilege: MenuResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.MENU],
       pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],

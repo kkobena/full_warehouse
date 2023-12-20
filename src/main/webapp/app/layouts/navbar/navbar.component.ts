@@ -10,16 +10,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
-import {
-  faFileInvoiceDollar,
-  faShippingFast,
-  faShoppingBag,
-  faShoppingBasket,
-  faStore,
-  faThList,
-  faUserTimes,
-  faWarehouse,
-} from '@fortawesome/free-solid-svg-icons';
+import { faShippingFast, faShoppingBag, faShoppingBasket, faStore, faUserTimes, faWarehouse } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'jhi-navbar',
@@ -36,14 +27,12 @@ export class NavbarComponent implements OnInit {
   protected entitiesNavbarItems: any[] = [];
   protected faUserTimes = faUserTimes;
   protected hideLanguage?: boolean = true;
-  protected hideApiDoc?: boolean = true;
-  protected faFileInvoiceDollar = faFileInvoiceDollar;
   protected faWarehouse = faWarehouse;
   protected faShoppingBag = faShoppingBag;
-  protected faThList = faThList;
   protected faShippingFast = faShippingFast;
   protected faShoppingBasket = faShoppingBasket;
   protected faStore = faStore;
+  protected menuStock: string[];
 
   constructor(
     private loginService: LoginService,
@@ -53,6 +42,7 @@ export class NavbarComponent implements OnInit {
     private profileService: ProfileService,
     private router: Router
   ) {
+    this.menuStock = ['gestion-entree', 'commande', 'gestion-stock', 'produit'];
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }
@@ -89,7 +79,6 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
-    this.router.navigate(['']);
   }
 
   toggleNavbar(): void {

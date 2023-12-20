@@ -4,6 +4,7 @@ import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Menu;
 import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.security.SecurityUtils;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -95,7 +96,7 @@ public class AdminUserDTO implements Serializable {
     this.lastModifiedDate = user.getLastModifiedDate();
     this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
     this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
-    this.authorities = mergeAuthorities(authorities0);
+    this.authorities = SecurityUtils.mergeAuthorities(authorities0);
   }
 
   public AdminUserDTO setFullName(String fullName) {
@@ -198,7 +199,7 @@ public class AdminUserDTO implements Serializable {
         + "}";
   }
 
-  private Set<String> buildAuthorities(Authority authority) {
+  private Set<String> buildAuthorities__(Authority authority) {
     Set<String> authorities = new HashSet<>();
     authorities.add(authority.getName());
     authorities.addAll(
@@ -206,10 +207,10 @@ public class AdminUserDTO implements Serializable {
     return authorities;
   }
 
-  private Set<String> mergeAuthorities(Set<Authority> authorities) {
+  private Set<String> mergeAuthorities__(Set<Authority> authorities) {
     if (CollectionUtils.isEmpty(authorities)) return Collections.emptySet();
     Set<String> authorities0 = new HashSet<>();
-    authorities.stream().forEach(authority -> authorities0.addAll(buildAuthorities(authority)));
+    //  authorities.stream().forEach(authority -> authorities0.addAll(buildAuthorities(authority)));
     return authorities0;
   }
 }

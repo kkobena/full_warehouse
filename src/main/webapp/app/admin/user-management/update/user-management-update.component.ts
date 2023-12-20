@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { LANGUAGES } from 'app/config/language.constants';
@@ -33,14 +33,12 @@ export class UserManagementUpdateComponent implements OnInit {
         Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
       ],
     }),
-    firstName: new FormControl(userTemplate.firstName, { validators: [Validators.maxLength(50)] }),
-    lastName: new FormControl(userTemplate.lastName, { validators: [Validators.maxLength(50)] }),
+    firstName: new FormControl(userTemplate.firstName, { validators: [Validators.maxLength(100)] }),
+    lastName: new FormControl(userTemplate.lastName, { validators: [Validators.maxLength(100)] }),
     email: new FormControl(userTemplate.email, {
-      nonNullable: true,
       validators: [Validators.minLength(5), Validators.maxLength(254), Validators.email],
     }),
     activated: new FormControl(userTemplate.activated, { nonNullable: true }),
-    langKey: new FormControl(userTemplate.langKey, { nonNullable: true }),
     authorities: new FormControl(userTemplate.authorities, { nonNullable: true }),
   });
 
@@ -49,6 +47,10 @@ export class UserManagementUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {
       if (user) {
+        if (user.id === 3) {
+          this.editForm.get(['login']).disable();
+        }
+
         this.editForm.reset(user);
       } else {
         this.editForm.reset(newUser);

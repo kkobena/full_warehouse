@@ -36,7 +36,7 @@ export const tableauProduitRoute: Routes = [
     path: '',
     component: TableauProduitComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.REFERENTIEL],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.tableau.home.title',
     },
@@ -49,7 +49,7 @@ export const tableauProduitRoute: Routes = [
       tableau: TableauProduitResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.REFERENTIEL],
       pageTitle: 'warehouseApp.tableau.home.associe',
     },
     canActivate: [UserRouteAccessService],

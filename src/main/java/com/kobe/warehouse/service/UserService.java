@@ -2,6 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.AuthorityRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import tech.jhipster.security.RandomUtil;
 
 /** Service class for managing users. */
@@ -147,20 +149,18 @@ public class UserService {
     user.setLogin(userDTO.getLogin().toLowerCase());
     user.setFirstName(userDTO.getFirstName());
     user.setLastName(userDTO.getLastName());
-    if (userDTO.getEmail() != null) {
+    if (StringUtils.hasText(userDTO.getEmail())) {
       user.setEmail(userDTO.getEmail().toLowerCase());
     }
+    Magasin magasin = this.getUser().getMagasin();
+    user.setMagasin(magasin);
     user.setImageUrl(userDTO.getImageUrl());
-    if (userDTO.getLangKey() == null) {
-      user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
-    } else {
-      user.setLangKey(userDTO.getLangKey());
-    }
-    String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+    user.setLangKey(Constants.DEFAULT_LANGUAGE);
+    String encryptedPassword = passwordEncoder.encode(userDTO.getLogin().toLowerCase());
     user.setPassword(encryptedPassword);
     user.setResetKey(RandomUtil.generateResetKey());
     user.setResetDate(LocalDateTime.now());
-    user.setActivated(true);
+    user.setActivated(userDTO.isActivated());
     if (userDTO.getAuthorities() != null) {
       Set<Authority> authorities =
           userDTO.getAuthorities().stream()
@@ -195,7 +195,7 @@ public class UserService {
               }
               user.setImageUrl(userDTO.getImageUrl());
               user.setActivated(userDTO.isActivated());
-              user.setLangKey(userDTO.getLangKey());
+
               Set<Authority> managedAuthorities = user.getAuthorities();
               managedAuthorities.clear();
               userDTO.getAuthorities().stream()
@@ -263,7 +263,9 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-    return userRepository.findAll(pageable).map(AdminUserDTO::new);
+    return userRepository
+        .findAll(userRepository.findspecialisation(), pageable)
+        .map(AdminUserDTO::new);
   }
 
   @Transactional(readOnly = true)

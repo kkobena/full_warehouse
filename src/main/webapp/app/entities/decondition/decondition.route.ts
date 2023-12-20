@@ -1,25 +1,23 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {Decondition, IDecondition} from 'app/shared/model/decondition.model';
-import {DeconditionService} from './decondition.service';
-import {DeconditionComponent} from './decondition.component';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Decondition, IDecondition } from 'app/shared/model/decondition.model';
+import { DeconditionService } from './decondition.service';
+import { DeconditionComponent } from './decondition.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class DeconditionResolve implements Resolve<IDecondition> {
-  constructor(private service: DeconditionService, private router: Router) {
-  }
+  constructor(private service: DeconditionService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<IDecondition> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((decondition: HttpResponse<Decondition>) => {
+        mergeMap((decondition: HttpResponse<Decondition>) => {
           if (decondition.body) {
             return of(decondition.body);
           } else {
@@ -38,7 +36,7 @@ export const deconditionRoute: Routes = [
     path: '',
     component: DeconditionComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.DECONDITION],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.decondition.home.title',
     },

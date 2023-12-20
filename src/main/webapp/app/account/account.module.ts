@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
 import { SessionsComponent } from './sessions/sessions.component';
 import { PasswordStrengthBarComponent } from './password/password-strength-bar/password-strength-bar.component';
-import { RegisterComponent } from './register/register.component';
 import { ActivateComponent } from './activate/activate.component';
 import { PasswordComponent } from './password/password.component';
 import { PasswordResetInitComponent } from './password-reset/init/password-reset-init.component';
@@ -16,7 +15,7 @@ import { accountState } from './account.route';
   imports: [SharedModule, RouterModule.forChild(accountState)],
   declarations: [
     ActivateComponent,
-    RegisterComponent,
+
     PasswordComponent,
     PasswordStrengthBarComponent,
     PasswordResetInitComponent,

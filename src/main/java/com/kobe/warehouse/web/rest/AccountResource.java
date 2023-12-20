@@ -125,7 +125,10 @@ public class AccountResource {
     String userLogin =
         SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
-    Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
+    Optional<User> existingUser =
+        org.springframework.util.StringUtils.hasText(userDTO.getEmail())
+            ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
+            : Optional.empty();
     if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
       throw new EmailAlreadyUsedException();
     }

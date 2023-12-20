@@ -38,7 +38,7 @@ export const storeInventoryRoute: Routes = [
     path: '',
     component: StoreInventoryComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
       pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -50,7 +50,7 @@ export const storeInventoryRoute: Routes = [
       storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
       pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -62,7 +62,7 @@ export const storeInventoryRoute: Routes = [
       storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
       pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -74,7 +74,7 @@ export const storeInventoryRoute: Routes = [
       storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
       pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],

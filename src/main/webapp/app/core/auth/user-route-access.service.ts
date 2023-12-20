@@ -1,4 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -20,9 +20,6 @@ export class UserRouteAccessService implements CanActivate {
             return true;
           }
 
-          if (isDevMode()) {
-            console.error('User has not any of required authorities: ', authorities);
-          }
           this.router.navigate(['accessdenied']);
           return false;
         }

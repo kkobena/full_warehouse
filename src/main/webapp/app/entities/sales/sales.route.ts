@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
-import { EMPTY, Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
@@ -26,7 +26,6 @@ export class SalesResolve implements Resolve<ISales> {
             return of(sales.body);
           } else {
             return of(new Sales());
-
           }
         })
       );
@@ -40,7 +39,7 @@ export const salesRoute: Routes = [
     path: '',
     component: SalesComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.sales.home.title',
     },
@@ -53,7 +52,7 @@ export const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -65,7 +64,7 @@ export const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -77,7 +76,7 @@ export const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -89,7 +88,7 @@ export const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -101,7 +100,7 @@ export const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],

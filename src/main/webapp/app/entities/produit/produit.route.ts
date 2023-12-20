@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
-import { EMPTY, Observable, of, switchMap } from 'rxjs';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
@@ -20,7 +20,7 @@ export class ProduitResolve implements Resolve<IProduit> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        switchMap((produit: HttpResponse<Produit>) => {
+        mergeMap((produit: HttpResponse<Produit>) => {
           if (produit.body) {
             return of(produit.body);
           } else {
@@ -39,7 +39,7 @@ export const produitRoute: Routes = [
     path: '',
     component: ProduitComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.produit.home.title',
     },
@@ -52,7 +52,7 @@ export const produitRoute: Routes = [
       produit: ProduitResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       pageTitle: 'warehouseApp.produit.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -64,7 +64,7 @@ export const produitRoute: Routes = [
       produit: ProduitResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       pageTitle: 'warehouseApp.produit.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -76,7 +76,7 @@ export const produitRoute: Routes = [
       produit: ProduitResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       pageTitle: 'warehouseApp.produit.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -89,7 +89,7 @@ export const produitRoute: Routes = [
       produit: ProduitResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       pageTitle: 'warehouseApp.produit.home.title',
     },
     canActivate: [UserRouteAccessService],

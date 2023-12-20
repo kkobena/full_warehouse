@@ -23,7 +23,7 @@
       <ul class="navbar-nav ms-auto">
 
         <li
-          *jhiHasAnyAuthority="'ROLE_USER'"
+          *jhiHasAnyAuthority="['gestion-courant','ROLE_ADMIN']"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item dropdown pointer"
           display="dynamic"
@@ -38,7 +38,7 @@
             </span>
           </a>
           <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-            <li>
+            <li *jhiHasAnyAuthority="['presale','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -50,7 +50,7 @@
                 <span>Préventes</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['ventes-en-cours','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -63,7 +63,7 @@
               </a>
             </li>
 
-            <li>
+            <li *jhiHasAnyAuthority="['sales','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -76,7 +76,7 @@
                 <span jhiTranslate="global.menu.entities.sales">Sales</span>
               </a>
             </li>
-            <li style="display: none">
+            <li *jhiHasAnyAuthority="['payment','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -91,7 +91,7 @@
           </ul>
         </li>
         <li
-          *jhiHasAnyAuthority="'ROLE_USER'"
+          *jhiHasAnyAuthority="['gestion-stock','ROLE_ADMIN']"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item dropdown pointer"
           display="dynamic"
@@ -105,7 +105,7 @@
             </span>
           </a>
           <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-            <li>
+            <li *jhiHasAnyAuthority="['commande','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -117,7 +117,7 @@
                 <span jhiTranslate="global.menu.entities.commande">Commande</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['gestion-entree','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -129,7 +129,7 @@
                 <span jhiTranslate="global.menu.entities.delivery">Entrée en stock</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['inventory-transaction','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -142,7 +142,7 @@
                   jhiTranslate="global.menu.entities.inventoryTransaction">Inventory Transaction</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['produit','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -154,7 +154,7 @@
                 <span jhiTranslate="global.menu.entities.produit">Produit</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['ajustement','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -166,7 +166,7 @@
                 <span>Ajustement</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['store-inventory','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -182,7 +182,7 @@
         </li>
 
         <li
-          *jhiHasAnyAuthority="'ROLE_USER'"
+          *jhiHasAnyAuthority="['referentiel','ROLE_ADMIN']"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item dropdown pointer"
           display="dynamic"
@@ -196,7 +196,7 @@
             </span>
           </a>
           <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','rayon','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -208,7 +208,7 @@
                 <span jhiTranslate="global.menu.entities.rayon">Rayons</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','tableaux','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -220,7 +220,7 @@
                 <span jhiTranslate="global.menu.entities.tableau">Tableaux</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','fournisseur','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -232,7 +232,7 @@
                 <span jhiTranslate="global.menu.entities.fournisseur">Fournisseurs</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','groupe-fournisseur','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -245,7 +245,7 @@
                   jhiTranslate="global.menu.entities.groupeFournisseur">Groupe fournisseurs</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['tva','referentiel','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -257,7 +257,7 @@
                 <span jhiTranslate="global.menu.entities.tva">Tva</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['forme-produit','referentiel','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -269,7 +269,7 @@
                 <span jhiTranslate="global.menu.entities.formeProduit">Forme de produit</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['famille-produit','referentiel','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -281,7 +281,7 @@
                 <span jhiTranslate="global.menu.entities.familleProduit">Famille de produit</span>
               </a>
             </li>
-            <li>
+            <li *jhiHasAnyAuthority="['categorie','referentiel','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -294,7 +294,7 @@
               </a>
             </li>
 
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','gamme-produit','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -307,7 +307,7 @@
               </a>
             </li>
 
-            <li>
+            <li *jhiHasAnyAuthority="['referentiel','laboratoire','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -320,7 +320,7 @@
               </a>
             </li>
 
-            <li>
+            <li *jhiHasAnyAuthority="['motif-ajustement','referentiel','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
@@ -336,7 +336,7 @@
         </li>
 
         <li
-          *jhiHasAnyAuthority="'ROLE_USER'"
+          *jhiHasAnyAuthority="['groupe-tiers-payant','tiers-payant','ROLE_ADMIN']"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item dropdown pointer"
           display="dynamic"

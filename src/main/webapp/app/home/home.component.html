@@ -60,20 +60,7 @@
 
   </div>
 
-  <div *ngSwitchCase="false" class="alert alert-warning">
-    <span jhiTranslate="global.messages.info.authenticated.prefix">Si vous voulez vous </span>
-    <a (click)="login()" class="alert-link" jhiTranslate="global.messages.info.authenticated.link">connecter</a
-    >
 
-  </div>
-
-  <div *ngSwitchCase="false" class="alert alert-warning">
-    <span
-      jhiTranslate="global.messages.info.register.noaccount">Vous n'avez pas encore de compte ?</span>&nbsp;
-    <a class="alert-link" jhiTranslate="global.messages.info.register.link"
-       routerLink="account/register">Créer un
-      compte</a>
-  </div>
 </div>
 
 

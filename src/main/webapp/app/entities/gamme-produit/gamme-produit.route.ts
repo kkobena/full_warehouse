@@ -1,24 +1,22 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {GammeProduit, IGammeProduit} from '../../shared/model/gamme-produit.model';
-import {GammeProduitComponent} from './gamme-produit.component';
-import {GammeProduitService} from './gamme-produit.service';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { GammeProduit, IGammeProduit } from '../../shared/model/gamme-produit.model';
+import { GammeProduitComponent } from './gamme-produit.component';
+import { GammeProduitService } from './gamme-produit.service';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class SalesResolve implements Resolve<IGammeProduit> {
-  constructor(private service: GammeProduitService, private router: Router) {
-  }
+  constructor(private service: GammeProduitService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<IGammeProduit> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((sales: HttpResponse<GammeProduit>) => {
+        mergeMap((sales: HttpResponse<GammeProduit>) => {
           if (sales.body) {
             return of(sales.body);
           } else {
@@ -37,7 +35,7 @@ export const gammeProduitRoute: Routes = [
     path: '',
     component: GammeProduitComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.GAMME_PRODUIT],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.gammeProduit.home.title',
     },

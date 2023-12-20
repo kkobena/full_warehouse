@@ -37,7 +37,7 @@ export const ajustementRoute: Routes = [
     path: '',
     component: AjustementComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
       pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -49,7 +49,7 @@ export const ajustementRoute: Routes = [
       ajustement: AjustementResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
       pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -61,7 +61,7 @@ export const ajustementRoute: Routes = [
       ajustement: AjustementResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
       pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],

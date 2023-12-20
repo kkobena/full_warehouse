@@ -1,27 +1,25 @@
-import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Resolve, Router, Routes} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {ISalesLine, SalesLine} from 'app/shared/model/sales-line.model';
-import {SalesLineService} from './sales-line.service';
-import {SalesLineComponent} from './sales-line.component';
-import {SalesLineDetailComponent} from './sales-line-detail.component';
-import {SalesLineUpdateComponent} from './sales-line-update.component';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
+import { SalesLineService } from './sales-line.service';
+import { SalesLineComponent } from './sales-line.component';
+import { SalesLineDetailComponent } from './sales-line-detail.component';
+import { SalesLineUpdateComponent } from './sales-line-update.component';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class SalesLineResolve implements Resolve<ISalesLine> {
-  constructor(private service: SalesLineService, private router: Router) {
-  }
+  constructor(private service: SalesLineService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<ISalesLine> | Observable<never> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        flatMap((salesLine: HttpResponse<SalesLine>) => {
+        mergeMap((salesLine: HttpResponse<SalesLine>) => {
           if (salesLine.body) {
             return of(salesLine.body);
           } else {
@@ -40,7 +38,7 @@ export const salesLineRoute: Routes = [
     path: '',
     component: SalesLineComponent,
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.salesLine.home.title',
     },
@@ -53,7 +51,7 @@ export const salesLineRoute: Routes = [
       salesLine: SalesLineResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.salesLine.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -65,7 +63,7 @@ export const salesLineRoute: Routes = [
       salesLine: SalesLineResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.salesLine.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -77,7 +75,7 @@ export const salesLineRoute: Routes = [
       salesLine: SalesLineResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      authorities: [Authority.ADMIN, Authority.SALES],
       pageTitle: 'warehouseApp.salesLine.home.title',
     },
     canActivate: [UserRouteAccessService],

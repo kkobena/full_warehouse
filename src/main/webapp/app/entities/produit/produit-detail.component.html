@@ -1,113 +1,129 @@
 <div class="row justify-content-center">
-  <div class="col-12">
-    <div *ngIf="produit">
-      <!-- <h5 class="text-lg-left font-weight-bold"> {{ produit.libelle }}
-       </h5>-->
-      <!--            <hr>-->
-      <p-toolbar>
-        <div class="p-toolbar-group-left  p-md-8">
-          <div class="p-inputgroup">
-            <span class="p-inputgroup-addon">PRODUITS</span>
-            <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                            (onSelect)="onSelect($event)"
-                            [(ngModel)]="produit"
-                            [appendTo]="APPEND_TO"
-                            [autofocus]="true"
-                            [dataKey]="'id'"
-                            [dropdown]="true"
-                            [emptyMessage]="PRODUIT_NOT_FOUND"
-                            [inputStyle]="{'width':'100%'}"
-                            [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
-                            [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
+  <p-panel>
+    <ng-template pTemplate="header">
+      <span class="font-bold">{{ produit?.libelle }}</span>
+    </ng-template>
+    <div class="col-12">
+      <div *ngIf="produit">
 
-              <ng-template let-item pTemplate="item">
+        <p-toolbar>
+          <div class="p-toolbar-group-left " style="width: 80%">
+            <div class="p-inputgroup mr-1" style="width: 100%;">
+              <span class="p-inputgroup-addon">PRODUITS</span>
+              <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                              (onSelect)="onSelect($event)"
+                              [(ngModel)]="produit"
+                              [appendTo]="APPEND_TO"
+                              [autofocus]="true"
+                              [dataKey]="'id'"
+                              [dropdown]="true"
+                              [emptyMessage]="PRODUIT_NOT_FOUND"
+                              [inputStyle]="{'width':'100%'}"
+                              [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
+                              [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
 
-                <div *ngIf="item.totalQuantity>0">
+                <ng-template let-item pTemplate="item">
+
+                  <div *ngIf="item.totalQuantity>0">
             <span
-              style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
-                  <span class="float-right">{{item.regularUnitPrice |number}}</span>
-                </div>
-                <div *ngIf="item.totalQuantity<=0">
+              style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
+                    <span class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                  </div>
+                  <div *ngIf="item.totalQuantity<=0">
                                             <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{item.codeCip}}</span><span
-                  class="stockless"> {{item.libelle}}</span> <span
-                  class="float-right stockless">{{item.regularUnitPrice |number}}</span>
-                </div>
-              </ng-template>
+                                                  style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
+                    class="stockless"> {{ item.libelle }}</span> <span
+                    class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+                  </div>
+                </ng-template>
 
-            </p-autoComplete>
+              </p-autoComplete>
+
+            </div>
+            <label class="ml-2" for="startDate">Du&nbsp;</label>
+
+            <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        class="ml-1"
+                        dateFormat="dd/mm/yy"
+                        id="startDate"></p-calendar>
+            <label class="ml-1" for="endDate">Au&nbsp;</label>
+            <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        dateFormat="dd/mm/yy"
+                        id="endDate"></p-calendar>
+
+
+            <label class="ml-2" for="type">Type&nbsp;</label>
+            <p-dropdown (onChange)="filtreTypeMouvement($event)" [(ngModel)]="selectedTypeMouvement"
+                        [filter]="false"
+                        [options]="typeMouvement"
+                        class="ml-2" id="type"
+                        placeholder="Filtrer par type"
+                        styleClass="dropdown-width">
+            </p-dropdown>
 
           </div>
-          <label class="ml-2" for="startDate">Du</label>
-          <p-inputMask [(ngModel)]="startDate" class="ml-2" id="startDate" mask="99/99/9999"
-                       placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
-          <label class="ml-2" for="endDate">Au</label>
-          <p-inputMask [(ngModel)]="endDate" class="ml-2" id="endDate" mask="99/99/9999"
-                       placeholder="99/99/9999"
-                       slotChar="dd/mm/yyyy"></p-inputMask>
+          <div class="p-toolbar-group-right">
+            <button (click)="loadPage()" class="p-button-raised p-button-success mr-1" pButton
+                    pRipple
+                    type="button">
+              <i class="pi pi-check"></i>
+              Rechercher
+            </button>
+            <button [hidden]="true"
+                    class="p-button-raised p-button-danger" pButton
+                    pRipple type="button">
+              <fa-icon icon="print"></fa-icon>&nbsp;<span
+              jhiTranslate="entity.action.print">Imprimer</span>
+            </button>
 
-          <label class="ml-2" for="type">Type</label>
-          <p-dropdown (onChange)="filtreTypeMouvement($event)" [(ngModel)]="selectedTypeMouvement"
-                      [filter]="false"
-                      [options]="typeMouvement"
-                      class="ml-2" id="type"
-                      placeholder="Filtrer par type"
-                      styleClass="dropdown-width">
-          </p-dropdown>
+            <button (click)="previousState()" class="p-button-raised p-button-info" pButton pRipple
+                    type="button">
+              <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+              jhiTranslate="entity.action.back">Back</span>
+            </button>
+          </div>
 
-        </div>
-        <div class="p-toolbar-group-right">
-          <button (click)="loadPage()" class="btn btn-sm btn-success mr-1" type="submit">
-            <i class="pi pi-check"></i>
-            Rechercher
-          </button>
-          <button (click)="previousState()" class="btn btn-sm btn-danger mr-1" type="submit">
-            <fa-icon icon="print"></fa-icon>&nbsp;<span
-            jhiTranslate="entity.action.print">Imprimer</span>
-          </button>
+        </p-toolbar>
 
-          <button (click)="previousState()" class="btn btn-sm btn-info" type="submit">
-            <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-            jhiTranslate="entity.action.back">Back</span>
-          </button>
-        </div>
+        <p-table *ngIf="entites && entites.length > 0" [lazy]="true" [paginator]="true"
+                 [resizableColumns]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
+                 [value]="entites"
 
-      </p-toolbar>
-      <hr>
-      <p-table *ngIf="entites && entites.length > 0" [lazy]="true" [paginator]="true"
-               [resizableColumns]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
-               [value]="entites"
+                 dataKey="id" selectionMode="single"
+                 styleClass="ui-table-cars">
 
-               dataKey="id" selectionMode="single"
-               styleClass="ui-table-cars">
+          <ng-template pTemplate="header">
+            <tr>
+              <th scope="col" style="width:5%"><span>Date mouvement</span></th>
+              <th scope="col" style="width:28%"><span>Type mouvement</span></th>
+              <th scope="col" style="width:10%"><span>Quantité mouvement</span></th>
+              <th scope="col" style="width:15%"><span>Quantité avant</span></th>
+              <th scope="col" style="width:14%"><span>Quantité après</span></th>
+              <th scope="col" style="width:20%"><span>Opérateur</span></th>
 
-        <ng-template pTemplate="header">
-          <tr>
-            <th scope="col" style="width:5%"><span>Date mouvement</span></th>
-            <th scope="col" style="width:28%"><span>Type mouvement</span></th>
-            <th scope="col" style="width:10%"><span>Quantité mouvement</span></th>
-            <th scope="col" style="width:15%"><span>Quantité avant</span></th>
-            <th scope="col" style="width:14%"><span>Quantité après</span></th>
-            <th scope="col" style="width:20%"><span>Opérateur</span></th>
+            </tr>
+          </ng-template>
+          <ng-template let-columns="columns" let-elRow pTemplate="body">
+            <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+              <td>{{ elRow.updatedAt |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>{{ elRow.transactionType }}</td>
+              <td>{{ elRow.quantity }}</td>
+              <td>{{ elRow.quantityBefor }}</td>
+              <td>{{ elRow.quantityAfter }}</td>
 
-          </tr>
-        </ng-template>
-        <ng-template let-columns="columns" let-elRow pTemplate="body">
-          <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-            <td>{{ elRow.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-            <td>{{ elRow.transactionType }}</td>
-            <td>{{ elRow.quantity  }}</td>
-            <td>{{ elRow.quantityBefor }}</td>
-            <td>{{ elRow.quantityAfter }}</td>
+              <td>{{ elRow.abbrName }}</td>
 
-            <td>{{ elRow.abbrName }}</td>
+            </tr>
+          </ng-template>
 
-          </tr>
-        </ng-template>
-
-      </p-table>
+        </p-table>
 
 
+      </div>
     </div>
-  </div>
+  </p-panel>
 </div>

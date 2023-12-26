@@ -1,4 +1,3 @@
-@import 'bootstrap-variables';
 @import 'bootstrap/scss/functions';
 @import 'bootswatch/dist/spacelab/variables';
 @import 'bootstrap/scss/variables';
@@ -941,4 +940,22 @@ iconlist li .icon-holder .icon i {
       border-left: solid 0.3px rgb(150, 150, 200);
     }
   }
+}
+
+.sale-panel-header {
+  .p-panel-header {
+    padding: 0.1rem 1rem;
+  }
+}
+
+.mr-1 {
+  margin-right: 0.2rem !important;
+}
+
+.ml-1 {
+  margin-left: 0.2rem !important;
+}
+
+.p-calendar .p-inputtext {
+  width: 2%;
 }

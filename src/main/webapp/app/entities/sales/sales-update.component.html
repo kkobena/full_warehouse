@@ -92,58 +92,61 @@
   </ng-template>
 </p-dialog>
 
+<p-panel [styleClass]="'sale-panel-header'">
+  <ng-template pTemplate="header">
 
-<div class="card-group">
-  <div class="card">
-    <div class="card-header sale-card-header">TYPE VENTE</div>
-    <div class="card-body sale-card">
-      <p-selectButton (onChange)="onNatureVenteChange($event)" [(ngModel)]="naturesVente"
-                      [options]="naturesVentes"
-                      optionDisabled="disabled"
-                      optionLabel="name"></p-selectButton>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header sale-card-header">NATURE VENTE</div>
-    <div class="card-body sale-card">
-      <p-selectButton [(ngModel)]="typePrescription" [options]="typePrescriptions"
-                      optionLabel="name"></p-selectButton>
-    </div>
 
-  </div>
-  <div class="card">
-    <div class="card-header sale-card-header">OPERATEUR</div>
-    <div class="card-body sale-card">
-
-      <p-autoComplete #userBox (completeMethod)="searchUser()"
-                      (onSelect)="onSelectUser()"
-                      [(ngModel)]="userSeller"
-                      [appendTo]="appendTo"
-                      [autofocus]="true"
-                      [dataKey]="'id'"
-                      [dropdown]="true"
-                      [inputStyle]="{'width':'100%'}" [style]="{'width':'100%'}"
-                      [suggestions]="users" field="abbrName"></p-autoComplete>
-    </div>
-  </div>
-
-  <div class="card bg-light">
-
-    <div class="card-body sale-card">
+    <div class="text-right" style="padding:0;width: 100%;">
       <p-button (click)="openPindingSide()" icon="pi pi-search" label="VENTE EN ATTENTE"
                 styleClass="p-button-info p-button-sm"></p-button>
 
       <p-button (click)="previousState()" icon="pi pi-arrow-left" label="RETOUR"
                 styleClass="p-button-danger p-button-sm"></p-button>
     </div>
-  </div>
-</div>
 
-<div *ngIf="showClientSearch()" class="card-group mt-1">
-  <div class="card " style="max-width:15rem;">
-    <div class="card-header sale-card-header">
-      RECHERCHE CLIENT
-      <span class="float-right">
+  </ng-template>
+  <div class="card-group">
+    <div class="card">
+      <div class="card-header sale-card-header">TYPE VENTE</div>
+      <div class="card-body sale-card">
+        <p-selectButton (onChange)="onNatureVenteChange($event)" [(ngModel)]="naturesVente"
+                        [options]="naturesVentes"
+                        optionDisabled="disabled"
+                        optionLabel="name"></p-selectButton>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header sale-card-header">NATURE VENTE</div>
+      <div class="card-body sale-card">
+        <p-selectButton [(ngModel)]="typePrescription" [options]="typePrescriptions"
+                        optionLabel="name"></p-selectButton>
+      </div>
+
+    </div>
+    <div class="card">
+      <div class="card-header sale-card-header">OPERATEUR</div>
+      <div class="card-body sale-card">
+
+        <p-autoComplete #userBox (completeMethod)="searchUser()"
+                        (onSelect)="onSelectUser()"
+                        [(ngModel)]="userSeller"
+                        [appendTo]="appendTo"
+                        [autofocus]="true"
+                        [dataKey]="'id'"
+                        [dropdown]="true"
+                        [inputStyle]="{'width':'100%'}" [style]="{'width':'100%'}"
+                        [suggestions]="users" field="abbrName"></p-autoComplete>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div *ngIf="showClientSearch()" class="card-group mt-1">
+    <div class="card " style="max-width:15rem;">
+      <div class="card-header sale-card-header">
+        RECHERCHE CLIENT
+        <span class="float-right">
 
                  <button (click)="addNewCustomer()"
                          class="p-button-rounded p-button-primary p-button-sm" icon="pi pi-user"
@@ -151,8 +154,8 @@
                          pRipple
                          pTooltip="Ajouter nouveau client"></button>
                     </span>
-    </div>
-    <div class="card-body sale-card alert-secondary">
+      </div>
+      <div class="card-body sale-card alert-secondary">
         <span class="p-input-icon-left sale-p-input-icon-left">
     <i class="pi pi-search"></i>
     <input #clientSearchBox (keydown.enter)="loadsCustomer()" [(ngModel)]="clientSearchValue"
@@ -160,15 +163,15 @@
            pInputText placeholder="Taper pour rechercher un client"
            type="text">
 </span>
+      </div>
     </div>
-  </div>
-  <div *ngIf="customerSelected && naturesVente?.code!==COMPTANT;else uninsuredCustomer"
-       class="card"
-       style="max-width:35rem;">
-    <div class="card-header sale-card-header">
-      {{clientBoxHeader}}
+    <div *ngIf="customerSelected && naturesVente?.code!==COMPTANT;else uninsuredCustomer"
+         class="card"
+         style="max-width:35rem;">
+      <div class="card-header sale-card-header">
+        {{ clientBoxHeader }}
 
-      <span *ngIf="customerSelected" class="float-right">
+        <span *ngIf="customerSelected" class="float-right">
                 <button (click)="editCustomer()" class="p-button-danger p-button-sm"
                         icon="pi pi-user" label="EDITER LE CLIENT" pButton
                         pRipple
@@ -184,33 +187,33 @@
                     </span>
 
 
-    </div>
+      </div>
 
 
-    <div class="card-body sale-card">
-      <div class="row">
-        <div class="col-12 row">
-          <div class="col-lg-7 row">
-            <div class="col-3"><label
-              style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
+      <div class="card-body sale-card">
+        <div class="row">
+          <div class="col-12 row">
+            <div class="col-lg-7 row">
+              <div class="col-3"><label
+                style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
 
-            <div class="col-9">
-              <span style="font-weight: 800;">{{customerSelected?.fullName}}</span>
+              <div class="col-9">
+                <span style="font-weight: 800;">{{ customerSelected?.fullName }}</span>
+              </div>
+            </div>
+            <div class="col-lg-5 row" style="padding: 0;">
+              <div class="col-6"><label
+                style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+
+              <div #btn class="col-6" style="padding: 0;">
+                <span style="font-weight: 800;">{{ customerSelected?.num }}</span>
+              </div>
             </div>
           </div>
-          <div class="col-lg-5 row" style="padding: 0;">
-            <div class="col-6"><label
-              style="padding-left: 5px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
-
-            <div #btn class="col-6" style="padding: 0;">
-              <span style="font-weight: 800;">{{customerSelected?.num}}</span>
-            </div>
-          </div>
-        </div>
 
 
-        <div *ngIf="showAyantDroit()" class="col-12 assure" style="padding-right: 3px;">
-          <p-divider align="right">
+          <div *ngIf="showAyantDroit()" class="col-12 assure" style="padding-right: 3px;">
+            <p-divider align="right">
                         <span>
                         <button (click)="onEditAyantDroit()"
                                 class="p-button-rounded p-button-success p-button-sm"
@@ -223,38 +226,38 @@
                                      pButton pRipple
                                      pTooltip="Retirer l'ayant droit"></button>
                     </span>
-          </p-divider>
-          <div class="col-12 row" style="padding-right: 0px;padding-left: 2px;">
-            <div class="col-lg-7 row">
-              <div class="col-3"><label
-                style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
+            </p-divider>
+            <div class="col-12 row" style="padding-right: 0px;padding-left: 2px;">
+              <div class="col-lg-7 row">
+                <div class="col-3"><label
+                  style="padding-left:0;padding-right: 0; line-height: 1;">Nom:</label></div>
 
-              <div class="col-9">
-                <span style="font-weight: 800;">{{ayantDroit?.fullName}}</span>
+                <div class="col-9">
+                  <span style="font-weight: 800;">{{ ayantDroit?.fullName }}</span>
+                </div>
               </div>
-            </div>
-            <div class="col-lg-5 row" style="padding: 0;">
-              <div class="col-5" style="padding: 0;"><label
-                style="padding-left:1px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
+              <div class="col-lg-5 row" style="padding: 0;">
+                <div class="col-5" style="padding: 0;"><label
+                  style="padding-left:1px;padding-right: 0; line-height: 1;">N° Sécu:</label></div>
 
-              <div class="col-7" style="padding: 0;">
-                <span style="font-weight: 800;">{{ayantDroit?.numAyantDroit}}</span>
+                <div class="col-7" style="padding: 0;">
+                  <span style="font-weight: 800;">{{ ayantDroit?.numAyantDroit }}</span>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
+
 
       </div>
 
-
     </div>
-
-  </div>
-  <ng-template #uninsuredCustomer>
-    <div *ngIf="customerSelected && naturesVente?.code===COMPTANT" class="card">
-      <div class="card-header sale-card-header">
-        {{clientBoxHeader}}
-        <span *ngIf="customerSelected" class="float-right">
+    <ng-template #uninsuredCustomer>
+      <div *ngIf="customerSelected && naturesVente?.code===COMPTANT" class="card">
+        <div class="card-header sale-card-header">
+          {{ clientBoxHeader }}
+          <span *ngIf="customerSelected" class="float-right">
                 <button (click)="editCustomer()" class="p-button-danger p-button-sm"
                         icon="pi pi-user" label="EDITER LE CLIENT" pButton
                         pRipple
@@ -262,33 +265,33 @@
 
 
                     </span>
-      </div>
-      <div class="card-body sale-card">
-        <div class="row">
-          <div class="col-md-10">
-            <div class="row customer-info">
+        </div>
+        <div class="card-body sale-card">
+          <div class="row">
+            <div class="col-md-10">
+              <div class="row customer-info">
               <span>
                 <span>Nom/Prénom(s):</span> <span
-                class="badge text-bg-light">{{customerSelected?.fullName}}</span>
+                class="badge text-bg-light">{{ customerSelected?.fullName }}</span>
               </span>
 
-            </div>
-            <div class="row customer-info">
+              </div>
+              <div class="row customer-info">
                 <span>
               <span>Téléphone:</span> <span
-                  class="badge text-bg-light">{{customerSelected?.phone}}</span></span>
+                  class="badge text-bg-light">{{ customerSelected?.phone }}</span></span>
+              </div>
+
             </div>
 
           </div>
-
         </div>
-      </div>
 
-    </div>
-  </ng-template>
-  <div *ngIf="showTiersPayant()" class="card">
-    <div class="card-header sale-card-header">
-      TIERS-PAYANT <span class="float-right">
+      </div>
+    </ng-template>
+    <div *ngIf="showTiersPayant()" class="card">
+      <div class="card-header sale-card-header">
+        TIERS-PAYANT <span class="float-right">
 
              <button (click)="addComplementaire()" *ngIf="showOrHideTiersPayantBtn"
                      class=" p-button-secondary p-button-sm" icon="pi pi-plus"
@@ -297,355 +300,361 @@
                      pRipple
                      type="button"></button>
                     </span>
-    </div>
-    <div #tierspayantDiv class="card-body sale-card tiersPayant">
-      <div *ngFor="let tiersPayant of getTiersPayants(); let i = index"
-           class="row sale-tiers-payant-control ">
+      </div>
+      <div #tierspayantDiv class="card-body sale-card tiersPayant">
+        <div *ngFor="let tiersPayant of getTiersPayants(); let i = index"
+             class="row sale-tiers-payant-control ">
 
-        <div class="col-12 d-flex form-inline thirdPartySaleLines">
-          <input type="hidden" value="{{tiersPayant.id}}">
-          <div class="col-5 d-flex form-group row">
-            <div class="col-2" style="padding-left: 10px;">
-              <label>TP<span
-                style="color: red;">{{tiersPayant.priorite}}</span>:</label>
+          <div class="col-12 d-flex form-inline thirdPartySaleLines">
+            <input type="hidden" value="{{tiersPayant.id}}">
+            <div class="col-5 d-flex form-group row">
+              <div class="col-2" style="padding-left: 10px;">
+                <label>TP<span
+                  style="color: red;">{{ tiersPayant.priorite }}</span>:</label>
+              </div>
+              <div class="col-10"><span>{{ tiersPayant.tiersPayantFullName }}</span></div>
+
             </div>
-            <div class="col-10"><span>{{tiersPayant.tiersPayantFullName}}</span></div>
 
-          </div>
+            <div class="col-4 d-flex form-group">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">N°Bon</span>
+                <input [(ngModel)]="tiersPayant.numBon" autocomplete="off" class=""
+                       id="{{'tierspayant_'+i}}"
+                       pInputText pKeyFilter="alphanum" />
+              </div>
+            </div>
 
-          <div class="col-4 d-flex form-group">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon">N°Bon</span>
-              <input [(ngModel)]="tiersPayant.numBon" autocomplete="off" class=""
-                     id="{{'tierspayant_'+i}}"
-                     pInputText pKeyFilter="alphanum" />
+            <input type="hidden" value="{{tiersPayant.priorite}}">
+            <div class="col-2">
+              <label>Taux :<span
+                class="ml-1" style="color: red;">{{ tiersPayant.taux }}</span></label>
+            </div>
+            <div class="col-1">
+              <button (click)="removeTiersPayantFromIndex(i,tiersPayant.id!)"
+                      *ngIf="getTiersPayants().length>1"
+                      class="p-button-rounded p-button-danger p-button mt-2" icon="pi pi-times"
+                      pButton
+                      type="button"></button>
             </div>
           </div>
 
-          <input type="hidden" value="{{tiersPayant.priorite}}">
-          <div class="col-2">
-            <label>Taux :<span
-              class="ml-1" style="color: red;">{{tiersPayant.taux}}</span></label>
-          </div>
-          <div class="col-1">
-            <button (click)="removeTiersPayantFromIndex(i,tiersPayant.id!)"
-                    *ngIf="getTiersPayants().length>1"
-                    class="p-button-rounded p-button-danger p-button mt-2" icon="pi pi-times"
-                    pButton
-                    type="button"></button>
-          </div>
         </div>
-
       </div>
     </div>
+
+
   </div>
 
+  <div class="row mt-1 bg-light">
+    <div [class]="produitClass">
+      <div class="col-9">
+        <div class="p-inputgroup">
 
-</div>
+          <span class="p-inputgroup-addon">PRODUITS</span>
+          <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                          (keydown)="onSelectKeyDow($event)"
+                          (onSelect)="onSelect()"
+                          [(ngModel)]="produitSelected"
+                          [appendTo]="appendTo"
+                          [autofocus]="true"
+                          [dataKey]="'id'"
+                          [dropdown]="true"
+                          [emptyMessage]="notFoundText"
+                          [inputStyle]="{'width':'100%'}"
+                          [minLength]="minLength" [showEmptyMessage]="true"
+                          [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
 
-<div class="row mt-1 bg-light">
-  <div [class]="produitClass">
-    <div class="col-9">
-      <div class="p-inputgroup">
+            <ng-template let-item pTemplate="item">
 
-        <span class="p-inputgroup-addon">PRODUITS</span>
-        <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                        (keydown)="onSelectKeyDow($event)"
-                        (onSelect)="onSelect()"
-                        [(ngModel)]="produitSelected"
-                        [appendTo]="appendTo"
-                        [autofocus]="true"
-                        [dataKey]="'id'"
-                        [dropdown]="true"
-                        [emptyMessage]="notFoundText"
-                        [inputStyle]="{'width':'100%'}"
-                        [minLength]="minLength" [showEmptyMessage]="true"
-                        [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
-
-          <ng-template let-item pTemplate="item">
-
-            <div *ngIf="item.totalQuantity>0">
+              <div *ngIf="item.totalQuantity>0">
             <span
-              style="width:20%; display:inline-block">{{item.codeCip}}</span><span> {{item.libelle}}</span>
-              <span class="float-right">{{item.regularUnitPrice |number}}</span>
-            </div>
-            <div *ngIf="item.totalQuantity<=0">
+              style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
+                <span class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+              </div>
+              <div *ngIf="item.totalQuantity<=0">
                                             <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{item.codeCip}}</span><span
-              class="stockless"> {{item.libelle}}</span> <span
-              class="float-right stockless">{{item.regularUnitPrice |number}}</span>
-            </div>
-          </ng-template>
+                                                  style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
+                class="stockless"> {{ item.libelle }}</span> <span
+                class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+              </div>
+            </ng-template>
 
-        </p-autoComplete>
+          </p-autoComplete>
 
 
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">Qté</span>
+          <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
+                 [(ngModel)]="quantiteSaisie"
+                 pInputText
+                 type="number" />
+        </div>
       </div>
     </div>
-    <div class="col-3">
+
+    <div *ngIf="produitSelected" [class]="rayonClass">
+      RAYONS:
+      <p-tag *ngFor=" let rayon of produitSelected?.rayonProduits" severity="warning">
+        {{ rayon.libelleRayon }}
+      </p-tag>
+    </div>
+    <div *ngIf="showStock && produitSelected" class="col-1">
+      STOCK:
+      <p-tag [rounded]="true"
+             [severity]="stockSeverity">{{ produitSelected?.totalQuantity |number }}
+      </p-tag>
+
+    </div>
+    <div *ngIf="remiseProduits.length>0" class="col-3">
       <div class="p-inputgroup">
-        <span class="p-inputgroup-addon">Qté</span>
-        <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)" [(ngModel)]="quantiteSaisie"
-               pInputText
-               type="number" />
+        <span class="p-inputgroup-addon">Remises</span>
+        <p-dropdown [(ngModel)]="remiseProduit" [options]="remiseProduits"
+                    optionLabel="valeur"
+                    placeholder="Selectionner une remise"></p-dropdown>
       </div>
     </div>
   </div>
+  <p-divider></p-divider>
+  <div class="row">
+    <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+      <p-table #produitTable [globalFilterFields]="['code','produitLibelle']" [paginator]="true"
+               [rowsPerPageOptions]="[5,8,10,20]" [rows]="5"
+               [showCurrentPageReport]="true"
+               [value]="salesLines"
+               currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+               dataKey="id"
+               selectionMode="single">
+        <ng-template pTemplate="caption">
+          <span class="mr-lg-5">PRODUITS DE LA VENTE</span>
 
-  <div *ngIf="produitSelected" [class]="rayonClass">
-    RAYONS:
-    <p-tag *ngFor=" let rayon of produitSelected?.rayonProduits" severity="warning">
-      {{rayon.libelleRayon}}
-    </p-tag>
-  </div>
-  <div *ngIf="showStock && produitSelected" class="col-1">
-    STOCK:
-    <p-tag [rounded]="true"
-           [severity]="stockSeverity">{{produitSelected?.totalQuantity |number}}</p-tag>
-
-  </div>
-  <div *ngIf="remiseProduits.length>0" class="col-3">
-    <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">Remises</span>
-      <p-dropdown [(ngModel)]="remiseProduit" [options]="remiseProduits"
-                  optionLabel="valeur"
-                  placeholder="Selectionner une remise"></p-dropdown>
-    </div>
-  </div>
-</div>
-<p-divider></p-divider>
-<div class="row">
-  <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
-    <p-table #produitTable [globalFilterFields]="['code','produitLibelle']" [paginator]="true"
-             [rowsPerPageOptions]="[5,8,10,20]" [rows]="5"
-             [showCurrentPageReport]="true"
-             [value]="salesLines"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-             dataKey="id"
-             selectionMode="single">
-      <ng-template pTemplate="caption">
-        <span class="mr-lg-5">PRODUITS DE LA VENTE</span>
-
-        <span class="p-input-icon-left">
+          <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
     <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
            placeholder="TAPEZ POUR FILTRER"
            type="text">
 </span>
 
-      </ng-template>
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width:5%">
-            #
-          </th>
-          <th style="width:10%">CODE</th>
-          <th style="width:44%">LIBELLE</th>
-          <th style="width:8%">QTE.D</th>
-          <th style="width:8%">QTE.S</th>
-          <th style="width:9%">PU</th>
-          <th style="width:10%">TOTAL</th>
-          <th style="width:6%"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-        <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-          <td style="text-align: left;">{{rowIndex + 1}}</td>
-          <td>{{saleLine.code}}</td>
-          <td>{{saleLine.produitLibelle}}</td>
-          <td pEditableColumn style="text-align: right;">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input (focus)="$event.target.select()"
-                       (keydown.enter)="updateItemQtyRequested(saleLine,$event)" pInputText
-                       required style="width: 100px;"
-                       type="number">
-              </ng-template>
-              <ng-template pTemplate="output">
-                {{saleLine.quantityRequested |number}}
-              </ng-template>
-            </p-cellEditor>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:5%">
+              #
+            </th>
+            <th style="width:10%">CODE</th>
+            <th style="width:44%">LIBELLE</th>
+            <th style="width:8%">QTE.D</th>
+            <th style="width:8%">QTE.S</th>
+            <th style="width:9%">PU</th>
+            <th style="width:10%">TOTAL</th>
+            <th style="width:6%"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+          <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+            <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+            <td>{{ saleLine.code }}</td>
+            <td>{{ saleLine.produitLibelle }}</td>
+            <td pEditableColumn style="text-align: right;">
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input (focus)="$event.target.select()"
+                         (keydown.enter)="updateItemQtyRequested(saleLine,$event)" pInputText
+                         required style="width: 100px;"
+                         type="number">
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ saleLine.quantityRequested |number }}
+                </ng-template>
+              </p-cellEditor>
 
-          </td>
-          <td pEditableColumn style="text-align: right;">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input (focus)="$event.target.select()"
-                       (keydown.enter)="updateItemQtySold(saleLine,$event)" pInputText
-                       required style="width: 100px;"
-                       type="number">
-              </ng-template>
-              <ng-template pTemplate="output">
-                {{saleLine.quantitySold |number}}
-              </ng-template>
-            </p-cellEditor>
-          </td>
-          <td *ngIf="canUpdatePu;else unEditRegularUnitPrice" pEditableColumn
-              style="text-align: right;">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input (focus)="$event.target.select()"
-                       (keydown.enter)="updateItemPrice(saleLine,$event)" pInputText
-                       required
-                       style="width: 100px;"
-                       type="number">
-              </ng-template>
-              <ng-template pTemplate="output">
-                {{saleLine.regularUnitPrice |number}}
-              </ng-template>
-            </p-cellEditor>
-          </td>
-          <ng-template #unEditRegularUnitPrice>
-            <td style="text-align: right;">{{saleLine.regularUnitPrice |number}}</td>
-          </ng-template>
+            </td>
+            <td pEditableColumn style="text-align: right;">
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input (focus)="$event.target.select()"
+                         (keydown.enter)="updateItemQtySold(saleLine,$event)" pInputText
+                         required style="width: 100px;"
+                         type="number">
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ saleLine.quantitySold |number }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td *ngIf="canUpdatePu;else unEditRegularUnitPrice" pEditableColumn
+                style="text-align: right;">
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input (focus)="$event.target.select()"
+                         (keydown.enter)="updateItemPrice(saleLine,$event)" pInputText
+                         required
+                         style="width: 100px;"
+                         type="number">
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ saleLine.regularUnitPrice |number }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <ng-template #unEditRegularUnitPrice>
+              <td style="text-align: right;">{{ saleLine.regularUnitPrice |number }}</td>
+            </ng-template>
 
-          <td style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
-          <td style="text-align: right;">
-            <button (click)="confirmDeleteItem(saleLine)"
-                    class="p-button-rounded p-button-danger p-button-sm  p-mb-3" icon="pi pi-trash"
-                    pButton pRipple
-                    pTooltip="Supprimer"></button>
-          </td>
-        </tr>
+            <td style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+            </td>
+            <td style="text-align: right;">
+              <button (click)="confirmDeleteItem(saleLine)"
+                      class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
+                      icon="pi pi-trash"
+                      pButton pRipple
+                      pTooltip="Supprimer"></button>
+            </td>
+          </tr>
 
-      </ng-template>
-      <ng-template pTemplate="footer">
-        <tr *ngIf="salesLines.length>0">
-          <td class="p-text-left" colspan="3">TOTAUX</td>
-          <td style="text-align: right">{{totalQtyProduit() |number}} </td>
-          <td style="text-align: right">{{totalQtyServi() |number}}</td>
-          <td colspan="2" style="text-align: right">{{totalTtc() |number}}</td>
-          <td></td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-  <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
-    <ul class="list-group mt-1">
-      <li *ngIf="sale" class="list-group-item"><span class="h6">TOTAL VENTE</span> <span
-        class="float-right sale-amount text-success">{{sale?.salesAmount |number}}  Fca</span></li>
-      <li *ngIf="sale && sale?.taxAmount!>0" class="list-group-item"><span
-        class="h6">TOTAL TVA</span><span
-        class="float-right sale-amount ">{{sale?.taxAmount!|number}} Fca</span></li>
-      <li *ngIf="sale && sale?.discountAmount!>0" class="list-group-item"><span
-        class="h6">TOTAL REMISE</span><span
-        class="float-right sale-amount ">{{sale?.discountAmount|number}} Fca</span></li>
-      <li *ngIf="sale && sale?.categorie==='VO'" class="list-group-item"><span
-        class="h6">PAR TIER-PAYANT</span><span
-        class="float-right sale-amount ">{{sale?.partTiersPayant|number}} Fca</span></li>
-      <li *ngIf="sale" class="list-group-item"><span class="h6">NET A PAYER</span><span
-        class="float-right sale-amount text-danger ">{{sale?.amountToBePaid|number}} Fca</span></li>
-      <li class="list-group-item"><span class="h6">DERNIERE MONNAIE</span><span
-        class="float-right sale-amount text-info">{{derniereMonnaie|number}} Fca</span></li>
-      <li *ngIf="sale?.amountToBePaid!>0" class="list-group-item"><span
-        class="h6">MONNAIE</span><span
-        class="float-right sale-amount text-info">{{monnaie|number}} Fca</span></li>
-      <li class="list-group-item">
-        <p-button (click)="save()" [disabled]="!sale" icon="pi pi-check"
-                  label="TERMINER"
-                  styleClass="p-button-danger"></p-button>
-
-        <p-button (click)="putCurrentSaleOnHold()" [disabled]="!sale" icon="pi pi-times"
-                  label="EN ATTENTE"
-                  styleClass="p-button-secondary"></p-button>
-      </li>
-    </ul>
-
-  </div>
-</div>
-<div class="row sale-bottom-card">
-
-  <div *ngIf="showModeReglementCard" class="card col-md-7">
-    <div class="card-header sale-card-header">
-      MODE REGLEMENT
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr *ngIf="salesLines.length>0">
+            <td class="p-text-left" colspan="3">TOTAUX</td>
+            <td style="text-align: right">{{ totalQtyProduit() |number }}</td>
+            <td style="text-align: right">{{ totalQtyServi() |number }}</td>
+            <td colspan="2" style="text-align: right">{{ totalTtc() |number }}</td>
+            <td></td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
+    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
+      <ul class="list-group mt-1">
+        <li *ngIf="sale" class="list-group-item"><span class="h6">TOTAL VENTE</span> <span
+          class="float-right sale-amount text-success">{{ sale?.salesAmount |number }}  Fca</span>
+        </li>
+        <li *ngIf="sale && sale?.taxAmount!>0" class="list-group-item"><span
+          class="h6">TOTAL TVA</span><span
+          class="float-right sale-amount ">{{ sale?.taxAmount!|number }} Fca</span></li>
+        <li *ngIf="sale && sale?.discountAmount!>0" class="list-group-item"><span
+          class="h6">TOTAL REMISE</span><span
+          class="float-right sale-amount ">{{ sale?.discountAmount|number }} Fca</span></li>
+        <li *ngIf="sale && sale?.categorie==='VO'" class="list-group-item"><span
+          class="h6">PAR TIER-PAYANT</span><span
+          class="float-right sale-amount ">{{ sale?.partTiersPayant|number }} Fca</span></li>
+        <li *ngIf="sale" class="list-group-item"><span class="h6">NET A PAYER</span><span
+          class="float-right sale-amount text-danger ">{{ sale?.amountToBePaid|number }} Fca</span>
+        </li>
+        <li class="list-group-item"><span class="h6">DERNIERE MONNAIE</span><span
+          class="float-right sale-amount text-info">{{ derniereMonnaie|number }} Fca</span></li>
+        <li *ngIf="sale?.amountToBePaid!>0" class="list-group-item"><span
+          class="h6">MONNAIE</span><span
+          class="float-right sale-amount text-info">{{ monnaie|number }} Fca</span></li>
+        <li class="list-group-item">
+          <p-button (click)="save()" [disabled]="!sale" icon="pi pi-check"
+                    label="TERMINER"
+                    styleClass="p-button-danger"></p-button>
 
-    <div class="card-body sale-card">
-      <div class="row sale-chexkbox">
-        <div class="col-md-3">
+          <p-button (click)="putCurrentSaleOnHold()" [disabled]="!sale" icon="pi pi-times"
+                    label="EN ATTENTE"
+                    styleClass="p-button-secondary"></p-button>
+        </li>
+      </ul>
+
+    </div>
+  </div>
+  <div class="row sale-bottom-card">
+
+    <div *ngIf="showModeReglementCard" class="card col-md-7">
+      <div class="card-header sale-card-header">
+        MODE REGLEMENT
+      </div>
+
+      <div class="card-body sale-card">
+        <div class="row sale-chexkbox">
+          <div class="col-md-3">
     <span class="float-left">
         <span class="float-left wr-check-box">Vente différée ?</span><p-inputSwitch
       (onChange)="onDiffereChange()" [(ngModel)]="isDiffere">
 
         </p-inputSwitch></span>
-        </div>
-        <div class="col-md-3">
+          </div>
+          <div class="col-md-3">
              <span
                class="float-left wr-check-box">Imprimer le ticket ?</span><span
-          class="float-left"><p-inputSwitch
-          [(ngModel)]="printTicket">
+            class="float-left"><p-inputSwitch
+            [(ngModel)]="printTicket">
         </p-inputSwitch></span>
 
-        </div>
-        <div class="col-md-3">
-          <span class="float-left mr-1  wr-check-box">Imprimer la facture ?</span><span
-          class="float-left"><p-inputSwitch
-          [(ngModel)]="printInvoice">
+          </div>
+          <div class="col-md-3">
+            <span class="float-left mr-1  wr-check-box">Imprimer la facture ?</span><span
+            class="float-left"><p-inputSwitch
+            [(ngModel)]="printInvoice">
         </p-inputSwitch></span>
-        </div>
-        <div class="col-md-3">
+          </div>
+          <div class="col-md-3">
            <span *ngIf="naturesVente?.code===ASSURANCE"
                  class="float-left mr-1 ml-3 wr-check-box">Vente sans bon ?</span><span
-          *ngIf="naturesVente?.code===ASSURANCE" class="float-left"><p-inputSwitch
-          [(ngModel)]="sansBon">
+            *ngIf="naturesVente?.code===ASSURANCE" class="float-left"><p-inputSwitch
+            [(ngModel)]="sansBon">
         </p-inputSwitch></span>
 
+          </div>
         </div>
-      </div>
-      <div class="row" style="margin-top: 0.5rem;">
-        <div
-          *ngFor="let modePay of modeReglementSelected;trackBy: trackPaymentModeId; let index = index; let isFirst = first; let isLast = last;"
-          class="col-md-6 ">
+        <div class="row" style="margin-top: 0.5rem;">
+          <div
+            *ngFor="let modePay of modeReglementSelected;trackBy: trackPaymentModeId; let index = index; let isFirst = first; let isLast = last;"
+            class="col-md-6 ">
 
-          <div class="p-inputgroup">
-            <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
-            <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
-                   [(ngModel)]="modePay.amount" [id]="modePay.code"
-                   [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
-                   class="payment-mode-input" pInputText />
-            <button (click)="onAddPaymentModeToggle(modePay,$event)"
-                    *ngIf="showAddModePaimentBtn" class="p-button-info add-mode-payment-btn"
-                    icon="pi pi-plus" pButton
-                    type="button"></button>
-            <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
-                    icon="pi pi-times"
-                    pButton type="button"></button>
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
+              <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
+                     [(ngModel)]="modePay.amount" [id]="modePay.code"
+                     [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
+                     class="payment-mode-input" pInputText />
+              <button (click)="onAddPaymentModeToggle(modePay,$event)"
+                      *ngIf="showAddModePaimentBtn" class="p-button-info add-mode-payment-btn"
+                      icon="pi pi-plus" pButton
+                      type="button"></button>
+              <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
+                      icon="pi pi-times"
+                      pButton type="button"></button>
+            </div>
+
           </div>
 
-        </div>
 
+        </div>
 
       </div>
 
     </div>
-
-  </div>
-  <div *ngIf="showInfosComplementaireReglementCard" class="card col-md-5">
-    <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
-    <div class="card-body sale-card">
-      <div *ngIf="isDiffere" class="p-inputgroup mt-1">
-        <span class="p-inputgroup-addon">Commentaire</span>
-        <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />
-      </div>
-      <div *ngIf="showInfosBancaire" class="row mt-1">
-        <div class="p-inputgroup col-6">
-          <span class="p-inputgroup-addon">Référence</span>
-          <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
+    <div *ngIf="showInfosComplementaireReglementCard" class="card col-md-5">
+      <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
+      <div class="card-body sale-card">
+        <div *ngIf="isDiffere" class="p-inputgroup mt-1">
+          <span class="p-inputgroup-addon">Commentaire</span>
+          <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />
         </div>
-        <div class="p-inputgroup  col-6">
-          <span class="p-inputgroup-addon">Banque</span>
-          <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
-        </div>
-        <div class="p-inputgroup mt-1  col-8">
-          <span class="p-inputgroup-addon">Lieux</span>
-          <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
+        <div *ngIf="showInfosBancaire" class="row mt-1">
+          <div class="p-inputgroup col-6">
+            <span class="p-inputgroup-addon">Référence</span>
+            <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
+          </div>
+          <div class="p-inputgroup  col-6">
+            <span class="p-inputgroup-addon">Banque</span>
+            <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
+          </div>
+          <div class="p-inputgroup mt-1  col-8">
+            <span class="p-inputgroup-addon">Lieux</span>
+            <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
+          </div>
         </div>
       </div>
     </div>
+
   </div>
-
-</div>
-
+</p-panel>
 <p-overlayPanel #addOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">

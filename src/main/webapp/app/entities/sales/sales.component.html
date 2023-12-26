@@ -36,7 +36,7 @@
 
 
     <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1">Du</label>
+    <label class="mr-sm-1">Du&nbsp;</label>
     <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
                 [showButtonBar]="true"
                 dateFormat="dd/mm/yy"
@@ -44,16 +44,16 @@
 
     </p-calendar>
     <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">Au</label>
+    <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
     <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
                 [showButtonBar]="true"
                 dateFormat="dd/mm/yy"
     ></p-calendar>
     <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">De</label>
+    <label class="mr-sm-1 ml-sm-1">De&nbsp;</label>
     <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
     <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">A</label>
+    <label class="mr-sm-1 ml-sm-1">A&nbsp;</label>
     <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
     <p-divider layout="vertical"></p-divider>
 
@@ -127,13 +127,13 @@
                 pRipple
                 type="button"></button>
       </td>
-      <td>{{sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-      <td>{{sale.numberTransaction}}</td>
-      <td class="text-right">{{sale.salesLines.length |number}}</td>
-      <td class="text-right">{{sale.salesAmount |number}}</td>
-      <td>{{sale.customer?.fullName}}</td>
-      <td>{{sale.seller?.abbrName}}</td>
-      <td>{{sale.cassier?.abbrName}}</td>
+      <td>{{ sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ sale.numberTransaction }}</td>
+      <td class="text-right">{{ sale.salesLines.length |number }}</td>
+      <td class="text-right">{{ sale.salesAmount |number }}</td>
+      <td>{{ sale.customer?.fullName }}</td>
+      <td>{{ sale.seller?.abbrName }}</td>
+      <td>{{ sale.cassier?.abbrName }}</td>
       <td class="text-center">
         <div class="btn-group">
 
@@ -184,14 +184,15 @@
               </ng-template>
               <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
                 <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                  <td style="text-align: left;">{{rowIndex + 1}}</td>
-                  <td>{{saleLine.code}}</td>
-                  <td>{{saleLine.produitLibelle}}</td>
-                  <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-                  <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-                  <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
+                  <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                  <td>{{ saleLine.code }}</td>
+                  <td>{{ saleLine.produitLibelle }}</td>
+                  <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                  <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                  <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
                   <td
-                    style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+                    style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                  </td>
 
                 </tr>
 
@@ -229,14 +230,15 @@
                 </ng-template>
                 <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
                   <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                    <td style="text-align: left;">{{rowIndex + 1}}</td>
-                    <td>{{saleLine.code}}</td>
-                    <td>{{saleLine.produitLibelle}}</td>
-                    <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-                    <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-                    <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
+                    <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                    <td>{{ saleLine.code }}</td>
+                    <td>{{ saleLine.produitLibelle }}</td>
+                    <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                    <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                    <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
                     <td
-                      style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+                      style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                    </td>
 
                   </tr>
 
@@ -253,13 +255,14 @@
                   <td class="firstColumn">
                     MONTANT ASSURE
                   </td>
-                  <td class="secondColumn">{{elRow?.partAssure |number}}
+                  <td class="secondColumn">{{ elRow?.partAssure |number }}
                   </td>
 
                   <td class="firstColumn">
                     MONTANT ASSURANCE
                   </td>
-                  <td class="secondColumn">{{elRow?.partTiersPayant |number
+                  <td class="secondColumn">{{
+                      elRow?.partTiersPayant |number
                     }}
                   </td>
 
@@ -269,12 +272,12 @@
                   <td class="firstColumn">
                     MONTANT TTC
                   </td>
-                  <td class="secondColumn">{{elRow?.salesAmount  }}
+                  <td class="secondColumn">{{ elRow?.salesAmount }}
                   </td>
                   <td class="firstColumn">
                     MONTANT HT1
                   </td>
-                  <td class="secondColumn">{{elRow?.htAmount | number }}
+                  <td class="secondColumn">{{ elRow?.htAmount | number }}
                   </td>
 
                 </tr>
@@ -283,12 +286,12 @@
                   <td class="firstColumn">
                     MONTANT TAXE
                   </td>
-                  <td class="secondColumn">{{elRow?.taxAmount |number }}
+                  <td class="secondColumn">{{ elRow?.taxAmount |number }}
                   </td>
                   <td class="firstColumn">
                     REMISE
                   </td>
-                  <td class="secondColumn">{{elRow?.discountAmount |number }}
+                  <td class="secondColumn">{{ elRow?.discountAmount |number }}
                   </td>
 
                 </tr>
@@ -296,34 +299,34 @@
                   <td class="firstColumn">
                     MONTANT A PAYER
                   </td>
-                  <td class="secondColumn">{{elRow?.amountToBePaid| number }}
+                  <td class="secondColumn">{{ elRow?.amountToBePaid| number }}
                   </td>
                   <td class="firstColumn">
                     RESTE A PAYER
                   </td>
-                  <td class="secondColumn">{{elRow?.restToPay }}
+                  <td class="secondColumn">{{ elRow?.restToPay }}
 
                   </td>
                 </tr>
                 <tr *ngFor="let tp of elRow?.thirdPartySaleLines; let i = index">
                   <td class="firstColumn">
-                    {{tp?.tiersPayantFullName }}
+                    {{ tp?.tiersPayantFullName }}
                   </td>
-                  <td class="secondColumn">{{tp?.taux + '%'}}
+                  <td class="secondColumn">{{ tp?.taux + '%' }}
                   </td>
                   <td class="firstColumn">
                     MONTANT
                   </td>
-                  <td class="secondColumn">{{tp?.montant | number}}
+                  <td class="secondColumn">{{ tp?.montant | number }}
 
                   </td>
                 </tr>
                 <tr *ngFor="let payment of elRow?.payments; let i = index">
                   <td class="firstColumn" colspan="3">
-                    {{payment?.paymentMode?.libelle }}
+                    {{ payment?.paymentMode?.libelle }}
                   </td>
 
-                  <td class="secondColumn">{{payment?.paidAmount | number}}
+                  <td class="secondColumn">{{ payment?.paidAmount | number }}
 
                   </td>
                 </tr>

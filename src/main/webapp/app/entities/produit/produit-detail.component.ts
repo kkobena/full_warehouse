@@ -46,6 +46,8 @@ export class ProduitDetailComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly APPEND_TO = APPEND_TO;
+  protected fromDate: Date = new Date();
+  protected toDate: Date = new Date();
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -127,10 +129,8 @@ export class ProduitDetailComponent implements OnInit {
   }
 
   searchFn(event: any): void {
-    {
-      this.searchValue = event.query;
-      this.loadProduits();
-    }
+    this.searchValue = event.query;
+    this.loadProduits();
   }
 
   loadPage(page?: number): void {
@@ -141,8 +141,8 @@ export class ProduitDetailComponent implements OnInit {
         size: this.itemsPerPage,
         sort: this.sort(),
         produitId: this.produit?.id,
-        startDate: this.startDate,
-        endDate: this.endDate,
+        startDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+        endDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
         type: this.selectedTypeMouvement,
       })
       .subscribe({

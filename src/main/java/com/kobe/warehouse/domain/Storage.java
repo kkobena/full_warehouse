@@ -2,17 +2,8 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.StorageType;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -87,12 +78,11 @@ public class Storage implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Storage{");
-        sb.append("id=").append(id);
-        sb.append(", storageType=").append(storageType);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", magasin=").append(magasin);
-        sb.append('}');
-        return sb.toString();
+      String sb = "Storage{" + "id=" + id
+          + ", storageType=" + storageType
+          + ", name='" + name + '\''
+          + ", magasin=" + magasin
+          + '}';
+        return sb;
     }
 }

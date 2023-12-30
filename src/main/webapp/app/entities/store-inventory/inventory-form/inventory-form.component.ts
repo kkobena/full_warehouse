@@ -6,8 +6,8 @@ import {
   IStoreInventory,
   StoreInventory,
 } from '../../../shared/model/store-inventory.model';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { StoreInventoryService } from '../store-inventory.service';
 import { Observable } from 'rxjs';
@@ -17,11 +17,35 @@ import { Storage } from '../../storage/storage.model';
 import { RayonService } from '../../rayon/rayon.service';
 import { IRayon, Rayon } from '../../../shared/model/rayon.model';
 import { APPEND_TO } from '../../../shared/constants/pagination.constants';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
+import { RouterModule } from '@angular/router';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'jhi-init-inventory',
   templateUrl: './inventory-form.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ConfirmDialogModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ToastModule,
+    NgxSpinnerModule,
+    TableModule,
+    RouterModule,
+    DynamicDialogModule,
+    DropdownModule,
+    ReactiveFormsModule,
+  ],
 })
 export class InventoryFormComponent implements OnInit {
   protected isSaving: boolean = false;
@@ -40,7 +64,7 @@ export class InventoryFormComponent implements OnInit {
     private storeInventoryService: StoreInventoryService,
     private storageService: StorageService,
     private rayonService: RayonService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +72,7 @@ export class InventoryFormComponent implements OnInit {
     this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
-      this.loadRayons(this.entity.storage?.id);
+      this.loadRayons(this.entity.storage.id);
     }
     this.populate();
   }
@@ -129,8 +153,8 @@ export class InventoryFormComponent implements OnInit {
     return {
       ...new StoreInventory(),
       id: this.editForm.get(['id'])!.value,
-      storage: this.editForm.get(['storage'])?.value?.id,
-      rayon: this.editForm.get(['rayon'])?.value?.id,
+      storage: this.editForm.get(['storage']).value?.id,
+      rayon: this.editForm.get(['rayon']).value?.id,
       inventoryCategory: this.editForm.get(['inventoryCategory'])!.value?.name,
     };
   }
@@ -138,8 +162,8 @@ export class InventoryFormComponent implements OnInit {
   private updateForm(entity: IStoreInventory): void {
     this.editForm.patchValue({
       id: entity.id,
-      storage: entity.storage?.id,
-      rayon: entity.rayon?.id,
+      storage: entity.storage.id,
+      rayon: entity.rayon.id,
       inventoryCategory: entity.inventoryCategory.name,
     });
   }
@@ -154,7 +178,7 @@ export class InventoryFormComponent implements OnInit {
     if (storageId) {
       this.rayonService
         .query({
-          storageId: storageId,
+          storageId,
         })
         .subscribe((res: HttpResponse<IRayon[]>) => {
           this.rayons = res.body || [];
@@ -178,7 +202,7 @@ export class InventoryFormComponent implements OnInit {
       new FormControl<number | null>(null, {
         validators: [Validators.required],
         nonNullable: true,
-      })
+      }),
     );
   }
 
@@ -192,7 +216,7 @@ export class InventoryFormComponent implements OnInit {
       new FormControl<number | null>(null, {
         validators: [Validators.required],
         nonNullable: true,
-      })
+      }),
     );
   }
 

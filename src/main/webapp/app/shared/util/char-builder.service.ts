@@ -36,11 +36,11 @@ export class CharBuilderService {
   protected buildChartLine(lineChartWrapper: LineChartWrapper): LineChart {
     return {
       data: {
-        labels: lineChartWrapper?.labeles,
+        labels: lineChartWrapper.labeles,
         datasets: [
           {
             label: 'Montant HT',
-            data: lineChartWrapper?.saleAmount?.data,
+            data: lineChartWrapper.saleAmount.data,
             fill: false,
             borderColor: this.documentStyle.getPropertyValue('--pink-500'),
             tension: 0.4,
@@ -48,21 +48,21 @@ export class CharBuilderService {
 
           {
             label: 'Montant tva',
-            data: lineChartWrapper?.tva?.data,
+            data: lineChartWrapper.tva.data,
             fill: false,
             borderColor: this.documentStyle.getPropertyValue('--blue-500'),
             tension: 0.4,
           },
           {
             label: 'Valeur Achat',
-            data: lineChartWrapper?.saleCostAmount?.data,
+            data: lineChartWrapper.saleCostAmount.data,
             fill: false,
             borderColor: this.documentStyle.getPropertyValue('--green-500'),
             tension: 0.4,
           },
           {
             label: 'Marge',
-            data: lineChartWrapper?.marge?.data,
+            data: lineChartWrapper.marge.data,
             fill: false,
             borderColor: this.documentStyle.getPropertyValue('--teal-500'),
             tension: 0.4,
@@ -112,10 +112,10 @@ export class CharBuilderService {
     const tva: number[] = [];
     for (const periodeRecord of periodeRecords) {
       labeles.push(periodeRecord.dateMvt);
-      data.push(periodeRecord.venteRecord?.htAmount);
-      saleCostAmount.push(periodeRecord.venteRecord?.costAmount);
-      tva.push(periodeRecord.venteRecord?.taxAmount);
-      marge.push(periodeRecord.venteRecord?.marge);
+      data.push(periodeRecord.venteRecord.htAmount);
+      saleCostAmount.push(periodeRecord.venteRecord.costAmount);
+      tva.push(periodeRecord.venteRecord.taxAmount);
+      marge.push(periodeRecord.venteRecord.marge);
     }
     return {
       labeles,

@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
@@ -11,35 +11,30 @@ import { StoreInventoryComponent } from './store-inventory.component';
 import { StoreInventoryDetailComponent } from './store-inventory-detail.component';
 import { StoreInventoryUpdateComponent } from './store-inventory-update.component';
 
-@Injectable({ providedIn: 'root' })
-export class StoreInventoryResolve implements Resolve<IStoreInventory> {
-  constructor(private service: StoreInventoryService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IStoreInventory> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((storeInventory: HttpResponse<StoreInventory>) => {
-          if (storeInventory.body) {
-            return of(storeInventory.body);
+export const StoreInventoryResolve = (route: ActivatedRouteSnapshot): Observable<null | IStoreInventory> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(StoreInventoryService)
+      .find(id)
+      .pipe(
+        mergeMap((res: HttpResponse<IStoreInventory>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new StoreInventory());
   }
-}
-
-export const storeInventoryRoute: Routes = [
+  return of(new StoreInventory());
+};
+const storeInventoryRoute: Routes = [
   {
     path: '',
     component: StoreInventoryComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
-      pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -51,7 +46,6 @@ export const storeInventoryRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
-      pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -63,7 +57,6 @@ export const storeInventoryRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
-      pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -75,8 +68,8 @@ export const storeInventoryRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
-      pageTitle: 'warehouseApp.storeInventory.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default storeInventoryRoute;

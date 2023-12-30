@@ -1,16 +1,28 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurService } from './fournisseur.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService, SelectItem } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisseur.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { Fournisseur, IFournisseur } from '../../shared/model/fournisseur.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-fournisseur',
@@ -28,6 +40,25 @@ import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model'
   ],
   providers: [MessageService, ConfirmationService],
   encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    NgxSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    KeyFilterModule,
+  ],
 })
 export class FournisseurComponent implements OnInit {
   fileDialog?: boolean;
@@ -60,16 +91,16 @@ export class FournisseurComponent implements OnInit {
     private fb: UntypedFormBuilder,
     protected groupeFournisseurService: GroupeFournisseurService,
     private spinner: NgxSpinnerService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
     this.loadPage();
   }
 
-  loadPage(page?: number, search?: String): void {
+  loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: String = search || '';
+    const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
@@ -84,7 +115,7 @@ export class FournisseurComponent implements OnInit {
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    this.page = event.first! / event.rows!;
+    this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
@@ -118,9 +149,9 @@ export class FournisseurComponent implements OnInit {
       })
       .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
         if (res.body)
-          res.body.forEach(item => {
+          {res.body.forEach(item => {
             this.groupes.push({ label: item.libelle, value: item.id });
-          });
+          });}
         this.editForm.patchValue({
           id: entity.id,
           code: entity.code,
@@ -161,7 +192,7 @@ export class FournisseurComponent implements OnInit {
   }
 
   delete(entity: IFournisseur): void {
-    if (entity && entity.id) this.confirmDelete(entity.id);
+    if (entity && entity.id) {this.confirmDelete(entity.id);}
   }
 
   confirmDelete(id: number): void {
@@ -235,19 +266,19 @@ export class FournisseurComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseur>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.subscribe(
       (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 
   protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) this.responsedto = responseDto;
+    if (responseDto) {this.responsedto = responseDto;}
     this.responseDialog = true;
     this.fileDialog = false;
     this.loadPage(0);

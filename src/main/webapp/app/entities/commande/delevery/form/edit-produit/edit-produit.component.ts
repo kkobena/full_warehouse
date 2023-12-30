@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
 import { HttpResponse } from '@angular/common/http';
@@ -16,11 +16,33 @@ import { TvaService } from '../../../../tva/tva.service';
 import { TypeEtiquetteService } from '../../../../type-etiquette/type-etiquette.service';
 import { IProduit } from '../../../../../shared/model/produit.model';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
+import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputMaskModule } from 'primeng/inputmask';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
+  standalone: true,
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    ToastModule,
+    InputMaskModule,
+  ],
 })
 export class EditProduitComponent implements OnInit {
   appendTo = 'body';
@@ -57,7 +79,7 @@ export class EditProduitComponent implements OnInit {
     protected errorService: ErrorService,
     protected rayonService: RayonService,
     protected tvaService: TvaService,
-    protected typeEtiquetteService: TypeEtiquetteService
+    protected typeEtiquetteService: TypeEtiquetteService,
   ) {}
 
   save(): void {

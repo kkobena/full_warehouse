@@ -1,16 +1,19 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 
-import {Categorie, ICategorie} from 'app/shared/model/categorie.model';
-import {CategorieService} from './categorie.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+
+import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
+import { CategorieService } from './categorie.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
+  standalone: true,
   selector: 'jhi-categorie-update',
   templateUrl: './categorie-update.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CategorieUpdateComponent implements OnInit {
   isSaving = false;
@@ -20,11 +23,14 @@ export class CategorieUpdateComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(protected categorieService: CategorieService, protected activatedRoute: ActivatedRoute, private fb: UntypedFormBuilder) {
-  }
+  constructor(
+    protected categorieService: CategorieService,
+    protected activatedRoute: ActivatedRoute,
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({categorie}) => {
+    this.activatedRoute.data.subscribe(({ categorie }) => {
       this.updateForm(categorie);
     });
   }
@@ -51,10 +57,10 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {

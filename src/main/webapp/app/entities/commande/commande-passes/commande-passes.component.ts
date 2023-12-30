@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from '../commande.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
 import { DeliveryService } from '../delevery/delivery.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
@@ -20,10 +20,19 @@ import { ImportationNewCommandeComponent } from '../importation-new-commande.com
 import { IDelivery } from '../../../shared/model/delevery.model';
 import { DeliveryModalComponent } from '../delevery/form/delivery-modal.component';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
+  standalone: true,
   selector: 'jhi-commande-passes',
   templateUrl: './commande-passes.component.html',
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule],
 })
 export class CommandePassesComponent implements OnInit {
   @Input() search = '';
@@ -38,7 +47,7 @@ export class CommandePassesComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected index = 0;
   protected selectedFilter = 'PASSED';
-  protected rowExpandMode = 'single';
+  protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
   protected page = 0;
   protected selectedtypeSuggession = 'ALL';
@@ -55,7 +64,7 @@ export class CommandePassesComponent implements OnInit {
     protected deliveryService: DeliveryService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {
@@ -97,11 +106,11 @@ export class CommandePassesComponent implements OnInit {
   }
 
   exportCSV(commande: ICommande): void {
-    this.commandeService.exportToCsv(commande.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(commande.id).subscribe(blod => saveAs(blod));
   }
 
   exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToPdf(commande.id).subscribe(blod => saveAs(blod));
   }
 
   orderLineTableColor(orderLine: IOrderLine): string {
@@ -130,16 +139,16 @@ export class CommandePassesComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
       next: res => {
         this.cancel();
         this.spinner.hide('gestion-commande-spinner');
 
-        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected?.id!).subscribe(ress => {
-          this.commandeSelected!.orderLines = ress.body!;
+        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected.id).subscribe(ress => {
+          this.commandeSelected.orderLines = ress.body!;
         });
 
-        this.openImporterReponseCommandeDialog(res.body!);
+        this.openImporterReponseCommandeDialog(res.body);
       },
       error: error => {
         this.spinner.hide('gestion-commande-spinner');
@@ -174,7 +183,7 @@ export class CommandePassesComponent implements OnInit {
     });
     this.ref.onClose.subscribe((resp: ICommandeResponse) => {
       if (resp) {
-        if (resp.items?.length === 0) {
+        if (resp.items.length === 0) {
           this.selectedFilter = 'PASSED';
         } else {
           this.selectedFilter = 'REQUESTED';
@@ -186,7 +195,7 @@ export class CommandePassesComponent implements OnInit {
   }
 
   rollbackAll(): void {
-    this.commandeService.rollbackCommandes(this.selections.map(e => e.id!)).subscribe(() => {
+    this.commandeService.rollbackCommandes(this.selections.map(e => e.id)).subscribe(() => {
       this.loadPage();
       this.selections = [];
     });
@@ -198,7 +207,7 @@ export class CommandePassesComponent implements OnInit {
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
       accept: () => {
-        this.rollbackCommande(commande?.id!);
+        this.rollbackCommande(commande.id);
       },
       key: 'deleteCommande',
     });
@@ -250,7 +259,7 @@ export class CommandePassesComponent implements OnInit {
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.commandeService
         .query({

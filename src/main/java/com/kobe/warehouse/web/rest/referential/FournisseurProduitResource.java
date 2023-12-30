@@ -3,7 +3,7 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +46,8 @@ public class FournisseurProduitResource {
   }
 
   @PutMapping("/fournisseur-produits")
-  public ResponseEntity<FournisseurProduitDTO> update(@Valid @RequestBody FournisseurProduitDTO dto)
-      {
+  public ResponseEntity<FournisseurProduitDTO> update(
+      @Valid @RequestBody FournisseurProduitDTO dto) {
     log.debug("REST request to update FournisseurProduit : {}", dto);
     if (dto.getId() == null) {
       throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -84,8 +84,7 @@ public class FournisseurProduitResource {
 
   @PutMapping("/fournisseur-produits/update-from-commande")
   public ResponseEntity<Void> updateProduitFournisseurFromCommande(
-      @Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO)
-      {
+      @Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO) {
 
     fournisseurProduitService.updateProduitFournisseurFromCommande(fournisseurProduitDTO);
     return ResponseEntity.ok()

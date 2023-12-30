@@ -15,7 +15,7 @@ import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import com.kobe.warehouse.web.rest.errors.ThirdPartySalesTiersPayantException;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 

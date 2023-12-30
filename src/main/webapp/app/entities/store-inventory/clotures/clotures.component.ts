@@ -8,19 +8,27 @@ import {
 } from '../../../shared/model/store-inventory.model';
 import { IUser } from '../../../core/user/user.model';
 import { ITEMS_PER_PAGE } from '../../../config/pagination.constants';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { StoreInventoryService } from '../store-inventory.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { saveAs } from 'file-saver';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-clotures',
   templateUrl: './clotures.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
 })
 export class CloturesComponent implements OnInit {
   @Input() inventoryCategories: InventoryCategory[];
@@ -38,7 +46,7 @@ export class CloturesComponent implements OnInit {
     private spinner: NgxSpinnerService,
     private storeInventoryService: StoreInventoryService,
     protected router: Router,
-    protected modalService: NgbModal
+    protected modalService: NgbModal,
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +59,7 @@ export class CloturesComponent implements OnInit {
 
   exportPdf(storeInventory: IStoreInventory): void {
     this.spinner.show();
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory?.id)).subscribe(blod => {
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blod => {
       const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
       saveAs(blod, 'inventaire_' + fileName);
       this.spinner.hide();
@@ -97,7 +105,7 @@ export class CloturesComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user?.id,
+      userId: this.user.id,
       inventoryCategories: this.inventoryCategories.map(e => e.name),
       statuts: this.statuts,
     };

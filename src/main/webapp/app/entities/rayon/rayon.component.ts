@@ -1,8 +1,8 @@
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { FormRayonComponent } from './form-rayon/form-rayon.component';
 import { RayonService } from './rayon.service';
@@ -10,12 +10,44 @@ import { IResponseDto } from '../../shared/util/response-dto';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IRayon } from '../../shared/model/rayon.model';
 import { IMagasin } from '../../shared/model/magasin.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'jhi-rayon',
   templateUrl: './rayon.component.html',
   styleUrls: ['./rayon.component.scss'],
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DropdownModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    DynamicDialogModule,
+    FormsModule,
+    FormRayonComponent,
+    DialogModule,
+  ],
 })
 export class RayonComponent implements OnInit {
   magasin?: IMagasin;
@@ -42,7 +74,7 @@ export class RayonComponent implements OnInit {
     protected router: Router,
     protected modalService: ConfirmationService,
     private dialogService: DialogService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {
     this.magasins = [];
     this.selectedEl = [];
@@ -72,9 +104,9 @@ export class RayonComponent implements OnInit {
     this.loadPage(0);
   }
 
-  loadPage(page?: number, search?: String): void {
+  loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: String = search || '';
+    const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
@@ -97,7 +129,7 @@ export class RayonComponent implements OnInit {
           page: this.page,
           size: event.rows,
           search: '',
-          magasinId: this.magasin?.id,
+          magasinId: this.magasin.id,
         })
         .subscribe({
           next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
@@ -169,7 +201,7 @@ export class RayonComponent implements OnInit {
   }
 
   onCloneChange(event: any): void {
-    if (this.clone?.id === this.magasin?.id) {
+    if (this.clone.id === this.magasin.id) {
       this.clone = undefined;
       this.messageService.add({
         severity: 'error',
@@ -184,7 +216,7 @@ export class RayonComponent implements OnInit {
   clonerRayon(): void {
     //  const rayons = this.selectedEl.map(e => e.id);
     if (this.selectedEl && this.clone) {
-      this.uploadFileResponse(this.entityService.cloner(this.selectedEl, this.clone.id!));
+      this.uploadFileResponse(this.entityService.cloner(this.selectedEl, this.clone.id));
     }
   }
 
@@ -216,7 +248,7 @@ export class RayonComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        magasinId: this.magasin?.id,
+        magasinId: this.magasin.id,
       },
     });
     this.entites = data || [];

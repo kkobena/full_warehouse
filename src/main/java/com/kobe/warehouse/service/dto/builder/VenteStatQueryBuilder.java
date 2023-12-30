@@ -17,7 +17,7 @@ import java.time.Month;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 import org.springframework.util.StringUtils;
 
 public final class VenteStatQueryBuilder {

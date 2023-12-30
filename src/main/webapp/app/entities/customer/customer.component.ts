@@ -1,33 +1,65 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {ActivatedRoute, Data, ParamMap, Router} from '@angular/router';
-import {combineLatest, Observable, Subscription} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import {ICustomer} from 'app/shared/model/customer.model';
+import { ICustomer } from 'app/shared/model/customer.model';
 
-import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {CustomerService} from './customer.service';
-import {ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig} from 'primeng/api';
-import {UninsuredCustomerFormComponent} from './uninsured-customer-form/uninsured-customer-form.component';
-import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {FormAssuredCustomerComponent} from './form-assured-customer/form-assured-customer.component';
-import {TranslateService} from '@ngx-translate/core';
-import {FormAyantDroitComponent} from './form-ayant-droit/form-ayant-droit.component';
-import {NgxSpinnerService} from 'ngx-spinner';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { CustomerService } from './customer.service';
+import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig } from 'primeng/api';
+import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FormAssuredCustomerComponent } from './form-assured-customer/form-assured-customer.component';
+import { TranslateService } from '@ngx-translate/core';
+import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DropdownModule } from 'primeng/dropdown';
+import { DividerModule } from 'primeng/divider';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-customer',
   templateUrl: './customer.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    DropdownModule,
+    ToolbarModule,
+    FormsModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    TableModule,
+    DialogModule,
+    FileUploadModule,
+    DividerModule,
+    SplitButtonModule,
+    NgxSpinnerModule,
+    TooltipModule,
+  ],
 })
 export class CustomerComponent implements OnInit {
   customers?: ICustomer[];
   types: string[] = ['TOUT', 'ASSURE', 'STANDARD'];
   statuts: object[] = [
-    {value: 'ENABLE', label: 'ACTIF'},
-    {value: 'DISABLE', label: 'DESACTIVE'},
+    { value: 'ENABLE', label: 'ACTIF' },
+    { value: 'DISABLE', label: 'DESACTIVE' },
   ];
   typeSelected = '';
   statutSelected = 'ENABLE';
@@ -57,7 +89,7 @@ export class CustomerComponent implements OnInit {
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
     private spinner: NgxSpinnerService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -93,13 +125,13 @@ export class CustomerComponent implements OnInit {
       })
       .subscribe(
         (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        () => this.onError()
+        () => this.onError(),
       );
   }
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.customerService
         .query({
@@ -112,7 +144,7 @@ export class CustomerComponent implements OnInit {
         })
         .subscribe(
           (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          () => this.onError()
+          () => this.onError(),
         );
     }
   }
@@ -130,22 +162,20 @@ export class CustomerComponent implements OnInit {
     this.responseDialog = false;
   }
 
-
   trackId(index: number, item: ICustomer): number {
-    return item.id!;
+    return item.id;
   }
 
-
   delete(customer: ICustomer): void {
-    this.customerService.delete(customer.id!).subscribe(() => this.loadPage());
+    this.customerService.delete(customer.id).subscribe(() => this.loadPage());
   }
 
   deleteAssuredCustomer(customer: ICustomer): void {
-    this.customerService.deleteAssuredCustomer(customer.id!).subscribe(() => this.loadPage());
+    this.customerService.deleteAssuredCustomer(customer.id).subscribe(() => this.loadPage());
   }
 
   lock(customer: ICustomer): void {
-    this.customerService.lock(customer.id!).subscribe(() => this.loadPage());
+    this.customerService.lock(customer.id).subscribe(() => this.loadPage());
   }
 
   confirmRemove(customer: ICustomer): void {
@@ -184,7 +214,7 @@ export class CustomerComponent implements OnInit {
 
   addAssureCustomer(): void {
     this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: {entity: null},
+      data: { entity: null },
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
@@ -198,7 +228,7 @@ export class CustomerComponent implements OnInit {
 
   editAssureCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: {entity: customer},
+      data: { entity: customer },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
@@ -212,7 +242,7 @@ export class CustomerComponent implements OnInit {
 
   addUninsuredCustomer(): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: {entity: null},
+      data: { entity: null },
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '50%',
     });
@@ -225,7 +255,7 @@ export class CustomerComponent implements OnInit {
 
   editUninsuredCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: {entity: customer},
+      data: { entity: customer },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '50%',
     });
@@ -238,7 +268,7 @@ export class CustomerComponent implements OnInit {
 
   addAyantDroit(customer: ICustomer): void {
     this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: {entity: null, assure: customer},
+      data: { entity: null, assure: customer },
       header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
       width: '50%',
       closeOnEscape: false,
@@ -252,7 +282,7 @@ export class CustomerComponent implements OnInit {
 
   editAyantDroit(customer: ICustomer, ayantDroit: ICustomer): void {
     this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: {entity: ayantDroit, assure: customer},
+      data: { entity: ayantDroit, assure: customer },
       header: "FORMULAIRE DE MODIFICATION D'AYANT DROIT ",
       width: '50%',
       closeOnEscape: false,
@@ -286,13 +316,17 @@ export class CustomerComponent implements OnInit {
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.subscribe(
       () => this.onPocesJsonSuccess(),
-      () => this.onImportError()
+      () => this.onImportError(),
     );
   }
 
   protected onImportError(): void {
     this.spinner.hide('importation');
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   protected onPocesJsonSuccess(): void {

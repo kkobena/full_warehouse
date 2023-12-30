@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
@@ -7,20 +7,55 @@ import { ProduitService } from '../produit/produit.service';
 import { ConfirmationService } from 'primeng/api';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { ErrorService } from '../../shared/error.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
 import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
 import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ImportationNewCommandeComponent } from './importation-new-commande.component';
 import { IDelivery } from '../../shared/model/delevery.model';
 import { CommandeEnCoursComponent } from './commande-en-cours/commande-en-cours.component';
 import { CommandePassesComponent } from './commande-passes/commande-passes.component';
 import { CommandeRecusComponent } from './commande-recus/commande-recus.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { CardModule } from 'primeng/card';
+import { FormsModule } from '@angular/forms';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
+  standalone: true,
   selector: 'jhi-commande',
+  templateUrl: './commande.component.html',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+    DialogModule,
+    ConfirmDialogModule,
+    FileUploadModule,
+    CardModule,
+    FormsModule,
+    ToolbarModule,
+    InputTextModule,
+    CommandeEnCoursComponent,
+    CommandePassesComponent,
+    CommandeRecusComponent,
+  ],
   styles: [
     `
       .commande-gestion .table tr:hover {
@@ -32,10 +67,8 @@ import { CommandeRecusComponent } from './commande-recus/commande-recus.componen
       }
     `,
   ],
-  templateUrl: './commande.component.html',
-  providers: [ConfirmationService, DialogService],
 })
-export class CommandeComponent implements OnInit {
+export class CommandeComponent {
   commandes: ICommande[] = [];
   commandeSelected?: ICommande;
   selectedRowIndex?: number;
@@ -66,10 +99,8 @@ export class CommandeComponent implements OnInit {
     protected produitService: ProduitService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
-
-  ngOnInit(): void {}
 
   onSearch(): void {
     switch (this.active) {
@@ -107,16 +138,16 @@ export class CommandeComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
       next: res => {
         this.cancel();
         this.spinner.hide('gestion-commande-spinner');
 
-        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected?.id!).subscribe(ress => {
-          this.commandeSelected!.orderLines = ress.body!;
+        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected.id).subscribe(ress => {
+          this.commandeSelected.orderLines = ress.body!;
         });
 
-        this.openImporterReponseCommandeDialog(res.body!);
+        this.openImporterReponseCommandeDialog(res.body);
       },
       error: error => {
         this.spinner.hide('gestion-commande-spinner');

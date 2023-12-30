@@ -2,11 +2,36 @@ import { Component, OnInit } from '@angular/core';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
 import { ConfirmationService } from 'primeng/api';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { RouterModule } from '@angular/router';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-presale',
   templateUrl: './presale.component.html',
   providers: [ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ConfirmDialogModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    DropdownModule,
+    ToolbarModule,
+  ],
 })
 export class PresaleComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
@@ -14,7 +39,10 @@ export class PresaleComponent implements OnInit {
   sales: ISales[] = [];
   search = '';
 
-  constructor(protected salesService: SalesService, protected confirmationService: ConfirmationService) {}
+  constructor(
+    protected salesService: SalesService,
+    protected confirmationService: ConfirmationService,
+  ) {}
 
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';

@@ -3,19 +3,41 @@ import { IProduit } from '../../../shared/model/produit.model';
 import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
 import { ProduitService } from '../produit.service';
 import { ErrorService } from '../../../shared/error.service';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { FournisseurService } from '../../fournisseur/fournisseur.service';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-form-produit-fournisseur',
   templateUrl: './form-produit-fournisseur.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    InputTextModule,
+    DropdownModule,
+    ButtonModule,
+    RippleModule,
+    InputSwitchModule,
+    KeyFilterModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
   produit?: IProduit;
@@ -41,7 +63,7 @@ export class FormProduitFournisseurComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected fournisseurService: FournisseurService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   save(): void {
@@ -76,14 +98,14 @@ export class FormProduitFournisseurComponent implements OnInit {
   }
 
   hasPrincipal(): boolean {
-    if (this.isEmpty()) return false;
-    const principal = this.produit?.fournisseurProduits?.some(e => e.principal);
-    if (principal) return principal;
+    if (this.isEmpty()) {return false;}
+    const principal = this.produit.fournisseurProduits.some(e => e.principal);
+    if (principal) {return principal;}
     return false;
   }
 
   isEmpty(): boolean {
-    const itemLength = this.produit?.fournisseurProduits?.length;
+    const itemLength = this.produit.fournisseurProduits.length;
     if (itemLength) {
       return itemLength <= 0;
     }
@@ -97,7 +119,7 @@ export class FormProduitFournisseurComponent implements OnInit {
       prixAchat: produitFournisseur.prixAchat,
       codeCip: produitFournisseur.codeCip,
       fournisseurId: produitFournisseur.fournisseurId,
-      produitId: this.produit?.id,
+      produitId: this.produit.id,
     });
   }
 
@@ -172,7 +194,7 @@ export class FormProduitFournisseurComponent implements OnInit {
       codeCip: this.editForm.get(['codeCip'])!.value,
       fournisseurId: this.editForm.get(['fournisseurId'])!.value,
       principal: this.editForm.get(['principal'])!.value,
-      produitId: this.produit?.id,
+      produitId: this.produit.id,
     };
   }
 }

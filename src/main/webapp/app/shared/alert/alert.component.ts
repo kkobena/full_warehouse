@@ -1,10 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
-import { AlertService, Alert } from 'app/core/util/alert.service';
+import { Alert, AlertService } from 'app/core/util/alert.service';
+import { CommonModule } from '@angular/common';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-alert',
   templateUrl: './alert.component.html',
+  standalone: true,
+  imports: [CommonModule, NgbModule],
 })
 export class AlertComponent implements OnInit, OnDestroy {
   alerts: Alert[] = [];
@@ -28,6 +32,6 @@ export class AlertComponent implements OnInit, OnDestroy {
   }
 
   close(alert: Alert): void {
-    alert.close?.(this.alerts);
+    alert.close(this.alerts);
   }
 }

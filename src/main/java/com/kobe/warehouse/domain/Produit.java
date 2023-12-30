@@ -3,6 +3,8 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,28 +12,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.type.SqlTypes;
 
 /** not an ignored comment */
 @Getter
@@ -247,7 +234,7 @@ public class Produit implements Serializable {
   private List<ParcoursProduit> parcoursProduits = new ArrayList<>();*/
   @Getter
   @NotAudited
-  @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "json", name = "daily_stock_json")
   private Set<DailyStock> dailyStocks = new HashSet<>();
 

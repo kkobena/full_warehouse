@@ -6,7 +6,7 @@ import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.User;
 import java.time.LocalDateTime;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class AjustementDTO {
   private Long id;

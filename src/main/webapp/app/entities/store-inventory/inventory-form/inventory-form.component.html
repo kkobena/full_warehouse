@@ -5,66 +5,66 @@
   <div [hidden]="true">
     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
   </div>
-  <div class="form-row">
-    <div class="form-group col">
-      <label class="form-control-label">Le type d'inventaire</label>
-      <p-dropdown (onChange)="onSelectCategory($event)" [appendTo]="appendTo" [filter]="false"
-                  [options]="categories"
-                  [required]="true" formControlName="inventoryCategory"
-                  optionLabel="label" placeholder="Séléctionner le type "
-                  styleClass="form-control ngCombo">
+
+  <div class="form-group">
+    <label for="inventoryCategory">Le type d'inventaire</label>
+    <p-dropdown (onChange)="onSelectCategory($event)" [appendTo]="appendTo" [filter]="false"
+                [options]="categories" [required]="true" [style]="{width: '100%'}"
+                class="form-control" formControlName="inventoryCategory"
+                id="inventoryCategory" optionLabel="label" placeholder="Séléctionner le type "
+    >
+    </p-dropdown>
+    <div
+      *ngIf="editForm.get('inventoryCategory')!.invalid && (editForm.get('inventoryCategory')!.dirty || editForm.get('inventoryCategory')!.touched)">
+      <small *ngIf="editForm.get('inventoryCategory')?.errors?.required"
+             class="form-text text-danger"
+             style="color: red;">
+        Ce champ est obligatoire.
+      </small>
+    </div>
+  </div>
+
+  <ng-container *ngIf="editForm.get('inventoryCategory').value.name!=='MAGASIN'">
+
+    <div class="form-group ">
+      <label for="storage">Emplacement</label>
+      <p-dropdown (onChange)="onSelectStrorage($event)" [appendTo]="appendTo" [filter]="false"
+                  [options]="storages" [required]="true" [style]="{width: '100%'}"
+                  class="form-control" formControlName="storage" id="storage"
+                  optionLabel="name" placeholder="Séléctionner un emplacement"
+      >
       </p-dropdown>
       <div
-        *ngIf="editForm.get('inventoryCategory')!.invalid && (editForm.get('inventoryCategory')!.dirty || editForm.get('inventoryCategory')!.touched)">
-        <small *ngIf="editForm.get('inventoryCategory')?.errors?.required"
+        *ngIf="editForm.get('storage')!.invalid && (editForm.get('storage')!.dirty || editForm.get('storage')!.touched)">
+        <small *ngIf="editForm.get('storage')?.errors?.required"
                class="form-text text-danger"
                style="color: red;">
           Ce champ est obligatoire.
         </small>
       </div>
     </div>
-  </div>
-  <ng-container *ngIf="editForm.get('inventoryCategory').value.name!=='MAGASIN'">
-    <div class="form-row">
-      <div class="form-group col">
-        <label class="form-control-label">Emplacement</label>
-        <p-dropdown (onChange)="onSelectStrorage($event)" [appendTo]="appendTo" [filter]="false"
-                    [options]="storages"
-                    [required]="true" formControlName="storage"
-                    optionLabel="name" placeholder="Séléctionner un emplacement"
-                    styleClass="form-control ngCombo">
-        </p-dropdown>
-        <div
-          *ngIf="editForm.get('storage')!.invalid && (editForm.get('storage')!.dirty || editForm.get('storage')!.touched)">
-          <small *ngIf="editForm.get('storage')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
-      </div>
-    </div>
+
   </ng-container>
   <ng-container *ngIf="editForm.get('inventoryCategory').value.name==='RAYON'">
-    <div class="form-row">
-      <div class="form-group col">
-        <label class="form-control-label">Emplacement</label>
-        <p-dropdown [appendTo]="appendTo" [filter]="true"
-                    [options]="rayons"
-                    [required]="true" formControlName="rayon"
-                    optionLabel="libelle" placeholder="Séléctionner le rayon"
-                    styleClass="form-control ngCombo">
-        </p-dropdown>
-        <div
-          *ngIf="editForm.get('rayon')!.invalid && (editForm.get('rayon')!.dirty || editForm.get('rayon')!.touched)">
-          <small *ngIf="editForm.get('rayon')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
+
+    <div class="form-group ">
+      <label for="rayon">Rayon</label>
+      <p-dropdown [appendTo]="appendTo" [filter]="true"
+                  [options]="rayons" [required]="true"
+                  [style]="{width: '100%'}" class="form-control"
+                  formControlName="rayon" id="rayon"
+                  optionLabel="libelle" placeholder="Séléctionner le rayon">
+      </p-dropdown>
+      <div
+        *ngIf="editForm.get('rayon')!.invalid && (editForm.get('rayon')!.dirty || editForm.get('rayon')!.touched)">
+        <small *ngIf="editForm.get('rayon')?.errors?.required"
+               class="form-text text-danger"
+               style="color: red;">
+          Ce champ est obligatoire.
+        </small>
       </div>
     </div>
+
   </ng-container>
 
   <div class="mt-2" style="float: right;">

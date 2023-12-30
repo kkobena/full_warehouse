@@ -11,7 +11,7 @@ import com.kobe.warehouse.service.stock.StockEntryService;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

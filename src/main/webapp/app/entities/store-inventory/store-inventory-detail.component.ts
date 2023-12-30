@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { GROUPING_BY, IStoreInventory, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -11,13 +11,34 @@ import { APPEND_TO, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH } from '../../shared/con
 import { RayonService } from '../rayon/rayon.service';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-util';
 import { saveAs } from 'file-saver';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { StoreInventoryService } from './store-inventory.service';
 import { ITEMS_PER_PAGE } from '../../config/pagination.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { DividerModule } from 'primeng/divider';
+import { DropdownModule } from 'primeng/dropdown';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-store-inventory-detail',
   templateUrl: './store-inventory-detail.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    RouterModule,
+    DividerModule,
+    NgxSpinnerModule,
+    DropdownModule,
+    AutoCompleteModule,
+    TableModule,
+    ButtonModule,
+    RippleModule,
+  ],
 })
 export class StoreInventoryDetailComponent implements OnInit {
   storeInventory: IStoreInventory | null = null;
@@ -48,7 +69,7 @@ export class StoreInventoryDetailComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected storeInventoryLineService: StoreInventoryLineService,
     private spinner: NgxSpinnerService,
-    protected storeInventoryService: StoreInventoryService
+    protected storeInventoryService: StoreInventoryService,
   ) {}
 
   ngOnInit(): void {
@@ -93,8 +114,8 @@ export class StoreInventoryDetailComponent implements OnInit {
       .query({
         page: 0,
         size: 10,
-        search: search,
-        storageId: storageId,
+        search,
+        storageId,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => this.onLoadRayonSuccess(res.body));
   }
@@ -110,10 +131,13 @@ export class StoreInventoryDetailComponent implements OnInit {
   exportPdf(): void {
     this.spinner.show();
 
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe(blod => {
-      const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      saveAs(blod, 'inventaire_' + fileName);
-      this.spinner.hide();
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe({
+      next: blod => {
+        const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+        saveAs(blod, 'inventaire_' + fileName);
+        this.spinner.hide();
+      },
+      error: () => this.spinner.hide(),
     });
   }
 
@@ -143,14 +167,14 @@ export class StoreInventoryDetailComponent implements OnInit {
         search: this.searchValue,
         storageId: this.selectedStorage?.id,
         rayonId: this.selectedRayon?.id,
-        selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
+        selectedFilter: this.selectedfiltres ? this.selectedfiltres?.name : 'NONE',
       },
     };
   }
 
   private buildQuery(): any {
     return {
-      storeInventoryId: this.storeInventory.id,
+      storeInventoryId: this.storeInventory?.id,
       search: this.searchValue,
       storageId: this.selectedStorage?.id,
       rayonId: this.selectedRayon?.id,

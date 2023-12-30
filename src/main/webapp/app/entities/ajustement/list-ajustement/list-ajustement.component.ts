@@ -13,10 +13,15 @@ import moment from 'moment';
 import { IDelivery } from '../../../shared/model/delevery.model';
 import { saveAs } from 'file-saver';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 
 @Component({
+  standalone: true,
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
+  imports: [WarehouseCommonModule, ButtonModule, TableModule],
 })
 export class ListAjustementComponent implements OnInit {
   @Input() search: string;
@@ -38,7 +43,7 @@ export class ListAjustementComponent implements OnInit {
     public translate: TranslateService,
     protected ajustementService: AjustementService,
     protected router: Router,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   ngOnInit(): void {
@@ -91,7 +96,7 @@ export class ListAjustementComponent implements OnInit {
       size: this.itemsPerPage,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
       toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-      userId: this.user?.id,
+      userId: this.user.id,
       statut: this.ajustementStatut,
     };
   }

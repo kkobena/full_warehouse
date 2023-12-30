@@ -5,8 +5,8 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import java.time.LocalDateTime;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter

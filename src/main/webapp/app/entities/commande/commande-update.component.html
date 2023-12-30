@@ -77,20 +77,20 @@
                           [emptyMessage]="PRODUIT_NOT_FOUND"
                           [inputStyle]="{'width':'100%'}"
                           [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
-                          [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
+                          [style]="{'width':'100%'}" [suggestions]="produits" optionLabel="libelle">
 
             <ng-template let-item pTemplate="item">
 
               <div *ngIf="item.totalQuantity>0">
             <span
-              style="width:20%; display:inline-block">{{item.fournisseurProduit?.codeCip}}</span><span> {{item.libelle}}</span>
-                <span class="float-right">{{item.regularUnitPrice |number}}</span>
+              style="width:20%; display:inline-block">{{ item.fournisseurProduit?.codeCip }}</span><span> {{ item.libelle }}</span>
+                <span class="float-right">{{ item.regularUnitPrice |number }}</span>
               </div>
               <div *ngIf="item.totalQuantity<=0">
                                             <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{item.fournisseurProduit?.codeCip}}</span><span
-                class="stockless"> {{item.libelle}}</span> <span
-                class="float-right stockless">{{item.regularUnitPrice |number}}</span>
+                                                  style="width:20%; display:inline-block">{{ item.fournisseurProduit?.codeCip }}</span><span
+                class="stockless"> {{ item.libelle }}</span> <span
+                class="float-right stockless">{{ item.regularUnitPrice |number }}</span>
               </div>
             </ng-template>
 
@@ -212,8 +212,8 @@
   </ng-template>
   <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
     <tr [ngClass]="orderLineTableColor(orderLine)">
-      <td style="text-align: left;">{{rowIndex + 1}}</td>
-      <td *ngIf="orderLine.provisionalCode===false;else codeCip">{{orderLine.produitCip}}</td>
+      <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+      <td *ngIf="orderLine.provisionalCode===false;else codeCip">{{ orderLine.produitCip }}</td>
       <ng-template #codeCip>
         <td class="table-info" pEditableColumn>
           <p-cellEditor>
@@ -225,14 +225,14 @@
                      type="text">
             </ng-template>
             <ng-template pTemplate="output">
-              {{orderLine.produitCip}}
+              {{ orderLine.produitCip }}
             </ng-template>
           </p-cellEditor>
 
         </td>
       </ng-template>
-      <td>{{orderLine.produitLibelle}}</td>
-      <td style="text-align: right;">{{orderLine.initStock |number}}</td>
+      <td>{{ orderLine.produitLibelle }}</td>
+      <td style="text-align: right;">{{ orderLine.initStock |number }}</td>
 
       <td pEditableColumn style="text-align: right;">
         <p-cellEditor>
@@ -245,11 +245,11 @@
                    type="number">
           </ng-template>
           <ng-template pTemplate="output">
-            {{orderLine.orderCostAmount |number}}
+            {{ orderLine.orderCostAmount |number }}
           </ng-template>
         </p-cellEditor>
       </td>
-      <td style="text-align: right;">{{orderLine.costAmount |number}}</td>
+      <td style="text-align: right;">{{ orderLine.costAmount |number }}</td>
 
       <td pEditableColumn style="text-align: right;">
         <p-cellEditor>
@@ -262,11 +262,11 @@
                    type="number">
           </ng-template>
           <ng-template pTemplate="output">
-            {{orderLine.orderUnitPrice |number}}
+            {{ orderLine.orderUnitPrice |number }}
           </ng-template>
         </p-cellEditor>
       </td>
-      <td style="text-align: right;">{{orderLine.regularUnitPrice |number}}</td>
+      <td style="text-align: right;">{{ orderLine.regularUnitPrice |number }}</td>
       <td pEditableColumn style="text-align: right;">
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -278,12 +278,15 @@
                    type="number">
           </ng-template>
           <ng-template pTemplate="output">
-            {{orderLine.quantityRequested |number}}
+            {{ orderLine.quantityRequested |number }}
           </ng-template>
         </p-cellEditor>
       </td>
-      <td style="text-align: right;">{{orderLine.quantityRequested
-      * orderLine.orderCostAmount |number}}</td>
+      <td style="text-align: right;">{{
+          orderLine.quantityRequested
+          * orderLine.orderCostAmount |number
+        }}
+      </td>
       <td style="text-align: right;">
 
         <button [routerLink]="['/produit', orderLine.produitId, 'edit']"
@@ -305,9 +308,9 @@
   <ng-template pTemplate="footer">
     <tr *ngIf="orderLines.length>0">
       <td class="p-text-left" colspan="4">VALEUR ACHAT/VENTE</td>
-      <td style="text-align: right">{{commande?.grossAmount |number}} </td>
-      <td colspan="2" style="text-align: right">{{commande?.orderAmount |number}}</td>
-      <td colspan="3" style="text-align: right">{{commande?.grossAmount |number}}</td>
+      <td style="text-align: right">{{ commande?.grossAmount |number }}</td>
+      <td colspan="2" style="text-align: right">{{ commande?.orderAmount |number }}</td>
+      <td colspan="3" style="text-align: right">{{ commande?.grossAmount |number }}</td>
       <td colspan="2"></td>
     </tr>
   </ng-template>

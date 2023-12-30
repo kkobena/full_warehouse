@@ -2,18 +2,47 @@ import { Component, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { RouterModule } from '@angular/router';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-vente-en-cours',
   templateUrl: './vente-en-cours.component.html',
   providers: [ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ConfirmDialogModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    DropdownModule,
+    ToolbarModule,
+  ],
 })
 export class VenteEnCoursComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
-  constructor(protected salesService: SalesService, protected confirmationService: ConfirmationService) {}
+
+  constructor(
+    protected salesService: SalesService,
+    protected confirmationService: ConfirmationService,
+  ) {}
 
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';

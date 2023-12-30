@@ -7,15 +7,21 @@ import { IAjustement } from '../../../shared/model/ajustement.model';
 import { UserService } from '../../../core/user/user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AjustementService } from '../ajustement.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import moment from 'moment/moment';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 
 @Component({
+  standalone: true,
   selector: 'jhi-ajustement-en-cours',
   templateUrl: './ajustement-en-cours.component.html',
+  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule],
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {
@@ -38,7 +44,7 @@ export class AjustementEnCoursComponent implements OnInit {
     public translate: TranslateService,
     protected ajustementService: AjustementService,
     private confirmationService: ConfirmationService,
-    protected router: Router
+    protected router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -62,7 +68,7 @@ export class AjustementEnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      accept: () => this.delete(ajust?.id),
+      accept: () => this.delete(ajust.id),
       key: 'delete',
     });
   }
@@ -101,7 +107,7 @@ export class AjustementEnCoursComponent implements OnInit {
       size: this.itemsPerPage,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
       toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-      userId: this.user?.id,
+      userId: this.user.id,
       statut: this.ajustementStatut,
     };
   }

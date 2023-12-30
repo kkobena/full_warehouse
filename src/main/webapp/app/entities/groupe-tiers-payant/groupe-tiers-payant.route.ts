@@ -1,45 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
-import { EMPTY, mergeMap, Observable, of } from 'rxjs';
+import { Routes } from '@angular/router';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-
-import { GroupeTiersPayantService } from './groupe-tierspayant.service';
-import { GroupeTiersPayant, IGroupeTiersPayant } from '../../shared/model/groupe-tierspayant.model';
 import { GroupeTiersPayantComponent } from './groupe-tiers-payant.component';
 
-@Injectable({ providedIn: 'root' })
-export class GroupeTiersPayantResolve implements Resolve<IGroupeTiersPayant> {
-  constructor(private service: GroupeTiersPayantService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IGroupeTiersPayant> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((groupe: HttpResponse<IGroupeTiersPayant>) => {
-          if (groupe.body) {
-            return of(groupe.body);
-          } else {
-            this.router.navigate(['404']);
-            return EMPTY;
-          }
-        })
-      );
-    }
-    return of(new GroupeTiersPayant());
-  }
-}
-
-export const groupeTiersPayantRoute: Routes = [
+const groupeTiersPayantRoute: Routes = [
   {
     path: '',
     component: GroupeTiersPayantComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.GROUPE_TIERS_PAYANT],
-      pageTitle: 'warehouseApp.groupeTiersPayant.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default groupeTiersPayantRoute;

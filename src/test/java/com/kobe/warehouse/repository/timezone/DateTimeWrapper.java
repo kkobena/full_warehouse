@@ -1,23 +1,10 @@
 package com.kobe.warehouse.repository.timezone;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(name = "jhi_date_time_wrapper")
 public class DateTimeWrapper implements Serializable {
@@ -29,6 +16,8 @@ public class DateTimeWrapper implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
+    @Column(name = "instant")
+    private Instant instant;
 
     @Column(name = "local_date_time")
     private LocalDateTime localDateTime;
@@ -48,29 +37,67 @@ public class DateTimeWrapper implements Serializable {
     @Column(name = "local_date")
     private LocalDate localDate;
 
-  public void setId(Long id) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
+    public Instant getInstant() {
+        return instant;
+    }
 
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
 
-  public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+    public LocalDateTime getLocalDateTime() {
+        return localDateTime;
+    }
+
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
+    }
+
+    public OffsetDateTime getOffsetDateTime() {
+        return offsetDateTime;
+    }
+
+    public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
         this.offsetDateTime = offsetDateTime;
     }
 
-  public void setZonedDateTime(ZonedDateTime zonedDateTime) {
+    public ZonedDateTime getZonedDateTime() {
+        return zonedDateTime;
+    }
+
+    public void setZonedDateTime(ZonedDateTime zonedDateTime) {
         this.zonedDateTime = zonedDateTime;
     }
 
-  public void setLocalTime(LocalTime localTime) {
+    public LocalTime getLocalTime() {
+        return localTime;
+    }
+
+    public void setLocalTime(LocalTime localTime) {
         this.localTime = localTime;
     }
 
-  public void setOffsetTime(OffsetTime offsetTime) {
+    public OffsetTime getOffsetTime() {
+        return offsetTime;
+    }
+
+    public void setOffsetTime(OffsetTime offsetTime) {
         this.offsetTime = offsetTime;
     }
 
-  public void setLocalDate(LocalDate localDate) {
+    public LocalDate getLocalDate() {
+        return localDate;
+    }
+
+    public void setLocalDate(LocalDate localDate) {
         this.localDate = localDate;
     }
 
@@ -97,6 +124,8 @@ public class DateTimeWrapper implements Serializable {
     public String toString() {
         return "TimeZoneTest{" +
             "id=" + id +
+            ", instant=" + instant +
+            ", localDateTime=" + localDateTime +
             ", offsetDateTime=" + offsetDateTime +
             ", zonedDateTime=" + zonedDateTime +
             '}';

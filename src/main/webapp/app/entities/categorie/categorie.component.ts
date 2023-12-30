@@ -1,17 +1,27 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Subscription} from 'rxjs';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit } from '@angular/core';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import {ICategorie} from 'app/shared/model/categorie.model';
+import { ICategorie } from 'app/shared/model/categorie.model';
 
-import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {CategorieService} from './categorie.service';
-import {CategorieDeleteDialogComponent} from './categorie-delete-dialog.component';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { CategorieService } from './categorie.service';
+import { CategorieDeleteDialogComponent } from './categorie-delete-dialog.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+
+import { PanelModule } from 'primeng/panel';
+
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { SortDirective } from '../../shared/sort/sort.directive';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 @Component({
+  standalone: true,
   selector: 'jhi-categorie',
   templateUrl: './categorie.component.html',
+  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule, SortDirective, InfiniteScrollModule],
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];
@@ -24,7 +34,7 @@ export class CategorieComponent implements OnInit {
 
   constructor(
     protected categorieService: CategorieService,
-    protected modalService: NgbModal
+    protected modalService: NgbModal,
   ) {
     this.categories = [];
     this.itemsPerPage = ITEMS_PER_PAGE;
@@ -60,7 +70,6 @@ export class CategorieComponent implements OnInit {
     this.registerChangeInCategories();
   }
 
-
   trackId(index: number, item: ICategorie): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
@@ -71,7 +80,10 @@ export class CategorieComponent implements OnInit {
   }
 
   delete(categorie: ICategorie): void {
-    const modalRef = this.modalService.open(CategorieDeleteDialogComponent, {size: 'lg', backdrop: 'static'});
+    const modalRef = this.modalService.open(CategorieDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
     modalRef.componentInstance.categorie = categorie;
   }
 

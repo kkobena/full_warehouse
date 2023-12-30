@@ -4,17 +4,23 @@ import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dy
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { CommandeService } from './commande.service';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { HttpResponse } from '@angular/common/http';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { FileUploadModule } from 'primeng/fileupload';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
   providers: [DialogService, ConfirmationService],
+  standalone: true,
+  imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, DropdownModule],
 })
 export class ImportationNewCommandeComponent implements OnInit {
   isSaving = false;
@@ -33,7 +39,7 @@ export class ImportationNewCommandeComponent implements OnInit {
     protected fournisseurService: FournisseurService,
     private spinner: NgxSpinnerService,
     protected modalService: NgbModal,
-    private errorService: ErrorService
+    private errorService: ErrorService,
   ) {
     this.models = [
       { label: 'LABOREX', value: 'LABOREX' },
@@ -75,7 +81,7 @@ export class ImportationNewCommandeComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.close(this.commandeResponse!);
+    this.ref.close(this.commandeResponse);
   }
 
   isValidForm(): boolean {
@@ -92,12 +98,12 @@ export class ImportationNewCommandeComponent implements OnInit {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
-        translatedErrorMessage => {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
+        next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        () => this.openInfoDialog(error.error.title, 'alert alert-danger')
-      );
+        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+      });
     }
   }
 

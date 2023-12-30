@@ -1,11 +1,15 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { PasswordResetFinishService } from './password-reset-finish.service';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { PasswordStrengthBarComponent } from '../../password/password-strength-bar/password-strength-bar.component';
 
 @Component({
   selector: 'jhi-password-reset-finish',
+  standalone: true,
+  imports: [WarehouseCommonModule, RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
   templateUrl: './password-reset-finish.component.html',
 })
 export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
@@ -29,7 +33,10 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     }),
   });
 
-  constructor(private passwordResetFinishService: PasswordResetFinishService, private route: ActivatedRoute) {}
+  constructor(
+    private passwordResetFinishService: PasswordResetFinishService,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {

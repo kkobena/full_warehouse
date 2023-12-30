@@ -1,13 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { PasswordService } from './password.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { PasswordStrengthBarComponent } from './password-strength-bar/password-strength-bar.component';
+import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-password',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    PasswordStrengthBarComponent,
+    PanelModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+  ],
   templateUrl: './password.component.html',
 })
 export class PasswordComponent implements OnInit {
@@ -27,7 +44,10 @@ export class PasswordComponent implements OnInit {
     }),
   });
 
-  constructor(private passwordService: PasswordService, private accountService: AccountService) {}
+  constructor(
+    private passwordService: PasswordService,
+    private accountService: AccountService,
+  ) {}
 
   ngOnInit(): void {
     this.account$ = this.accountService.identity();

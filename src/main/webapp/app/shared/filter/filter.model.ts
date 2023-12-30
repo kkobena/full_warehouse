@@ -118,7 +118,7 @@ export class FilterOptions implements IFilterOptions {
   }
 
   removeFilter(name: string, value: string): boolean {
-    if (this.getFilterOptionByName(name)?.removeValue(value)) {
+    if (this.getFilterOptionByName(name).removeValue(value)) {
       this.changed();
       return true;
     }
@@ -135,7 +135,7 @@ export class FilterOptions implements IFilterOptions {
     if (thisFilters.length !== otherFilters.length) {
       return false;
     }
-    return thisFilters.every(option => other.getFilterOptionByName(option.name)?.equals(option));
+    return thisFilters.every(option => other.getFilterOptionByName(option.name).equals(option));
   }
 
   protected clone(): FilterOptions {

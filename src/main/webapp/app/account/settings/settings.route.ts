@@ -3,7 +3,7 @@ import { Route } from '@angular/router';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { SettingsComponent } from './settings.component';
 
-export const settingsRoute: Route = {
+const settingsRoute: Route = {
   path: 'settings',
   component: SettingsComponent,
   data: {
@@ -11,3 +11,4 @@ export const settingsRoute: Route = {
   },
   canActivate: [UserRouteAccessService],
 };
+export default settingsRoute;

@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ActivatedRoute } from '@angular/router';
+
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
@@ -16,12 +16,29 @@ import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { saveAs } from 'file-saver';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
 import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
+import { TableModule } from 'primeng/table';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { FileUploadModule } from 'primeng/fileupload';
+import { DropdownModule } from 'primeng/dropdown';
+import { DialogModule } from 'primeng/dialog';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
+  standalone: true,
   selector: 'jhi-commande-update',
   styles: [
     `
@@ -58,6 +75,26 @@ import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../sh
   ],
   templateUrl: './commande-update.component.html',
   providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    NgxSpinnerModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    TagModule,
+    TableModule,
+    RouterModule,
+    SplitButtonModule,
+    AutoCompleteModule,
+    FileUploadModule,
+    DropdownModule,
+    DialogModule,
+    ToolbarModule,
+    TooltipModule,
+  ],
 })
 export class CommandeUpdateComponent implements OnInit {
   isSaving = false;
@@ -95,7 +132,7 @@ export class CommandeUpdateComponent implements OnInit {
     protected fournisseurService: FournisseurService,
     private confirmationService: ConfirmationService,
     private errorService: ErrorService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {
     this.selectedEl = [];
     this.filtres = [
@@ -142,21 +179,21 @@ export class CommandeUpdateComponent implements OnInit {
 
   onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
-    if (qytMvt <= 0) return;
+    if (qytMvt <= 0) {return;}
     this.onAddOrderLine(qytMvt);
   }
 
   onQuantity(): void {
-    const qytMvt = Number(this.quantityBox?.nativeElement.value);
-    if (qytMvt <= 0) return;
+    const qytMvt = Number(this.quantityBox.nativeElement.value);
+    if (qytMvt <= 0) {return;}
     this.onAddOrderLine(qytMvt);
   }
 
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
-      if (this.commande && this.commande.id !== undefined) {
+      if (this.commande.id !== undefined) {
         this.subscribeToSaveOrderLineResponse(
-          this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt))
+          this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
         );
       } else {
         this.subscribeToSaveOrderLineResponse(this.commandeService.create(this.createCommande(this.produitSelected, qytMvt)));
@@ -200,7 +237,7 @@ export class CommandeUpdateComponent implements OnInit {
 
   onDeleteOrderLineById(orderLine: IOrderLine): void {
     if (this.commande) {
-      this.commandeService.deleteOrderLineById(orderLine.id!).subscribe(() => {
+      this.commandeService.deleteOrderLineById(orderLine.id).subscribe(() => {
         this.refreshCommande();
       });
     }
@@ -215,8 +252,8 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   deleteSelectedOrderLine(): void {
-    const ids = this.selectedEl.map(e => e.id!);
-    this.commandeService.deleteOrderLinesByIds(this.commande?.id!, ids).subscribe(() => {
+    const ids = this.selectedEl.map(e => e.id);
+    this.commandeService.deleteOrderLinesByIds(this.commande.id, ids).subscribe(() => {
       this.refreshCommande();
       this.selectedEl = [];
       this.focusPrdoduitBox();
@@ -224,12 +261,12 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   exportPdf(): void {
-    this.commandeService.exportToPdf(this.commande?.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToPdf(this.commande.id).subscribe(blod => saveAs(blod));
   }
 
   onCloseCurrentCommande(): void {
     this.spinner.show('commandeEnCourspinner');
-    this.commandeService.closeCommandeEnCours(this.commande?.id!).subscribe({
+    this.commandeService.closeCommandeEnCours(this.commande.id).subscribe({
       next: () => {
         this.spinner.hide('commandeEnCourspinner');
         this.confirmStay();
@@ -246,7 +283,7 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   exportCSV(): void {
-    this.commandeService.exportToCsv(this.commande?.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
   }
 
   searchFn(event: any): void {
@@ -260,7 +297,7 @@ export class CommandeUpdateComponent implements OnInit {
 
   onSelect(): void {
     setTimeout(() => {
-      const el = this.quantityBox?.nativeElement;
+      const el = this.quantityBox.nativeElement;
       el.focus();
       el.select();
     }, 50);
@@ -290,7 +327,7 @@ export class CommandeUpdateComponent implements OnInit {
 
   onFilterCommandeLines(): void {
     const query = {
-      commandeId: this.commande?.id,
+      commandeId: this.commande.id,
       search: this.search,
       filterCommaneEnCours: this.selectedFilter,
     };
@@ -308,8 +345,8 @@ export class CommandeUpdateComponent implements OnInit {
     modalRef.componentInstance.message = message;
   }
 
-  loadFournisseurs(search?: String): void {
-    const query: String = search || '';
+  loadFournisseurs(search?: string): void {
+    const query: string = search || '';
     this.fournisseurService
       .query({
         page: 0,
@@ -370,12 +407,12 @@ export class CommandeUpdateComponent implements OnInit {
     formData.append('commande', file, file.name);
 
     this.showsPinner('commandeEnCourspinner');
-    this.commandeService.importerReponseCommande(this.commande?.id!, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commande.id, formData).subscribe({
       next: res => {
         this.hidePinner('commandeEnCourspinner');
         this.refreshCommande();
         this.cancel();
-        this.openImporterReponseCommandeDialog(res.body!);
+        this.openImporterReponseCommandeDialog(res.body);
       },
       error: error => {
         this.hidePinner('commandeEnCourspinner');
@@ -409,9 +446,9 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   protected refreshCommande(): void {
-    this.commandeService.find(this.commande?.id!).subscribe(res => {
+    this.commandeService.find(this.commande.id).subscribe(res => {
       this.commande = res.body;
-      this.orderLines = this.commande?.orderLines!;
+      this.orderLines = this.commande.orderLines;
       this.focusPrdoduitBox();
     });
   }
@@ -433,9 +470,9 @@ export class CommandeUpdateComponent implements OnInit {
 
   protected onSaveOrderLineSuccess(commande: ICommande): void {
     if (commande) {
-      this.commandeService.find(commande.id!).subscribe(res => {
+      this.commandeService.find(commande.id).subscribe(res => {
         this.commande = res.body;
-        this.orderLines = this.commande?.orderLines!;
+        this.orderLines = this.commande.orderLines;
         this.updateProduitQtyBox();
       });
     }
@@ -466,7 +503,7 @@ export class CommandeUpdateComponent implements OnInit {
 
   protected subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body!),
+      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body),
       error: (err: any) => this.onCommonError(err),
     });
   }
@@ -486,7 +523,7 @@ export class CommandeUpdateComponent implements OnInit {
       produitId: produit.id,
       totalQuantity: produit.totalQuantity,
       commande:
-        this.commande?.id !== undefined
+        this.commande.id !== undefined
           ? this.commande
           : {
               ...new Commande(),

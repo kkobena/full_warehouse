@@ -26,7 +26,9 @@
             "outputPath": "target/classes/static/",
             "index": "src/main/webapp/index.html",
             "main": "src/main/webapp/main.ts",
-            "polyfills": "src/main/webapp/polyfills.ts",
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -44,20 +46,20 @@
           },
           "configurations": {
             "production": {
-              "optimization": true,
+              "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true,
+              "buildOptimizer": false,
               "serviceWorker": true,
               "ngswConfigPath": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "3mb",
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -80,15 +82,15 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "warehouse:build:development",
+            "buildTarget": "warehouse:build:development",
             "port": 4200
           },
           "configurations": {
             "production": {
-              "browserTarget": "warehouse:build:production"
+              "buildTarget": "warehouse:build:production"
             },
             "development": {
-              "browserTarget": "warehouse:build:development"
+              "buildTarget": "warehouse:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -96,7 +98,8 @@
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {
-            "configPath": "jest.conf.js"
+            "configPath": "jest.conf.js",
+            "tsConfig": "tsconfig.spec.json"
           }
         }
       }
@@ -109,6 +112,6 @@
       "environment": "all"
     },
     "packageManager": "npm",
-    "analytics": "f97ce39c-aeb6-4e96-8059-8d067aa5c179"
+    "analytics": "bbcc3501-9e5f-4442-8964-ee3865d1506f"
   }
 }

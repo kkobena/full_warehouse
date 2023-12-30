@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
@@ -60,7 +60,6 @@ public class SaleReceiptService {
     this.fileStorageProperties = fileStorageProperties;
     this.fileStorageLocation =
         Paths.get(this.fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-
 
     try {
       Files.createDirectories(this.fileStorageLocation);

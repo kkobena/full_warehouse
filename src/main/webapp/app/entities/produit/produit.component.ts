@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
@@ -26,6 +26,23 @@ import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form
 import { ConfigurationService } from '../../shared/configuration.service';
 import { IConfiguration } from '../../shared/model/configuration.model';
 import { Params } from '../../shared/model/enumerations/params.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { FileUploadModule } from 'primeng/fileupload';
+import { FormsModule } from '@angular/forms';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DropdownModule } from 'primeng/dropdown';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { TableModule } from 'primeng/table';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-produit',
@@ -76,6 +93,29 @@ import { Params } from '../../shared/model/enumerations/params.model';
   ],
   templateUrl: './produit.component.html',
   providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    DropdownModule,
+    SplitButtonModule,
+    TableModule,
+    ToolbarModule,
+    FileUploadModule,
+    RouterModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    InputSwitchModule,
+    ProduitDeleteDialogComponent,
+    DetailFormDialogComponent,
+    DeconditionDialogComponent,
+    FormProduitFournisseurComponent,
+    InputTextModule,
+  ],
 })
 export class ProduitComponent implements OnInit {
   faFileUpload = faFileUpload;
@@ -113,7 +153,7 @@ export class ProduitComponent implements OnInit {
   ref!: DynamicDialogRef;
   configuration?: IConfiguration | null;
   isMono = true;
-  rowExpandMode = 'single';
+  rowExpandMode: ExpandMode = 'single';
 
   //            <td><span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span></td>
   constructor(
@@ -127,7 +167,7 @@ export class ProduitComponent implements OnInit {
     protected rayonService: RayonService,
     protected familleService: FamilleProduitService,
     protected errorService: ErrorService,
-    protected configurationService: ConfigurationService
+    protected configurationService: ConfigurationService,
   ) {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -273,7 +313,7 @@ export class ProduitComponent implements OnInit {
   }
 
   decondition(produit: IProduit): void {
-    if (produit.produits?.length === 0) {
+    if (produit.produits.length === 0) {
       this.openInfoDialog("Le produit n'a pas de détail. Vous devriez en ajouter d'abord", 'alert alert-info');
     } else {
       const modalRef = this.modalService.open(DeconditionDialogComponent, {
@@ -347,23 +387,23 @@ export class ProduitComponent implements OnInit {
   onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
-      this.produitService.updateDefaultFournisseur(four.id!, isChecked).subscribe(
+      this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe(
         () => {},
-        error => this.onActionError(four, error)
+        error => this.onActionError(four, error),
       );
     }
   }
 
   onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
     if (four) {
-      this.produitService.deleteFournisseur(four.id!).subscribe(
-        () => {
+      this.produitService.deleteFournisseur(four.id).subscribe({
+        next() {
           if (produit && produit.fournisseurProduits) {
             produit.fournisseurProduits = produit.fournisseurProduits.filter(e => e.id !== four.id);
           }
         },
-        error => this.onCommonError(error)
-      );
+        error: error => this.onCommonError(error),
+      });
     }
   }
 
@@ -377,7 +417,7 @@ export class ProduitComponent implements OnInit {
     });
     this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
       if (resp) {
-        produit.fournisseurProduits?.push(resp);
+        produit.fournisseurProduits.push(resp);
       }
     });
   }
@@ -393,7 +433,7 @@ export class ProduitComponent implements OnInit {
     });
     this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
       if (resp) {
-        const newFours = produit.fournisseurProduits?.filter(e => e.id !== resp.id);
+        const newFours = produit.fournisseurProduits.filter(e => e.id !== resp.id);
         if (newFours) {
           newFours.push(resp);
           produit.fournisseurProduits = newFours;
@@ -422,14 +462,16 @@ export class ProduitComponent implements OnInit {
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) this.responsedto = responseDto;
+    if (responseDto) {
+      this.responsedto = responseDto;
+    }
     this.responseDialog = true;
     this.fileDialog = false;
     this.loadPage(0);
@@ -446,52 +488,52 @@ export class ProduitComponent implements OnInit {
 
   protected onActionError(el: IFournisseurProduit, error: any): void {
     if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
-        translatedErrorMessage => {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
+        next: translatedErrorMessage => {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
             detail: translatedErrorMessage,
           });
         },
-        () => {
+        error: () => {
           this.onErrorOccur = true;
-        }
-      );
+        },
+      });
     }
     el.principal = false;
   }
 
   protected onCommonError(error: any): void {
     if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(
-        translatedErrorMessage => {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
+        next: translatedErrorMessage => {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
             detail: translatedErrorMessage,
           });
         },
-        () => {
+        error: () => {
           this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.title });
-        }
-      );
+        },
+      });
     }
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.subscribe(
-      () => this.onPocesJsonSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onPocesJsonSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
     this.responseDialog = true;
     const interval = setInterval(() => {
-      this.produitService.findImortation().subscribe(
-        res => {
+      this.produitService.findImortation().subscribe({
+        next: res => {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
@@ -500,11 +542,11 @@ export class ProduitComponent implements OnInit {
             }
           }
         },
-        () => {
+        error() {
           setTimeout(() => {}, 5000);
           clearInterval(interval);
-        }
-      );
+        },
+      });
     }, 10000);
   }
 

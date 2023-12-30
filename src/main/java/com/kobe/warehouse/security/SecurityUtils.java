@@ -36,8 +36,8 @@ public final class SecurityUtils {
       return null;
     } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
       return springSecurityUser.getUsername();
-    } else if (authentication.getPrincipal() instanceof String) {
-      return (String) authentication.getPrincipal();
+    } else if (authentication.getPrincipal() instanceof String s) {
+      return s;
     }
     return null;
   }
@@ -90,7 +90,7 @@ public final class SecurityUtils {
     return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
   }
 
-  public static Set<String> buildAuthorities(Authority authority) {
+  private static Set<String> buildAuthorities(Authority authority) {
     Set<String> authorities = new HashSet<>();
     authorities.add(authority.getName());
     authorities.addAll(

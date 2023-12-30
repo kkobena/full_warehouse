@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpHeaders } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,10 +11,17 @@ import { Account } from 'app/core/auth/account.model';
 import { UserManagementService } from '../service/user-management.service';
 import { User } from '../user-management.model';
 import { UserManagementDeleteDialogComponent } from '../delete/user-management-delete-dialog.component';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { PanelModule } from 'primeng/panel';
+import { SortDirective } from '../../../shared/sort/sort.directive';
+import { SortByDirective } from '../../../shared/sort/sort-by.directive';
 
 @Component({
   selector: 'jhi-user-mgmt',
   templateUrl: './user-management.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, RouterModule, ButtonModule, PanelModule, SortDirective, SortByDirective],
 })
 export class UserManagementComponent implements OnInit {
   currentAccount: Account | null = null;
@@ -31,7 +38,7 @@ export class UserManagementComponent implements OnInit {
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private modalService: NgbModal
+    private modalService: NgbModal,
   ) {}
 
   ngOnInit(): void {
@@ -44,11 +51,14 @@ export class UserManagementComponent implements OnInit {
   }
 
   trackIdentity(_index: number, item: User): number {
-    return item.id!;
+    return item.id;
   }
 
   deleteUser(user: User): void {
-    const modalRef = this.modalService.open(UserManagementDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(UserManagementDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
     modalRef.componentInstance.user = user;
     // unsubscribe not needed because closed completes on modal close
     modalRef.closed.subscribe(reason => {

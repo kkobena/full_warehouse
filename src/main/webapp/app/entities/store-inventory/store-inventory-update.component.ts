@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { GROUPING_BY, IStoreInventory, ItemsCountRecord, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
@@ -16,17 +16,43 @@ import { StorageService } from '../storage/storage.service';
 import { IStoreInventoryLine } from '../../shared/model/store-inventory-line.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { AgGridAngular } from 'ag-grid-angular';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS, formatNumberToString } from '../../shared/util/warehouse-util';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { saveAs } from 'file-saver';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { DividerModule } from 'primeng/divider';
+import { DropdownModule } from 'primeng/dropdown';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-store-inventory-update',
   templateUrl: './store-inventory-update.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    RouterModule,
+    DividerModule,
+    NgxSpinnerModule,
+    DropdownModule,
+    AutoCompleteModule,
+    TableModule,
+    ButtonModule,
+    RippleModule,
+    ToastModule,
+    ConfirmDialogModule,
+    AgGridModule,
+  ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   @ViewChild('itemsGrid') productGrid!: AgGridAngular;
@@ -74,7 +100,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     private errorService: ErrorService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {
     this.columnDefs = [
       {
@@ -169,7 +195,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   }
 
   close(): void {
-    if (this.storeInventory && this.storeInventory.id != null) {
+    if (this.storeInventory.id != null) {
       this.isSaving = true;
       this.spinner.show();
       this.storeInventoryService.close(this.storeInventory.id).subscribe({
@@ -226,8 +252,8 @@ export class StoreInventoryUpdateComponent implements OnInit {
       .query({
         page: 0,
         size: 10,
-        search: search,
-        storageId: storageId,
+        search,
+        storageId,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => this.onLoadRayonSuccess(res.body));
   }
@@ -353,10 +379,10 @@ export class StoreInventoryUpdateComponent implements OnInit {
     return {
       exportGroupBy: GROUPING_BY[0].name,
       filterRecord: {
-        storeInventoryId: this.storeInventory?.id,
+        storeInventoryId: this.storeInventory.id,
         search: this.searchValue,
-        storageId: this.selectedStorage?.id,
-        rayonId: this.selectedRayon?.id,
+        storageId: this.selectedStorage.id,
+        rayonId: this.selectedRayon.id,
         selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
       },
     };
@@ -392,8 +418,8 @@ export class StoreInventoryUpdateComponent implements OnInit {
     return {
       storeInventoryId: this.storeInventory.id,
       search: this.searchValue,
-      storageId: this.selectedStorage?.id,
-      rayonId: this.selectedRayon?.id,
+      storageId: this.selectedStorage.id,
+      rayonId: this.selectedRayon.id,
       selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
     };
   }

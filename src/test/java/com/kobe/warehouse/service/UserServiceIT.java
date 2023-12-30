@@ -10,11 +10,11 @@ import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,7 +26,6 @@ import tech.jhipster.security.RandomUtil;
 /** Integration tests for {@link UserService}. */
 @IntegrationTest
 @Transactional
-@Disabled
 class UserServiceIT {
 
   private static final String DEFAULT_LOGIN = "johndoe";

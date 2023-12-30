@@ -11,47 +11,47 @@
         <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Emplacement</span>
-            <span class="text-primary">{{storeInventory?.storage?.name}}</span>
+            <span class="text-primary">{{ storeInventory?.storage?.name }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Date</span>
-            <span class="text-primary">{{storeInventory?.createdAt | date: 'dd/MM/yyyy'}}</span>
+            <span class="text-primary">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
           <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
               class="list-group-item d-flex justify-content-between align-items-center">
             Rayon
-            <span class="text-primary">{{storeInventory?.rayon?.libelle }}</span>
+            <span class="text-primary">{{ storeInventory?.rayon?.libelle }}</span>
           </li>
 
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Avant
-            <span class="text-primary">{{storeInventory.inventoryValueCostBegin | number}}</span>
+            <span class="text-primary">{{ storeInventory.inventoryValueCostBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Après
-            <span class="text-primary">{{storeInventory.inventoryValueCostAfter | number}}</span>
+            <span class="text-primary">{{ storeInventory.inventoryValueCostAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Avent
-            <span class="text-primary">{{storeInventory.inventoryAmountBegin | number}}</span>
+            <span class="text-primary">{{ storeInventory.inventoryAmountBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Après
-            <span class="text-primary">{{storeInventory.inventoryAmountAfter | number}}</span>
+            <span class="text-primary">{{ storeInventory.inventoryAmountAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Ecart Achat
-            <span class="text-primary">{{storeInventory.gapCost | number}}</span>
+            <span class="text-primary">{{ storeInventory.gapCost | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Ecart Vente
-            <span class="text-primary">{{storeInventory.gapAmount | number}}</span>
+            <span class="text-primary">{{ storeInventory.gapAmount | number }}</span>
           </li>
 
         </ul>
@@ -91,7 +91,7 @@
                           [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
                           [showEmptyMessage]="true"
                           [style]="{'width':'100%'}" [suggestions]="rayons"
-                          field="libelle"></p-autoComplete>
+                          optionLabel="libelle"></p-autoComplete>
         </div>
 
 
@@ -156,15 +156,15 @@
       </ng-template>
       <ng-template let-storeInventory pTemplate="body">
         <tr>
-          <td>{{storeInventory.produitCip}}</td>
-          <td>{{storeInventory.produitLibelle}}</td>
-          <td class="text-right">{{storeInventory.prixAchat | number}}</td>
-          <td class="text-right">{{storeInventory.prixUni | number}}</td>
-          <td class="text-right">{{storeInventory.quantityInit | number}}</td>
-          <td class="text-right">{{storeInventory.quantityOnHand | number}}</td>
-          <td class="text-right">{{storeInventory.gap  | number}}</td>
-          <td class="text-right">{{storeInventory.gap * storeInventory.prixAchat | number}}</td>
-          <td class="text-right">{{storeInventory.gap * storeInventory.prixUni | number}}</td>
+          <td>{{ storeInventory.produitCip }}</td>
+          <td>{{ storeInventory.produitLibelle }}</td>
+          <td class="text-right">{{ storeInventory.prixAchat | number }}</td>
+          <td class="text-right">{{ storeInventory.prixUni | number }}</td>
+          <td class="text-right">{{ storeInventory.quantityInit | number }}</td>
+          <td class="text-right">{{ storeInventory.quantityOnHand | number }}</td>
+          <td class="text-right">{{ storeInventory.gap  | number }}</td>
+          <td class="text-right">{{ storeInventory.gap * storeInventory.prixAchat | number }}</td>
+          <td class="text-right">{{ storeInventory.gap * storeInventory.prixUni | number }}</td>
           <td class="text-right">
             <div class="btn-group">
 

@@ -1,18 +1,39 @@
-import {Component, OnInit} from '@angular/core';
-import {Customer, ICustomer} from 'app/shared/model/customer.model';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ErrorService} from 'app/shared/error.service';
-import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ErrorService } from 'app/shared/error.service';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 import moment from 'moment';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { CalendarModule } from 'primeng/calendar';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
   templateUrl: './form-ayant-droit.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ToastModule,
+    FormsModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    RadioButtonModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    KeyFilterModule,
+  ],
 })
 export class FormAyantDroitComponent implements OnInit {
   maxDate = new Date();
@@ -35,9 +56,8 @@ export class FormAyantDroitComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected customerService: CustomerService,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -82,15 +102,15 @@ export class FormAyantDroitComponent implements OnInit {
       datNaiss: moment(this.editForm.get(['datNaiss'])!.value),
       sexe: this.editForm.get(['sexe'])!.value,
       type: 'ASSURE',
-      assureId: this.assure?.id,
+      assureId: this.assure.id,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
-      res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error)
-    );
+    result.subscribe({
+      next: res => this.onSaveSuccess(res.body),
+      error: error => this.onSaveError(error),
+    });
   }
 
   protected onSaveSuccess(customer: ICustomer | null): void {
@@ -100,12 +120,20 @@ export class FormAyantDroitComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 }

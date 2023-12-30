@@ -3,25 +3,16 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.LotJsonValue;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /** A Commande. */
 @Getter
@@ -99,7 +90,6 @@ public class Commande implements Serializable, Cloneable {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private Set<OrderLine> orderLines = new HashSet<>();
 
-
   @Getter
   @ManyToOne(optional = false)
   @NotNull
@@ -115,11 +105,9 @@ public class Commande implements Serializable, Cloneable {
   @NotNull
   private User lastUserEdit;
 
-
   @Getter
-
   @Enumerated(EnumType.ORDINAL)
-  @Column(name = "type_suggession",length = 3)
+  @Column(name = "type_suggession", length = 3)
   private TypeSuggession typeSuggession;
 
   @Getter
@@ -127,7 +115,7 @@ public class Commande implements Serializable, Cloneable {
   @NotNull
   private Fournisseur fournisseur;
 
-  @Type(type = "io.hypersistence.utils.hibernate.type.json.JsonType")
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "json", name = "lots")
   private Set<LotJsonValue> lots = new HashSet<>();
 
@@ -291,7 +279,6 @@ public class Commande implements Serializable, Cloneable {
     orderLine.setCommande(null);
     return this;
   }
-
 
   @Override
   public boolean equals(Object o) {

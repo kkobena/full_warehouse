@@ -35,7 +35,7 @@ export class StoreInventory implements IStoreInventory {
     public inventoryAmountAfter?: number,
     public storeInventoryLines?: IStoreInventoryLine[],
     public inventoryType?: InventoryType,
-    public statut?: InventoryStatut
+    public statut?: InventoryStatut,
   ) {
     this.inventoryType = this.inventoryType || 'MANUEL';
   }
@@ -56,20 +56,20 @@ export class InventoryCategory {
 }
 
 export class StoreInventoryFilterRecord {
-  inventoryCategories: InventoryCategoryType[];
-  statuts: InventoryStatut[];
+  inventoryCategories?: InventoryCategoryType[];
+  statuts?: InventoryStatut[];
   storageId?: number;
   rayonId?: number;
   userId?: number;
 }
 
 export class StoreInventoryExportRecord {
-  exportGroupBy: string;
+  exportGroupBy?: string;
   filterRecord: any;
 }
 
 export class ItemsCountRecord {
-  count: number;
+  count?: number;
 }
 
 export const CATEGORY_INVENTORY: InventoryCategory[] = [

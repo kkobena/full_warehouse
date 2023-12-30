@@ -13,7 +13,6 @@
 
 </p-confirmDialog>
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [responsive]="true"
           [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"

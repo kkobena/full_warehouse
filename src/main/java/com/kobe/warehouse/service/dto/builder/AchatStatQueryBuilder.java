@@ -4,7 +4,7 @@ import com.kobe.warehouse.service.dto.records.AchatRecord;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 public final class AchatStatQueryBuilder {
   public static final String ACHAT_QUERY =

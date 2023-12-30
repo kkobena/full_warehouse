@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FamilleProduitService } from './famille-produit.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,12 +9,36 @@ import { FormFamilleComponent } from './form-famille/form-famille.component';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { CategorieService } from '../categorie/categorie.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-famille-produit',
   templateUrl: './famille-produit.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    FormFamilleComponent,
+  ],
 })
 export class FamilleProduitComponent implements OnInit {
   fileDialog?: boolean;
@@ -38,8 +62,6 @@ export class FamilleProduitComponent implements OnInit {
     private messageService: MessageService,
     private dialogService: DialogService,
     protected modalService: ConfirmationService,
-
-    protected categorieService: CategorieService
   ) {}
 
   ngOnInit(): void {
@@ -48,9 +70,9 @@ export class FamilleProduitComponent implements OnInit {
     });
   }
 
-  loadPage(page?: number, search?: String): void {
+  loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: String = search || '';
+    const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
@@ -58,14 +80,14 @@ export class FamilleProduitComponent implements OnInit {
         size: ITEMS_PER_PAGE,
         search: query,
       })
-      .subscribe(
-        (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    this.page = event.first! / event.rows!;
+    this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
@@ -73,10 +95,10 @@ export class FamilleProduitComponent implements OnInit {
         size: event.rows,
         search: '',
       })
-      .subscribe(
-        (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError(),
+      });
   }
 
   confirmDialog(id: number): void {
@@ -92,17 +114,13 @@ export class FamilleProduitComponent implements OnInit {
     });
   }
 
-  protected onSaveError(): void {
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'opération a échouée" });
-  }
-
   cancel(): void {
     this.displayDialog = false;
     this.fileDialog = false;
   }
 
   delete(entity: IFamilleProduit): void {
-    this.confirmDelete(entity.id!);
+    this.confirmDelete(entity.id);
   }
 
   confirmDelete(id: number): void {
@@ -116,37 +134,6 @@ export class FamilleProduitComponent implements OnInit {
     this.uploadFileResponse(this.entityService.uploadFile(formData));
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-      this.responseDialog = true;
-      this.fileDialog = false;
-      this.loadPage(0);
-    }
-  }
-  protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/famille-produit'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
-    this.entites = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.loading = false;
-  }
   search(event: any): void {
     this.loadPage(0, event.target.value);
   }
@@ -179,5 +166,46 @@ export class FamilleProduitComponent implements OnInit {
         this.loadPage(0);
       }
     });
+  }
+
+  protected onSaveError(): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: "L'opération a échouée",
+    });
+  }
+
+  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
+  }
+
+  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) {
+      this.responsedto = responseDto;
+      this.responseDialog = true;
+      this.fileDialog = false;
+      this.loadPage(0);
+    }
+  }
+
+  protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/famille-produit'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+      },
+    });
+    this.entites = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
   }
 }

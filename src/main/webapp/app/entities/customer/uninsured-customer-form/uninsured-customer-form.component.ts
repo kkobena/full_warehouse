@@ -1,17 +1,34 @@
-import {Component, OnInit} from '@angular/core';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Customer, ICustomer} from 'app/shared/model/customer.model';
-import {ErrorService} from 'app/shared/error.service';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { ErrorService } from 'app/shared/error.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    KeyFilterModule,
+  ],
 })
 export class UninsuredCustomerFormComponent implements OnInit {
   entity?: ICustomer;
@@ -31,9 +48,8 @@ export class UninsuredCustomerFormComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected customerService: CustomerService,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -82,7 +98,7 @@ export class UninsuredCustomerFormComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.subscribe(
       res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error)
+      error => this.onSaveError(error),
     );
   }
 
@@ -93,12 +109,20 @@ export class UninsuredCustomerFormComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 }

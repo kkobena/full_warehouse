@@ -5,12 +5,35 @@ import { SalesService } from '../../sales.service';
 import { APPEND_TO } from '../../../../shared/constants/pagination.constants';
 import { HttpResponse } from '@angular/common/http';
 import { UserService } from '../../../../core/user/user.service';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-prevente-modal',
   templateUrl: './prevente-modal.component.html',
   styleUrls: ['./prevente-modal.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    AutoCompleteModule,
+    ToolbarModule,
+    DividerModule,
+  ],
 })
 export class PreventeModalComponent implements OnInit, OnChanges {
   @Input() user: IUser;
@@ -27,7 +50,10 @@ export class PreventeModalComponent implements OnInit, OnChanges {
   protected readonly appendTo = APPEND_TO;
   protected selectedRowIndex?: number;
 
-  constructor(protected salesService: SalesService, protected userService: UserService) {}
+  constructor(
+    protected salesService: SalesService,
+    protected userService: UserService,
+  ) {}
 
   ngOnInit(): void {
     this.selectedRowIndex = 0;

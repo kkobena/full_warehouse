@@ -1,133 +1,145 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
-    <p-footer>
+<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
+  <p-footer>
 
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-            (click)="cd.reject()"></button>
-    </p-footer>
+    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+  </p-footer>
 
 </p-confirmDialog>
 
-<p-dialog header="Importer un fichier" [(visible)]="fileDialog" [focusOnShow]="false" [responsive]="true"
-    showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
-    <div class="pi-g form-group">
-        <p-fileUpload chooseLabel="Importer un fichier" name="importcsv" uploadLabel="Enrégistrer" cancelLabel="Annuler"
-            accept=".txt,.csv,.xls,.xlsx" [customUpload]="customUpload" (uploadHandler)="onUpload($event)">
-        </p-fileUpload>
-    </div>
-    <p-footer>
-        <button type="button" class="p-button-danger p-mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
-            (click)="cancel()" label="Annuler"></button>
-    </p-footer>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier">
+  <div class="pi-g form-group">
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="customUpload" accept=".txt,.csv,.xls,.xlsx"
+                  cancelLabel="Annuler"
+                  chooseLabel="Importer un fichier" name="importcsv"
+                  uploadLabel="Enrégistrer">
+    </p-fileUpload>
+  </div>
+  <p-footer>
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+            pButton
+            pRipple type="button"></button>
+  </p-footer>
 </p-dialog>
 
-<p-dialog header="Message" [(visible)]="responseDialog" [focusOnShow]="false" [responsive]="true" showEffect="fade"
-    [modal]="true" [style]="{width: '500px'}">
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
+          [style]="{width: '500px'}"
+          header="Message" showEffect="fade">
 
-    <div class="ui-g form-group">
-        <p>Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px;"> {{responsedto?.size}}</span>
-        </p>
+  <div class="ui-g form-group">
+    <p>Le nombre de lignes insérées <span
+      style="font-weight: 900; margin-left: 10px;"> {{ responsedto?.size }}</span>
+    </p>
 
-    </div>
+  </div>
 </p-dialog>
-<p-dialog header="Message" [(visible)]="dialogueClone" [focusOnShow]="false" [responsive]="true" showEffect="fade"
-    [modal]="true" [style]="{width: '500px'}">
+<p-dialog [(visible)]="dialogueClone" [focusOnShow]="false" [modal]="true" [responsive]="true"
+          [style]="{width: '500px'}"
+          header="Message" showEffect="fade">
 
-    <div class="ui-g form-group">
-        <p-dropdown appendTo="body" [options]="magasins" [(ngModel)]="clone" optionLabel="nomCourt" [filter]="false"
-            placeholder="Séléctionner un stockage " [style]="{'width':'100%'}" class="p-autocomplete"
-            (onChange)="onCloneChange($event)"></p-dropdown>
+  <div class="ui-g form-group">
+    <p-dropdown (onChange)="onCloneChange($event)" [(ngModel)]="clone" [filter]="false" [options]="magasins"
+                [style]="{'width':'100%'}"
+                appendTo="body" class="p-autocomplete"
+                optionLabel="nomCourt"
+                placeholder="Séléctionner un stockage "></p-dropdown>
 
 
-    </div>
+  </div>
 
-    <ng-template pTemplate="footer">
-        <button type="button" *ngIf="clone" pButton icon="pi pi-check" label="Cloner les rayons"
-            (click)="clonerRayon()"></button>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Annuler"
-            (click)="dialogueClone=false"></button>
-    </ng-template>
+  <ng-template pTemplate="footer">
+    <button (click)="clonerRayon()" *ngIf="clone" icon="pi pi-check" label="Cloner les rayons" pButton
+            type="button"></button>
+    <button (click)="dialogueClone=false" class="p-button-danger" icon="pi pi-times" label="Annuler" pButton
+            type="button"></button>
+  </ng-template>
 </p-dialog>
 
 <div>
-    <h3 id="page-heading">
-        <span jhiTranslate="warehouseApp.rayon.home.title">Rayons</span>
+  <h3 id="page-heading">
+    <span jhiTranslate="warehouseApp.rayon.home.title">Rayons</span>
 
-    </h3>
+  </h3>
 
-        <p-toolbar>
-            <div *ngIf="multipleSite" class="p-toolbar-group-left p-md-4">
-                <p-dropdown appendTo="body" [options]="magasins" [(ngModel)]="magasin" optionLabel="nomCourt"
-                    [filter]="false" placeholder="Séléctionner un stockage " [style]="{'width':'100%'}"
-                    class="p-autocomplete" (onChange)="onChange($event)"></p-dropdown>
+  <p-toolbar>
+    <div *ngIf="multipleSite" class="p-toolbar-group-left p-md-4">
+      <p-dropdown (onChange)="onChange($event)" [(ngModel)]="magasin" [filter]="false" [options]="magasins"
+                  [style]="{'width':'100%'}" appendTo="body"
+                  class="p-autocomplete"
+                  optionLabel="nomCourt" placeholder="Séléctionner un stockage "></p-dropdown>
 
-            </div>
-            <div  class="p-toolbar-group-left">
+    </div>
+    <div class="p-toolbar-group-left">
                <span class="p-input-icon-left" style="width: 100%;">
                     <i class="pi pi-search"></i>
-                    <input type="text"  pInputText placeholder="Taper pour rechercher"
-                           (keyup.enter)="search($event)">
+                    <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                           type="text">
                 </span>
-            </div>
-            <div  class="p-toolbar-group-right">
-                <button pButton pRipple type="button" icon="pi pi-upload" (click)="showFileDialog()"
-                    class="p-button-raised p-button-help mr-2" label="Importer"></button>
-                <button pButton pRipple type="button" icon="pi pi-check" iconPos="left" label="Nouveau"
-                    class="p-button-raised  p-button-success mr-2" (click)="addNewEntity()"></button>
-                <button *ngIf="selectedEl!.length>0" pButton pRipple type="button" icon="pi pi-copy" iconPos="left"
-                    label="Cloner" class="p-button-raised  p-button-infos" (click)="cloner()"></button>
-            </div>
-        </p-toolbar>
-        <p-table #dt styleClass="ui-table-cars" [value]="entites" [paginator]="true" [rows]="itemsPerPage" dataKey="id"
-            [(selection)]="selectedEl" [totalRecords]="totalItems">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th scope="col" style="width: 15%;"><span>Code</span> </th>
-                    <th scope="col" style="width: 55%;"><span>Libellé</span> </th>
-                    <th style="width: 3rem">
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                    </th>
-                    <th scope="col" style="text-align:center;">Actions</th>
-                </tr>
+    </div>
+    <div class="p-toolbar-group-right">
+      <button (click)="showFileDialog()" class="p-button-raised p-button-help mr-2" icon="pi pi-upload" label="Importer" pButton
+              pRipple type="button"></button>
+      <button (click)="addNewEntity()" class="p-button-raised  p-button-success mr-2" icon="pi pi-check" iconPos="left" label="Nouveau" pButton
+              pRipple type="button"></button>
+      <button (click)="cloner()" *ngIf="selectedEl!.length>0" class="p-button-raised  p-button-infos" icon="pi pi-copy" iconPos="left"
+              label="Cloner"
+              pButton pRipple type="button"></button>
+    </div>
+  </p-toolbar>
+  <p-table #dt [(selection)]="selectedEl" [paginator]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
+           [value]="entites"
+           dataKey="id" styleClass="ui-table-cars">
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col" style="width: 15%;"><span>Code</span></th>
+        <th scope="col" style="width: 55%;"><span>Libellé</span></th>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th scope="col" style="text-align:center;">Actions</th>
+      </tr>
 
-            </ng-template>
-            <ng-template pTemplate="body" let-elRow let-columns="columns">
-                <tr [pSelectableRow]="elRow" [pEditableRow]="elRow">
-                    <td>{{ elRow.code }}</td>
-                    <td>{{ elRow.libelle }}</td>
-                    <td>
-                        <p-tableCheckbox [value]="elRow"></p-tableCheckbox>
-                    </td>
-                    <td style="text-align: center;">
-                        <button   type="submit"
-                                  class="btn btn-primary btn-sm" (click)="onEdit(elRow)">
-                            <fa-icon icon="pencil-alt"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-                        </button>
-                        <button   type="submit"
-                                  class="btn btn-warning btn-sm" (click)="onBasculer(elRow)"> <i class="pi pi-reply"></i>
+    </ng-template>
+    <ng-template let-columns="columns" let-elRow pTemplate="body">
+      <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+        <td>{{ elRow.code }}</td>
+        <td>{{ elRow.libelle }}</td>
+        <td>
+          <p-tableCheckbox [value]="elRow"></p-tableCheckbox>
+        </td>
+        <td style="text-align: center;">
+          <button (click)="onEdit(elRow)"
+                  class="btn btn-primary btn-sm" type="submit">
+            <fa-icon icon="pencil-alt"></fa-icon>
+            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+          </button>
+          <button (click)="onBasculer(elRow)"
+                  class="btn btn-warning btn-sm" type="submit"><i
+            class="pi pi-reply"></i>
 
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.basculer">Basculer</span>
-                            </button>
-                        <button   type="submit"
-                                  class="btn btn-danger btn-sm" (click)="delete(elRow)">
-                            <fa-icon icon="times"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
-                        </button>
+            <span class="d-none d-md-inline" jhiTranslate="entity.action.basculer">Basculer</span>
+          </button>
+          <button (click)="delete(elRow)"
+                  class="btn btn-danger btn-sm" type="submit">
+            <fa-icon icon="times"></fa-icon>
+            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+          </button>
 
 
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage" let-columns>
-                <tr>
-                    <td [attr.colspan]="4">
-                        Aucune donnée trouvée
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template let-columns pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="4">
+          Aucune donnée trouvée
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 
 
 </div>

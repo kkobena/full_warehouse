@@ -1,14 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subscription} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {IInventoryTransaction} from 'app/shared/model/inventory-transaction.model';
-import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
-import {InventoryTransactionService} from './inventory-transaction.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { IInventoryTransaction } from 'app/shared/model/inventory-transaction.model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { InventoryTransactionService } from './inventory-transaction.service';
 import moment from 'moment';
-import {DD_MM_YYYY_HH_MM} from 'app/shared/constants/input.constants';
+import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { AgGridModule } from 'ag-grid-angular';
 
 @Component({
   selector: 'jhi-inventory-transaction',
@@ -29,9 +30,10 @@ import {DD_MM_YYYY_HH_MM} from 'app/shared/constants/input.constants';
     `,
   ],
   templateUrl: './inventory-transaction.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, AgGridModule],
 })
 export class InventoryTransactionComponent implements OnInit {
-  eventSubscriber?: Subscription;
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
@@ -45,7 +47,7 @@ export class InventoryTransactionComponent implements OnInit {
     protected inventoryTransactionService: InventoryTransactionService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected modalService: NgbModal
+    protected modalService: NgbModal,
   ) {
     this.columnDefs = [
       {
@@ -98,22 +100,22 @@ export class InventoryTransactionComponent implements OnInit {
     this.loadPage();
   }
 
-  protected onSuccess(data: IInventoryTransaction[] | null): void {
-    this.rowData = data || [];
-  }
-
   loadPage(): void {
-    this.inventoryTransactionService.query().subscribe(
-      (res: HttpResponse<IInventoryTransaction[]>) => this.onSuccess(res.body),
-      () => this.onError()
-    );
-  }
-
-  protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
+    this.inventoryTransactionService.query().subscribe({
+      next: (res: HttpResponse<IInventoryTransaction[]>) => this.onSuccess(res.body),
+      error: () => this.onError(),
+    });
   }
 
   formatDate(date: any): string {
     return moment(date.value).format(DD_MM_YYYY_HH_MM);
+  }
+
+  protected onSuccess(data: IInventoryTransaction[] | null): void {
+    this.rowData = data || [];
+  }
+
+  protected onError(): void {
+    this.ngbPaginationPage = this.page ?? 1;
   }
 }

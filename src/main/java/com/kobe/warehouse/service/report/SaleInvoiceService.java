@@ -3,21 +3,20 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.SaleDataService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-
-import java.util.Locale;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @Transactional(readOnly = true)
 public class SaleInvoiceService {
+  private static final String MAGASIN = "magasin";
+  private static final String SALE = "sale";
   private final SpringTemplateEngine templateEngine;
   private final SaleDataService saleDataService;
   private final ReportService reportService;
-  private static final String MAGASIN = "magasin";
-  private static final String SALE = "sale";
   private final StorageService storageService;
 
   public SaleInvoiceService(

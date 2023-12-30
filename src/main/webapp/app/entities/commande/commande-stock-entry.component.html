@@ -24,19 +24,19 @@
           <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Référence</span>
-              <span class="text-primary">{{commande?.orderRefernce}}</span>
+              <span class="text-primary">{{ commande?.orderRefernce }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Grossiste</span>
-              <span class="text-primary">{{commande?.fournisseur?.libelle}}</span>
+              <span class="text-primary">{{ commande?.fournisseur?.libelle }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Valeur Achat
-              <span class="text-primary">{{commande?.grossAmount | number}}</span>
+              <span class="text-primary">{{ commande?.grossAmount | number }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Valeur Vente
-              <span class="text-primary">{{commande?.orderAmount | number}}</span>
+              <span class="text-primary">{{ commande?.orderAmount | number }}</span>
             </li>
           </ul>
         </div>
@@ -51,19 +51,19 @@
           <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Référence bon</span>
-              <span class="text-primary">{{delivery?.receiptRefernce}}</span>
+              <span class="text-primary">{{ delivery?.receiptRefernce }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Date Bon</span>
-              <span class="text-primary">{{delivery?.receiptDate | date: 'dd/MM/yyyy'}}</span>
+              <span class="text-primary">{{ delivery?.receiptDate | date: 'dd/MM/yyyy' }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Montant TTC
-              <span class="text-primary">{{delivery?.receiptAmount | number}}</span>
+              <span class="text-primary">{{ delivery?.receiptAmount | number }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Taxe
-              <span class="text-primary">{{delivery?.taxAmount | number}}</span>
+              <span class="text-primary">{{ delivery?.taxAmount | number }}</span>
             </li>
           </ul>
         </div>
@@ -123,8 +123,8 @@
                          [context]="context"
                          [defaultColDef]="defaultColDef"
                          [domLayout]="'normal'"
-                         [enterMovesDownAfterEdit]="true"
-                         [enterMovesDown]="true"
+                         [enterNavigatesVerticallyAfterEdit]="true"
+                         [enterNavigatesVertically]="true"
                          [paginationAutoPageSize]="true"
                          [pagination]="false"
                          [quickFilterText]="search"

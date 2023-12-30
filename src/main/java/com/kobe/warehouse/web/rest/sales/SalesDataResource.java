@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,7 +109,7 @@ public class SalesDataResource {
       @RequestParam(name = "type", required = false) String typeVente,
       @RequestParam(name = "userId", required = false) Long userId) {
     log.debug("REST request to get a page of Sales");
-    List<SaleDTO> data = saleDataService.allPrevente(search, typeVente,userId);
+    List<SaleDTO> data = saleDataService.allPrevente(search, typeVente, userId);
     return ResponseEntity.ok().body(data);
   }
 
@@ -165,13 +165,13 @@ public class SalesDataResource {
   }*/
 
   @GetMapping("/sales/print/VNO-receipt/{id}")
-  public ResponseEntity<Void> printCashReceipt(@PathVariable Long id)  {
+  public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {
     receiptPrinterService.printCashSale(id);
     return ResponseEntity.ok().build();
   }
 
   @GetMapping("/sales/print/VO-receipt/{id}")
-  public ResponseEntity<Void> printVoReceipt(@PathVariable Long id)  {
+  public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) {
     receiptPrinterService.printVoSale(id);
     return ResponseEntity.ok().build();
   }

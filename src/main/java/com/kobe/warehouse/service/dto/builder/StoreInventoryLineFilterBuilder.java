@@ -3,10 +3,9 @@ package com.kobe.warehouse.service.dto.builder;
 import com.kobe.warehouse.service.dto.StoreInventoryLineExport;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
+import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Objects;
-import javax.persistence.Tuple;
 
 public class StoreInventoryLineFilterBuilder {
   public static final String BASE_QUERY =
@@ -60,15 +59,15 @@ WHERE  a.store_inventory_id=?1 AND fP.principal %s ORDER BY {order_by} fp.code_c
   public static StoreInventoryLineRecord buildStoreInventoryLineRecordRecord(
       Tuple tuple, int currentStock) {
 
-    if (Objects.isNull(tuple.get("produitId", BigInteger.class))) return null;
+    if (Objects.isNull(tuple.get("produitId", Long.class))) return null;
     boolean updated = tuple.get("updated", Boolean.class);
 
     return new StoreInventoryLineRecord(
-        tuple.get("produitId", BigInteger.class).intValue(),
+        tuple.get("produitId", Long.class).intValue(),
         tuple.get("code_cip", String.class),
         tuple.get("code_ean", String.class),
         tuple.get("libelle", String.class),
-        tuple.get("id", BigInteger.class),
+        tuple.get("id", Long.class),
         tuple.get("gap", Integer.class),
         tuple.get("quantity_on_hand", Integer.class),
         currentStock,
@@ -92,12 +91,12 @@ WHERE  a.store_inventory_id=?1 AND fP.principal %s ORDER BY {order_by} fp.code_c
         tuple.get("prix_uni", Integer.class),
         tuple.get("prix_achat", Integer.class),
         tuple.get("last_unit_price", Integer.class),
-        tuple.get("rayon_id", BigInteger.class),
-        tuple.get("storage_id", BigInteger.class),
+        tuple.get("rayon_id", Long.class),
+        tuple.get("storage_id", Long.class),
         tuple.get("code_rayon", String.class),
         tuple.get("famillyCode", String.class),
         tuple.get("famillyLibelle", String.class),
-        tuple.get("famillyId", BigInteger.class).intValue());
+        tuple.get("famillyId", Long.class));
   }
 
   public static StoreInventorySummaryRecord buildSammary(Tuple tuple) {

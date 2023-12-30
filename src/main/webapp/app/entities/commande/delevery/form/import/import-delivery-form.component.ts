@@ -1,15 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DeliveryService } from '../../delivery.service';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
 import { IFournisseur } from '../../../../../shared/model/fournisseur.model';
 import moment, { Moment } from 'moment/moment';
 import { HttpResponse } from '@angular/common/http';
 import { FournisseurService } from '../../../../fournisseur/fournisseur.service';
 import { ICommandeResponse } from '../../../../../shared/model/commande-response.model';
+import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
+import { CardModule } from 'primeng/card';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { CalendarModule } from 'primeng/calendar';
+import { FileUploadModule } from 'primeng/fileupload';
 
 type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryReceipt: IDelivery };
 type ModelFichier = { label: string; value: string };
@@ -17,6 +28,24 @@ type ModelFichier = { label: string; value: string };
 @Component({
   selector: 'jhi-import-delivery-form',
   templateUrl: './import-delivery-form.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    ToastModule,
+    NgxSpinnerModule,
+    CardModule,
+    KeyFilterModule,
+    CalendarModule,
+    FileUploadModule,
+  ],
 })
 export class ImportDeliveryFormComponent implements OnInit {
   appendTo = 'body';
@@ -63,7 +92,7 @@ export class ImportDeliveryFormComponent implements OnInit {
     private fb: FormBuilder,
     private messageService: MessageService,
     private fournisseurService: FournisseurService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {
     this.models = [
       { label: 'LABOREX', value: 'LABOREX' },

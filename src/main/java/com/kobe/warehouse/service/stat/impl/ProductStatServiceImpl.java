@@ -5,16 +5,15 @@ import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import com.kobe.warehouse.service.stat.ProductStatService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +83,8 @@ public class ProductStatServiceImpl implements ProductStatService {
   private List<ProductStatParetoRecord> buildProductStat20x80Record(
       ProduitRecordParamDTO produitRecordParam) {
 
-    Pair<LocalDate, LocalDate> periode =this.buildPeriode(produitRecordParam);
-    int totalCount = getTotalCount(produitRecordParam, periode);
+    Pair<LocalDate, LocalDate> periode = this.buildPeriode(produitRecordParam);
+    long totalCount = getTotalCount(produitRecordParam, periode);
     int count = 0;
     List<ProductStatParetoRecord> results = new ArrayList<>();
     double quantityAvg = 0.0;
@@ -102,25 +101,32 @@ public class ProductStatServiceImpl implements ProductStatService {
     while ((count <= totalCount) && isNotSatisfied) {
       list = getExec20X80Query(produitRecordParam, periode);
       for (Tuple tuple : list) {
-          quantityAvg += tuple.get("quantity_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue();
-          amountAvg += tuple.get("amount_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue();
-        if(quantityAvg<=quantityRefAvg){
-          if(amountAvg <= amountRefAvg){
+        quantityAvg +=
+            tuple
+                .get("quantity_avg", BigDecimal.class)
+                .round(new MathContext(2, RoundingMode.HALF_UP))
+                .doubleValue();
+        amountAvg +=
+            tuple
+                .get("amount_avg", BigDecimal.class)
+                .round(new MathContext(2, RoundingMode.HALF_UP))
+                .doubleValue();
+        if (quantityAvg <= quantityRefAvg) {
+          if (amountAvg <= amountRefAvg) {
             results.add(ProductStatQueryBuilder.buildProductStatParetoRecord(tuple));
-          }else{
+          } else {
             results.add(ProductStatQueryBuilder.buildProductStatParetoRecord(tuple));
-            isNotSatisfied=false;
+            isNotSatisfied = false;
             break;
           }
-        }else{
-          if(quantityAvg<quantityRefAvgLimit && amountAvg <= amountRefAvg){
+        } else {
+          if (quantityAvg < quantityRefAvgLimit && amountAvg <= amountRefAvg) {
             results.add(ProductStatQueryBuilder.buildProductStatParetoRecord(tuple));
-          }else{
-            isNotSatisfied=false;
+          } else {
+            isNotSatisfied = false;
             break;
           }
         }
-
       }
       start += limit;
       count += limit;
@@ -131,17 +137,16 @@ public class ProductStatServiceImpl implements ProductStatService {
     return results;
   }
 
-  private int getTotalCount(
+  private long getTotalCount(
       ProduitRecordParamDTO produitRecordParam, Pair<LocalDate, LocalDate> periode) {
 
     try {
-      return ((BigInteger)
-              this.em
-                  .createNativeQuery(this.buildPCountQuey(produitRecordParam))
-                  .setParameter(1, java.sql.Date.valueOf(periode.getLeft()))
-                  .setParameter(2, java.sql.Date.valueOf(periode.getRight()))
-                  .getSingleResult())
-          .intValue();
+      return (Long)
+          this.em
+              .createNativeQuery(this.buildPCountQuey(produitRecordParam))
+              .setParameter(1, java.sql.Date.valueOf(periode.getLeft()))
+              .setParameter(2, java.sql.Date.valueOf(periode.getRight()))
+              .getSingleResult();
 
     } catch (Exception e) {
       LOG.error(null, e);

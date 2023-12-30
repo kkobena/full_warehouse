@@ -1,21 +1,39 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Router } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Router, RouterModule } from '@angular/router';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
+  standalone: true,
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class BonEnCoursComponent implements OnInit {
   @Input() search = '';
   protected deliveries: IDelivery[] = [];
-  protected rowExpandMode = 'single';
+  protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
   protected selectedEl!: any;
   protected itemsPerPage = ITEMS_PER_PAGE;
@@ -30,7 +48,7 @@ export class BonEnCoursComponent implements OnInit {
     protected router: Router,
     private spinner: NgxSpinnerService,
     protected entityService: DeliveryService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {

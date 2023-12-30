@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

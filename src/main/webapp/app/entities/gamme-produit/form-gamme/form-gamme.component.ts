@@ -1,15 +1,32 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Observable} from 'rxjs';
-import {GammeProduitService} from '../gamme-produit.service';
-import {GammeProduit, IGammeProduit} from '../../../shared/model/gamme-produit.model';
+import { HttpResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Observable } from 'rxjs';
+import { GammeProduitService } from '../gamme-produit.service';
+import { GammeProduit, IGammeProduit } from '../../../shared/model/gamme-produit.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-form-gamme',
   templateUrl: './form-gamme.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+  ],
 })
 export class FormGammeComponent implements OnInit {
   isSaving = false;
@@ -25,9 +42,8 @@ export class FormGammeComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private fb: UntypedFormBuilder,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.gamme = this.config.data.gamme;
@@ -51,20 +67,28 @@ export class FormGammeComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGammeProduit>>): void {
-    result.subscribe(
-      (res: HttpResponse<IGammeProduit>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IGammeProduit>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(response: IGammeProduit | null): void {
-    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès'});
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Information',
+      detail: 'Enregistrement effectué avec succès',
+    });
     this.ref.close(response);
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   private updateForm(entity: IGammeProduit): void {

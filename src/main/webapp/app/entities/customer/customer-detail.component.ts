@@ -9,6 +9,8 @@ import { MagasinService } from '../magasin/magasin.service';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { SalesService } from '../sales/sales.service';
 import { saveAs } from 'file-saver';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+
 @Component({
   selector: 'jhi-customer-detail',
   styles: [
@@ -151,6 +153,8 @@ import { saveAs } from 'file-saver';
     `,
   ],
   templateUrl: './customer-detail.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule],
 })
 export class CustomerDetailComponent implements OnInit {
   customer: ICustomer | null = null;
@@ -165,7 +169,7 @@ export class CustomerDetailComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected customerService: CustomerService,
     protected magasinService: MagasinService,
-    protected salesService: SalesService
+    protected salesService: SalesService,
   ) {}
 
   ngOnInit(): void {
@@ -181,25 +185,19 @@ export class CustomerDetailComponent implements OnInit {
     window.history.back();
   }
 
-  protected onSuccess(data: ISales[] | null): void {
-    this.sales = data || [];
-  }
-
-  protected onError(): void {}
-
   loadSales(): void {
     this.customerService
       .purchases({
-        customerId: this.customer?.id,
+        customerId: this.customer.id,
       })
       .subscribe(
         (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body),
-        () => this.onError()
+        () => this.onError(),
       );
   }
 
   trackId(index: number, item: ISales): number {
-    return item.id!;
+    return item.id;
   }
 
   clickRow(item: ISales): void {
@@ -210,7 +208,13 @@ export class CustomerDetailComponent implements OnInit {
 
   print(): void {
     if (this.saleSelected !== null && this.saleSelected !== undefined) {
-      this.salesService.print(this.saleSelected.id!).subscribe(blod => saveAs(blod));
+      this.salesService.print(this.saleSelected.id).subscribe(blod => saveAs(blod));
     }
   }
+
+  protected onSuccess(data: ISales[] | null): void {
+    this.sales = data || [];
+  }
+
+  protected onError(): void {}
 }

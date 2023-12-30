@@ -4,9 +4,12 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Session } from './session.model';
 import { SessionsService } from './sessions.service';
 import { Account } from 'app/core/auth/account.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-sessions',
+  standalone: true,
+  imports: [WarehouseCommonModule],
   templateUrl: './sessions.component.html',
 })
 export class SessionsComponent implements OnInit {
@@ -15,7 +18,10 @@ export class SessionsComponent implements OnInit {
   success = false;
   sessions: Session[] = [];
 
-  constructor(private sessionsService: SessionsService, private accountService: AccountService) {}
+  constructor(
+    private sessionsService: SessionsService,
+    private accountService: AccountService,
+  ) {}
 
   ngOnInit(): void {
     this.sessionsService.findAll().subscribe(sessions => (this.sessions = sessions));
@@ -27,12 +33,12 @@ export class SessionsComponent implements OnInit {
     this.error = false;
     this.success = false;
 
-    this.sessionsService.delete(encodeURIComponent(series)).subscribe(
-      () => {
+    this.sessionsService.delete(encodeURIComponent(series)).subscribe({
+      next: () => {
         this.success = true;
         this.sessionsService.findAll().subscribe(sessions => (this.sessions = sessions));
       },
-      () => (this.error = true)
-    );
+      error: () => (this.error = true),
+    });
   }
 }

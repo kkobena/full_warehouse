@@ -1,8 +1,7 @@
 package com.kobe.warehouse.web.rest.vm;
 
 import com.kobe.warehouse.service.dto.AdminUserDTO;
-
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 /**
  * View Model extending the AdminUserDTO, which is meant to be used in the user management UI.

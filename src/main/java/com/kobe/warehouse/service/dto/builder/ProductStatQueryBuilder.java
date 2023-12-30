@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Objects;
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 public final class ProductStatQueryBuilder {
   public static final String LIKE_STATEMENT =

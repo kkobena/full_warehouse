@@ -1,19 +1,35 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../../shared/error.service';
 import { DeliveryService } from '../delevery/delivery.service';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmationService } from 'primeng/api';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import { IDelivery } from '../../../shared/model/delevery.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
+  standalone: true,
   selector: 'jhi-commande-recus',
   templateUrl: './commande-recus.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class CommandeRecusComponent implements OnInit {
   @Input() search = '';
@@ -28,9 +44,8 @@ export class CommandeRecusComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected index = 0;
   protected selectedFilter = 'PENDING';
-  protected rowExpandMode = 'single';
+  protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
-  protected selectedtypeSuggession = 'ALL';
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
 
@@ -38,11 +53,7 @@ export class CommandeRecusComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: NgbModal,
-    private errorService: ErrorService,
     protected entityService: DeliveryService,
-    private spinner: NgxSpinnerService,
-    private confirmationService: ConfirmationService,
-    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {
@@ -58,11 +69,11 @@ export class CommandeRecusComponent implements OnInit {
   }
 
   exportCSV(delivery: IDelivery): void {
-    this.entityService.exportToCsv(delivery.id!).subscribe(blod => saveAs(blod));
+    this.entityService.exportToCsv(delivery.id).subscribe(blod => saveAs(blod));
   }
 
   exportPdf(delivery: IDelivery): void {
-    this.entityService.exportToPdf(delivery.id!).subscribe(blod => saveAs(blod));
+    this.entityService.exportToPdf(delivery.id).subscribe(blod => saveAs(blod));
   }
 
   loadPage(page?: number): void {

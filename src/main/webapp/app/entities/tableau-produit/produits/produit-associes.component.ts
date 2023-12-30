@@ -5,10 +5,19 @@ import { IProduit } from '../../../shared/model/produit.model';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { ITableau } from '../../../shared/model/tableau.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { PickListModule } from 'primeng/picklist';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-produit-associes',
   templateUrl: './produit-associes.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, RippleModule],
 })
 export class ProduitAssociesComponent implements OnInit {
   produitsSource: IProduit[] = [];
@@ -21,7 +30,7 @@ export class ProduitAssociesComponent implements OnInit {
   constructor(
     protected produitService: ProduitService,
     private tableauProduitService: TableauProduitService,
-    protected activatedRoute: ActivatedRoute
+    protected activatedRoute: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +48,7 @@ export class ProduitAssociesComponent implements OnInit {
         size: 50,
         search: this.searchTarget || '',
         status: this.statut,
-        tableauId: this.tableau?.id,
+        tableauId: this.tableau.id,
       })
       .subscribe({ next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body) });
   }
@@ -55,7 +64,7 @@ export class ProduitAssociesComponent implements OnInit {
         size: 50,
         search: this.searchSource || '',
         status: this.statut,
-        tableauNot: this.tableau?.id,
+        tableauNot: this.tableau.id,
       })
       .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource = res.body));
   }

@@ -1,15 +1,15 @@
 package com.kobe.warehouse.domain;
 
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -17,69 +17,68 @@ import java.util.Objects;
 @Table(
     name = "printer",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})},
-    indexes = {@Index(columnList = "name", name = "name_index")}
-)
+    indexes = {@Index(columnList = "name", name = "name_index")})
 public class Printer implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotNull
-    @Column(name = "name", nullable = false)
-    private String name;
+  @NotNull
+  @Column(name = "name", nullable = false)
+  private String name;
 
-    private String address;
-    private Boolean defaultPrinter = Boolean.FALSE;
+  private String address;
+  private Boolean defaultPrinter = Boolean.FALSE;
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Printer setId(Long id) {
-        this.id = id;
-        return this;
-    }
+  public Printer setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Printer setName(String name) {
-        this.name = name;
-        return this;
-    }
+  public Printer setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    public String getAddress() {
-        return address;
-    }
+  public String getAddress() {
+    return address;
+  }
 
-    public Printer setAddress(String address) {
-        this.address = address;
-        return this;
-    }
+  public Printer setAddress(String address) {
+    this.address = address;
+    return this;
+  }
 
-    public Boolean getDefaultPrinter() {
-        return defaultPrinter;
-    }
+  public Boolean getDefaultPrinter() {
+    return defaultPrinter;
+  }
 
-    public Printer setDefaultPrinter(Boolean defaultPrinter) {
-        this.defaultPrinter = defaultPrinter;
-        return this;
-    }
+  public Printer setDefaultPrinter(Boolean defaultPrinter) {
+    this.defaultPrinter = defaultPrinter;
+    return this;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Printer printer = (Printer) o;
-        return Objects.equals(id, printer.id);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Printer printer = (Printer) o;
+    return Objects.equals(id, printer.id);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
 }

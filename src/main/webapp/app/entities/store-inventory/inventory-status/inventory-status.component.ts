@@ -1,10 +1,13 @@
 import { Component, OnChanges, SimpleChanges } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { IStoreInventoryLine } from '../../../shared/model/store-inventory-line.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-inventory-status',
   templateUrl: './inventory-status.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule],
 })
 export class InventoryStatusComponent implements ICellRendererAngularComp, OnChanges {
   params!: any;

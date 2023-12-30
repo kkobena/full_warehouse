@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-import java.math.BigInteger;
-
 public class StoreInventoryLineExport {
   private Integer gap;
   private Integer inventoryValueCost;
@@ -15,12 +13,12 @@ public class StoreInventoryLineExport {
   private Integer prixAchat;
   private Integer prixUni;
   private Integer lastUnitPrice;
-  private BigInteger rayonId;
-  private BigInteger storageId;
+  private Long rayonId;
+  private Long storageId;
   private String rayonCode;
   private String famillyCode;
   private String famillyLibelle;
-  private Integer famillyId;
+  private Long famillyId;
 
   public StoreInventoryLineExport(
       Integer gap,
@@ -35,12 +33,12 @@ public class StoreInventoryLineExport {
       Integer prixAchat,
       Integer prixUni,
       Integer lastUnitPrice,
-      BigInteger rayonId,
-      BigInteger storageId,
+      Long rayonId,
+      Long storageId,
       String rayonCode,
       String famillyCode,
       String famillyLibelle,
-      Integer famillyId) {
+      Long famillyId) {
     this.gap = gap;
     this.inventoryValueCost = inventoryValueCost;
     this.quantityInit = quantityInit;
@@ -61,11 +59,11 @@ public class StoreInventoryLineExport {
     this.famillyId = famillyId;
   }
 
-  public Integer getFamillyId() {
+  public Long getFamillyId() {
     return famillyId;
   }
 
-  public StoreInventoryLineExport setFamillyId(Integer famillyId) {
+  public StoreInventoryLineExport setFamillyId(Long famillyId) {
     this.famillyId = famillyId;
     return this;
   }
@@ -184,19 +182,19 @@ public class StoreInventoryLineExport {
     this.lastUnitPrice = lastUnitPrice;
   }
 
-  public BigInteger getRayonId() {
+  public Long getRayonId() {
     return rayonId;
   }
 
-  public void setRayonId(BigInteger rayonId) {
+  public void setRayonId(Long rayonId) {
     this.rayonId = rayonId;
   }
 
-  public BigInteger getStorageId() {
+  public Long getStorageId() {
     return storageId;
   }
 
-  public void setStorageId(BigInteger storageId) {
+  public void setStorageId(Long storageId) {
     this.storageId = storageId;
   }
 

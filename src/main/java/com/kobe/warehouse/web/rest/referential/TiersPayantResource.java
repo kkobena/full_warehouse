@@ -11,7 +11,7 @@ import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,87 +43,94 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class TiersPayantResource {
 
-    private static final String ENTITY_NAME = "tiers-payant";
-    private final ImportationTiersPayantService importationTiersPayantService;
-    private final TiersPayantDataService tiersPayantDataService;
-    private final TiersPayantService tiersPayantService;
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
+  private static final String ENTITY_NAME = "tiers-payant";
+  private final ImportationTiersPayantService importationTiersPayantService;
+  private final TiersPayantDataService tiersPayantDataService;
+  private final TiersPayantService tiersPayantService;
 
-    public TiersPayantResource(
-        ImportationTiersPayantService importationTiersPayantService,
-        TiersPayantDataService tiersPayantDataService,
-        TiersPayantService tiersPayantService
-    ) {
-        this.importationTiersPayantService = importationTiersPayantService;
-        this.tiersPayantDataService = tiersPayantDataService;
-        this.tiersPayantService = tiersPayantService;
+  @Value("${jhipster.clientApp.name}")
+  private String applicationName;
+
+  public TiersPayantResource(
+      ImportationTiersPayantService importationTiersPayantService,
+      TiersPayantDataService tiersPayantDataService,
+      TiersPayantService tiersPayantService) {
+    this.importationTiersPayantService = importationTiersPayantService;
+    this.tiersPayantDataService = tiersPayantDataService;
+    this.tiersPayantService = tiersPayantService;
+  }
+
+  @PostMapping("/tiers-payants/importjson")
+  public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file)
+      throws URISyntaxException, IOException {
+    ResponseDTO responseDTO =
+        importationTiersPayantService.updateStocFromJSON(file.getInputStream());
+    return ResponseEntity.ok(responseDTO);
+  }
+
+  @GetMapping("/tiers-payants/result")
+  public ResponseEntity<ResponseDTO> getCuurent() {
+    Importation importation = importationTiersPayantService.current(ImportationType.TIERS_PAYANT);
+    if (importation == null) {
+      return ResponseUtil.wrapOrNotFound(Optional.of(new ResponseDTO().setCompleted(true)));
+    }
+    ResponseDTO responseDTO = new ResponseDTO();
+    responseDTO.setSize(importation.getSize());
+    responseDTO.setTotalSize(importation.getTotalZise());
+    if (importation.getImportationStatus() != ImportationStatus.PROCESSING) {
+      responseDTO.setCompleted(true);
     }
 
-    @PostMapping("/tiers-payants/importjson")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file) throws URISyntaxException, IOException {
-        ResponseDTO responseDTO = importationTiersPayantService.updateStocFromJSON(file.getInputStream());
-        return ResponseEntity.ok(responseDTO);
-    }
+    return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
+  }
 
-    @GetMapping("/tiers-payants/result")
-    public ResponseEntity<ResponseDTO> getCuurent() {
-        Importation importation = importationTiersPayantService.current(ImportationType.TIERS_PAYANT);
-        if (importation == null) {
-            return ResponseUtil.wrapOrNotFound(Optional.of(new ResponseDTO().setCompleted(true)));
-        }
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setSize(importation.getSize());
-        responseDTO.setTotalSize(importation.getTotalZise());
-        if (importation.getImportationStatus() != ImportationStatus.PROCESSING) {
-            responseDTO.setCompleted(true);
-        }
+  @GetMapping(value = "/tiers-payants")
+  public ResponseEntity<List<TiersPayantDto>> getAll(
+      @RequestParam(name = "groupeTiersPayantId", required = false) Long groupeTiersPayantId,
+      @RequestParam(value = "search", required = false, defaultValue = "") String search,
+      @RequestParam(value = "type", required = false, defaultValue = "") String type,
+      Pageable pageable) {
+    Page<TiersPayantDto> page =
+        tiersPayantDataService.list(
+            search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
+    HttpHeaders headers =
+        PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+    return ResponseEntity.ok().headers(headers).body(page.getContent());
+  }
 
-        return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
+  @PostMapping("/tiers-payants")
+  public ResponseEntity<TiersPayantDto> create(@Valid @RequestBody TiersPayantDto tiersPayantDto)
+      throws URISyntaxException {
+    if (tiersPayantDto.getId() != null) {
+      throw new BadRequestAlertException("A new rayon cannot already have an ID", null, "idexists");
     }
+    TiersPayantDto result = tiersPayantService.createFromDto(tiersPayantDto);
+    return ResponseEntity.ok(result);
+  }
 
-    @GetMapping(value = "/tiers-payants")
-    public ResponseEntity<List<TiersPayantDto>> getAll(
-        @RequestParam(name = "groupeTiersPayantId", required = false) Long groupeTiersPayantId,
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        @RequestParam(value = "type", required = false, defaultValue = "") String type,
-        Pageable pageable
-    ) {
-        Page<TiersPayantDto> page = tiersPayantDataService.list(search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
+  @PutMapping("/tiers-payants")
+  public ResponseEntity<TiersPayantDto> update(@Valid @RequestBody TiersPayantDto tiersPayantDto)
+      throws URISyntaxException {
+    TiersPayantDto result = tiersPayantService.updateFromDto(tiersPayantDto);
+    return ResponseEntity.ok(result);
+  }
 
-    @PostMapping("/tiers-payants")
-    public ResponseEntity<TiersPayantDto> create(@Valid @RequestBody TiersPayantDto tiersPayantDto) throws URISyntaxException {
-        if (tiersPayantDto.getId() != null) {
-            throw new BadRequestAlertException("A new rayon cannot already have an ID", null, "idexists");
-        }
-        TiersPayantDto result = tiersPayantService.createFromDto(tiersPayantDto);
-        return ResponseEntity.ok(result);
-    }
+  @DeleteMapping("/tiers-payants/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    tiersPayantService.delete(id);
+    return ResponseEntity.noContent()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+        .build();
+  }
 
-    @PutMapping("/tiers-payants")
-    public ResponseEntity<TiersPayantDto> update(@Valid @RequestBody TiersPayantDto tiersPayantDto) throws URISyntaxException {
-        TiersPayantDto result = tiersPayantService.updateFromDto(tiersPayantDto);
-        return ResponseEntity.ok(result);
-    }
-
-    @DeleteMapping("/tiers-payants/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        tiersPayantService.delete(id);
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
-    }
-
-    @DeleteMapping("/tiers-payants/desable/{id}")
-    public ResponseEntity<Void> desable(@PathVariable Long id) {
-        tiersPayantService.desable(id);
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
-    }
+  @DeleteMapping("/tiers-payants/desable/{id}")
+  public ResponseEntity<Void> desable(@PathVariable Long id) {
+    tiersPayantService.desable(id);
+    return ResponseEntity.noContent()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+        .build();
+  }
 }

@@ -1,18 +1,40 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
 import { LotService } from './lot.service';
 import { BLOCK_SPACE, DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
+  standalone: true,
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
   providers: [MessageService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TooltipModule,
+    ToastModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    KeyFilterModule,
+    CalendarModule,
+    InputTextModule,
+  ],
 })
 export class FormLotComponent implements OnInit {
   isSaving = false;
@@ -49,7 +71,7 @@ export class FormLotComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private fb: FormBuilder,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -110,7 +132,7 @@ export class FormLotComponent implements OnInit {
 
   onValidateNumLot(event: any): void {
     const numLot = event.target.value;
-    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity?.id);
+    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id);
     if (this.numLotAlreadyExist) {
       this.messageService.add({
         severity: 'error',
@@ -184,7 +206,7 @@ export class FormLotComponent implements OnInit {
     if (this.entity && ugQuantity) {
       return ugQuantity - (this.getLotUgQuantity() - this.entity.ugQuantityReceived);
     }
-    if (ugQuantity) return ugQuantity - this.getLotUgQuantity();
+    if (ugQuantity) {return ugQuantity - this.getLotUgQuantity();}
     return 0;
   }
 

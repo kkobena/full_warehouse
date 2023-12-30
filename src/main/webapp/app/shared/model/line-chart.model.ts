@@ -1,9 +1,9 @@
 export class LineChartData {
-  data: any[];
+  data?: any[];
 }
 
 export class LineChartWrapper {
-  labeles: string[];
+  labeles?: string[];
   saleCostAmount?: LineChartData;
   saleAmount?: LineChartData;
   marge?: LineChartData;
@@ -11,6 +11,6 @@ export class LineChartWrapper {
 }
 
 export class LineChart {
-  data: any;
-  options: any;
+  data?: any;
+  options?: any;
 }

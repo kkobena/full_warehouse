@@ -7,17 +7,19 @@
   </p-footer>
 </p-confirmDialog>
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [responsive]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
+
+          [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true" accept=".txt,.csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
+                  accept=".txt,.csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv"
                   uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler"
             pButton
             pRipple type="button"></button>
 
@@ -28,22 +30,26 @@
     <div class="p-toolbar-group-left p-md-7">
                     <span class="p-input-icon-left" style="width: 70%;">
                         <i class="pi pi-search"></i>
-                        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                        <input (keyup.enter)="search($event)" pInputText
+                               placeholder="Taper pour rechercher"
                                style="width:98%;"
                                type="text">
                     </span>
     </div>
     <div class="p-toolbar-group-right">
-      <button (click)="showFileDialog()" class="p-button-raised p-button-help p-mr-2" icon="pi pi-upload" label="Importer" pButton
+      <button (click)="showFileDialog()" class="p-button-raised p-button-help p-mr-2"
+              icon="pi pi-upload" label="Importer" pButton
               pRipple type="button"></button>
-      <button (click)="addNewEntity()" class="p-button-raised p-button-success" icon="pi pi-check" iconPos="left" label="Nouveau" pButton
+      <button (click)="addNewEntity()" class="p-button-raised p-button-success" icon="pi pi-check"
+              iconPos="left" label="Nouveau" pButton
               pRipple type="button"></button>
     </div>
   </p-toolbar>
   <div *ngIf="entites?.length === 0" class="alert alert-warning" id="no-result">
     <span>Aucune donnée trouvée</span>
   </div>
-  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="entites && entites.length > 0" [(selection)]="selectedEl"
+  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="entites && entites.length > 0"
+           [(selection)]="selectedEl"
            [lazy]="true" [loading]="loading" [paginator]="true" [rows]="itemsPerPage"
            [totalRecords]="totalItems"
            [value]="entites" dataKey="id" selectionMode="single"
@@ -68,10 +74,12 @@
         <td>{{ elRow.numFaxe }}</td>
         <td>{{ elRow.odre }}</td>
         <td style="text-align: center;">
-          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil" pButton
+          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-2"
+                  icon="pi pi-pencil" pButton
                   pRipple pTooltip="Editer"
                   type="submit"></button>
-          <button (click)="delete(elRow)" class="p-button-rounded p-button-warning" icon="pi pi-trash" pButton pRipple
+          <button (click)="delete(elRow)" class="p-button-rounded p-button-warning"
+                  icon="pi pi-trash" pButton pRipple
                   pTooltip="Supprimer" type="button"></button>
         </td>
       </tr>
@@ -82,7 +90,8 @@
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
-            [responsive]="true" [style]="{width: '600px'}" header="Créer ou éditer un grossiste" showEffect="fade">
+            [style]="{width: '600px'}" header="Créer ou éditer un grossiste"
+  >
     <ng-template pTemplate="content">
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
 
@@ -91,7 +100,8 @@
       <div class="ui-g form-group">
         <label for="field_libelle">Libellé</label>
         <div class="ui-g-12" style="margin-bottom:10px">
-          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle"
+          <input autocomplete="off" class="form-control" formControlName="libelle"
+                 id="field_libelle"
                  name="libelle"
                  pInputText style="width: 100%;" />
         </div>
@@ -122,17 +132,20 @@
       <div class="ui-g form-group">
         <label for="field_addresspostale">Adresse postale</label>
         <div class="ui-g-12">
-          <input autocomplete="off" formControlName="addresspostale" id="field_addresspostale" name="addresspostale"
+          <input autocomplete="off" formControlName="addresspostale" id="field_addresspostale"
+                 name="addresspostale"
                  pInputText
                  style="width: 100%;" styleClass="form-control" type="text" />
         </div>
       </div>
     </ng-template>
     <p-footer>
-      <button (click)="save()" [disabled]="editForm.invalid || isSaving" class="p-button-success p-mr-2" icon="pi pi-check"
+      <button (click)="save()" [disabled]="editForm.invalid || isSaving"
+              class="p-button-success p-mr-2" icon="pi pi-check"
               label="Enregistrer"
               pButton pRipple type="submit"></button>
-      <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler" pButton
+      <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler"
+              pButton
               pRipple
               type="button"></button>
 

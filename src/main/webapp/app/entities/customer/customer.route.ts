@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
@@ -11,36 +11,31 @@ import { CustomerComponent } from './customer.component';
 import { CustomerDetailComponent } from './customer-detail.component';
 import { CustomerUpdateComponent } from './customer-update.component';
 
-@Injectable({ providedIn: 'root' })
-export class CustomerResolve implements Resolve<ICustomer> {
-  constructor(private service: CustomerService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<ICustomer> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((customer: HttpResponse<Customer>) => {
-          if (customer.body) {
-            return of(customer.body);
+export const CustomerResolve = (route: ActivatedRouteSnapshot): Observable<null | ICustomer> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(CustomerService)
+      .find(id)
+      .pipe(
+        mergeMap((res: HttpResponse<ICustomer>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Customer());
   }
-}
-
-export const customerRoute: Routes = [
+  return of(new Customer());
+};
+const customerRoute: Routes = [
   {
     path: '',
     component: CustomerComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
       defaultSort: 'id,asc',
-      pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -52,7 +47,6 @@ export const customerRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
-      pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -64,7 +58,6 @@ export const customerRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
-      pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -76,8 +69,8 @@ export const customerRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
-      pageTitle: 'warehouseApp.customer.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default customerRoute;

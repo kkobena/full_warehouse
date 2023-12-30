@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
@@ -11,35 +11,30 @@ import { MagasinComponent } from './magasin.component';
 import { MagasinDetailComponent } from './magasin-detail.component';
 import { MagasinUpdateComponent } from './magasin-update.component';
 
-@Injectable({ providedIn: 'root' })
-export class MagasinResolve implements Resolve<IMagasin> {
-  constructor(private service: MagasinService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IMagasin> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((magasin: HttpResponse<Magasin>) => {
-          if (magasin.body) {
-            return of(magasin.body);
+export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null | IMagasin> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(MagasinService)
+      .find(id)
+      .pipe(
+        mergeMap((res: HttpResponse<IMagasin>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Magasin());
   }
-}
-
-export const magasinRoute: Routes = [
+  return of(new Magasin());
+};
+const magasinRoute: Routes = [
   {
     path: '',
     component: MagasinComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.MAGASIN],
-      pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -51,7 +46,6 @@ export const magasinRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MAGASIN],
-      pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -63,7 +57,6 @@ export const magasinRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MAGASIN],
-      pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -75,8 +68,8 @@ export const magasinRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MAGASIN],
-      pageTitle: 'warehouseApp.magasin.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default magasinRoute;

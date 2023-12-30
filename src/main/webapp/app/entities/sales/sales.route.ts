@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
-import { Observable, of, switchMap } from 'rxjs';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
@@ -13,28 +13,25 @@ import { SalesUpdateComponent } from './sales-update.component';
 import { PresaleComponent } from './presale/presale.component';
 import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
 
-@Injectable({ providedIn: 'root' })
-export class SalesResolve implements Resolve<ISales> {
-  constructor(private service: SalesService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<ISales> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.findForEdit(id).pipe(
-        switchMap((sales: HttpResponse<Sales>) => {
-          if (sales.body) {
-            return of(sales.body);
+export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(SalesService)
+      .find(id)
+      .pipe(
+        mergeMap((res: HttpResponse<ISales>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            return of(new Sales());
+            inject(Router).navigate(['404']);
+            return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Sales());
   }
-}
-
-export const salesRoute: Routes = [
+  return of(new Sales());
+};
+const salesRoute: Routes = [
   {
     path: '',
     component: SalesComponent,
@@ -65,7 +62,6 @@ export const salesRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES],
-      pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -77,7 +73,6 @@ export const salesRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES],
-      pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -89,7 +84,6 @@ export const salesRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES],
-      pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -101,8 +95,8 @@ export const salesRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES],
-      pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default salesRoute;

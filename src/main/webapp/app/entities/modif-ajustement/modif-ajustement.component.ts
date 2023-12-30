@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModifAjustementService } from './motif-ajustement.service';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
@@ -9,11 +9,41 @@ import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'jhi-modif-ajustement',
   templateUrl: './modif-ajustement.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    DynamicDialogModule,
+    FormsModule,
+    FormMotifAjustementComponent,
+  ],
 })
 export class ModifAjustementComponent implements OnInit {
   fileDialog?: boolean;
@@ -36,7 +66,7 @@ export class ModifAjustementComponent implements OnInit {
     protected router: Router,
     private messageService: MessageService,
     private dialogService: DialogService,
-    protected modalService: ConfirmationService
+    protected modalService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -45,9 +75,9 @@ export class ModifAjustementComponent implements OnInit {
     });
   }
 
-  loadPage(page?: number, search?: String): void {
+  loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: String = search || '';
+    const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
@@ -55,14 +85,14 @@ export class ModifAjustementComponent implements OnInit {
         size: ITEMS_PER_PAGE,
         search: query,
       })
-      .subscribe(
-        (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    this.page = event.first! / event.rows!;
+    this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
@@ -70,10 +100,10 @@ export class ModifAjustementComponent implements OnInit {
         size: event.rows,
         search: '',
       })
-      .subscribe(
-        (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError(),
+      });
   }
 
   confirmDialog(id: number): void {
@@ -89,17 +119,13 @@ export class ModifAjustementComponent implements OnInit {
     });
   }
 
-  protected onSaveError(): void {
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'opération a échouée" });
-  }
-
   cancel(): void {
     this.displayDialog = false;
     this.fileDialog = false;
   }
 
   delete(entity: IMotifAjustement): void {
-    this.confirmDelete(entity.id!);
+    this.confirmDelete(entity.id);
   }
 
   confirmDelete(id: number): void {
@@ -111,39 +137,6 @@ export class ModifAjustementComponent implements OnInit {
     const file = event.files[0];
     formData.append('importcsv', file, file.name);
     this.uploadFileResponse(this.entityService.uploadFile(formData));
-  }
-
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-      this.responseDialog = true;
-      this.fileDialog = false;
-      this.loadPage(0);
-    }
-  }
-
-  protected onSuccess(data: IMotifAjustement[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/motif-ajustement'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
-    this.entites = data || [];
-    this.loading = false;
-  }
-
-  protected onError(): void {
-    this.loading = false;
   }
 
   search(event: any): void {
@@ -174,5 +167,46 @@ export class ModifAjustementComponent implements OnInit {
     this.ref.onClose.subscribe(() => {
       this.loadPage(0);
     });
+  }
+
+  protected onSaveError(): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: "L'opération a échouée",
+    });
+  }
+
+  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
+  }
+
+  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) {
+      this.responsedto = responseDto;
+      this.responseDialog = true;
+      this.fileDialog = false;
+      this.loadPage(0);
+    }
+  }
+
+  protected onSuccess(data: IMotifAjustement[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.router.navigate(['/motif-ajustement'], {
+      queryParams: {
+        page: this.page,
+        size: this.itemsPerPage,
+      },
+    });
+    this.entites = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
   }
 }

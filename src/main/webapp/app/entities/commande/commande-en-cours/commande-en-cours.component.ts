@@ -3,14 +3,14 @@ import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from '../commande.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
 import { DeliveryService } from '../delevery/delivery.service';
 import { ProduitService } from '../../produit/produit.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
@@ -21,10 +21,28 @@ import { ImportationNewCommandeComponent } from '../importation-new-commande.com
 import { IDelivery } from '../../../shared/model/delevery.model';
 import { DeliveryModalComponent } from '../delevery/form/delivery-modal.component';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
+  standalone: true,
   selector: 'jhi-commande-en-cours',
   templateUrl: './commande-en-cours.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class CommandeEnCoursComponent implements OnInit {
   @Input() search = '';
@@ -39,7 +57,7 @@ export class CommandeEnCoursComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected index = 0;
   protected selectedFilter = 'REQUESTED';
-  protected rowExpandMode = 'single';
+  protected rowExpandMode: ExpandMode;
   protected loading!: boolean;
   protected page = 0;
   protected selectedtypeSuggession = 'ALL';
@@ -57,8 +75,10 @@ export class CommandeEnCoursComponent implements OnInit {
     protected produitService: ProduitService,
     private spinner: NgxSpinnerService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
-  ) {}
+    private dialogService: DialogService,
+  ) {
+    this.rowExpandMode = 'single';
+  }
 
   ngOnInit(): void {
     this.onSearch();
@@ -113,11 +133,11 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   exportCSV(commande: ICommande): void {
-    this.commandeService.exportToCsv(commande.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(commande.id).subscribe(blod => saveAs(blod));
   }
 
   exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.id!).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToPdf(commande.id).subscribe(blod => saveAs(blod));
   }
 
   orderLineTableColor(orderLine: IOrderLine): string {
@@ -132,8 +152,8 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   fusionner(): void {
-    const ids = this.selections.map(e => e.id!);
-    const fournisseursIdArray = this.selections.map(e => e.fournisseur?.id!);
+    const ids = this.selections.map(e => e.id);
+    const fournisseursIdArray = this.selections.map(e => e.fournisseur.id);
     const firstId = fournisseursIdArray[0];
     const isSameProviderFn = (currentValue: number) => currentValue === firstId;
     const isSameProvider = fournisseursIdArray.every(isSameProviderFn);
@@ -169,14 +189,14 @@ export class CommandeEnCoursComponent implements OnInit {
     const file = event.files[0];
     formData.append('commande', file, file.name);
     this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
       next: res => {
         this.cancel();
         this.spinner.hide('gestion-commande-spinner');
-        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected?.id!).subscribe(ress => {
-          this.commandeSelected!.orderLines = ress.body!;
+        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected.id).subscribe(ress => {
+          this.commandeSelected.orderLines = ress.body!;
         });
-        this.openImporterReponseCommandeDialog(res.body!);
+        this.openImporterReponseCommandeDialog(res.body);
       },
       error: error => {
         this.spinner.hide('gestion-commande-spinner');
@@ -211,7 +231,7 @@ export class CommandeEnCoursComponent implements OnInit {
     });
     this.ref.onClose.subscribe((resp: ICommandeResponse) => {
       if (resp) {
-        if (resp.items?.length === 0) {
+        if (resp.items.length === 0) {
           this.selectedFilter = 'PASSED';
         } else {
           this.selectedFilter = 'REQUESTED';
@@ -223,7 +243,7 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   removeAll(): void {
-    this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id!)).subscribe(() => {
+    this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
       this.loadPage();
       this.selections = [];
     });
@@ -234,7 +254,7 @@ export class CommandeEnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette commande  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      accept: () => this.deleteCommande(commande?.id!),
+      accept: () => this.deleteCommande(commande.id),
       key: 'deleteCommande',
     });
   }
@@ -244,7 +264,7 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   onPasserEnCours(commande: ICommande): void {
-    this.commandeService.closeCommandeEnCours(commande?.id).subscribe({
+    this.commandeService.closeCommandeEnCours(commande.id).subscribe({
       next: () => {
         this.loadPage();
       },
@@ -282,7 +302,7 @@ export class CommandeEnCoursComponent implements OnInit {
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.commandeService
         .query({

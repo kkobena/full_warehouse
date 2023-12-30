@@ -4,16 +4,15 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "warehouse_calendar")
 public class WarehouseCalendar implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   @Id private LocalDate workDay;
   private int workMonth;
   private int workYear;
@@ -64,10 +63,15 @@ public class WarehouseCalendar implements Serializable {
 
   @Override
   public String toString() {
-      String sb = "WarehouseCalendar{" + "workDay=" + workDay
-          + ", workMonth=" + workMonth
-          + ", workYear=" + workYear
-          + '}';
+    String sb =
+        "WarehouseCalendar{"
+            + "workDay="
+            + workDay
+            + ", workMonth="
+            + workMonth
+            + ", workYear="
+            + workYear
+            + '}';
     return sb;
   }
 }

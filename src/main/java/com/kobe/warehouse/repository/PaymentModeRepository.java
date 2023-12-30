@@ -5,11 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
-/**
- * Spring Data  repository for the PaymentMode entity.
- */
+/** Spring Data JPA repository for the PaymentMode entity. */
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentModeRepository extends JpaRepository<PaymentMode, String> {
-List<PaymentMode> findAllByEnableTrue();
+  List<PaymentMode> findAllByEnableTrue();
 }

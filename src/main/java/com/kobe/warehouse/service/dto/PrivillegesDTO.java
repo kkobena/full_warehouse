@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import java.util.Set;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public record PrivillegesDTO(
     int id,

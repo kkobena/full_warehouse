@@ -1,17 +1,39 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable, Subscription} from 'rxjs';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
-import {TvaService} from './tva.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ITva, Tva} from '../../shared/model/tva.model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { TvaService } from './tva.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ITva, Tva } from '../../shared/model/tva.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
   providers: [ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DialogModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+    KeyFilterModule,
+  ],
 })
 export class TvaComponent implements OnInit, OnDestroy {
   tvas?: ITva[];
@@ -35,9 +57,8 @@ export class TvaComponent implements OnInit, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder
-  ) {
-  }
+    private fb: UntypedFormBuilder,
+  ) {}
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
@@ -49,13 +70,13 @@ export class TvaComponent implements OnInit, OnDestroy {
       })
       .subscribe(
         (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
+        () => this.onError(),
       );
   }
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.tvaService
         .query({
@@ -65,7 +86,7 @@ export class TvaComponent implements OnInit, OnDestroy {
         })
         .subscribe(
           (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, this.page),
-          () => this.onError()
+          () => this.onError(),
         );
     }
   }
@@ -76,18 +97,17 @@ export class TvaComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   trackId(index: number, item: ITva): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     // tslint:disable-next-line:no-non-null-assertion
-    return item.id!;
+    return item.id;
   }
 
   delete(tva: ITva): void {
     if (tva) {
-      this.confirmDelete(tva.id!);
+      this.confirmDelete(tva.id);
     }
   }
 
@@ -173,7 +193,7 @@ export class TvaComponent implements OnInit, OnDestroy {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 

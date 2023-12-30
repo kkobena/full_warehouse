@@ -12,13 +12,7 @@
 # Full reference is available at:
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
-file:
-  report: ./reports
-  images: ./images
-  import:
-    json: ./json
-    csv: ./csv
-    excel: ./excel
+
 logging:
   level:
     ROOT: DEBUG
@@ -49,6 +43,9 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
+      driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
+
   mail:
     host: localhost
     port: 25
@@ -59,9 +56,8 @@ spring:
   thymeleaf:
     cache: false
 
-
 server:
-  port: 8090
+  port: 8080
 
 # ===================================================================
 # JHipster specific properties
@@ -93,7 +89,7 @@ jhipster:
       enabled: false
       host: localhost
       port: 5000
-      queue-size: 512
+      ring-buffer-size: 512
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -105,7 +101,7 @@ jhipster:
 management:
   endpoint:
     flyway:
-      schemas: warehouse2
+      schemas: warehouse
       baseline-on-migrate: true
       create-schemas: false
       installed-by: warehouse
@@ -113,3 +109,10 @@ management:
         time-to-live:
       enabled: true
 # application:
+file:
+  report: ./reports
+  images: ./images
+  import:
+    json: ./json
+    csv: ./csv
+    excel: ./excel

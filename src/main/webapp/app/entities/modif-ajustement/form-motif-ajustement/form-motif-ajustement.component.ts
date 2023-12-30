@@ -1,17 +1,33 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
-import {ModifAjustementService} from '../motif-ajustement.service';
-import {IMotifAjustement, MotifAjustement} from '../../../shared/model/motif-ajustement.model';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
+import { ModifAjustementService } from '../motif-ajustement.service';
+import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
   styles: [],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormMotifAjustementComponent implements OnInit {
   entity?: IMotifAjustement;
@@ -26,9 +42,8 @@ export class FormMotifAjustementComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private fb: UntypedFormBuilder,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -61,18 +76,26 @@ export class FormMotifAjustementComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
     result.subscribe(
       (res: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 
   protected onSaveSuccess(response: IMotifAjustement | null): void {
-    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès'});
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Information',
+      detail: 'Enregistrement effectué avec succès',
+    });
     this.ref.close(response);
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   private createFromForm(): IMotifAjustement {

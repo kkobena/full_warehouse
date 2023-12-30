@@ -7,11 +7,18 @@ import { Observable } from 'rxjs';
 import { CaPeriodeFilter } from '../../../shared/model/enumerations/ca-periode-filter.model';
 import { CharBuilderService } from '../../../shared/util/char-builder.service';
 import { LineChart } from '../../../shared/model/line-chart.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
+import { ChartModule } from 'primeng/chart';
 
 @Component({
   selector: 'jhi-graphe-daily',
   templateUrl: './graphe-daily.component.html',
   styleUrls: ['./graphe-daily.component.scss'],
+  standalone: true,
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule],
 })
 export class GrapheDailyComponent implements OnInit {
   protected readonly TOPS = TOPS;
@@ -34,7 +41,7 @@ export class GrapheDailyComponent implements OnInit {
       this.charBuilderService.buildLineTimeSerie({
         dashboardPeriode: this.dashboardPeriode,
         venteStatGroupBy: this.venteStatGroupBy,
-      })
+      }),
     );
   }
 

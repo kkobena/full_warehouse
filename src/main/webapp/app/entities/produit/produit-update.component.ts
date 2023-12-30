@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import moment from 'moment';
@@ -25,10 +25,29 @@ import { FamilleProduitService } from '../famille-produit/famille-produit.servic
 import { GammeProduitService } from '../gamme-produit/gamme-produit.service';
 import { TvaService } from '../tva/tva.service';
 import { TypeEtiquetteService } from '../type-etiquette/type-etiquette.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputMaskModule } from 'primeng/inputmask';
 
 @Component({
   selector: 'jhi-produit-update',
   templateUrl: './produit-update.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    DropdownModule,
+    RippleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    KeyFilterModule,
+    InputMaskModule,
+  ],
 })
 export class ProduitUpdateComponent implements OnInit {
   isSaving = false;
@@ -92,7 +111,7 @@ export class ProduitUpdateComponent implements OnInit {
     protected familleService: FamilleProduitService,
     protected gammeProduitService: GammeProduitService,
     protected tvaService: TvaService,
-    protected typeEtiquetteService: TypeEtiquetteService
+    protected typeEtiquetteService: TypeEtiquetteService,
   ) {}
 
   ngOnInit(): void {
@@ -196,21 +215,13 @@ export class ProduitUpdateComponent implements OnInit {
   handleCostInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(['regularUnitPrice'])!.value);
-    if (value >= unitPrice) {
-      this.isValid = false;
-    } else {
-      this.isValid = true;
-    }
+    this.isValid = value < unitPrice;
   }
 
   handleUnitPriceInput(event: any): void {
     const value = Number(event.target.value);
     const costAmount = Number(this.editForm.get(['costAmount'])!.value);
-    if (costAmount >= value) {
-      this.isValid = false;
-    } else {
-      this.isValid = true;
-    }
+    this.isValid = costAmount < value;
   }
 
   handleItemQty(event: any): void {
@@ -231,21 +242,13 @@ export class ProduitUpdateComponent implements OnInit {
   handleItemCost(event: any): void {
     const value = Number(event.target.value);
     const itemRegularUnitPrice = Number(this.editForm.get(['itemRegularUnitPrice'])!.value);
-    if (value >= itemRegularUnitPrice) {
-      this.isValid = false;
-    } else {
-      this.isValid = true;
-    }
+    this.isValid = value < itemRegularUnitPrice;
   }
 
   handleItemPrice(event: any): void {
     const value = event.target.value;
     const itemCostAmount = Number(this.editForm.get(['itemCostAmount'])!.value);
-    if (itemCostAmount >= Number(value)) {
-      this.isValid = false;
-    } else {
-      this.isValid = true;
-    }
+    this.isValid = itemCostAmount < Number(value);
   }
 
   onDatePeremtionCheck(value: any): void {

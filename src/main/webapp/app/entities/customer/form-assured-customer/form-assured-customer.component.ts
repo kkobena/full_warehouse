@@ -1,34 +1,67 @@
-import {Component, OnInit} from '@angular/core';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ErrorService} from 'app/shared/error.service';
-import {FormArray, UntypedFormBuilder, Validators} from '@angular/forms';
-import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {ITiersPayant} from 'app/shared/model/tierspayant.model';
-import {Customer, ICustomer} from 'app/shared/model/customer.model';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ErrorService } from 'app/shared/error.service';
+import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { ITiersPayant } from 'app/shared/model/tierspayant.model';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 import moment from 'moment';
-import {IClientTiersPayant} from 'app/shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { CalendarModule } from 'primeng/calendar';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-form-assured-customer',
   templateUrl: './form-assured-customer.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ToastModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    AutoCompleteModule,
+    SelectButtonModule,
+    RadioButtonModule,
+    DropdownModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    DividerModule,
+    KeyFilterModule,
+  ],
 })
 export class FormAssuredCustomerComponent implements OnInit {
   entity?: ICustomer;
   catgories = [
-    {label: 'RC1', value: 1},
-    {label: 'RC2', value: 2},
-    {label: 'RC3', value: 3},
+    { label: 'RC1', value: 1 },
+    { label: 'RC2', value: 2 },
+    { label: 'RC3', value: 3 },
   ];
 
   categoriesComplementaires = [
-    {name: 'T0', value: 0},
-    {name: 'T1', value: 1},
-    {name: 'T2', value: 2},
+    { name: 'T0', value: 0 },
+    { name: 'T1', value: 1 },
+    { name: 'T2', value: 2 },
     {
       name: 'T3',
       value: 3,
@@ -44,8 +77,8 @@ export class FormAssuredCustomerComponent implements OnInit {
   tiersPayants: ITiersPayant[] = [];
   maxDate = new Date();
   plafonds = [
-    {label: 'Non', value: false},
-    {label: 'Oui', value: true},
+    { label: 'Non', value: false },
+    { label: 'Oui', value: true },
   ];
   editForm = this.fb.group({
     id: [],
@@ -74,15 +107,18 @@ export class FormAssuredCustomerComponent implements OnInit {
     public config: DynamicDialogConfig,
     protected tiersPayantService: TiersPayantService,
     protected customerService: CustomerService,
-    private messageService: MessageService
-  ) {
+    private messageService: MessageService,
+  ) {}
+
+  get editFormGroups(): FormArray {
+    return this.editForm.get('tiersPayants') as FormArray;
   }
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
-      this.buildTiersPayant(this.entity.tiersPayants!);
+      this.buildTiersPayant(this.entity.tiersPayants);
     }
     this.populate();
   }
@@ -98,10 +134,6 @@ export class FormAssuredCustomerComponent implements OnInit {
     }
   }
 
-  get editFormGroups(): FormArray {
-    return this.editForm.get('tiersPayants') as FormArray;
-  }
-
   cancel(): void {
     this.ref.close();
   }
@@ -115,7 +147,7 @@ export class FormAssuredCustomerComponent implements OnInit {
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body || [];
         if (this.entity) {
-          this.selectedTiersPayant = this.tiersPayants.find(e => e.id === this.entity?.tiersPayantId) || null;
+          this.selectedTiersPayant = this.tiersPayants.find(e => e.id === this.entity.tiersPayantId) || null;
         }
       });
   }
@@ -131,7 +163,7 @@ export class FormAssuredCustomerComponent implements OnInit {
         datNaiss: [],
         phone: [],
         id: [],
-      })
+      }),
     );
     this.valideAyantDroitSize();
   }
@@ -148,7 +180,7 @@ export class FormAssuredCustomerComponent implements OnInit {
         plafondJournalier: [],
         plafondAbsolu: [],
         priorite: tiersPayants.length + 1,
-      })
+      }),
     );
     this.validateTiersPayantSize();
   }
@@ -180,7 +212,7 @@ export class FormAssuredCustomerComponent implements OnInit {
   }
 
   loadTiersPayants(search?: string): void {
-    const query: String = search || '';
+    const query: string = search || '';
     this.tiersPayantService
       .query({
         page: 0,
@@ -217,7 +249,7 @@ export class FormAssuredCustomerComponent implements OnInit {
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
             taux: tp.taux,
-          })
+          }),
         );
       });
 
@@ -281,7 +313,7 @@ export class FormAssuredCustomerComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.subscribe(
       res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error)
+      error => this.onSaveError(error),
     );
   }
 
@@ -292,12 +324,20 @@ export class FormAssuredCustomerComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 }

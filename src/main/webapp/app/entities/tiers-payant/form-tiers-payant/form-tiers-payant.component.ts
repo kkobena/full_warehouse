@@ -1,20 +1,42 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ErrorService} from 'app/shared/error.service';
-import {DialogService, DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
-import {GroupeTiersPayantService} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import {ITiersPayant, TiersPayant} from 'app/shared/model/tierspayant.model';
-import {IGroupeTiersPayant} from 'app/shared/model/groupe-tierspayant.model';
-import {HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ICustomer} from 'app/shared/model/customer.model';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ErrorService } from 'app/shared/error.service';
+import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
+import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { ITiersPayant, TiersPayant } from 'app/shared/model/tierspayant.model';
+import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
+import { HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ICustomer } from 'app/shared/model/customer.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
   templateUrl: './form-tiers-payant.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+    NgSelectModule,
+    InputSwitchModule,
+    KeyFilterModule,
+    ToastModule,
+  ],
 })
 export class FormTiersPayantComponent implements OnInit {
   entity?: ITiersPayant;
@@ -47,27 +69,25 @@ export class FormTiersPayantComponent implements OnInit {
     public config: DynamicDialogConfig,
     protected tiersPayantService: TiersPayantService,
     protected groupeTiersPayantService: GroupeTiersPayantService,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
     this.type = this.config.data.type;
     if (this.entity) {
       this.updateForm(this.entity);
-
     }
     this.populate().then(r => {
       this.groupeTiersPayants = r;
       if (this.entity) {
-        this.selectedGroupe = this.entity?.groupeTiersPayant || null;
+        this.selectedGroupe = this.entity.groupeTiersPayant || null;
       }
     });
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {
-    return await this.groupeTiersPayantService.queryPromise({search: ''});
+    return await this.groupeTiersPayantService.queryPromise({ search: '' });
   }
 
   cancel(): void {
@@ -87,7 +107,7 @@ export class FormTiersPayantComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.subscribe(
       res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error)
+      error => this.onSaveError(error),
     );
   }
 
@@ -98,12 +118,20 @@ export class FormTiersPayantComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 
@@ -137,7 +165,7 @@ export class FormTiersPayantComponent implements OnInit {
       nbreBordereaux: this.editForm.get(['nbreBordereaux'])!.value,
       remiseForfaitaire: this.editForm.get(['remiseForfaitaire'])!.value,
       email: this.editForm.get(['email'])!.value,
-      categorie: this.type!,
+      categorie: this.type,
       plafondAbsolu: this.editForm.get(['plafondAbsolu'])!.value,
       plafondConso: this.editForm.get(['plafondConso'])!.value,
       montantMaxParFcture: this.editForm.get(['montantMaxParFcture'])!.value,

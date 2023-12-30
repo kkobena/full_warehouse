@@ -2,76 +2,75 @@
 <!DOCTYPE configuration>
 
 <configuration scan="true">
-    <!-- Patterns based on https://github.com/spring-projects/spring-boot/blob/v2.7.2/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml -->
-    <conversionRule conversionWord="crlf" converterClass="com.kobe.warehouse.config.CRLFLogConverter"/>
-    <property name="CONSOLE_LOG_PATTERN"
-              value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %crlf(%m){red} %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
-    <property name="FILE_LOG_PATTERN"
-              value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %crlf(%m) %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
-
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-
-    <!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
-    <!--
-        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-                <maxHistory>90</maxHistory>
-            </rollingPolicy>
-            <encoder>
-                <charset>utf-8</charset>
-                <Pattern>%d %-5level [%thread] %logger{0}: %msg%n</Pattern>
-            </encoder>
-        </appender>
-
-        <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-            <queueSize>512</queueSize>
-            <appender-ref ref="FILE"/>
-        </appender>
-
-        <root level="${logging.level.root}">
-            <appender-ref ref="ASYNC"/>
-        </root>
-    -->
-
-    <logger name="javax.activation" level="WARN"/>
-    <logger name="javax.mail" level="WARN"/>
-    <logger name="javax.management.remote" level="WARN"/>
-    <logger name="javax.xml.bind" level="WARN"/>
-    <logger name="ch.qos.logback" level="WARN"/>
-    <logger name="com.ryantenney" level="WARN"/>
-    <logger name="com.sun" level="WARN"/>
-    <logger name="com.zaxxer" level="WARN"/>
-    <logger name="io.undertow" level="WARN"/>
-    <logger name="io.undertow.websockets.jsr" level="ERROR"/>
-    <logger name="org.apache" level="WARN"/>
-    <logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
-    <logger name="org.bson" level="WARN"/>
-    <logger name="org.hibernate.validator" level="WARN"/>
-    <logger name="org.hibernate" level="WARN"/>
-    <logger name="org.hibernate.ejb.HibernatePersistence" level="OFF"/>
-    <logger name="org.springframework" level="WARN"/>
-    <logger name="org.springframework.web" level="WARN"/>
-    <logger name="org.springframework.security" level="WARN"/>
-    <logger name="org.springframework.cache" level="WARN"/>
-    <logger name="org.thymeleaf" level="WARN"/>
-    <logger name="org.xnio" level="WARN"/>
-    <logger name="io.swagger.v3" level="INFO"/>
-    <logger name="sun.rmi" level="WARN"/>
-    <logger name="liquibase" level="WARN"/>
-    <logger name="LiquibaseSchemaResolver" level="INFO"/>
-    <logger name="sun.rmi.transport" level="WARN"/>
-    <!-- See https://github.com/jhipster/generator-jhipster/issues/13835 -->
-    <logger name="Validator" level="INFO"/>
-    <!-- See https://github.com/jhipster/generator-jhipster/issues/14444 -->
-    <logger name="_org.springframework.web.servlet.HandlerMapping.Mappings" level="INFO"/>
-    <!-- jhipster-needle-logback-add-log - JHipster will add a new log with level -->
-
-    <!-- https://logback.qos.ch/manual/configuration.html#shutdownHook and https://jira.qos.ch/browse/LOGBACK-1090 -->
-    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
-
+    <!-- Patterns based on https://github.com/spring-projects/spring-boot/blob/v3.0.0/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml -->
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
     </contextListener>
+    <conversionRule conversionWord="crlf"
+        converterClass="com.kobe.warehouse.config.CRLFLogConverter"/>
+    <!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
+    <!--
+    <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } &#45;&#45;&#45; [%t] %-40.40logger{39} : %crlf(%m) %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    -->
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
+    <!--
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <root level="${logging.level.root}">
+        <appender-ref ref="ASYNC"/>
+    </root>
+    -->
+
+    <logger level="WARN" name="angus.activation"/>
+    <logger level="WARN" name="jakarta.activation"/>
+    <logger level="WARN" name="jakarta.mail"/>
+    <logger level="WARN" name="jakarta.management.remote"/>
+    <logger level="WARN" name="jakarta.xml.bind"/>
+    <logger level="INFO" name="jdk.event.security"/>
+    <logger level="WARN" name="com.ryantenney"/>
+    <logger level="WARN" name="com.sun"/>
+    <logger level="WARN" name="com.zaxxer"/>
+    <logger level="WARN" name="io.undertow"/>
+    <logger level="ERROR" name="io.undertow.websockets.jsr"/>
+    <logger level="WARN" name="org.apache"/>
+    <logger level="OFF" name="org.apache.catalina.startup.DigesterFactory"/>
+    <logger level="WARN" name="org.bson"/>
+    <logger level="WARN" name="org.hibernate.validator"/>
+    <logger level="WARN" name="org.hibernate"/>
+    <logger level="OFF" name="org.hibernate.ejb.HibernatePersistence"/>
+    <logger level="WARN" name="org.springframework"/>
+    <logger level="WARN" name="org.springframework.web"/>
+    <logger level="WARN" name="org.springframework.security"/>
+    <logger level="INFO" name="org.springframework.boot.autoconfigure.logging"/>
+    <logger level="WARN" name="org.springframework.cache"/>
+    <logger level="WARN" name="org.thymeleaf"/>
+    <logger level="WARN" name="org.xnio"/>
+    <logger level="INFO" name="io.swagger.v3"/>
+    <logger level="WARN" name="sun.rmi"/>
+    <logger level="WARN" name="sun.rmi.transport"/>
+    <!-- See https://github.com/jhipster/generator-jhipster/issues/13835 -->
+    <logger level="INFO" name="Validator"/>
+    <!-- See https://github.com/jhipster/generator-jhipster/issues/14444 -->
+    <logger level="INFO" name="_org.springframework.web.servlet.HandlerMapping.Mappings"/>
+    <logger level="WARN" name="liquibase"/>
+    <logger level="INFO" name="LiquibaseSchemaResolver"/>
+    <!-- jhipster-needle-logback-add-log - JHipster will add a new log with level -->
+
+    <property name="CONSOLE_LOG_PATTERN"
+        value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %crlf(%m){red} %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <root>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <springProperty defaultValue="INFO" name="log.level" source="logging.level.root"/>
 
 </configuration>

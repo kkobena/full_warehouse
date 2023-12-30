@@ -11,19 +11,38 @@ import { IUser } from '../../../core/user/user.model';
 import { StoreInventoryService } from '../store-inventory.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../config/pagination.constants';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { saveAs } from 'file-saver';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-en-cours',
   templateUrl: './en-cours.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ConfirmDialogModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ToastModule,
+    NgxSpinnerModule,
+    TableModule,
+    RouterModule,
+  ],
 
   providers: [ConfirmationService, DialogService, MessageService],
 })
@@ -46,7 +65,7 @@ export class EnCoursComponent implements OnInit {
     protected modalService: NgbModal,
     private errorService: ErrorService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +78,7 @@ export class EnCoursComponent implements OnInit {
 
   exportPdf(storeInventory: IStoreInventory): void {
     this.spinner.show();
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory?.id)).subscribe(blod => {
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blod => {
       const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
       saveAs(blod, 'inventaire_' + fileName);
       this.spinner.hide();
@@ -71,7 +90,7 @@ export class EnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      accept: () => this.delete(storeInventory?.id),
+      accept: () => this.delete(storeInventory.id),
       key: 'delete',
     });
   }
@@ -81,7 +100,7 @@ export class EnCoursComponent implements OnInit {
       message: "Voullez-vous clôturer l'inventaire ?",
       header: ' CLOTURE',
       icon: 'pi pi-info-circle',
-      accept: () => this.close(storeInventory?.id),
+      accept: () => this.close(storeInventory.id),
       key: 'saveAll',
     });
   }
@@ -171,7 +190,7 @@ export class EnCoursComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user?.id,
+      userId: this.user.id,
       inventoryCategories: this.inventoryCategories.map(e => e.name),
       statuts: this.statuts,
     };

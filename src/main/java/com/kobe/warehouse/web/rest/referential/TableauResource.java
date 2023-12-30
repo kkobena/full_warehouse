@@ -6,7 +6,7 @@ import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,8 +89,7 @@ public class TableauResource {
   }
 
   @PutMapping("/tableaux/associer/{id}")
-  public ResponseEntity<Void> associer(
-      @PathVariable Long id, @RequestBody List<Long> produitIds) {
+  public ResponseEntity<Void> associer(@PathVariable Long id, @RequestBody List<Long> produitIds) {
     this.tableauService.associer(id, produitIds);
     return ResponseEntity.ok().build();
   }

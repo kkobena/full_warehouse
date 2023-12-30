@@ -1,337 +1,352 @@
-<p-dialog header="Importer un fichier json" [(visible)]="jsonDialog" [focusOnShow]="false" [responsive]="true"
-          showEffect="fade" [modal]="true" [style]="{width: '50vw'}">
-    <div class="ui-g form-group">
-        <p-fileUpload chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer"
-                      cancelLabel="Annuler"
-                      accept=".json" [customUpload]="true" (uploadHandler)="onUploadJson($event)">
-        </p-fileUpload>
-    </div>
-    <p-footer>
-        <button type="button" class="p-button-danger mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
-                (click)="cancel()" label="Annuler"></button>
-    </p-footer>
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier json" showEffect="fade">
+  <div class="ui-g form-group">
+    <p-fileUpload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
+                  cancelLabel="Annuler"
+                  chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
+    </p-fileUpload>
+  </div>
+  <p-footer>
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+            pButton
+            pRipple type="button"></button>
+  </p-footer>
 </p-dialog>
 
 
-<p-confirmDialog [style]="{width: '40vw'}" #deleteCustomer key="deleteCustomer" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-                (click)="deleteCustomer.reject()"></button>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="deleteCustomer.accept()"></button>
-    </p-footer>
+<p-confirmDialog #deleteCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="deleteCustomer">
+  <p-footer>
+    <button (click)="deleteCustomer.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+    <button (click)="deleteCustomer.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
 
 </p-confirmDialog>
-<p-confirmDialog [style]="{width: '40vw'}" #desactiverCustomer key="desactiverCustomer" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-                (click)="desactiverCustomer.reject()"></button>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="desactiverCustomer.accept()"></button>
-    </p-footer>
+<p-confirmDialog #desactiverCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="desactiverCustomer">
+  <p-footer>
+    <button (click)="desactiverCustomer.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+    <button (click)="desactiverCustomer.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
 
 </p-confirmDialog>
 <div>
-    <h4 id="page-heading">
-        <span>Liste des clients</span>
-    </h4>
-    <p-toolbar>
-        <div class="p-toolbar-group-left">
-            <p-dropdown [options]="types" [(ngModel)]="typeSelected" [filter]="false"
-                        (onChange)="onTypeChange()" placeholder="Filtrer par type"
-                        styleClass="dropdown-width mr-1">
-            </p-dropdown>
-            <p-divider layout="vertical"></p-divider>
-            <p-dropdown [options]="statuts" [(ngModel)]="statutSelected" [filter]="false" optionValue="value"
-                        optionLabel="label"
-                        (onChange)="onTypeChange()"
-                        styleClass="dropdown-width">
-            </p-dropdown>
+  <h4 id="page-heading">
+    <span>Liste des clients</span>
+  </h4>
+  <p-toolbar>
+    <div class="p-toolbar-group-left">
+      <p-dropdown (onChange)="onTypeChange()" [(ngModel)]="typeSelected" [filter]="false"
+                  [options]="types" placeholder="Filtrer par type"
+                  styleClass="dropdown-width mr-1">
+      </p-dropdown>
+      <p-divider layout="vertical"></p-divider>
+      <p-dropdown (onChange)="onTypeChange()" [(ngModel)]="statutSelected" [filter]="false"
+                  [options]="statuts"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="dropdown-width">
+      </p-dropdown>
 
-            <p-divider layout="vertical"></p-divider>
-            <span class="p-input-icon-left">
+      <p-divider layout="vertical"></p-divider>
+      <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
-                                <input type="text" pInputText [(ngModel)]="search" placeholder="Taper pour rechercher"
-                                       (keyup.enter)="onSearch()">
+                                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                                       placeholder="Taper pour rechercher"
+                                       type="text">
                             </span>
-            <p-divider layout="vertical"></p-divider>
-        </div>
-        <div class="p-toolbar-group-right">
+      <p-divider layout="vertical"></p-divider>
+    </div>
+    <div class="p-toolbar-group-right">
             <span class="p-buttonset">
-        <p-button icon="pi pi-search" styleClass="p-button-info" label="Rechercher"
-                  (click)="loadPage()"></p-button>
-        <p-splitButton icon="pi pi-upload" [model]="splitbuttons"
-                       styleClass="p-button-raised p-button-help" label="Importer"
+        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
+        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                       label="Importer" styleClass="p-button-raised p-button-help"
         ></p-splitButton>
-        <p-button icon="pi pi-user-plus"
-                  styleClass="p-button-raised   p-button-danger "
-                  label="Nouveau client assuré" (click)="addAssureCustomer()"
+        <p-button (click)="addAssureCustomer()"
+                  icon="pi pi-user-plus"
+                  label="Nouveau client assuré" styleClass="p-button-raised   p-button-danger "
         >
         </p-button>
-                  <p-button icon="pi pi-user-plus"
-                            styleClass="p-button-raised   p-button-secondary "
-                            label="Nouveau client standard" (click)="addUninsuredCustomer()"
+                  <p-button (click)="addUninsuredCustomer()"
+                            icon="pi pi-user-plus"
+                            label="Nouveau client standard" styleClass="p-button-raised   p-button-secondary "
                   >
         </p-button>
             </span>
-        </div>
-    </p-toolbar>
-    <div class="alert alert-warning mt-2" *ngIf="customers?.length === 0">
-        <span>Aucune donnée trouvée</span>
     </div>
-    <ngx-spinner name="importation" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"
-                 [fullScreen]="false">
-    </ngx-spinner>
+  </p-toolbar>
+  <div *ngIf="customers?.length === 0" class="alert alert-warning mt-2">
+    <span>Aucune donnée trouvée</span>
+  </div>
+  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation"
+               size="medium"
+               type="timer">
+  </ngx-spinner>
 
-    <p-table *ngIf="customers && customers.length > 0" [value]="customers" dataKey="id"
-             styleClass="p-datatable-gridlines mt-2"
-             dataKey="id" [paginator]="true"
-             [rows]="itemsPerPage"
-             [showCurrentPageReport]="true"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-             [rowsPerPageOptions]="[5,10,15,20,30,50]" selectionMode="single"
-             [lazy]="true"
-             [totalRecords]="totalItems"
-             [loading]="loading"
-             (onLazyLoad)="lazyLoading($event)"
-    >
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width:3%"></th>
-                <th style="width:10%">Catégorie</th>
-                <th style="width:30%">Nom et Prénom(s)</th>
-                <th style="width:10%">Identifiant</th>
-                <th style="width:12%">Numéro assuré</th>
-                <th style="width:10%">Téléphone</th>
-                <th style="width:10%">Encours</th>
+  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="customers && customers.length > 0" [lazy]="true"
+           [loading]="loading"
+           [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
+           [rows]="itemsPerPage"
+           [showCurrentPageReport]="true"
+           [totalRecords]="totalItems"
+           [value]="customers" currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+           dataKey="id"
+           dataKey="id"
+           selectionMode="single"
+           styleClass="p-datatable-gridlines mt-2"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:3%"></th>
+        <th style="width:10%">Catégorie</th>
+        <th style="width:30%">Nom et Prénom(s)</th>
+        <th style="width:10%">Identifiant</th>
+        <th style="width:12%">Numéro assuré</th>
+        <th style="width:10%">Téléphone</th>
+        <th style="width:10%">Encours</th>
 
-                <th style="width:15%"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-customer let-expanded="expanded">
-            <tr>
-                <td>
-                    <button type="button" pButton pRipple [pRowToggler]="customer"
-                            class="p-button-text p-button-rounded p-button-plain"
-                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                </td>
-                <td>{{customer.categorie}}</td>
-                <td>{{customer.fullName}}</td>
-                <td>{{customer.code}}</td>
-                <td>{{customer.num}}</td>
-                <td>{{customer.phone}}</td>
-                <td class="text-right">{{customer.encours |number}}</td>
-                <td class="text-right">
-                    <div class="btn-group">
-                        <button type="submit" [routerLink]="['/customer', customer.id, 'view']"
-                                class="btn btn-info btn-sm" pTooltip="Voir détails">
-                            <fa-icon icon="eye"></fa-icon>
+        <th style="width:15%"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-customer let-expanded="expanded" pTemplate="body">
+      <tr>
+        <td>
+          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="customer" class="p-button-text p-button-rounded p-button-plain" pButton
+                  pRipple
+                  type="button"></button>
+        </td>
+        <td>{{ customer.categorie }}</td>
+        <td>{{ customer.fullName }}</td>
+        <td>{{ customer.code }}</td>
+        <td>{{ customer.num }}</td>
+        <td>{{ customer.phone }}</td>
+        <td class="text-right">{{ customer.encours |number }}</td>
+        <td class="text-right">
+          <div class="btn-group">
+            <button [routerLink]="['/customer', customer.id, 'view']" class="btn btn-info btn-sm"
+                    pTooltip="Voir détails" type="submit">
+              <fa-icon icon="eye"></fa-icon>
 
-                        </button>
+            </button>
 
-                        <button *ngIf="customer.categorie==='ASSURE'" type="button"
-                                class="btn btn-primary btn-sm" data-placement="left"
-                                pTooltip="Editer" (click)="editAssureCustomer(customer)">
-                            <fa-icon icon="pencil-alt"></fa-icon>
+            <button (click)="editAssureCustomer(customer)" *ngIf="customer.categorie==='ASSURE'"
+                    class="btn btn-primary btn-sm" data-placement="left"
+                    pTooltip="Editer" type="button">
+              <fa-icon icon="pencil-alt"></fa-icon>
 
-                        </button>
-                        <button *ngIf="customer.categorie==='ASSURE'" type="button"
-                                class="btn btn-success btn-sm" data-placement="left"
-                                pTooltip="Ajouter un ayant droit" (click)="addAyantDroit(customer)">
-                            <fa-icon icon="users"></fa-icon>
-                        </button>
-                        <!--   <button *ngIf="customer.categorie==='ASSURE'" type="button"
-                                   class="btn btn-secondary btn-sm" data-placement="left"
-                                   pTooltip="Gerer les complémentaires" (click)="editAssureCustomer(customer)">
-                               <fa-icon icon="hospital-user"></fa-icon>
-                           </button>-->
-                        <button *ngIf="customer.categorie==='STANDARD'" type="button"
-                                (click)="editUninsuredCustomer(customer)"
-                                class="btn btn-primary btn-sm" pTooltip="Editer" data-placement="left"
-                        >
-                            <fa-icon icon="pencil-alt"></fa-icon>
-                        </button>
+            </button>
+            <button (click)="addAyantDroit(customer)" *ngIf="customer.categorie==='ASSURE'"
+                    class="btn btn-success btn-sm" data-placement="left"
+                    pTooltip="Ajouter un ayant droit" type="button">
+              <fa-icon icon="users"></fa-icon>
+            </button>
+            <!--   <button *ngIf="customer.categorie==='ASSURE'" type="button"
+                       class="btn btn-secondary btn-sm" data-placement="left"
+                       pTooltip="Gerer les complémentaires" (click)="editAssureCustomer(customer)">
+                   <fa-icon icon="hospital-user"></fa-icon>
+               </button>-->
+            <button (click)="editUninsuredCustomer(customer)" *ngIf="customer.categorie==='STANDARD'"
+                    class="btn btn-primary btn-sm"
+                    data-placement="left" pTooltip="Editer" type="button"
+            >
+              <fa-icon icon="pencil-alt"></fa-icon>
+            </button>
 
-                        <button type="button" (click)="confirmRemove(customer)" pTooltip="Supprimer"
-                                class="btn btn-danger btn-sm">
-                            <fa-icon icon="times"></fa-icon>
-                        </button>
-                        <button type="button" (click)="confirmDesactivation(customer)" pTooltip="Désativer"
-                                class="btn btn-warning btn-sm">
-                            <fa-icon icon="lock"></fa-icon>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+            <button (click)="confirmRemove(customer)" class="btn btn-danger btn-sm" pTooltip="Supprimer"
+                    type="button">
+              <fa-icon icon="times"></fa-icon>
+            </button>
+            <button (click)="confirmDesactivation(customer)" class="btn btn-warning btn-sm" pTooltip="Désativer"
+                    type="button">
+              <fa-icon icon="lock"></fa-icon>
+            </button>
+          </div>
+        </td>
+      </tr>
 
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-customer>
-            <tr>
-                <td colspan="8">
-                    <div class="row" *ngIf="customer.type==='ASSURE';else standard">
+    </ng-template>
+    <ng-template let-customer pTemplate="rowexpansion">
+      <tr>
+        <td colspan="8">
+          <div *ngIf="customer.type==='ASSURE';else standard" class="row">
 
-                        <div class="card col-md-5 mr-2">
-                            <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
-                            <div class="card-body">
-                                <table class="invoice-table table table-striped">
-                                    <tbody>
-                                    <tr>
-                                        <td class="firstColumn">
-                                            Date de naissance
-                                        </td>
-                                        <td class="secondColumn">{{customer?.datNaiss |date:'dd/MM/yyyy' }}
-                                        </td>
-                                        <td class="firstColumn">
-                                            Date de création
-                                        </td>
-                                        <td class="secondColumn">{{customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
-                                        </td>
+            <div class="card col-md-5 mr-2">
+              <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
+                CLIENTS
+              </div>
+              <div class="card-body">
+                <table class="invoice-table table table-striped">
+                  <tbody>
+                  <tr>
+                    <td class="firstColumn">
+                      Date de naissance
+                    </td>
+                    <td class="secondColumn">{{ customer?.datNaiss |date:'dd/MM/yyyy' }}
+                    </td>
+                    <td class="firstColumn">
+                      Date de création
+                    </td>
+                    <td class="secondColumn">{{ customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                    </td>
 
-                                    </tr>
-                                    <tr>
-                                        <td class="firstColumn">
-                                            Dernière modification
-                                        </td>
-                                        <td class="secondColumn">{{customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
-                                        </td>
-                                        <td class="firstColumn">
-                                            Sexe
-                                        </td>
-                                        <td class="secondColumn">{{customer?.sexe }}
-                                        </td>
+                  </tr>
+                  <tr>
+                    <td class="firstColumn">
+                      Dernière modification
+                    </td>
+                    <td class="secondColumn">{{ customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="firstColumn">
+                      Sexe
+                    </td>
+                    <td class="secondColumn">{{ customer?.sexe }}
+                    </td>
 
-                                    </tr>
-                                    </tbody>
+                  </tr>
+                  </tbody>
 
-                                </table>
-                            </div>
+                </table>
+              </div>
+            </div>
+
+            <div class="row col-md-7">
+              <div *ngIf="customer?.ayantDroits.length>0" class="card col-12 mb-2">
+                <div class="card-header bg-primary text-white">AYANTS DROITS</div>
+                <div class="card-body">
+                  <table class="table table-striped">
+                    <thead>
+                    <tr>
+                      <th style="width:40%;">Nom et prenom(s)</th>
+                      <th style="width: 20%;">N° Sécu</th>
+                      <th style="width:17%;">Date de naissance</th>
+                      <th style="width:8%;">Sexe</th>
+                      <th style="width:15%; text-align:right;">
+                        <button (click)="addAyantDroit(customer)"
+                                class="p-button-rounded p-button-primary" icon="pi pi-plus"
+                                pButton
+                                pTooltip="Ajouter un ayant droit"></button>
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let ayantDroit of customer?.ayantDroits; let i = index">
+                      <td>{{ ayantDroit?.fullName }}</td>
+                      <td>{{ ayantDroit?.numAyantDroit }}</td>
+                      <td>{{ ayantDroit?.datNaiss |date:'dd/MM/yyyy' }}</td>
+                      <td>{{ ayantDroit?.sexe }}</td>
+                      <td class="text-right">
+                        <div class="btn-group">
+                          <button (click)="editAyantDroit(customer,ayantDroit)" class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1" icon="pi pi-pencil"
+                                  pButton
+                                  pRipple
+                                  pTooltip="Editer"></button>
+                          <button (click)="confirmRemoveAyantDroit(ayantDroit)" class="p-button-rounded p-button-danger p-button-sm  p-mb-3 " icon="pi pi-trash"
+                                  pButton
+                                  pRipple
+                                  pTooltip="Supprimer"></button>
                         </div>
-
-                        <div class="row col-md-7">
-                            <div class="card col-12 mb-2" *ngIf="customer?.ayantDroits.length>0">
-                                <div class="card-header bg-primary text-white">AYANTS DROITS</div>
-                                <div class="card-body">
-                                    <table class="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th style="width:40%;">Nom et prenom(s)</th>
-                                            <th style="width: 20%;">N° Sécu</th>
-                                            <th style="width:17%;">Date de naissance</th>
-                                            <th style="width:8%;">Sexe</th>
-                                            <th style="width:15%; text-align:right;">
-                                                <button pTooltip="Ajouter un ayant droit"
-                                                        pButton icon="pi pi-plus"
-                                                        class="p-button-rounded p-button-primary" (click)="addAyantDroit(customer)"></button>
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr *ngFor="let ayantDroit of customer?.ayantDroits; let i = index">
-                                            <td>{{ayantDroit?.fullName}}</td>
-                                            <td>{{ayantDroit?.numAyantDroit}}</td>
-                                            <td>{{ayantDroit?.datNaiss |date:'dd/MM/yyyy'}}</td>
-                                            <td>{{ayantDroit?.sexe}}</td>
-                                            <td class="text-right">
-                                                <div class="btn-group">
-                                                    <button pButton pRipple icon="pi pi-pencil"
-                                                            pTooltip="Editer"
-                                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1" (click)="editAyantDroit(customer,ayantDroit)" ></button>
-                                                    <button pButton pRipple icon="pi pi-trash"
-                                                            pTooltip="Supprimer"
-                                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 " (click)="confirmRemoveAyantDroit(ayantDroit)"></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="card col-12">
-                                <div class="card-header bg-primary text-white">TIERS-PAYANTS</div>
-                                <div class="card-body">
-                                    <table class="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th style="width:29%;">Tiers-payant</th>
-                                            <th style="width: 12%;">N° Sécu</th>
-                                            <th style="width:10%;">Catégorie</th>
-                                            <th style="width:15%;">Plafond encours</th>
-                                            <th style="width:15%;">Plafond vente</th>
-<!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                                            <th style="width:10%; text-align:right;" *ngIf="displayTiersPayantAction">
-                                                <button pTooltip="Ajouter un tiers-payant"
-                                                        pButton icon="pi pi-plus"
-                                                        class="p-button-rounded p-button-primary"></button>
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr *ngFor="let tierspayant of customer?.tiersPayants; let i = index">
-                                            <td>{{tierspayant?.tiersPayantFullName}}</td>
-                                            <td>{{tierspayant?.num}}</td>
-                                            <td>{{tierspayant?.priorite}}</td>
-                                            <td>{{tierspayant?.plafondConso |number}}</td>
-                                            <td>{{tierspayant?.plafondJournalier |number}}</td>
-<!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
-                                            <td class="text-right" *ngIf="displayTiersPayantAction">
-                                                <div class="btn-group">
-                                                    <button pButton pRipple icon="pi pi-pencil"
-                                                            pTooltip="Editer les infos du tierspayant"
-                                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"></button>
-                                                    <button pButton pRipple icon="pi pi-trash"
-                                                            pTooltip="Supprimer"
-                                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card col-12">
+                <div class="card-header bg-primary text-white">TIERS-PAYANTS</div>
+                <div class="card-body">
+                  <table class="table table-striped">
+                    <thead>
+                    <tr>
+                      <th style="width:29%;">Tiers-payant</th>
+                      <th style="width: 12%;">N° Sécu</th>
+                      <th style="width:10%;">Catégorie</th>
+                      <th style="width:15%;">Plafond encours</th>
+                      <th style="width:15%;">Plafond vente</th>
+                      <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                      <th *ngIf="displayTiersPayantAction" style="width:10%; text-align:right;">
+                        <button class="p-button-rounded p-button-primary"
+                                icon="pi pi-plus" pButton
+                                pTooltip="Ajouter un tiers-payant"></button>
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let tierspayant of customer?.tiersPayants; let i = index">
+                      <td>{{ tierspayant?.tiersPayantFullName }}</td>
+                      <td>{{ tierspayant?.num }}</td>
+                      <td>{{ tierspayant?.priorite }}</td>
+                      <td>{{ tierspayant?.plafondConso |number }}</td>
+                      <td>{{ tierspayant?.plafondJournalier |number }}</td>
+                      <!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
+                      <td *ngIf="displayTiersPayantAction" class="text-right">
+                        <div class="btn-group">
+                          <button class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1" icon="pi pi-pencil" pButton
+                                  pRipple
+                                  pTooltip="Editer les infos du tierspayant"></button>
+                          <button class="p-button-rounded p-button-danger p-button-sm  p-mb-3 " icon="pi pi-trash" pButton
+                                  pRipple
+                                  pTooltip="Supprimer"></button>
                         </div>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
 
 
-                    </div>
-                    <ng-template #standard>
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
-                            <div class="card-body">
-                                <table class="invoice-table table table-striped">
-                                    <tbody>
-                                    <tr>
-                                        <td class="firstColumn">
-                                            Date de naissance
-                                        </td>
-                                        <td class="secondColumn">{{customer?.datNaiss |date:'dd/MM/yyyy' }}
-                                        </td>
-                                        <td class="firstColumn">
-                                            Date de création
-                                        </td>
-                                        <td class="secondColumn">{{customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
-                                        </td>
+          </div>
+          <ng-template #standard>
+            <div class="card">
+              <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
+                CLIENTS
+              </div>
+              <div class="card-body">
+                <table class="invoice-table table table-striped">
+                  <tbody>
+                  <tr>
+                    <td class="firstColumn">
+                      Date de naissance
+                    </td>
+                    <td class="secondColumn">{{ customer?.datNaiss |date:'dd/MM/yyyy' }}
+                    </td>
+                    <td class="firstColumn">
+                      Date de création
+                    </td>
+                    <td class="secondColumn">{{ customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                    </td>
 
-                                    </tr>
-                                    <tr>
-                                        <td class="firstColumn">
-                                            Dernière modification
-                                        </td>
-                                        <td class="secondColumn">{{customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
-                                        </td>
-                                        <td class="firstColumn">
-                                            Sexe
-                                        </td>
-                                        <td class="secondColumn">{{customer?.sexe }}
-                                        </td>
+                  </tr>
+                  <tr>
+                    <td class="firstColumn">
+                      Dernière modification
+                    </td>
+                    <td class="secondColumn">{{ customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="firstColumn">
+                      Sexe
+                    </td>
+                    <td class="secondColumn">{{ customer?.sexe }}
+                    </td>
 
-                                    </tr>
-                                    </tbody>
+                  </tr>
+                  </tbody>
 
-                                </table>
-                            </div>
-                        </div>
+                </table>
+              </div>
+            </div>
 
-                    </ng-template>
-                </td>
-            </tr>
-        </ng-template>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
 
-    </p-table>
+  </p-table>
 </div>

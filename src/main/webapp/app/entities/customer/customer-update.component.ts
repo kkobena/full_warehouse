@@ -1,20 +1,23 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
-import moment from 'moment';
-import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 
-import {Customer, ICustomer} from 'app/shared/model/customer.model';
-import {CustomerService} from './customer.service';
-import {IProduit} from 'app/shared/model/produit.model';
-import {ProduitService} from 'app/entities/produit/produit.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import moment from 'moment';
+import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { CustomerService } from './customer.service';
+import { IProduit } from 'app/shared/model/produit.model';
+import { ProduitService } from 'app/entities/produit/produit.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-customer-update',
   templateUrl: './customer-update.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CustomerUpdateComponent implements OnInit {
   isSaving = false;
@@ -33,12 +36,11 @@ export class CustomerUpdateComponent implements OnInit {
     protected customerService: CustomerService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder
-  ) {
-  }
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({customer}) => {
+    this.activatedRoute.data.subscribe(({ customer }) => {
       if (!customer.id) {
         const today = moment().startOf('day');
         customer.createdAt = today;
@@ -92,6 +94,22 @@ export class CustomerUpdateComponent implements OnInit {
     return option;
   }
 
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError(),
+    );
+  }
+
+  protected onSaveSuccess(): void {
+    this.isSaving = false;
+    this.previousState();
+  }
+
+  protected onSaveError(): void {
+    this.isSaving = false;
+  }
+
   private createFromForm(): ICustomer {
     return {
       ...new Customer(),
@@ -103,21 +121,5 @@ export class CustomerUpdateComponent implements OnInit {
       createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
       produits: this.editForm.get(['produits'])!.value,
     };
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
   }
 }

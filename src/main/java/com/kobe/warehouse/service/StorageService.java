@@ -66,7 +66,7 @@ public class StorageService {
 
   @Cacheable(EntityConstant.POINT_DE_VENTE_CACHE)
   public Storage getDefaultConnectedUserPointOfSaleStorage() {
-    if (appConfigurationService.isMono()){
+    if (appConfigurationService.isMono()) {
       return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
@@ -84,7 +84,7 @@ public class StorageService {
   public User getUserFormImport() {
     Optional<User> user =
         SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
-    return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).get());
+    return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).get());
   }
 
   public Magasin getImportationMagasin() {
@@ -92,7 +92,7 @@ public class StorageService {
   }
 
   public User getSystemeUser() {
-    return userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).orElse(getUser());
+    return userRepository.findOneByLogin(Constants.SYSTEM).orElse(getUser());
   }
 
   public List<StorageDTO> fetchAllByMagasin(Long magasinId) {
@@ -101,7 +101,8 @@ public class StorageService {
         .map(StorageDTO::new)
         .toList();
   }
-    public List<StorageDTO> fetchAllByConnectedUser() {
-        return this.fetchAllByMagasin(this.getUser().getMagasin().getId());
-    }
+
+  public List<StorageDTO> fetchAllByConnectedUser() {
+    return this.fetchAllByMagasin(this.getUser().getMagasin().getId());
+  }
 }

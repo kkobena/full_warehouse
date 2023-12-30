@@ -1,96 +1,103 @@
-<p-confirmDialog #cd [style]="{width: '40vw'}" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="cd.accept()"></button>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-                (click)="cd.reject()"></button>
-    </p-footer>
+<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
+  <p-footer>
+    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+  </p-footer>
 </p-confirmDialog>
 
 <div>
 
 
-    <h2 id="page-heading">
-        <span jhiTranslate="warehouseApp.tva.home.title">Liste des Tvas</span>
-        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity"
-                (click)='addNewEntity()'>
-            <fa-icon icon="plus"></fa-icon>
-            <span>
+  <h2 id="page-heading">
+    <span jhiTranslate="warehouseApp.tva.home.title">Liste des Tvas</span>
+    <button (click)="addNewEntity()" class="btn btn-primary float-right jh-create-entity"
+            id="jh-create-entity">
+      <fa-icon icon="plus"></fa-icon>
+      <span>
                 Nouvelle Tva
             </span>
-        </button>
-    </h2>
+    </button>
+  </h2>
 
-    <jhi-alert-error></jhi-alert-error>
+  <jhi-alert-error></jhi-alert-error>
 
-    <jhi-alert></jhi-alert>
+  <jhi-alert></jhi-alert>
 
-    <div class="alert alert-warning" id="no-result" *ngIf="tvas?.length === 0">
-        <span>Aucune tva trouvée</span>
-    </div>
-    <p-table *ngIf="tvas && tvas.length > 0" styleClass="ui-table-cars" [value]="tvas" [paginator]="true"
-             [rows]="itemsPerPage" dataKey="id" selectionMode="single" [(selection)]="selectedTva" [lazy]="true"
-             [totalRecords]="totalItems" [loading]="loading" (onLazyLoad)="lazyLoading($event)">
-        <ng-template pTemplate="header">
-            <tr>
-                <th scope="col"><span>Taux</span></th>
+  <div *ngIf="tvas?.length === 0" class="alert alert-warning" id="no-result">
+    <span>Aucune tva trouvée</span>
+  </div>
+  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="tvas && tvas.length > 0"
+           [(selection)]="selectedTva"
+           [lazy]="true"
+           [loading]="loading" [paginator]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
+           [value]="tvas"
+           dataKey="id" selectionMode="single" styleClass="ui-table-cars">
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col"><span>Taux</span></th>
 
-                <th scope="col"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-tva let-columns="columns">
-            <tr [pSelectableRow]="tva" [pEditableRow]="tva">
-                <td>{{ tva.taux }}</td>
+        <th scope="col"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-columns="columns" let-tva pTemplate="body">
+      <tr [pEditableRow]="tva" [pSelectableRow]="tva">
+        <td>{{ tva.taux }}</td>
 
-                <td style="text-align: center;">
-                    <button type="submit" (click)="delete(tva)" class="btn btn-danger btn-sm">
-                        <fa-icon icon="times"></fa-icon>
+        <td style="text-align: center;">
+          <button (click)="delete(tva)" class="btn btn-danger btn-sm" type="submit">
+            <fa-icon icon="times"></fa-icon>
 
-                    </button>
+          </button>
 
-                </td>
-            </tr>
-        </ng-template>
+        </td>
+      </tr>
+    </ng-template>
 
-    </p-table>
+  </p-table>
 
 
-    <!-- formulaire de creation et d edition-->
-    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-        <p-dialog header="Créer ou éditer une Tva" [(visible)]="displayDialog" [focusOnShow]="false" [responsive]="true"
-                  showEffect="fade" [modal]="true" [style]="{width: '400px'}">
+  <!-- formulaire de creation et d edition-->
+  <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+    <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
 
-            <div class="form-group" [hidden]="!editForm.get('id')!.value">
+              [style]="{width: '400px'}" header="Créer ou éditer une Tva">
 
-                <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly/>
-            </div>
-            <div class="ui-g form-group">
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
 
-                <label for="field_taux">Taux tva</label>
-                <div class="ui-g-12" style="margin-bottom:10px">
-                    <input type="text" pInputText class="form-control" name="taux" id="field_taux"
-                           formControlName="taux" style="width: 100%;" autocomplete="off" pKeyFilter="int"/>
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="ui-g form-group">
 
-                </div>
-                <div
-                    *ngIf="editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)">
-                    <small class="form-text text-danger" style="color: red;"
-                           *ngIf="editForm.get('taux')?.errors?.required">
-                        Ce champ est obligatoire.
-                    </small>
-                    <small class="form-text text-danger" style="color: red;"
-                           [hidden]="!editForm.get('taux')?.errors?.number">
-                        Ce champ doit être un nombre.
-                    </small>
-                </div>
+        <label for="field_taux">Taux tva</label>
+        <div class="ui-g-12" style="margin-bottom:10px">
+          <input autocomplete="off" class="form-control" formControlName="taux" id="field_taux"
+                 name="taux"
+                 pInputText pKeyFilter="int" style="width: 100%;" type="text" />
 
-            </div>
-            <p-footer>
-                <button pButton pRipple [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
-                        class="p-button-success p-mr-2" type="submit" label="Enregistrer"></button>
-                <button type="button" class="p-button-danger p-mr-2" pButton pRipple icon="pi pi-times"
-                        (click)="cancel()" label="Annuler"></button>
+        </div>
+        <div
+          *ngIf="editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)">
+          <small *ngIf="editForm.get('taux')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+          <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ doit être un nombre.
+          </small>
+        </div>
 
-            </p-footer>
-        </p-dialog>
-    </form>
+      </div>
+      <p-footer>
+        <button [disabled]="editForm.invalid || isSaving" class="p-button-success p-mr-2"
+                icon="pi pi-check" label="Enregistrer"
+                pButton pRipple type="submit"></button>
+        <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler"
+                pButton
+                pRipple type="button"></button>
+
+      </p-footer>
+    </p-dialog>
+  </form>
 </div>

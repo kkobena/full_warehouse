@@ -15,7 +15,7 @@ export class TableEditorDirective extends EditableColumn implements OnInit {
 
   ngOnInit() {}
 
-  //@HostListener('keydown.enter', ['$event'])
+  // @HostListener('keydown.enter', ['$event'])
   // @HostListener('keydown.meta.enter', ['$event'])
   // @HostListener('keydown', ['$event'])
   onEnterKeyDown($event: KeyboardEvent) {
@@ -32,7 +32,7 @@ export class TableEditorDirective extends EditableColumn implements OnInit {
       if (this.openCurrentCell) {
         this.openCell();
       }
-      /*if (this.moveToPrevious) {
+      /* if (this.moveToPrevious) {
         this.moveToPreviousCell($event);
       }*/
     }, 50);
@@ -40,7 +40,7 @@ export class TableEditorDirective extends EditableColumn implements OnInit {
     // }
 
     // this.moveToNextCell($event);
-    //super.onEnterKeyDown($event);
+    // super.onEnterKeyDown($event);
   }
 
   /* @HostListener('keydown.shift.enter', ['$event'])

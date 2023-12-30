@@ -33,7 +33,15 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.report.InventoryReportService;
 import com.kobe.warehouse.web.rest.errors.InventoryException;
-import java.math.BigInteger;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,15 +51,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,7 +223,7 @@ public class InventaireServiceImpl implements InventaireService {
 
   private StoreInventoryGroupExport buildFromTuple(
       StoreInventoryGroupExport storeInventoryGroupExport,
-      int id,
+      long id,
       String code,
       String libelle,
       StoreInventoryLineExport storeInventoryLineExport) {
@@ -240,27 +239,27 @@ public class InventaireServiceImpl implements InventaireService {
     return storeInventoryGroupExport;
   }
 
-  private Triple<Integer, String, String> getRayon(
-      BigInteger idRayon, StoreInventoryLineExport storeInventoryLineExport) {
+  private Triple<Long, String, String> getRayon(
+      Long idRayon, StoreInventoryLineExport storeInventoryLineExport) {
 
     if (Objects.isNull(idRayon)) {
-      return Triple.of(-1, "SANS", "RAYON");
+      return Triple.of(-1L, "SANS", "RAYON");
     }
-    int i = idRayon.intValue();
-    return Stream.of(1, 2, 3).anyMatch(e -> e == i)
-        ? Triple.of(-1, "SANS", "RAYON")
+    long i = idRayon;
+    return Stream.of(1L, 2L, 3L).anyMatch(e -> e == i)
+        ? Triple.of(-1L, "SANS", "RAYON")
         : Triple.of(
             i, storeInventoryLineExport.getRayonCode(), storeInventoryLineExport.getRayonLibelle());
   }
 
   private List<StoreInventoryGroupExport> buildStoreInventoryGroupExportsFromTuple(
       List<Tuple> tuples, StoreInventoryExportRecord storeInventoryExportRecord) {
-    LinkedHashMap<Integer, StoreInventoryGroupExport> map = new LinkedHashMap<>();
+    LinkedHashMap<Long, StoreInventoryGroupExport> map = new LinkedHashMap<>();
     StoreInventoryGroupExport storeInventoryGroupExport;
     switch (storeInventoryExportRecord.exportGroupBy()) {
       case FAMILLY -> {
         for (Tuple t : tuples) {
-          int id = t.get("famillyId", BigInteger.class).intValue();
+          Long id = t.get("famillyId", Long.class);
           StoreInventoryLineExport storeInventoryLineExport =
               StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
           storeInventoryGroupExport = map.get(id);
@@ -276,13 +275,13 @@ public class InventaireServiceImpl implements InventaireService {
       }
       case RAYON, NONE -> {
         for (Tuple t : tuples) {
-          BigInteger idRayon = t.get("rayon_id", BigInteger.class);
+          Long idRayon = t.get("rayon_id", Long.class);
 
           StoreInventoryLineExport storeInventoryLineExport =
               StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
-          Triple<Integer, String, String> integerStringStringTriple =
+          Triple<Long, String, String> integerStringStringTriple =
               getRayon(idRayon, storeInventoryLineExport);
-          int id = integerStringStringTriple.getLeft();
+          long id = integerStringStringTriple.getLeft();
           storeInventoryGroupExport = map.get(id);
           storeInventoryGroupExport =
               buildFromTuple(
@@ -296,7 +295,7 @@ public class InventaireServiceImpl implements InventaireService {
       }
       case STORAGE -> {
         for (Tuple t : tuples) {
-          int id = t.get("storage_id", BigInteger.class).intValue();
+          long id = t.get("storage_id", Long.class);
           StoreInventoryLineExport storeInventoryLineExport =
               StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
           storeInventoryGroupExport = map.get(id);
@@ -333,7 +332,7 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventoryLineDTO.getProduitCip(),
         storeInventoryLineDTO.getProduitEan(),
         storeInventoryLineDTO.getProduitLibelle(),
-        BigInteger.valueOf(storeInventoryLine.getId()),
+        storeInventoryLine.getId(),
         storeInventoryLine.getGap(),
         storeInventoryLine.getQuantityOnHand(),
         storeInventoryLine.getQuantityInit(),
@@ -470,13 +469,11 @@ public class InventaireServiceImpl implements InventaireService {
       StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
 
     try {
-      return ((BigInteger)
-              this.em
-                  .createNativeQuery(
-                      this.buildFetchDetailQueryCount(storeInventoryLineFilterRecord))
-                  .setParameter(1, storeInventory.getId())
-                  .getSingleResult())
-          .intValue();
+      return (Long)
+          this.em
+              .createNativeQuery(this.buildFetchDetailQueryCount(storeInventoryLineFilterRecord))
+              .setParameter(1, storeInventory.getId())
+              .getSingleResult();
 
     } catch (Exception e) {
       log.error(null, e);
@@ -510,8 +507,7 @@ public class InventaireServiceImpl implements InventaireService {
         .map(
             tuple ->
                 StoreInventoryLineFilterBuilder.buildStoreInventoryLineRecordRecord(
-                    tuple,
-                    getStock(storeInventory, tuple.get("produitId", BigInteger.class).longValue())))
+                    tuple, getStock(storeInventory, tuple.get("produitId", Long.class))))
         .toList();
   }
 

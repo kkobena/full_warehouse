@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
@@ -10,35 +10,30 @@ import { AjustementComponent } from './ajustement.component';
 import { AjustementDetailComponent } from './ajustement-detail.component';
 import { Ajust, IAjust } from '../../shared/model/ajust.model';
 
-@Injectable({ providedIn: 'root' })
-export class AjustementResolve implements Resolve<IAjust> {
-  constructor(private service: AjustementService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IAjust> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
+export const AjustementResolve = (route: ActivatedRouteSnapshot): Observable<null | IAjust> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(AjustementService)
+      .find(id)
+      .pipe(
         mergeMap((ajustement: HttpResponse<IAjust>) => {
           if (ajustement.body) {
             return of(ajustement.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Ajust());
   }
-}
-
-export const ajustementRoute: Routes = [
+  return of(new Ajust());
+};
+const ajustementRoute: Routes = [
   {
     path: '',
     component: AjustementComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
-      pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -50,7 +45,6 @@ export const ajustementRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
-      pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -62,8 +56,8 @@ export const ajustementRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
-      pageTitle: 'warehouseApp.ajustement.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default ajustementRoute;

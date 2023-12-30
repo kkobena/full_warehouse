@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Tva;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class TvaDTO implements Serializable {

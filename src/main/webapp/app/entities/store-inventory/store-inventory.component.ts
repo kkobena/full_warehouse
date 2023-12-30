@@ -14,6 +14,16 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InventoryFormComponent } from './inventory-form/inventory-form.component';
 import { Router } from '@angular/router';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
+import { EnCoursComponent } from './en-cours/en-cours.component';
+import { CloturesComponent } from './clotures/clotures.component';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -35,6 +45,21 @@ import { Router } from '@angular/router';
         max-height: 700px;
       }
     `,
+  ],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    MultiSelectModule,
+    CardModule,
+    ToolbarModule,
+    DropdownModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    EnCoursComponent,
+    CloturesComponent,
+    StoreInventoryDeleteDialogComponent,
+    InventoryFormComponent,
   ],
 })
 export class StoreInventoryComponent implements OnInit {
@@ -66,7 +91,7 @@ export class StoreInventoryComponent implements OnInit {
     protected modalService: NgbModal,
     protected userService: UserService,
     private dialogService: DialogService,
-    protected router: Router
+    protected router: Router,
   ) {
     this.inventoryCategories = this.categories;
     this.storeInventories = [];

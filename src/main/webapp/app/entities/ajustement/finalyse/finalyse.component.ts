@@ -2,16 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { AjustementService } from '../ajustement.service';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { BLOCK_SPACE } from '../../../shared/util/warehouse-util';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
+  standalone: true,
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
   providers: [MessageService],
+  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule],
 })
 export class FinalyseComponent implements OnInit {
   protected isSaving = false;
@@ -29,7 +35,7 @@ export class FinalyseComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private fb: FormBuilder,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {

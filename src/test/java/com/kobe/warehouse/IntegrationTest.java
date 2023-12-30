@@ -9,10 +9,13 @@ import java.lang.annotation.Target;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-/** Base composite annotation for integration tests. */
+/**
+ * Base composite annotation for integration tests.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = {WarehouseApp.class, AsyncSyncConfiguration.class})
+@SpringBootTest(classes = { WarehouseApp.class, AsyncSyncConfiguration.class })
 @EmbeddedSQL
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public @interface IntegrationTest {}
+public @interface IntegrationTest {
+}

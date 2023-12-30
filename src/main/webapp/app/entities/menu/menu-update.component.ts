@@ -1,17 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { PrivillegeService } from './privillege.service';
 import { IAuthority, Privilege } from '../../shared/model/authority.model';
 import { BLOCK_SPACE } from '../../shared/util/warehouse-util';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { PanelModule } from 'primeng/panel';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-menu-update',
   templateUrl: './menu-update.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    PanelModule,
+    FormsModule,
+    KeyFilterModule,
+    ReactiveFormsModule,
+    InputTextModule,
+  ],
 })
 export class MenuUpdateComponent implements OnInit {
   isSaving = false;
@@ -22,7 +39,11 @@ export class MenuUpdateComponent implements OnInit {
   protected entity: IAuthority | null;
   protected readonly BLOCK_SPACE = BLOCK_SPACE;
 
-  constructor(protected privillegeService: PrivillegeService, protected activatedRoute: ActivatedRoute, private fb: UntypedFormBuilder) {}
+  constructor(
+    protected privillegeService: PrivillegeService,
+    protected activatedRoute: ActivatedRoute,
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {

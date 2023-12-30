@@ -14,12 +14,15 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.Orientation;
 import org.apache.pdfbox.printing.PDFPageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReceiptPrinterService {
   private final SaleReceiptService saleReceiptService;
   private final StorageService storageService;
+  private final Logger log = LoggerFactory.getLogger(ReceiptPrinterService.class);
 
   public ReceiptPrinterService(
       SaleReceiptService saleReceiptService, StorageService storageService) {
@@ -37,9 +40,9 @@ public class ReceiptPrinterService {
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
             printerJob.print();
           } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("printCashSale : {}", e.getLocalizedMessage());
           } catch (PrinterException e) {
-            e.printStackTrace();
+            log.debug("printCashSale : {}", e.getLocalizedMessage());
           }
         };
     runnableTask.run();
@@ -55,9 +58,9 @@ public class ReceiptPrinterService {
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
             printerJob.print();
           } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("printVoSale : {}", e.getLocalizedMessage());
           } catch (PrinterException e) {
-            e.printStackTrace();
+            log.debug("printVoSale : {}", e.getLocalizedMessage());
           }
         };
     runnableTask.run();

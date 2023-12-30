@@ -9,6 +9,16 @@ import { InventoryTransactionService } from '../inventory-transaction/inventory-
 import { ProduitService } from './produit.service';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { SelectItem } from 'primeng/api';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { PanelModule } from 'primeng/panel';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ToolbarModule } from 'primeng/toolbar';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'jhi-produit-detail',
@@ -22,6 +32,19 @@ import { SelectItem } from 'primeng/api';
     `,
   ],
   templateUrl: './produit-detail.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    PanelModule,
+    AutoCompleteModule,
+    ToolbarModule,
+    CalendarModule,
+    DropdownModule,
+    TableModule,
+  ],
 })
 export class ProduitDetailComponent implements OnInit {
   produit: IProduit | null = null;
@@ -53,7 +76,7 @@ export class ProduitDetailComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected inventoryTransactionService: InventoryTransactionService,
-    protected produitService: ProduitService
+    protected produitService: ProduitService,
   ) {
     this.columnDefs = [
       {
@@ -140,7 +163,7 @@ export class ProduitDetailComponent implements OnInit {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         sort: this.sort(),
-        produitId: this.produit?.id,
+        produitId: this.produit.id,
         startDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
         endDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
         type: this.selectedTypeMouvement,

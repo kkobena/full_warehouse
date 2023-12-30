@@ -2,18 +2,14 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.domain.Menu;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.security.SecurityUtils;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.constraints.*;
 import lombok.Getter;
-import org.springframework.util.CollectionUtils;
 
 /** A DTO representing a user, with his authorities. */
 @Getter
@@ -197,20 +193,5 @@ public class AdminUserDTO implements Serializable {
         + ", authorities="
         + authorities
         + "}";
-  }
-
-  private Set<String> buildAuthorities__(Authority authority) {
-    Set<String> authorities = new HashSet<>();
-    authorities.add(authority.getName());
-    authorities.addAll(
-        authority.getMenus().stream().map(Menu::getName).collect(Collectors.toSet()));
-    return authorities;
-  }
-
-  private Set<String> mergeAuthorities__(Set<Authority> authorities) {
-    if (CollectionUtils.isEmpty(authorities)) return Collections.emptySet();
-    Set<String> authorities0 = new HashSet<>();
-    //  authorities.stream().forEach(authority -> authorities0.addAll(buildAuthorities(authority)));
-    return authorities0;
   }
 }

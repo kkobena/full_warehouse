@@ -1,19 +1,39 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../shared/model/delevery.model';
 import { DeliveryService } from './delivery.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ImportDeliveryFormComponent } from './form/import/import-delivery-form.component';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BonEnCoursComponent } from './bon-en-cours/bon-en-cours.component';
 import { ListBonsComponent } from './list-bons/list-bons.component';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
+  standalone: true,
   selector: 'jhi-delevery',
   templateUrl: './delivery.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    BonEnCoursComponent,
+    ListBonsComponent,
+    ButtonModule,
+    CardModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    ToolbarModule,
+    FormsModule,
+    InputTextModule,
+  ],
 })
 export class DeliveryComponent implements OnInit {
   search = '';
@@ -26,9 +46,8 @@ export class DeliveryComponent implements OnInit {
 
   constructor(
     protected router: Router,
-    private spinner: NgxSpinnerService,
     protected entityService: DeliveryService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {}

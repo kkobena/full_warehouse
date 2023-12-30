@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { LANGUAGES } from 'app/config/language.constants';
 import { IUser } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 const userTemplate = {} as IUser;
 
@@ -14,8 +18,10 @@ const newUser: IUser = {
 } as IUser;
 
 @Component({
+  standalone: true,
   selector: 'jhi-user-mgmt-update',
   templateUrl: './user-management-update.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PanelModule, ButtonModule, RippleModule],
 })
 export class UserManagementUpdateComponent implements OnInit {
   languages = LANGUAGES;
@@ -42,7 +48,10 @@ export class UserManagementUpdateComponent implements OnInit {
     authorities: new FormControl(userTemplate.authorities, { nonNullable: true }),
   });
 
-  constructor(private userService: UserManagementService, private route: ActivatedRoute) {}
+  constructor(
+    private userService: UserManagementService,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {

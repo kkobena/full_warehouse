@@ -3,9 +3,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ProfileService } from './profile.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
+  standalone: true,
   selector: 'jhi-page-ribbon',
+  imports: [WarehouseCommonModule],
+
   template: `
     <div class="ribbon" *ngIf="ribbonEnv$ | async as ribbonEnv">
       <a href="" jhiTranslate="global.ribbon.{{ ribbonEnv }}">{{ { dev: 'Développement' }[ribbonEnv] || '' }}</a>

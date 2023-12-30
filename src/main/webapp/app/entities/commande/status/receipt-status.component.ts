@@ -1,8 +1,11 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'jhi-receipt-status-btn',
   template: `
     <div class="progress" style="width: 100%;text-align:center;">
@@ -26,12 +29,12 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
     const receiptItem = this.params.data as IDeliveryItem;
     const mustBeUpdate =
       receiptItem.orderUnitPrice !== receiptItem.regularUnitPrice ||
-      receiptItem.fournisseurProduitCip?.length === 0 ||
+      receiptItem.fournisseurProduitCip.length === 0 ||
       receiptItem.orderCostAmount !== receiptItem.costAmount ||
       (receiptItem.updated && receiptItem.quantityReceived !== receiptItem.quantityRequested);
     if (mustBeUpdate) {
       return 'progress-bar bg-warning';
-    } else if (receiptItem.updated || !mustBeUpdate) return 'progress-bar bg-success';
+    } else if (receiptItem.updated || !mustBeUpdate) {return 'progress-bar bg-success';}
     return 'progress-bar bg-secondary';
   }
 

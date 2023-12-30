@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { ISales } from 'app/shared/model/sales.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-sales-detail',
   templateUrl: './sales-detail.component.html',
+  imports: [WarehouseCommonModule, RouterModule],
+  standalone: true,
 })
 export class SalesDetailComponent implements OnInit {
   sales: ISales | null = null;

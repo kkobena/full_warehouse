@@ -1,18 +1,50 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ConfirmationService, LazyLoadEvent, MessageService} from 'primeng/api';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {GroupeFournisseurService} from './groupe-fournisseur.service';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {GroupeFournisseur, IGroupeFournisseur} from '../../shared/model/groupe-fournisseur.model';
-import {IResponseDto} from '../../shared/util/response-dto';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { GroupeFournisseurService } from './groupe-fournisseur.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { GroupeFournisseur, IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputTextModule } from 'primeng/inputtext';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './groupe-fournisseur.component.html',
   providers: [MessageService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextareaModule,
+    InputTextModule,
+    KeyFilterModule,
+    TooltipModule,
+  ],
 })
 export class GroupeFournisseurComponent implements OnInit {
   fileDialog?: boolean;
@@ -43,9 +75,8 @@ export class GroupeFournisseurComponent implements OnInit {
     protected router: Router,
     private messageService: MessageService,
     protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder
-  ) {
-  }
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
     this.loadPage();
@@ -58,9 +89,9 @@ export class GroupeFournisseurComponent implements OnInit {
     this.uploadFileResponse(this.entityService.uploadFile(formData));
   }
 
-  loadPage(page?: number, search?: String): void {
+  loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: String = search || '';
+    const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
@@ -68,14 +99,14 @@ export class GroupeFournisseurComponent implements OnInit {
         size: this.itemsPerPage,
         search: query,
       })
-      .subscribe(
-        (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    this.page = event.first! / event.rows!;
+    this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
@@ -83,10 +114,10 @@ export class GroupeFournisseurComponent implements OnInit {
         size: event.rows,
         search: '',
       })
-      .subscribe(
-        (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError(),
+      });
   }
 
   confirmDialog(id: number): void {
@@ -159,10 +190,10 @@ export class GroupeFournisseurComponent implements OnInit {
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
@@ -199,14 +230,18 @@ export class GroupeFournisseurComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'info', summary: 'Enregistrement', detail: 'Opération effectuée avec succès'});
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Enregistrement',
+      detail: 'Opération effectuée avec succès',
+    });
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeFournisseur>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   private createFromForm(): IGroupeFournisseur {

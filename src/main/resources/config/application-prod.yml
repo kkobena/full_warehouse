@@ -1,3 +1,18 @@
+# ===================================================================
+# Spring Boot configuration for the "prod" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# More information on profiles: https://www.jhipster.tech/profiles/
+# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
 logging:
   level:
     ROOT: INFO
@@ -5,9 +20,9 @@ logging:
     com.kobe.warehouse: INFO
 
 management:
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: false
 
 spring:
@@ -29,8 +44,7 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-  jpa:
-
+      driver-class-name: org.mariadb.jdbc.Driver
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
 
   mail:
@@ -90,7 +104,7 @@ jhipster:
       enabled: false
       host: localhost
       port: 5000
-
+      ring-buffer-size: 512
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

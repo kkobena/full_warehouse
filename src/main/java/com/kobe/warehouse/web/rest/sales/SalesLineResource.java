@@ -7,7 +7,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,69 +30,70 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * REST controller for managing {@link com.kobe.warehouse.domain.SalesLine}.
- */
+/** REST controller for managing {@link com.kobe.warehouse.domain.SalesLine}. */
 @RestController
 @RequestMapping("/api")
 @Transactional
 public class SalesLineResource {
 
-    private static final String ENTITY_NAME = "salesLine";
-    private final Logger log = LoggerFactory.getLogger(SalesLineResource.class);
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
+  private static final String ENTITY_NAME = "salesLine";
+  private final Logger log = LoggerFactory.getLogger(SalesLineResource.class);
 
-    @Autowired
-    private SaleService saleService;
+  @Value("${jhipster.clientApp.name}")
+  private String applicationName;
 
-    @Autowired
-    private SalesLineRepository salesLineRepository;
+  @Autowired private SaleService saleService;
 
-    @GetMapping("/sales-lines/{id}")
-    public ResponseEntity<List<SaleLineDTO>> getAllSalesLines(@PathVariable Long id) {
-        log.debug("REST request to get a page of SalesLines");
-        List<SaleLineDTO> salesLines = salesLineRepository
-            .findBySalesIdOrderByProduitLibelle(id)
-            .stream()
+  @Autowired private SalesLineRepository salesLineRepository;
+
+  @GetMapping("/sales-lines/{id}")
+  public ResponseEntity<List<SaleLineDTO>> getAllSalesLines(@PathVariable Long id) {
+    log.debug("REST request to get a page of SalesLines");
+    List<SaleLineDTO> salesLines =
+        salesLineRepository.findBySalesIdOrderByProduitLibelle(id).stream()
             .map(SaleLineDTO::new)
             .collect(Collectors.toList());
-        return ResponseEntity.ok().body(salesLines);
-    }
+    return ResponseEntity.ok().body(salesLines);
+  }
 
-    @PostMapping("/sales-lines")
-    public ResponseEntity<Sales> createSaleLine(@Valid @RequestBody SaleLineDTO saleLine) throws URISyntaxException, StockException {
-        log.debug("REST request to save saleLine : {}", saleLine);
-        if (saleLine.getId() != null) {
-            throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        Sales result = null; //= saleService.createSaleLine(saleLine);
-        return ResponseEntity
-            .created(new URI("/api/sales-line/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+  @PostMapping("/sales-lines")
+  public ResponseEntity<Sales> createSaleLine(@Valid @RequestBody SaleLineDTO saleLine)
+      throws URISyntaxException, StockException {
+    log.debug("REST request to save saleLine : {}", saleLine);
+    if (saleLine.getId() != null) {
+      throw new BadRequestAlertException(
+          "A new sales cannot already have an ID", ENTITY_NAME, "idexists");
     }
+    Sales result = null; // = saleService.createSaleLine(saleLine);
+    return ResponseEntity.created(new URI("/api/sales-line/" + result.getId()))
+        .headers(
+            HeaderUtil.createEntityCreationAlert(
+                applicationName, true, ENTITY_NAME, result.getId().toString()))
+        .body(result);
+  }
 
-    @PutMapping("/sales-lines")
-    public ResponseEntity<SaleLineDTO> updateSaleLine(@Valid @RequestBody SaleLineDTO saleLine) throws URISyntaxException {
-        log.debug("REST request to update saleLine : {}", saleLine);
-        if (saleLine.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        SaleLineDTO result = saleService.updateSaleLine(saleLine);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, saleLine.getId().toString()))
-            .body(result);
+  @PutMapping("/sales-lines")
+  public ResponseEntity<SaleLineDTO> updateSaleLine(@Valid @RequestBody SaleLineDTO saleLine)
+      throws URISyntaxException {
+    log.debug("REST request to update saleLine : {}", saleLine);
+    if (saleLine.getId() == null) {
+      throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
     }
+    SaleLineDTO result = saleService.updateSaleLine(saleLine);
+    return ResponseEntity.ok()
+        .headers(
+            HeaderUtil.createEntityUpdateAlert(
+                applicationName, true, ENTITY_NAME, saleLine.getId().toString()))
+        .body(result);
+  }
 
-    @DeleteMapping("/sales-lines/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        log.debug("REST request to delete sales-lines : {}", id);
-        saleService.deleteSaleLineById(id);
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
-    }
+  @DeleteMapping("/sales-lines/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    log.debug("REST request to delete sales-lines : {}", id);
+    saleService.deleteSaleLineById(id);
+    return ResponseEntity.noContent()
+        .headers(
+            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+        .build();
+  }
 }

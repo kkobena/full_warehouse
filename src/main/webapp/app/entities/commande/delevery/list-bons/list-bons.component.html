@@ -1,3 +1,6 @@
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
+
 <p-table
   *ngIf="deliveries && deliveries.length > 0"
 
@@ -39,18 +42,18 @@
                 pRipple
                 type="button"></button>
       </td>
-      <td>{{row.numberTransaction}}</td>
-      <td>{{row.createdDate |date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-      <td>{{row.receiptDate |date: 'dd/MM/yyyy'}}</td>
-      <td>{{row.receiptRefernce}}</td>
+      <td>{{ row.numberTransaction }}</td>
+      <td>{{ row.createdDate |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ row.receiptDate |date: 'dd/MM/yyyy' }}</td>
+      <td>{{ row.receiptRefernce }}</td>
 
-      <td class="text-right">{{row.receiptAmount |number}}</td>
-      <td class="text-right">{{row.netAmount |number}}</td>
-      <td class="text-right">{{row.taxAmount |number}}</td>
+      <td class="text-right">{{ row.receiptAmount |number }}</td>
+      <td class="text-right">{{ row.netAmount |number }}</td>
+      <td class="text-right">{{ row.taxAmount |number }}</td>
 
-      <td class="text-right">{{row.itemSize |number}}</td>
-      <td>{{row.fournisseurLibelle}}</td>
-      <td>{{row.modifiedUser}}</td>
+      <td class="text-right">{{ row.itemSize |number }}</td>
+      <td>{{ row.fournisseurLibelle }}</td>
+      <td>{{ row.modifiedUser }}</td>
 
       <td class="text-right">
         <div class="btn-group">
@@ -110,14 +113,17 @@
             </ng-template>
             <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
               <tr>
-                <td style="text-align: left;">{{rowIndex + 1}}</td>
-                <td> {{receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip}}</td>
-                <td> {{receiptItem.fournisseurProduitLibelle}}</td>
-                <td class="text-right">{{receiptItem.initStock |number}}</td>
-                <td class="text-right">{{receiptItem.afterStock |number}}</td>
-                <td class="text-right">{{receiptItem.quantityReceived |number}}</td>
-                <td class="text-right">{{receiptItem.orderCostAmount |number}}</td>
-                <td class="text-right">{{receiptItem.orderUnitPrice |number}}</td>
+                <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                <td> {{
+                    receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
+                  }}
+                </td>
+                <td> {{ receiptItem.fournisseurProduitLibelle }}</td>
+                <td class="text-right">{{ receiptItem.initStock |number }}</td>
+                <td class="text-right">{{ receiptItem.afterStock |number }}</td>
+                <td class="text-right">{{ receiptItem.quantityReceived |number }}</td>
+                <td class="text-right">{{ receiptItem.orderCostAmount |number }}</td>
+                <td class="text-right">{{ receiptItem.orderUnitPrice |number }}</td>
               </tr>
             </ng-template>
           </p-table>

@@ -1,16 +1,32 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Observable} from 'rxjs';
-import {LaboratoireProduitService} from '../laboratoire-produit.service';
-import {ILaboratoire, Laboratoire} from '../../../shared/model/laboratoire.model';
+import { HttpResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Observable } from 'rxjs';
+import { LaboratoireProduitService } from '../laboratoire-produit.service';
+import { ILaboratoire, Laboratoire } from '../../../shared/model/laboratoire.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-laboratoire.component.html',
   styles: [],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormLaboratoireComponent implements OnInit {
   laboratoire?: ILaboratoire;
@@ -25,9 +41,8 @@ export class FormLaboratoireComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private fb: UntypedFormBuilder,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.laboratoire = this.config.data.laboratoire;
@@ -60,18 +75,26 @@ export class FormLaboratoireComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
     result.subscribe(
       (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 
   protected onSaveSuccess(response: ILaboratoire | null): void {
-    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès'});
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Information',
+      detail: 'Enregistrement effectué avec succès',
+    });
     this.ref.close(response);
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   private createFromForm(): ILaboratoire {

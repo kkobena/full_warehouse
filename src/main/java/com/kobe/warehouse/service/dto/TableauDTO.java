@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 
 import com.kobe.warehouse.domain.Tableau;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class TableauDTO {
     private Long id;

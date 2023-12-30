@@ -34,16 +34,16 @@
         <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Emplacement</span>
-            <span class="text-primary">{{storeInventory?.storage?.name}}</span>
+            <span class="text-primary">{{ storeInventory?.storage?.name }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Date</span>
-            <span class="text-primary">{{storeInventory?.createdAt | date: 'dd/MM/yyyy'}}</span>
+            <span class="text-primary">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
           <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
               class="list-group-item d-flex justify-content-between align-items-center">
             Rayon
-            <span class="text-primary">{{storeInventory?.rayon?.libelle }}</span>
+            <span class="text-primary">{{ storeInventory?.rayon?.libelle }}</span>
           </li>
 
         </ul>
@@ -83,7 +83,7 @@
                           [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
                           [showEmptyMessage]="true"
                           [style]="{'width':'100%'}" [suggestions]="rayons"
-                          field="libelle"></p-autoComplete>
+                          optionLabel="libelle"></p-autoComplete>
         </div>
 
 
@@ -144,7 +144,7 @@
                        [defaultColDef]="defaultColDef"
                        [domLayout]="'normal'"
                        [enableCellEditingOnBackspace]="true"
-                       [enterMovesDownAfterEdit]="true"
+                       [enterNavigatesVerticallyAfterEdit]="true"
                        [paginationPageSize]="itemsPerPage"
                        [readOnlyEdit]="false"
                        [rowData]="storeInventoryLines"

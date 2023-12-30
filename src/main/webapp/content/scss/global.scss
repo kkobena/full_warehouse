@@ -1,5 +1,5 @@
 @import 'bootstrap/scss/functions';
-@import 'bootswatch/dist/spacelab/variables';
+
 @import 'bootstrap/scss/variables';
 
 /* ==============================================================
@@ -14,6 +14,27 @@ h4 {
   font-weight: 300;
 }
 
+body {
+  background: #EFEFEF;
+}
+
+.nav-home, .row {
+  background: #EFEFEF;
+}
+
+.justify-content-center {
+  background: #EFEFEF;
+  margin: 0;
+}
+
+.home-ca {
+  background: #EFEFEF;
+}
+
+.jh-card {
+  background: #EFEFEF;
+}
+
 a:hover {
   /* make sure browsers use the pointer cursor for anchors, even with no href */
   cursor: pointer;
@@ -21,6 +42,12 @@ a:hover {
 
 .dropdown-item:hover {
   color: $dropdown-link-hover-color;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+
+  border: 1px solid #c8c8c8 !important;
+  padding: 2px 2px !important;
 }
 
 /* ==========================================================================
@@ -690,7 +717,7 @@ label {
 
 }
 
-iconlist li .icon-holder .icon i {
+li .icon-holder .icon i {
   font-size: 3em;
   color: #34A835;
 }
@@ -958,4 +985,8 @@ iconlist li .icon-holder .icon i {
 
 .p-calendar .p-inputtext {
   width: 2%;
+}
+
+.p-autocomplete-panel .p-autocomplete-items, .p-dropdown-items {
+  padding: 0 !important;
 }

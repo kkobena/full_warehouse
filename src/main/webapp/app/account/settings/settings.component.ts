@@ -1,15 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { LANGUAGES } from 'app/config/language.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { PrimeNgCommonModule } from '../../shared/prime-ng-common/prime-ng-common.module';
 
 const initialAccount: Account = {} as Account;
 
 @Component({
   selector: 'jhi-settings',
+  standalone: true,
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
@@ -37,7 +41,10 @@ export class SettingsComponent implements OnInit {
     login: new FormControl(initialAccount.login, { nonNullable: true }),
   });
 
-  constructor(private accountService: AccountService, private translateService: TranslateService) {}
+  constructor(
+    private accountService: AccountService,
+    private translateService: TranslateService,
+  ) {}
 
   ngOnInit(): void {
     this.accountService.identity().subscribe(account => {

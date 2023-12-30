@@ -1,17 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TableauProduitService } from './tableau-produit.service';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ITableau, Tableau } from '../../shared/model/tableau.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './tableau-produit.component.html',
   providers: [MessageService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DialogModule,
+    ToolbarModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+    TooltipModule,
+    KeyFilterModule,
+    ToastModule,
+  ],
 })
 export class TableauProduitComponent implements OnInit {
   fileDialog?: boolean;
@@ -42,7 +70,7 @@ export class TableauProduitComponent implements OnInit {
     protected router: Router,
     private messageService: MessageService,
     protected modalService: ConfirmationService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
   ngOnInit(): void {

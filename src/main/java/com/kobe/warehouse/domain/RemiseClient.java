@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import java.io.Serializable;
 
 @Entity

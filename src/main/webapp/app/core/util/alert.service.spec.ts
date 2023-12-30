@@ -130,7 +130,7 @@ describe('Alert service test', () => {
       );
 
       expect(service.get().length).toBe(3);
-      alert1.close?.(service.get());
+      alert1.close(service.get());
       expect(service.get().length).toBe(2);
       expect(service.get()[1]).not.toEqual(
         expect.objectContaining({
@@ -139,7 +139,7 @@ describe('Alert service test', () => {
           id: 1,
         } as Alert)
       );
-      alert2.close?.(service.get());
+      alert2.close(service.get());
       expect(service.get().length).toBe(1);
       expect(service.get()[0]).not.toEqual(
         expect.objectContaining({
@@ -148,7 +148,7 @@ describe('Alert service test', () => {
           id: 2,
         } as Alert)
       );
-      alert0.close?.(service.get());
+      alert0.close(service.get());
       expect(service.get().length).toBe(0);
     }));
 

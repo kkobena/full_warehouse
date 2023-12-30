@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
@@ -13,35 +13,30 @@ import { PrivillegeService } from './privillege.service';
 import { mergeMap } from 'rxjs/internal/operators/mergeMap';
 import { Authority } from '../../shared/constants/authority.constants';
 
-@Injectable({ providedIn: 'root' })
-export class MenuResolve implements Resolve<IAuthority> {
-  constructor(private service: PrivillegeService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IAuthority> | Observable<never> {
-    const name = route.params['name'];
-    if (name) {
-      return this.service.find(name).pipe(
-        mergeMap((privilege: HttpResponse<Privilege>) => {
-          if (privilege.body) {
-            return of(privilege.body);
+export const MenuResolve = (route: ActivatedRouteSnapshot): Observable<null | IAuthority> => {
+  const name = route.params['name'];
+  if (name) {
+    return inject(PrivillegeService)
+      .find(name)
+      .pipe(
+        mergeMap((res: HttpResponse<IAuthority>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Privilege());
   }
-}
-
-export const menuRoute: Routes = [
+  return of(new Privilege());
+};
+const menuRoute: Routes = [
   {
     path: '',
     component: MenuComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.MENU],
-      pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -53,7 +48,6 @@ export const menuRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MENU],
-      pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -65,7 +59,6 @@ export const menuRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MENU],
-      pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -77,8 +70,8 @@ export const menuRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.MENU],
-      pageTitle: 'warehouseApp.menu.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default menuRoute;

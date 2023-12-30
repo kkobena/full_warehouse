@@ -1,17 +1,37 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {GroupeTiersPayant, IGroupeTiersPayant} from 'app/shared/model/groupe-tierspayant.model';
-import {ErrorService} from 'app/shared/error.service';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {GroupeTiersPayantService} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
+import { ErrorService } from 'app/shared/error.service';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
   templateUrl: './form-groupe-tiers-payant.component.html',
   providers: [MessageService, ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    KeyFilterModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
   entity?: IGroupeTiersPayant;
@@ -31,9 +51,8 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     protected groupeTiersPayantService: GroupeTiersPayantService,
-    private messageService: MessageService
-  ) {
-  }
+    private messageService: MessageService,
+  ) {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -78,10 +97,10 @@ export class FormGroupeTiersPayantComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeTiersPayant>>): void {
-    result.subscribe(
-      res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error)
-    );
+    result.subscribe({
+      next: res => this.onSaveSuccess(res.body),
+      error: error => this.onSaveError(error),
+    });
   }
 
   protected onSaveSuccess(groupeTiersPayant: IGroupeTiersPayant | null): void {
@@ -91,12 +110,20 @@ export class FormGroupeTiersPayantComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: translatedErrorMessage});
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 }

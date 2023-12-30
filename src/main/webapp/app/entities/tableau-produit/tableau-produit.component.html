@@ -61,9 +61,9 @@
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
-            [responsive]="true" [style]="{width: '600px'}"
+            [style]="{width: '600px'}"
             header="Créer ou éditer un tableau de produit"
-            showEffect="fade">
+  >
     <ng-template pTemplate="content">
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
 

@@ -1,17 +1,43 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {FormeProduitService} from './forme-produit.service';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {FormProduit, IFormProduit} from '../../shared/model/form-produit.model';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { FormeProduitService } from './forme-produit.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { FormProduit, IFormProduit } from '../../shared/model/form-produit.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
   selector: 'jhi-forme-produit',
   templateUrl: './forme-produit.component.html',
   providers: [ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextareaModule,
+  ],
 })
 export class FormeProduitComponent implements OnInit {
   entites?: IFormProduit[];
@@ -33,9 +59,8 @@ export class FormeProduitComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder
-  ) {
-  }
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {
@@ -51,25 +76,25 @@ export class FormeProduitComponent implements OnInit {
         page: pageToLoad,
         size: this.itemsPerPage,
       })
-      .subscribe(
-        (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.entityService
         .query({
           page: this.page,
           size: event.rows,
         })
-        .subscribe(
-          (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-          () => this.onError()
-        );
+        .subscribe({
+          next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: () => this.onError(),
+        });
     }
   }
 
@@ -120,7 +145,7 @@ export class FormeProduitComponent implements OnInit {
 
   delete(entity: IFormProduit): void {
     if (entity) {
-      this.confirmDelete(entity.id!);
+      this.confirmDelete(entity.id);
     }
   }
 
@@ -156,10 +181,10 @@ export class FormeProduitComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFormProduit>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   private createFromForm(): IFormProduit {

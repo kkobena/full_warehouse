@@ -9,12 +9,12 @@ import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
 import { checkIfRomToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { Params } from '../../shared/model/enumerations/params.model';
 import { FormLotComponent } from './lot/form-lot.component';
 import { ListLotComponent } from './lot/list/list-lot.component';
@@ -25,12 +25,31 @@ import { DeliveryModalComponent } from './delevery/form/delivery-modal.component
 import { ReceiptStatusComponent } from './status/receipt-status.component';
 import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
 import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
   styles: [``],
   templateUrl: './commande-stock-entry.component.html',
+  standalone: true,
   providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    AgGridModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    NgxSpinnerModule,
+    ConfirmDialogModule,
+    InputTextModule,
+  ],
 })
 export class CommandeStockEntryComponent implements OnInit {
   commande?: ICommande | null = null;
@@ -64,7 +83,7 @@ export class CommandeStockEntryComponent implements OnInit {
     protected configurationService: ConfigurationService,
     private spinner: NgxSpinnerService,
     protected router: Router,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {
     this.filtres = [
       { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
@@ -96,7 +115,7 @@ export class CommandeStockEntryComponent implements OnInit {
         flex: 1,
         //  cellStyle: this.cellStyle,
         //  valueGetter: 'data.firstName',
-        //editable: (params) => params.data.year == 2012
+        // editable: (params) => params.data.year == 2012
       },
       {
         headerName: 'Stock',
@@ -232,7 +251,7 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   onSearch(event: any): void {
-    this.gridApi.setQuickFilter(event.target.value);
+    this.gridApi.setGridOption('quickFilterText', event.target.value);
   }
 
   onGridReady(params: GridReadyEvent): void {
@@ -347,7 +366,6 @@ export class CommandeStockEntryComponent implements OnInit {
     if (params.data.updated) {
       return { backgroundColor: '#c6c6c6' };
     }
-    return;
   }
 
   onFilterReceiptItems(): void {
@@ -355,7 +373,7 @@ export class CommandeStockEntryComponent implements OnInit {
       next: res => {
         this.delivery = res.body;
         if (this.selectedFilter === 'PROVISOL_CIP') {
-          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip?.length === 0);
+          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip.length === 0);
         } else if (this.selectedFilter === 'NOT_EQUAL') {
           this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
         } else if (this.selectedFilter === 'PU_NOT_EQUAL') {
@@ -510,10 +528,7 @@ export class CommandeStockEntryComponent implements OnInit {
     this.service.finalizeSaisieEntreeStock(this.delivery).subscribe({
       next: () => {
         this.hidePinner();
-        console.error('ddd ', this.delivery);
         this.confirmPrintTicket(this.delivery);
-
-        //  this.previousState();
       },
       error: error => {
         this.onCommonError(error);
@@ -588,7 +603,7 @@ export class CommandeStockEntryComponent implements OnInit {
   findCommande(): void {
     this.commandeService.findByReference(this.delivery.orderReference).subscribe(res => {
       this.commande = res.body;
-      this.orderLines = this.commande?.orderLines;
+      this.orderLines = this.commande.orderLines;
     });
   }
 

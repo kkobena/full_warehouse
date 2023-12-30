@@ -1,16 +1,33 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {MessageService, SelectItem} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Observable} from 'rxjs';
-import {FamilleProduitService} from '../famille-produit.service';
-import {FamilleProduit, IFamilleProduit} from '../../../shared/model/famille-produit.model';
-import {CategorieService} from '../../categorie/categorie.service';
+import { HttpResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MessageService, SelectItem } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Observable } from 'rxjs';
+import { FamilleProduitService } from '../famille-produit.service';
+import { FamilleProduit, IFamilleProduit } from '../../../shared/model/famille-produit.model';
+import { CategorieService } from '../../categorie/categorie.service';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+  ],
 })
 export class FormFamilleComponent implements OnInit {
   isSaving = false;
@@ -29,9 +46,8 @@ export class FormFamilleComponent implements OnInit {
     public config: DynamicDialogConfig,
     private fb: UntypedFormBuilder,
     private messageService: MessageService,
-    protected categorieProduitService: CategorieService
-  ) {
-  }
+    protected categorieProduitService: CategorieService,
+  ) {}
 
   ngOnInit(): void {
     this.familleProduit = this.config.data.familleProduit;
@@ -47,20 +63,10 @@ export class FormFamilleComponent implements OnInit {
     });
   }
 
-  private createFromForm(): IFamilleProduit {
-    return {
-      ...new FamilleProduit(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      categorieId: this.editForm.get(['categorieId'])!.value,
-    };
-  }
-
   async populateAssurrance(): Promise<void> {
-    const categoriesResponse = await this.categorieProduitService.queryPromise({search: ''});
+    const categoriesResponse = await this.categorieProduitService.queryPromise({ search: '' });
     categoriesResponse.forEach(e => {
-      this.categorieproduits.push({label: e.libelle, value: e.id});
+      this.categorieproduits.push({ label: e.libelle, value: e.id });
     });
     if (this.familleProduit) {
       this.updateForm(this.familleProduit);
@@ -77,24 +83,42 @@ export class FormFamilleComponent implements OnInit {
     }
   }
 
+  cancel(): void {
+    this.ref.destroy();
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {
-    result.subscribe(
-      (res: HttpResponse<IFamilleProduit>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IFamilleProduit>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(response: IFamilleProduit | null): void {
-    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Enregistrement effectué avec succès'});
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Information',
+      detail: 'Enregistrement effectué avec succès',
+    });
     this.ref.close(response);
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué'});
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
-  cancel(): void {
-    this.ref.destroy();
+  private createFromForm(): IFamilleProduit {
+    return {
+      ...new FamilleProduit(),
+      id: this.editForm.get(['id'])!.value,
+      code: this.editForm.get(['code'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      categorieId: this.editForm.get(['categorieId'])!.value,
+    };
   }
 }

@@ -1,10 +1,8 @@
 package com.kobe.warehouse.service.utils;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Date;
-import org.apache.commons.net.time.TimeTCPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,19 +21,13 @@ public final class DateUtil {
   }
 
   public static Date getNistTime() {
-    TimeTCPClient timeTCPClient = new TimeTCPClient();
-    try {
+    //  TimeTCPClient timeTCPClient = new TimeTCPClient();
 
-      // "time.nist.gov"
-      timeTCPClient.connect("time.nist.gov");
-      Date date = timeTCPClient.getDate();
+    // "time.nist.gov"
+    //  timeTCPClient.connect("time.nist.gov");
+    Date date = new Date(); // timeTCPClient.getDate();
 
-      return date;
-
-    } catch (IOException e) {
-      log.debug("", e);
-      return null;
-    }
+    return date;
   }
 
   public static String getMonthFromMonth(Month month) {

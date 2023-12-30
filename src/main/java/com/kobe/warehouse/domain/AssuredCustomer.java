@@ -1,89 +1,96 @@
 package com.kobe.warehouse.domain;
 
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
 
 @Entity
 public class AssuredCustomer extends Customer {
 
-    @ManyToOne
-    private RemiseClient remise;
-    @Column(name = "sexe")
-    private String sexe;
-    @Column(name = "dat_naiss")
-    private LocalDate datNaiss;
-    @ManyToOne
-    private AssuredCustomer assurePrincipal;
-    @Column(name = "num_ayant_droit", length = 100)
-    private String numAyantDroit;
-    @OneToMany(mappedBy = "assurePrincipal", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-    private Set<AssuredCustomer> ayantDroits = new HashSet<>();
-    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
+  @ManyToOne private RemiseClient remise;
 
-    public AssuredCustomer getAssurePrincipal() {
-        return assurePrincipal;
-    }
+  @Column(name = "sexe")
+  private String sexe;
 
-    public AssuredCustomer setAssurePrincipal(AssuredCustomer assurePrincipal) {
-        this.assurePrincipal = assurePrincipal;
-        return this;
-    }
+  @Column(name = "dat_naiss")
+  private LocalDate datNaiss;
 
-    public Set<AssuredCustomer> getAyantDroits() {
-        return ayantDroits;
-    }
+  @ManyToOne private AssuredCustomer assurePrincipal;
 
-    public AssuredCustomer setAyantDroits(Set<AssuredCustomer> ayantDroits) {
-        this.ayantDroits = ayantDroits;
-        return this;
-    }
+  @Column(name = "num_ayant_droit", length = 100)
+  private String numAyantDroit;
 
-    public Set<ClientTiersPayant> getClientTiersPayants() {
-        return clientTiersPayants;
-    }
+  @OneToMany(
+      mappedBy = "assurePrincipal",
+      orphanRemoval = true,
+      cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+  private Set<AssuredCustomer> ayantDroits = new HashSet<>();
 
-    public AssuredCustomer setClientTiersPayants(Set<ClientTiersPayant> clientTiersPayants) {
-        this.clientTiersPayants = clientTiersPayants;
-        return this;
-    }
+  @OneToMany(
+      mappedBy = "assuredCustomer",
+      orphanRemoval = true,
+      cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
+  private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
-    public String getNumAyantDroit() {
-        return numAyantDroit;
-    }
+  public AssuredCustomer getAssurePrincipal() {
+    return assurePrincipal;
+  }
 
-    public AssuredCustomer setNumAyantDroit(String numAyantDroit) {
-        this.numAyantDroit = numAyantDroit;
-        return this;
-    }
+  public AssuredCustomer setAssurePrincipal(AssuredCustomer assurePrincipal) {
+    this.assurePrincipal = assurePrincipal;
+    return this;
+  }
 
-    public RemiseClient getRemise() {
-        return remise;
-    }
+  public Set<AssuredCustomer> getAyantDroits() {
+    return ayantDroits;
+  }
 
-    public void setRemise(RemiseClient remise) {
-        this.remise = remise;
-    }
+  public AssuredCustomer setAyantDroits(Set<AssuredCustomer> ayantDroits) {
+    this.ayantDroits = ayantDroits;
+    return this;
+  }
 
-    public String getSexe() {
-        return sexe;
-    }
+  public Set<ClientTiersPayant> getClientTiersPayants() {
+    return clientTiersPayants;
+  }
 
-    public void setSexe(String sexe) {
-        this.sexe = sexe;
-    }
+  public AssuredCustomer setClientTiersPayants(Set<ClientTiersPayant> clientTiersPayants) {
+    this.clientTiersPayants = clientTiersPayants;
+    return this;
+  }
 
-    public LocalDate getDatNaiss() {
-        return datNaiss;
-    }
+  public String getNumAyantDroit() {
+    return numAyantDroit;
+  }
 
-    public void setDatNaiss(LocalDate datNaiss) {
-        this.datNaiss = datNaiss;
-    }
+  public AssuredCustomer setNumAyantDroit(String numAyantDroit) {
+    this.numAyantDroit = numAyantDroit;
+    return this;
+  }
 
+  public RemiseClient getRemise() {
+    return remise;
+  }
 
+  public void setRemise(RemiseClient remise) {
+    this.remise = remise;
+  }
+
+  public String getSexe() {
+    return sexe;
+  }
+
+  public void setSexe(String sexe) {
+    this.sexe = sexe;
+  }
+
+  public LocalDate getDatNaiss() {
+    return datNaiss;
+  }
+
+  public void setDatNaiss(LocalDate datNaiss) {
+    this.datNaiss = datNaiss;
+  }
 }
-

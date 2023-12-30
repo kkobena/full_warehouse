@@ -1,17 +1,20 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ProduitService} from './produit.service';
-import {IProduit, Produit} from '../../shared/model/produit.model';
-import {DATE_TIME_FORMAT} from '../../shared/constants/input.constants';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ProduitService } from './produit.service';
+import { IProduit, Produit } from '../../shared/model/produit.model';
+import { DATE_TIME_FORMAT } from '../../shared/constants/input.constants';
 import moment from 'moment';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-detail-form-dialog',
   templateUrl: './detail-form-dialog.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule],
 })
 export class DetailFormDialogComponent implements OnInit {
   isSaving = false;
@@ -29,34 +32,15 @@ export class DetailFormDialogComponent implements OnInit {
   constructor(
     private fb: UntypedFormBuilder,
     protected produitService: ProduitService,
-    public activeModal: NgbActiveModal
-  ) {
-  }
+    public activeModal: NgbActiveModal,
+  ) {}
 
   ngOnInit(): void {
     if (this.entity !== null && this.entity !== undefined) {
       this.updateForm(this.entity);
     } else {
-      this.updateFormWithParentData(this.produit!);
+      this.updateFormWithParentData(this.produit);
     }
-  }
-
-  private createFromForm(): IProduit {
-    return {
-      ...new Produit(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      costAmount: this.editForm.get(['costAmount'])!.value,
-      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
-      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
-      produitId: this.produit?.id,
-      typeProduit: TypeProduit.DETAIL,
-      quantity: 0,
-      netUnitPrice: 0,
-      itemQty: 0,
-      itemCostAmount: 0,
-      itemRegularUnitPrice: 0,
-    };
   }
 
   updateFormWithParentData(parent: IProduit): void {
@@ -86,11 +70,15 @@ export class DetailFormDialogComponent implements OnInit {
     }
   }
 
+  cancel(): void {
+    this.activeModal.dismiss();
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {
@@ -103,7 +91,21 @@ export class DetailFormDialogComponent implements OnInit {
     this.isSaving = false;
   }
 
-  cancel(): void {
-    this.activeModal.dismiss();
+  private createFromForm(): IProduit {
+    return {
+      ...new Produit(),
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      costAmount: this.editForm.get(['costAmount'])!.value,
+      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
+      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      produitId: this.produit.id,
+      typeProduit: TypeProduit.DETAIL,
+      quantity: 0,
+      netUnitPrice: 0,
+      itemQty: 0,
+      itemCostAmount: 0,
+      itemRegularUnitPrice: 0,
+    };
   }
 }

@@ -1,20 +1,49 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
 import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../delivery.service';
 import moment, { Moment } from 'moment';
 import { DATE_FORMAT } from '../../../../shared/constants/input.constants';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { ToastModule } from 'primeng/toast';
+import { CalendarModule } from 'primeng/calendar';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-form-delivery',
   templateUrl: './delivery-modal.component.html',
+  standalone: true,
   providers: [MessageService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TableModule,
+    NgxSpinnerModule,
+    TooltipModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CardModule,
+    ToastModule,
+    CalendarModule,
+    KeyFilterModule,
+    InputTextModule,
+  ],
 })
 export class DeliveryModalComponent implements OnInit {
   isSaving = false;
@@ -49,7 +78,7 @@ export class DeliveryModalComponent implements OnInit {
     public config: DynamicDialogConfig,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   ngOnInit(): void {
@@ -61,10 +90,10 @@ export class DeliveryModalComponent implements OnInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
-    this.minDate = new Date(moment(this.commande?.createdAt).format(DATE_FORMAT));
+    this.minDate = new Date(moment(this.commande.createdAt).format(DATE_FORMAT));
     this.editForm
       .get('receiptAmount')!
-      .setValidators([Validators.min(this.commande?.grossAmount), Validators.max(this.commande?.grossAmount)]);
+      .setValidators([Validators.min(this.commande.grossAmount), Validators.max(this.commande.grossAmount)]);
     this.editForm.get('receiptAmount')!.updateValueAndValidity();
   }
 
@@ -125,7 +154,7 @@ export class DeliveryModalComponent implements OnInit {
       sequenceBon: this.editForm.get(['sequenceBon'])!.value,
       receiptAmount: this.editForm.get(['receiptAmount'])!.value,
       taxAmount: this.editForm.get(['taxAmount'])!.value,
-      orderReference: this.commande?.orderRefernce,
+      orderReference: this.commande.orderRefernce,
     };
   }
 

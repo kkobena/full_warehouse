@@ -20,11 +20,17 @@ import { AchatRecord } from '../../../shared/model/achat-record.model';
 import { ProduitStatService } from '../../../entities/produit/stat/produit-stat.service';
 import { ProductStatRecord } from '../../../shared/model/produit-record.model';
 import { OrderBy } from '../../../shared/model/enumerations/type-vente.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'jhi-yearly-data',
   templateUrl: './yearly-data.component.html',
   styleUrls: ['./yearly-data.component.scss'],
+  standalone: true,
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
 })
 export class YearlyDataComponent implements OnInit {
   faShoppingBasket = faShoppingBasket;
@@ -50,16 +56,19 @@ export class YearlyDataComponent implements OnInit {
   protected TOP_MAX_QUANTITY: any;
   protected TOP_MAX_AMOUNT: any;
   protected TOP_MAX_TP: any;
-  protected totalAmountTopQuantity: number;
-  protected totalQuantityToQuantity: number;
-  protected totalAmountTopAmount: number;
-  protected totalQuantityTopAmount: number;
-  protected totalAmount20x80: number;
-  protected totalQuantityAvg: number;
-  protected totalAmountAvg: number;
-  protected totalQuantity20x80: number;
+  protected totalAmountTopQuantity?: number;
+  protected totalQuantityToQuantity?: number;
+  protected totalAmountTopAmount?: number;
+  protected totalQuantityTopAmount?: number;
+  protected totalAmount20x80?: number;
+  protected totalQuantityAvg?: number;
+  protected totalAmountAvg?: number;
+  protected totalQuantity20x80?: number;
 
-  constructor(private dashboardService: DashboardService, private produitStatService: ProduitStatService) {
+  constructor(
+    private dashboardService: DashboardService,
+    private produitStatService: ProduitStatService,
+  ) {
     this.TOP_MAX_QUANTITY = this.tops[1];
     this.TOP_MAX_AMOUNT = this.tops[1];
     this.TOP_MAX_TP = this.tops[1];
@@ -70,41 +79,41 @@ export class YearlyDataComponent implements OnInit {
       this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToCaAchatResponse(
       this.dashboardService.fetchCaAchat({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToCaTypeVenteResponse(
       this.dashboardService.fetchCaByTypeVente({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToByModePaimentResponse(
       this.dashboardService.getCaByModePaiment({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToFetchPoduitCaResponse(
       this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
         limit: this.TOP_MAX_QUANTITY?.value,
-      })
+      }),
     );
     this.subscribeToFetchPoduitAmountResponse(
       this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
         limit: this.TOP_MAX_AMOUNT?.value,
-      })
+      }),
     );
     this.subscribeToFetch20x80Response(
       this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
   }
 
@@ -114,7 +123,7 @@ export class YearlyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
         limit: this.TOP_MAX_QUANTITY?.value,
-      })
+      }),
     );
   }
 
@@ -124,7 +133,7 @@ export class YearlyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
         limit: this.TOP_MAX_AMOUNT?.value,
-      })
+      }),
     );
   }
 
@@ -152,8 +161,8 @@ export class YearlyDataComponent implements OnInit {
   }
 
   protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
-    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
-    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
+    this.vno = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
+    this.assurance = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
   }
 
   protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {

@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import java.time.LocalDate;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class LotJsonValue {
   @NotNull private Long commandeId;

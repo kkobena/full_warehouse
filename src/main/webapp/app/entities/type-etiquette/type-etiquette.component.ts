@@ -1,16 +1,34 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
-import {Observable} from 'rxjs';
-import {TypeEtiquetteService} from './type-etiquette.service';
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {ITypeEtiquette, TypeEtiquette} from '../../shared/model/type-etiquette.model';
+import { Component, OnInit } from '@angular/core';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { Observable } from 'rxjs';
+import { TypeEtiquetteService } from './type-etiquette.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { ITypeEtiquette, TypeEtiquette } from '../../shared/model/type-etiquette.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'jhi-type-etiquette',
   templateUrl: './type-etiquette.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    DialogModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+  ],
 })
 export class TypeEtiquetteComponent implements OnInit {
   entites?: ITypeEtiquette[];
@@ -32,9 +50,8 @@ export class TypeEtiquetteComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder
-  ) {
-  }
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
     this.loadPage();
@@ -50,12 +67,12 @@ export class TypeEtiquetteComponent implements OnInit {
       })
       .subscribe(
         (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError()
+        () => this.onError(),
       );
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    this.page = event.first! / event.rows!;
+    this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
@@ -64,7 +81,7 @@ export class TypeEtiquetteComponent implements OnInit {
       })
       .subscribe(
         (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError()
+        () => this.onError(),
       );
   }
 
@@ -114,7 +131,7 @@ export class TypeEtiquetteComponent implements OnInit {
   }
 
   delete(entity: ITypeEtiquette): void {
-    this.confirmDelete(entity.id!);
+    this.confirmDelete(entity.id);
   }
 
   confirmDelete(id: number): void {
@@ -151,7 +168,7 @@ export class TypeEtiquetteComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITypeEtiquette>>): void {
     result.subscribe(
       () => this.onSaveSuccess(),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 

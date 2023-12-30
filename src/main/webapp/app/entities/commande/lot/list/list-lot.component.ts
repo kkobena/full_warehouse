@@ -1,15 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ILot } from '../../../../shared/model/lot.model';
 import { LotService } from '../lot.service';
 import { FormLotComponent } from '../form-lot.component';
 import { IDeliveryItem } from '../../../../shared/model/delivery-item';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-form-lot',
+  standalone: true,
+  selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
   providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TooltipModule,
+    ToastModule,
+    TableModule,
+    RippleModule,
+    DynamicDialogModule,
+    ConfirmDialogModule,
+  ],
 })
 export class ListLotComponent implements OnInit {
   lots: ILot[] = [];
@@ -26,7 +44,7 @@ export class ListLotComponent implements OnInit {
     public config: DynamicDialogConfig,
     private messageService: MessageService,
     private dialogService: DialogService,
-    private modalService: ConfirmationService
+    private modalService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {

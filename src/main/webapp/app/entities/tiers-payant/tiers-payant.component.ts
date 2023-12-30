@@ -4,20 +4,53 @@ import { Observable } from 'rxjs';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ITiersPayant } from '../../shared/model/tierspayant.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { FormTiersPayantComponent } from './form-tiers-payant/form-tiers-payant.component';
 import { ErrorService } from '../../shared/error.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { DialogModule } from 'primeng/dialog';
+import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
   selector: 'jhi-tiers-payant',
   templateUrl: './tiers-payant.component.html',
 
   providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    DropdownModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    DynamicDialogModule,
+    FormsModule,
+    DialogModule,
+    FormTiersPayantComponent,
+    SplitButtonModule,
+    NgxSpinnerModule,
+  ],
 })
 export class TiersPayantComponent implements OnInit {
   tiersPayants?: ITiersPayant[] = [];
@@ -51,7 +84,7 @@ export class TiersPayantComponent implements OnInit {
     protected errorService: ErrorService,
     protected confirmationService: ConfirmationService,
     protected router: Router,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {
     this.splitbuttons = [
       {
@@ -110,15 +143,15 @@ export class TiersPayantComponent implements OnInit {
         type: this.typeSelected,
         search: this.search,
       })
-      .subscribe(
-        (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        () => this.onError()
-      );
+      .subscribe({
+        next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.entityService
         .query({
@@ -129,7 +162,7 @@ export class TiersPayantComponent implements OnInit {
         })
         .subscribe(
           (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          () => this.onError()
+          () => this.onError(),
         );
     }
   }
@@ -166,6 +199,7 @@ export class TiersPayantComponent implements OnInit {
       this.loadPage();
     });
   }
+
   confirmRemove(tiersPayant: ITiersPayant): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce tiers-payant ?',
@@ -175,6 +209,7 @@ export class TiersPayantComponent implements OnInit {
       key: 'comfirmDialog',
     });
   }
+
   confirmDesactivation(tiersPayant: ITiersPayant): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment désativer ce tiers-payant ?',
@@ -184,42 +219,55 @@ export class TiersPayantComponent implements OnInit {
       key: 'comfirmDialog',
     });
   }
+
   onDelete(tiersPayant: ITiersPayant): void {
-    this.entityService.delete(tiersPayant.id!).subscribe(
-      () => this.loadPage(),
-      error => this.onSaveError(error)
-    );
+    this.entityService.delete(tiersPayant.id).subscribe({
+      next: () => this.loadPage(),
+      error: error => this.onSaveError(error),
+    });
   }
 
   onDesable(tiersPayant: ITiersPayant): void {
-    this.entityService.desable(tiersPayant.id!).subscribe(
-      () => this.loadPage(),
-      error => this.onSaveError(error)
-    );
+    this.entityService.desable(tiersPayant.id).subscribe({
+      next: () => this.loadPage(),
+      error: error => this.onSaveError(error),
+    });
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error && error.error.errorKey) {
+    if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: translatedErrorMessage });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur interne du serveur.' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Erreur interne du serveur.',
+      });
     }
   }
 
   protected onImportError(): void {
     this.isSaving = false;
     this.spinner.hide('importation');
-    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Enregistrement a échoué' });
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Enregistrement a échoué',
+    });
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.subscribe(
-      () => this.onPocesJsonSuccess(),
-      () => this.onImportError()
-    );
+    result.subscribe({
+      next: () => this.onPocesJsonSuccess(),
+      error: () => this.onImportError(),
+    });
   }
 
   protected onPocesJsonSuccess(): void {

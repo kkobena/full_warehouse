@@ -1,16 +1,22 @@
-import {Component, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Observable } from 'rxjs';
 
-import {IMagasin, Magasin} from 'app/shared/model/magasin.model';
-import {MagasinService} from './magasin.service';
+import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
+import { MagasinService } from './magasin.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'jhi-magasin-update',
   templateUrl: './magasin-update.component.html',
+  standalone: true,
+  imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule],
 })
 export class MagasinUpdateComponent implements OnInit {
   isSaving = false;
@@ -25,12 +31,14 @@ export class MagasinUpdateComponent implements OnInit {
     welcomeMessage: [],
   });
 
-  constructor(protected magasinService: MagasinService, protected activatedRoute: ActivatedRoute,
-              private fb: UntypedFormBuilder) {
-  }
+  constructor(
+    protected magasinService: MagasinService,
+    protected activatedRoute: ActivatedRoute,
+    private fb: UntypedFormBuilder,
+  ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({magasin}) => {
+    this.activatedRoute.data.subscribe(({ magasin }) => {
       this.updateForm(magasin);
     });
   }
@@ -62,10 +70,10 @@ export class MagasinUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMagasin>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError()
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(): void {

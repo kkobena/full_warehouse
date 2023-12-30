@@ -20,11 +20,18 @@ import { AchatRecord } from '../../../shared/model/achat-record.model';
 import { ProduitStatService } from '../../../entities/produit/stat/produit-stat.service';
 import { ProductStatRecord } from '../../../shared/model/produit-record.model';
 import { OrderBy } from '../../../shared/model/enumerations/type-vente.model';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'jhi-daily-data',
+
   templateUrl: './daily-data.component.html',
   styleUrls: ['./daily-data.component.scss'],
+  standalone: true,
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
 })
 export class DailyDataComponent implements OnInit {
   protected faShoppingBasket = faShoppingBasket;
@@ -58,7 +65,10 @@ export class DailyDataComponent implements OnInit {
   protected totalAmountAvg: number;
   protected totalQuantity20x80: number;
 
-  constructor(private dashboardService: DashboardService, private produitStatService: ProduitStatService) {
+  constructor(
+    private dashboardService: DashboardService,
+    private produitStatService: ProduitStatService,
+  ) {
     this.TOP_MAX_QUANTITY = this.tops[1];
     this.TOP_MAX_AMOUNT = this.tops[1];
     this.TOP_MAX_TP = this.tops[1];
@@ -69,23 +79,23 @@ export class DailyDataComponent implements OnInit {
       this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToCaAchatResponse(
       this.dashboardService.fetchCaAchat({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
 
     this.subscribeToCaTypeVenteResponse(
       this.dashboardService.fetchCaByTypeVente({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
     this.subscribeToByModePaimentResponse(
       this.dashboardService.getCaByModePaiment({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
 
     this.subscribeToFetchPoduitCaResponse(
@@ -93,19 +103,19 @@ export class DailyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
         limit: this.TOP_MAX_QUANTITY?.value,
-      })
+      }),
     );
     this.subscribeToFetchPoduitAmountResponse(
       this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
         limit: this.TOP_MAX_AMOUNT?.value,
-      })
+      }),
     );
     this.subscribeToFetch20x80Response(
       this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-      })
+      }),
     );
   }
 
@@ -115,7 +125,7 @@ export class DailyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
         limit: this.TOP_MAX_QUANTITY?.value,
-      })
+      }),
     );
   }
 
@@ -125,7 +135,7 @@ export class DailyDataComponent implements OnInit {
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
         limit: this.TOP_MAX_AMOUNT?.value,
-      })
+      }),
     );
   }
 
@@ -153,8 +163,8 @@ export class DailyDataComponent implements OnInit {
   }
 
   protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
-    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO')?.venteRecord;
-    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO')?.venteRecord;
+    this.vno = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
+    this.assurance = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
   }
 
   protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {

@@ -5,7 +5,7 @@ import com.kobe.warehouse.service.dto.AuthorityDTO;
 import com.kobe.warehouse.service.dto.PrivillegesDTO;
 import com.kobe.warehouse.service.dto.PrivillegesWrapperDTO;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

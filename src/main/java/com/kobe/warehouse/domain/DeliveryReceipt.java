@@ -12,20 +12,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -38,9 +38,8 @@ import lombok.Getter;
     },
     indexes = {
       @Index(columnList = "receipt_date DESC", name = "receipt_date_index"),
-        @Index(columnList = "receipt_status", name = "receipt_status_index"),
-        @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
-
+      @Index(columnList = "receipt_status", name = "receipt_status_index"),
+      @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
       @Index(columnList = "receipt_refernce", name = "receipt_refernce_index"),
       @Index(columnList = "number_transaction", name = "number_transaction_index")
     })
@@ -91,10 +90,12 @@ public class DeliveryReceipt implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "receipt_status")
   private ReceiptStatut receiptStatut;
+
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(name = "paiment_status")
-  private PaimentStatut paimentStatut=PaimentStatut.UNPAID;
+  private PaimentStatut paimentStatut = PaimentStatut.UNPAID;
+
   @NotNull
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "receipt_type")
@@ -102,11 +103,14 @@ public class DeliveryReceipt implements Serializable {
 
   @OneToMany(mappedBy = "deliveryReceipt")
   private Set<PaymentFournisseur> paymentFournisseurs = new HashSet<>();
+
   @ManyToOne(optional = false)
   @NotNull
   private Fournisseur fournisseur;
+
   @Column(name = "net_amount", columnDefinition = "int default '0'")
   private Integer netAmount = 0;
+
   @Column(name = "tax_amount", columnDefinition = "int default '0'")
   private Integer taxAmount = 0;
 
@@ -115,13 +119,12 @@ public class DeliveryReceipt implements Serializable {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
 
-
-    public DeliveryReceipt setType(TypeDeliveryReceipt type) {
+  public DeliveryReceipt setType(TypeDeliveryReceipt type) {
     this.type = type;
     return this;
   }
 
-    public DeliveryReceipt setNetAmount(Integer netAmount) {
+  public DeliveryReceipt setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
     return this;
   }
@@ -136,7 +139,7 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
-    public DeliveryReceipt setTaxAmount(Integer taxAmount) {
+  public DeliveryReceipt setTaxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
     return this;
   }
@@ -145,72 +148,72 @@ public class DeliveryReceipt implements Serializable {
     return id;
   }
 
-    public DeliveryReceipt setNumberTransaction(String numberTransaction) {
+  public DeliveryReceipt setNumberTransaction(String numberTransaction) {
     this.numberTransaction = numberTransaction;
     return this;
   }
 
-    public DeliveryReceipt setSequenceBon(String sequenceBon) {
+  public DeliveryReceipt setSequenceBon(String sequenceBon) {
     this.sequenceBon = sequenceBon;
     return this;
   }
 
-    public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
+  public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
     this.receiptRefernce = receiptRefernce;
     return this;
   }
 
-    public DeliveryReceipt setReceiptDate(LocalDate receiptDate) {
+  public DeliveryReceipt setReceiptDate(LocalDate receiptDate) {
     this.receiptDate = receiptDate;
     return this;
   }
 
-    public DeliveryReceipt setDiscountAmount(Integer discountAmount) {
+  public DeliveryReceipt setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
     return this;
   }
 
-    public DeliveryReceipt setReceiptAmount(Integer receiptAmount) {
+  public DeliveryReceipt setReceiptAmount(Integer receiptAmount) {
     this.receiptAmount = receiptAmount;
     return this;
   }
 
-    public DeliveryReceipt setCreatedDate(LocalDateTime createdDate) {
+  public DeliveryReceipt setCreatedDate(LocalDateTime createdDate) {
     this.createdDate = createdDate;
     return this;
   }
 
-    public DeliveryReceipt setModifiedDate(LocalDateTime modifiedDate) {
+  public DeliveryReceipt setModifiedDate(LocalDateTime modifiedDate) {
     this.modifiedDate = modifiedDate;
     return this;
   }
 
-    public DeliveryReceipt setCreatedUser(User createdUser) {
+  public DeliveryReceipt setCreatedUser(User createdUser) {
     this.createdUser = createdUser;
     return this;
   }
 
-    public DeliveryReceipt setModifiedUser(User modifiedUser) {
+  public DeliveryReceipt setModifiedUser(User modifiedUser) {
     this.modifiedUser = modifiedUser;
     return this;
   }
 
-    public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
+  public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
     this.receiptStatut = receiptStatut;
     return this;
   }
 
-    public DeliveryReceipt setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
+  public DeliveryReceipt setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
     this.paymentFournisseurs = paymentFournisseurs;
     return this;
   }
 
-    public DeliveryReceipt setFournisseur(Fournisseur fournisseur) {
+  public DeliveryReceipt setFournisseur(Fournisseur fournisseur) {
     this.fournisseur = fournisseur;
     return this;
   }
 
-    public DeliveryReceipt setId(Long id) {
+  public DeliveryReceipt setId(Long id) {
     this.id = id;
     return this;
   }
@@ -227,7 +230,7 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
-    public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
+  public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
     this.receiptItems = receiptItems;
     return this;
   }

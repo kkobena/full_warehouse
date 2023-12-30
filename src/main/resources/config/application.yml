@@ -1,26 +1,22 @@
-# Conditionally disable springdoc on missing api-docs profile
-file:
-  report: ./reports
-  images: ./images
-  import:
-    json: ./json
-    csv: ./csv
-    excel: ./excel
-logging:
-  file:
-    name: warehouse.log
-    path: ./logs
-  level:
-    ROOT: DEBUG
-    io.github.jhipster: DEBUG
-    com.kobe.warehouse: DEBUG
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+#
+# More information on profiles: https://www.jhipster.tech/profiles/
+# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
 
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+---
+# Conditionally disable springdoc on missing api-docs profile
 spring:
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 20MB
-      max-request-size: 20MB
   config:
     activate:
       on-profile: '!api-docs'
@@ -34,19 +30,17 @@ management:
       base-path: /management
       exposure:
         include:
-          [
-            'configprops',
-            'env',
-            'health',
-            'info',
-            'jhimetrics',
-            'jhiopenapigroups',
-            'logfile',
-            'loggers',
-            'prometheus',
-            'threaddump'
-
-          ]
+          - configprops
+          - env
+          - health
+          - info
+          - jhimetrics
+          - jhiopenapigroups
+          - logfile
+          - loggers
+          - prometheus
+          - threaddump
+          - liquibase
   endpoint:
     health:
       show-details: when_authorized
@@ -64,16 +58,19 @@ management:
     git:
       mode: full
     env:
-      enabled: false
+      enabled: true
   health:
     mail:
       enabled: false # When using the MailService, configure an SMTP server and set this to true
-  metrics:
-    export:
-      # Prometheus is the default metrics backend
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
         step: 60
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  metrics:
     enable:
       http: true
       jvm: true
@@ -85,13 +82,10 @@ management:
         all: true
       percentiles:
         all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    tags:
-      application: ${spring.application.name}
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
+    data:
+      repository:
+        autotime:
+          enabled: true
 
 spring:
   application:
@@ -100,7 +94,7 @@ spring:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
     # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
-    active: #spring.profiles.active#
+    active: dev
     group:
       dev:
         - dev
@@ -116,7 +110,9 @@ spring:
   jpa:
     open-in-view: false
     properties:
-      hibernate.jdbc.time_zone: ${user.timezone}
+      hibernate.jdbc.time_zone: UTC
+      hibernate.timezone.default_storage: NORMALIZE
+      hibernate.type.preferred_instant_jdbc_type: TIMESTAMP
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true
       hibernate.cache.use_second_level_cache: false
@@ -129,17 +125,17 @@ spring:
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
   messages:
     basename: i18n/messages
   main:
     allow-bean-definition-overriding: true
   mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+    problemdetails:
+      enabled: true
   task:
     execution:
       thread-name-prefix: warehouse-task-
@@ -191,8 +187,8 @@ jhipster:
   mail:
     from: warehouse@localhost
   api-docs:
-    default-include-pattern: ${server.servlet.context-path:}/api/**
-    management-include-pattern: ${server.servlet.context-path:}/management/**
+    default-include-pattern: /api/**
+    management-include-pattern: /management/**
     title: Warehouse API
     description: Warehouse API documentation
     version: 0.0.1
@@ -215,4 +211,3 @@ jhipster:
 
 # application:
 legacy-url: http://localhost:9090/laborex
-

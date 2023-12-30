@@ -3,7 +3,7 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;

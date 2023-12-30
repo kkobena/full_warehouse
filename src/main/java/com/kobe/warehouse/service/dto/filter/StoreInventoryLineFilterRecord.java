@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto.filter;
 
 import com.kobe.warehouse.service.dto.enumeration.StoreInventoryLineEnum;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public record StoreInventoryLineFilterRecord(
     @NotNull Long storeInventoryId,

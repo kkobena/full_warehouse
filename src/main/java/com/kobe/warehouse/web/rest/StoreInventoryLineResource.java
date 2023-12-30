@@ -7,7 +7,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

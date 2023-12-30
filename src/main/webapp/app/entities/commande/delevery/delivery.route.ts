@@ -5,20 +5,19 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 
 import { DeliveryComponent } from './delivery.component';
 import { CommandeStockEntryComponent } from '../commande-stock-entry.component';
-import { DeliveryResolver } from './delivery.resolver';
+import DeliveryResolver from './delivery.resolver';
 
-export const deliveryRoute: Routes = [
+const deliveryRoute: Routes = [
   {
     path: '',
     component: DeliveryComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_ENTREE_STOCK, Authority.COMMANDE],
       defaultSort: 'id,asc',
-      pageTitle: 'warehouseApp.delivery.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
-  /*{
+  /* {
     path: ':id/view',
     component: CommandeDetailComponent,
     resolve: {
@@ -56,8 +55,8 @@ export const deliveryRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_ENTREE_STOCK, Authority.COMMANDE],
-      pageTitle: 'warehouseApp.delivery.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default deliveryRoute;

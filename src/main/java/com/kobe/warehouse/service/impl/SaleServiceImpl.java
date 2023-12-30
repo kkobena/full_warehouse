@@ -90,7 +90,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   private User getUserFormImport() {
     Optional<User> user =
         SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
-    return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM_ACCOUNT).get());
+    return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).get());
   }
 
   @Override

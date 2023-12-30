@@ -65,7 +65,7 @@ export class AlertService {
     alert.timeout = alert.timeout ?? this.timeout;
     alert.toast = alert.toast ?? this.toast;
     alert.position = alert.position ?? this.position;
-    alert.close = (alertsArray: Alert[]) => this.closeAlert(alert.id!, alertsArray);
+    alert.close = (alertsArray: Alert[]) => this.closeAlert(alert.id, alertsArray);
 
     (extAlerts ?? this.alerts).push(alert);
 
@@ -75,7 +75,7 @@ export class AlertService {
       this.ngZone.runOutsideAngular(() => {
         setTimeout(() => {
           this.ngZone.run(() => {
-            this.closeAlert(alert.id!, extAlerts ?? this.alerts);
+            this.closeAlert(alert.id, extAlerts ?? this.alerts);
           });
         }, alert.timeout);
       });

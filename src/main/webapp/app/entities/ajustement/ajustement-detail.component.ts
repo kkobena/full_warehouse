@@ -12,14 +12,38 @@ import { ModifAjustementService } from '../modif-ajustement/motif-ajustement.ser
 import { Ajust, IAjust } from '../../shared/model/ajust.model';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
 import { ConfirmationService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { ErrorService } from '../../shared/error.service';
 import { FinalyseComponent } from './finalyse/finalyse.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from 'primeng/button';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { BadgeModule } from 'primeng/badge';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'jhi-ajustement-detail',
   templateUrl: './ajustement-detail.component.html',
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    CardModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DynamicDialogModule,
+    ToolbarModule,
+    ButtonModule,
+    AutoCompleteModule,
+    InputTextModule,
+    BadgeModule,
+    TableModule,
+  ],
   providers: [ConfirmationService, DialogService],
 })
 export class AjustementDetailComponent implements OnInit {
@@ -52,7 +76,7 @@ export class AjustementDetailComponent implements OnInit {
     protected ajustementService: AjustementService,
     protected modifAjustementService: ModifAjustementService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {
     this.search = '';
     this.selectedEl = [];
@@ -85,7 +109,7 @@ export class AjustementDetailComponent implements OnInit {
   }
 
   deleteSelectedItems(): void {
-    const ids = this.selectedEl.map(e => e.id!);
+    const ids = this.selectedEl.map(e => e.id);
     this.ajustementService.deleteItemsByIds(ids).subscribe(() => {
       this.selectedEl = [];
       this.onSuccess();
@@ -110,7 +134,7 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Vous devez selectionner le motif',
       header: 'MOTIF AJUSTEMENT  ',
       icon: 'pi pi-times-circle',
-      reject: () => {},
+      reject() {},
       key: 'warningMessage',
     });
   }
@@ -144,7 +168,7 @@ export class AjustementDetailComponent implements OnInit {
       if (!this.motifSelected) {
         this.showWarningMessage();
       } else {
-        if (this.ajustement && this.ajustement.id !== undefined) {
+        if (this.ajustement.id !== undefined) {
           this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
         } else {
           this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
@@ -212,7 +236,7 @@ export class AjustementDetailComponent implements OnInit {
 
   protected onFilterItems(): void {
     const query = {
-      ajustementId: this.ajustement?.id,
+      ajustementId: this.ajustement.id,
       search: this.search,
     };
     this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
@@ -266,14 +290,14 @@ export class AjustementDetailComponent implements OnInit {
     if (ajsut) {
       this.ajustement = ajsut;
     }
-    this.loadAll(this.ajustement?.id);
+    this.loadAll(this.ajustement.id);
     this.produitSelected = null;
-    this.quantityBox!.nativeElement.value = 1;
+    this.quantityBox.nativeElement.value = 1;
     this.focusPrdoduitBox();
   }
 
   protected refresh(): void {
-    this.subscribeToSaveResponse(this.ajustementService.find(this.ajustement?.id));
+    this.subscribeToSaveResponse(this.ajustementService.find(this.ajustement.id));
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IAjust>>): void {
@@ -284,7 +308,7 @@ export class AjustementDetailComponent implements OnInit {
   }
 
   protected onUpdateLineSuccess(ajsut: IAjust | null): void {
-    this.items = ajsut?.ajustements;
+    this.items = ajsut.ajustements;
   }
 
   protected onSaveLineError(): void {}
@@ -330,14 +354,14 @@ export class AjustementDetailComponent implements OnInit {
       ...new Ajustement(),
       produitId: produit.id,
       qtyMvt: quantity,
-      ajustId: this.ajustement?.id,
-      motifAjustementId: this.motifSelected?.id,
+      ajustId: this.ajustement.id,
+      motifAjustementId: this.motifSelected.id,
     };
   }
 
   private setQuantityBoxFocused(): void {
     setTimeout(() => {
-      const el = this.quantityBox?.nativeElement;
+      const el = this.quantityBox.nativeElement;
       el.focus();
       el.value = 1;
       el.select();
@@ -351,7 +375,7 @@ export class AjustementDetailComponent implements OnInit {
       id: ajustement.id,
       ajustId: ajustement.ajustId,
       qtyMvt: ajustement.qtyMvt,
-      commentaire: this.comment!.nativeElement.value,
+      commentaire: this.comment.nativeElement.value,
     };
   }
 }

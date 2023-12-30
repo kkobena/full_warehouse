@@ -2,19 +2,10 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.AjustType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 
 /**

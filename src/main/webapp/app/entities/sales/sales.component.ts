@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig } from 'primeng/api';
@@ -10,6 +10,20 @@ import { IUser, User } from '../../core/user/user.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DividerModule } from 'primeng/divider';
+import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
+import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
   selector: 'jhi-sales',
@@ -51,6 +65,24 @@ import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
   ],
   templateUrl: './sales.component.html',
   providers: [ConfirmationService],
+  standalone: true,
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ConfirmDialogModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    DropdownModule,
+    ToolbarModule,
+    DividerModule,
+    CalendarModule,
+    CheckboxModule,
+    SplitButtonModule,
+  ],
 })
 export class SalesComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
@@ -131,7 +163,7 @@ export class SalesComponent implements OnInit {
     protected confirmationService: ConfirmationService,
     protected userService: UserService,
     public translate: TranslateService,
-    public primeNGConfig: PrimeNGConfig
+    public primeNGConfig: PrimeNGConfig,
   ) {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -189,7 +221,7 @@ export class SalesComponent implements OnInit {
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
-        userId: this.user?.id,
+        userId: this.user.id,
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
@@ -199,7 +231,7 @@ export class SalesComponent implements OnInit {
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
-      this.page = event.first! / event.rows!;
+      this.page = event.first / event.rows;
       this.loading = true;
       this.salesService
         .query({
@@ -228,9 +260,9 @@ export class SalesComponent implements OnInit {
   delete(sale: ISales): void {
     if (sale) {
       if (sale.categorie === 'VNO') {
-        this.salesService.cancelComptant(sale.id!).subscribe(() => this.loadPage());
+        this.salesService.cancelComptant(sale.id).subscribe(() => this.loadPage());
       } else {
-        this.salesService.cancelAssurance(sale.id!).subscribe(() => this.loadPage());
+        this.salesService.cancelAssurance(sale.id).subscribe(() => this.loadPage());
       }
     }
   }
@@ -238,7 +270,7 @@ export class SalesComponent implements OnInit {
   confirmRemove(sale: ISales): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment annuler cette vente ?',
-      header: 'ANNULATION DE PRE-VENTE',
+      header: 'ANNULATION DE VENTE',
       icon: 'pi pi-info-circle',
       accept: () => this.delete(sale),
       key: 'deleteVente',
@@ -246,14 +278,14 @@ export class SalesComponent implements OnInit {
   }
 
   print(sales: ISales): void {
-    this.salesService.printInvoice(sales.id!).subscribe(blod => {
+    this.salesService.printInvoice(sales.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
   }
 
   printSale(sale: ISales): void {
-    this.salesService.printReceipt(sale.id!, sale.categorie!).subscribe();
+    this.salesService.printReceipt(sale.id, sale.categorie).subscribe();
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {

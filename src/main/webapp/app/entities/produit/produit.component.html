@@ -1,6 +1,6 @@
 <p-toast position="center"></p-toast>
-<p-dialog [(visible)]="onErrorOccur" [focusOnShow]="false" [modal]="true" [responsive]="true"
-          [style]="{width: '50vw'}" header="Message" showEffect="fade">
+<p-dialog [(visible)]="onErrorOccur" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Message">
   <p>
     <jhi-alert-error></jhi-alert-error>
   </p>
@@ -32,8 +32,8 @@
 </p-confirmDialog>
 
 
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
                   accept=".txt,.csv,.xls,.xlsx"
@@ -49,8 +49,8 @@
   </p-footer>
 </p-dialog>
 
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier csv" showEffect="fade">
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier csv">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
                   accept=".txt,.csv,.xls,.xlsx"
@@ -66,8 +66,8 @@
   </p-footer>
 </p-dialog>
 
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier json" showEffect="fade">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{width: '50vw'}" header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
                   cancelLabel="Annuler"
@@ -81,9 +81,9 @@
   </p-footer>
 </p-dialog>
 <p-dialog [(visible)]="stockFileJsonDialog" [focusOnShow]="false" [modal]="true"
-          [responsive]="true"
+
           [style]="{width: '50vw'}" header="Mise du stock à partir d'un fichier json"
-          showEffect="fade">
+>
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
                   accept=".txt,.csv,.xls,.xlsx"
@@ -100,13 +100,13 @@
 </p-dialog>
 
 
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '500px'}"
-          header="Message" showEffect="fade">
+          header="Message">
   <div class="ui-g form-group">
     <p>Le nombre de lignes insérées <span
-      style="font-weight: 900; margin-left: 10px;"> {{responsedto?.size}}
-      /{{responsedto?.totalSize}}</span>
+      style="font-weight: 900; margin-left: 10px;"> {{ responsedto?.size }}
+      /{{ responsedto?.totalSize }}</span>
     </p>
   </div>
 </p-dialog>
@@ -270,13 +270,14 @@
                       <td class="firstColumn">
                         PMP
                       </td>
-                      <td class="secondColumn">{{elRow?.prixMnp |number}}
+                      <td class="secondColumn">{{ elRow?.prixMnp |number }}
                       </td>
 
                       <td class="firstColumn">
                         Etiquette
                       </td>
-                      <td class="secondColumn">{{elRow?.typeEtyquetteLibelle
+                      <td class="secondColumn">{{
+                          elRow?.typeEtyquetteLibelle
                         }}
                       </td>
 
@@ -286,12 +287,12 @@
                       <td class="firstColumn">
                         Date dernière vente
                       </td>
-                      <td class="secondColumn">{{elRow?.lastDateOfSale |date:'dd/MM/yyyy HH:mm' }}
+                      <td class="secondColumn">{{ elRow?.lastDateOfSale |date:'dd/MM/yyyy HH:mm' }}
                       </td>
                       <td class="firstColumn">
                         Date dernière entrée en stock
                       </td>
-                      <td class="secondColumn">{{elRow?.lastOrderDate | date:'dd/MM/yyyy HH:mm' }}
+                      <td class="secondColumn">{{ elRow?.lastOrderDate | date:'dd/MM/yyyy HH:mm' }}
                       </td>
 
                     </tr>
@@ -300,13 +301,13 @@
                       <td class="firstColumn">
                         Date de création
                       </td>
-                      <td class="secondColumn">{{elRow?.createdAt |date:'dd/MM/yyyy HH:mm' }}
+                      <td class="secondColumn">{{ elRow?.createdAt |date:'dd/MM/yyyy HH:mm' }}
                       </td>
                       <td class="firstColumn">
                         Date dernière inventaire
                       </td>
                       <td
-                        class="secondColumn">{{elRow?.lastInventoryDate |date:'dd/MM/yyyy HH:mm' }}
+                        class="secondColumn">{{ elRow?.lastInventoryDate |date:'dd/MM/yyyy HH:mm' }}
                       </td>
 
                     </tr>
@@ -314,12 +315,12 @@
                       <td class="firstColumn">
                         Date péremption
                       </td>
-                      <td class="secondColumn">{{elRow?.perimeAt |date:'dd/MM/yyyy HH:mm' }}
+                      <td class="secondColumn">{{ elRow?.perimeAt |date:'dd/MM/yyyy HH:mm' }}
                       </td>
                       <td class="firstColumn">
                         Tva
                       </td>
-                      <td class="secondColumn">{{elRow?.tvaTaux }}
+                      <td class="secondColumn">{{ elRow?.tvaTaux }}
 
                       </td>
                     </tr>
@@ -327,14 +328,15 @@
                       <td class="firstColumn">
                         Quantité détail
                       </td>
-                      <td class="secondColumn">{{elRow?.itemQty
+                      <td class="secondColumn">{{
+                          elRow?.itemQty
                         }}
                       </td>
 
                       <td class="firstColumn">
                         Forme
                       </td>
-                      <td class="secondColumn">{{elRow?.formeLibelle }}
+                      <td class="secondColumn">{{ elRow?.formeLibelle }}
                       </td>
 
                     </tr>
@@ -342,13 +344,13 @@
                       <td class="firstColumn">
                         Famille
                       </td>
-                      <td class="secondColumn">{{elRow?.familleLibelle }}
+                      <td class="secondColumn">{{ elRow?.familleLibelle }}
 
                       </td>
                       <td class="firstColumn">
                         Laboratoire
                       </td>
-                      <td class="secondColumn">{{elRow?.laboratoireLibelle }}
+                      <td class="secondColumn">{{ elRow?.laboratoireLibelle }}
                       </td>
 
                     </tr>
@@ -377,9 +379,9 @@
                     <tbody>
                     <tr
                       *ngFor="let rayon of elRow?.rayonProduits; let i = index">
-                      <td>{{rayon.codeRayon}}</td>
-                      <td>{{rayon.libelleRayon}}</td>
-                      <td *ngIf="!isMono">{{rayon.libelleStorage}}</td>
+                      <td>{{ rayon.codeRayon }}</td>
+                      <td>{{ rayon.libelleRayon }}</td>
+                      <td *ngIf="!isMono">{{ rayon.libelleStorage }}</td>
                       <td *ngIf="!isMono">
                         <button class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
                                 icon="pi pi-trash" pButton
@@ -413,8 +415,8 @@
                     </thead>
                     <tbody>
                     <tr *ngFor="let stock of elRow?.stockProduits; let i = index">
-                      <td>{{stock.storageName}}</td>
-                      <td>{{stock.qtyStock | number}}</td>
+                      <td>{{ stock.storageName }}</td>
+                      <td>{{ stock.qtyStock | number }}</td>
                       <td style="text-align: right;">
                         <button class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil"
                                 pButton
@@ -450,10 +452,10 @@
                     <tbody>
                     <tr
                       *ngFor="let four of elRow?.fournisseurProduits; let i = index">
-                      <td>{{four.fournisseurLibelle}}</td>
-                      <td>{{four.codeCip}}</td>
-                      <td>{{four.prixAchat | number}}</td>
-                      <td>{{four.prixUni | number}}</td>
+                      <td>{{ four.fournisseurLibelle }}</td>
+                      <td>{{ four.codeCip }}</td>
+                      <td>{{ four.prixAchat | number }}</td>
+                      <td>{{ four.prixUni | number }}</td>
                       <td style="text-align: right;">
                         <p-inputSwitch (onChange)="onChangeDefaultProduitFournisseur($event,four)"
                                        [(ngModel)]="four.principal"

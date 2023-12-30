@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Resolve, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
 import { Authority } from 'app/shared/constants/authority.constants';
@@ -11,35 +11,30 @@ import { CategorieComponent } from './categorie.component';
 import { CategorieDetailComponent } from './categorie-detail.component';
 import { CategorieUpdateComponent } from './categorie-update.component';
 
-@Injectable({ providedIn: 'root' })
-export class CategorieResolve implements Resolve<ICategorie> {
-  constructor(private service: CategorieService, private router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<ICategorie> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((categorie: HttpResponse<Categorie>) => {
-          if (categorie.body) {
-            return of(categorie.body);
+export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null | ICategorie> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(CategorieService)
+      .find(id)
+      .pipe(
+        mergeMap((res: HttpResponse<ICategorie>) => {
+          if (res.body) {
+            return of(res.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Categorie());
   }
-}
-
-export const categorieRoute: Routes = [
+  return of(new Categorie());
+};
+const categorieRoute: Routes = [
   {
     path: '',
     component: CategorieComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.CATEGORIE],
-      pageTitle: 'warehouseApp.categorie.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -51,7 +46,6 @@ export const categorieRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CATEGORIE],
-      pageTitle: 'warehouseApp.categorie.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -63,7 +57,6 @@ export const categorieRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CATEGORIE],
-      pageTitle: 'warehouseApp.categorie.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -75,8 +68,8 @@ export const categorieRoute: Routes = [
     },
     data: {
       authorities: [Authority.ADMIN, Authority.CATEGORIE],
-      pageTitle: 'warehouseApp.categorie.home.title',
     },
     canActivate: [UserRouteAccessService],
   },
 ];
+export default categorieRoute;

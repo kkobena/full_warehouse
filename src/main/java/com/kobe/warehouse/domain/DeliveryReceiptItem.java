@@ -7,16 +7,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.hibernate.annotations.Formula;
 
@@ -102,115 +102,115 @@ public class DeliveryReceiptItem implements Serializable {
   @Column(name = "cost_amount")
   private Integer costAmount;
 
-  @Column(name = "after_stock",length = 8)
+  @Column(name = "after_stock", length = 8)
   private Integer afterStock;
 
-    public DeliveryReceiptItem setAfterStock(Integer afterStock) {
-        this.afterStock = afterStock;
-        return this;
-    }
+  public DeliveryReceiptItem setAfterStock(Integer afterStock) {
+    this.afterStock = afterStock;
+    return this;
+  }
 
-    public DeliveryReceiptItem setId(Long id) {
+  public DeliveryReceiptItem setId(Long id) {
     this.id = id;
     return this;
   }
 
-    public DeliveryReceiptItem setUpdatedDate(LocalDateTime updatedDate) {
+  public DeliveryReceiptItem setUpdatedDate(LocalDateTime updatedDate) {
     this.updatedDate = updatedDate;
     return this;
   }
 
-    public DeliveryReceiptItem setCostAmount(Integer costAmount) {
+  public DeliveryReceiptItem setCostAmount(Integer costAmount) {
     this.costAmount = costAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setQuantityReceived(Integer quantityReceived) {
+  public DeliveryReceiptItem setQuantityReceived(Integer quantityReceived) {
     this.quantityReceived = quantityReceived;
     return this;
   }
 
-    public DeliveryReceiptItem setInitStock(Integer initStock) {
+  public DeliveryReceiptItem setInitStock(Integer initStock) {
     this.initStock = initStock;
     return this;
   }
 
-    public DeliveryReceiptItem setQuantityRequested(Integer quantityRequested) {
+  public DeliveryReceiptItem setQuantityRequested(Integer quantityRequested) {
     this.quantityRequested = quantityRequested;
     return this;
   }
 
-    public DeliveryReceiptItem setQuantityReturned(Integer quantityReturned) {
+  public DeliveryReceiptItem setQuantityReturned(Integer quantityReturned) {
     this.quantityReturned = quantityReturned;
     return this;
   }
 
-    public DeliveryReceiptItem setDiscountAmount(Integer discountAmount) {
+  public DeliveryReceiptItem setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setUpdated(Boolean updated) {
+  public DeliveryReceiptItem setUpdated(Boolean updated) {
     this.updated = updated;
     return this;
   }
 
-    public DeliveryReceiptItem setNetAmount(Integer netAmount) {
+  public DeliveryReceiptItem setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setTaxAmount(Integer taxAmount) {
+  public DeliveryReceiptItem setTaxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setCreatedDate(LocalDateTime createdDate) {
+  public DeliveryReceiptItem setCreatedDate(LocalDateTime createdDate) {
     this.createdDate = createdDate;
     return this;
   }
 
-    public DeliveryReceiptItem setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
+  public DeliveryReceiptItem setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
     this.deliveryReceipt = deliveryReceipt;
     return this;
   }
 
-    public DeliveryReceiptItem setOrderUnitPrice(Integer orderUnitPrice) {
+  public DeliveryReceiptItem setOrderUnitPrice(Integer orderUnitPrice) {
     this.orderUnitPrice = orderUnitPrice;
     return this;
   }
 
-    public DeliveryReceiptItem setRegularUnitPrice(Integer regularUnitPrice) {
+  public DeliveryReceiptItem setRegularUnitPrice(Integer regularUnitPrice) {
     this.regularUnitPrice = regularUnitPrice;
     return this;
   }
 
-    public DeliveryReceiptItem setOrderCostAmount(Integer orderCostAmount) {
+  public DeliveryReceiptItem setOrderCostAmount(Integer orderCostAmount) {
     this.orderCostAmount = orderCostAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setEffectifGrossIncome(Integer effectifGrossIncome) {
+  public DeliveryReceiptItem setEffectifGrossIncome(Integer effectifGrossIncome) {
     this.effectifGrossIncome = effectifGrossIncome;
     return this;
   }
 
-    public DeliveryReceiptItem setEffectifOrderAmount(Integer effectifOrderAmount) {
+  public DeliveryReceiptItem setEffectifOrderAmount(Integer effectifOrderAmount) {
     this.effectifOrderAmount = effectifOrderAmount;
     return this;
   }
 
-    public DeliveryReceiptItem setUgQuantity(Integer ugQuantity) {
+  public DeliveryReceiptItem setUgQuantity(Integer ugQuantity) {
     this.ugQuantity = ugQuantity;
     return this;
   }
 
-    public DeliveryReceiptItem setFournisseurProduit(FournisseurProduit fournisseurProduit) {
+  public DeliveryReceiptItem setFournisseurProduit(FournisseurProduit fournisseurProduit) {
     this.fournisseurProduit = fournisseurProduit;
     return this;
   }
 
-    public DeliveryReceiptItem setLots(List<Lot> lots) {
+  public DeliveryReceiptItem setLots(List<Lot> lots) {
     this.lots = lots;
     return this;
   }

@@ -11,10 +11,11 @@
                for="field_fournisseurId">Fournisseurs</label>
         <p-dropdown (onChange)="onChange($event)" [filter]="false"
                     [options]="fournisseurs"
-                    formControlName="fournisseurId"
+                    [style]="{width: '100%'}" class="form-control ngCombo"
 
-                    id="field_fournisseurId" optionLabel="libelle"
-                    optionValue="id" placeholder="Séléctionner un fournisseur " styleClass="form-control ngCombo">
+                    formControlName="fournisseurId" id="field_fournisseurId"
+                    optionLabel="libelle" optionValue="id"
+                    placeholder="Séléctionner un fournisseur ">
         </p-dropdown>
         <div
           *ngIf="editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)">
@@ -30,7 +31,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_codeCip">Code cip</label>
-        <input autocomplete="off" class="form-control" formControlName="codeCip" id="field_codeCip" name="codeCip"
+        <input autocomplete="off" class="form-control" formControlName="codeCip" id="field_codeCip"
+               name="codeCip"
                pInputText
                pKeyFilter="int" type="text" />
 
@@ -47,7 +49,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_prixAchat">Prix achat</label>
-        <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control" formControlName="prixAchat"
+        <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control"
+               formControlName="prixAchat"
                id="field_prixAchat" name="prixAchat"
                type="number" />
         <div
@@ -63,7 +66,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_prixUni">Prix unitaire</label>
-        <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control" formControlName="prixUni"
+        <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control"
+               formControlName="prixUni"
                id="field_prixUni" name="prixAchat"
                type="number" />
         <div
@@ -93,7 +97,8 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
             type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
     </button>

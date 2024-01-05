@@ -1,8 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +9,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,8 +46,7 @@ public class RetourBonItem implements Serializable {
     private Lot lot;
 
     @NotNull
-    @Min(0)
-
+    @Min(1)
     @Column(name = "qty_mvt", nullable = false,length = 8)
     private Integer qtyMvt;
     @Column(name = "init_stock", nullable = false,length = 8)

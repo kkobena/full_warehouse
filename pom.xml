@@ -669,11 +669,7 @@
             <scope>provided</scope>
             <version>${mapstruct.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <artifactId>mysql-connector-j</artifactId>-->
-        <!--            <groupId>com.mysql</groupId>-->
-        <!--            <scope>runtime</scope>-->
-        <!--        </dependency>-->
+        
         <dependency>
             <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <groupId>org.xhtmlrenderer</groupId>
@@ -687,7 +683,7 @@
         <dependency>
             <artifactId>mariadb-java-client</artifactId>
             <groupId>org.mariadb.jdbc</groupId>
-            <version>3.3.2</version>
+            <version>${mariadb.version}</version>
         </dependency>
         <dependency>
             <artifactId>jdbc</artifactId>

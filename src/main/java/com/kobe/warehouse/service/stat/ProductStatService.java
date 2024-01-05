@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.dto.OrderBy;
 import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
 import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
+import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
+import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import java.util.List;
@@ -11,6 +13,9 @@ import java.util.Objects;
 import org.springframework.util.StringUtils;
 
 public interface ProductStatService extends CommonStatService {
+  List<ProduitAuditingState> fetchProduitDailyTransaction(
+      ProduitAuditingParam produitAuditingParam);
+
   List<ProductStatRecord> fetchProductStat(ProduitRecordParamDTO produitRecordParam);
 
   List<ProductStatParetoRecord> fetch20x80(ProduitRecordParamDTO produitRecordParam);
@@ -51,20 +56,25 @@ public interface ProductStatService extends CommonStatService {
 
   default String buildPerotoQuery(ProduitRecordParamDTO produitRecordParam) {
     String query =
-        ProductStatQueryBuilder.PARETO_20x80_QUERY
-            .replace(QueryBuilderConstant.QUANTITY_QUERY_STATEMENT, buildParetoQuantityQuey(produitRecordParam))
+        ProductStatQueryBuilder.PARETO_20x80_QUERY.replace(
+                QueryBuilderConstant.QUANTITY_QUERY_STATEMENT,
+                buildParetoQuantityQuey(produitRecordParam))
             .replace(
-                QueryBuilderConstant.AMOUNT_QUERY_STATEMENT, buildParetoAmountQuey(produitRecordParam));
+                QueryBuilderConstant.AMOUNT_QUERY_STATEMENT,
+                buildParetoAmountQuey(produitRecordParam));
 
     return buildQuery(query, produitRecordParam);
   }
+
   default String buildParetoQuantityQuey(ProduitRecordParamDTO produitRecordParam) {
-    return this.buildQuery(ProductStatQueryBuilder.TOTAL_QUNATITY_QUERY,produitRecordParam);
+    return this.buildQuery(ProductStatQueryBuilder.TOTAL_QUNATITY_QUERY, produitRecordParam);
   }
+
   default String buildParetoAmountQuey(ProduitRecordParamDTO produitRecordParam) {
-    return this.buildQuery(ProductStatQueryBuilder.TOTAL_AMOUNT_QUERY,produitRecordParam);
+    return this.buildQuery(ProductStatQueryBuilder.TOTAL_AMOUNT_QUERY, produitRecordParam);
   }
+
   default String buildPCountQuey(ProduitRecordParamDTO produitRecordParam) {
-    return this.buildQuery(ProductStatQueryBuilder.COUNT_QUERY,produitRecordParam);
+    return this.buildQuery(ProductStatQueryBuilder.COUNT_QUERY, produitRecordParam);
   }
 }

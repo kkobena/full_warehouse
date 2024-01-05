@@ -1,20 +1,15 @@
 <div>
-  <h2>
+  <h5>
 
 
     <div class="d-flex justify-content-end">
-      <button (click)="loadAll()" [disabled]="isLoading"
-              class="p-button-raised p-button-primary me-2"
-              pButton pRipple>
-        <fa-icon [spin]="isLoading" icon="sync"></fa-icon>
-        <span jhiTranslate="userManagement.home.refreshListLabel">Actualiser la liste</span>
-      </button>
+
       <button [routerLink]="['./new']" class="p-button-raised p-button-success" pButton pRipple>
         <fa-icon icon="plus"></fa-icon>&nbsp;&nbsp;
         <span jhiTranslate="userManagement.home.createLabel">Créer un nouvel utilisateur</span>
       </button>
     </div>
-  </h2>
+  </h5>
 
   <jhi-alert-error></jhi-alert-error>
 

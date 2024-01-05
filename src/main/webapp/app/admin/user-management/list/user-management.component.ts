@@ -16,12 +16,23 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { SortDirective } from '../../../shared/sort/sort.directive';
 import { SortByDirective } from '../../../shared/sort/sort-by.directive';
+import { RippleModule } from 'primeng/ripple';
+import { ItemCountComponent } from '../../../shared/pagination/item-count.component';
 
 @Component({
   selector: 'jhi-user-mgmt',
   templateUrl: './user-management.component.html',
   standalone: true,
-  imports: [WarehouseCommonModule, RouterModule, ButtonModule, PanelModule, SortDirective, SortByDirective],
+  imports: [
+    WarehouseCommonModule,
+    ItemCountComponent,
+    RouterModule,
+    ButtonModule,
+    RippleModule,
+    PanelModule,
+    SortDirective,
+    SortByDirective,
+  ],
 })
 export class UserManagementComponent implements OnInit {
   currentAccount: Account | null = null;

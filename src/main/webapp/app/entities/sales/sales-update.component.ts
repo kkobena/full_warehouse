@@ -340,11 +340,11 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   getTiersPayants(): IClientTiersPayant[] {
-    this.tiersPayantsOriginal = this.customerSelected.tiersPayants.length;
+    this.tiersPayantsOriginal = this.customerSelected?.tiersPayants?.length;
     if (this.sale !== null && this.sale !== undefined) {
       this.tiersPayants = this.sale.tiersPayants!;
     } else {
-      this.tiersPayants = this.customerSelected.tiersPayants;
+      this.tiersPayants = this.customerSelected?.tiersPayants;
     }
 
     return this.tiersPayants;
@@ -429,7 +429,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   save(): void {
     if (this.sale) {
       this.isSaving = true;
-      this.sale.customerId = this.customerSelected.id;
+      this.sale.customerId = this.customerSelected?.id;
       this.sale.differe = this.isDiffere;
       if (this.isPresale === false) {
         const thatentryAmount = this.getEntryAmount();
@@ -645,7 +645,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   computeMonnaie(amount: number | null): void {
     const thatentryAmount = amount || this.getEntryAmount();
-    const thatMonnaie = thatentryAmount - this.sale.amountToBePaid;
+    const thatMonnaie = thatentryAmount - this.sale?.amountToBePaid;
     this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
   }
 
@@ -670,8 +670,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   totalItemQty(): number {
     if (this.produitSelected) {
-      console.log(this.produitSelected);
-      return this.salesLines.find(e => e.produitId === this.produitSelected.id).quantityRequested || 0;
+      return this.salesLines.find(e => e.produitId === this.produitSelected.id)?.quantityRequested || 0;
     }
     return 0;
   }
@@ -843,7 +842,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.ref.onClose.subscribe((resp: ICustomer) => {
       if (resp) {
         this.customerSelected = resp;
-        if (this.ayantDroit && this.ayantDroit.id === this.customerSelected.id) {
+        if (this.ayantDroit && this.ayantDroit.id === this.customerSelected?.id) {
           this.ayantDroit = this.customerSelected;
         }
       }
@@ -874,7 +873,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   printSale(): void {
     if (this.sale !== null && this.sale !== undefined) {
-      this.salesService.printReceipt(this.sale.id, this.sale.categorie).subscribe();
+      this.salesService.printReceipt(this.sale?.id, this.sale.categorie).subscribe();
       this.sale = null;
       this.loadProduits();
       this.customerSelected = null;
@@ -1357,7 +1356,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   showAddModePaymentButton(mode: IPaymentMode): void {
-    this.showAddModePaimentBtn = this.modeReglementSelected.length < this.maxModePayementNumber && mode.amount < this.sale.amountToBePaid;
+    this.showAddModePaimentBtn = this.modeReglementSelected?.length < this.maxModePayementNumber && mode.amount < this.sale?.amountToBePaid;
   }
 
   onRemovePaymentModeToggle(old: IPaymentMode, evt: any): void {
@@ -1534,7 +1533,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected refresh(): void {
-    this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
+    this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
   }
 
   protected subscribeToCreateSaleComptantResponse(result: Observable<HttpResponse<ISales>>): void {
@@ -1696,8 +1695,8 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private addTiersPayant(resp: IClientTiersPayant): void {
-    this.assuranceService.addThirdPartySaleLineToSales(resp, this.sale.id).subscribe(() => {
-      this.subscribeToSaveResponse(this.assuranceService.find(this.sale.id));
+    this.assuranceService.addThirdPartySaleLineToSales(resp, this.sale?.id).subscribe(() => {
+      this.subscribeToSaveResponse(this.assuranceService.find(this.sale?.id));
     });
   }
 
@@ -1718,13 +1717,13 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     return {
       ...new Sales(),
       salesLines: [this.createSalesLine(produit, quantitySold)],
-      customerId: this.customerSelected.id,
-      natureVente: this.naturesVente.code,
-      typePrescription: this.typePrescription.code,
+      customerId: this.customerSelected?.id,
+      natureVente: this.naturesVente?.code,
+      typePrescription: this.typePrescription?.code,
       // cassier: this.userCaissier!,
       //  seller: this.userSeller!,
-      cassierId: this.userCaissier.id,
-      sellerId: this.userSeller.id,
+      cassierId: this.userCaissier?.id,
+      sellerId: this.userSeller?.id,
       type: 'VNO',
       categorie: 'VNO',
     };
@@ -1735,7 +1734,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
-      saleId: this.sale.id,
+      saleId: this.sale?.id,
       quantitySold: quantityRequested,
       quantityRequested,
       sales: this.sale,
@@ -1743,7 +1742,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private onPrintInvoice(): void {
-    this.salesService.print(this.sale.id).subscribe(blod => {
+    this.salesService.print(this.sale?.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -1866,7 +1865,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   private updateVenteTiersPayant(id: number): void {
     if (this.sale) {
-      if (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE) {
+      if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
         this.assuranceService.removeVenteTiersPayant(id, this.sale.id).subscribe(() => {
           if (this.sale) {
             this.subscribeToSaveResponse(this.salesService.find(this.sale.id));

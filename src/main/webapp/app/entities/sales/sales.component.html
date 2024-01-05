@@ -143,10 +143,14 @@
                   pTooltip="Editer">
 
           </button>
-          <button (click)="print(sale)" class="p-button-rounded p-button-secondary p-button-sm ml-2"
-                  icon="pi pi-print"
-                  pButton pRipple
-                  pTooltip="Imprimer"></button>
+          @if (sale.customer) {
+            <button (click)="print(sale)"
+                    class="p-button-rounded p-button-secondary p-button-sm ml-2"
+                    icon="pi pi-print"
+                    pButton pRipple
+                    pTooltip="Imprimer"></button>
+          }
+
           <button (click)="confirmRemove(sale)"
                   class="p-button-rounded p-button-danger p-button-sm ml-2" icon="pi pi-trash"
                   pButton pRipple

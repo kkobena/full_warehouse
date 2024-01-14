@@ -2,12 +2,11 @@ package com.kobe.warehouse.service.dto.builder;
 
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
+import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Objects;
-import jakarta.persistence.Tuple;
 
 public final class ProductStatQueryBuilder {
   public static final String LIKE_STATEMENT =
@@ -43,10 +42,10 @@ WHERE l.sales_id=s.id AND l.produit_id=p.id AND fp.produit_id=p.id AND DATE(s.up
       "SELECT COUNT(DISTINCT l.produit_id) AS produit_count FROM  sales_line l,sales s WHERE s.id=l.sales_id AND DATE(s.updated_at)  BETWEEN ?1 AND ?2 AND s.statut='CLOSED'  AND s.canceled=false AND s.imported=0 %s %s %s";
 
   public static ProductStatRecord buildProductStatRecord(Tuple tuple) {
-    if (Objects.isNull(tuple.get("produit_id", BigInteger.class))) return null;
+    if (Objects.isNull(tuple.get("produit_id", Long.class))) return null;
     return new ProductStatRecord(
-        tuple.get("produit_id", BigInteger.class).intValue(),
-        tuple.get("produit_count", BigInteger.class).intValue(),
+        tuple.get("produit_id", Long.class).intValue(),
+        tuple.get("produit_count", Long.class).intValue(),
         tuple.get("code_cip", String.class),
         tuple.get("code_ean", String.class),
         tuple.get("libelle", String.class),
@@ -64,15 +63,21 @@ WHERE l.sales_id=s.id AND l.produit_id=p.id AND fp.produit_id=p.id AND DATE(s.up
   }
 
   public static ProductStatParetoRecord buildProductStatParetoRecord(Tuple tuple) {
-    if (Objects.isNull(tuple.get("produit_id", BigInteger.class))) return null;
+    if (Objects.isNull(tuple.get("produit_id", Long.class))) return null;
     return new ProductStatParetoRecord(
-        tuple.get("produit_id", BigInteger.class).intValue(),
+        tuple.get("produit_id", Long.class).intValue(),
         tuple.get("code_cip", String.class),
         tuple.get("code_ean", String.class),
         tuple.get("libelle", String.class),
         tuple.get("quantity_sold", BigDecimal.class).intValue(),
-        tuple.get("quantity_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue(),
-        tuple.get("amount_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue(),
+        tuple
+            .get("quantity_avg", BigDecimal.class)
+            .round(new MathContext(2, RoundingMode.HALF_UP))
+            .doubleValue(),
+        tuple
+            .get("amount_avg", BigDecimal.class)
+            .round(new MathContext(2, RoundingMode.HALF_UP))
+            .doubleValue(),
         tuple.get("net_amount", BigDecimal.class),
         tuple.get("sales_amount", BigDecimal.class),
         tuple.get("ht_amount", BigDecimal.class),

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto.records;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public record VenteRecord(
     BigDecimal salesAmount,
@@ -27,5 +26,5 @@ public record VenteRecord(
     BigDecimal montantnetUg,
     BigDecimal paidAmount,
     BigDecimal realNetAmount,
-    BigInteger saleCount,
+    Long saleCount,
     double panierMoyen) {}

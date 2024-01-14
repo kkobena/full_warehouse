@@ -11,6 +11,7 @@ import { ProduitComponent } from './produit.component';
 import { ProduitDetailComponent } from './produit-detail.component';
 import { ProduitUpdateComponent } from './produit-update.component';
 import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
+import { TransactionComponent } from './transaction/transaction.component';
 
 export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null | IProduit> => {
   const id = route.params['id'];
@@ -42,6 +43,17 @@ const produitRoute: Routes = [
   },
   {
     path: ':id/view',
+    component: TransactionComponent,
+    resolve: {
+      produit: ProduitResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'transaction',
     component: ProduitDetailComponent,
     resolve: {
       produit: ProduitResolve,

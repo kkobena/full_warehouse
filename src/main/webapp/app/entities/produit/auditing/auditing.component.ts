@@ -1,30 +1,22 @@
-import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from 'app/shared/constants/pagination.constants';
-import moment from 'moment';
-import { IProduit } from 'app/shared/model/produit.model';
-import { ProduitService } from './produit.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ToolbarModule } from 'primeng/toolbar';
-import { CalendarModule } from 'primeng/calendar';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
+import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
-import { ProduitStatService } from './stat/produit-stat.service';
-import { ProduitAuditingParam, ProduitAuditingState } from '../../shared/model/produit-record.model';
 import { DividerModule } from 'primeng/divider';
-import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-util';
-import { saveAs } from 'file-saver';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ProduitAuditingParam, ProduitAuditingState } from '../../../shared/model/produit-record.model';
+import { HttpResponse } from '@angular/common/http';
+import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
+import { saveAs } from 'file-saver';
+import { ProduitStatService } from '../stat/produit-stat.service';
+import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 
 @Component({
-  selector: 'jhi-produit-detail',
-  templateUrl: './produit-detail.component.html',
+  selector: 'jhi-auditing',
   standalone: true,
   imports: [
     WarehouseCommonModule,
@@ -32,26 +24,15 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     RippleModule,
     FormsModule,
     PanelModule,
-    AutoCompleteModule,
-    ToolbarModule,
-    CalendarModule,
     TableModule,
     BadgeModule,
     DividerModule,
     NgxSpinnerModule,
   ],
+  templateUrl: './auditing.component.html',
+  styleUrl: './auditing.component.scss',
 })
-export class ProduitDetailComponent implements OnInit {
-  produit: IProduit | null = null;
-  produits: IProduit[] = [];
-  event: any;
-  searchValue?: string;
-  entites: ProduitAuditingState[] = [];
-  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
-  protected readonly APPEND_TO = APPEND_TO;
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
   protected deleveryQuantity?: number;
   protected retourFournisseurQuantity?: number;
@@ -63,63 +44,32 @@ export class ProduitDetailComponent implements OnInit {
   protected canceledQuantity?: number;
   protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
+  protected entites: ProduitAuditingState[] = [];
 
   constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
     protected produitStatService: ProduitStatService,
-    protected produitService: ProduitService,
     private spinner: NgxSpinnerService,
-  ) {}
+    private produitAuditingParamService: ProduitAuditingParamService,
+  ) {
+    console.warn(this.produitAuditingParamService.produitAuditingParam);
+  }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ produit }) => {
-      if (produit && produit.id) {
-        this.produit = produit;
-        this.loadPage();
-      }
-    });
-
-    this.loadProduits();
+    this.load(this.produitAuditingParamService.produitAuditingParam);
   }
 
-  previousState(): void {
-    window.history.back();
-  }
-
-  onSelect(event: any): void {
-    this.event = event;
-    this.loadPage();
-  }
-
-  loadProduits(): void {
-    this.produitService
-      .query({
-        page: 0,
-        size: 10,
-        withdetail: false,
-        search: this.searchValue,
-      })
-      .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
-  }
-
-  searchFn(event: any): void {
-    this.searchValue = event.query;
-    this.loadProduits();
-  }
-
-  loadPage(): void {
+  load(produitAuditingParam: ProduitAuditingParam): void {
     this.spinner.show();
-    this.produitStatService.fetchTransactions(this.buildQuery()).subscribe({
+    this.produitStatService.fetchTransactions(produitAuditingParam).subscribe({
       next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccessPage(res.body),
       error: err => this.onError(err),
     });
   }
 
-  exportPdf(): void {
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
     this.spinner.show();
 
-    this.produitStatService.exportToPdf(this.buildQuery()).subscribe({
+    this.produitStatService.exportToPdf(produitAuditingParam).subscribe({
       next: blod => {
         const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
         saveAs(blod, 'suivi_mvt_article_' + fileName);
@@ -129,26 +79,14 @@ export class ProduitDetailComponent implements OnInit {
     });
   }
 
-  protected onSuccessPage(data: ProduitAuditingState[] | null): void {
-    this.spinner.hide();
-    this.entites = data || [];
-    this.computeTotaux();
-  }
-
   protected onError(eror: any): void {
     this.spinner.hide();
   }
 
-  protected onProduitSuccess(data: IProduit[] | null): void {
-    this.produits = data || [];
-  }
-
-  private buildQuery(): ProduitAuditingParam {
-    return {
-      produitId: this.produit?.id,
-      fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-    };
+  protected onSuccessPage(data: ProduitAuditingState[] | null): void {
+    this.spinner.hide();
+    this.entites = data || [];
+    this.computeTotaux();
   }
 
   private resetTotaux(): void {

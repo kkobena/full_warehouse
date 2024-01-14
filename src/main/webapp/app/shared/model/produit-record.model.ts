@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export class ProductStatRecord {
   id?: number;
   roduitCount?: number;
@@ -17,4 +19,28 @@ export class ProductStatRecord {
   htAmount?: number;
   quantityAvg?: number;
   amountAvg?: number;
+}
+
+export class ProduitAuditingState {
+  mvtDate: dayjs.Dayjs | null;
+  initStock?: number;
+  saleQuantity?: number;
+  deleveryQuantity?: number;
+  retourFournisseurQuantity?: number;
+  perimeQuantity?: number;
+  ajustementPositifQuantity?: number;
+  ajustementNegatifQuantity?: number;
+  deconPositifQuantity?: number;
+  deconNegatifQuantity?: number;
+  canceledQuantity?: number;
+  retourDepot?: number;
+  storeInventoryQuantity?: number;
+  inventoryGap?: number;
+  afterStock?: number;
+}
+
+export class ProduitAuditingParam {
+  produitId?: number;
+  fromDate?: string;
+  toDate?: string;
 }

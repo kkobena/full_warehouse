@@ -3,9 +3,9 @@ package com.kobe.warehouse.service.stat.impl;
 import com.kobe.warehouse.domain.enumeration.AjustType;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
+import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.produit.AuditType;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditing;
@@ -13,14 +13,18 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
+import com.kobe.warehouse.service.report.produit.ProduitAuditingReportSevice;
 import com.kobe.warehouse.service.stat.ProductStatService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.net.MalformedURLException;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -38,7 +43,7 @@ public class ProductStatServiceImpl implements ProductStatService {
   private static final String SALE_LINE_AUDIT_SQL_QUERY =
       "SELECT s.canceled, s.dtype AS sale_type,sl.quantity_requested,sl.quantity_sold,sl.quantity_avoir,sl.init_stock,sl.after_stock,s.updated_at, DATE(s.updated_at) AS mvt_date from  sales s join sales_line sl on s.id = sl.sales_id WHERE sl.produit_id=?1 AND s.statut=?2 AND DATE(s.updated_at) BETWEEN ?3 AND ?4 ORDER BY s.updated_at";
   private static final String INVENTORY_LINE_AUDIT_SQL_QUERY =
-      "SELECT sl.quantity_init,sl.quantity_on_hand, DATE(s.updated_at) AS mvt_date ,s.updated_at AS mvt_date FROM  store_inventory_line sl join store_inventory s on sl.store_inventory_id = s.id WHERE s.statut=2 AND sl.produit_id=?1 AND DATE(s.updated_at) BETWEEN ?2 AND ?3 ORDER BY s.updated_at";
+      "SELECT sl.quantity_init,sl.quantity_on_hand, DATE(s.updated_at) AS mvt_date ,s.updated_at AS updated_at FROM  store_inventory_line sl join store_inventory s on sl.store_inventory_id = s.id WHERE s.statut=2 AND sl.produit_id=?1 AND DATE(s.updated_at) BETWEEN ?2 AND ?3 ORDER BY s.updated_at";
 
   private static final String DECON_AUDIT_SQL_QUERY =
       "SELECT decon.qty_mvt,decon.stock_before,decon.stock_after, DATE(decon.date_mtv) as mvt_date,decon.date_mtv as updated_at ,decon.type_deconditionnement from  decondition decon where decon.produit_id=?1  AND DATE(decon.date_mtv) BETWEEN ?2 AND ?3 ORDER BY decon.date_mtv";
@@ -48,7 +53,7 @@ public class ProductStatServiceImpl implements ProductStatService {
   private static final String DELEVERY_AUDIT_SQL_QUERY =
       """
   SELECT d.after_stock,d.init_stock,d.quantity_requested,d.quantity_received,d.quantity_ug,DATE(d.updated_date)  as mvt_date ,d.updated_date as updated_at from delivery_receipt_item d JOIN delivery_receipt dr on d.delivery_receipt_id = dr.id
-  JOIN fournisseur_produit fp on d.fournisseur_produit_id = fp.id join produit p on fp.produit_id = p.id WHERE dr.receipt_status='CLOSE' AND p.id=?1 AND DATE(d.updated_date) BETWEEN ?3 AND ?4 ORDER BY d.updated_date
+  JOIN fournisseur_produit fp on d.fournisseur_produit_id = fp.id join produit p on fp.produit_id = p.id WHERE dr.receipt_status='CLOSE' AND p.id=?1 AND DATE(d.updated_date) BETWEEN ?2 AND ?3 ORDER BY d.updated_date
 """;
   private static final String RETOUR_AUDIT_SQL_QUERY =
       """
@@ -56,25 +61,26 @@ SELECT DATE(rt.date_mtv) as mvt_date,rt.date_mtv as updated_at,rt.init_stock,rt.
 join delivery_receipt_item it on rt.delivery_receipt_item_id = it.id
 join fournisseur_produit fp on it.fournisseur_produit_id = fp.id
 join produit p on fp.produit_id = p.id WHERE p.id=?1 AND rb.statut=1
- AND DATE(rt.date_mtv) BETWEEN ?3 AND ?4 ORDER BY rt.date_mtv
+ AND DATE(rt.date_mtv) BETWEEN ?2 AND ?3 ORDER BY rt.date_mtv
 """;
   private static final String PERIME_AUDIT_SQL_QUERY =
       """
 SELECT pp.created as updated_at,DATE(pp.created) as mvt_date,pp.quantity,pp.init_stock,pp.after_stock FROM
 produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(pp.created) BETWEEN ?2 AND ?3 order by pp.created
 """;
-  private final Logger LOG = LoggerFactory.getLogger(ProductStatServiceImpl.class);
+  private final Logger log = LoggerFactory.getLogger(ProductStatServiceImpl.class);
   private final EntityManager em;
-  private final StockProduitRepository stockProduitRepository;
-  private final StorageService storageService;
+  private final ProduitAuditingReportSevice produitAuditingReportSevice;
+  private final FournisseurProduitRepository fournisseurProduitRepository;
 
   public ProductStatServiceImpl(
       EntityManager em,
-      StockProduitRepository stockProduitRepository,
-      StorageService storageService) {
+      ProduitAuditingReportSevice produitAuditingReportSevice,
+      FournisseurProduitRepository fournisseurProduitRepository) {
     this.em = em;
-    this.stockProduitRepository = stockProduitRepository;
-    this.storageService = storageService;
+    this.produitAuditingReportSevice = produitAuditingReportSevice;
+
+    this.fournisseurProduitRepository = fournisseurProduitRepository;
   }
 
   @Override
@@ -87,6 +93,16 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
     return buildProductStat20x80Record(produitRecordParam);
   }
 
+  @Override
+  public Resource printToPdf(ProduitAuditingParam produitAuditingParam)
+      throws MalformedURLException {
+    return this.produitAuditingReportSevice.printToPdf(
+        this.fetchProduitDailyTransaction(produitAuditingParam),
+        fournisseurProduitRepository.findFirstByPrincipalIsTrueAndProduitId(
+            produitAuditingParam.produitId()),
+        new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate()));
+  }
+
   private List<Tuple> getExecQuery(ProduitRecordParamDTO produitRecordParam) {
     Pair<LocalDate, LocalDate> periode = this.buildPeriode(produitRecordParam);
     try {
@@ -97,7 +113,7 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
           .getResultList();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
     }
     return Collections.emptyList();
   }
@@ -123,7 +139,7 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
           .getResultList();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
     }
     return Collections.emptyList();
   }
@@ -197,7 +213,7 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
               .getSingleResult();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
       return 0;
     }
   }
@@ -214,7 +230,7 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
           .getResultList();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
     }
     return Collections.emptyList();
   }
@@ -226,8 +242,8 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
         tuple.get("quantity_sold", Integer.class),
         tuple.get("init_stock", Integer.class),
         tuple.get("after_stock", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         tuple.get("canceled", Boolean.class),
         tuple.get("sale_type", String.class),
         null,
@@ -245,7 +261,7 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
           .getResultList();
 
     } catch (Exception e) {
-      LOG.error(null, e);
+      log.error(null, e);
     }
     return Collections.emptyList();
   }
@@ -257,8 +273,8 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
         tuple.get("quantity_on_hand", Integer.class),
         tuple.get("quantity_init", Integer.class),
         tuple.get("quantity_on_hand", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         null,
@@ -316,14 +332,15 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
 
   private ProduitAuditing buildProduitDeconditionAuditingFromTuple(Tuple tuple) {
     TypeDeconditionnement typeDeconditionnement =
-        TypeDeconditionnement.values()[tuple.get("type_deconditionnement", Integer.class)];
+        TypeDeconditionnement.values()[
+            Short.parseShort(tuple.get("type_deconditionnement").toString())];
     return new ProduitAuditing(
         AuditType.DECONDITIONNEMENT,
         tuple.get("qty_mvt", Integer.class),
         tuple.get("stock_before", Integer.class),
         tuple.get("stock_after", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         typeDeconditionnement,
@@ -331,14 +348,15 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
   }
 
   private ProduitAuditing buildProduitAjustementAuditingFromTuple(Tuple tuple) {
-    AjustType ajustType = AjustType.values()[tuple.get("type_ajust", Integer.class)];
+
+    AjustType ajustType = AjustType.values()[Short.parseShort(tuple.get("type_ajust").toString())];
     return new ProduitAuditing(
         AuditType.AJUSTEMENT,
         tuple.get("qty_mvt", Integer.class),
         tuple.get("stock_before", Integer.class),
         tuple.get("stock_after", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         null,
@@ -351,8 +369,8 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
         tuple.get("quantity_received", Integer.class),
         tuple.get("init_stock", Integer.class),
         tuple.get("after_stock", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         null,
@@ -366,8 +384,8 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
         tuple.get("qty_mvt", Integer.class),
         tuple.get("init_stock", Integer.class),
         tuple.get("after_stock", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         null,
@@ -380,8 +398,8 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
         tuple.get("quantity", Integer.class),
         tuple.get("init_stock", Integer.class),
         tuple.get("after_stock", Integer.class),
-        tuple.get("updated_at", LocalDateTime.class),
-        tuple.get("mvt_date", LocalDate.class),
+        tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
+        tuple.get("mvt_date", Date.class).toLocalDate(),
         null,
         null,
         null,
@@ -393,29 +411,22 @@ produit_perime pp join produit p on pp.produit_id = p.id WHERE p.id=?1 AND DATE(
       ProduitAuditingParam produitAuditingParam) {
     List<ProduitAuditingState> produitAuditingStates = new ArrayList<>();
     groupingProduitAuditingByDay(produitAuditingParam)
-        .forEach(
-            (k, value) ->
-                produitAuditingStates.add(
-                    buildProduitAuditingState(k, value, produitAuditingParam.produitId())));
-
+        .forEach((k, value) -> produitAuditingStates.add(buildProduitAuditingState(k, value)));
+    produitAuditingStates.sort(Comparator.comparing(ProduitAuditingState::getMvtDate));
     return produitAuditingStates;
   }
 
   private ProduitAuditingState buildProduitAuditingState(
-      LocalDate mvtDate, List<ProduitAuditing> produitAuditings, Long produitId) {
+      LocalDate mvtDate, List<ProduitAuditing> produitAuditings) {
     ProduitAuditingState produitAuditingState = new ProduitAuditingState();
     produitAuditings.sort(Comparator.comparing(ProduitAuditing::updated));
-    ProduitAuditing produitAuditingFirst = produitAuditings.get(0);
+    ProduitAuditing produitAuditingFirst = produitAuditings.getFirst();
+    ProduitAuditing produitAuditingLast = produitAuditings.getLast();
     produitAuditingState.setInitStock(produitAuditingFirst.beforeStock());
     produitAuditingState.setMvtDate(mvtDate);
-
-    int currentStock =
-        this.stockProduitRepository
-            .findStockProduitByStorageIdAndProduitId(
-                this.storageService.getDefaultConnectedUserMainStorage().getId(), produitId)
-            .orElseThrow()
-            .getQtyStock();
-    produitAuditingState.setCurrentStock(currentStock);
+    produitAuditingState.setTransactionDate(
+        mvtDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+    produitAuditingState.setAfterStock(produitAuditingLast.afterStock());
     Map<AuditType, List<ProduitAuditing>> groupingByType =
         produitAuditings.stream().collect(Collectors.groupingBy(ProduitAuditing::auditType));
     for (Map.Entry<AuditType, List<ProduitAuditing>> entry : groupingByType.entrySet()) {

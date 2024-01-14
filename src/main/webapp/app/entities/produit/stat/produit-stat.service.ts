@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { VenteRecordParam } from '../../../shared/model/vente-record-param.model';
-import { ProductStatRecord } from '../../../shared/model/produit-record.model';
+import { ProductStatRecord, ProduitAuditingParam, ProduitAuditingState } from '../../../shared/model/produit-record.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProduitStatService {
@@ -27,5 +27,17 @@ export class ProduitStatService {
       params: options,
       observe: 'response',
     });
+  }
+
+  fetchTransactions(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<ProduitAuditingState[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<ProduitAuditingState[]>(`${this.resourceUrl}/transactions`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  exportToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, { responseType: 'blob' });
   }
 }

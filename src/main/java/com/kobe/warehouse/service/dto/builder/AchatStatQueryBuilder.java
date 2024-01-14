@@ -1,10 +1,9 @@
 package com.kobe.warehouse.service.dto.builder;
 
 import com.kobe.warehouse.service.dto.records.AchatRecord;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Objects;
 import jakarta.persistence.Tuple;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 public final class AchatStatQueryBuilder {
   public static final String ACHAT_QUERY =
@@ -21,6 +20,6 @@ d.receipt_status IN (?3)
         tuple.get("discount_amount", BigDecimal.class),
         tuple.get("net_amount", BigDecimal.class),
         tuple.get("tax_amount", BigDecimal.class),
-        tuple.get("achat_count", BigInteger.class));
+        tuple.get("achat_count", Long.class));
   }
 }

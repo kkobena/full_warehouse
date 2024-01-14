@@ -129,12 +129,12 @@
                 <span jhiTranslate="global.menu.entities.delivery">Entrée en stock</span>
               </a>
             </li>
-            <li *jhiHasAnyAuthority="['inventory-transaction','ROLE_ADMIN']">
+            <li *jhiHasAnyAuthority="['produit','inventory-transaction','ROLE_ADMIN']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
                 class="dropdown-item"
-                routerLink="/inventory-transaction"
+                routerLink="/produit/transaction"
                 routerLinkActive="active"
               >
                 <fa-icon [fixedWidth]="true" icon="eye"></fa-icon>

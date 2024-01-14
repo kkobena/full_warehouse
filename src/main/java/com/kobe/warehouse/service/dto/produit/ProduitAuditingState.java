@@ -17,7 +17,17 @@ public class ProduitAuditingState {
   private Integer retourDepot;
   private Integer storeInventoryQuantity;
   private Integer inventoryGap;
-  private int currentStock;
+  private Integer afterStock;
+  private String transactionDate;
+
+  public String getTransactionDate() {
+    return transactionDate;
+  }
+
+  public ProduitAuditingState setTransactionDate(String transactionDate) {
+    this.transactionDate = transactionDate;
+    return this;
+  }
 
   public LocalDate getMvtDate() {
     return mvtDate;
@@ -145,12 +155,12 @@ public class ProduitAuditingState {
     return this;
   }
 
-  public int getCurrentStock() {
-    return currentStock;
+  public Integer getAfterStock() {
+    return afterStock;
   }
 
-  public ProduitAuditingState setCurrentStock(int currentStock) {
-    this.currentStock = currentStock;
+  public ProduitAuditingState setAfterStock(Integer afterStock) {
+    this.afterStock = afterStock;
     return this;
   }
 }

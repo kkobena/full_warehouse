@@ -8,8 +8,10 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 public interface ProductStatService extends CommonStatService {
@@ -77,4 +79,6 @@ public interface ProductStatService extends CommonStatService {
   default String buildPCountQuey(ProduitRecordParamDTO produitRecordParam) {
     return this.buildQuery(ProductStatQueryBuilder.COUNT_QUERY, produitRecordParam);
   }
+
+  Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException;
 }

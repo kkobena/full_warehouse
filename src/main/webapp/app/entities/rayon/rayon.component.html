@@ -12,14 +12,16 @@
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="pi-g form-group">
-    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="customUpload" accept=".txt,.csv,.xls,.xlsx"
+    <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="customUpload"
+                  accept=".txt,.csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv"
                   uploadLabel="Enrégistrer">
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler"
             pButton
             pRipple type="button"></button>
   </p-footer>
@@ -36,12 +38,13 @@
 
   </div>
 </p-dialog>
-<p-dialog [(visible)]="dialogueClone" [focusOnShow]="false" [modal]="true" [responsive]="true"
+<p-dialog [(visible)]="dialogueClone" [focusOnShow]="false" [modal]="true"
           [style]="{width: '500px'}"
-          header="Message" showEffect="fade">
+          header="Message">
 
   <div class="ui-g form-group">
-    <p-dropdown (onChange)="onCloneChange($event)" [(ngModel)]="clone" [filter]="false" [options]="magasins"
+    <p-dropdown (onChange)="onCloneChange($event)" [(ngModel)]="clone" [filter]="false"
+                [options]="magasins"
                 [style]="{'width':'100%'}"
                 appendTo="body" class="p-autocomplete"
                 optionLabel="nomCourt"
@@ -51,9 +54,11 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button (click)="clonerRayon()" *ngIf="clone" icon="pi pi-check" label="Cloner les rayons" pButton
+    <button (click)="clonerRayon()" *ngIf="clone" icon="pi pi-check" label="Cloner les rayons"
+            pButton
             type="button"></button>
-    <button (click)="dialogueClone=false" class="p-button-danger" icon="pi pi-times" label="Annuler" pButton
+    <button (click)="dialogueClone=false" class="p-button-danger" icon="pi pi-times" label="Annuler"
+            pButton
             type="button"></button>
   </ng-template>
 </p-dialog>
@@ -66,7 +71,8 @@
 
   <p-toolbar>
     <div *ngIf="multipleSite" class="p-toolbar-group-left p-md-4">
-      <p-dropdown (onChange)="onChange($event)" [(ngModel)]="magasin" [filter]="false" [options]="magasins"
+      <p-dropdown (onChange)="onChange($event)" [(ngModel)]="magasin" [filter]="false"
+                  [options]="magasins"
                   [style]="{'width':'100%'}" appendTo="body"
                   class="p-autocomplete"
                   optionLabel="nomCourt" placeholder="Séléctionner un stockage "></p-dropdown>
@@ -75,21 +81,26 @@
     <div class="p-toolbar-group-left">
                <span class="p-input-icon-left" style="width: 100%;">
                     <i class="pi pi-search"></i>
-                    <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                    <input (keyup.enter)="search($event)" pInputText
+                           placeholder="Taper pour rechercher"
                            type="text">
                 </span>
     </div>
     <div class="p-toolbar-group-right">
-      <button (click)="showFileDialog()" class="p-button-raised p-button-help mr-2" icon="pi pi-upload" label="Importer" pButton
+      <button (click)="showFileDialog()" class="p-button-raised p-button-help mr-2"
+              icon="pi pi-upload" label="Importer" pButton
               pRipple type="button"></button>
-      <button (click)="addNewEntity()" class="p-button-raised  p-button-success mr-2" icon="pi pi-check" iconPos="left" label="Nouveau" pButton
+      <button (click)="addNewEntity()" class="p-button-raised  p-button-success mr-2"
+              icon="pi pi-check" iconPos="left" label="Nouveau" pButton
               pRipple type="button"></button>
-      <button (click)="cloner()" *ngIf="selectedEl!.length>0" class="p-button-raised  p-button-infos" icon="pi pi-copy" iconPos="left"
+      <button (click)="cloner()" *ngIf="selectedEl!.length>0"
+              class="p-button-raised  p-button-infos" icon="pi pi-copy" iconPos="left"
               label="Cloner"
               pButton pRipple type="button"></button>
     </div>
   </p-toolbar>
-  <p-table #dt [(selection)]="selectedEl" [paginator]="true" [rows]="itemsPerPage" [totalRecords]="totalItems"
+  <p-table #dt [(selection)]="selectedEl" [paginator]="true" [rows]="itemsPerPage"
+           [totalRecords]="totalItems"
            [value]="entites"
            dataKey="id" styleClass="ui-table-cars">
     <ng-template pTemplate="header">

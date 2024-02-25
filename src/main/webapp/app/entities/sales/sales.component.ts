@@ -221,7 +221,7 @@ export class SalesComponent implements OnInit {
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
-        userId: this.user.id,
+        userId: this.user?.id,
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),

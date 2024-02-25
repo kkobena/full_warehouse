@@ -50,7 +50,6 @@ import { StatSalesComponent } from '../stat-sales/stat-sales.component';
     StatSalesComponent,
   ],
   templateUrl: './transaction.component.html',
-  styleUrl: './transaction.component.scss',
   providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit {

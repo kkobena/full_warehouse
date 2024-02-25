@@ -7,11 +7,11 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { SalesComponent } from './sales.component';
 import { SalesDetailComponent } from './sales-detail.component';
 import { SalesUpdateComponent } from './sales-update.component';
 import { PresaleComponent } from './presale/presale.component';
 import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
+import { SalesHomeComponent } from './sales-home/sales-home.component';
 
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
@@ -34,7 +34,7 @@ export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | I
 const salesRoute: Routes = [
   {
     path: '',
-    component: SalesComponent,
+    component: SalesHomeComponent,
     data: {
       authorities: [Authority.ADMIN, Authority.SALES],
       defaultSort: 'id,asc',

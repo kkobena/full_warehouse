@@ -10,9 +10,7 @@
 
 </p-confirmDialog>
 <div>
-  <h4 id="page-heading">
-    <span>Pré-ventes</span>
-  </h4>
+
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-8">
       <div class="row">
@@ -78,12 +76,12 @@
                   pRipple
                   type="button"></button>
         </td>
-        <td>{{sale.numberTransaction}}</td>
-        <td class="text-right">{{sale.salesLines.length |number}}</td>
-        <td class="text-right">{{sale.salesAmount |number}}</td>
-        <td>{{sale.customer?.fullName}}</td>
-        <td>{{sale.seller?.fullName}}</td>
-        <td>{{sale.cassier?.fullName}}</td>
+        <td>{{ sale.numberTransaction }}</td>
+        <td class="text-right">{{ sale.salesLines.length |number }}</td>
+        <td class="text-right">{{ sale.salesAmount |number }}</td>
+        <td>{{ sale.customer?.fullName }}</td>
+        <td>{{ sale.seller?.fullName }}</td>
+        <td>{{ sale.cassier?.fullName }}</td>
         <td class="text-center">
           <div class="btn-group">
 
@@ -130,14 +128,15 @@
                 </ng-template>
                 <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
                   <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                    <td style="text-align: left;">{{rowIndex + 1}}</td>
-                    <td>{{saleLine.code}}</td>
-                    <td>{{saleLine.produitLibelle}}</td>
-                    <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-                    <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-                    <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
+                    <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                    <td>{{ saleLine.code }}</td>
+                    <td>{{ saleLine.produitLibelle }}</td>
+                    <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                    <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                    <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
                     <td
-                      style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
+                      style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                    </td>
 
                   </tr>
 

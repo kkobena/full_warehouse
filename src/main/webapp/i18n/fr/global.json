@@ -30,7 +30,7 @@
         "produit": "Produit",
         "customer": "Client",
         "salesLine": "Détail vente",
-        "sales": "Journal des ventes",
+        "sales": "Gestion des ventes",
         "payment": "Balance",
         "paymentMode": "Mode payment ",
         "orderLine": "Détail commande",

@@ -38,30 +38,6 @@
             </span>
           </a>
           <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-            <li *jhiHasAnyAuthority="['presale','ROLE_ADMIN']">
-              <a
-                (click)="collapseNavbar()"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="dropdown-item"
-                routerLink="/sales/presale"
-                routerLinkActive="active"
-              >
-                <fa-icon [fixedWidth]="true" [icon]="faShoppingBasket"></fa-icon>
-                <span>Préventes</span>
-              </a>
-            </li>
-            <li *jhiHasAnyAuthority="['ventes-en-cours','ROLE_ADMIN']">
-              <a
-                (click)="collapseNavbar()"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="dropdown-item"
-                routerLink="/sales/ventes-en-cours"
-                routerLinkActive="active"
-              >
-                <fa-icon [fixedWidth]="true" [icon]="faShippingFast"></fa-icon>
-                <span>Ventes en cours</span>
-              </a>
-            </li>
 
             <li *jhiHasAnyAuthority="['sales','ROLE_ADMIN']">
               <a
@@ -73,7 +49,7 @@
               >
                 <fa-icon [fixedWidth]="true" [icon]="faShoppingBag"></fa-icon>
 
-                <span jhiTranslate="global.menu.entities.sales">Sales</span>
+                <span jhiTranslate="global.menu.entities.sales">Gestion des ventes</span>
               </a>
             </li>
             <li *jhiHasAnyAuthority="['payment','ROLE_ADMIN']">

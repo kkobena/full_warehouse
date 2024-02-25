@@ -8,7 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { IProduit, Produit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
 import { ProduitComponent } from './produit.component';
-import { ProduitDetailComponent } from './produit-detail.component';
 import { ProduitUpdateComponent } from './produit-update.component';
 import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
 import { TransactionComponent } from './transaction/transaction.component';
@@ -54,7 +53,7 @@ const produitRoute: Routes = [
   },
   {
     path: 'transaction',
-    component: ProduitDetailComponent,
+    component: TransactionComponent,
     resolve: {
       produit: ProduitResolve,
     },

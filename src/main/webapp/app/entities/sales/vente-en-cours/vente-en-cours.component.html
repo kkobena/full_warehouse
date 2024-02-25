@@ -1,142 +1,146 @@
-
-<p-confirmDialog [style]="{width: '40vw'}" #deletePrevente key="deletePrevente" [baseZIndex]="10000">
-    <p-footer>
-        <button type="button" class="p-button-danger" pButton icon="pi pi-times" label="Non"
-                (click)="deletePrevente.reject()"></button>
-        <button type="button" pButton icon="pi pi-check" label="Oui" (click)="deletePrevente.accept()"></button>
-    </p-footer>
+<p-confirmDialog #deletePrevente [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="deletePrevente">
+  <p-footer>
+    <button (click)="deletePrevente.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+    <button (click)="deletePrevente.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
 
 </p-confirmDialog>
 <div>
-    <h4 id="page-heading">
-        <span>Pré-ventes</span>
-    </h4>
-    <p-toolbar>
-        <div class="p-toolbar-group-left p-md-8">
-            <div class="row">
-                <div class="col">
-                    <p-dropdown [options]="typeVentes" [(ngModel)]="typeVenteSelected" [filter]="false"
-                                (onChange)="onTypeVenteChange()" placeholder="Filtrer par critère"
-                                styleClass="dropdown-width">
-                    </p-dropdown>
-                </div>
+ 
+  <p-toolbar>
+    <div class="p-toolbar-group-left p-md-8">
+      <div class="row">
+        <div class="col">
+          <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [filter]="false"
+                      [options]="typeVentes" placeholder="Filtrer par critère"
+                      styleClass="dropdown-width">
+          </p-dropdown>
+        </div>
 
 
-                <div class="col">
+        <div class="col">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
-                                <input type="text" pInputText [(ngModel)]="search" placeholder="Taper pour rechercher"
-                                       (keyup.enter)="onSearch()">
+                                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                                       placeholder="Taper pour rechercher"
+                                       type="text">
                             </span>
-                </div>
-
-            </div>
-
         </div>
-        <div class="p-toolbar-group-right">
 
-            <button pButton pRipple type="button"
-                    class="p-button-raised  mb-2 p-button-success " [routerLink]="['/sales', false, 'new']">
-                <i class="pi pi-plus"></i>
-                <span>
+      </div>
+
+    </div>
+    <div class="p-toolbar-group-right">
+
+      <button [routerLink]="['/sales', false, 'new']" class="p-button-raised  mb-2 p-button-success " pButton
+              pRipple
+              type="button">
+        <i class="pi pi-plus"></i>
+        <span>
                 Nouvelle vente
             </span>
+      </button>
+    </div>
+  </p-toolbar>
+
+  <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10" [showCurrentPageReport]="true"
+           [value]="sales"
+           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+           dataKey="id"
+           dataKey="id"
+           selectionMode="single" styleClass="p-datatable-gridlines mt-2"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:3%"></th>
+        <th style="width:10%">Référence</th>
+        <th style="width:8%">Nbre d'articles</th>
+        <th style="width:8%">Montant</th>
+        <th style="width:20%">Client</th>
+        <th style="width:20%">Vendeur</th>
+        <th style="width:20%">Caissier</th>
+        <th style="width:11%"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-expanded="expanded" let-sale pTemplate="body">
+      <tr>
+        <td>
+          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="sale" class="p-button-text p-button-rounded p-button-plain" pButton
+                  pRipple
+                  type="button"></button>
+        </td>
+        <td>{{ sale.numberTransaction }}</td>
+        <td class="text-right">{{ sale.salesLines.length |number }}</td>
+        <td class="text-right">{{ sale.salesAmount |number }}</td>
+        <td>{{ sale.customer?.fullName }}</td>
+        <td>{{ sale.seller?.fullName }}</td>
+        <td>{{ sale.cassier?.fullName }}</td>
+        <td class="text-center">
+          <div class="btn-group">
+
+            <button [routerLink]="['/sales', sale.id,false, 'edit']" class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
+                    pButton pRipple
+                    pTooltip="Editer">
+
             </button>
-        </div>
-    </p-toolbar>
 
-    <p-table [value]="sales" dataKey="id" styleClass="p-datatable-gridlines mt-2" dataKey="id" [paginator]="true"
-             [rows]="10"
-             [showCurrentPageReport]="true"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
-             [rowsPerPageOptions]="[10,15,20,30,50]" selectionMode="single"
-    >
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width:3%"></th>
-                <th style="width:10%">Référence</th>
-                <th style="width:8%">Nbre d'articles</th>
-                <th style="width:8%">Montant</th>
-                <th style="width:20%">Client</th>
-                <th style="width:20%">Vendeur</th>
-                <th style="width:20%">Caissier</th>
-                <th style="width:11%"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-sale let-expanded="expanded">
-            <tr>
-                <td>
-                    <button type="button" pButton pRipple [pRowToggler]="sale"
-                            class="p-button-text p-button-rounded p-button-plain"
-                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                </td>
-                <td>{{sale.numberTransaction}}</td>
-                <td class="text-right">{{sale.salesLines.length |number}}</td>
-                <td class="text-right">{{sale.salesAmount |number}}</td>
-                <td>{{sale.customer?.fullName}}</td>
-                <td>{{sale.seller?.fullName}}</td>
-                <td>{{sale.cassier?.fullName}}</td>
-                <td class="text-center">
-                    <div class="btn-group">
+            <button (click)="confirmRemove(sale)" class="p-button-rounded p-button-danger p-button-sm ml-2" icon="pi pi-trash"
+                    pButton pRipple
+                    pTooltip="Supprimer"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template let-elRow pTemplate="rowexpansion">
+      <tr>
+        <td colspan="8">
+          <div class="card">
+            <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+            <div class="card-body">
+              <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10" [showCurrentPageReport]="true"
+                       [value]="elRow.salesLines"
+                       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                       dataKey="id" selectionMode="single"
+              >
 
-                        <button pButton pRipple icon="pi pi-pencil"
-                                pTooltip="Editer" [routerLink]="['/sales', sale.id,false, 'edit']"
-                                class="p-button-rounded p-button-success p-button-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width:5%">
+                      #
+                    </th>
+                    <th style="width:10%">CODE</th>
+                    <th style="width:44%">LIBELLE</th>
+                    <th style="width:8%">QTE.D</th>
+                    <th style="width:8%">QTE.S</th>
+                    <th style="width:9%">PU</th>
+                    <th style="width:10%">TOTAL</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                  <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                    <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                    <td>{{ saleLine.code }}</td>
+                    <td>{{ saleLine.produitLibelle }}</td>
+                    <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                    <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                    <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
+                    <td
+                      style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                    </td>
 
-                        </button>
+                  </tr>
 
-                        <button pButton pRipple icon="pi pi-trash"
-                                pTooltip="Supprimer" (click)="confirmRemove(sale)"
-                                class="p-button-rounded p-button-danger p-button-sm ml-2"></button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-elRow>
-            <tr>
-                <td colspan="8">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                        <div class="card-body">
-                            <p-table [value]="elRow.salesLines" dataKey="id" [paginator]="true" [rows]="10"
-                                     [showCurrentPageReport]="true"
-                                     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                                     [rowsPerPageOptions]="[10,15,20,30,50]" selectionMode="single"
-                            >
+                </ng-template>
+              </p-table>
 
-                                <ng-template pTemplate="header">
-            <tr>
-                <th style="width:5%">
-                    #
-                </th>
-                <th style="width:10%">CODE</th>
-                <th style="width:44%">LIBELLE</th>
-                <th style="width:8%">QTE.D</th>
-                <th style="width:8%">QTE.S</th>
-                <th style="width:9%">PU</th>
-                <th style="width:10%">TOTAL</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-saleLine let-rowIndex="rowIndex">
-            <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                <td style="text-align: left;">{{rowIndex + 1}}</td>
-                <td>{{saleLine.code}}</td>
-                <td>{{saleLine.produitLibelle}}</td>
-                <td class="text-right">  {{saleLine.quantityRequested |number}}</td>
-                <td class="text-right">  {{saleLine.quantitySold |number}}</td>
-                <td class="text-right">  {{saleLine.regularUnitPrice |number}}</td>
-                <td style="text-align: right; font-weight: bold;">{{saleLine.salesAmount |number}}</td>
-
-            </tr>
-
-        </ng-template>
-    </p-table>
-
-</div>
-</div>
-</td>
-</tr>
-</ng-template>
-</p-table>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
 

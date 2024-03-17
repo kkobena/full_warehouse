@@ -89,10 +89,25 @@ export class Sales implements ISales {
     public tiersPayants?: IClientTiersPayant[],
     public thirdPartySaleLines?: IThirdPartySaleLine[],
     public partTiersPayant?: number,
-    public sansBon?: boolean
+    public sansBon?: boolean,
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
     this.differe = this.differe || false;
     this.sansBon = this.sansBon || false;
   }
+}
+
+export class QuantitySaleLine {
+  newValue: number;
+  saleLine: ISalesLine;
+}
+
+export class SaveResponse {
+  success: boolean;
+  sale?: ISales;
+  error?: any;
+}
+
+export class InputToFocus {
+  control: string;
 }

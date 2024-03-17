@@ -15,24 +15,25 @@ h4 {
 }
 
 body {
-  background: #EFEFEF;
+  // background: #f7f7f7;
 }
 
 .nav-home, .row {
-  background: #EFEFEF;
+  // background: #EFEFEF;
+  //background: #f7f7f7;
 }
 
 .justify-content-center {
-  background: #EFEFEF;
+  background: #f7f7f7;
   margin: 0;
 }
 
 .home-ca {
-  background: #EFEFEF;
+  background: #f7f7f7;
 }
 
 .jh-card {
-  background: #EFEFEF;
+  background: #f7f7f7;
 }
 
 a:hover {
@@ -1133,3 +1134,35 @@ li .icon-holder .icon i {
 }
 
  */
+/*
+menu  de la vente
+ */
+.selling {
+  .sale-container {
+
+  }
+
+  .selling-menu {
+    margin: 0;
+
+    p-panel {
+
+
+      .p-panel-content {
+        padding: 0;
+
+        .p-card {
+          padding: 0;
+
+          .p-card-body {
+            padding: 0 0.3rem;
+          }
+
+        }
+
+      }
+    }
+  }
+
+}
+

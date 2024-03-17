@@ -203,9 +203,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
       caissier = userRepository.getReferenceById(dto.getCassierId());
     }
     if (Objects.nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
-      c.setSeller(caissier);
-    } else {
       c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
+    } else {
+      c.setSeller(caissier);
     }
     c.setImported(false);
     c.setUser(user);

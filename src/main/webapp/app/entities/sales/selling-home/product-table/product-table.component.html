@@ -1,0 +1,133 @@
+<p-table #produitTable [globalFilterFields]="['code','produitLibelle']" [paginator]="true"
+         [rowsPerPageOptions]="[5,8,10,20]" [rows]="5"
+         [showCurrentPageReport]="true"
+         [value]="salesLines"
+         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+         dataKey="id"
+         selectionMode="single">
+  <ng-template pTemplate="caption">
+    <span class="mr-lg-5">Produits</span>
+
+    <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
+           placeholder="Taper pour filter"
+           type="text">
+</span>
+
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width:5%">
+        #
+      </th>
+      <th style="width:10%">CODE</th>
+      <th style="width:44%">LIBELLE</th>
+      <th style="width:8%">QTE.D</th>
+      <th style="width:8%">QTE.S</th>
+      <th style="width:9%">PU</th>
+      <th style="width:10%">TOTAL</th>
+      <th style="width:6%"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+    <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+      <td style="text-align: center;">{{ rowIndex + 1 }}</td>
+      <td>{{ saleLine.code }}</td>
+      <td>{{ saleLine.produitLibelle }}</td>
+      <td pEditableColumn style="text-align: right;">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input (focus)="$event.target.select()"
+                   (keydown.enter)="updateItemQtyRequested(saleLine,$event)" pInputText
+                   required style="width: 100px;"
+                   type="number">
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ saleLine.quantityRequested |number }}
+          </ng-template>
+        </p-cellEditor>
+
+      </td>
+      <td pEditableColumn style="text-align: right;">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input (focus)="$event.target.select()"
+                   (keydown.enter)="updateItemQtySold(saleLine,$event)" pInputText
+                   required style="width: 100px;"
+                   type="number">
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ saleLine.quantitySold |number }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      @if (canUpdatePu) {
+        <td pEditableColumn
+            style="text-align: right;">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input (focus)="$event.target.select()"
+                     (keydown.enter)="updateItemPrice(saleLine,$event)" pInputText
+                     required
+                     style="width: 100px;"
+                     type="number">
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{ saleLine.regularUnitPrice |number }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+      } @else {
+        <td style="text-align: right;">{{ saleLine.regularUnitPrice |number }}</td>
+      }
+
+      <td style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+      </td>
+      <td style="text-align: right;">
+        <button (click)="onDeleteItem(saleLine)"
+                class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
+                icon="pi pi-trash"
+                pButton pRipple
+                pTooltip="Supprimer"></button>
+      </td>
+    </tr>
+
+  </ng-template>
+  <ng-template pTemplate="footer">
+    @if (salesLines.length > 0) {
+      <tr>
+        <td class="p-text-left" colspan="3">TOTAUX</td>
+        <td style="text-align: right">{{ totalQtyProduit() |number }}</td>
+        <td style="text-align: right">{{ totalQtyServi() |number }}</td>
+        <td colspan="2" style="text-align: right">{{ totalTtc() |number }}</td>
+        <td></td>
+      </tr>
+    }
+
+  </ng-template>
+</p-table>
+
+
+<p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
+  <p-footer>
+    <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="deleteItem.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+<p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
+                 key="forcerStock">
+
+
+  <p-footer>
+    <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #forcerStockBtn (click)="forcerStock.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>

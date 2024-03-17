@@ -1,0 +1,36 @@
+@if (sale) {
+  <li class="list-group-item"><span class="h6">Total</span> <span
+    class="float-right sale-amount text-success">{{ sale?.salesAmount |number }}  </span>
+  </li>
+  @if (sale.taxAmount! > 0) {
+    <li class="list-group-item"><span
+      class="h6">Tva</span><span
+      class="float-right sale-amount ">{{ sale?.taxAmount!|number }} </span></li>
+  }
+  @if (sale.discountAmount! > 0) {
+    <li class="list-group-item"><span
+      class="h6">Remise</span><span
+      class="float-right sale-amount ">{{ sale.discountAmount|number }} </span></li>
+  }
+
+
+  <li class="list-group-item"><span class="h6">Montant net</span><span
+    class="float-right sale-amount text-danger ">{{ sale?.amountToBePaid|number }} </span>
+  </li>
+
+
+}
+@if (derniereMonnaie > 0) {
+  <li class="list-group-item"><span class="h6">Dernière monnaie</span><span
+    class="float-right sale-amount text-info">{{ derniereMonnaie|number }} </span></li>
+}
+
+@if (sale) {
+  @if (sale.amountToBePaid! > 0) {
+    <li class="list-group-item"><span
+      class="h6">Monnaie</span><span
+      class="float-right sale-amount text-info">{{ monnaie|number }} </span></li>
+  }
+}
+
+

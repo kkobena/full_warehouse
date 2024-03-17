@@ -1,82 +1,77 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
-import { ISales, Sales } from 'app/shared/model/sales.model';
-import { SalesService } from './sales.service';
-import { ICustomer } from 'app/shared/model/customer.model';
-import { CustomerService } from 'app/entities/customer/customer.service';
-import { IProduit } from 'app/shared/model/produit.model';
-import { ProduitService } from '../produit/produit.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
-import { ISalesLine, SalesLine } from 'app/shared/model/sales-line.model';
-import { saveAs } from 'file-saver';
-import { INatureVente } from '../../shared/model/nature-vente.model';
-import { ITypePrescription } from '../../shared/model/prescription-vente.model';
-import { IUser, User } from '../../core/user/user.model';
-import { IRemiseProduit } from '../../shared/model/remise-produit.model';
-import { IPaymentMode, PaymentMode } from '../../shared/model/payment-mode.model';
-import { IPayment, Payment } from '../../shared/model/payment.model';
-import { UserService } from '../../core/user/user.service';
-import { AccountService } from '../../core/auth/account.service';
-import { ConfirmationService, PrimeNGConfig } from 'primeng/api';
-import { ErrorService } from '../../shared/error.service';
-import { ConfigurationService } from '../../shared/configuration.service';
-import { DeconditionService } from '../decondition/decondition.service';
-import { Decondition, IDecondition } from '../../shared/model/decondition.model';
-import { IResponseDto } from '../../shared/util/response-dto';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { UninsuredCustomerFormComponent } from '../customer/uninsured-customer-form/uninsured-customer-form.component';
-import { UninsuredCustomerListComponent } from './uninsured-customer-list/uninsured-customer-list.component';
-import { FormAssuredCustomerComponent } from '../customer/form-assured-customer/form-assured-customer.component';
-import { TranslateService } from '@ngx-translate/core';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ClientTiersPayant, IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
-import { AssuredCustomerListComponent } from './assured-customer-list/assured-customer-list.component';
-import { AyantDroitCustomerListComponent } from './ayant-droit-customer-list/ayant-droit-customer-list.component';
-import { FormAyantDroitComponent } from '../customer/form-ayant-droit/form-ayant-droit.component';
-import { TiersPayantCustomerListComponent } from '../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
-import { AssuranceService } from './assurance.service';
-import { DOCUMENT } from '@angular/common';
-import { ModePaymentService } from '../mode-payments/mode-payment.service';
-import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { FormsModule } from '@angular/forms';
-import { PreventeModalComponent } from './prevente-modal/prevente-modal/prevente-modal.component';
-import { SidebarModule } from 'primeng/sidebar';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { PanelModule } from 'primeng/panel';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { ConfirmationService, PrimeNGConfig } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
+import { SidebarModule } from 'primeng/sidebar';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
+import { PanelModule } from 'primeng/panel';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { UninsuredCustomerListComponent } from '../uninsured-customer-list/uninsured-customer-list.component';
+import { AssuredCustomerListComponent } from '../assured-customer-list/assured-customer-list.component';
+import { FormAssuredCustomerComponent } from '../../customer/form-assured-customer/form-assured-customer.component';
+import { AyantDroitCustomerListComponent } from '../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { TiersPayantCustomerListComponent } from '../../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
+import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ayant-droit.component';
+import { INatureVente } from '../../../shared/model/nature-vente.model';
+import { IUser, User } from '../../../core/user/user.model';
+import { IPaymentMode } from '../../../shared/model/payment-mode.model';
+import { IPayment, Payment } from '../../../shared/model/payment.model';
+import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
+import { ICustomer } from '../../../shared/model/customer.model';
+import { IProduit } from '../../../shared/model/produit.model';
+import { IRemiseProduit } from '../../../shared/model/remise-produit.model';
+import { InputToFocus, ISales, Sales, SaveResponse } from '../../../shared/model/sales.model';
+import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
+import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
+import { Observable, Subscription } from 'rxjs';
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { SalesService } from '../sales.service';
+import { CustomerService } from '../../customer/customer.service';
+import { ProduitService } from '../../produit/produit.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../../core/user/user.service';
+import { AccountService } from '../../../core/auth/account.service';
+import { ErrorService } from '../../../shared/error.service';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { DeconditionService } from '../../decondition/decondition.service';
+import { TranslateService } from '@ngx-translate/core';
+import { AssuranceService } from '../assurance.service';
+import { DOCUMENT } from '@angular/common';
+import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
+import { HttpResponse } from '@angular/common/http';
+import { saveAs } from 'file-saver';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { IResponseDto } from '../../../shared/util/response-dto';
+import { ProductTableComponent } from './product-table/product-table.component';
+import { CardModule } from 'primeng/card';
+import { PresaleComponent } from '../presale/presale.component';
+import { SalesComponent } from '../sales.component';
+import { VenteEnCoursComponent } from '../vente-en-cours/vente-en-cours.component';
+import { ComptantComponent } from './comptant/comptant.component';
 
 type SelectableEntity = ICustomer | IProduit;
 
 @Component({
-  selector: 'jhi-sales-update',
-  styles: [
-    `
-      .table tr:hover {
-        cursor: pointer;
-      }
-    `,
-  ],
-  templateUrl: './sales-update.component.html',
-  providers: [ConfirmationService, DialogService],
+  selector: 'jhi-selling-home',
   standalone: true,
+  providers: [ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
     PreventeModalComponent,
@@ -106,9 +101,16 @@ type SelectableEntity = ICustomer | IProduit;
     AyantDroitCustomerListComponent,
     TiersPayantCustomerListComponent,
     FormAyantDroitComponent,
+    ProductTableComponent,
+    CardModule,
+    PresaleComponent,
+    SalesComponent,
+    VenteEnCoursComponent,
+    ComptantComponent,
   ],
+  templateUrl: './selling-home.component.html',
 })
-export class SalesUpdateComponent implements OnInit, AfterViewInit {
+export class SellingHomeComponent {
   isSaving = false;
   isPresale = false;
   displayErrorModal = false;
@@ -121,7 +123,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   printTicket = true;
   printInvoice = false;
   showInfosBancaire = false;
-  showModeReglementCard = true;
   canForceStock = true;
   showInfosComplementaireReglementCard = false;
   naturesVentes: INatureVente[] = [];
@@ -143,10 +144,8 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   appendTo = 'body';
   imagesPath!: string;
   customerSelected: ICustomer | null = null;
-  ayantDroit: ICustomer | null = null;
   selectedRowIndex?: number;
   remiseProduits: IRemiseProduit[] = [];
-  remiseProduit?: IRemiseProduit | null;
   sale?: ISales | null = null;
   salesLines: ISalesLine[] = [];
   quantiteSaisie = 1;
@@ -164,21 +163,14 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   removeOverlayPanel?: any;
   @ViewChild('addOverlayPanel')
   addOverlayPanel?: any;
-  @ViewChild('forcerStockBtn')
-  forcerStockBtn?: ElementRef;
   @ViewChild('addModePaymentConfirmDialogBtn')
   addModePaymentConfirmDialogBtn?: ElementRef;
-  clientSearchValue?: string | null = null;
-  clientBoxHeader = 'INFO CLIENT';
   stockSeverity = 'success';
   produitClass = 'col-6 row';
   rayonClass = 'col-2';
   entryAmount?: number | null = null;
   commentaire?: string;
   telephone?: string;
-  referenceBancaire?: string;
-  banque?: string;
-  lieux?: string;
   qtyMaxToSel = 999999;
   derniereMonnaie = 0;
   monnaie = 0;
@@ -206,15 +198,16 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   tierspayntDiv?: ElementRef;
   ref!: DynamicDialogRef;
   primngtranslate: Subscription;
-  tiersPayants: IClientTiersPayant[] = [];
-  showOrHideTiersPayantBtn = false;
-  tiersPayantsOriginal = 0;
-  sansBon = false;
   isReadonly = false;
   canSaleWithoutSansBon = false;
   showAddModePaimentBtn = false;
   selectedMode: IPaymentMode | null;
   pendingSalesSidebar = false;
+  @ViewChild('forcerStockDialogBtn')
+  forcerStockDialogBtn?: ElementRef;
+  protected active = 'comptant';
+  @ViewChild(ComptantComponent)
+  private comptantComponent: ComptantComponent;
 
   constructor(
     protected salesService: SalesService,
@@ -234,7 +227,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     public primeNGConfig: PrimeNGConfig,
     private spinner: NgxSpinnerService,
     private assuranceService: AssuranceService,
-    private modePaymentService: ModePaymentService,
     @Inject(DOCUMENT) private document: Document,
   ) {
     this.imagesPath = 'data:image/';
@@ -247,30 +239,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private static createPaymentMode(code: string): PaymentMode {
-    return {
-      ...new PaymentMode(),
-      code,
-    };
-  }
-
-  private static createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
-    return {
-      ...new Decondition(),
-      qtyMvt: qtyDeconditione,
-      produitId,
-    };
-  }
-
-  private static createTiersPayant(id: number, numBon: string, priorite: number): IClientTiersPayant {
-    return {
-      ...new ClientTiersPayant(),
-      id,
-      numBon,
-      priorite,
-    };
-  }
-
   onLoadPrevente(sales: ISales): void {
     this.modeReglementSelected = [];
     this.sale = sales;
@@ -279,15 +247,11 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
     this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
     this.userSeller = this.users.find(e => e.id === sales.sellerId) || this.userSeller;
-    this.buildReglementInput();
   }
 
   ngOnInit(): void {
-    this.loadPaymentMode();
     this.loadAllUsers();
     this.maxToSale();
-    this.saleWithoutSansBon();
-    this.maxModePaymentNumber();
     this.accountService.identity().subscribe(account => {
       if (account) {
         this.userCaissier = account;
@@ -296,14 +260,14 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
     this.resetNaturesVente();
     this.typePrescriptions = [
-      { code: 'PRESCRIPTION', name: 'PRESCRIPTION' },
+      { code: 'PRESCRIPTION', name: 'Prescription' },
       {
         code: 'CONSEIL',
-        name: 'CONSEIL',
+        name: 'Conseil',
       },
-      { code: 'DEPOT', name: 'DEPÔT' },
+      { code: 'DEPOT', name: 'Dépôt' },
     ];
-    this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
+    this.typePrescription = { code: 'PRESCRIPTION', name: 'Prescription' };
 
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
@@ -337,27 +301,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
         this.userSeller = this.userCaissier;
       }
     }
-  }
-
-  getTiersPayants(): IClientTiersPayant[] {
-    this.tiersPayantsOriginal = this.customerSelected?.tiersPayants?.length;
-    if (this.sale !== null && this.sale !== undefined) {
-      this.tiersPayants = this.sale.tiersPayants!;
-    } else {
-      this.tiersPayants = this.customerSelected?.tiersPayants;
-    }
-
-    return this.tiersPayants;
-  }
-
-  removeTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.tiersPayants = this.tiersPayants.filter(e => e.id !== tiersPayant.id);
-  }
-
-  removeTiersPayantFromIndex(index: number, id: number): void {
-    this.tiersPayants.splice(index, 1);
-    this.showTiersPayantBtn();
-    this.updateVenteTiersPayant(id);
   }
 
   loadAllUsers(): void {
@@ -464,15 +407,15 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   saveAssuranceSale(): void {
-    this.sale.sansBon = this.sansBon;
+    // this.sale.sansBon = this.sansBon;
     this.sale.type = 'VO';
-    this.sale.tiersPayants = this.buildTiersPayants();
-    if (this.checkEmptyBon() && !this.canSaleWithoutSansBon) {
-      this.commonDialog = true;
-      this.commonDialogModalBtn.nativeElement.focus();
-    } else {
-      this.subscribeToFinalyseResponse(this.assuranceService.save(this.sale));
-    }
+    //  this.sale.tiersPayants = this.buildTiersPayants();
+    /* if (this.checkEmptyBon() && !this.canSaleWithoutSansBon) {
+       this.commonDialog = true;
+       this.commonDialogModalBtn.nativeElement.focus();
+     } else {
+       this.subscribeToFinalyseResponse(this.assuranceService.save(this.sale));
+     }*/
   }
 
   saveCashSale(): void {
@@ -608,32 +551,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.manageShowInfosBancaire();
   }
 
-  showAyantDroit(): boolean {
-    return !!(this.naturesVente.code === this.ASSURANCE && this.ayantDroit);
-  }
-
-  showTiersPayant(): boolean {
-    return !!((this.naturesVente.code === this.ASSURANCE || this.naturesVente.code === this.CARNET) && this.customerSelected);
-  }
-
-  showTiersPayantBtn(): void {
-    this.showOrHideTiersPayantBtn = this.tiersPayants.length !== this.tiersPayantsOriginal;
-  }
-
-  showClientSearch(): boolean {
-    return !!((this.isDiffere && this.sale) || this.naturesVente.code !== this.COMPTANT);
-  }
-
-  onDiffereChange(): void {
-    if (!this.customerSelected) {
-      setTimeout(() => {
-        this.clientSearchBox.nativeElement.focus();
-      }, 50);
-    }
-
-    this.manageShowInfosComplementaireReglementCard();
-  }
-
   trackId(index: number, item: IProduit): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
@@ -720,146 +637,27 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
   }
 
   onAddProduit(qytMvt: number): void {
-    if (this.sale) {
-      if (this.produitSelected) {
-        if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
-          this.subscribeToSaveLineResponse(this.salesService.addItemComptant(this.createSalesLine(this.produitSelected, qytMvt)));
-        } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
-          this.subscribeToSaveLineResponse(this.assuranceService.addItem(this.createSalesLine(this.produitSelected, qytMvt)));
+    if (this.produitSelected) {
+      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
+        if (this.sale) {
+          this.comptantComponent.onAddProduit(this.createSalesLine(this.produitSelected, qytMvt));
+        } else {
+          this.comptantComponent.createComptant(this.createSaleComptant(this.produitSelected, qytMvt));
         }
-      }
-    } else {
-      if (this.produitSelected) {
-        if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
-          this.subscribeToCreateSaleComptantResponse(
-            this.salesService.createComptant(this.createSaleComptant(this.produitSelected, qytMvt)),
-          );
-        } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
-          this.subscribeToCreateSaleComptantResponse(this.assuranceService.create(this.createThirdPartySale(this.produitSelected, qytMvt)));
-        }
+      } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
+        // this.subscribeToSaveLineResponse(this.assuranceService.addItem(this.createSalesLine(this.produitSelected, qytMvt)));
       }
     }
-    this.computeMonnaie(null);
-  }
 
-  openUninsuredCustomerListTable(customers: ICustomer[] | []): void {
-    this.ref = this.dialogService.open(UninsuredCustomerListComponent, {
-      data: { customers },
-      header: 'CLIENTS NON ASSURES',
-      width: '80%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-        this.produitbox.inputEL.nativeElement.focus();
-      }
-    });
-  }
+    /* if (this.produitSelected) {
+       if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
+         this.subscribeToCreateSaleComptantResponse(this.salesService.createComptant(this.createSaleComptant(this.produitSelected, qytMvt)));
+       } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
+         this.subscribeToCreateSaleComptantResponse(this.assuranceService.create(this.createThirdPartySale(this.produitSelected, qytMvt)));
+       }
+     }*/
 
-  openAssuredCustomerListTable(customers: ICustomer[] | []): void {
-    this.ref = this.dialogService.open(AssuredCustomerListComponent, {
-      data: { customers },
-      header: 'CLIENTS  ASSURES',
-      width: '95%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-        setTimeout(() => {
-          this.firstRefBonFocus();
-        }, 100);
-      }
-    });
-  }
-
-  addNewCustomer(): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.addUninsuredCustomer();
-    } else {
-      this.addAssuredCustomer();
-    }
-  }
-
-  editCustomer(): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.editUninsuredCustomer();
-    } else {
-      this.editAssuredCustomer();
-    }
-  }
-
-  loadsCustomer(): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.loadUninsuredCustomers();
-    } else {
-      this.loadAssuredCustomers();
-    }
-  }
-
-  openCustomerListTable(customers: ICustomer[] | []): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.openUninsuredCustomerListTable(customers);
-    } else {
-      this.openAssuredCustomerListTable(customers);
-    }
-  }
-
-  addUninsuredCustomer(): void {
-    this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: null },
-      header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ",
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-        this.produitbox.inputEL.nativeElement.focus();
-      }
-    });
-  }
-
-  addAssuredCustomer(): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: { entity: null },
-      header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
-      width: '80%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-      }
-    });
-  }
-
-  editAssuredCustomer(): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: { entity: this.customerSelected },
-      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
-      width: '80%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-        if (this.ayantDroit && this.ayantDroit.id === this.customerSelected?.id) {
-          this.ayantDroit = this.customerSelected;
-        }
-      }
-    });
-  }
-
-  editUninsuredCustomer(): void {
-    this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: this.customerSelected },
-      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.customerSelected = resp;
-      }
-    });
+    // this.computeMonnaie(null);
   }
 
   print(sale: ISales | null): void {
@@ -878,52 +676,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
       this.loadProduits();
       this.customerSelected = null;
     }
-  }
-
-  removeLine(salesLine: ISalesLine): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.removeItemFromVNO(salesLine.id);
-    } else if (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE) {
-      this.removeItemFromCarnet(salesLine.id);
-    }
-  }
-
-  updateItemQtyRequested(salesLine: ISalesLine, event: any): void {
-    const newQty = Number(event.target.value);
-    if (newQty <= 0) {
-      return;
-    }
-    salesLine.quantityRequested = newQty;
-    if (newQty > this.qtyMaxToSel) {
-      this.onUpdateConfirmForceStock(salesLine, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
-    } else {
-      this.processQtyRequested(salesLine);
-    }
-  }
-
-  updateItemQtySold(salesLine: ISalesLine, event: any): void {
-    const newQty = Number(event.target.value);
-    if (newQty < 0) {
-      return;
-    }
-    if (newQty > salesLine.quantityRequested) {
-      this.openInfoDialog(
-        `La quantité saisie  ${newQty}  ne doit pas être supérieure à la quantité demandée ${salesLine.quantityRequested}`,
-        'alert alert-danger',
-      );
-      return;
-    }
-    salesLine.quantitySold = newQty;
-    this.processQtySold(salesLine);
-  }
-
-  updateItemPrice(salesLine: ISalesLine, event: any): void {
-    const newPrice = Number(event.target.value);
-    if (newPrice <= 0) {
-      return;
-    }
-    salesLine.regularUnitPrice = newPrice;
-    this.processItemPrice(salesLine);
   }
 
   formatNumber(number: any): string {
@@ -949,37 +701,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  confirmDeleteItem(item: ISalesLine): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous detacher  ce produit ?',
-      header: 'RUPPRESSION DE PRODUIT ',
-      icon: 'pi pi-info-circle',
-      accept: () => this.removeLine(item),
-      reject: () => {
-        this.check = true;
-        this.updateProduitQtyBox();
-      },
-      key: 'deleteItem',
-    });
-  }
-
-  confirmForceStock(qytMvt: number, message: string): void {
-    this.confirmationService.confirm({
-      message,
-      header: 'FORCER LE STOCK',
-      icon: 'pi pi-info-circle',
-      accept: () => {
-        this.onAddProduit(qytMvt);
-      },
-      reject: () => {
-        this.check = true;
-        this.updateProduitQtyBox();
-      },
-      key: 'forcerStock',
-    });
-    this.forcerStockBtn.nativeElement.focus();
-  }
-
   confirmDeconditionnement(item: ISalesLine | null, produit: IProduit, qytMvt: number): void {
     this.confirmationService.confirm({
       message: 'Stock détail insuffisant . Voullez-vous faire un déconditionnement ?',
@@ -989,15 +710,15 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
         const qtyDetail = produit.itemQty;
         if (qtyDetail) {
           const qtyDecondtionner = Math.round(qytMvt / qtyDetail);
-          this.decondtionService.create(SalesUpdateComponent.createDecondition(qtyDecondtionner, produit.id)).subscribe(
-            () => {
+          this.decondtionService.create(this.createDecondition(qtyDecondtionner, produit.id)).subscribe({
+            next: () => {
               if (item) {
                 this.processQtyRequested(item);
               } else {
                 this.onAddProduit(qytMvt);
               }
             },
-            error => {
+            error: error => {
               if (error.error && error.error.status === 500) {
                 this.openInfoDialog('Erreur applicative', 'alert alert-danger');
               } else {
@@ -1009,7 +730,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
                 );
               }
             },
-          );
+          });
         }
       },
       reject: () => {
@@ -1018,7 +739,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
       },
       key: 'forcerStock',
     });
-    this.forcerStockBtn.nativeElement.focus();
+    // this.forcerStockBtn.nativeElement.focus();
   }
 
   onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {
@@ -1033,9 +754,9 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
         this.check = true;
         this.updateProduitQtyBox();
       },
-      key: 'forcerStock',
+      key: 'forcerStockDialog',
     });
-    this.forcerStockBtn.nativeElement.focus();
+    this.forcerStockDialogBtn.nativeElement.focus();
   }
 
   maxToSale(): void {
@@ -1067,11 +788,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   resetAll(): void {
     this.sale = null;
-    this.customerSelected = null;
-    this.ayantDroit = null;
-    this.tiersPayants = [];
     this.salesLines = [];
-    this.buildReglementInput();
     this.resetNaturesVente();
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.userSeller = this.userCaissier;
@@ -1079,24 +796,11 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.derniereMonnaie = this.monnaie;
     this.monnaie = 0;
     this.payments = [];
-    this.sansBon = false;
     this.isDiffere = false;
     this.showAddModePaimentBtn = false;
     this.updateComponent();
     this.updateProduitQtyBox();
     this.loadProduits();
-  }
-
-  totalQtyProduit(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
-  }
-
-  totalQtyServi(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
-  }
-
-  totalTtc(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
   }
 
   buildPayment(): IPayment[] {
@@ -1111,75 +815,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  loadUninsuredCustomers(): void {
-    if (this.clientSearchValue) {
-      this.spinner.show('salespinner');
-      this.customerService.queryUninsuredCustomers({ search: this.clientSearchValue }).subscribe({
-        next: (res: HttpResponse<ICustomer[]>) => {
-          this.spinner.hide('salespinner');
-          const uninsuredCustomers = res.body;
-          if (uninsuredCustomers && uninsuredCustomers.length > 0) {
-            if (uninsuredCustomers.length === 1) {
-              this.customerSelected = uninsuredCustomers[0];
-              this.produitbox.inputEL.nativeElement.focus();
-            } else {
-              this.openUninsuredCustomerListTable(uninsuredCustomers);
-            }
-
-            this.clientSearchValue = null;
-          } else {
-            this.addUninsuredCustomer();
-            this.clientSearchValue = null;
-          }
-        },
-        error: () => {
-          this.spinner.hide('salespinner');
-        },
-      });
-    }
-  }
-
-  loadAssuredCustomers(): void {
-    if (this.clientSearchValue) {
-      this.spinner.show('salespinner');
-      this.customerService
-        .queryAssuredCustomer({
-          search: this.clientSearchValue,
-          typeTiersPayant: this.naturesVente.code,
-        })
-        .subscribe({
-          next: (res: HttpResponse<ICustomer[]>) => {
-            this.spinner.hide('salespinner');
-            const assuredCustomers = res.body;
-            if (assuredCustomers && assuredCustomers.length > 0) {
-              if (assuredCustomers.length === 1) {
-                this.customerSelected = assuredCustomers[0];
-                setTimeout(() => {
-                  this.firstRefBonFocus();
-                }, 100);
-              } else {
-                this.openAssuredCustomerListTable(assuredCustomers);
-              }
-
-              this.clientSearchValue = null;
-            } else {
-              this.addAssuredCustomer();
-              this.clientSearchValue = null;
-            }
-          },
-          error: () => {
-            this.spinner.hide('salespinner');
-          },
-        });
-    }
-  }
-
-  setClientSearchBoxFocus(): void {
-    setTimeout(() => {
-      this.clientSearchBox.nativeElement.focus();
-    }, 50);
-  }
-
   onNatureVenteChange(event: any): void {
     const selectNature = event.value;
 
@@ -1190,137 +825,14 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
       // TODO si vente en cours et vente est de type VO, alors message si la nvelle est COMPTANT, ON ne peut transformer une VO en VNO
     }
     if (selectNature.code !== this.COMPTANT && !this.customerSelected) {
-      this.setClientSearchBoxFocus();
+      // this.setClientSearchBoxFocus();
     } else {
       this.produitbox.inputEL.nativeElement.focus();
     }
   }
 
-  loadAyantDoits(): void {
-    this.ref = this.dialogService.open(AyantDroitCustomerListComponent, {
-      data: { assure: this.customerSelected },
-      header: 'LISTE DES AYANT DROITS DU CLIENT',
-      width: '80%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        if (resp.id !== null && resp.id !== undefined) {
-          this.ayantDroit = resp;
-        } else {
-          this.addAyantDroit();
-        }
-      }
-    });
-  }
-
-  addAyantDroit(): void {
-    this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: null, assure: this.customerSelected },
-      header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
-      width: '50%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.ayantDroit = resp;
-      }
-    });
-  }
-
-  onRemoveAyantDroit(): void {
-    this.ayantDroit = null;
-  }
-
-  onEditAyantDroit(): void {
-    this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: this.ayantDroit, assure: this.customerSelected },
-      header: 'FORMULAIRE DE MODIFICATION ',
-      width: '50%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.ayantDroit = resp;
-      }
-    });
-  }
-
   firstRefBonFocus(): void {
     this.tierspayntDiv.nativeElement.querySelector('input#tierspayant_0')?.focus();
-  }
-
-  lastRefBonFocus(): void {
-    const refBonInputs = this.tierspayntDiv.nativeElement.querySelectorAll('input[type=text]');
-    refBonInputs[refBonInputs?.length - 1]?.focus();
-  }
-
-  addComplementaire(): void {
-    this.ref = this.dialogService.open(TiersPayantCustomerListComponent, {
-      data: { tiersPayants: this.tiersPayants, assure: this.customerSelected },
-      header: 'TIERS-PAYANTS DU CLIENT',
-      width: '70%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: IClientTiersPayant) => {
-      if (resp) {
-        if (this.sale) {
-          this.addTiersPayant(resp);
-        }
-        this.tiersPayants.push(resp);
-        setTimeout(() => {
-          this.lastRefBonFocus();
-        }, 50);
-      }
-    });
-  }
-
-  manageCashPaymentMode(evt: any, modePay: IPaymentMode): void {
-    if (this.modeReglementSelected.length === 2) {
-      const secondInputDefaultAmount = this.sale.amountToBePaid - modePay.amount; /* Number(evt.target.value)*/
-      this.modeReglementSelected.find((e: IPaymentMode) => e.code !== evt.target.id).amount = secondInputDefaultAmount;
-      const amount = this.getEntryAmount();
-
-      this.computeMonnaie(amount);
-    } else {
-      this.computeMonnaie(null);
-    }
-    this.showAddModePaymentButton(modePay);
-  }
-
-  loadPaymentMode(): void {
-    this.modePaymentService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
-      this.modeReglements = this.convertPaymentMode(res);
-      this.cashModePayment = this.modeReglements.find(mode => mode.code === 'CASH');
-      this.buildReglementInput();
-    });
-  }
-
-  buildReglementInput(): void {
-    if (this.sale && this.sale.payments.length > 0) {
-      this.modeReglements.forEach((mode: IPaymentMode) => {
-        const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
-        if (el) {
-          mode.amount = el.paidAmount;
-          if (mode.code === this.CASH && el.montantVerse) {
-            mode.amount = el.montantVerse;
-            this.sale.montantVerse = el.montantVerse;
-          }
-          this.modeReglementSelected.push(mode);
-          this.computeMonnaie(null);
-          this.setFirstInputFocused();
-        }
-      });
-    } else {
-      this.resetCashInput();
-    }
-    this.getReglements();
-  }
-
-  resetCashInput(): void {
-    this.modeReglementSelected = [];
-    this.modeReglementSelected[0] = this.cashModePayment;
-    this.modeReglementSelected[0].amount = null;
   }
 
   getInputAtIndex(index: number | null): HTMLInputElement {
@@ -1350,24 +862,8 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onAddPaymentModeToggle(old: IPaymentMode, evt: any): void {
-    this.onModeBtnClick(old);
-    this.addOverlayPanel.toggle(evt);
-  }
-
   showAddModePaymentButton(mode: IPaymentMode): void {
     this.showAddModePaimentBtn = this.modeReglementSelected?.length < this.maxModePayementNumber && mode.amount < this.sale?.amountToBePaid;
-  }
-
-  onRemovePaymentModeToggle(old: IPaymentMode, evt: any): void {
-    if (this.modeReglementSelected.length === 1) {
-      this.onModeBtnClick(old);
-      this.removeOverlayPanel.toggle(evt);
-    } else {
-      const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => el.code === old.code);
-      this.modeReglementSelected.splice(oldIndex, 1);
-      this.showAddModePaymentButton(this.modeReglementSelected[0]);
-    }
   }
 
   onRemovePaymentMode(newMode: IPaymentMode): void {
@@ -1391,11 +887,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.selectedMode = paymentMode;
   }
 
-  trackPaymentModeId(index: number, item: IPaymentMode): string {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.code!;
-  }
-
   getReglements(): void {
     this.reglements = this.modeReglements.filter(x => !this.modeReglementSelected.includes(x));
   }
@@ -1410,6 +901,20 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   onSelectPrevente(prevente: ISales): void {
     this.subscribeOnloadPreventeResponse(this.salesService.find(prevente.id));
+  }
+
+  onSave(saveResponse: SaveResponse): void {
+    this.sale = saveResponse.sale;
+    if (saveResponse.success) {
+      this.computeMonnaie(null);
+      this.updateProduitQtyBox();
+    }
+  }
+
+  getControlToFocus(inputToFocusEvent: InputToFocus): void {
+    if (inputToFocusEvent.control === 'produitBox') {
+      this.updateProduitQtyBox();
+    }
   }
 
   protected processQtyRequested(salesLine: ISalesLine): void {
@@ -1452,13 +957,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body.saleId)),
-      error: () => this.onSaveError(),
-    });
-  }
-
   protected updateProduitQtyBox(): void {
     if (this.quantyBox) {
       this.quantyBox.nativeElement.value = 1;
@@ -1466,7 +964,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     if (this.check) {
       this.produitbox.inputEL.nativeElement.focus();
     } else {
-      this.forcerStockBtn.nativeElement.focus();
+      this.forcerStockDialogBtn.nativeElement.focus();
     }
 
     this.produitSelected = null;
@@ -1536,13 +1034,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
   }
 
-  protected subscribeToCreateSaleComptantResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-      error: error => this.onCommonError(error),
-    });
-  }
-
   protected onSaleComptantResponseSuccess(sale: ISales | null): void {
     this.isSaving = false;
     this.sale = sale;
@@ -1605,20 +1096,12 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected processQtySold(salesLine: ISalesLine): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.updateVNOQuantitySold(salesLine);
-    } else if (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE) {
-      this.updateCarnetQuantitySold(salesLine);
-    }
-  }
-
-  protected processItemPrice(salesLine: ISalesLine): void {
-    if (this.naturesVente.code === this.COMPTANT) {
-      this.updateVNOItemPrice(salesLine);
-    } else if (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE) {
-      this.updateCarnetItemPrice(salesLine);
-    }
+  private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
+    return {
+      ...new Decondition(),
+      qtyMvt: qtyDeconditione,
+      produitId,
+    };
   }
 
   private setFirstInputFocused(): void {
@@ -1748,33 +1231,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private createThirdPartySale(produit: IProduit, quantitySold: number): ISales {
-    return {
-      ...new Sales(),
-      salesLines: [this.createSalesLine(produit, quantitySold)],
-      customerId: this.customerSelected.id,
-      natureVente: this.naturesVente.code,
-      typePrescription: this.typePrescription.code,
-      cassierId: this.userCaissier.id,
-      sellerId: this.userSeller.id,
-      type: 'VO',
-      categorie: 'VO',
-      tiersPayants: this.buildTiersPayants(),
-    };
-  }
-
-  private buildTiersPayants(): IClientTiersPayant[] {
-    const inputs = this.tierspayntDiv.nativeElement.querySelectorAll('.thirdPartySaleLines');
-    const tiersPayantsData: IClientTiersPayant[] = [];
-    inputs.forEach((e: any) => {
-      const id = e.children[0].value;
-      const numBon = e.children[2].children[0].children[1].value;
-      const priorite = e.children[3].value;
-      tiersPayantsData.push(SalesUpdateComponent.createTiersPayant(id, numBon, priorite));
-    });
-    return tiersPayantsData;
-  }
-
   private disableComptant(): void {
     this.naturesVentes = [
       {
@@ -1791,20 +1247,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  private updateVNOQuantitySold(salesLine: ISalesLine): void {
-    this.salesService.updateItemQtySold(salesLine).subscribe({
-      next: () => {
-        if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-        }
-      },
-      error: () => {
-        this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      },
-    });
-  }
-
   private updateCarnetQuantitySold(salesLine: ISalesLine): void {
     this.assuranceService.updateItemQtySold(salesLine).subscribe({
       next: () => {
@@ -1817,62 +1259,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
         this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
       },
     });
-  }
-
-  private updateVNOItemPrice(salesLine: ISalesLine): void {
-    this.salesService.updateItemPrice(salesLine).subscribe({
-      next: () => {
-        if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-        }
-      },
-      error: () => {
-        this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      },
-    });
-  }
-
-  private updateCarnetItemPrice(salesLine: ISalesLine): void {
-    this.assuranceService.updateItemPrice(salesLine).subscribe({
-      next: () => {
-        if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-        }
-      },
-      error: () => {
-        this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      },
-    });
-  }
-
-  private removeItemFromVNO(id: number): void {
-    this.salesService.deleteItem(id).subscribe(() => {
-      if (this.sale) {
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      }
-    });
-  }
-
-  private removeItemFromCarnet(id: number): void {
-    this.assuranceService.deleteItem(id).subscribe(() => {
-      if (this.sale) {
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      }
-    });
-  }
-
-  private updateVenteTiersPayant(id: number): void {
-    if (this.sale) {
-      if (this.naturesVente?.code === this.CARNET || this.naturesVente?.code === this.ASSURANCE) {
-        this.assuranceService.removeVenteTiersPayant(id, this.sale.id).subscribe(() => {
-          if (this.sale) {
-            this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-          }
-        });
-      }
-    }
   }
 
   private resetNaturesVente(): void {
@@ -1892,21 +1278,20 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     this.naturesVente = { code: this.COMPTANT, name: this.COMPTANT, disabled: false };
   }
 
-  private updateSelectedModeReglement(mode: IPaymentMode): void {
-    if (this.modeReglementSelected.length < this.maxModePayementNumber) {
-      this.modeReglementSelected.push(mode);
-    }
-  }
-
-  private checkEmptyBon(): boolean {
-    // @ts-ignore
-    if (this.naturesVente !== this.ASSURANCE) {
-      return false;
-    }
-    if (!this.sansBon) {
-      return true;
-    }
-    const emptyBon = (element: IClientTiersPayant) => element.numBon === undefined || element.numBon === null || element.numBon === '';
-    return !!this.sale.tiersPayants.some(emptyBon);
+  private confirmForceStock(qytMvt: number, message: string): void {
+    this.confirmationService.confirm({
+      message,
+      header: 'FORCER LE STOCK',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.onAddProduit(qytMvt);
+      },
+      reject: () => {
+        this.check = true;
+        this.updateProduitQtyBox();
+      },
+      key: 'forcerStockDialog',
+    });
+    this.forcerStockDialogBtn.nativeElement.focus();
   }
 }

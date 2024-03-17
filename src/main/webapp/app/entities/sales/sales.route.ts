@@ -8,10 +8,10 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 import { SalesDetailComponent } from './sales-detail.component';
-import { SalesUpdateComponent } from './sales-update.component';
 import { PresaleComponent } from './presale/presale.component';
 import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
 import { SalesHomeComponent } from './sales-home/sales-home.component';
+import { SellingHomeComponent } from './selling-home/selling-home.component';
 
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
@@ -56,7 +56,7 @@ const salesRoute: Routes = [
   },
   {
     path: ':isPresale/new',
-    component: SalesUpdateComponent,
+    component: SellingHomeComponent,
     resolve: {
       sales: SalesResolve,
     },
@@ -67,7 +67,7 @@ const salesRoute: Routes = [
   },
   {
     path: ':id/:isPresale/edit',
-    component: SalesUpdateComponent,
+    component: SellingHomeComponent,
     resolve: {
       sales: SalesResolve,
     },

@@ -74,45 +74,8 @@
   </ng-template>
 </p-dialog>
 <div class="row">
-  @if (isDiffere) {
-    <div class="col-md-9 row">
-      <div class="col-md-5 ">
 
 
-        <div class="p-inputgroup">
-          <span class="p-inputgroup-addon">Client</span>
-          <span class="p-input-icon-left sale-p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input #clientSearchBox (keydown.enter)="loadsCustomer()" [(ngModel)]="clientSearchValue"
-           class="sale-p-inputtext"
-           pInputText placeholder="Taper pour rechercher un client"
-           type="text" />
-
-</span>
-          <button (click)="addNewCustomer()"
-                  class="p-button-rounded p-button-primary p-button-sm" icon="pi pi-user"
-                  pButton
-                  pRipple
-                  pTooltip="Ajouter nouveau client"></button>
-        </div>
-
-
-      </div>
-      <div class="col-md-7 row">
-        <div class="col-md-7">
-           <span>
-                <span>Nom/Prénom(s):</span> <span>{{ customerSelected?.fullName }}</span>
-              </span>
-        </div>
-        <div class="col-md-5"><span>
-          <span>Téléphone:</span> <span>{{ customerSelected?.phone }}</span></span>
-        </div>
-      </div>
-
-    </div>
-
-
-  }
   @if (remiseProduits.length > 0) {
     <div class="col-md-3">
       <div class="p-inputgroup">
@@ -129,71 +92,49 @@
 
 
 <p-divider></p-divider>
-<div class="row">
-  <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
-    <jhi-product-table (deleteItemEvent)="confirmDeleteItem($event)" (itemPriceEvent)="updateItemPrice($event)"
-                       (itemQtyRequestedEvent)="updateItemQtyRequested($event)" (itemQtySoldEvent)="updateItemQtySold($event)"
-                       [canUpdatePu]="canUpdatePu"
-                       [qtyMaxToSel]="qtyMaxToSel" [salesLines]="salesLines">
+@if (sale) {
+  <div class="row">
+    <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+      <jhi-product-table (deleteItemEvent)="confirmDeleteItem($event)"
+                         (itemPriceEvent)="updateItemPrice($event)"
+                         (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
+                         (itemQtySoldEvent)="updateItemQtySold($event)"
+                         [canUpdatePu]="canUpdatePu"
+                         [qtyMaxToSel]="qtyMaxToSel">
 
-    </jhi-product-table>
-  </div>
-
-  <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
-    <ul class="list-group mt-1">
-      <jhi-amount-computing (lastCurrencyGiven)="updateLastCurrencyGiven($event)"
-                            [derniereMonnaie]="derniereMonnaie" [entryAmount]="entryAmount"
-                            [modeReglementSelected]="modeReglementSelected" [sale]="sale">
-
-      </jhi-amount-computing>
-      <li class="list-group-item">
-        <p-button (click)="save()" [disabled]="!sale" icon="pi pi-check"
-                  label="TERMINER"
-                  styleClass="p-button-danger"></p-button>
-
-        <p-button (click)="putCurrentSaleOnHold()" [disabled]="!sale" icon="pi pi-times"
-                  label="EN ATTENTE"
-                  styleClass="p-button-secondary"></p-button>
-      </li>
-    </ul>
-
-  </div>
-</div>
-<div class="row sale-bottom-card">
-  <jhi-mode-reglement (isVenteDiffere)="showClientSearch($event)"
-                      (selectedModeReglement)="setModeRegelementSelectionnes($event)"
-                      [sale]="sale"></jhi-mode-reglement>
-  @if (showInfosComplementaireReglementCard) {
-    <div class="card col-md-5">
-      <div class="card-header sale-card-header">INFORMATIONS COMPLEMENTAIRES</div>
-      <div class="card-body sale-card">
-        @if (isDiffere) {
-          <div class="p-inputgroup mt-1">
-            <span class="p-inputgroup-addon">Commentaire</span>
-            <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />
-          </div>
-        }
-
-        @if (showInfosBancaire) {
-          <div class="row mt-1">
-            <div class="p-inputgroup col-6">
-              <span class="p-inputgroup-addon">Référence</span>
-              <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
-            </div>
-            <div class="p-inputgroup  col-6">
-              <span class="p-inputgroup-addon">Banque</span>
-              <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
-            </div>
-            <div class="p-inputgroup mt-1  col-8">
-              <span class="p-inputgroup-addon">Lieux</span>
-              <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
-            </div>
-          </div>
-        }
-      </div>
+      </jhi-product-table>
     </div>
-  }
+
+    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
+      <ul class="list-group mt-1">
+        <jhi-amount-computing
+          [entryAmount]="entryAmount">
+
+        </jhi-amount-computing>
+
+        <li class="list-group-item">
+          <p-button (click)="save()" icon="pi pi-check"
+                    label="Terminer"
+                    styleClass="p-button-danger"></p-button>
+
+          <p-button (click)="putCurrentSaleOnHold()" icon="pi pi-times"
+                    label="En attente"
+                    styleClass="p-button-secondary"></p-button>
+
+        </li>
 
 
-</div>
+      </ul>
+
+    </div>
+  </div>
+  <jhi-mode-reglement (isVenteDiffere)="showClientSearch($event)"
+                      (paymentModeControlEvent)="manageCashPaymentMode($event)"></jhi-mode-reglement>
+}
+
+
+
+
+
+
 

@@ -1,16 +1,16 @@
 package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.service.ThirdPartySaleService;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

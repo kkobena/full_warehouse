@@ -30,6 +30,11 @@ export class PaymentMode implements IPaymentMode {
     public amount?: number,
     public styleImageClass?: string,
     public styleBtnClass?: string,
-    public isReadonly?: boolean
+    public isReadonly?: boolean,
   ) {}
+}
+
+export class PaymentModeControl {
+  paymentMode: IPaymentMode;
+  control?: any;
 }

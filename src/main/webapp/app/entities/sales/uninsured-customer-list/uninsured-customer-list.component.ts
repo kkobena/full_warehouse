@@ -14,7 +14,7 @@ import { TableModule } from 'primeng/table';
 @Component({
   selector: 'jhi-uninsured-customer-list',
   templateUrl: './uninsured-customer-list.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  providers: [MessageService, DialogService, ConfirmationService, DynamicDialogRef, DynamicDialogConfig],
   standalone: true,
   imports: [
     WarehouseCommonModule,
@@ -50,7 +50,8 @@ export class UninsuredCustomerListComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    console.log('sqdsqdqdqsd', this.ref);
+    this.ref.destroy();
   }
 
   loadCustomers(): void {

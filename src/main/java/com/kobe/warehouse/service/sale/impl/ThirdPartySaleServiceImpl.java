@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
@@ -21,9 +21,7 @@ import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
-import com.kobe.warehouse.service.SalesLineService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.ThirdPartySaleService;
 import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
@@ -31,6 +29,8 @@ import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.NumBonAlreadyUseException;

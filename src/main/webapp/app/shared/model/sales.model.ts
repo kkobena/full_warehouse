@@ -104,10 +104,14 @@ export class QuantitySaleLine {
 
 export class SaveResponse {
   success: boolean;
-  sale?: ISales;
   error?: any;
 }
 
 export class InputToFocus {
   control: string;
+}
+
+export class KeyValue {
+  key: number;
+  value: number;
 }

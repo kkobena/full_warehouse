@@ -50,9 +50,7 @@ export class AuditingComponent implements OnInit {
     protected produitStatService: ProduitStatService,
     private spinner: NgxSpinnerService,
     private produitAuditingParamService: ProduitAuditingParamService,
-  ) {
-    console.warn(this.produitAuditingParamService.produitAuditingParam);
-  }
+  ) {}
 
   ngOnInit(): void {
     this.load(this.produitAuditingParamService.produitAuditingParam);

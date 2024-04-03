@@ -5,7 +5,7 @@ import { ProduitAuditingParam } from '../../../shared/model/produit-record.model
   providedIn: 'root',
 })
 export class ProduitAuditingParamService {
-  private produitAuditingParamWritableSignal: WritableSignal<ProduitAuditingParam> = signal({});
+  private produitAuditingParamWritableSignal: WritableSignal<ProduitAuditingParam> = signal<ProduitAuditingParam>(null);
 
   constructor() {}
 

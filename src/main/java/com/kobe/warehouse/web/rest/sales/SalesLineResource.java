@@ -2,13 +2,15 @@ package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.repository.SalesLineRepository;
-import com.kobe.warehouse.service.SaleService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.rest.errors.StockException;
-
 import jakarta.validation.Valid;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.SalesLine}. */
 @RestController

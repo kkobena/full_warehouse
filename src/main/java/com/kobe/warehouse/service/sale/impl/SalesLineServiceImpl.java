@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -15,8 +15,8 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
-import com.kobe.warehouse.service.SalesLineService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import java.time.LocalDateTime;

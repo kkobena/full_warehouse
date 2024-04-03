@@ -961,8 +961,36 @@ li .icon-holder .icon i {
 
 .sale-panel-header {
   .p-panel-header {
-    padding: 0.1rem 1rem;
+    padding: 0.1rem 0.2rem;
+
   }
+
+  .sale-action-toolbar {
+    margin: 0;
+
+    padding: 0;
+
+    .col-md-6 {
+      padding: 0;
+    }
+
+    .col-md-7 {
+      padding: 0;
+    }
+
+    .col-md-5 {
+      padding: 0;
+    }
+
+    .col-md-4 {
+      padding: 0;
+    }
+
+    .col-md-3 {
+      padding: 0;
+    }
+  }
+
 }
 
 .mr-1 {
@@ -1164,5 +1192,34 @@ menu  de la vente
     }
   }
 
+}
+
+.customer-overlay-panel {
+  padding: 0;
+  margin: 0;
+
+  .customer {
+
+    padding: 0.375375rem 0.3rem;
+
+    .p-button-label {
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  .col-md-3 {
+    padding: 0;
+  }
+
+  .col-md-7 {
+    padding-left: 3px !important;
+  }
+
+  .infos-cust {
+    font-weight: bold;
+
+
+  }
 }
 

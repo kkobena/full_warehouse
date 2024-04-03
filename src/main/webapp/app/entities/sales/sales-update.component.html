@@ -397,13 +397,13 @@
     </div>
 
     <div *ngIf="produitSelected" [class]="rayonClass">
-      RAYONS:
+      Rayons:
       <p-tag *ngFor=" let rayon of produitSelected?.rayonProduits" severity="warning">
         {{ rayon.libelleRayon }}
       </p-tag>
     </div>
     <div *ngIf="showStock && produitSelected" class="col-1">
-      STOCK:
+      Stock:
       <p-tag [rounded]="true"
              [severity]="stockSeverity">{{ produitSelected?.totalQuantity |number }}
       </p-tag>

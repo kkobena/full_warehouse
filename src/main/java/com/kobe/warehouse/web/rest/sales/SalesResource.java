@@ -1,13 +1,15 @@
 package com.kobe.warehouse.web.rest.sales;
 
-import com.kobe.warehouse.service.SaleService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
-
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.Sales}. */
 @RestController
@@ -167,5 +165,17 @@ public class SalesResource {
         .headers(
             HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
         .build();
+  }
+
+  @PutMapping("/sales/comptant/add-customer")
+  public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody KeyValue keyValue) {
+    saleService.setCustomer(keyValue);
+    return ResponseEntity.accepted().build();
+  }
+
+  @DeleteMapping("/sales/comptant/remove-customer/{id}")
+  public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable Long id) {
+    saleService.removeCustomer(id);
+    return ResponseEntity.accepted().build();
   }
 }

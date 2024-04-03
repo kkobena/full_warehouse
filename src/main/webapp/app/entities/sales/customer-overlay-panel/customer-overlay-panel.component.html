@@ -1,0 +1,43 @@
+<div class="row customer-overlay-panel">
+  <div class="col-md-3 ">
+    <p-overlayPanel #op [showCloseIcon]="true" [style]="{ width: '650px' }">
+
+      <ng-template pTemplate="content">
+        <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
+      </ng-template>
+
+
+    </p-overlayPanel>
+    @if (customer) {
+      <p-button (click)="remove()" label="Supprimer" icon="pi pi-user"
+                severity="danger" size="small"
+                styleClass="customer"></p-button>
+    } @else {
+      <p-button (click)="op.toggle($event)" [label]="getLabele()" icon="pi pi-user"
+                severity="success" size="small"
+                styleClass="customer"></p-button>
+    }
+
+  </div>
+  @if (customer) {
+    <div class="col-md-9 row">
+      <div class="row">
+        <div class="col-md-7 row infos-cust">
+
+          <div class="col-md-3">Client:</div>
+          <div class="col-md-9 nom-customer" style="text-align:left;">{{ customer.fullName }}</div>
+
+        </div>
+        <div class="col-md-5 row infos-cust">
+
+          <span>Mobile:&nbsp;<span class="mobile-customer">{{ customer.phone }}</span> </span>
+
+        </div>
+      </div>
+
+    </div>
+  }
+
+
+</div>
+

@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.CashSale;
@@ -21,15 +21,16 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.CashRegisterService;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
-import com.kobe.warehouse.service.SaleService;
-import com.kobe.warehouse.service.SalesLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.SaleService;
+import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
@@ -178,6 +179,20 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     payment.setPaymentMode(paymentMode);
     payment.setSales(s);
     return payment;
+  }
+
+  @Override
+  public void setCustomer(KeyValue keyValue) {
+    CashSale cashSale = this.cashSaleRepository.getReferenceById(keyValue.key());
+    cashSale.setCustomer(getUninsuredCustomerById(keyValue.value()));
+    this.cashSaleRepository.save(cashSale);
+  }
+
+  @Override
+  public void removeCustomer(Long saleId) {
+    CashSale cashSale = this.cashSaleRepository.getReferenceById(saleId);
+    cashSale.setCustomer(null);
+    this.cashSaleRepository.save(cashSale);
   }
 
   private void computeCashSaleAmountToPaid(CashSale c) {

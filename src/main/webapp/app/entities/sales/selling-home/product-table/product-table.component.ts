@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -10,6 +10,8 @@ import { AlertInfoComponent } from '../../../../shared/alert/alert-info.componen
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { CurrentSaleService } from '../../service/current-sale.service';
+import { ISales } from '../../../../shared/model/sales.model';
 
 @Component({
   selector: 'jhi-product-table',
@@ -28,7 +30,7 @@ import { ConfirmationService } from 'primeng/api';
   styleUrls: ['./product-table.component.scss'],
 })
 export class ProductTableComponent {
-  @Input('salesLines') salesLines: ISalesLine[] = [];
+  sale: ISales;
   @Output() itemQtySoldEvent = new EventEmitter<ISalesLine>();
   @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
@@ -39,20 +41,25 @@ export class ProductTableComponent {
   forcerStockBtn?: ElementRef;
 
   constructor(
+    private currentSaleService: CurrentSaleService,
     private modalService: NgbModal,
     private confirmationService: ConfirmationService,
-  ) {}
+  ) {
+    effect(() => {
+      this.sale = this.currentSaleService.currentSale();
+    });
+  }
 
   totalQtyProduit(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+    return this.sale?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
   }
 
   totalQtyServi(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.sale?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 
   totalTtc(): number {
-    return this.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
+    return this.sale?.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
   }
 
   updateItemQtySold(salesLine: ISalesLine, event: any): void {

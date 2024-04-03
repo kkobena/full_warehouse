@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, Inject, ViewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -32,7 +32,7 @@ import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ay
 import { INatureVente } from '../../../shared/model/nature-vente.model';
 import { IUser, User } from '../../../core/user/user.model';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
-import { IPayment, Payment } from '../../../shared/model/payment.model';
+import { Payment } from '../../../shared/model/payment.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
@@ -41,7 +41,6 @@ import { InputToFocus, ISales, Sales, SaveResponse } from '../../../shared/model
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
 import { Observable, Subscription } from 'rxjs';
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { SalesService } from '../sales.service';
 import { CustomerService } from '../../customer/customer.service';
 import { ProduitService } from '../../produit/produit.service';
@@ -65,6 +64,11 @@ import { PresaleComponent } from '../presale/presale.component';
 import { SalesComponent } from '../sales.component';
 import { VenteEnCoursComponent } from '../vente-en-cours/vente-en-cours.component';
 import { ComptantComponent } from './comptant/comptant.component';
+import { CustomerOverlayPanelComponent } from '../customer-overlay-panel/customer-overlay-panel.component';
+import { SelectedCustomerService } from '../service/selected-customer.service';
+import { CurrentSaleService } from '../service/current-sale.service';
+import { SelectModeReglementService } from '../service/select-mode-reglement.service';
+import { LastCurrencyGivenService } from '../service/last-currency-given.service';
 
 type SelectableEntity = ICustomer | IProduit;
 
@@ -107,6 +111,7 @@ type SelectableEntity = ICustomer | IProduit;
     SalesComponent,
     VenteEnCoursComponent,
     ComptantComponent,
+    CustomerOverlayPanelComponent,
   ],
   templateUrl: './selling-home.component.html',
 })
@@ -117,22 +122,15 @@ export class SellingHomeComponent {
   commonDialog = false;
   displayErrorEntryAmountModal = false;
   showStock = true;
-  maxModePayementNumber = 2;
   canUpdatePu = true;
   isDiffere = false;
   printTicket = true;
   printInvoice = false;
-  showInfosBancaire = false;
   canForceStock = true;
-  showInfosComplementaireReglementCard = false;
   naturesVentes: INatureVente[] = [];
   naturesVente: INatureVente | null = null;
   users: IUser[];
-  modeReglements: IPaymentMode[] = [];
-  reglements: IPaymentMode[] = [];
-  payments: IPayment[] = [];
   modeReglementSelected: IPaymentMode[] = [];
-  cashModePayment: IPaymentMode | null;
   userCaissier?: IUser | null;
   userSeller?: IUser;
   typePrescriptions: ITypePrescription[] = [];
@@ -147,7 +145,6 @@ export class SellingHomeComponent {
   selectedRowIndex?: number;
   remiseProduits: IRemiseProduit[] = [];
   sale?: ISales | null = null;
-  salesLines: ISalesLine[] = [];
   quantiteSaisie = 1;
   base64!: string;
   event: any;
@@ -172,8 +169,6 @@ export class SellingHomeComponent {
   commentaire?: string;
   telephone?: string;
   qtyMaxToSel = 999999;
-  derniereMonnaie = 0;
-  monnaie = 0;
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly CASH = 'CASH';
   readonly COMPTANT = 'COMPTANT';
@@ -198,18 +193,21 @@ export class SellingHomeComponent {
   tierspayntDiv?: ElementRef;
   ref!: DynamicDialogRef;
   primngtranslate: Subscription;
-  isReadonly = false;
-  canSaleWithoutSansBon = false;
   showAddModePaimentBtn = false;
-  selectedMode: IPaymentMode | null;
   pendingSalesSidebar = false;
   @ViewChild('forcerStockDialogBtn')
   forcerStockDialogBtn?: ElementRef;
   protected active = 'comptant';
+  protected monnaie: number;
+  protected derniereMonnaie: number;
   @ViewChild(ComptantComponent)
   private comptantComponent: ComptantComponent;
 
   constructor(
+    protected selectModeReglementService: SelectModeReglementService,
+    protected currentSaleService: CurrentSaleService,
+    protected selectedCustomerService: SelectedCustomerService,
+    protected lastCurrencyGivenService: LastCurrencyGivenService,
     protected salesService: SalesService,
     protected customerService: CustomerService,
     protected produitService: ProduitService,
@@ -218,11 +216,11 @@ export class SellingHomeComponent {
     protected modalService: NgbModal,
     protected userService: UserService,
     private accountService: AccountService,
-    protected confirmationService: ConfirmationService,
+    public confirmationService: ConfirmationService,
     protected errorService: ErrorService,
     protected configurationService: ConfigurationService,
     protected decondtionService: DeconditionService,
-    private dialogService: DialogService,
+    public dialogService: DialogService,
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
     private spinner: NgxSpinnerService,
@@ -237,19 +235,47 @@ export class SellingHomeComponent {
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
+    effect(() => {
+      this.sale = this.currentSaleService.currentSale();
+    });
+    effect(() => {
+      this.customerSelected = this.selectedCustomerService.selectedCustomerSignal();
+      if (this.customerSelected && this.sale) {
+        this.salesService
+          .addCustommerToCashSale({
+            key: this.sale.id,
+            value: this.customerSelected.id,
+          })
+          .subscribe(() => {});
+      } else {
+        if (this.sale) {
+          this.salesService.removeCustommerToCashSale(this.sale.id).subscribe(() => {});
+        }
+      }
+    });
+    effect(() => {
+      this.modeReglementSelected = this.selectModeReglementService.modeReglements();
+    });
+    effect(() => {
+      this.monnaie = this.lastCurrencyGivenService.givenCurrency();
+    });
   }
 
   onLoadPrevente(sales: ISales): void {
-    this.modeReglementSelected = [];
-    this.sale = sales;
-    this.salesLines = sales.salesLines;
-    this.customerSelected = sales.customer;
+    this.currentSaleService.setCurrentSale(sales);
+    if (sales && sales.type === 'VNO') {
+      this.active = 'comptant';
+    }
+    this.selectedCustomerService.setCustomer(sales.customer);
     this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
     this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
     this.userSeller = this.users.find(e => e.id === sales.sellerId) || this.userSeller;
   }
 
   ngOnInit(): void {
+    this.currentSaleService.setCurrentSale(null);
+    this.selectedCustomerService.setCustomer(null);
+    this.selectModeReglementService.selectCashModePayment();
     this.loadAllUsers();
     this.maxToSale();
     this.accountService.identity().subscribe(account => {
@@ -308,40 +334,9 @@ export class SellingHomeComponent {
   }
 
   manageAmountDiv(): void {
-    const input = this.getInputAtIndex(0);
-
-    if (input) {
-      this.modeReglementSelected.find((e: IPaymentMode) => e.code === input.id).amount = this.sale.amountToBePaid;
-      input.focus();
-      setTimeout(() => {
-        input.select();
-      }, 50);
+    if (this.active === 'comptant') {
+      this.comptantComponent.manageAmountDiv();
     }
-  }
-
-  focusLastAddInput(): void {
-    const input = this.getInputAtIndex(null);
-    if (input) {
-      input.focus();
-      const secondInputDefaultAmount =
-        this.sale.amountToBePaid - this.modeReglementSelected.find((e: IPaymentMode) => e.code !== input.id).amount;
-      this.modeReglementSelected.find((e: IPaymentMode) => e.code === input.id).amount = secondInputDefaultAmount;
-
-      setTimeout(() => {
-        input.select();
-      }, 50);
-    }
-  }
-
-  manageShowInfosComplementaireReglementCard(): void {
-    const mode = (element: IPaymentMode) =>
-      element.code === this.CB || element.code === this.VIREMENT || element.code === this.CH || this.isDiffere;
-    this.showInfosComplementaireReglementCard = this.modeReglementSelected.some(mode);
-  }
-
-  manageShowInfosBancaire(): void {
-    const mode = (element: IPaymentMode) => element.code === this.CB || this.VIREMENT || element.code === this.CH;
-    this.showInfosBancaire = this.modeReglementSelected.some(mode);
   }
 
   previousState(): void {
@@ -376,9 +371,8 @@ export class SellingHomeComponent {
       this.sale.differe = this.isDiffere;
       if (this.isPresale === false) {
         const thatentryAmount = this.getEntryAmount();
-        this.computeMonnaie(thatentryAmount);
         const restToPay = this.sale.amountToBePaid - thatentryAmount;
-        this.sale.montantRendu = this.monnaie;
+        // this.sale.montantRendu = this.monnaie;
         this.sale.montantVerse = this.getCashAmount();
         if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
           this.addModeConfirmDialog();
@@ -393,7 +387,7 @@ export class SellingHomeComponent {
             this.sale.payrollAmount = thatentryAmount;
             this.sale.restToPay = restToPay;
           }
-          this.sale.payments = this.buildPayment();
+          //  this.sale.payments = this.buildPayment();
           if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
             this.saveCashSale();
           } else {
@@ -450,14 +444,14 @@ export class SellingHomeComponent {
   }
 
   putCurrentCashSaleOnHold(): void {
-    this.sale.payments = this.buildPayment();
-    this.sale.type = 'VNO';
+    // this.sale.payments = this.buildPayment();
+    //  this.sale.type = 'VNO';
     this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnHold(this.sale));
   }
 
   putCurrentAssuranceSaleOnHold(): void {
-    this.sale.payments = this.buildPayment();
-    this.sale.type = 'VO';
+    // this.sale.payments = this.buildPayment();
+    //  this.sale.type = 'VO';
     this.subscribeToPutOnHoldResponse(this.assuranceService.putCurrentSaleOnHold(this.sale));
   }
 
@@ -498,10 +492,6 @@ export class SellingHomeComponent {
     }
   }
 
-  produitComponentSearch(term: string, item: IProduit): boolean {
-    return !!item;
-  }
-
   onSelect(): void {
     setTimeout(() => {
       this.quantyBox.nativeElement.focus();
@@ -527,28 +517,14 @@ export class SellingHomeComponent {
       } else {
         this.stockSeverity = 'danger';
       }
-    } else if (event.key === 'Enter' && this.sale && this.salesLines.length > 0) {
+    } else if (event.key === 'Enter' && this.sale?.salesLines.length > 0) {
       if ((this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE) && this.sale.amountToBePaid === 0) {
         this.save();
       } else {
+        console.log(this.sale);
         this.manageAmountDiv();
       }
     }
-  }
-
-  changePaimentMode(newPaymentMode: IPaymentMode): void {
-    const oldIndex = this.modeReglementSelected.findIndex((el: IPaymentMode) => (el.code = this.selectedMode.code));
-    this.modeReglementSelected[oldIndex] = newPaymentMode;
-    this.getReglements();
-    this.updateComponent();
-    setTimeout(() => {
-      this.manageAmountDiv();
-    }, 50);
-  }
-
-  updateComponent(): void {
-    this.manageShowInfosComplementaireReglementCard();
-    this.manageShowInfosBancaire();
   }
 
   trackId(index: number, item: IProduit): number {
@@ -558,12 +534,6 @@ export class SellingHomeComponent {
 
   trackById(index: number, item: SelectableEntity): any {
     return item.id;
-  }
-
-  computeMonnaie(amount: number | null): void {
-    const thatentryAmount = amount || this.getEntryAmount();
-    const thatMonnaie = thatentryAmount - this.sale?.amountToBePaid;
-    this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
   }
 
   getEntryAmount(): number {
@@ -587,7 +557,7 @@ export class SellingHomeComponent {
 
   totalItemQty(): number {
     if (this.produitSelected) {
-      return this.salesLines.find(e => e.produitId === this.produitSelected.id)?.quantityRequested || 0;
+      return this.sale?.salesLines.find(e => e.produitId === this.produitSelected.id)?.quantityRequested || 0;
     }
     return 0;
   }
@@ -638,7 +608,7 @@ export class SellingHomeComponent {
 
   onAddProduit(qytMvt: number): void {
     if (this.produitSelected) {
-      if (this.naturesVente && this.naturesVente.code === this.COMPTANT) {
+      if (this.active === 'comptant') {
         if (this.sale) {
           this.comptantComponent.onAddProduit(this.createSalesLine(this.produitSelected, qytMvt));
         } else {
@@ -678,12 +648,6 @@ export class SellingHomeComponent {
     }
   }
 
-  formatNumber(number: any): string {
-    return Math.floor(number.value)
-      .toString()
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
-  }
-
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
@@ -691,14 +655,6 @@ export class SellingHomeComponent {
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
-  }
-
-  onCellValueChanged(params: any): void {
-    if (Number(params.data.quantitySold) > params.data.quantityStock) {
-      this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
-    } else {
-      // this.subscribeToSaveLineResponse(this.saleItemService.update(this.createSalesLine(params.data)));
-    }
   }
 
   confirmDeconditionnement(item: ISalesLine | null, produit: IProduit, qytMvt: number): void {
@@ -767,52 +723,19 @@ export class SellingHomeComponent {
     });
   }
 
-  saleWithoutSansBon(): void {
-    this.configurationService.find('APP_SANS_NUM_BON').subscribe(res => {
-      if (res.body) {
-        this.canSaleWithoutSansBon = Number(res.body.value) === 1;
-      }
-    });
-  }
-
-  maxModePaymentNumber(): void {
-    this.configurationService.find('APP_MODE_REGL_NUMBER').subscribe(
-      res => {
-        if (res.body) {
-          this.maxModePayementNumber = Number(res.body.value);
-        }
-      },
-      () => (this.maxModePayementNumber = 2),
-    );
-  }
-
   resetAll(): void {
-    this.sale = null;
-    this.salesLines = [];
+    this.currentSaleService.setCurrentSale(null);
+    this.selectedCustomerService.setCustomer(null);
     this.resetNaturesVente();
     this.typePrescription = { code: 'PRESCRIPTION', name: 'PRESCRIPTION' };
     this.userSeller = this.userCaissier;
     this.check = true;
-    this.derniereMonnaie = this.monnaie;
-    this.monnaie = 0;
-    this.payments = [];
+    this.lastCurrencyGivenService.setLastCurrency(this.monnaie);
+    this.lastCurrencyGivenService.setGivenCurrentSale(0);
     this.isDiffere = false;
     this.showAddModePaimentBtn = false;
-    this.updateComponent();
     this.updateProduitQtyBox();
     this.loadProduits();
-  }
-
-  buildPayment(): IPayment[] {
-    return this.modeReglementSelected.filter((m: IPaymentMode) => m.amount).map((mode: IPaymentMode) => this.buildModePayment(mode));
-  }
-
-  buildPaymentFromSale(sale: ISales): void {
-    sale.payments.forEach(payment => {
-      if (payment.paymentMode) {
-        const code = payment.paymentMode.code;
-      }
-    });
   }
 
   onNatureVenteChange(event: any): void {
@@ -829,19 +752,6 @@ export class SellingHomeComponent {
     } else {
       this.produitbox.inputEL.nativeElement.focus();
     }
-  }
-
-  firstRefBonFocus(): void {
-    this.tierspayntDiv.nativeElement.querySelector('input#tierspayant_0')?.focus();
-  }
-
-  getInputAtIndex(index: number | null): HTMLInputElement {
-    const modeInputs = this.getInputs() as HTMLInputElement[];
-    const indexAt = index === 0 ? index : modeInputs.length - 1;
-    if (modeInputs && modeInputs.length > 0) {
-      return modeInputs[indexAt];
-    }
-    return null;
   }
 
   getCashAmount(): number {
@@ -862,35 +772,6 @@ export class SellingHomeComponent {
     }
   }
 
-  showAddModePaymentButton(mode: IPaymentMode): void {
-    this.showAddModePaimentBtn = this.modeReglementSelected?.length < this.maxModePayementNumber && mode.amount < this.sale?.amountToBePaid;
-  }
-
-  onRemovePaymentMode(newMode: IPaymentMode): void {
-    this.changePaimentMode(newMode);
-    this.removeOverlayPanel.hide();
-  }
-
-  onAddPaymentMode(newMode: IPaymentMode): void {
-    if (this.modeReglementSelected.length < this.maxModePayementNumber) {
-      this.modeReglementSelected[this.modeReglementSelected.length++] = newMode;
-      this.addOverlayPanel.hide();
-      this.getReglements();
-      this.updateComponent();
-      setTimeout(() => {
-        this.focusLastAddInput();
-      }, 50);
-    }
-  }
-
-  onModeBtnClick(paymentMode: IPaymentMode): void {
-    this.selectedMode = paymentMode;
-  }
-
-  getReglements(): void {
-    this.reglements = this.modeReglements.filter(x => !this.modeReglementSelected.includes(x));
-  }
-
   openPindingSide(): void {
     this.pendingSalesSidebar = true;
   }
@@ -904,9 +785,7 @@ export class SellingHomeComponent {
   }
 
   onSave(saveResponse: SaveResponse): void {
-    this.sale = saveResponse.sale;
     if (saveResponse.success) {
-      this.computeMonnaie(null);
       this.updateProduitQtyBox();
     }
   }
@@ -915,6 +794,35 @@ export class SellingHomeComponent {
     if (inputToFocusEvent.control === 'produitBox') {
       this.updateProduitQtyBox();
     }
+  }
+
+  getToolBarCssClass(): string {
+    let css = 'col-md-5';
+    if (this.active === 'comptant' && this.customerSelected) {
+      css = 'col-md-4';
+    } else if (this.active === 'comptant' && !this.customerSelected && !this.sale) {
+      css = 'col-md-7';
+    }
+    return css;
+  }
+
+  getToolBarActionCssClass(): string {
+    let css = 'col-md-6';
+    if (this.active === 'comptant' && !this.sale) {
+      css = 'col-md-5';
+    }
+    if (this.active === 'comptant' && this.sale) {
+      css = 'col-md-2';
+    }
+    return css;
+  }
+
+  getToolBarCustomerCssClass(): string {
+    let css = 'col-md-6';
+    if (this.sale && !this.customerSelected) {
+      return 'col-md-5';
+    }
+    return css;
   }
 
   protected processQtyRequested(salesLine: ISalesLine): void {
@@ -991,8 +899,7 @@ export class SellingHomeComponent {
   protected onSaveSuccess(sale: ISales | null): void {
     this.isSaving = false;
     this.sale = sale!;
-    this.salesLines = this.sale.salesLines!;
-    this.computeMonnaie(null);
+
     this.updateProduitQtyBox();
   }
 
@@ -1032,19 +939,6 @@ export class SellingHomeComponent {
 
   protected refresh(): void {
     this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
-  }
-
-  protected onSaleComptantResponseSuccess(sale: ISales | null): void {
-    this.isSaving = false;
-    this.sale = sale;
-    if (sale && sale.salesLines) {
-      this.salesLines = sale.salesLines;
-      if (sale.type === 'VO' || sale.categorie === 'VO') {
-        this.disableComptant();
-      }
-
-      this.updateProduitQtyBox();
-    }
   }
 
   protected onStockError(salesLine: ISalesLine, error: any): void {
@@ -1096,6 +990,10 @@ export class SellingHomeComponent {
     }
   }
 
+  protected onCustomerOverlay(evnt: boolean): void {
+    this.produitbox.inputEL.nativeElement.focus();
+  }
+
   private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
     return {
       ...new Decondition(),
@@ -1104,83 +1002,15 @@ export class SellingHomeComponent {
     };
   }
 
-  private setFirstInputFocused(): void {
-    const input = this.getInputAtIndex(0);
-    if (input) {
-      input.focus();
-      setTimeout(() => {
-        input.select();
-      }, 50);
-    }
-  }
-
   private getInputs(): Element[] {
     const inputs = this.document.querySelectorAll('.payment-mode-input');
+    console.error(inputs);
     return Array.from(inputs);
   }
 
   private getAddModePaymentButton(): HTMLInputElement {
     const inputs = this.document.querySelectorAll('.add-mode-payment-btn')[0] as HTMLInputElement;
     return inputs;
-  }
-
-  private convertmodeReglement(paymentMode: IPaymentMode): IPaymentMode {
-    paymentMode.disabled = false;
-    switch (paymentMode.code) {
-      case 'CASH':
-        paymentMode.styleImageClass = 'cash';
-        paymentMode.styleBtnClass = 'cash-btn';
-        break;
-      case 'WAVE':
-        paymentMode.styleImageClass = 'wave';
-        paymentMode.styleBtnClass = 'wave-btn';
-        paymentMode.isReadonly = this.isReadonly;
-        break;
-      case 'OM':
-        paymentMode.styleImageClass = 'om';
-        paymentMode.styleBtnClass = 'om-btn';
-        paymentMode.isReadonly = true;
-        break;
-      case 'CB':
-        paymentMode.styleImageClass = 'cb';
-        paymentMode.styleBtnClass = 'cb-btn';
-        paymentMode.isReadonly = this.isReadonly;
-        break;
-      case 'MOOV':
-        paymentMode.styleImageClass = 'moov';
-        paymentMode.styleBtnClass = 'moov-btn';
-        paymentMode.isReadonly = this.isReadonly;
-        break;
-      case 'MTN':
-        paymentMode.styleImageClass = 'mtn';
-        paymentMode.styleBtnClass = 'mtn-btn';
-        paymentMode.isReadonly = this.isReadonly;
-        break;
-      case 'CH':
-        paymentMode.styleImageClass = 'cheque';
-        paymentMode.styleBtnClass = 'cheque-btn';
-        paymentMode.isReadonly = true;
-        break;
-      case 'VIREMENT':
-        paymentMode.styleImageClass = 'virement';
-        paymentMode.styleBtnClass = 'virement-btn';
-        paymentMode.isReadonly = this.isReadonly;
-        break;
-      default:
-        break;
-    }
-    return paymentMode;
-  }
-
-  private convertPaymentMode(res: HttpResponse<IPaymentMode[]>): IPaymentMode[] {
-    this.isReadonly = this.modeReglementSelected.length > 1;
-    return res.body.map((paymentMode: IPaymentMode) => this.convertmodeReglement(paymentMode));
-  }
-
-  private addTiersPayant(resp: IClientTiersPayant): void {
-    this.assuranceService.addThirdPartySaleLineToSales(resp, this.sale?.id).subscribe(() => {
-      this.subscribeToSaveResponse(this.assuranceService.find(this.sale?.id));
-    });
   }
 
   private buildModePayment(mode: IPaymentMode): Payment {
@@ -1203,8 +1033,6 @@ export class SellingHomeComponent {
       customerId: this.customerSelected?.id,
       natureVente: this.naturesVente?.code,
       typePrescription: this.typePrescription?.code,
-      // cassier: this.userCaissier!,
-      //  seller: this.userSeller!,
       cassierId: this.userCaissier?.id,
       sellerId: this.userSeller?.id,
       type: 'VNO',
@@ -1245,20 +1073,6 @@ export class SellingHomeComponent {
         disabled: false,
       },*/,
     ];
-  }
-
-  private updateCarnetQuantitySold(salesLine: ISalesLine): void {
-    this.assuranceService.updateItemQtySold(salesLine).subscribe({
-      next: () => {
-        if (this.sale) {
-          this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-        }
-      },
-      error: () => {
-        this.onSaveError();
-        this.subscribeToSaveResponse(this.salesService.find(this.sale.id));
-      },
-    });
   }
 
   private resetNaturesVente(): void {

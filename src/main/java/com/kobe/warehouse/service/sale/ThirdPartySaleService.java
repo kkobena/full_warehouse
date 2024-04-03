@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -14,7 +14,6 @@ import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
 import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import com.kobe.warehouse.web.rest.errors.ThirdPartySalesTiersPayantException;
-
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;

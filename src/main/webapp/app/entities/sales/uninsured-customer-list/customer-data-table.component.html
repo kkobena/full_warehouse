@@ -1,0 +1,58 @@
+<p-table
+  [globalFilterFields]="['firstName','lastName','fullName','phone','code']"
+  [paginator]="true" [rowsPerPageOptions]="[5,8,10,20]"
+  [rows]="10"
+  [showCurrentPageReport]="true" [value]="customers"
+  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+  dataKey="id"
+  selectionMode="single">
+  <ng-template pTemplate="caption">
+    <div class="row">
+      <div class="col-md-8">
+
+    <span class="p-input-icon-left">
+    <i class="pi pi-search"></i>
+    <input (input)="loadCustomers()" [(ngModel)]="searchString" [autofocus]="true" pInputText
+           placeholder="Rechercher"
+           style="width:350px;"
+           type="text">
+</span>
+      </div>
+      <div class="col-md-4">
+        <p-button (click)="addUninsuredCustomer()" icon="pi pi-user"
+                  label="Nouveau client" severity="help" size="small"></p-button>
+      </div>
+    </div>
+
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width:5%">
+        #
+      </th>
+      <th style="width:100px">CODE</th>
+      <th>NOM</th>
+      <th>PRENOM(S)</th>
+      <th>TELEPHONE</th>
+      <th style="width:100px"></th>
+    </tr>
+  </ng-template>
+  <ng-template let-customer let-rowIndex="rowIndex" pTemplate="body">
+    <tr (click)="onSelect(customer)" style="cursor: pointer;">
+      <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+      <td>{{ customer.code }}</td>
+      <td>{{ customer.firstName }}</td>
+      <td>{{ customer.lastName }}</td>
+      <td>{{ customer.phone }}</td>
+      <td style="text-align: right;">
+        <button (click)="onSelect(customer)"
+                class="p-button-rounded p-button-info p-button-sm  p-mb-3" icon="pi pi-check"
+                pButton
+                pRipple
+                pTooltip="Séléctionner"></button>
+      </td>
+    </tr>
+
+  </ng-template>
+
+</p-table>

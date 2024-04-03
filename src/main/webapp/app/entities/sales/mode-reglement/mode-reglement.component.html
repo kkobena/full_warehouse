@@ -1,71 +1,105 @@
-@if (showModeReglementCard) {
-  <div class="card col-md-7">
-    <div class="card-header sale-card-header">
-      Mode règlement
-    </div>
+<div class="row sale-bottom-card">
+  @if (showModeReglementCard) {
+    <div class="card col-md-7">
+      <div class="card-header sale-card-header">
+        Mode règlement
+      </div>
 
-    <div class="card-body sale-card">
-      <div class="row sale-chexkbox">
-        <div class="col-md-3">
+      <div class="card-body sale-card">
+        <div class="row sale-chexkbox">
+          <div class="col-md-3">
     <span class="float-left">
-        <span class="float-left wr-check-box">Vente différée ?</span><p-inputSwitch
+        <span class="float-left wr-check-box">Vente différée ? </span><p-inputSwitch
       (onChange)="onDiffereChange()" [(ngModel)]="isDiffere">
 
         </p-inputSwitch></span>
-        </div>
-        <div class="col-md-3">
+          </div>
+          <div class="col-md-3">
              <span
                class="float-left wr-check-box">Imprimer le ticket ?</span><span
-          class="float-left"><p-inputSwitch
-          [(ngModel)]="printTicket">
+            class="float-left"><p-inputSwitch
+            [(ngModel)]="printTicket">
         </p-inputSwitch></span>
-
-        </div>
-        <div class="col-md-3">
-          <span class="float-left mr-1  wr-check-box">Imprimer la facture ?</span><span
-          class="float-left"><p-inputSwitch
-          [(ngModel)]="printInvoice">
-        </p-inputSwitch></span>
-        </div>
-
-      </div>
-      <div class="row" style="margin-top: 0.5rem;">
-        @for (modePay of modeReglementSelected;track trackPaymentModeId;let index = $index;let isFirst = $first;let isLast = $last) {
-          <div class="col-md-6 ">
-
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
-              <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
-                     [(ngModel)]="modePay.amount" [id]="modePay.code"
-                     [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
-                     class="payment-mode-input" pInputText />
-              @if (showAddModePaimentBtn) {
-                <button (click)="onAddPaymentModeToggle(modePay,$event)"
-                        class="p-button-info add-mode-payment-btn"
-                        icon="pi pi-plus" pButton
-                        type="button"></button>
-              }
-
-
-              <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
-                      icon="pi pi-times"
-                      pButton type="button"></button>
-            </div>
 
           </div>
-        }
+          <div class="col-md-3">
+            <span
+              class="float-left mr-1  wr-check-box">Imprimer la facture ? </span><span
+            class="float-left"><p-inputSwitch
+            [(ngModel)]="printInvoice">
+        </p-inputSwitch></span>
+          </div>
 
+        </div>
+        <div class="row" style="margin-top: 0.5rem;">
+          @for (modePay of selectModeReglementService.modeReglements();track trackPaymentModeId;let index = $index;let isFirst = $first;let isLast = $last) {
+            <div class="col-md-6 ">
+
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
+                <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
+                       [(ngModel)]="modePay.amount" [id]="modePay.code"
+                       [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
+                       class="payment-mode-input" pInputText />
+                @if (showAddModePaimentBtn) {
+                  <button (click)="onAddPaymentModeToggle(modePay,$event)"
+                          class="p-button-info add-mode-payment-btn"
+                          icon="pi pi-plus" pButton
+                          type="button"></button>
+                }
+
+
+                <button (click)="onRemovePaymentModeToggle(modePay,$event)" class="p-button-danger"
+                        icon="pi pi-times"
+                        pButton type="button"></button>
+              </div>
+
+            </div>
+          }
+
+
+        </div>
 
       </div>
 
     </div>
 
-  </div>
-}
+    @if (showInfosComplementaireReglementCard || isDiffere) {
+      <div class="card col-md-5">
+        <div class="card-header sale-card-header">Informations complementaires</div>
+        <div class="card-body sale-card">
+          @if (isDiffere) {
+            <div class="p-inputgroup mt-1">
+              <span class="p-inputgroup-addon">Commentaire</span>
+              <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />
+            </div>
+          }
+
+          @if (showInfosBancaire) {
+            <div class="row mt-1">
+              <div class="p-inputgroup col-6">
+                <span class="p-inputgroup-addon">Référence</span>
+                <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
+              </div>
+              <div class="p-inputgroup  col-6">
+                <span class="p-inputgroup-addon">Banque</span>
+                <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
+              </div>
+              <div class="p-inputgroup mt-1  col-8">
+                <span class="p-inputgroup-addon">Lieux</span>
+                <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>
 <p-overlayPanel #addOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
-      @for (modePay of reglements;track trackPaymentModeId;let i = $index) {
+      @for (modePay of reglementsModes;track trackPaymentModeId;let i = $index) {
         <ng-container>
           <div (click)="onAddPaymentMode(modePay)" class="p-2 mode-reglement-icon">
             <span class="{{modePay.styleImageClass}}"></span>
@@ -82,7 +116,7 @@
 <p-overlayPanel #removeOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
-      @for (modePay of reglements;track trackPaymentModeId;let i = $index) {
+      @for (modePay of reglementsModes;track trackPaymentModeId;let i = $index) {
         <ng-container>
           <div (click)="onRemovePaymentMode(modePay)"
 
@@ -95,5 +129,13 @@
 
     </div>
   </ng-template>
+
+</p-overlayPanel>
+<p-overlayPanel #op [showCloseIcon]="true" [style]="{ width: '650px' }">
+
+  <ng-template pTemplate="content">
+    <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
+  </ng-template>
+
 
 </p-overlayPanel>

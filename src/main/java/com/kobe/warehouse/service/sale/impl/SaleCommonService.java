@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Sales;

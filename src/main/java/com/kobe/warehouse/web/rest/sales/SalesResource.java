@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.sale.SaleService;
+import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -76,12 +77,12 @@ public class SalesResource {
   }
 
   @PutMapping("/sales/comptant/save")
-  public ResponseEntity<ResponseDTO> closeCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO)
-      throws URISyntaxException {
+  public ResponseEntity<FinalyseSaleDTO> closeCashSale(
+      @Valid @RequestBody CashSaleDTO cashSaleDTO) {
     if (cashSaleDTO.getId() == null) {
       throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
     }
-    ResponseDTO result = saleService.save(cashSaleDTO);
+    FinalyseSaleDTO result = saleService.save(cashSaleDTO);
     return ResponseEntity.ok()
         .headers(
             HeaderUtil.createEntityUpdateAlert(

@@ -216,9 +216,19 @@ public class Sales implements Serializable, Cloneable {
   @Column(length = 100)
   private String tvaEmbeded;
 
+  @Column(name = "commentaire")
+  private String commentaire;
+
   @NotNull
   @Column(name = "monnaie", nullable = false, columnDefinition = "int default '0'")
   private Integer monnaie = 0;
+
+  @ManyToOne private Avoir avoir;
+
+  public Sales setAvoir(Avoir avoir) {
+    this.avoir = avoir;
+    return this;
+  }
 
   public Sales setCaisseNum(String caisseNum) {
     this.caisseNum = caisseNum;
@@ -240,8 +250,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public void setCategorieChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
+  public Sales setCategorieChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
     this.categorieChiffreAffaire = categorieChiffreAffaire;
+    return this;
   }
 
   public Sales setCanceled(Boolean canceled) {
@@ -281,6 +292,11 @@ public class Sales implements Serializable, Cloneable {
 
   public Sales setDiscountAmountUg(Integer discountAmountUg) {
     this.discountAmountUg = discountAmountUg;
+    return this;
+  }
+
+  public Sales setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
     return this;
   }
 
@@ -501,7 +517,6 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-
   public Sales setSeller(User seller) {
     this.seller = seller;
     return this;
@@ -525,84 +540,7 @@ public class Sales implements Serializable, Cloneable {
 
   @Override
   public String toString() {
-    String sb =
-        "Sales{"
-            + "id="
-            + id
-            + ", numberTransaction='"
-            + numberTransaction
-            + '\''
-            + ", discountAmount="
-            + discountAmount
-            + ", salesAmount="
-            + salesAmount
-            + ", htAmount="
-            + htAmount
-            + ", netAmount="
-            + netAmount
-            + ", taxAmount="
-            + taxAmount
-            + ", costAmount="
-            + costAmount
-            + ", amountToBePaid="
-            + amountToBePaid
-            + ", payrollAmount="
-            + payrollAmount
-            + ", restToPay="
-            + restToPay
-            + ", amountToBeTakenIntoAccount="
-            + amountToBeTakenIntoAccount
-            + ", margeUg="
-            + margeUg
-            + ", montantttcUg="
-            + montantttcUg
-            + ", montantnetUg="
-            + montantnetUg
-            + ", montantTvaUg="
-            + montantTvaUg
-            + ", discountAmountHorsUg="
-            + discountAmountHorsUg
-            + ", discountAmountUg="
-            + discountAmountUg
-            + ", netUgAmount="
-            + netUgAmount
-            + ", htAmountUg="
-            + htAmountUg
-            + ", statut="
-            + statut
-            + ", createdAt="
-            + createdAt
-            + ", updatedAt="
-            + updatedAt
-            + ", remise="
-            + remise
-            + ", dateDimension="
-            + ", effectiveUpdateDate="
-            + effectiveUpdateDate
-            + ", toIgnore="
-            + toIgnore
-            + ", copy="
-            + copy
-            + ", imported="
-            + imported
-            + ", paymentStatus="
-            + paymentStatus
-            + ", natureVente="
-            + natureVente
-            + ", typePrescription="
-            + typePrescription
-            + ", differe="
-            + differe
-            + ", caisseNum='"
-            + caisseNum
-            + '\''
-            + ", statutCaisse="
-            + statutCaisse
-            + ", caisseEndNum='"
-            + caisseEndNum
-            + '\''
-            + '}';
-    return sb;
+    return "Sales{" + "id=" + id + '}';
   }
 
   @Override

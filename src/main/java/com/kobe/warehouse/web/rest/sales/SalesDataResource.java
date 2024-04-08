@@ -6,13 +6,13 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceService;
 import com.kobe.warehouse.service.report.SaleReceiptService;
 import com.kobe.warehouse.web.rest.Utils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -164,13 +164,13 @@ public class SalesDataResource {
         .body(resource);
   }*/
 
-  @GetMapping("/sales/print/VNO-receipt/{id}")
+  @GetMapping("/sales/print/vno-receipt/{id}")
   public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {
     receiptPrinterService.printCashSale(id);
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/sales/print/VO-receipt/{id}")
+  @GetMapping("/sales/print/vo-receipt/{id}")
   public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) {
     receiptPrinterService.printVoSale(id);
     return ResponseEntity.ok().build();

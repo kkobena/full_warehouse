@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { IUser, User } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
@@ -15,6 +15,10 @@ import { TableModule } from 'primeng/table';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
+import { CurrentSaleService } from '../../service/current-sale.service';
+import { CustomerService } from '../../../customer/customer.service';
+import { SelectedCustomerService } from '../../service/selected-customer.service';
+import { ICustomer } from '../../../../shared/model/customer.model';
 
 @Component({
   selector: 'jhi-prevente-modal',
@@ -35,17 +39,13 @@ import { DividerModule } from 'primeng/divider';
     DividerModule,
   ],
 })
-export class PreventeModalComponent implements OnInit, OnChanges {
+export class PreventeModalComponent implements OnInit {
   @Input() user: IUser;
-
-  @Output() selectedPreventeSale: EventEmitter<ISales> = new EventEmitter<ISales>();
   @Output() pendingSalesSidebarChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  protected typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   protected typeVenteSelected = 'TOUT';
   protected preventes: ISales[] = [];
   protected users: IUser[] = [];
   protected search = '';
-  protected selected!: ISales;
   protected userSeller?: IUser;
   protected readonly appendTo = APPEND_TO;
   protected selectedRowIndex?: number;
@@ -53,6 +53,9 @@ export class PreventeModalComponent implements OnInit, OnChanges {
   constructor(
     protected salesService: SalesService,
     protected userService: UserService,
+    protected currentSaleService: CurrentSaleService,
+    protected customerService: CustomerService,
+    protected selectedCustomerService: SelectedCustomerService,
   ) {}
 
   ngOnInit(): void {
@@ -94,20 +97,15 @@ export class PreventeModalComponent implements OnInit, OnChanges {
 
   onSelect(sale: ISales): void {
     this.selectedRowIndex = sale.id;
-    // this.selectedSale.emit(sale);
-    // this.pendingSalesSidebar.emit(false);
   }
 
   onDbleSelect(sale: ISales): void {
-    this.selectedPreventeSale.emit(sale);
-    this.pendingSalesSidebarChange.emit(false);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    const userSelle = changes.user as IUser;
-    console.log(changes);
-    if (userSelle) {
-      // this.loadPreventes();
+    if (sale.customer) {
+      this.customerService
+        .find(sale.customer.id)
+        .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
     }
+    this.currentSaleService.setCurrentSale(sale);
+    this.pendingSalesSidebarChange.emit(false);
   }
 }

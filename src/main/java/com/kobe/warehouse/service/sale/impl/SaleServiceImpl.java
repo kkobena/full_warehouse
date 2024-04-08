@@ -29,8 +29,10 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
@@ -61,6 +63,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   private final SalesLineService salesLineService;
   private final PaymentService paymentService;
   private final TicketService ticketService;
+  private final AvoirService avoirService;
 
   public SaleServiceImpl(
       SalesRepository salesRepository,
@@ -74,7 +77,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
       PaymentService paymentService,
       TicketService ticketService,
       ReferenceService referenceService,
-      WarehouseCalendarService warehouseCalendarService) {
+      WarehouseCalendarService warehouseCalendarService,
+      AvoirService avoirService) {
     super(referenceService, warehouseCalendarService);
     this.salesRepository = salesRepository;
     this.userRepository = userRepository;
@@ -86,6 +90,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     this.salesLineService = salesLineService;
     this.paymentService = paymentService;
     this.ticketService = ticketService;
+    this.avoirService = avoirService;
   }
 
   private User getUserFormImport() {
@@ -338,46 +343,48 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   }
 
   @Override
-  public ResponseDTO save(CashSaleDTO dto)
+  public FinalyseSaleDTO save(CashSaleDTO dto)
       throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
     User user = storageService.getUser();
     cashRegisterService.checkIfCashRegisterIsOpen(user, storageService.getSystemeUser());
-    ResponseDTO response = new ResponseDTO();
     Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-    CashSale p = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
+    CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
     UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
     if (Objects.nonNull(uninsuredCustomer)) {
-      p.setCustomer(uninsuredCustomer);
+      cashSale.setCustomer(uninsuredCustomer);
     }
-    salesLineService.save(p.getSalesLines(), user, id);
-    p.setStatut(SalesStatut.CLOSED);
-    p.setStatutCaisse(SalesStatut.CLOSED);
-    p.setDiffere(dto.isDiffere());
-    p.setLastUserEdit(storageService.getUser());
-    if (!p.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid())
+    salesLineService.save(cashSale.getSalesLines(), user, id);
+    cashSale.setStatut(SalesStatut.CLOSED);
+    cashSale.setStatutCaisse(SalesStatut.CLOSED);
+    cashSale.setDiffere(dto.isDiffere());
+    cashSale.setLastUserEdit(storageService.getUser());
+    cashSale.setCommentaire(dto.getCommentaire());
+    if (!cashSale.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid())
       throw new PaymentAmountException();
-    if (p.isDiffere() && p.getCustomer() == null) throw new SaleNotFoundCustomerException();
-    p.setPayrollAmount(dto.getPayrollAmount());
+    if (cashSale.isDiffere() && cashSale.getCustomer() == null)
+      throw new SaleNotFoundCustomerException();
+    cashSale.setPayrollAmount(dto.getPayrollAmount());
 
-    p.setRestToPay(dto.getRestToPay());
-    p.setUpdatedAt(LocalDateTime.now());
-    p.setMonnaie(dto.getMontantRendu());
-    p.setEffectiveUpdateDate(p.getUpdatedAt());
-    if (p.getRestToPay() == 0) {
-      p.setPaymentStatus(PaymentStatus.PAYE);
+    cashSale.setRestToPay(dto.getRestToPay());
+    cashSale.setUpdatedAt(LocalDateTime.now());
+    cashSale.setMonnaie(dto.getMontantRendu());
+    cashSale.setEffectiveUpdateDate(cashSale.getUpdatedAt());
+    if (cashSale.getRestToPay() == 0) {
+      cashSale.setPaymentStatus(PaymentStatus.PAYE);
     } else {
-      p.setPaymentStatus(PaymentStatus.IMPAYE);
+      cashSale.setPaymentStatus(PaymentStatus.IMPAYE);
     }
-    buildReference(p);
-    Ticket ticket = ticketService.buildTicket(dto, p, user, buildTvaData(p.getSalesLines()));
-    paymentService.buildPaymentFromFromPaymentDTO(p, dto, ticket, user);
-    p.setTvaEmbeded(ticket.getTva());
-    salesRepository.save(p);
-    response.setMessage(ticket.getCode());
-    response.setSuccess(true);
-    response.setSize(p.getId().intValue());
+    buildReference(cashSale);
+    Ticket ticket =
+        ticketService.buildTicket(dto, cashSale, user, buildTvaData(cashSale.getSalesLines()));
+    paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, ticket, user);
+    cashSale.setTvaEmbeded(ticket.getTva());
+    if (dto.isAvoir()) {
+      this.avoirService.save(cashSale);
+    }
+    salesRepository.save(cashSale);
     initCalendar();
-    return response;
+    return new FinalyseSaleDTO(cashSale.getId(), true);
   }
 
   /*
@@ -416,22 +423,13 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             sales -> {
               paymentService
                   .findAllBySalesId(sales.getId())
-                  .forEach(
-                      payment -> {
-                        paymentService.delete(payment);
-                      });
+                  .forEach(payment -> paymentService.delete(payment));
               ticketService
                   .findAllBySaleId(sales.getId())
-                  .forEach(
-                      ticket -> {
-                        ticketService.delete(ticket);
-                      });
+                  .forEach(ticket -> ticketService.delete(ticket));
               sales
                   .getSalesLines()
-                  .forEach(
-                      salesLine -> {
-                        salesLineService.deleteSaleLine(salesLine);
-                      });
+                  .forEach(salesLine -> salesLineService.deleteSaleLine(salesLine));
               salesRepository.delete(sales);
             });
   }

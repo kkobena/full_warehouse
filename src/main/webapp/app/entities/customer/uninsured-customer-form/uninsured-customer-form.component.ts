@@ -96,10 +96,10 @@ export class UninsuredCustomerFormComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
-      res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error),
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
+      error: (error: any) => this.onSaveError(error),
+    });
   }
 
   protected onSaveSuccess(customer: ICustomer | null): void {

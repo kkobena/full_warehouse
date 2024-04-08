@@ -6,7 +6,7 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
-import { ISales, KeyValue } from 'app/shared/model/sales.model';
+import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 
@@ -66,6 +66,11 @@ export class SalesService {
   saveComptant(sales: ISales): Observable<HttpResponse<IResponseDto>> {
     const copy = this.convertDateFromClient(sales);
     return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
+  }
+
+  saveCash(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
   }
 
   print(id: number): Observable<Blob> {
@@ -128,6 +133,11 @@ export class SalesService {
   putCurrentCashSaleOnHold(sales: ISales): Observable<HttpResponse<IResponseDto>> {
     const copy = this.convertDateFromClient(sales);
     return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
+  }
+
+  putCurrentCashSaleOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
   }
 
   addCustommerToCashSale(keyValue: KeyValue): Observable<HttpResponse<{}>> {

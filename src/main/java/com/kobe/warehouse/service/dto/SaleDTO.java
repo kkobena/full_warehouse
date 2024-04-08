@@ -57,7 +57,9 @@ public class SaleDTO implements Serializable {
   private Integer restToPay;
   private String customerNum;
   private Boolean copy = false;
-  private boolean imported = false, differe;
+  private boolean imported = false;
+  private boolean differe;
+  private boolean avoir;
   private Integer margeUg = 0;
   private Integer montantttcUg = 0;
   private Integer montantnetUg = 0;
@@ -74,11 +76,13 @@ public class SaleDTO implements Serializable {
   private List<TicketDTO> tickets = new ArrayList<>();
   private String caisseEndNum, caisseNum, categorie;
   private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
+  private String commentaire;
 
   public SaleDTO() {}
 
   public SaleDTO(Sales sale) {
     this.id = sale.getId();
+    this.commentaire = sale.getCommentaire();
     this.discountAmount = sale.getDiscountAmount();
     if (sale instanceof ThirdPartySales thirdPartySales) {
       this.customer = new CustomerDTO(thirdPartySales.getCustomer());
@@ -136,6 +140,11 @@ public class SaleDTO implements Serializable {
     this.montantRendu = sale.getMonnaie();
     this.restToPay = sale.getRestToPay();
     //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
+  }
+
+  public SaleDTO setAvoir(boolean avoir) {
+    this.avoir = avoir;
+    return this;
   }
 
   public SaleDTO setTvaEmbededs(List<TvaEmbeded> tvaEmbededs) {
@@ -368,6 +377,11 @@ public class SaleDTO implements Serializable {
 
   public SaleDTO setTickets(List<TicketDTO> tickets) {
     this.tickets = tickets;
+    return this;
+  }
+
+  public SaleDTO setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
     return this;
   }
 

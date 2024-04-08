@@ -14,7 +14,7 @@ import { WarehouseCommonModule } from '../../../../shared/warehouse-common/wareh
 import { PreventeModalComponent } from '../../prevente-modal/prevente-modal/prevente-modal.component';
 import { SidebarModule } from 'primeng/sidebar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
@@ -25,32 +25,25 @@ import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { ProductTableComponent } from '../product-table/product-table.component';
-import { INatureVente } from '../../../../shared/model/nature-vente.model';
 import { IUser } from '../../../../core/user/user.model';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { IPayment, Payment } from '../../../../shared/model/payment.model';
-import { ICustomer } from '../../../../shared/model/customer.model';
 import { IProduit } from '../../../../shared/model/produit.model';
 import { IRemiseProduit } from '../../../../shared/model/remise-produit.model';
-import { InputToFocus, ISales, SaveResponse } from '../../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { Observable, Subscription } from 'rxjs';
 import { SalesService } from '../../sales.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccountService } from '../../../../core/auth/account.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
-import { saveAs } from 'file-saver';
 import { AlertInfoComponent } from '../../../../shared/alert/alert-info.component';
-import { IResponseDto } from '../../../../shared/util/response-dto';
-import { Decondition, IDecondition } from '../../../../shared/model/decondition.model';
 import { AmountComputingComponent } from './amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { CurrentSaleService } from '../../service/current-sale.service';
-
-type SelectableEntity = ICustomer | IProduit;
+import { SelectModeReglementService } from '../../service/select-mode-reglement.service';
 
 @Component({
   selector: 'jhi-comptant',
@@ -95,42 +88,27 @@ type SelectableEntity = ICustomer | IProduit;
 })
 export class ComptantComponent {
   isSaving = false;
-  showInfosCustomer: boolean = false;
-  isPresale = false;
+  @Input('isPresale') isPresale = false;
   displayErrorModal = false;
   commonDialog = false;
   displayErrorEntryAmountModal = false;
   @Input('canUpdatePu') canUpdatePu: boolean = false;
-  isDiffere = false;
-  printTicket = true;
-  printInvoice = false;
   @Input('canForceStock') canForceStock: boolean = true;
   payments: IPayment[] = [];
   modeReglementSelected: IPaymentMode[] = [];
   @Input('userCaissier') userCaissier?: IUser | null;
   @Input('userSeller') userSeller?: IUser;
-  customers: ICustomer[] = [];
   searchValue?: string;
-  appendTo = 'body';
+  readonly appendTo = 'body';
   imagesPath!: string;
-  selectedRowIndex?: number;
-  remiseProduits: IRemiseProduit[] = [];
-  remiseProduit?: IRemiseProduit | null;
   @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
   @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
-  sale?: ISales | null = null;
-  base64!: string;
-  event: any;
-  @ViewChild('clientSearchBox')
-  clientSearchBox?: ElementRef;
+  @Output('responseEvent') responseEvent = new EventEmitter<FinalyseSale>();
   @Input('qtyMaxToSel') qtyMaxToSel: number;
   @ViewChild('forcerStockBtn')
   forcerStockBtn?: ElementRef;
   @ViewChild('addModePaymentConfirmDialogBtn')
   addModePaymentConfirmDialogBtn?: ElementRef;
-  entryAmount?: number | null = null;
-  commentaire?: string;
-  telephone?: string;
   readonly CASH = 'CASH';
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -142,39 +120,42 @@ export class ComptantComponent {
   readonly WAVE = 'WAVE';
   readonly MOOV = 'MOOV';
   readonly MTN = 'MTN';
-  @ViewChild('clientSearchModalBtn', { static: false })
-  clientSearchModalBtn?: ElementRef;
-  @ViewChild('errorEntryAmountBtn', { static: false })
-  errorEntryAmountBtn?: ElementRef;
   @ViewChild('commonDialogModalBtn', { static: false })
   commonDialogModalBtn?: ElementRef;
-  ref!: DynamicDialogRef;
+  @ViewChild('differeConfirmDialogBtn', { static: false })
+  differeConfirmDialogBtn?: ElementRef;
+  @ViewChild('avoirConfirmDialogBtn', { static: false })
+  avoirConfirmDialogBtn?: ElementRef;
   primngtranslate: Subscription;
-  showAddModePaimentBtn = false;
-  pendingSalesSidebar = false;
   @ViewChild(AmountComputingComponent)
   amountComputingComponent?: AmountComputingComponent;
   @ViewChild(ModeReglementComponent)
   modeReglementComponent?: ModeReglementComponent;
+  ref: DynamicDialogRef;
+  protected remiseProduits: IRemiseProduit[] = [];
+  protected remiseProduit?: IRemiseProduit | null;
+  protected isDiffere: boolean = false;
+  protected sale?: ISales | null = null;
+  protected base64!: string;
+  protected event: any;
+  protected entryAmount?: number | null = null;
 
   constructor(
+    protected selectModeReglementService: SelectModeReglementService,
     protected salesService: SalesService,
     protected currentSaleService: CurrentSaleService,
     protected customerService: CustomerService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected modalService: NgbModal,
-    private accountService: AccountService,
     protected confirmationService: ConfirmationService,
     protected errorService: ErrorService,
     private dialogService: DialogService,
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
-    private spinner: NgxSpinnerService,
   ) {
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
-    this.selectedRowIndex = 0;
     this.searchValue = '';
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -182,32 +163,12 @@ export class ComptantComponent {
     });
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
-      //  this.showInfosCustomer = this.modeReglementSelected.some((element: IPaymentMode) => element.code !== this.CASH);
+      this.isDiffere = this.sale?.differe;
+    });
+    effect(() => {
+      this.modeReglementSelected = this.selectModeReglementService.modeReglements();
     });
   }
-
-  onLoadPrevente(): void {}
-
-  ngOnInit(): void {
-    this.accountService.identity().subscribe(account => {
-      if (account) {
-        this.userCaissier = account;
-      }
-    });
-
-    this.activatedRoute.data.subscribe(({ sales }) => {
-      if (sales.id) {
-        // this.onLoadPrevente(sales);
-      }
-    });
-    this.activatedRoute.paramMap.subscribe(params => {
-      if (params.has('isPresale')) {
-        this.isPresale = params.get('isPresale') === 'true';
-      }
-    });
-  }
-
-  ngAfterViewInit(): void {}
 
   manageAmountDiv(): void {
     this.modeReglementComponent.manageAmountDiv();
@@ -221,69 +182,126 @@ export class ComptantComponent {
     // this.montantCashInput?.nativeElement.focus();
   }
 
-  addModeConfirmDialog(): void {
+  differeConfirmDialog(): void {
     this.confirmationService.confirm({
-      message: 'Voullez-vous ajouter un autre moyen  de payment',
-      header: "AJOUT D'UN AUTRE MOYEN DE PAYMENT",
+      message: 'Voullez-vous regler le reste en différé ?',
+      header: 'Vente différé',
       icon: 'pi pi-info-circle',
       accept: () => {
-        //  this.addOverlayPanel.toggle(this.getAddModePaymentButton());
+        if (!this.sale.customerId) {
+          this.openUninsuredCustomer(true);
+        } else {
+          this.sale.differe = true;
+          this.isDiffere = true;
+          this.finalyseSale();
+        }
       },
-      reject: () => {
-        this.displayErrorEntryAmountModal = true;
-        this.errorEntryAmountBtn.nativeElement.focus();
-      },
-      key: 'addModePaymentConfirmDialog',
+      reject: () => {},
+      key: 'differeConfirmDialog',
     });
-    this.addModePaymentConfirmDialogBtn.nativeElement.focus();
+
+    setTimeout(() => {
+      this.differeConfirmDialogBtn.nativeElement.focus();
+    }, 10);
   }
 
-  save(): void {
-    if (this.sale) {
-      this.isSaving = true;
-      this.sale.differe = this.isDiffere;
-      if (this.isPresale === false) {
-        const thatentryAmount = this.getEntryAmount();
+  onOpenCustomer(putsOnStandby: boolean = false): void {
+    this.confirmationService.confirm({
+      message: 'Vous devez ajouter un client à la vente ?',
+      header: 'Vente en avoir',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.openUninsuredCustomer(false, putsOnStandby);
+      },
 
-        const restToPay = this.sale.amountToBePaid - thatentryAmount;
-        //   this.sale.montantRendu = this.monnaie;
-        //    this.sale.montantVerse = this.getCashAmount();
-        if (!this.isDiffere && thatentryAmount < this.sale.amountToBePaid) {
-          this.addModeConfirmDialog();
-        } else if (this.isDiffere && !this.sale.customerId) {
-          this.displayErrorModal = true;
-          this.clientSearchModalBtn.nativeElement.focus();
-        } else {
-          if (restToPay <= 0) {
-            this.sale.payrollAmount = this.sale.amountToBePaid;
-            this.sale.restToPay = 0;
-          } else {
-            this.sale.payrollAmount = thatentryAmount;
-            this.sale.restToPay = restToPay;
-          }
-          this.sale.payments = this.buildPayment();
-          this.saveCashSale();
-        }
-      } else if (this.isPresale === true) {
-        this.putCurrentSaleOnHold();
+      key: 'avoirConfirmDialog',
+    });
+
+    setTimeout(() => {
+      this.avoirConfirmDialogBtn.nativeElement.focus();
+    }, 10);
+  }
+
+  computExtraInfo(): void {
+    this.sale.commentaire = this.modeReglementComponent.commentaire;
+  }
+
+  finalyseSale(putsOnStandby: boolean = false): void {
+    const entryAmount = this.getEntryAmount();
+    this.sale.payments = this.buildPayment(entryAmount);
+    this.sale.type = 'VNO';
+    this.sale.avoir = this.isAvoir();
+    this.computExtraInfo();
+    if (this.sale.avoir && !this.sale.customerId) {
+      this.onOpenCustomer(putsOnStandby);
+    } else {
+      if (this.isPresale || putsOnStandby) {
+        this.putCurrentCashSaleOnHold();
+      } else {
+        this.saveCashSale();
       }
     }
   }
 
-  saveCashSale(): void {
-    this.sale.type = 'VNO';
-    this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale));
+  putCurrentSaleOnStandBy(): void {
+    this.finalyseSale(true);
   }
 
-  onHideClientErrorDialog(event: Event): void {
-    this.clientSearchBox.nativeElement.focus();
+  getCashAmount(): number {
+    let cashInput;
+    this.entryAmount = this.getEntryAmount();
+    if (this.modeReglementSelected.length > 0) {
+      cashInput = this.modeReglementSelected.find((input: IPaymentMode) => input.code === this.CASH);
+      if (cashInput) {
+        return cashInput.amount;
+      }
+      return 0;
+    } else {
+      cashInput = this.modeReglementSelected[0];
+      if (cashInput.code === this.CASH) {
+        return cashInput.amount;
+      }
+      return 0;
+    }
+  }
+
+  onKeyDown(event: any): void {
+    this.save();
+  }
+
+  isValidDiffere(): boolean {
+    return this.sale.differe /*&& !this.sale.customerId*/;
+  }
+
+  save(): void {
+    this.isSaving = true;
+    // this.sale.differe = this.isDiffere;
+    const restToPay = this.sale.amountToBePaid - this.getEntryAmount();
+    const cashAmount = this.getCashAmount();
+    //   this.sale.montantRendu = this.monnaie;
+    this.sale.montantVerse = cashAmount;
+    if (restToPay > 0 && !this.isValidDiffere()) {
+      this.differeConfirmDialog();
+    } else {
+      this.finalyseSale();
+    }
+  }
+
+  saveCashSale(): void {
+    const entryAmount = this.getEntryAmount();
+    const restToPay = this.sale.amountToBePaid - entryAmount;
+    if (restToPay <= 0) {
+      this.sale.payrollAmount = this.sale.amountToBePaid;
+      this.sale.restToPay = 0;
+    } else {
+      this.sale.payrollAmount = entryAmount;
+      this.sale.restToPay = restToPay;
+    }
+    this.sale.montantRendu = this.sale.montantVerse - this.sale.amountToBePaid;
+    this.subscribeToFinalyseResponse(this.salesService.saveCash(this.sale));
   }
 
   onHideHideDialog(): void {}
-
-  cancelErrorModal(): void {
-    this.displayErrorModal = false;
-  }
 
   cancelCommonDialog(): void {
     this.commonDialog = false;
@@ -293,44 +311,13 @@ export class ComptantComponent {
     this.displayErrorEntryAmountModal = false;
   }
 
-  putCurrentSaleOnHold(): void {
-    this.putCurrentCashSaleOnHold();
-  }
-
   putCurrentCashSaleOnHold(): void {
-    this.sale.payments = this.buildPayment();
-    this.sale.type = 'VNO';
-    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnHold(this.sale));
-  }
-
-  saveAntPrint(): void {
-    this.isSaving = true;
-    //  this.subscribeToFinalyseResponse(this.salesService.saveComptant(this.sale!));
-  }
-
-  onSelectKeyDow(): void {
-    this.save();
-  }
-
-  showClientSearch(isDiff: boolean): void {
-    this.isDiffere = isDiff;
+    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnStandBy(this.sale));
   }
 
   trackId(index: number, item: IProduit): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
-  }
-
-  trackById(index: number, item: SelectableEntity): any {
-    return item.id;
-  }
-
-  getEntryAmount(): number {
-    return this.modeReglementSelected.reduce((sum, current) => sum + Number(current.amount), 0);
-  }
-
-  clickRow(item: IProduit): void {
-    this.selectedRowIndex = item.id;
   }
 
   createComptant(sale: ISales): void {
@@ -339,13 +326,6 @@ export class ComptantComponent {
 
   onAddProduit(salesLine: ISalesLine): void {
     this.subscribeToSaveLineResponse(this.salesService.addItemComptant(salesLine));
-  }
-
-  print(sale: ISales | null): void {
-    if (sale !== null && sale !== undefined) {
-      this.salesService.print(sale.id).subscribe(blod => saveAs(blod));
-      this.sale = null;
-    }
   }
 
   removeLine(salesLine: ISalesLine): void {
@@ -361,12 +341,10 @@ export class ComptantComponent {
     modalRef.componentInstance.infoClass = infoClass;
   }
 
-  resetAll(): void {
-    this.showAddModePaimentBtn = false;
-  }
-
-  buildPayment(): IPayment[] {
-    return this.modeReglementSelected.filter((m: IPaymentMode) => m.amount).map((mode: IPaymentMode) => this.buildModePayment(mode));
+  buildPayment(entryAmount: number): IPayment[] {
+    return this.modeReglementSelected
+      .filter((m: IPaymentMode) => m.amount)
+      .map((mode: IPaymentMode) => this.buildModePayment(mode, entryAmount));
   }
 
   buildPaymentFromSale(sale: ISales): void {
@@ -375,26 +353,6 @@ export class ComptantComponent {
         const code = payment.paymentMode.code;
       }
     });
-  }
-
-  setClientSearchBoxFocus(): void {
-    setTimeout(() => {
-      this.clientSearchBox.nativeElement.focus();
-    }, 50);
-  }
-
-  onNatureVenteChange(event: any): void {
-    const selectNature = event.value;
-
-    if (selectNature.code !== this.COMPTANT && this.sale) {
-      const nature = (element: INatureVente) => element.code === this.COMPTANT;
-
-      // TODO si vente en cours et vente est de type VO, alors message si la nvelle est COMPTANT, ON ne peut transformer une VO en VNO
-    }
-    if (selectNature.code !== this.COMPTANT) {
-      this.setClientSearchBoxFocus();
-    } else {
-    }
   }
 
   confirmDeleteItem(item: ISalesLine): void {
@@ -430,20 +388,16 @@ export class ComptantComponent {
     });
   }
 
-  setModeRegelementSelectionnes(modes: IPaymentMode[]): void {
-    this.modeReglementSelected = modes;
-    const mode = (element: IPaymentMode) => element.code !== this.CASH;
-    this.showInfosCustomer = this.modeReglementSelected.some((element: IPaymentMode) => element.code !== this.CASH);
-    console.log(this.showInfosCustomer, modes);
+  getEntryAmount(): number {
+    return this.modeReglementSelected.reduce((sum, current) => sum + Number(current.amount), 0);
   }
 
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     if (this.modeReglementSelected.length === 2) {
       const amount = this.getEntryAmount();
-      const secondInputDefaultAmount = this.sale.amountToBePaid - paymentModeControl.paymentMode.amount; /* Number(evt.target.value)*/
+      const secondInputDefaultAmount = this.sale.amountToBePaid - paymentModeControl.paymentMode.amount;
       this.modeReglementSelected.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         secondInputDefaultAmount;
-
       this.amountComputingComponent.computeMonnaie(amount);
     } else {
       this.amountComputingComponent.computeMonnaie(Number(paymentModeControl.control.target.value));
@@ -451,10 +405,31 @@ export class ComptantComponent {
     this.modeReglementComponent.showAddModePaymentButton(paymentModeControl.paymentMode);
   }
 
+  openUninsuredCustomer(isVenteDefferee: boolean, putsOnStandby: boolean = false): void {
+    this.ref = this.dialogService.open(UninsuredCustomerListComponent, {
+      header: 'CLIENTS NON ASSURES',
+      width: '60%',
+      closeOnEscape: false,
+    });
+    this.ref.onDestroy.subscribe(() => {
+      if (isVenteDefferee) {
+        this.sale.differe = true;
+        this.isDiffere = true;
+        this.modeReglementComponent.commentaireInputGetFocus();
+      } else {
+        this.finalyseSale(putsOnStandby);
+      }
+    });
+  }
+
+  onLoadPrevente(): void {
+    this.modeReglementComponent.buildPreventeReglementInput();
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: error => this.onSaveError(error),
     });
   }
 
@@ -465,30 +440,36 @@ export class ComptantComponent {
     this.amountComputingComponent.computeMonnaie(null);
   }
 
-  protected onSaveError(): void {
+  protected onSaveError(err: any): void {
     this.isSaving = false;
+    this.saveResponse.emit({ success: true, error: err });
+    /*const message = 'Une erreur est survenue';
+    this.openInfoDialog(message, 'alert alert-danger');*/
+  }
+
+  protected onFinalyseError(err: any): void {
+    this.isSaving = false;
+    this.responseEvent.emit({ error: err, success: false });
     const message = 'Une erreur est survenue';
     this.openInfoDialog(message, 'alert alert-danger');
   }
 
-  protected onFinalyseSuccess(response: IResponseDto | null): void {
+  protected onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {
     this.isSaving = false;
+    this.responseEvent.emit({ saleId: response.saleId, success: true, putOnStandBy });
   }
 
-  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
     result.subscribe({
-      next: (res: HttpResponse<IResponseDto>) => this.onFinalyseSuccess(res.body),
-      error: () => this.onSaveError(),
+      next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
+      error: err => this.onFinalyseError(err),
     });
   }
 
-  protected subscribeToPutOnHoldResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+  protected subscribeToPutOnHoldResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
     result.subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.resetAll();
-      },
-      error: () => this.onSaveError(),
+      next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
+      error: err => this.onFinalyseError(err),
     });
   }
 
@@ -505,19 +486,6 @@ export class ComptantComponent {
     this.saveResponse.emit({ success: true });
   }
 
-  protected onCommonError(error: any): void {
-    if (error.error && error.error.status === 500) {
-      this.openInfoDialog('Erreur applicative', 'alert alert-danger');
-    } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-        },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-      });
-    }
-  }
-
   private onSaveSaveError(err: any, sale?: ISales): void {
     this.isSaving = false;
     this.saveResponse.emit({ success: false, error: err });
@@ -531,17 +499,8 @@ export class ComptantComponent {
     });
   }
 
-  private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
-    return {
-      ...new Decondition(),
-      qtyMvt: qtyDeconditione,
-      produitId,
-    };
-  }
-
-  private buildModePayment(mode: IPaymentMode): Payment {
-    this.entryAmount = this.getEntryAmount();
-    const amount = this.sale.amountToBePaid - (this.entryAmount - mode.amount);
+  private buildModePayment(mode: IPaymentMode, entryAmount: number): Payment {
+    const amount = this.sale.amountToBePaid - (entryAmount - mode.amount);
     return {
       ...new Payment(),
       paidAmount: amount,
@@ -563,5 +522,17 @@ export class ComptantComponent {
       next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
       error: (err: any) => this.onSaveSaveError(err, this.sale),
     });
+  }
+
+  private isAvoir(): boolean {
+    return this.getTotalQtyProduit() - this.getTotalQtyServi() != 0;
+  }
+
+  private getTotalQtyProduit(): number {
+    return this.sale.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+  }
+
+  private getTotalQtyServi(): number {
+    return this.sale.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 }

@@ -2,7 +2,7 @@
   <ng-template pTemplate="header">VENTE EN ATTENTES</ng-template>
   <ng-template pTemplate="content">
     <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
-                        (selectedPreventeSale)="onSelectPrevente($event)" [user]="userCaissier">
+                        [user]="userCaissier">
 
     </jhi-prevente-modal>
   </ng-template>
@@ -11,21 +11,7 @@
              size="medium"
              type="timer">
 </ngx-spinner>
-<p-dialog (onHide)="onHideClientErrorDialog($event)" [(visible)]="displayErrorModal"
-          [draggable]="false"
-          [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true"
-          [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez ajouter un client à la vente</strong></span>
-  <ng-template pTemplate="footer">
-    <button #clientSearchModalBtn (click)="cancelErrorModal()" class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">
-      Fermer
-    </button>
-  </ng-template>
-</p-dialog>
+
 
 <p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)"
           [(visible)]="displayErrorEntryAmountModal"
@@ -53,19 +39,6 @@
   </p-footer>
 
 </p-confirmDialog>
-<p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 appendTo="body"
-                 key="addModePaymentConfirmDialog">
-  <p-footer>
-    <button (click)="addModePaymentConfirmDialog.reject()" class="p-button-danger"
-            icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button #addModePaymentConfirmDialogBtn (click)="addModePaymentConfirmDialog.accept()"
-            icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-</p-confirmDialog>
 
 
 <p-dialog (onHide)="onHideHideDialog()" [(visible)]="commonDialog" [draggable]="false"
@@ -90,8 +63,9 @@
             <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
             <ng-template ngbNavContent>
               <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
-                            (saveResponse)="onSave($event)"
+                            (responseEvent)="onFinalyse($event)" (saveResponse)="onSave($event)"
                             [canForceStock]="canForceStock" [canUpdatePu]="canUpdatePu"
+                            [isPresale]="isPresale"
                             [qtyMaxToSel]="qtyMaxToSel"
                             [userCaissier]="userCaissier" [userSeller]="userSeller">
 
@@ -198,13 +172,18 @@
           </div>
         </div>
         <div class="col-md-2">
-          <div class="p-inputgroup">
+          <p-inputGroup>
             <span class="p-inputgroup-addon">Qté</span>
             <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
                    [(ngModel)]="quantiteSaisie"
                    pInputText
                    type="number" />
-          </div>
+            <button (click)="onQtyBntClickEvent()" class="p-button-success" icon="pi pi-plus"
+                    pButton
+                    type="button"></button>
+
+
+          </p-inputGroup>
         </div>
         @if (produitSelected) {
           @if (showStock) {

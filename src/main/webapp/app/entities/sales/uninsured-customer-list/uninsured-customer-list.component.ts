@@ -1,8 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { CustomerService } from '../../customer/customer.service';
+import { Component } from '@angular/core';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -10,11 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
+import { CustomerDataTableComponent } from './customer-data-table.component';
 
 @Component({
   selector: 'jhi-uninsured-customer-list',
   templateUrl: './uninsured-customer-list.component.html',
-  providers: [MessageService, DialogService, ConfirmationService, DynamicDialogRef, DynamicDialogConfig],
+  providers: [DialogService],
   standalone: true,
   imports: [
     WarehouseCommonModule,
@@ -25,40 +23,17 @@ import { TableModule } from 'primeng/table';
     RippleModule,
     DynamicDialogModule,
     TableModule,
+    CustomerDataTableComponent,
   ],
 })
-export class UninsuredCustomerListComponent implements OnInit {
-  customers: ICustomer[] = [];
-  searchString?: string | null = '';
+export class UninsuredCustomerListComponent {
+  constructor(public ref: DynamicDialogRef) {}
 
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected customerService: CustomerService,
-  ) {}
-
-  ngOnInit(): void {
-    this.customers = this.config.data.customers;
-  }
-
-  onDbleClick(customer: ICustomer): void {
-    this.onSelect(customer);
-  }
-
-  onSelect(customer: ICustomer): void {
-    this.ref.close(customer);
+  onSelectClose(event: any): void {
+    this.ref.close(event);
   }
 
   cancel(): void {
-    console.log('sqdsqdqdqsd', this.ref);
     this.ref.destroy();
-  }
-
-  loadCustomers(): void {
-    this.customerService
-      .queryUninsuredCustomers({
-        search: this.searchString,
-      })
-      .subscribe(res => (this.customers = res.body!));
   }
 }

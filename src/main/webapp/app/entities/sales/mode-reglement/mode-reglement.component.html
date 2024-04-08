@@ -7,14 +7,8 @@
 
       <div class="card-body sale-card">
         <div class="row sale-chexkbox">
-          <div class="col-md-3">
-    <span class="float-left">
-        <span class="float-left wr-check-box">Vente différée ? </span><p-inputSwitch
-      (onChange)="onDiffereChange()" [(ngModel)]="isDiffere">
 
-        </p-inputSwitch></span>
-          </div>
-          <div class="col-md-3">
+          <div class="col-md-6">
              <span
                class="float-left wr-check-box">Imprimer le ticket ?</span><span
             class="float-left"><p-inputSwitch
@@ -22,7 +16,7 @@
         </p-inputSwitch></span>
 
           </div>
-          <div class="col-md-3">
+          <div class="col-md-6">
             <span
               class="float-left mr-1  wr-check-box">Imprimer la facture ? </span><span
             class="float-left"><p-inputSwitch
@@ -71,7 +65,8 @@
           @if (isDiffere) {
             <div class="p-inputgroup mt-1">
               <span class="p-inputgroup-addon">Commentaire</span>
-              <input #commentiareDiffInput [(ngModel)]="commentaire" pInputText type="text" />
+              <input #commentaireInput [(ngModel)]="commentaire" pInputText type="text"
+                     [autofocus]="true" (keydown.enter)="save()" />
             </div>
           }
 
@@ -131,11 +126,13 @@
   </ng-template>
 
 </p-overlayPanel>
-<p-overlayPanel #op [showCloseIcon]="true" [style]="{ width: '650px' }">
+
+<p-overlayPanel #customerModal [showCloseIcon]="true" [style]="{ width: '650px' }">
 
   <ng-template pTemplate="content">
-    <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
+    <jhi-customer-data-table (closeModalEvent)="onClose(customerModal)"></jhi-customer-data-table>
   </ng-template>
 
 
 </p-overlayPanel>
+

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ISales } from '../../../shared/model/sales.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -9,7 +9,7 @@ import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { IPaymentMode, PaymentModeControl } from '../../../shared/model/payment-mode.model';
 import { DOCUMENT } from '@angular/common';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
@@ -33,8 +33,10 @@ import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-
 })
 export class ModeReglementComponent implements OnInit {
   @Input() showModeReglementCard: boolean = true;
-  @Output() isVenteDiffere = new EventEmitter<boolean>();
   @Output() paymentModeControlEvent = new EventEmitter<PaymentModeControl>();
+  @Output() onSaveEvent = new EventEmitter<boolean>();
+  @Output() onCloseEvent = new EventEmitter<boolean>();
+  @Input('isDiffere') isDiffere: boolean = true;
   showInfosComplementaireReglementCard: boolean = false;
   showInfosBancaire: boolean = false;
   commentaire: string = null;
@@ -53,9 +55,9 @@ export class ModeReglementComponent implements OnInit {
   readonly MOOV = 'MOOV';
   readonly MTN = 'MTN';
   reglementsModes: IPaymentMode[];
-
+  @ViewChild('commentaireInput')
+  commentaireInput?: ElementRef;
   //configurationService = inject(ConfigurationService);
-  protected isDiffere = false;
   protected printTicket = true;
   protected printInvoice = false;
   @ViewChild('addOverlayPanel')
@@ -65,7 +67,6 @@ export class ModeReglementComponent implements OnInit {
   @ViewChild('removeOverlayPanel')
   protected removeOverlayPanel?: any;
   protected maxModePayementNumber = 2;
-  protected isReadonly = false;
   protected sale: ISales;
 
   constructor(
@@ -74,21 +75,17 @@ export class ModeReglementComponent implements OnInit {
     //  private configurationService: ConfigurationService,
     private currentSaleService: CurrentSaleService,
   ) {
-    this.sale = this.currentSaleService.currentSale();
-    this.updateAvalibleMode();
+    effect(() => {
+      this.sale = this.currentSaleService.currentSale();
+    });
+
+    this.updateAvailableMode();
   }
 
   ngOnInit(): void {
+    this.selectModeReglementService.resetAmounts();
     this.maxModePaymentNumber();
     this.buildReglementInput();
-  }
-
-  onDiffereChange(): void {
-    if (this.sale) {
-      this.isVenteDiffere.emit(this.isDiffere);
-    } else {
-      this.isVenteDiffere.emit(false);
-    }
   }
 
   trackPaymentModeId(index: number, item: IPaymentMode): string {
@@ -96,7 +93,9 @@ export class ModeReglementComponent implements OnInit {
     return item.code!;
   }
 
-  save(): void {}
+  save(): void {
+    this.onSaveEvent.emit(true);
+  }
 
   onAddPaymentModeToggle(old: IPaymentMode, evt: any): void {
     this.onModeBtnClick(old);
@@ -120,7 +119,7 @@ export class ModeReglementComponent implements OnInit {
       const modeToRemove = mds.find((el: IPaymentMode) => el.code === old.code);
       if (modeToRemove) {
         this.selectModeReglementService.remove(modeToRemove);
-        this.updateAvalibleMode();
+        this.updateAvailableMode();
       }
 
       this.showAddModePaymentButton(this.selectModeReglementService.modeReglements()[0]);
@@ -151,56 +150,36 @@ export class ModeReglementComponent implements OnInit {
     this.showInfosBancaire = this.selectModeReglementService.modeReglements().some(mode);
   }
 
-  buildReglementInput(): void {
-    if (this.sale && this.sale.payments.length > 0) {
-      this.selectModeReglementService.paymentModes.forEach((mode: IPaymentMode) => {
-        const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
-        if (el) {
-          mode.amount = el.paidAmount;
-          if (mode.code === this.CASH && el.montantVerse) {
-            mode.amount = el.montantVerse;
-            this.sale.montantVerse = el.montantVerse;
-          }
-          this.selectModeReglementService.update(mode);
-          this.updateAvalibleMode();
-          /*this.reglements.set(this.selectModeReglementService.paymentModes.filter(x => !this.modeReglementSelected.includes(x)));*/
-          // this.modeReglementSelected.push(mode);
-          // this.computeMonnaie(null);
+  buildPreventeReglementInput(): void {
+    this.selectModeReglementService.paymentModes.forEach((mode: IPaymentMode) => {
+      const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
+      if (el) {
+        mode.amount = el.paidAmount;
+        if (mode.code === this.CASH && el.montantVerse) {
+          mode.amount = el.montantVerse;
+          this.sale.montantVerse = el.montantVerse;
         }
-      });
-    } else {
-      this.resetCashInput();
-    }
-    //   this.getReglements();
+        this.currentSaleService.setCurrentSale(this.sale);
+        // this.selectModeReglementService.update(mode);
+        this.updateAvailableMode();
+      }
+    });
     this.setFirstInputFocused();
   }
 
-  /* addModeConfirmDialog(): void {
-     this.confirmationService.confirm({
-       message: 'Voullez-vous ajouter un autre moyen  de payment',
-       header: "AJOUT D'UN AUTRE MOYEN DE PAYMENT",
-       icon: 'pi pi-info-circle',
-       accept: () => {
-         this.addOverlayPanel.toggle(this.getAddModePaymentButton());
-       },
-       reject: () => {
-         this.displayErrorEntryAmountModal = true;
-         this.errorEntryAmountBtn.nativeElement.focus();
-       },
-       key: 'addModePaymentConfirmDialog',
-     });
-     this.addModePaymentConfirmDialogBtn.nativeElement.focus();
-   }*/
+  buildReglementInput(): void {
+    this.resetCashInput();
+    this.setFirstInputFocused();
+  }
 
   resetCashInput(): void {
-    /*  this.modeReglementSelected = [];
-     // this.modeReglementSelected[0] = this.cashModePayment;
-      this.modeReglementSelected[0].amount = null;
-      this.selectedModeReglement.emit(this.modeReglementSelected);*/
+    this.selectModeReglementService.selectCashModePayment();
+    console.warn(this.selectModeReglementService.modeReglements());
   }
 
   getInputAtIndex(index: number | null): HTMLInputElement {
     const modeInputs = this.getInputs() as HTMLInputElement[];
+    console.warn(modeInputs.length);
     const indexAt = index === 0 ? index : modeInputs.length - 1;
     if (modeInputs && modeInputs.length > 0) {
       return modeInputs[indexAt];
@@ -213,12 +192,27 @@ export class ModeReglementComponent implements OnInit {
     if (oldModes.length < this.maxModePayementNumber) {
       oldModes[oldModes.length++] = newMode;
       this.selectModeReglementService.setModePayments(oldModes);
-      this.updateAvalibleMode();
+      this.updateAvailableMode();
       this.addOverlayPanel.hide();
       // this.getReglements();
       //  this.updateComponent();
       setTimeout(() => {
-        //   this.focusLastAddInput();
+        this.focusLastAddInput();
+      }, 50);
+    }
+  }
+
+  focusLastAddInput(): void {
+    const input = this.getInputAtIndex(null);
+    console.warn(input);
+    if (input) {
+      input.focus();
+      const secondInputDefaultAmount =
+        this.sale.amountToBePaid - this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code !== input.id).amount;
+      this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code === input.id).amount = secondInputDefaultAmount;
+
+      setTimeout(() => {
+        input.select();
       }, 50);
     }
   }
@@ -235,7 +229,7 @@ export class ModeReglementComponent implements OnInit {
 
     // this.getReglements();
     this.selectModeReglementService.setModePayments(oldModes);
-    this.updateAvalibleMode();
+    this.updateAvailableMode();
     /* //  this.updateComponent();
      setTimeout(() => {
        //  this.manageAmountDiv();
@@ -244,6 +238,7 @@ export class ModeReglementComponent implements OnInit {
 
   manageAmountDiv(): void {
     const input = this.getInputAtIndex(0);
+    console.log('input', input);
 
     if (input) {
       this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code === input.id).amount = this.sale.amountToBePaid;
@@ -254,7 +249,18 @@ export class ModeReglementComponent implements OnInit {
     }
   }
 
-  private updateAvalibleMode(): void {
+  commentaireInputGetFocus(): void {
+    setTimeout(() => {
+      this.commentaireInput.nativeElement.focus();
+    }, 20);
+  }
+
+  protected onClose(op: OverlayPanel): void {
+    this.onCloseEvent.emit(true);
+    op.hide();
+  }
+
+  private updateAvailableMode(): void {
     this.reglementsModes = this.selectModeReglementService.getaAvaillablePaymentsMode();
   }
 

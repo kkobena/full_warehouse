@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
@@ -29,7 +30,7 @@ public interface SaleService {
 
   SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto);
 
-  ResponseDTO save(CashSaleDTO dto)
+  FinalyseSaleDTO save(CashSaleDTO dto)
       throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException;
 
   /*

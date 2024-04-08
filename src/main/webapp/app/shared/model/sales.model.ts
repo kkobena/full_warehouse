@@ -47,6 +47,8 @@ export interface ISales {
   thirdPartySaleLines?: IThirdPartySaleLine[];
   partTiersPayant?: number;
   sansBon?: boolean;
+  commentaire?: string;
+  avoir?: boolean;
 }
 
 export class Sales implements ISales {
@@ -90,10 +92,12 @@ export class Sales implements ISales {
     public thirdPartySaleLines?: IThirdPartySaleLine[],
     public partTiersPayant?: number,
     public sansBon?: boolean,
+    public avoir?: boolean,
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
     this.differe = this.differe || false;
     this.sansBon = this.sansBon || false;
+    this.avoir = this.avoir || false;
   }
 }
 
@@ -105,6 +109,13 @@ export class QuantitySaleLine {
 export class SaveResponse {
   success: boolean;
   error?: any;
+}
+
+export class FinalyseSale {
+  success: boolean;
+  error?: any;
+  saleId?: number;
+  putOnStandBy?: boolean;
 }
 
 export class InputToFocus {

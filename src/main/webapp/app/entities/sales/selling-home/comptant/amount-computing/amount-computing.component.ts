@@ -43,6 +43,5 @@ export class AmountComputingComponent {
     const thatentryAmount = amount || this.entryAmount;
     const thatMonnaie = thatentryAmount - this.sale?.amountToBePaid;
     this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
-    console.warn(this.monnaie, this.entryAmount, this.sale?.amountToBePaid, thatMonnaie);
   }
 }

@@ -43,7 +43,17 @@ export class SelectModeReglementService {
   }
 
   selectCashModePayment(): void {
-    this.modeReglements.set([this.paymentModes.find(mode => mode.code === 'CASH')]);
+    const cashControl = this.paymentModes.find(mode => mode.code === 'CASH') as IPaymentMode;
+    console.log(cashControl);
+    this.modeReglements.set([cashControl]);
+  }
+
+  resetAmounts(): void {
+    this.paymentModes.forEach(mode => {
+      if (mode.amount) {
+        mode.amount = null;
+      }
+    });
   }
 
   private convertPaymentModes(res: HttpResponse<IPaymentMode[]>): IPaymentMode[] {

@@ -3,10 +3,12 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.Util;
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.Poste;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -44,7 +46,6 @@ public class SaleDTO implements Serializable {
   private LocalDateTime updatedAt;
   private List<SaleLineDTO> salesLines = new ArrayList<>();
   private List<PaymentDTO> payments = new ArrayList<>();
-  private Integer dateDimensionId;
   private String sellerUserName;
   private SaleDTO canceledSale;
   private LocalDateTime effectiveUpdateDate;
@@ -52,8 +53,10 @@ public class SaleDTO implements Serializable {
   private String ticketNumber;
   private Integer payrollAmount;
   private Integer amountToBePaid;
-  private Integer amountToBeTakenIntoAccount, montantVerse, montantRendu;
-  private Remise remise;
+  private Integer amountToBeTakenIntoAccount;
+  private Integer montantVerse;
+  private Integer montantRendu;
+  private RemiseDTO remise;
   private Integer restToPay;
   private String customerNum;
   private Boolean copy = false;
@@ -74,7 +77,10 @@ public class SaleDTO implements Serializable {
   private Long cassierId;
   private Long sellerId;
   private List<TicketDTO> tickets = new ArrayList<>();
-  private String caisseEndNum, caisseNum, categorie;
+  private String caisseEndNum;
+  private String caisseNum;
+  private String categorie;
+  private String posteName;
   private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
   private String commentaire;
 
@@ -85,11 +91,11 @@ public class SaleDTO implements Serializable {
     this.commentaire = sale.getCommentaire();
     this.discountAmount = sale.getDiscountAmount();
     if (sale instanceof ThirdPartySales thirdPartySales) {
-      this.customer = new CustomerDTO(thirdPartySales.getCustomer());
+      this.customer = new AssuredCustomerDTO((AssuredCustomer) thirdPartySales.getCustomer());
       this.categorie = "VO";
     } else if (sale instanceof CashSale cashSale) {
       if (cashSale.getCustomer() != null) {
-        this.customer = new CustomerDTO(cashSale.getCustomer());
+        this.customer = new UninsuredCustomerDTO((UninsuredCustomer) cashSale.getCustomer());
       }
       this.categorie = "VNO";
     }
@@ -134,12 +140,24 @@ public class SaleDTO implements Serializable {
     this.cassierId = this.cassier.getId();
     this.sellerId = this.seller.getId();
     this.differe = sale.isDiffere();
-    this.caisseEndNum = sale.getCaisseEndNum();
-    this.caisseNum = sale.getCaisseNum();
+    Poste init = sale.getCaisse();
+    if (Objects.nonNull(init)) {
+      this.caisseNum = init.getPosteNumber();
+    }
+    Poste p = sale.getLastCaisse();
+    if (Objects.nonNull(p)) {
+      this.caisseEndNum = p.getPosteNumber();
+    }
+
     this.tvaEmbededs = Util.transformTvaEmbeded(sale.getTvaEmbeded());
     this.montantRendu = sale.getMonnaie();
     this.restToPay = sale.getRestToPay();
     //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
+  }
+
+  public SaleDTO setPosteName(String posteName) {
+    this.posteName = posteName;
+    return this;
   }
 
   public SaleDTO setAvoir(boolean avoir) {
@@ -320,11 +338,6 @@ public class SaleDTO implements Serializable {
     this.numberTransaction = numberTransaction;
   }
 
-  public SaleDTO setDateDimensionId(Integer dateDimensionId) {
-    this.dateDimensionId = dateDimensionId;
-    return this;
-  }
-
   public SaleDTO setSellerUserName(String sellerUserName) {
     this.sellerUserName = sellerUserName;
     return this;
@@ -365,7 +378,7 @@ public class SaleDTO implements Serializable {
     return this;
   }
 
-  public SaleDTO setRemise(Remise remise) {
+  public SaleDTO setRemise(RemiseDTO remise) {
     this.remise = remise;
     return this;
   }

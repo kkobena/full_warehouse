@@ -65,8 +65,8 @@ public class SalesResource {
       throw new BadRequestAlertException(
           "A new sales cannot already have an ID", ENTITY_NAME, "idexists");
     }
-    cashSaleDTO.setCaisseNum(request.getRemoteHost());
-    cashSaleDTO.setCaisseEndNum(request.getRemoteHost());
+    cashSaleDTO.setCaisseNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
+    cashSaleDTO.setCaisseEndNum(cashSaleDTO.getCaisseNum());
 
     CashSaleDTO result = saleService.createCashSale(cashSaleDTO);
     return ResponseEntity.created(new URI("/api/sales/comptant/" + result.getId()))
@@ -78,10 +78,11 @@ public class SalesResource {
 
   @PutMapping("/sales/comptant/save")
   public ResponseEntity<FinalyseSaleDTO> closeCashSale(
-      @Valid @RequestBody CashSaleDTO cashSaleDTO) {
+      @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) {
     if (cashSaleDTO.getId() == null) {
       throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
     }
+    cashSaleDTO.setCaisseEndNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
     FinalyseSaleDTO result = saleService.save(cashSaleDTO);
     return ResponseEntity.ok()
         .headers(

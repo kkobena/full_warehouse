@@ -33,6 +33,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
@@ -40,14 +41,6 @@ import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -58,6 +51,14 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -628,8 +629,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
   @Override
   public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
-      Magasin magasin = storageService.getConnectedUserMagasin();
-      Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+    System.err.println(SecurityUtils.isAuthenticated());
+    // if (SecurityUtils.isAuthenticated()) throw new InvalidPasswordException();
+    Magasin magasin = storageService.getConnectedUserMagasin();
+    Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
     Root<Produit> root = cq.from(Produit.class);
@@ -640,10 +643,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
     q.setFirstResult((int) pageable.getOffset());
     q.setMaxResults(pageable.getPageSize());
     return q.getResultList().stream()
-        .map(e->ProduitBuilder.fromProductLiteList(e,e.getStockProduits().stream()
-            .filter(s -> s.getStorage().equals(userStorage))
-            .findFirst()
-            .orElse(null),magasin))
+        .map(
+            e ->
+                ProduitBuilder.fromProductLiteList(
+                    e,
+                    e.getStockProduits().stream()
+                        .filter(s -> s.getStorage().equals(userStorage))
+                        .findFirst()
+                        .orElse(null),
+                    magasin))
         .toList();
   }
 
@@ -677,11 +685,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
       }
     }
 
-
     if (produitCriteria.getTypeProduit() != null) {
       predicates.add(cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
     }
-
 
     return predicates;
   }

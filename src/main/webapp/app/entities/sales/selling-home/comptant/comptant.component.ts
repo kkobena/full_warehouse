@@ -8,7 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { ConfirmationService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { PreventeModalComponent } from '../../prevente-modal/prevente-modal/prevente-modal.component';
@@ -32,7 +32,7 @@ import { IProduit } from '../../../../shared/model/produit.model';
 import { IRemiseProduit } from '../../../../shared/model/remise-produit.model';
 import { FinalyseSale, InputToFocus, ISales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { SalesService } from '../../sales.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -87,28 +87,16 @@ import { SelectModeReglementService } from '../../service/select-mode-reglement.
   templateUrl: './comptant.component.html',
 })
 export class ComptantComponent {
-  isSaving = false;
   @Input('isPresale') isPresale = false;
-  displayErrorModal = false;
-  commonDialog = false;
-  displayErrorEntryAmountModal = false;
   @Input('canUpdatePu') canUpdatePu: boolean = false;
   @Input('canForceStock') canForceStock: boolean = true;
-  payments: IPayment[] = [];
-  modeReglementSelected: IPaymentMode[] = [];
   @Input('userCaissier') userCaissier?: IUser | null;
   @Input('userSeller') userSeller?: IUser;
-  searchValue?: string;
   readonly appendTo = 'body';
-  imagesPath!: string;
   @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
   @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
   @Output('responseEvent') responseEvent = new EventEmitter<FinalyseSale>();
   @Input('qtyMaxToSel') qtyMaxToSel: number;
-  @ViewChild('forcerStockBtn')
-  forcerStockBtn?: ElementRef;
-  @ViewChild('addModePaymentConfirmDialogBtn')
-  addModePaymentConfirmDialogBtn?: ElementRef;
   readonly CASH = 'CASH';
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -126,17 +114,25 @@ export class ComptantComponent {
   differeConfirmDialogBtn?: ElementRef;
   @ViewChild('avoirConfirmDialogBtn', { static: false })
   avoirConfirmDialogBtn?: ElementRef;
-  primngtranslate: Subscription;
   @ViewChild(AmountComputingComponent)
   amountComputingComponent?: AmountComputingComponent;
   @ViewChild(ModeReglementComponent)
   modeReglementComponent?: ModeReglementComponent;
-  ref: DynamicDialogRef;
+  protected isSaving = false;
+  protected displayErrorModal = false;
+  protected commonDialog = false;
+  protected displayErrorEntryAmountModal = false;
+  protected payments: IPayment[] = [];
+  protected modeReglementSelected: IPaymentMode[] = [];
+  @ViewChild('forcerStockBtn')
+  protected forcerStockBtn?: ElementRef;
+  @ViewChild('addModePaymentConfirmDialogBtn')
+  protected addModePaymentConfirmDialogBtn?: ElementRef;
+  protected ref: DynamicDialogRef;
   protected remiseProduits: IRemiseProduit[] = [];
   protected remiseProduit?: IRemiseProduit | null;
   protected isDiffere: boolean = false;
   protected sale?: ISales | null = null;
-  protected base64!: string;
   protected event: any;
   protected entryAmount?: number | null = null;
 
@@ -152,15 +148,7 @@ export class ComptantComponent {
     protected errorService: ErrorService,
     private dialogService: DialogService,
     public translate: TranslateService,
-    public primeNGConfig: PrimeNGConfig,
   ) {
-    this.imagesPath = 'data:image/';
-    this.base64 = ';base64,';
-    this.searchValue = '';
-    this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
       this.isDiffere = this.sale?.differe;
@@ -345,14 +333,6 @@ export class ComptantComponent {
     return this.modeReglementSelected
       .filter((m: IPaymentMode) => m.amount)
       .map((mode: IPaymentMode) => this.buildModePayment(mode, entryAmount));
-  }
-
-  buildPaymentFromSale(sale: ISales): void {
-    sale.payments.forEach(payment => {
-      if (payment.paymentMode) {
-        const code = payment.paymentMode.code;
-      }
-    });
   }
 
   confirmDeleteItem(item: ISalesLine): void {

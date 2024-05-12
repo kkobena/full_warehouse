@@ -34,6 +34,8 @@ public final class ErrorConstants {
       URI.create(PROBLEM_BASE_URL + "/error.cashRegisterNotFound");
   public static final URI ALL_INVENTORY_LINE_NOT_UPDATED =
       URI.create(PROBLEM_BASE_URL + "/error.someInventoryLineNotUpdated");
+  public static final URI SALE_ALREADY_CLOSED =
+      URI.create(PROBLEM_BASE_URL + "/error.saleAlreadyClosed");
 
   private ErrorConstants() {}
 }

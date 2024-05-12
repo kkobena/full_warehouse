@@ -1,15 +1,15 @@
 package com.kobe.warehouse.domain;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotNull;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -30,8 +30,17 @@ public class Printer implements Serializable {
   @Column(name = "name", nullable = false)
   private String name;
 
+  @NotNull
+  @Column(name = "width", nullable = false)
+  private Integer width;
+
+  @NotNull
+  @Column(name = "length", nullable = false)
+  private Integer length;
+
   private String address;
   private Boolean defaultPrinter = Boolean.FALSE;
+  @ManyToOne private Poste poste;
 
   public Long getId() {
     return id;
@@ -66,6 +75,33 @@ public class Printer implements Serializable {
 
   public Printer setDefaultPrinter(Boolean defaultPrinter) {
     this.defaultPrinter = defaultPrinter;
+    return this;
+  }
+
+  public Integer getWidth() {
+    return width;
+  }
+
+  public Printer setWidth(Integer width) {
+    this.width = width;
+    return this;
+  }
+
+  public Integer getLength() {
+    return length;
+  }
+
+  public Printer setLength(Integer length) {
+    this.length = length;
+    return this;
+  }
+
+  public Poste getPoste() {
+    return poste;
+  }
+
+  public Printer setPoste(Poste poste) {
+    this.poste = poste;
     return this;
   }
 

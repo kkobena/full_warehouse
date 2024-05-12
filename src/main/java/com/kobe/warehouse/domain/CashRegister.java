@@ -1,11 +1,12 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "cash_register")
@@ -23,10 +24,10 @@ public class CashRegister implements Serializable {
 
   @NotNull
   @Column(name = "init_amount")
-  private Double initAmount;
+  private Long initAmount;
 
   @Column(name = "final_amount")
-  private Double finalAmount;
+  private Long finalAmount;
 
   @NotNull
   @Column(name = "begin_time")
@@ -52,12 +53,40 @@ public class CashRegister implements Serializable {
   @OneToOne(mappedBy = "cashRegister")
   private CashFund cashFund;
 
+  @OneToOne(mappedBy = "cashRegister")
+  private Ticketing ticketing;
+
+  @ManyToOne private User updatedUser;
+
+  @OneToMany(
+      mappedBy = "cashRegister",
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+  private List<CashRegisterItem> cashRegisterItems = new ArrayList<>();
+
+  public List<CashRegisterItem> getCashRegisterItems() {
+    return cashRegisterItems;
+  }
+
+  public CashRegister setCashRegisterItems(List<CashRegisterItem> cashRegisterItems) {
+    this.cashRegisterItems = cashRegisterItems;
+    return this;
+  }
+
   public Long getId() {
     return id;
   }
 
   public CashRegister setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public Ticketing getTicketing() {
+    return ticketing;
+  }
+
+  public CashRegister setTicketing(Ticketing ticketing) {
+    this.ticketing = ticketing;
     return this;
   }
 
@@ -79,20 +108,29 @@ public class CashRegister implements Serializable {
     return this;
   }
 
-  public Double getInitAmount() {
+  public Long getInitAmount() {
     return initAmount;
   }
 
-  public CashRegister setInitAmount(Double initAmount) {
+  public CashRegister setInitAmount(Long initAmount) {
     this.initAmount = initAmount;
     return this;
   }
 
-  public Double getFinalAmount() {
+  public User getUpdatedUser() {
+    return updatedUser;
+  }
+
+  public CashRegister setUpdatedUser(User updatedUser) {
+    this.updatedUser = updatedUser;
+    return this;
+  }
+
+  public Long getFinalAmount() {
     return finalAmount;
   }
 
-  public CashRegister setFinalAmount(Double finalAmount) {
+  public CashRegister setFinalAmount(Long finalAmount) {
     this.finalAmount = finalAmount;
     return this;
   }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
-import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 
 /** A PaymentMode. */
 @Entity
@@ -40,6 +40,17 @@ public class PaymentMode implements Serializable {
   @NotNull
   @Column(name = "enable", nullable = false)
   private boolean enable = true;
+
+  private String iconUrl;
+
+  public String getIconUrl() {
+    return iconUrl;
+  }
+
+  public PaymentMode setIconUrl(String iconUrl) {
+    this.iconUrl = iconUrl;
+    return this;
+  }
 
   public short getOrder() {
     return order;

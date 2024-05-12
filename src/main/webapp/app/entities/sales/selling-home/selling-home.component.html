@@ -112,7 +112,7 @@
 
 
           <div [ngClass]="getToolBarActionCssClass()">
-            @if (sale == null) {
+            @if (sale == null && !isPresale) {
               <p-button (click)="openPindingSide()" icon="pi pi-search" label="Ventes en attente"
                         styleClass="p-button-info p-button-sm"></p-button>
 

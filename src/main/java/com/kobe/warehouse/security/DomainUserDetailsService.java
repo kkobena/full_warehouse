@@ -28,7 +28,6 @@ public class DomainUserDetailsService implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(final String login) {
-    log.debug("Authenticating {}", login);
 
     String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
     return userRepository
@@ -42,18 +41,15 @@ public class DomainUserDetailsService implements UserDetailsService {
 
   private org.springframework.security.core.userdetails.User createSpringSecurityUser(
       String lowercaseLogin, User user) {
+
     if (!user.isActivated()) {
       throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
     }
-  /*  List<SimpleGrantedAuthority> grantedAuthorities =
-        user.getAuthorities().stream()
-            .map(Authority::getName)
+    List<SimpleGrantedAuthority> grantedAuthorities =
+        SecurityUtils.mergeAuthorities(user.getAuthorities()).stream()
             .map(SimpleGrantedAuthority::new)
-            .toList();*/
-      List<SimpleGrantedAuthority> grantedAuthorities =
-          SecurityUtils.mergeAuthorities(user.getAuthorities()).stream()
-              .map(SimpleGrantedAuthority::new)
-              .collect(Collectors.toList());
+            .collect(Collectors.toList());
+
     return new org.springframework.security.core.userdetails.User(
         user.getLogin(), user.getPassword(), grantedAuthorities);
   }

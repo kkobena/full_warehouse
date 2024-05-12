@@ -37,4 +37,5 @@ public final class EntityConstant {
   public static final int APP_DAY_STOCK_DEFAULT_VALUE = 10;
   public static final int APP_LIMIT_NBR_DAY_REAPPRO_DEFAULT_VALUE = 8;
   public static final int APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE = 84;
+  public static final String CASH_CODE = "CASH";
 }

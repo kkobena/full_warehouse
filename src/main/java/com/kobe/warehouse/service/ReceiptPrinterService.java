@@ -87,4 +87,12 @@ public class ReceiptPrinterService {
     }
     return PrintServiceLookup.lookupDefaultPrintService();
   }
+
+  /*
+    common size
+  80*80
+  58
+  Width: 2.25 inches (57 mm), 3 inches (76 mm)
+  Width: 2.25 inches
+     */
 }

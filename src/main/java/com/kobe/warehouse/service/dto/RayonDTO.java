@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
-
 import java.io.Serializable;
 
 public class RayonDTO implements Serializable {
@@ -12,6 +11,21 @@ public class RayonDTO implements Serializable {
     private Long storageId;
     private boolean exclude;
     private String storageLibelle;
+
+
+    public RayonDTO() {
+    }
+
+    public RayonDTO(Rayon rayon) {
+        this.id = rayon.getId();
+        this.code = rayon.getCode();
+        this.libelle = rayon.getLibelle();
+        Storage storage = rayon.getStorage();
+        this.storageId = storage.getId();
+        this.storageLibelle = storage.getName();
+        this.exclude = rayon.isExclude();
+
+    }
 
     public Long getId() {
         return id;
@@ -59,19 +73,5 @@ public class RayonDTO implements Serializable {
 
     public void setStorageLibelle(String storageLibelle) {
         this.storageLibelle = storageLibelle;
-    }
-
-    public RayonDTO() {
-    }
-
-    public RayonDTO(Rayon rayon) {
-        this.id = rayon.getId();
-        this.code = rayon.getCode();
-        this.libelle = rayon.getLibelle();
-        Storage storage = rayon.getStorage();
-        this.storageId = storage.getId();
-        this.storageLibelle = storage.getName();
-        this.exclude = rayon.isExclude();
-
     }
 }

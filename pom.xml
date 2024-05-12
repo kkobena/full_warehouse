@@ -139,6 +139,7 @@
                                 <version>1.18.30</version>
                             </path>
                         </annotationProcessorPaths>
+
                         <parameters>true</parameters>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -335,23 +336,6 @@
                     <version>${properties-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <artifactId>modernizer-maven-plugin</artifactId>
-                    <configuration>
-                        <javaVersion>${java.version}</javaVersion>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>modernizer</goal>
-                            </goals>
-                            <id>modernizer</id>
-                            <phase>package</phase>
-                        </execution>
-                    </executions>
-                    <groupId>org.gaul</groupId>
-                    <version>${modernizer-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <executions>
                         <execution>
@@ -442,10 +426,7 @@
                 <groupId>org.codehaus.mojo</groupId>
             </plugin>
 
-            <plugin>
-                <artifactId>modernizer-maven-plugin</artifactId>
-                <groupId>org.gaul</groupId>
-            </plugin>
+
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <groupId>org.jacoco</groupId>
@@ -502,6 +483,11 @@
             <artifactId>poi</artifactId>
             <groupId>org.apache.poi</groupId>
             <version>5.2.5</version>
+        </dependency>
+        <dependency>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <version>3.0.5</version>
         </dependency>
         <dependency>
             <artifactId>jasperreports</artifactId>
@@ -622,14 +608,14 @@
             <groupId>com.zaxxer</groupId>
             <version>5.1.0</version>
         </dependency>
-        <dependency>
-            <artifactId>metrics-core</artifactId>
-            <groupId>io.dropwizard.metrics</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <groupId>io.micrometer</groupId>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <artifactId>metrics-core</artifactId>-->
+        <!--            <groupId>io.dropwizard.metrics</groupId>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
+        <!--            <groupId>io.micrometer</groupId>-->
+        <!--        </dependency>-->
         <dependency>
             <artifactId>jakarta.annotation-api</artifactId>
             <groupId>jakarta.annotation</groupId>
@@ -669,7 +655,7 @@
             <scope>provided</scope>
             <version>${mapstruct.version}</version>
         </dependency>
-        
+
         <dependency>
             <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <groupId>org.xhtmlrenderer</groupId>
@@ -1003,7 +989,7 @@
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
         <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
         <git-commit-id-maven-plugin.version>7.0.0</git-commit-id-maven-plugin.version>
-        <hibernate.version>6.3.1.Final</hibernate.version>
+        <hibernate.version>6.4.6.Final</hibernate.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <java.version>21</java.version>
         <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
@@ -1033,7 +1019,6 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.2.5</maven.version>
-        <modernizer-maven-plugin.version>2.7.0</modernizer-maven-plugin.version>
         <node.version>v18.18.2</node.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
         <npm.version>10.2.4</npm.version>

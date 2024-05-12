@@ -10,6 +10,7 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.web.rest.errors.*;
+import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 /** REST controller for managing the current user's account. */
 @RestController
 @RequestMapping("/api")
-public class AccountResource {
+public class AccountResource extends AccountResourcesProxy {
 
   private final Logger log = LoggerFactory.getLogger(AccountResource.class);
   private final UserRepository userRepository;
@@ -39,6 +40,7 @@ public class AccountResource {
       UserService userService,
       MailService mailService,
       PersistentTokenRepository persistentTokenRepository) {
+    super(userRepository, userService);
     this.userRepository = userRepository;
     this.userService = userService;
     this.mailService = mailService;
@@ -97,9 +99,7 @@ public class AccountResource {
 
   @GetMapping("/account")
   public AdminUserDTO getAccount() {
-    return userService
-        .getUserConnectedWithAuthorities()
-        .orElseThrow(() -> new AccountResourceException("User could not be found"));
+    return super.getAccount();
   }
 
   /**
@@ -111,26 +111,7 @@ public class AccountResource {
    */
   @PostMapping("/account")
   public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
-    String userLogin =
-        SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
-    Optional<User> existingUser =
-        org.springframework.util.StringUtils.hasText(userDTO.getEmail())
-            ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
-            : Optional.empty();
-    if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-      throw new EmailAlreadyUsedException();
-    }
-    Optional<User> user = userRepository.findOneByLogin(userLogin);
-    if (!user.isPresent()) {
-      throw new AccountResourceException("User could not be found");
-    }
-    userService.updateUser(
-        userDTO.getFirstName(),
-        userDTO.getLastName(),
-        userDTO.getEmail(),
-        userDTO.getLangKey(),
-        userDTO.getImageUrl());
+    super.saveAccount(userDTO);
   }
 
   /**
@@ -141,11 +122,7 @@ public class AccountResource {
    */
   @PostMapping(path = "/account/change-password")
   public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
-    if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
-      throw new InvalidPasswordException();
-    }
-    userService.changePassword(
-        passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
+    super.changePassword(passwordChangeDto);
   }
 
   /**
@@ -203,14 +180,7 @@ public class AccountResource {
    */
   @PostMapping(path = "/account/reset-password/init")
   public void requestPasswordReset(@RequestBody String mail) {
-    Optional<User> user = userService.requestPasswordReset(mail);
-    if (user.isPresent()) {
-      mailService.sendPasswordResetMail(user.get());
-    } else {
-      // Pretend the request has been successful to prevent checking which emails really exist
-      // but log that an invalid attempt has been made
-      log.warn("Password reset requested for non existing mail");
-    }
+    super.requestPasswordReset(mail);
   }
 
   /**
@@ -223,18 +193,10 @@ public class AccountResource {
    */
   @PostMapping(path = "/account/reset-password/finish")
   public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
-    if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
-      throw new InvalidPasswordException();
-    }
-    Optional<User> user =
-        userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
-
-    if (!user.isPresent()) {
-      throw new AccountResourceException("No user was found for this reset key");
-    }
+    super.finishPasswordReset(keyAndPassword);
   }
 
-  private static class AccountResourceException extends RuntimeException {
+  public static class AccountResourceException extends RuntimeException {
 
     private AccountResourceException(String message) {
       super(message);

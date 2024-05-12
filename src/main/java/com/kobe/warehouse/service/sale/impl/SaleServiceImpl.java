@@ -10,20 +10,21 @@ import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Ticket;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.PaymentModeRepository;
+import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
-import com.kobe.warehouse.service.CashRegisterService;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
@@ -41,7 +42,6 @@ import com.kobe.warehouse.web.rest.errors.StockException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -59,11 +59,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   private final PaymentModeRepository paymentModeRepository;
   private final StorageService storageService;
   private final CashSaleRepository cashSaleRepository;
-  private final CashRegisterService cashRegisterService;
   private final SalesLineService salesLineService;
   private final PaymentService paymentService;
   private final TicketService ticketService;
-  private final AvoirService avoirService;
 
   public SaleServiceImpl(
       SalesRepository salesRepository,
@@ -78,19 +76,26 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
       TicketService ticketService,
       ReferenceService referenceService,
       WarehouseCalendarService warehouseCalendarService,
-      AvoirService avoirService) {
-    super(referenceService, warehouseCalendarService);
+      AvoirService avoirService,
+      PosteRepository posteRepository) {
+    super(
+        referenceService,
+        warehouseCalendarService,
+        storageService,
+        userRepository,
+        salesLineService,
+        cashRegisterService,
+        avoirService,
+        posteRepository);
     this.salesRepository = salesRepository;
     this.userRepository = userRepository;
     this.uninsuredCustomerRepository = uninsuredCustomerRepository;
     this.paymentModeRepository = paymentModeRepository;
     this.storageService = storageService;
     this.cashSaleRepository = cashSaleRepository;
-    this.cashRegisterService = cashRegisterService;
     this.salesLineService = salesLineService;
     this.paymentService = paymentService;
     this.ticketService = ticketService;
-    this.avoirService = avoirService;
   }
 
   private User getUserFormImport() {
@@ -214,37 +219,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   public CashSaleDTO createCashSale(CashSaleDTO dto) {
     UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
     CashSale c = new CashSale();
+    this.intSale(dto, c);
     c.setCustomer(uninsuredCustomer);
-    c.setNatureVente(dto.getNatureVente());
-    c.setTypePrescription(dto.getTypePrescription());
-    User user = storageService.getUser();
-    User caissier = user;
-    if (user.getId().compareTo(dto.getCassierId()) != 0) {
-      caissier = userRepository.getReferenceById(dto.getCassierId());
-    }
-    if (Objects.nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
-      c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
-    } else {
-      c.setSeller(caissier);
-    }
-    c.setImported(false);
-    c.setUser(user);
-    c.setLastUserEdit(c.getUser());
-    c.setCassier(caissier);
-    c.setCopy(dto.getCopy());
-    c.setCreatedAt(LocalDateTime.now());
-    c.setUpdatedAt(c.getCreatedAt());
-    c.setEffectiveUpdateDate(c.getUpdatedAt());
-    c.setPayrollAmount(0);
-    c.setToIgnore(dto.isToIgnore());
-    c.setDiffere(dto.isDiffere());
-    buildPreventeReference(c);
-    c.setStatut(SalesStatut.ACTIVE);
-    c.setStatutCaisse(SalesStatut.ACTIVE);
-    c.setCaisseNum(dto.getCaisseNum());
-    c.setCaisseEndNum(c.getCaisseNum());
-    c.setPaymentStatus(PaymentStatus.IMPAYE);
-    c.setMagasin(c.getCassier().getMagasin());
+    c.setOrigineVente(OrigineVente.DIRECT);
     SalesLine saleLine =
         salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().get(0),
@@ -345,45 +322,21 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   @Override
   public FinalyseSaleDTO save(CashSaleDTO dto)
       throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
-    User user = storageService.getUser();
-    cashRegisterService.checkIfCashRegisterIsOpen(user, storageService.getSystemeUser());
-    Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-    CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
-    UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
-    if (Objects.nonNull(uninsuredCustomer)) {
-      cashSale.setCustomer(uninsuredCustomer);
-    }
-    salesLineService.save(cashSale.getSalesLines(), user, id);
-    cashSale.setStatut(SalesStatut.CLOSED);
-    cashSale.setStatutCaisse(SalesStatut.CLOSED);
-    cashSale.setDiffere(dto.isDiffere());
-    cashSale.setLastUserEdit(storageService.getUser());
-    cashSale.setCommentaire(dto.getCommentaire());
-    if (!cashSale.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid())
-      throw new PaymentAmountException();
-    if (cashSale.isDiffere() && cashSale.getCustomer() == null)
-      throw new SaleNotFoundCustomerException();
-    cashSale.setPayrollAmount(dto.getPayrollAmount());
 
-    cashSale.setRestToPay(dto.getRestToPay());
-    cashSale.setUpdatedAt(LocalDateTime.now());
-    cashSale.setMonnaie(dto.getMontantRendu());
-    cashSale.setEffectiveUpdateDate(cashSale.getUpdatedAt());
-    if (cashSale.getRestToPay() == 0) {
-      cashSale.setPaymentStatus(PaymentStatus.PAYE);
-    } else {
-      cashSale.setPaymentStatus(PaymentStatus.IMPAYE);
-    }
-    buildReference(cashSale);
+    // cashRegisterService.checkIfCashRegisterIsOpen(user, storageService.getSystemeUser());
+    CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
+    this.save(cashSale, dto);
+    UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
+    // if (Objects.nonNull(uninsuredCustomer)) {
+    cashSale.setCustomer(uninsuredCustomer);
+    // }
     Ticket ticket =
-        ticketService.buildTicket(dto, cashSale, user, buildTvaData(cashSale.getSalesLines()));
-    paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, ticket, user);
+        ticketService.buildTicket(
+            dto, cashSale, cashSale.getUser(), buildTvaData(cashSale.getSalesLines()));
+    paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, ticket, cashSale.getUser());
     cashSale.setTvaEmbeded(ticket.getTva());
-    if (dto.isAvoir()) {
-      this.avoirService.save(cashSale);
-    }
     salesRepository.save(cashSale);
-    initCalendar();
+
     return new FinalyseSaleDTO(cashSale.getId(), true);
   }
 
@@ -397,6 +350,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     CashSale cashSale = cashSaleRepository.getReferenceById(dto.getId());
     cashSale.setLastUserEdit(user);
     paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
+    UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
+    cashSale.setCustomer(uninsuredCustomer);
     salesRepository.save(cashSale);
     response.setSuccess(true);
     return response;
@@ -498,4 +453,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     computeUgTvaAmountOnRemovingItem(c, saleLine);
     computeTvaAmountOnRemovingItem(c, saleLine);
   }
+  // java -jar your-application.jar
+  // --spring.config.location=file:/path/to/your/additional-config1.yml,file:/path/to/your/additional-config2.yml
 }

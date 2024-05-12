@@ -8,11 +8,12 @@ import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
+import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ import tech.jhipster.web.util.ResponseUtil;
 @RestController
 @RequestMapping("/api")
 @Transactional
-public class ProduitResource {
+public class ProduitResource extends ProduitResourceProxy {
 
   private static final String ENTITY_NAME = "produit";
   private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
@@ -54,6 +55,7 @@ public class ProduitResource {
       ProduitRepository produitRepository,
       ProduitService produitService,
       ProductActivityService productActivityService) {
+    super(produitService);
     this.produitRepository = produitRepository;
     this.produitService = produitService;
     this.productActivityService = productActivityService;
@@ -192,21 +194,18 @@ public class ProduitResource {
       @RequestParam(required = false, name = "tableauId") Long tableauId,
       @RequestParam(required = false, name = "tableauNot") Long tableauNot,
       Pageable pageable) {
-    List<ProduitDTO> list =
-        produitService.productsLiteList(
-            new ProduitCriteria()
-                .setSearch(search)
-                .setStatus(status)
-                .setDeconditionnable(deconditionnable)
-                .setDeconditionne(deconditionne)
-                .setFamilleId(familleId)
-                .setTableauId(tableauId)
-                .setTableauNot(tableauNot)
-                .setRayonId(rayonId)
-                .setStorageId(storageId),
-            pageable);
-
-    return ResponseEntity.ok().body(list);
+    return super.getAllLite(
+        new ProduitCriteria()
+            .setSearch(search)
+            .setStatus(status)
+            .setDeconditionnable(deconditionnable)
+            .setDeconditionne(deconditionne)
+            .setFamilleId(familleId)
+            .setTableauId(tableauId)
+            .setTableauNot(tableauNot)
+            .setRayonId(rayonId)
+            .setStorageId(storageId),
+        pageable);
   }
 
   @Transactional(readOnly = true)

@@ -36,6 +36,15 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.TicketDTO;
 import com.kobe.warehouse.service.report.ReportService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.SetJoin;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,15 +55,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.SetJoin;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Page;
@@ -224,7 +224,7 @@ public class SaleDataService {
     if (sales instanceof ThirdPartySales) {
       return buildFromEntity((ThirdPartySales) sales);
     } else {
-      return new SaleDTO(sales);
+      return new CashSaleDTO((CashSale) sales);
     }
   }
 
@@ -244,7 +244,7 @@ public class SaleDataService {
       if (sales instanceof ThirdPartySales) {
         return Optional.of(buildFromEntity((ThirdPartySales) sales));
       } else {
-        return Optional.of(new SaleDTO(sales));
+        return Optional.of(new CashSaleDTO((CashSale) sales));
       }
     }
     return Optional.empty();
@@ -366,7 +366,8 @@ public class SaleDataService {
       SetJoin<Produit, FournisseurProduit> fp =
           produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
       predicates.add(
-          cb.or( cb.like(cb.upper(root.get(Sales_.numberTransaction)), query),
+          cb.or(
+              cb.like(cb.upper(root.get(Sales_.numberTransaction)), query),
               cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
               cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), query),
               cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)));
@@ -376,8 +377,7 @@ public class SaleDataService {
     }
 
     predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE));
-    predicates.add(cb.greaterThanOrEqualTo(root.get(Sales_.updatedAt),now.atStartOfDay()));
-
+    predicates.add(cb.greaterThanOrEqualTo(root.get(Sales_.updatedAt), now.atStartOfDay()));
   }
 
   private void predicatesPreventeVO(
@@ -674,7 +674,7 @@ public class SaleDataService {
     if (s instanceof ThirdPartySales thirdPartySales) {
       return buildFromEntity(thirdPartySales);
     } else {
-      return new SaleDTO(s);
+      return new CashSaleDTO((CashSale) s);
     }
   }
 }

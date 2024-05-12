@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
@@ -179,6 +180,11 @@ public class Sales implements Serializable, Cloneable {
   private NatureVente natureVente;
 
   @NotNull
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "origine_vente", nullable = false)
+  private OrigineVente origineVente;
+
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(name = "type_prescription", nullable = false, length = 15)
   private TypePrescription typePrescription;
@@ -186,10 +192,6 @@ public class Sales implements Serializable, Cloneable {
   @NotNull
   @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
   private boolean differe = false;
-
-  @NotNull
-  @Column(name = "caisse_num", length = 100)
-  private String caisseNum;
 
   @NotNull
   @Enumerated(EnumType.ORDINAL)
@@ -201,10 +203,9 @@ public class Sales implements Serializable, Cloneable {
   @Column(name = "ca", nullable = false, length = 30)
   private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
 
-  @NotNull
-  @Column(name = "caisse_end_num", length = 100)
-  private String caisseEndNum;
+  @ManyToOne private Poste caisse;
 
+  @ManyToOne private Poste lastCaisse;
   @ManyToOne private Customer customer;
 
   @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
@@ -224,14 +225,30 @@ public class Sales implements Serializable, Cloneable {
   private Integer monnaie = 0;
 
   @ManyToOne private Avoir avoir;
+  @ManyToOne private CashRegister cashRegister;
+
+  public Sales setOrigineVente(OrigineVente origineVente) {
+    this.origineVente = origineVente;
+    return this;
+  }
+
+  public Sales setCashRegister(CashRegister cashRegister) {
+    this.cashRegister = cashRegister;
+    return this;
+  }
 
   public Sales setAvoir(Avoir avoir) {
     this.avoir = avoir;
     return this;
   }
 
-  public Sales setCaisseNum(String caisseNum) {
-    this.caisseNum = caisseNum;
+  public Sales setCaisse(Poste caisse) {
+    this.caisse = caisse;
+    return this;
+  }
+
+  public Sales setLastCaisse(Poste lastCaisse) {
+    this.lastCaisse = lastCaisse;
     return this;
   }
 
@@ -262,11 +279,6 @@ public class Sales implements Serializable, Cloneable {
 
   public Sales setTickets(Set<Ticket> tickets) {
     this.tickets = tickets;
-    return this;
-  }
-
-  public Sales setCaisseEndNum(String caisseEndNum) {
-    this.caisseEndNum = caisseEndNum;
     return this;
   }
 
@@ -548,7 +560,6 @@ public class Sales implements Serializable, Cloneable {
     try {
       return super.clone();
     } catch (CloneNotSupportedException e) {
-      e.printStackTrace(System.err);
       return null;
     }
   }

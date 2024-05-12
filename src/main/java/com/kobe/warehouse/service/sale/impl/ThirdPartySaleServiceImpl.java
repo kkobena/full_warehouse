@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
@@ -24,11 +25,13 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
@@ -85,8 +88,19 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
       UserRepository userRepository,
       PaymentService paymentService,
       ReferenceService referenceService,
-      WarehouseCalendarService warehouseCalendarService) {
-    super(referenceService, warehouseCalendarService);
+      WarehouseCalendarService warehouseCalendarService,
+      CashRegisterService cashRegisterService,
+      AvoirService avoirService,
+      PosteRepository posteRepository) {
+    super(
+        referenceService,
+        warehouseCalendarService,
+        storageService,
+        userRepository,
+        salesLineService,
+        cashRegisterService,
+        avoirService,
+        posteRepository);
     this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     this.clientTiersPayantRepository = clientTiersPayantRepository;
     this.tiersPayantRepository = tiersPayantRepository;
@@ -649,43 +663,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     if (assuredCustomer == null)
       throw new GenericError("sale", "Veuillez saisir le client", "customerNotFound");
     ThirdPartySales c = new ThirdPartySales();
+    this.intSale(dto, c);
     c.setCustomer(assuredCustomer);
     c.setAyantDroit(assuredCustomer);
     getAyantDroitFromId(dto.getAyantDroitId())
-        .ifPresent(
-            assuredCustomer1 -> {
-              c.setAyantDroit(assuredCustomer1);
-            });
-    c.setNatureVente(dto.getNatureVente());
-    c.setTypePrescription(dto.getTypePrescription());
-    User user = storageService.getUser();
-    User caissier = user;
-    if (user.getId().compareTo(dto.getCassierId()) != 0) {
-      caissier = userRepository.getReferenceById(dto.getCassierId());
-    }
-    if (caissier.getId().compareTo(dto.getSellerId()) != 0) {
-      c.setSeller(caissier);
-    } else {
-      c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
-    }
-    c.setImported(false);
-    c.setUser(user);
-    c.setLastUserEdit(c.getUser());
-    c.setCassier(caissier);
-    c.setCopy(dto.getCopy());
-    c.setCreatedAt(LocalDateTime.now());
-    c.setUpdatedAt(c.getCreatedAt());
-    c.setEffectiveUpdateDate(c.getUpdatedAt());
-    c.setPayrollAmount(0);
-    c.setToIgnore(dto.isToIgnore());
-    c.setDiffere(dto.isDiffere());
-    buildPreventeReference(c);
-    c.setStatut(SalesStatut.ACTIVE);
-    c.setStatutCaisse(SalesStatut.ACTIVE);
-    c.setCaisseNum(dto.getCaisseNum());
-    c.setCaisseEndNum(c.getCaisseNum());
-    c.setPaymentStatus(PaymentStatus.IMPAYE);
-    c.setMagasin(c.getCassier().getMagasin());
+        .ifPresent(assuredCustomer1 -> c.setAyantDroit(assuredCustomer1));
     return c;
   }
 

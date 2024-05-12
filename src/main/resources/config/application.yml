@@ -30,16 +30,8 @@ management:
       base-path: /management
       exposure:
         include:
-          - configprops
-          - env
           - health
-          - info
-          - jhimetrics
-          - jhiopenapigroups
-          - logfile
-          - loggers
-          - prometheus
-          - threaddump
+
 
   endpoint:
     health:

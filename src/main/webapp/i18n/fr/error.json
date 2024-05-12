@@ -20,6 +20,7 @@
     "wrongEntryAmount": "Veuillez ajouter un client à la vente",
     "groupeTiersPayantExistant": "Il existe dejà  un groupe avec le même nom",
     "numBonAlreadyUse": "Le numéro de bon  est déjà utilisé par ce client",
-    "someInventoryLineNotUpdated": "Toutes les lignes ne sont pas renseignées"
+    "someInventoryLineNotUpdated": "Toutes les lignes ne sont pas renseignées",
+    "saleAlreadyClosed": "La vente avait été  déjà cloturée"
   }
 }

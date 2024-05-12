@@ -67,8 +67,7 @@ import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
 import { LastCurrencyGivenService } from '../service/last-currency-given.service';
 import { InputGroupModule } from 'primeng/inputgroup';
-
-type SelectableEntity = ICustomer | IProduit;
+import { SalesStatut } from '../../../shared/model/enumerations/sales-statut.model';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -115,56 +114,6 @@ type SelectableEntity = ICustomer | IProduit;
   templateUrl: './selling-home.component.html',
 })
 export class SellingHomeComponent implements AfterViewInit {
-  isSaving = false;
-  isPresale = false;
-  commonDialog = false;
-  displayErrorEntryAmountModal = false;
-  showStock = true;
-  canUpdatePu = true;
-  printTicket = true;
-  printInvoice = false;
-  canForceStock = true;
-  naturesVentes: INatureVente[] = [];
-  naturesVente: INatureVente | null = null;
-  users: IUser[];
-  modeReglementSelected: IPaymentMode[] = [];
-  userCaissier?: IUser | null;
-  userSeller?: IUser;
-  typePrescriptions: ITypePrescription[] = [];
-  typePrescription?: ITypePrescription | null;
-  customers: ICustomer[] = [];
-  produits: IProduit[] = [];
-  produitSelected?: IProduit | null = null;
-  searchValue?: string;
-  appendTo = 'body';
-  imagesPath!: string;
-  customerSelected: ICustomer | null = null;
-  selectedRowIndex?: number;
-  remiseProduits: IRemiseProduit[] = [];
-  sale?: ISales | null = null;
-  quantiteSaisie = 1;
-  base64!: string;
-  event: any;
-  @ViewChild('clientSearchBox')
-  clientSearchBox?: ElementRef;
-  @ViewChild('quantyBox')
-  quantyBox?: ElementRef;
-  @ViewChild('produitbox')
-  produitbox?: any;
-  @ViewChild('userBox')
-  userBox?: any;
-  @ViewChild('removeOverlayPanel')
-  removeOverlayPanel?: any;
-  @ViewChild('addOverlayPanel')
-  addOverlayPanel?: any;
-  @ViewChild('addModePaymentConfirmDialogBtn')
-  addModePaymentConfirmDialogBtn?: ElementRef;
-  stockSeverity = 'success';
-  produitClass = 'col-6 row';
-  rayonClass = 'col-2';
-  commentaire?: string;
-  telephone?: string;
-  qtyMaxToSel = 999999;
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly CASH = 'CASH';
   readonly COMPTANT = 'COMPTANT';
@@ -177,22 +126,69 @@ export class SellingHomeComponent implements AfterViewInit {
   readonly WAVE = 'WAVE';
   readonly MOOV = 'MOOV';
   readonly MTN = 'MTN';
-  check = true; // mis pour le focus produit et dialogue button
   readonly notFoundText = PRODUIT_NOT_FOUND;
+  protected check = true; // mis pour le focus produit et dialogue button
+  protected printInvoice = false;
+  protected canForceStock = true;
+  protected naturesVentes: INatureVente[] = [];
+  protected naturesVente: INatureVente | null = null;
+  protected users: IUser[];
+  protected modeReglementSelected: IPaymentMode[] = [];
+  protected userCaissier?: IUser | null;
+  protected userSeller?: IUser;
+  protected typePrescriptions: ITypePrescription[] = [];
+  protected typePrescription?: ITypePrescription | null;
+  protected customers: ICustomer[] = [];
+  protected produits: IProduit[] = [];
+  protected produitSelected?: IProduit | null = null;
+  protected searchValue?: string;
+  protected appendTo = 'body';
+  protected imagesPath!: string;
+  protected customerSelected: ICustomer | null = null;
+  protected remiseProduits: IRemiseProduit[] = [];
+  protected sale?: ISales | null = null;
+  protected quantiteSaisie = 1;
+  protected base64!: string;
+  protected event: any;
+  @ViewChild('clientSearchBox')
+  protected clientSearchBox?: ElementRef;
+  @ViewChild('quantyBox')
+  protected quantyBox?: ElementRef;
+  @ViewChild('produitbox')
+  protected produitbox?: any;
+  @ViewChild('userBox')
+  protected userBox?: any;
+  @ViewChild('removeOverlayPanel')
+  protected removeOverlayPanel?: any;
+  @ViewChild('addOverlayPanel')
+  protected addOverlayPanel?: any;
+  @ViewChild('addModePaymentConfirmDialogBtn')
+  protected addModePaymentConfirmDialogBtn?: ElementRef;
+  protected stockSeverity = 'success';
+  protected commentaire?: string;
+  protected telephone?: string;
+  protected qtyMaxToSel = 999999;
   @ViewChild('clientSearchModalBtn', { static: false })
-  clientSearchModalBtn?: ElementRef;
+  protected clientSearchModalBtn?: ElementRef;
   @ViewChild('errorEntryAmountBtn', { static: false })
-  errorEntryAmountBtn?: ElementRef;
+  protected errorEntryAmountBtn?: ElementRef;
   @ViewChild('commonDialogModalBtn', { static: false })
-  commonDialogModalBtn?: ElementRef;
+  protected commonDialogModalBtn?: ElementRef;
   @ViewChild('tierspayantDiv', { static: false })
-  tierspayntDiv?: ElementRef;
-  ref!: DynamicDialogRef;
-  primngtranslate: Subscription;
-  showAddModePaimentBtn = false;
-  pendingSalesSidebar = false;
+  protected tierspayntDiv?: ElementRef;
+  protected ref!: DynamicDialogRef;
+  protected primngtranslate: Subscription;
+  protected showAddModePaimentBtn = false;
   @ViewChild('forcerStockDialogBtn')
-  forcerStockDialogBtn?: ElementRef;
+  protected forcerStockDialogBtn?: ElementRef;
+  protected pendingSalesSidebar = false;
+  protected isSaving = false;
+  protected isPresale = false;
+  protected commonDialog = false;
+  protected displayErrorEntryAmountModal = false;
+  protected showStock = true;
+  protected canUpdatePu = true;
+  protected printTicket = true;
   protected active = 'comptant';
   protected monnaie: number;
   protected derniereMonnaie: number;
@@ -224,7 +220,6 @@ export class SellingHomeComponent implements AfterViewInit {
   ) {
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
-    this.selectedRowIndex = 0;
     this.searchValue = '';
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -265,14 +260,19 @@ export class SellingHomeComponent implements AfterViewInit {
   }
 
   onLoadPrevente(sales: ISales): void {
-    this.currentSaleService.setCurrentSale(sales);
-    if (sales && sales.type === 'VNO') {
-      this.active = 'comptant';
+    if (sales.statut === SalesStatut.CLOSED) {
+      this.router.navigate(['/sales', false, 'new']);
+    } else {
+      this.currentSaleService.setCurrentSale(sales);
+      if (sales && sales.type === 'VNO') {
+        this.active = 'comptant';
+      }
+      this.selectedCustomerService.setCustomer(sales.customer);
+      this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
+      this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
+      this.userSeller = this.users?.find(e => e.id === sales.sellerId) || this.userSeller;
+      this.loadPrevente();
     }
-    this.selectedCustomerService.setCustomer(sales.customer);
-    this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
-    this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
-    this.userSeller = this.users.find(e => e.id === sales.sellerId) || this.userSeller;
   }
 
   ngOnInit(): void {
@@ -300,18 +300,6 @@ export class SellingHomeComponent implements AfterViewInit {
       if (sales.id) {
         this.onLoadPrevente(sales);
       }
-      if (!this.showStock) {
-        if (this.remiseProduits.length === 0) {
-          this.produitClass = 'col-9 row';
-          this.rayonClass = 'col-3';
-        } else {
-          this.produitClass = 'col-7 row';
-        }
-      } else if (this.remiseProduits.length === 0) {
-        this.produitClass = 'col-8 row';
-        this.rayonClass = 'col-3';
-      }
-
       this.loadProduits();
     });
     this.activatedRoute.paramMap.subscribe(params => {
@@ -657,17 +645,7 @@ export class SellingHomeComponent implements AfterViewInit {
 
   closeSideBar(booleanValue: boolean): void {
     this.pendingSalesSidebar = booleanValue;
-    setTimeout(() => {
-      if (this.sale?.payments?.length > 0) {
-        this.comptantComponent.onLoadPrevente();
-      } else {
-        this.updateProduitQtyBox();
-      }
-    }, 20);
-  }
-
-  onSelectPrevente(prevente: ISales): void {
-    this.subscribeOnloadPreventeResponse(this.salesService.find(prevente.id));
+    this.loadPrevente();
   }
 
   onSave(saveResponse: SaveResponse): void {
@@ -794,13 +772,6 @@ export class SellingHomeComponent implements AfterViewInit {
     });
   }
 
-  protected subscribeOnloadPreventeResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onLoadPrevente(res.body),
-      error: () => this.onSaveError(),
-    });
-  }
-
   protected onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
   }
@@ -873,6 +844,18 @@ export class SellingHomeComponent implements AfterViewInit {
 
   protected onCustomerOverlay(evnt: boolean): void {
     this.produitbox.inputEL.nativeElement.focus();
+  }
+
+  private loadPrevente(): void {
+    setTimeout(() => {
+      if (this.sale?.payments?.length > 0) {
+        if (this.active === 'comptant') {
+          this.comptantComponent.onLoadPrevente();
+        }
+      } else {
+        this.updateProduitQtyBox();
+      }
+    }, 20);
   }
 
   private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {

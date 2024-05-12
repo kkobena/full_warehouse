@@ -1,12 +1,28 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.sale.AvoirService;
+import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
+import com.kobe.warehouse.web.rest.errors.SaleAlreadyCloseException;
+import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.json.JSONArray;
@@ -18,11 +34,30 @@ import org.springframework.stereotype.Service;
 public class SaleCommonService {
   private final ReferenceService referenceService;
   private final WarehouseCalendarService warehouseCalendarService;
+  private final StorageService storageService;
+  private final UserRepository userRepository;
+  private final SalesLineService salesLineService;
+  private final CashRegisterService cashRegisterService;
+  private final AvoirService avoirService;
+  private final PosteRepository posteRepository;
 
   public SaleCommonService(
-      ReferenceService referenceService, WarehouseCalendarService warehouseCalendarService) {
+      ReferenceService referenceService,
+      WarehouseCalendarService warehouseCalendarService,
+      StorageService storageService,
+      UserRepository userRepository,
+      SalesLineService salesLineService,
+      CashRegisterService cashRegisterService,
+      AvoirService avoirService,
+      PosteRepository posteRepository) {
     this.referenceService = referenceService;
     this.warehouseCalendarService = warehouseCalendarService;
+    this.storageService = storageService;
+    this.userRepository = userRepository;
+    this.salesLineService = salesLineService;
+    this.cashRegisterService = cashRegisterService;
+    this.avoirService = avoirService;
+    this.posteRepository = posteRepository;
   }
 
   public void computeSaleEagerAmount(Sales c, int amount, int oldSalesAmount) {
@@ -250,5 +285,87 @@ public class SaleCommonService {
 
   public void initCalendar() {
     this.warehouseCalendarService.initCalendar();
+  }
+
+  protected void intSale(SaleDTO dto, Sales c) {
+    User user = storageService.getUser();
+    c.setNatureVente(dto.getNatureVente());
+    c.setTypePrescription(dto.getTypePrescription());
+    User caissier = user;
+    if (user.getId().compareTo(dto.getCassierId()) != 0) {
+      caissier = userRepository.getReferenceById(dto.getCassierId());
+    }
+    if (Objects.nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
+      c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
+    } else {
+      c.setSeller(caissier);
+    }
+    c.setImported(false);
+    c.setUser(user);
+    c.setLastUserEdit(c.getUser());
+    c.setCassier(caissier);
+    c.setCopy(dto.getCopy());
+    c.setCreatedAt(LocalDateTime.now());
+    c.setUpdatedAt(c.getCreatedAt());
+    c.setEffectiveUpdateDate(c.getUpdatedAt());
+    c.setPayrollAmount(0);
+    c.setToIgnore(dto.isToIgnore());
+    c.setDiffere(dto.isDiffere());
+    this.buildPreventeReference(c);
+    c.setStatut(SalesStatut.ACTIVE);
+    c.setStatutCaisse(SalesStatut.ACTIVE);
+    this.posteRepository
+        .findFirstByAddress(dto.getCaisseNum())
+        .ifPresent(
+            poste -> {
+              c.setCaisse(poste);
+              c.setLastCaisse(poste);
+            });
+
+    c.setPaymentStatus(PaymentStatus.IMPAYE);
+    c.setMagasin(c.getCassier().getMagasin());
+  }
+
+  public void save(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {
+    if (c.getStatut() == SalesStatut.CLOSED) throw new SaleAlreadyCloseException(c.getId());
+    User user = storageService.getUser();
+    c.setUser(user);
+    CashRegister cashRegister =
+        cashRegisterService
+            .getOpiningCashRegisterByUser(user)
+            .orElse(cashRegisterService.openCashRegister(storageService.getSystemeUser(), user));
+    c.setCashRegister(cashRegister);
+    Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+    salesLineService.save(c.getSalesLines(), user, id);
+    c.setStatut(SalesStatut.CLOSED);
+    c.setStatutCaisse(SalesStatut.CLOSED);
+    c.setDiffere(dto.isDiffere());
+    c.setLastUserEdit(storageService.getUser());
+    c.setCommentaire(dto.getCommentaire());
+    if (!c.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid())
+      throw new PaymentAmountException();
+    if (c.isDiffere() && c.getCustomer() == null) throw new SaleNotFoundCustomerException();
+    c.setPayrollAmount(dto.getPayrollAmount());
+    this.posteRepository
+        .findFirstByAddress(dto.getCaisseEndNum())
+        .ifPresent(
+            poste -> {
+              c.setLastCaisse(poste);
+            });
+
+    c.setRestToPay(dto.getRestToPay());
+    c.setUpdatedAt(LocalDateTime.now());
+    c.setMonnaie(dto.getMontantRendu());
+    c.setEffectiveUpdateDate(c.getUpdatedAt());
+    if (c.getRestToPay() == 0) {
+      c.setPaymentStatus(PaymentStatus.PAYE);
+    } else {
+      c.setPaymentStatus(PaymentStatus.IMPAYE);
+    }
+    this.buildReference(c);
+    if (dto.isAvoir()) {
+      this.avoirService.save(c);
+    }
+    this.initCalendar();
   }
 }

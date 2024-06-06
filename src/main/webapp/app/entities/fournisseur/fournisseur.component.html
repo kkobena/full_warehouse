@@ -146,12 +146,12 @@
           <div class="form-group col-md-7">
             <label for="field_groupeFournisseur">Groupe</label>
             <div class="ui-g-12" style="margin-bottom:10px">
-              <p-dropdown [filter]="true" [options]="groupes" [style]="{'width':'100%'}"
-                          [virtualScrollItemSize]="30"
+              <p-dropdown [options]="groupes" [style]="{'width':'100%'}"
+
                           [virtualScroll]="true" appendTo="body"
                           formControlName="groupeFournisseurId" id="field_groupeFournisseur"
                           name="groupeFournisseurId" placeholder="Séléctionner un groupe "
-                          styleClass="form-control">
+              >
               </p-dropdown>
 
             </div>

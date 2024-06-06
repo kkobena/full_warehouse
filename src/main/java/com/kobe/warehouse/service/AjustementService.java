@@ -75,7 +75,7 @@ public class AjustementService extends FileResourceService {
 
   private User getUser() {
     Optional<User> user =
-        SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
+        SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
     return user.orElseGet(null);
   }
 
@@ -89,6 +89,7 @@ public class AjustementService extends FileResourceService {
     } else {
       ajust.setStorage(storageService.getDefaultConnectedUserMainStorage());
     }
+    ajust.setCalendar(warehouseCalendarService.initCalendar());
     ajust = ajustRepository.save(ajust);
     create(ajustDto.getAjustements().get(0), ajust);
     return new AjustDTO(ajust);
@@ -190,7 +191,6 @@ public class AjustementService extends FileResourceService {
               p.getQtyStock());
       logsService.create(transactionType, desc, ajustement.getId().toString(), produit);
     }
-    this.warehouseCalendarService.initCalendar();
   }
 
   public AjustementDTO update(AjustementDTO ajustementDTO) {

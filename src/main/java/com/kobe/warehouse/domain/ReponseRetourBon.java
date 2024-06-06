@@ -55,6 +55,10 @@ public class ReponseRetourBon implements Serializable {
   @Column(name = "commentaire", length = 150)
   private String commentaire;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
   @OneToMany(mappedBy = "reponseRetourBon")
   private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
 }

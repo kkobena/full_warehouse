@@ -1,0 +1,115 @@
+<p-toast position="center"></p-toast>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_typeFinancialTransaction">Type Mouvements</label>
+
+        <p-dropdown [options]="types" [style]="{'width':'100%'}"
+
+                    appendTo="body"
+                    formControlName="typeFinancialTransaction" id="field_typeFinancialTransaction"
+                    name="typeFinancialTransaction" placeholder="Séléctionner un type "
+        >
+        </p-dropdown>
+
+        <div
+          *ngIf="editForm.get('typeFinancialTransaction')!.invalid && (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)">
+          <small *ngIf="editForm.get('typeFinancialTransaction')?.errors?.required"
+                 class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_paymentMode">Mode règlements</label>
+
+        <p-dropdown [appendTo]="appendTo" [options]="paymentModes"
+                    [style]="{'width':'100%'}" formControlName="paymentMode"
+                    id="field_paymentMode"
+                    name="paymentMode"
+                    optionLabel="libelle"
+                    placeholder="Séléctionner un mode de règlement "
+        >
+        </p-dropdown>
+
+        <div
+          *ngIf="editForm.get('paymentMode')!.invalid && (editForm.get('paymentMode')!.dirty || editForm.get('paymentMode')!.touched)">
+          <small *ngIf="editForm.get('paymentMode')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_amount">Montant</label>
+        <input autocomplete="off" class="form-control" formControlName="amount" id="field_amount"
+               name="amount"
+               pInputText
+               pKeyFilter="int" type="text" />
+        <div
+          *ngIf="editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)">
+          <small *ngIf="editForm.get('amount')?.errors?.required" class="form-text text-danger"
+                 jhiTranslate="entity.validation.required">
+            This field is required.
+          </small>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label" for="transactionDate">Date transaction</label>
+
+        <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
+                    appendTo="body"
+                    dateFormat="dd/mm/yy" formControlName="transactionDate" id="transactionDate"
+                    inputId="transactionDate"
+                    name="transactionDate"
+        ></p-calendar>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label"
+               for="field_commentaire">Commentaire</label>
+        <input autocomplete="off" class="form-control" formControlName="commentaire"
+               id="field_commentaire" name="commentaire"
+               pInputText
+               type="text" />
+
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+    </button>
+
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
+            type="submit">
+      <fa-icon icon="check"></fa-icon>&nbsp;<span>Valider</span>
+    </button>
+  </div>
+</form>
+
+

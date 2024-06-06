@@ -1,0 +1,21 @@
+{
+  "warehouseApp": {
+    "remise": {
+      "home": {
+        "title": "Remises",
+        "createLabel": "Ajouter une remise",
+        "createOrEditLabel": "Ajouter ou éditer une remise",
+        "notFound": "Aucune remise  trouvée"
+      },
+      "created": "une nouvelle remise nouveau  a été créé avec l'identifiant {{ param }}",
+      "updated": "La remise avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La remise avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la remise {{ id }} ?"
+      },
+      "detail": {
+        "title": "Remise"
+      }
+    }
+  }
+}

@@ -123,6 +123,22 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.storeInventory.home.title' },
     loadChildren: () => import('./sales/sales.route'),
   },
+  {
+    path: 'remises',
+    data: { pageTitle: 'warehouseApp.remise.home.title' },
+    loadChildren: () => import('./remise/remise.route'),
+  },
+  {
+    path: 'my-cash-register',
+    data: { pageTitle: 'warehouseApp.userCash.home.title' },
+    loadChildren: () => import('./cash-register/user-cash-register/user-cash-register.route'),
+  },
+
+  {
+    path: 'mvt-caisse',
+    data: { pageTitle: 'warehouseApp.mvtCaisse.home.title' },
+    loadChildren: () => import('./mvt-caisse/mvt-caisse.route'),
+  },
 ];
 
 export default routes;

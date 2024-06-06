@@ -148,10 +148,11 @@ export class FournisseurComponent implements OnInit {
         search: '',
       })
       .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
-        if (res.body)
-          {res.body.forEach(item => {
+        if (res.body) {
+          res.body.forEach(item => {
             this.groupes.push({ label: item.libelle, value: item.id });
-          });}
+          });
+        }
         this.editForm.patchValue({
           id: entity.id,
           code: entity.code,
@@ -192,7 +193,9 @@ export class FournisseurComponent implements OnInit {
   }
 
   delete(entity: IFournisseur): void {
-    if (entity && entity.id) {this.confirmDelete(entity.id);}
+    if (entity && entity.id) {
+      this.confirmDelete(entity.id);
+    }
   }
 
   confirmDelete(id: number): void {
@@ -264,21 +267,23 @@ export class FournisseurComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseur>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: res => this.onPocesCsvSuccess(res.body),
+      error: () => this.onError(),
+    });
   }
 
   protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {this.responsedto = responseDto;}
+    if (responseDto) {
+      this.responsedto = responseDto;
+    }
     this.responseDialog = true;
     this.fileDialog = false;
     this.loadPage(0);

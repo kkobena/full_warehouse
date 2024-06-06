@@ -4,6 +4,7 @@
     "browsehappy": "Vous utilisez un <strong>ancien</strong> navigateur. Veuillez <a href=\"http://browsehappy.com/?locale=fr\">mettre à jour votre navigateur</a> pour une meilleure expérience.",
     "menu": {
       "home": "Accueil",
+      "mvtCaisse": "Mouvements de caisse",
       "referentiel": "Reférentiels",
       "tiersPayant": "Tiers-payants",
       "menuGestionStock": "Gestion Stock",
@@ -17,6 +18,7 @@
       "motifAjustement": "Motifs ajustement",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
+        "mvtCaisse": "Mouvements de caisse",
         "main": "Facturation",
         "tva": "Tva",
         "gammeProduit": "Gamme de produit",
@@ -47,7 +49,8 @@
         "groupeTiersPayant": "Groupe tiers-payant",
         "tiersPayant": "Tiers-payants",
         "delivery": "Entrée en stock",
-        "tableau": "Tableaux"
+        "tableau": "Tableaux",
+        "remise": "Remises"
       },
       "account": {
         "main": "Compte",
@@ -56,7 +59,8 @@
         "sessions": "Sessions",
         "login": "S'authentifier",
         "logout": "Déconnexion",
-        "register": "Créer un compte"
+        "register": "Créer un compte",
+        "cashRegister": "Ma caisse"
       },
       "admin": {
         "main": "Administration",

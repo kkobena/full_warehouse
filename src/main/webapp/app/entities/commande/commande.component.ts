@@ -30,6 +30,7 @@ import { CardModule } from 'primeng/card';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
+import { PanelModule } from "primeng/panel";
 
 @Component({
   standalone: true,
@@ -55,6 +56,7 @@ import { InputTextModule } from 'primeng/inputtext';
     CommandeEnCoursComponent,
     CommandePassesComponent,
     CommandeRecusComponent,
+    PanelModule,
   ],
   styles: [
     `

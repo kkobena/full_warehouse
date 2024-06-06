@@ -72,6 +72,8 @@ public class CashRegisterDTO {
               ticket.getOtherAmount(),
               ticket.getTotalAmount());
     }
+    this.cashRegisterItems =
+        cashRegister.getCashRegisterItems().stream().map(CashRegisterItemDTO::new).toList();
   }
 
   public List<CashRegisterItemDTO> getCashRegisterItems() {

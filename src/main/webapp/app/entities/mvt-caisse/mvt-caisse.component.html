@@ -1,0 +1,37 @@
+<p-panel header="Menu mouvements de caisses" styleClass="main-panel">
+  <div class="row mvts-caisse-gestion">
+    <div class="col-2 col-md-2 col-sm-2">
+
+      <p-card>
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+             orientation="vertical">
+          <ng-container ngbNavItem="mvt-caisse">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Mouvements de caisse</a>
+            <ng-template ngbNavContent>
+              <jhi-visualisation-mvt-caisse></jhi-visualisation-mvt-caisse>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="balance">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Balance caisse</a>
+            <ng-template ngbNavContent>
+              <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="tableau-pharmacien">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Tableau pharmacien</a>
+            <ng-template ngbNavContent>
+              <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
+            </ng-template>
+          </ng-container>
+
+        </div>
+      </p-card>
+    </div>
+    <div class="col-10 col-md-10 col-sm-10 row">
+
+      <div [ngbNavOutlet]="nav">
+
+      </div>
+    </div>
+  </div>
+</p-panel>

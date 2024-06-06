@@ -1,0 +1,131 @@
+<div class="mvt-caisse">
+  <p-toolbar>
+    <div class="p-toolbar-group-left" style="width: 75%;">
+      <div class="row">
+
+        <div class="col">
+          <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" dateFormat="dd/mm/yy"
+                      inputId="dateDebut"
+                      placeholder="Date début" showIcon="true"></p-calendar>
+        </div>
+        <div class="col">
+          <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" dateFormat="dd/mm/yy"
+                      inputId="dateFin" placeholder="Date fin"
+                      showIcon="true"></p-calendar>
+        </div>
+        <div class="col">
+
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                 placeholder="Taper pour rechercher"
+                 type="text">
+
+        </div>
+        <div class="col">
+          <p-multiSelect [(ngModel)]="selectedTypes" [filter]="false" [options]="types"
+
+                         placeholder="Type de mouvement"
+          ></p-multiSelect>
+        </div>
+        <div class="col">
+          <p-multiSelect [(ngModel)]="selectedModes" [options]="paymentModes"
+
+                         placeholder="Mode de paiement"
+          ></p-multiSelect>
+        </div>
+        <div class="col">
+          <p-dropdown [(ngModel)]="selectedUser" [options]="users"
+                      placeholder="Opérateur"
+          ></p-dropdown>
+        </div>
+
+
+      </div>
+    </div>
+    <div class="p-toolbar-group-right">
+                 <span class="p-buttonset">
+                <button (click)="onSearch()" class="p-button-raised p-button-info "
+                        icon="pi pi-search"
+                        label="Rechercher" pButton
+                        pRipple
+                        type="button"></button>
+
+   <button (click)="addNew()"
+           class="p-button-raised   p-button-success " pButton
+           pRipple type="button">
+                    <i class="pi pi-plus"></i>
+                    <span>
+              Nouveau
+            </span>
+                </button>
+   <button
+     class="p-button-raised   p-button-danger " pButton
+     pRipple type="button">
+                    <i class="pi pi-file-pdf"></i>
+                    <span>
+              Imprimer
+            </span>
+                </button>
+
+
+                 </span>
+    </div>
+  </p-toolbar>
+  <p-table
+    *ngIf="mvtCaisses && mvtCaisses.length > 0"
+    [lazy]="true"
+    [loading]="loading" [paginator]="true"
+    [rowsPerPageOptions]="[5,10,15,20,30,50]"
+    [rows]="itemsPerPage" [showCurrentPageReport]="false"
+    [totalRecords]="totalItems"
+    [value]="mvtCaisses"
+    dataKey="id"
+    selectionMode="multiple"
+    styleClass="p-datatable-striped mt-2"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+
+        <th>Type</th>
+        <th>Référence</th>
+        <th>Date</th>
+        <th>Montant</th>
+        <th>Mode règlement</th>
+        <th>Opérateur</th>
+        <th>Client</th>
+
+
+        <th style="width:15px"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-mvtCaisse pTemplate="body">
+      <tr>
+        <td>
+          {{ mvtCaisse.transactionType }}
+        </td>
+        <td>
+          {{ mvtCaisse.reference }}
+        </td>
+        <td>{{ mvtCaisse.date }}</td>
+
+        <td class="text-right">{{ mvtCaisse.montant |number }}</td>
+        <td>{{ mvtCaisse.paymentModeLibelle }}</td>
+        <td>{{ mvtCaisse.userFullName }}</td>
+        <td>{{ mvtCaisse.organisme }}</td>
+
+        <td class="text-right">
+          <div class="btn-group">
+            <p-button
+              class="p-button-rounded p-button-info p-button-sm"
+              icon="pi pi-eye"
+              pTooltip="Voir">
+            </p-button>
+
+
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+</div>

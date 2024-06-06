@@ -11,6 +11,8 @@ public interface CashFundService {
   CashFund allocateCashFund(
       Integer amount, CashFundType cashFundType, User cashRegisterOwner, User user);
 
+  CashFund initCashFund(int amount, User user);
+
   void validateCashFund(CashRegister cashRegister);
 
   CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId);
@@ -18,4 +20,6 @@ public interface CashFundService {
   CashFund findById(Long id);
 
   void updateCashFund(CashFund cashFund, CashRegister cashRegister);
+
+  CashFund save(CashFund cashFund);
 }

@@ -7,16 +7,19 @@
   </p-footer>
 </p-confirmDialog>
 
-<div class="justify-content-center"><h3>Liste des tableaux de produits</h3>
+<div class="card" style="padding-left:15%;padding-right:15%;padding-bottom:15px;"><h3>Liste des
+  tableaux de produits</h3>
   <p-toolbar>
-    <div class="p-toolbar-group-end" style="width: 100%;">
-
+    <div class="p-toolbar-group-left"></div>
+    <div class="p-toolbar-group-right">
       <button (click)="addNewEntity()" class="p-button-raised p-button-success"
               icon="pi pi-plus"
               iconPos="left" label="Nouveau"
-              pButton pRipple style="float: right;"
+              pButton pRipple
               type="button"></button>
     </div>
+
+
   </p-toolbar>
   <div *ngIf="entites?.length === 0" class="alert alert-warning" id="no-result">
     <span>Aucune donnée trouvée</span>

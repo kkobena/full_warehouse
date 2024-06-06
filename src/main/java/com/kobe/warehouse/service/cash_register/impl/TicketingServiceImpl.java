@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.cash_register.impl;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.Ticketing;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.repository.TicketingRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.TicketingService;
@@ -11,16 +12,22 @@ import com.kobe.warehouse.web.rest.errors.CashRegisterException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class TicketingServiceImpl implements TicketingService {
   private final CashRegisterService cashRegisterService;
   private final StorageService storageService;
+  private final TicketingRepository ticketingRepository;
 
   public TicketingServiceImpl(
-      CashRegisterService cashRegisterService, StorageService storageService) {
+      CashRegisterService cashRegisterService,
+      StorageService storageService,
+      TicketingRepository ticketingRepository) {
     this.cashRegisterService = cashRegisterService;
     this.storageService = storageService;
+    this.ticketingRepository = ticketingRepository;
   }
 
   @Override
@@ -36,10 +43,14 @@ public class TicketingServiceImpl implements TicketingService {
       if (cashRegister.getStatut() == CashRegisterStatut.CLOSED) throw new CashRegisterException();
     }
     Ticketing ticketing = buildTicketing(ticketingDto, cashRegister);
+
     cashRegister.setFinalAmount(ticketing.getTotalAmount());
     cashRegister.setEndTime(LocalDateTime.now());
     cashRegister.setUpdated(cashRegister.getEndTime());
     cashRegister.setStatut(CashRegisterStatut.CLOSED);
+    this.cashRegisterService.buildCashRegisterItems(cashRegister);
+    this.cashRegisterService.save(cashRegister);
+    this.ticketingRepository.save(ticketing);
   }
 
   private Ticketing buildTicketing(TicketingDTO ticketingDto, CashRegister cashRegister) {

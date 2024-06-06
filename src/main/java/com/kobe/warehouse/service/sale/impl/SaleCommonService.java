@@ -283,10 +283,6 @@ public class SaleCommonService {
     }
   }
 
-  public void initCalendar() {
-    this.warehouseCalendarService.initCalendar();
-  }
-
   protected void intSale(SaleDTO dto, Sales c) {
     User user = storageService.getUser();
     c.setNatureVente(dto.getNatureVente());
@@ -314,6 +310,7 @@ public class SaleCommonService {
     this.buildPreventeReference(c);
     c.setStatut(SalesStatut.ACTIVE);
     c.setStatutCaisse(SalesStatut.ACTIVE);
+    c.setCalendar(this.warehouseCalendarService.initCalendar());
     this.posteRepository
         .findFirstByAddress(dto.getCaisseNum())
         .ifPresent(
@@ -330,10 +327,11 @@ public class SaleCommonService {
     if (c.getStatut() == SalesStatut.CLOSED) throw new SaleAlreadyCloseException(c.getId());
     User user = storageService.getUser();
     c.setUser(user);
-    CashRegister cashRegister =
-        cashRegisterService
-            .getOpiningCashRegisterByUser(user)
-            .orElse(cashRegisterService.openCashRegister(storageService.getSystemeUser(), user));
+    CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
+    if (Objects.isNull(cashRegister)) {
+      cashRegister = cashRegisterService.openCashRegister(user, user);
+    }
+    c.setCalendar(this.warehouseCalendarService.initCalendar());
     c.setCashRegister(cashRegister);
     Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     salesLineService.save(c.getSalesLines(), user, id);
@@ -348,10 +346,7 @@ public class SaleCommonService {
     c.setPayrollAmount(dto.getPayrollAmount());
     this.posteRepository
         .findFirstByAddress(dto.getCaisseEndNum())
-        .ifPresent(
-            poste -> {
-              c.setLastCaisse(poste);
-            });
+        .ifPresent(poste -> c.setLastCaisse(poste));
 
     c.setRestToPay(dto.getRestToPay());
     c.setUpdatedAt(LocalDateTime.now());
@@ -366,6 +361,5 @@ public class SaleCommonService {
     if (dto.isAvoir()) {
       this.avoirService.save(c);
     }
-    this.initCalendar();
   }
 }

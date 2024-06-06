@@ -35,7 +35,7 @@ import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
-import { IRemiseProduit } from '../../../shared/model/remise-produit.model';
+import { IRemise } from '../../../shared/model/remise.model';
 import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse } from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
@@ -145,7 +145,7 @@ export class SellingHomeComponent implements AfterViewInit {
   protected appendTo = 'body';
   protected imagesPath!: string;
   protected customerSelected: ICustomer | null = null;
-  protected remiseProduits: IRemiseProduit[] = [];
+  protected remise: IRemise[] = [];
   protected sale?: ISales | null = null;
   protected quantiteSaisie = 1;
   protected base64!: string;

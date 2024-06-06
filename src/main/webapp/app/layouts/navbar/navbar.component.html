@@ -52,16 +52,16 @@
                 <span jhiTranslate="global.menu.entities.sales">Gestion des ventes</span>
               </a>
             </li>
-            <li *jhiHasAnyAuthority="['payment','ROLE_ADMIN']">
+            <li *jhiHasAnyAuthority="['payment','ROLE_ADMIN','mvt-caisse','tableau-pharmacien']">
               <a
                 (click)="collapseNavbar()"
                 [routerLinkActiveOptions]="{ exact: true }"
                 class="dropdown-item"
-                routerLink="/payment"
+                routerLink="/mvt-caisse"
                 routerLinkActive="active"
               >
-                <fa-icon [fixedWidth]="true" icon="asterisk"></fa-icon>
-                <span jhiTranslate="global.menu.entities.payment">Balance</span>
+                <fa-icon [fixedWidth]="true" [icon]="faCoins"></fa-icon>
+                <span jhiTranslate="global.menu.mvtCaisse">Mouvements de caisse</span>
               </a>
             </li>
           </ul>
@@ -182,6 +182,18 @@
               >
                 <i class="pi pi-book"></i>
                 <span jhiTranslate="global.menu.entities.rayon">Rayons</span>
+              </a>
+            </li>
+            <li *jhiHasAnyAuthority="['referentiel','remises','ROLE_ADMIN']">
+              <a
+                (click)="collapseNavbar()"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="dropdown-item"
+                routerLink="/remises"
+                routerLinkActive="active"
+              >
+                <i class="pi pi-book"></i>
+                <span jhiTranslate="global.menu.entities.remise">Remises</span>
               </a>
             </li>
             <li *jhiHasAnyAuthority="['referentiel','tableaux','ROLE_ADMIN']">
@@ -466,6 +478,15 @@
                 <span jhiTranslate="global.menu.account.settings">Settings</span>
               </a>
             </li>
+            <li *ngSwitchCase="true">
+              <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/my-cash-register"
+                 routerLinkActive="active">
+                <fa-icon [fixedWidth]="true" [icon]="faSackDollar"></fa-icon>
+                <span jhiTranslate="global.menu.account.cashRegister">Ma Caisse</span>
+              </a>
+            </li>
+
+
             <li *ngSwitchCase="true">
               <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/account/password"
                  routerLinkActive="active">

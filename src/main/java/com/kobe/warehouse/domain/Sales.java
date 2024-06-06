@@ -227,6 +227,15 @@ public class Sales implements Serializable, Cloneable {
   @ManyToOne private Avoir avoir;
   @ManyToOne private CashRegister cashRegister;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
+  public Sales setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
   public Sales setOrigineVente(OrigineVente origineVente) {
     this.origineVente = origineVente;
     return this;

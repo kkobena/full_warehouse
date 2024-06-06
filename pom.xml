@@ -30,25 +30,6 @@
 
 
                 <plugin>
-                    <artifactId>spotless-maven-plugin</artifactId>
-                    <configuration>
-                        <java>
-
-                        </java>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>apply</goal>
-                            </goals>
-                            <id>spotless</id>
-                            <phase>process-sources</phase>
-                        </execution>
-                    </executions>
-                    <groupId>com.diffplug.spotless</groupId>
-                    <version>${spotless-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>frontend-maven-plugin</artifactId>
                     <configuration>
                         <installDirectory>target</installDirectory>
@@ -57,50 +38,6 @@
                     </configuration>
                     <groupId>com.github.eirslett</groupId>
                     <version>${frontend-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <configuration>
-                        <container>
-                            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                            <entrypoint>
-                                <arg>/entrypoint.sh</arg>
-                                <option>-c</option>
-                                <shell>bash</shell>
-                            </entrypoint>
-                            <environment>
-                                <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
-                                <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
-                            </environment>
-                            <ports>
-                                <port>8080</port>
-                            </ports>
-                            <user>1000</user>
-                        </container>
-                        <extraDirectories>
-                            <paths>src/main/docker/jib</paths>
-                            <permissions>
-                                <permission>
-                                    <file>/entrypoint.sh</file>
-                                    <mode>755</mode>
-                                </permission>
-                            </permissions>
-                        </extraDirectories>
-                        <from>
-                            <image>${jib-maven-plugin.image}</image>
-                            <platforms>
-                                <platform>
-                                    <architecture>${jib-maven-plugin.architecture}</architecture>
-                                    <os>linux</os>
-                                </platform>
-                            </platforms>
-                        </from>
-                        <to>
-                            <image>warehouse:latest</image>
-                        </to>
-                    </configuration>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <version>${jib-maven-plugin.version}</version>
                 </plugin>
 
 
@@ -147,14 +84,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <version>${maven-compiler-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-eclipse-plugin</artifactId>
-                    <configuration>
-                        <downloadSources>true</downloadSources>
-                    </configuration>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <version>${maven-eclipse-plugin.version}</version>
-                </plugin>
+
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <configuration>
@@ -383,23 +313,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <groupId>org.springframework.boot</groupId>
             </plugin>
-            <plugin>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <groupId>com.diffplug.spotless</groupId>
-            </plugin>
-            <plugin>
-                <artifactId>jib-maven-plugin</artifactId>
-                <groupId>com.google.cloud.tools</groupId>
-            </plugin>
+
 
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
             </plugin>
-            <plugin>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <groupId>org.apache.maven.plugins</groupId>
-            </plugin>
+
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -425,8 +345,6 @@
                 <artifactId>properties-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
             </plugin>
-
-
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <groupId>org.jacoco</groupId>
@@ -909,36 +827,7 @@
                         <groupId>net.nicoulaj.maven.plugins</groupId>
                         <version>${checksum-maven-plugin.version}</version>
                     </plugin>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <configuration>
-                                    <exportAntProperties>true</exportAntProperties>
-                                    <target>
-                                        <condition else="false" property="skip.npm" value="true">
-                                            <and>
-                                                <available file="checksums.csv"
-                                                    filepath="${project.build.directory}"/>
-                                                <available file="checksums.csv.old"
-                                                    filepath="${project.build.directory}"/>
-                                                <filesmatch
-                                                    file1="${project.build.directory}/checksums.csv"
-                                                    file2="${project.build.directory}/checksums.csv.old"/>
-                                            </and>
-                                        </condition>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <id>eval-frontend-checksum</id>
-                                <phase>generate-resources</phase>
-                            </execution>
-                        </executions>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <version>${maven-antrun-plugin.version}</version>
-                    </plugin>
+
                     <plugin>
                         <artifactId>frontend-maven-plugin</artifactId>
                         <executions>
@@ -1005,7 +894,6 @@
 
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-eclipse-plugin.version>2.1</maven-eclipse-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.2.2</maven-failsafe-plugin.version>
 

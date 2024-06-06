@@ -19,6 +19,7 @@ import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.Rayon_;
+import com.kobe.warehouse.domain.RemiseProduit_;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
@@ -33,7 +34,6 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
@@ -579,6 +579,21 @@ public class CustomizedProductRepository implements CustomizedProductService {
               cb.notEqual(
                   root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauNot())));
     }
+
+    if (produitCriteria.getRemiseId() != null) {
+      predicates.add(
+          cb.equal(
+              root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseId()));
+    }
+    if (produitCriteria.getRemiseNot() != null) {
+      predicates.add(
+          cb.or(
+              cb.isNull(root.get(Produit_.remise).get(RemiseProduit_.id)),
+              cb.notEqual(
+                  root.get(Produit_.remise).get(RemiseProduit_.id),
+                  produitCriteria.getRemiseNot())));
+    }
+
     return predicates;
   }
 
@@ -629,8 +644,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
   @Override
   public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
-    System.err.println(SecurityUtils.isAuthenticated());
-    // if (SecurityUtils.isAuthenticated()) throw new InvalidPasswordException();
+
     Magasin magasin = storageService.getConnectedUserMagasin();
     Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
     CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -688,7 +702,31 @@ public class CustomizedProductRepository implements CustomizedProductService {
     if (produitCriteria.getTypeProduit() != null) {
       predicates.add(cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
     }
+    if (produitCriteria.getTableauId() != null) {
+      predicates.add(
+          cb.equal(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauId()));
+    }
+    if (produitCriteria.getTableauNot() != null) {
+      predicates.add(
+          cb.or(
+              cb.isNull(root.get(Produit_.tableau).get(Tableau_.id)),
+              cb.notEqual(
+                  root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauNot())));
+    }
 
+    if (produitCriteria.getRemiseId() != null) {
+      predicates.add(
+          cb.equal(
+              root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseId()));
+    }
+    if (produitCriteria.getRemiseNot() != null) {
+      predicates.add(
+          cb.or(
+              cb.isNull(root.get(Produit_.remise).get(RemiseProduit_.id)),
+              cb.notEqual(
+                  root.get(Produit_.remise).get(RemiseProduit_.id),
+                  produitCriteria.getRemiseNot())));
+    }
     return predicates;
   }
 }

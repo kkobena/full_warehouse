@@ -88,12 +88,21 @@ public class StoreInventory implements Serializable {
   @Column(name = "gap_amount")
   private Integer gapAmount;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
   public Integer getGapCost() {
     return gapCost;
   }
 
   public StoreInventory setGapCost(Integer gapCost) {
     this.gapCost = gapCost;
+    return this;
+  }
+
+  public StoreInventory setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
     return this;
   }
 

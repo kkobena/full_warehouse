@@ -40,6 +40,10 @@ public class Ajust implements Serializable {
   @Column(name = "commentaire")
   private String commentaire;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
   @Getter
   @OneToMany(
       mappedBy = "ajust",
@@ -56,6 +60,11 @@ public class Ajust implements Serializable {
 
   public Ajust setCommentaire(String commentaire) {
     this.commentaire = commentaire;
+    return this;
+  }
+
+  public Ajust setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
     return this;
   }
 

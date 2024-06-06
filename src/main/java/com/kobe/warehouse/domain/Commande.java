@@ -115,9 +115,17 @@ public class Commande implements Serializable, Cloneable {
   @NotNull
   private Fournisseur fournisseur;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "json", name = "lots")
   private Set<LotJsonValue> lots = new HashSet<>();
+
+  public Commande setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
 
   public Set<LotJsonValue> getLots() {
     if (lots == null) {

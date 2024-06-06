@@ -1,0 +1,18 @@
+{
+  "warehouseApp": {
+    "userCash": {
+      "home": {
+        "title": "Caisse utilisateur",
+        "notFound": "Aucune caisse  trouvée"
+      },
+      "updated": "La caisse avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La caisse avec l'identifiant {{ param }} a été supprimée",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer la caisse {{ id }} ?"
+      },
+      "detail": {
+        "title": "Détail de la caisse"
+      }
+    }
+  }
+}

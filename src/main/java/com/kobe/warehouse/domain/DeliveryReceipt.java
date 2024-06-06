@@ -3,15 +3,6 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +17,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 
 @Getter
@@ -118,8 +118,16 @@ public class DeliveryReceipt implements Serializable {
       mappedBy = "deliveryReceipt",
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
-  public DeliveryReceipt setType(TypeDeliveryReceipt type) {
+    public DeliveryReceipt setCalendar(WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
+
+    public DeliveryReceipt setType(TypeDeliveryReceipt type) {
     this.type = type;
     return this;
   }

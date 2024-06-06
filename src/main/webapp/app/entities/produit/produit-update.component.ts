@@ -13,7 +13,7 @@ import { IRayon } from '../../shared/model/rayon.model';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITva } from '../../shared/model/tva.model';
 import { ITypeEtiquette } from '../../shared/model/type-etiquette.model';
-import { IRemiseProduit } from '../../shared/model/remise-produit.model';
+import { IRemise } from '../../shared/model/remise.model';
 import { IFormProduit } from '../../shared/model/form-produit.model';
 import { IGammeProduit } from '../../shared/model/gamme-produit.model';
 import { ILaboratoire } from '../../shared/model/laboratoire.model';
@@ -69,7 +69,7 @@ export class ProduitUpdateComponent implements OnInit {
   fournisseurs: IFournisseur[] = [];
 
   rayons: IRayon[] = [];
-  remisesProduits: IRemiseProduit[] = [];
+  remisesProduits: IRemise[] = [];
 
   editForm = this.fb.group({
     id: [],

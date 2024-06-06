@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -52,7 +53,7 @@ public class PaymentTransaction implements Serializable {
   private CashRegister cashRegister;
 
   @Column(name = "organisme_id")
-  private String organismeId;
+  private Long organismeId;
 
   @Size(max = 50)
   @Column(name = "ticket_code", length = 50)
@@ -62,6 +63,69 @@ public class PaymentTransaction implements Serializable {
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "categorie_ca", nullable = false)
   private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
+
+  @Column(name = "transaction_date", nullable = false)
+  @NotNull
+  private LocalDateTime transactionDate = LocalDateTime.now();
+
+  private boolean credit;
+
+  @NotNull
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "type_transaction", nullable = false)
+  private TypeFinancialTransaction typeFinancialTransaction;
+
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
+  private String commentaire;
+
+  public String getCommentaire() {
+    return commentaire;
+  }
+
+  public PaymentTransaction setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
+    return this;
+  }
+
+  public WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public PaymentTransaction setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+  public LocalDateTime getTransactionDate() {
+    return transactionDate;
+  }
+
+  public PaymentTransaction setTransactionDate(LocalDateTime transactionDate) {
+    this.transactionDate = transactionDate;
+    return this;
+  }
+
+  public boolean isCredit() {
+    return credit;
+  }
+
+  public PaymentTransaction setCredit(boolean credit) {
+    this.credit = credit;
+    return this;
+  }
+
+  public TypeFinancialTransaction getTypeFinancialTransaction() {
+    return typeFinancialTransaction;
+  }
+
+  public PaymentTransaction setTypeFinancialTransaction(
+      TypeFinancialTransaction typeFinancialTransaction) {
+    this.typeFinancialTransaction = typeFinancialTransaction;
+    return this;
+  }
 
   public PaymentTransaction createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
@@ -118,11 +182,11 @@ public class PaymentTransaction implements Serializable {
     return this;
   }
 
-  public String getOrganismeId() {
+  public Long getOrganismeId() {
     return organismeId;
   }
 
-  public PaymentTransaction setOrganismeId(String organismeId) {
+  public PaymentTransaction setOrganismeId(Long organismeId) {
     this.organismeId = organismeId;
     return this;
   }

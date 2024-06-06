@@ -40,4 +40,7 @@ export enum Authority {
   SALE_LINE = 'sales-line',
   CLIENT = 'customer',
   FAMILLE_PRODUIT = 'famille-produit',
+  MVT_CAISSE = 'mvt-caisse',
+  BALANCE_CAISSE = 'balance-caisse',
+  TABLEAU_PHARMACIEN = 'tableau-pharmacien',
 }

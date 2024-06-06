@@ -37,9 +37,15 @@ public class ProduitCriteria implements Serializable {
   private TypeProduit typeProduit;
   private Long tableauNot;
   private Long rayonNot;
+  private Long remiseNot;
 
   public ProduitCriteria setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public ProduitCriteria setRemiseNot(Long remiseNot) {
+    this.remiseNot = remiseNot;
     return this;
   }
 

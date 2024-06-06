@@ -2,11 +2,13 @@ package com.kobe.warehouse.service.cash_register.dto;
 
 import com.kobe.warehouse.domain.CashRegisterItem;
 import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 
 public class CashRegisterItemDTO {
   private long amount;
   private String paymentModeCode;
   private String paymentModeLibelle;
+  private TypeFinancialTransaction typeTransaction;
 
   public CashRegisterItemDTO() {}
 
@@ -15,6 +17,16 @@ public class CashRegisterItemDTO {
     PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
     this.paymentModeCode = paymentMode.getCode();
     this.paymentModeLibelle = paymentMode.getLibelle();
+    this.typeTransaction = cashRegisterItem.getTypeFinancialTransaction();
+  }
+
+  public TypeFinancialTransaction getTypeTransaction() {
+    return typeTransaction;
+  }
+
+  public CashRegisterItemDTO setTypeTransaction(TypeFinancialTransaction typeTransaction) {
+    this.typeTransaction = typeTransaction;
+    return this;
   }
 
   public long getAmount() {

@@ -8,125 +8,133 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Getter;
 
-/**
- * A Ajustement.
- */
+/** A Ajustement. */
 @Getter
 @Entity
-@Table(name = "ajustement", uniqueConstraints = {@UniqueConstraint(columnNames = {"ajust_id", "produit_id"})})
+@Table(
+    name = "ajustement",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"ajust_id", "produit_id"})})
 public class Ajustement implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotNull
-    @Column(name = "qty_mvt", nullable = false)
-    private Integer qtyMvt;
+  @NotNull
+  @Column(name = "qty_mvt", nullable = false)
+  private Integer qtyMvt;
 
-    @NotNull
-    @Column(name = "date_mtv", nullable = false)
-    private LocalDateTime dateMtv;
-    @NotNull
-    @Column(name = "stock_before", nullable = false)
-    private Integer stockBefore;
-    @NotNull
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "type_ajust", nullable = false)
-    private AjustType type;
-    @NotNull
-    @Column(name = "stock_after", nullable = false)
-    private Integer stockAfter;
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
-    private Produit produit;
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
-    private Ajust ajust;
-    @ManyToOne
-    private MotifAjustement motifAjustement;
+  @NotNull
+  @Column(name = "date_mtv", nullable = false)
+  private LocalDateTime dateMtv;
 
-    public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
-        this.motifAjustement = motifAjustement;
-        return this;
+  @NotNull
+  @Column(name = "stock_before", nullable = false)
+  private Integer stockBefore;
+
+  @NotNull
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "type_ajust", nullable = false)
+  private AjustType type;
+
+  @NotNull
+  @Column(name = "stock_after", nullable = false)
+  private Integer stockAfter;
+
+  @ManyToOne(optional = false)
+  @NotNull
+  @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
+  private Produit produit;
+
+  @ManyToOne(optional = false)
+  @NotNull
+  @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
+  private Ajust ajust;
+
+  @ManyToOne private MotifAjustement motifAjustement;
+
+  public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
+    this.motifAjustement = motifAjustement;
+    return this;
+  }
+
+  public Ajustement setType(AjustType type) {
+    this.type = type;
+    return this;
+  }
+
+  public void setStockBefore(Integer stockBefore) {
+    this.stockBefore = stockBefore;
+  }
+
+  public void setStockAfter(Integer stockAfter) {
+    this.stockAfter = stockAfter;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setQtyMvt(Integer qtyMvt) {
+    this.qtyMvt = qtyMvt;
+  }
+
+  public Ajustement qtyMvt(Integer qtyMvt) {
+    this.qtyMvt = qtyMvt;
+    return this;
+  }
+
+  public void setDateMtv(LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+  }
+
+  public Ajustement dateMtv(LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+    return this;
+  }
+
+  public void setProduit(Produit produit) {
+    this.produit = produit;
+  }
+
+  public Ajustement produit(Produit produit) {
+    this.produit = produit;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public Ajustement setType(AjustType type) {
-        this.type = type;
-        return this;
+    if (!(o instanceof Ajustement)) {
+      return false;
     }
+    return id != null && id.equals(((Ajustement) o).id);
+  }
 
-    public void setStockBefore(Integer stockBefore) {
-        this.stockBefore = stockBefore;
-    }
+  @Override
+  public int hashCode() {
+    return 31;
+  }
 
-    public void setStockAfter(Integer stockAfter) {
-        this.stockAfter = stockAfter;
-    }
+  // prettier-ignore
+  @Override
+  public String toString() {
+    return "Ajustement{"
+        + "id="
+        + getId()
+        + ", qtyMvt="
+        + getQtyMvt()
+        + ", dateMtv='"
+        + getDateMtv()
+        + "'"
+        + "}";
+  }
 
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setQtyMvt(Integer qtyMvt) {
-        this.qtyMvt = qtyMvt;
-    }
-
-    public Ajustement qtyMvt(Integer qtyMvt) {
-        this.qtyMvt = qtyMvt;
-        return this;
-    }
-
-    public void setDateMtv(LocalDateTime dateMtv) {
-        this.dateMtv = dateMtv;
-    }
-
-    public Ajustement dateMtv(LocalDateTime dateMtv) {
-        this.dateMtv = dateMtv;
-        return this;
-    }
-
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
-
-    public Ajustement produit(Produit produit) {
-        this.produit = produit;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Ajustement)) {
-            return false;
-        }
-        return id != null && id.equals(((Ajustement) o).id);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "Ajustement{" +
-            "id=" + getId() +
-            ", qtyMvt=" + getQtyMvt() +
-            ", dateMtv='" + getDateMtv() + "'" +
-            "}";
-    }
-
-    public void setAjust(Ajust ajust) {
-        this.ajust = ajust;
-    }
+  public void setAjust(Ajust ajust) {
+    this.ajust = ajust;
+  }
 }

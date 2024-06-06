@@ -62,12 +62,12 @@
 <div class="row">
 
 
-  @if (remiseProduits.length > 0) {
+  @if (remises.length > 0) {
     <div class="col-md-3">
       <div class="p-inputgroup">
         <span class="p-inputgroup-addon">Remises</span>
-        <p-dropdown [style]="{'width':'100%'}" [(ngModel)]="remiseProduit"
-                    [options]="remiseProduits"
+        <p-dropdown [style]="{'width':'100%'}" [(ngModel)]="remise"
+                    [options]="remises"
                     optionLabel="valeur"
                     placeholder="Selectionner une remise"></p-dropdown>
       </div>

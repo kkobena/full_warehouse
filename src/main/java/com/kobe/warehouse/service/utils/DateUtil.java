@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.utils;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -23,6 +24,20 @@ public final class DateUtil {
   public static LocalDateTime fromString(String dateValue) {
     Objects.requireNonNull(dateValue);
     return LocalDateTime.parse(dateValue, DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
+  }
+
+  public static String format(LocalDateTime date) {
+    if (date == null) {
+      return "";
+    }
+    return date.format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
+  }
+
+  public static String format(Timestamp date) {
+    if (date == null) {
+      return "";
+    }
+    return date.toLocalDateTime().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
   }
 
   public static LocalDate getNthLastMonthFromNow(int nthMoth) {

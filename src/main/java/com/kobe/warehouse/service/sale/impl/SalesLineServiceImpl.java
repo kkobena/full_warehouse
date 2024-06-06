@@ -19,6 +19,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.StockException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -117,12 +118,11 @@ public class SalesLineServiceImpl implements SalesLineService {
   public void processProductDiscount(RemiseProduit remiseProduit, SalesLine salesLine) {
     if (remiseProduit == null) {
       salesLine.setNetAmount(salesLine.getSalesAmount());
-    } else if (remiseProduit.isEnable() && remiseProduit.getPeriod().isAfter(LocalDateTime.now())) {
-      int discount =
-          (int)
-              Math.ceil(
-                  salesLine.getSalesAmount()
-                      * remiseProduit.getRemiseValue()); // getRemiseValue set /100 a la creation;
+    } else if (remiseProduit.isEnable()
+        && remiseProduit.getEnd().isAfter(LocalDate.now())
+        && (remiseProduit.getBegin().isBefore(LocalDate.now())
+            || remiseProduit.getBegin().isEqual(LocalDate.now()))) {
+      int discount = (int) Math.ceil(salesLine.getSalesAmount() * remiseProduit.getTauxRemise());
       salesLine.setDiscountAmount(discount);
       salesLine.setNetAmount(salesLine.getSalesAmount() - discount);
       salesLine.setDiscountAmountHorsUg(discount);
@@ -256,8 +256,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine -> {
           salesLine.setUpdatedAt(LocalDateTime.now());
           salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
-          cloneSalesLine(salesLine, copy,storageId);
-
+          cloneSalesLine(salesLine, copy, storageId);
         });
   }
 
@@ -291,7 +290,10 @@ public class SalesLineServiceImpl implements SalesLineService {
               salesLine.getRegularUnitPrice(),
               salesLine.getSales().getNumberTransaction());
       logsService.create(
-          TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString(),p);
+          TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE,
+          desc,
+          salesLine.getId().toString(),
+          p);
     }
     stockProduit.setQtyStock(
         stockProduit.getQtyStock()
@@ -308,54 +310,54 @@ public class SalesLineServiceImpl implements SalesLineService {
       salesLines.forEach(salesLine -> createInventory(salesLine, user, storageId));
     }
   }
-    @Override
-    public void save(Set<SalesLine> salesLines, User user, Long storageId) {
-        if (!CollectionUtils.isEmpty(salesLines)) {
-            salesLines.forEach(salesLine -> save(salesLine, storageId));
-        }
+
+  @Override
+  public void save(Set<SalesLine> salesLines, User user, Long storageId) {
+    if (!CollectionUtils.isEmpty(salesLines)) {
+      salesLines.forEach(salesLine -> save(salesLine, storageId));
     }
+  }
 
+  private void save(SalesLine salesLine, Long storageId) {
 
-    private void save(SalesLine salesLine,Long storageId) {
+    Produit p = salesLine.getProduit();
+    StockProduit stockProduit =
+        stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+    int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
+    int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
+    salesLine.setInitStock(quantityBefor);
+    salesLine.setAfterStock(quantityAfter);
 
-        Produit p = salesLine.getProduit();
-        StockProduit stockProduit =
-            stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
-        int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
-        int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
-        salesLine.setInitStock(quantityBefor);
-        salesLine.setAfterStock(quantityAfter);
-
-        if (quantityBefor < salesLine.getQuantityRequested()) {
-            logsService.create(
-                TransactionType.FORCE_STOCK,
-                TransactionType.FORCE_STOCK.getValue(),
-                salesLine.getId().toString());
-        }
-        FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
-        if (fournisseurProduitPrincipal != null
-            && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
-            String desc =
-                String.format(
-                    "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s",
-                    fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",
-                    p.getLibelle(),
-                    fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null,
-                    salesLine.getRegularUnitPrice(),
-                    salesLine.getSales().getNumberTransaction());
-            logsService.create(
-                TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
-        }
-        stockProduit.setQtyStock(
-            stockProduit.getQtyStock()
-                - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
-        stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
-        stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduitRepository.save(stockProduit);
-        this.salesLineRepository.save(salesLine);
+    if (quantityBefor < salesLine.getQuantityRequested()) {
+      logsService.create(
+          TransactionType.FORCE_STOCK,
+          TransactionType.FORCE_STOCK.getValue(),
+          salesLine.getId().toString());
     }
+    FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
+    if (fournisseurProduitPrincipal != null
+        && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
+      String desc =
+          String.format(
+              "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s",
+              fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",
+              p.getLibelle(),
+              fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null,
+              salesLine.getRegularUnitPrice(),
+              salesLine.getSales().getNumberTransaction());
+      logsService.create(
+          TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
+    }
+    stockProduit.setQtyStock(
+        stockProduit.getQtyStock()
+            - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
+    stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
+    stockProduit.setUpdatedAt(LocalDateTime.now());
+    stockProduitRepository.save(stockProduit);
+    this.salesLineRepository.save(salesLine);
+  }
 
-  private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy,Long storageId) {
+  private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy, Long storageId) {
     SalesLine salesLineCopy = (SalesLine) salesLine.clone();
     salesLineCopy.setId(null);
     salesLineCopy.setCreatedAt(LocalDateTime.now());
@@ -375,19 +377,21 @@ public class SalesLineServiceImpl implements SalesLineService {
     salesLineCopy.setAmountToBeTakenIntoAccount(
         salesLineCopy.getAmountToBeTakenIntoAccount() * (-1));
 
-      StockProduit stockProduit =
-          stockProduitRepository.findOneByProduitIdAndStockageId(salesLine.getProduit().getId(), storageId);
-      int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
-      int quantityAfter = quantityBefor - (salesLineCopy.getQuantityRequested()-salesLineCopy.getQuantityUg());
-      salesLineCopy.setInitStock(quantityBefor);
-      salesLineCopy.setAfterStock(quantityAfter);
-      salesLineRepository.save(salesLineCopy);
-      salesLineRepository.save(salesLine);
-      updateStock( stockProduit, salesLineCopy);
-      return salesLineCopy;
+    StockProduit stockProduit =
+        stockProduitRepository.findOneByProduitIdAndStockageId(
+            salesLine.getProduit().getId(), storageId);
+    int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
+    int quantityAfter =
+        quantityBefor - (salesLineCopy.getQuantityRequested() - salesLineCopy.getQuantityUg());
+    salesLineCopy.setInitStock(quantityBefor);
+    salesLineCopy.setAfterStock(quantityAfter);
+    salesLineRepository.save(salesLineCopy);
+    salesLineRepository.save(salesLine);
+    updateStock(stockProduit, salesLineCopy);
+    return salesLineCopy;
   }
 
-  private void updateStock(StockProduit stockProduit,SalesLine salesLineCopy) {
+  private void updateStock(StockProduit stockProduit, SalesLine salesLineCopy) {
 
     stockProduit.setQtyStock(
         stockProduit.getQtyStock()

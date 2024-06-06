@@ -9,7 +9,16 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
-import { faShippingFast, faShoppingBag, faShoppingBasket, faStore, faUserTimes, faWarehouse } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCoins,
+  faSackDollar,
+  faShippingFast,
+  faShoppingBag,
+  faShoppingBasket,
+  faStore,
+  faUserTimes,
+  faWarehouse,
+} from '@fortawesome/free-solid-svg-icons';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { HasAnyAuthorityDirective } from '../../shared/auth/has-any-authority.directive';
 import ActiveMenuDirective from './active-menu.directive';
@@ -33,14 +42,16 @@ export class NavbarComponent implements OnInit {
   protected version = '';
   protected account: Account | null = null;
   // protected entitiesNavbarItems: any[] = [];
-  protected faUserTimes = faUserTimes;
-  protected hideLanguage?: boolean = true;
-  protected faWarehouse = faWarehouse;
-  protected faShoppingBag = faShoppingBag;
-  protected faShippingFast = faShippingFast;
-  protected faShoppingBasket = faShoppingBasket;
-  protected faStore = faStore;
+  protected readonly faUserTimes = faUserTimes;
+  protected readonly hideLanguage?: boolean = true;
+  protected readonly faWarehouse = faWarehouse;
+  protected readonly faShoppingBag = faShoppingBag;
+  protected readonly faShippingFast = faShippingFast;
+  protected readonly faShoppingBasket = faShoppingBasket;
+  protected readonly faStore = faStore;
   protected menuStock: string[];
+  protected readonly faSackDollar = faSackDollar;
+  protected faCoins = faCoins;
 
   constructor(
     private loginService: LoginService,
@@ -81,14 +92,14 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  isAuthenticated(): boolean {
-    return this.accountService.isAuthenticated();
-  }
-
   /* logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
   }*/
+
+  isAuthenticated(): boolean {
+    return this.accountService.isAuthenticated();
+  }
 
   toggleNavbar(): void {
     this.isNavbarCollapsed = !this.isNavbarCollapsed;

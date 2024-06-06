@@ -31,67 +31,67 @@
   </p-footer>
 </p-dialog>
 
+<p-panel header="Menu commandes" styleClass="main-panel">
+  <div class="row commande-gestion">
+    <div class="col-2 col-md-2 col-sm-2">
 
-<div class="row commande-gestion">
-  <div class="col-2 col-md-2 col-sm-2">
-
-    <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
-           orientation="vertical">
-        <ng-container ngbNavItem="REQUESTED">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Commande en cours</a>
-          <ng-template ngbNavContent>
-            <jhi-commande-en-cours (selectionLength)="updateSelectionLength($event)"
+      <p-card>
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+             orientation="vertical">
+          <ng-container ngbNavItem="REQUESTED">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Commande en cours</a>
+            <ng-template ngbNavContent>
+              <jhi-commande-en-cours (selectionLength)="updateSelectionLength($event)"
+                                     [searchCommande]="searchCommande"
+                                     [search]="search"></jhi-commande-en-cours>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="PASSED">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Commande passées</a>
+            <ng-template ngbNavContent>
+              <jhi-commande-passes (selectionLength)="updateSelectionLength($event)"
                                    [searchCommande]="searchCommande"
-                                   [search]="search"></jhi-commande-en-cours>
-          </ng-template>
-        </ng-container>
-        <ng-container ngbNavItem="PASSED">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Commande passées</a>
-          <ng-template ngbNavContent>
-            <jhi-commande-passes (selectionLength)="updateSelectionLength($event)"
-                                 [searchCommande]="searchCommande"
-                                 [search]="search"></jhi-commande-passes>
-          </ng-template>
-        </ng-container>
-        <ng-container ngbNavItem="RECEIVED">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Commande reçues</a>
-          <ng-template ngbNavContent>
-            <jhi-commande-recus [searchByRef]="searchCommande"
-                                [search]="search"></jhi-commande-recus>
-          </ng-template>
-        </ng-container>
-      </div>
-    </p-card>
+                                   [search]="search"></jhi-commande-passes>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="RECEIVED">
+            <a class="flex-sm-fill nav-link" ngbNavLink>Commande reçues</a>
+            <ng-template ngbNavContent>
+              <jhi-commande-recus [searchByRef]="searchCommande"
+                                  [search]="search"></jhi-commande-recus>
+            </ng-template>
+          </ng-container>
+        </div>
+      </p-card>
 
-  </div>
+    </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row">
-    <div>
-      <p-toolbar>
-        <div class="p-toolbar-group-left commande" style="width: 50%;">
-          <div class="row" style="width: 100%;">
+    <div class="col-10 col-md-10 col-sm-10 row">
+      <div>
+        <p-toolbar>
+          <div class="p-toolbar-group-left commande" style="width: 50%;">
+            <div class="row" style="width: 100%;">
 
-            <div class="col-md-6">
+              <div class="col-md-6">
 
-              <input (keyup.enter)="onSearch()" [(ngModel)]="searchCommande" pInputText
-                     placeholder="Recherche sur la commande"
-                     style="width: 100%;" type="text">
+                <input (keyup.enter)="onSearch()" [(ngModel)]="searchCommande" pInputText
+                       placeholder="Recherche sur la commande"
+                       style="width: 100%;" type="text">
 
-            </div>
-            <div class="col-md-6">
+              </div>
+              <div class="col-md-6">
 
-              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-                     placeholder="Recherche sur les produits"
-                     style="width: 100%;" type="text">
+                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                       placeholder="Recherche sur les produits"
+                       style="width: 100%;" type="text">
+
+              </div>
+
 
             </div>
-
 
           </div>
-
-        </div>
-        <div class="p-toolbar-group-right">
+          <div class="p-toolbar-group-right">
                  <span class="p-buttonset">
                      <button (click)="test()" [hidden]="true"
                              class="p-button-raised p-button-info "
@@ -137,17 +137,19 @@
                       jhiTranslate="entity.action.delete">Supprimer</span>
                 </button>
                  </span>
-        </div>
-      </p-toolbar>
+          </div>
+        </p-toolbar>
+      </div>
+
+
+      <div [ngbNavOutlet]="nav">
+
+      </div>
+
     </div>
-
-
-    <div [ngbNavOutlet]="nav">
-
-    </div>
-
   </div>
-</div>
+</p-panel>
+
 
 
 

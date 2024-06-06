@@ -49,6 +49,19 @@ public class Avoir implements Serializable {
       cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
   private List<LigneAvoir> ligneAvoirs = new ArrayList<>();
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
+  public WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public Avoir setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
   public Long getId() {
     return id;
   }

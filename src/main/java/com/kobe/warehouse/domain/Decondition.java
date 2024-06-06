@@ -59,6 +59,15 @@ public class Decondition implements Serializable {
   @Column(name = "type_deconditionnement", nullable = false)
   private TypeDeconditionnement typeDeconditionnement;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
+  public Decondition setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
   public void setId(Long id) {
     this.id = id;
   }

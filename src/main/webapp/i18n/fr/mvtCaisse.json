@@ -1,0 +1,20 @@
+{
+  "warehouseApp": {
+    "mvtCaisse": {
+      "home": {
+        "title": "Mouvements de caisse",
+        "notFound": "Aucune donnée  trouvée"
+      },
+      "create": {
+        "title": "Créer un mouvement de caisse",
+        "success": "Mouvement de caisse créé avec succès"
+      },
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer  {{ id }} ?"
+      },
+      "detail": {
+        "title": "Détail de la transaction"
+      }
+    }
+  }
+}

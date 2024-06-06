@@ -1,0 +1,204 @@
+<p-toast position="center"></p-toast>
+<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
+  <p-footer>
+    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
+    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>
+
+<div class="card" style="padding-left:15%;padding-right:15%;padding-bottom:15px;"><h3>Liste des
+  remises</h3>
+  <p-toolbar>
+    <div class="p-toolbar-group-left">
+    </div>
+    <div class="p-toolbar-group-right">
+
+      <button (click)="addNewEntity()" class="p-button-raised p-button-success"
+              icon="pi pi-plus"
+              iconPos="left" label="Nouveau"
+              pButton pRipple style="float: right;"
+              type="button"></button>
+    </div>
+  </p-toolbar>
+
+  <div *ngIf="entites?.length === 0" class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+  <p-table (onLazyLoad)="lazyLoading()" *ngIf="entites && entites.length > 0"
+           [lazy]="true" [loading]="loading" [paginator]="false" [value]="entites"
+           dataKey="id" style="margin-top:5px;" styleClass="ui-table-cars">
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col" style="width:30px;">#</th>
+        <th scope="col">Type</th>
+        <th scope="col"><span>Libellé</span></th>
+        <th scope="col"><span>Taux</span></th>
+        <th scope="col"><span>Date debut</span></th>
+        <th scope="col"><span>Date fin</span></th>
+        <th scope="col">Activation/Désactivation</th>
+        <th scope="col"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
+      <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+        <td>{{ rowIndex + 1 }}</td>
+        @if (elRow.type === 'remiseProduit' || elRow.type === 'Remise produit') {
+          <td>Remise produit</td>
+        } @else {
+          <td>Remise client</td>
+        }
+        <td>{{ elRow.valeur }}</td>
+        <td style="text-align: right;">{{ elRow.remiseValue }}</td>
+        <td style="text-align: center;">{{ elRow.begin | date : 'dd/MM/yyyy' }}</td>
+        <td style="text-align: center;">{{ elRow.end | date : 'dd/MM/yyyy' }}</td>
+        <td style="text-align: center;">
+          <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+        </td>
+
+        <td style="text-align: right;">
+
+          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-1"
+                  icon="pi pi-pencil" pButton pRipple
+                  pTooltip="Editer"
+                  type="submit"></button>
+          @if (elRow.type === 'remiseProduit' || elRow.type === 'Remise produit') {
+            <button [routerLink]=" ['/remises', elRow.id, 'associe']"
+                    class="p-button-rounded p-button-help p-mr-1" icon="pi pi-box" pButton
+                    pRipple
+                    pTooltip="Associer des produits"
+                    type="button"></button>
+          }
+
+          <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
+                  icon="pi pi-trash" pButton pRipple
+                  pTooltip="Supprimer" type="button"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>
+<!-- formulaire de creation et d edition-->
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
+            [style]="{width: '600px'}"
+            header="Créer ou éditer une remise"
+  >
+    <ng-template pTemplate="content">
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
+
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="ui-g form-group">
+        <label for="type">Type remise</label>
+        <div class="ui-g-12" style="margin-bottom:10px">
+          <p-dropdown [options]="types" [style]="{'width':'100%'}"
+
+                      [virtualScroll]="true" appendTo="body"
+                      formControlName="type" id="type"
+                      name="type" placeholder="Séléctionner le type de remise"
+          >
+          </p-dropdown>
+        </div>
+        <div
+          *ngIf="editForm.get('type')!.invalid && (editForm.get('type')!.dirty || editForm.get('type')!.touched)">
+          <small *ngIf="editForm.get('type')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <label for="remiseValue">Taux</label>
+        <div class="ui-g-12">
+
+          <input autocomplete="off" formControlName="remiseValue" id="remiseValue"
+                 name="remiseValue" pInputText
+                 pKeyFilter="int" style="width: 100%;" styleClass="form-control" type="text">
+        </div>
+        <div
+          *ngIf="editForm.get('remiseValue')!.invalid && (editForm.get('remiseValue')!.dirty || editForm.get('remiseValue')!.touched)">
+          <small *ngIf="editForm.get('remiseValue')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+
+      <div class="ui-g form-group">
+        <label for="valeur">Description</label>
+        <div class="ui-g-12">
+
+          <input autocomplete="off" formControlName="valeur" id="valeur" name="valeur" pInputText
+                 style="width: 100%;" styleClass="form-control" type="text">
+        </div>
+        <div
+          *ngIf="editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)">
+          <small *ngIf="editForm.get('valeur')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <label for="begin">Date debut</label>
+        <div class="ui-g-12">
+          <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
+                      appendTo="body"
+                      dateFormat="dd/mm/yy" formControlName="begin"
+                      id="begin" name="begin"
+
+          >
+
+          </p-calendar>
+
+        </div>
+        <div
+          *ngIf="editForm.get('begin')!.invalid && (editForm.get('begin')!.dirty || editForm.get('begin')!.touched)">
+          <small *ngIf="editForm.get('begin')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+
+      <div class="ui-g form-group">
+        <label for="end">Date fin</label>
+        <div class="ui-g-12">
+          <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
+                      appendTo="body"
+                      dateFormat="dd/mm/yy"
+                      formControlName="end"
+                      id="end"
+                      name="end"
+          >
+
+          </p-calendar>
+
+        </div>
+        <div
+          *ngIf="editForm.get('end')!.invalid && (editForm.get('end')!.dirty || editForm.get('end')!.touched)">
+          <small *ngIf="editForm.get('end')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+
+
+    </ng-template>
+    <p-footer>
+      <button [disabled]="editForm.invalid || isSaving"
+              class="p-button-success p-mr-2" icon="pi pi-check"
+              label="Enregistrer"
+              pButton pRipple type="submit"></button>
+      <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler"
+              pButton
+              pRipple
+              type="button"></button>
+
+    </p-footer>
+  </p-dialog>
+</form>
+

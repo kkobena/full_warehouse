@@ -54,6 +54,10 @@ public class RetourBon implements Serializable {
   @NotNull
   private DeliveryReceipt deliveryReceipt;
 
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
+
   @OneToMany(mappedBy = "retourBon")
   private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
 }

@@ -4,9 +4,8 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.service.cash_register.dto.CashRegisterSpecialisation;
+import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
+import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,19 +32,19 @@ public interface CashRegisterRepository
 
   @Query(
       value =
-          "SELECT SUM(p.paid_amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle",
+          "SELECT SUM(p.paid_amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,s.dtype AS typeVente FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle",
       nativeQuery = true)
-  List<CashRegisterSpecialisation> findCashRegisterSalesDataById(
+  List<CashRegisterVenteSpecialisation> findCashRegisterSalesDataById(
       @Param("cashRegisterId") Long cashRegisterId,
-      @Param("categorieChiffreAffaires") Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      @Param("statuts") Set<SalesStatut> statuts);
+      @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
+      @Param("statuts") Set<String> statuts);
 
   @Query(
       value =
-          "SELECT SUM(p.amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id"
+          "SELECT SUM(p.amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id"
               + " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle",
       nativeQuery = true)
-  List<CashRegisterSpecialisation> findCashRegisterMvtDataById(
+  List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(
       @Param("cashRegisterId") Long cashRegisterId,
       @Param("categorieChiffreAffaires") Set<Integer> categorieChiffreAffaires);
 

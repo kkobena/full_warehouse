@@ -59,4 +59,8 @@ public class ProduitPerime implements Serializable {
   @NotNull
   @Column(name = "after_stock", nullable = false)
   private int afterStock;
+
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
 }

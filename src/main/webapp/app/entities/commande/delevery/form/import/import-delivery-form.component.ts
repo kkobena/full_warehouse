@@ -114,7 +114,6 @@ export class ImportDeliveryFormComponent implements OnInit {
 
   uploadHandler(event: any, fileUpload: any): void {
     this.file = event.files[0];
-    console.log(this.file);
     fileUpload.clear();
   }
 

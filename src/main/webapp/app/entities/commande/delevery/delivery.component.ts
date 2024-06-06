@@ -15,6 +15,7 @@ import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { PanelModule } from "primeng/panel";
 
 @Component({
   standalone: true,
@@ -33,6 +34,7 @@ import { InputTextModule } from 'primeng/inputtext';
     ToolbarModule,
     FormsModule,
     InputTextModule,
+    PanelModule,
   ],
 })
 export class DeliveryComponent implements OnInit {

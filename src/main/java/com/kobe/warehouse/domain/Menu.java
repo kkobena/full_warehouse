@@ -34,7 +34,7 @@ public class Menu implements Serializable {
   @Column(name = "racine", nullable = false)
   private boolean root;
 
-  @OneToMany(mappedBy = "parent")
+  @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
   private Set<Menu> menus = new HashSet<>();
 
@@ -56,6 +56,16 @@ public class Menu implements Serializable {
 
   @Column(name = "icon_java_client")
   private String iconJavaClient;
+
+  private int ordre;
+
+  public int getOrdre() {
+    return ordre;
+  }
+
+  public void setOrdre(int ordre) {
+    this.ordre = ordre;
+  }
 
   public String getIconWeb() {
     return iconWeb;

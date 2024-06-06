@@ -10,7 +10,6 @@ import com.kobe.warehouse.domain.Ticket;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
-import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
@@ -487,29 +486,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
           ThirdPartySalesTiersPayantException {
     ResponseDTO response = new ResponseDTO();
     User user = storageService.getUser();
-    Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     ThirdPartySales p =
         thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
-    salesLineService.save(p.getSalesLines(), user, id);
-
-    p.setStatut(SalesStatut.CLOSED);
-    p.setStatutCaisse(SalesStatut.CLOSED);
-    p.setDiffere(dto.isDiffere());
-    if (!p.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid())
-      throw new PaymentAmountException();
-    if (p.getCustomer() == null) throw new SaleNotFoundCustomerException();
-    p.setPayrollAmount(dto.getPayrollAmount());
-    p.setRestToPay(dto.getRestToPay());
-    p.setUpdatedAt(LocalDateTime.now());
-    p.setMonnaie(dto.getMontantRendu());
-    p.setEffectiveUpdateDate(p.getUpdatedAt());
-    p.setLastUserEdit(user);
-    if (p.getRestToPay() == 0) {
-      p.setPaymentStatus(PaymentStatus.PAYE);
-    } else {
-      p.setPaymentStatus(PaymentStatus.IMPAYE);
-    }
-    buildReference(p);
+    this.save(p, dto);
     Ticket ticket = ticketService.buildTicket(p, dto, user, buildTvaData(p.getSalesLines()));
     paymentService.buildPaymentFromFromPaymentDTO(p, dto, ticket, user);
     p.setTvaEmbeded(ticket.getTva());
@@ -545,7 +524,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     response.setMessage(ticket.getCode());
     response.setSuccess(true);
     response.setSize(p.getId().intValue());
-    initCalendar();
+
     return response;
   }
 

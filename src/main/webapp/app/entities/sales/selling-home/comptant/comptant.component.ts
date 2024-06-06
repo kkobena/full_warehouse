@@ -29,7 +29,7 @@ import { IUser } from '../../../../core/user/user.model';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { IPayment, Payment } from '../../../../shared/model/payment.model';
 import { IProduit } from '../../../../shared/model/produit.model';
-import { IRemiseProduit } from '../../../../shared/model/remise-produit.model';
+import { IRemise } from '../../../../shared/model/remise.model';
 import { FinalyseSale, InputToFocus, ISales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { Observable } from 'rxjs';
@@ -129,8 +129,8 @@ export class ComptantComponent {
   @ViewChild('addModePaymentConfirmDialogBtn')
   protected addModePaymentConfirmDialogBtn?: ElementRef;
   protected ref: DynamicDialogRef;
-  protected remiseProduits: IRemiseProduit[] = [];
-  protected remiseProduit?: IRemiseProduit | null;
+  protected remises: IRemise[] = [];
+  protected remise?: IRemise | null;
   protected isDiffere: boolean = false;
   protected sale?: ISales | null = null;
   protected event: any;

@@ -1,8 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Getter;
 
 /**
@@ -55,9 +55,16 @@ public class PaymentFournisseur implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
     private PaymentMode paymentMode;
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
+    public PaymentFournisseur setCalendar(WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 
-  public void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

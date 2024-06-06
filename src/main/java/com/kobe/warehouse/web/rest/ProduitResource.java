@@ -193,6 +193,8 @@ public class ProduitResource extends ProduitResourceProxy {
       @RequestParam(required = false, name = "familleId") Long familleId,
       @RequestParam(required = false, name = "tableauId") Long tableauId,
       @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+      @RequestParam(required = false, name = "remiseId") Long remiseId,
+      @RequestParam(required = false, name = "remiseNot") Long remiseNot,
       Pageable pageable) {
     return super.getAllLite(
         new ProduitCriteria()
@@ -204,7 +206,9 @@ public class ProduitResource extends ProduitResourceProxy {
             .setTableauId(tableauId)
             .setTableauNot(tableauNot)
             .setRayonId(rayonId)
-            .setStorageId(storageId),
+            .setStorageId(storageId)
+            .setRemiseNot(remiseNot)
+            .setRemiseId(remiseId),
         pageable);
   }
 

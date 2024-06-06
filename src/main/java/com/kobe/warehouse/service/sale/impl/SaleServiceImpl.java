@@ -256,11 +256,11 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
   public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
       throws StockException, DeconditionnementStockOut {
     SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-    SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+    SalesLine oldSalesLine = (SalesLine) salesLine.clone();
     salesLineService.updateItemQuantityRequested(
         saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
     Sales sales = salesLine.getSales();
-    upddateCashSaleAmounts((CashSale) sales, salesLine, OldSalesLine);
+    upddateCashSaleAmounts((CashSale) sales, salesLine, oldSalesLine);
     salesRepository.saveAndFlush(sales);
     return new SaleLineDTO(salesLine);
   }

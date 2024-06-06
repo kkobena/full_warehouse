@@ -1,26 +1,38 @@
 package com.kobe.warehouse.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
-import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.enumeration.Status;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
+import lombok.Getter;
 
+@Getter
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = RemiseClientDTO.class, name = "remiseClient"),
+  @JsonSubTypes.Type(value = RemiseProduitDTO.class, name = "remiseProduit")
+})
 public class RemiseDTO implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private Long id;
+  protected Long id;
 
-  private String valeur;
+  protected String valeur;
 
-  @NotNull private Float remiseValue;
+  @NotNull protected Float remiseValue;
 
-  private String typeRemise;
-  private String typeLibelle;
+  protected String typeRemise;
+  protected String typeLibelle;
+  protected String displayName;
 
-  private Status status;
+  protected Status status;
+  protected LocalDate begin;
+  protected LocalDate end;
+  protected boolean enable;
 
   public RemiseDTO() {}
 
@@ -29,13 +41,41 @@ public class RemiseDTO implements Serializable {
     valeur = remise.getValeur();
     remiseValue = remise.getRemiseValue();
     status = remise.getStatus();
-    if (remise instanceof RemiseClient) {
-      typeRemise = "RC";
-      typeLibelle = "Remise client";
-    } else if (remise instanceof RemiseProduit) {
-      typeRemise = "RP";
-      typeLibelle = "Remise produit";
-    }
+    end = remise.getEnd();
+    begin = remise.getBegin();
+    displayName = remise.getValeur() + " " + remise.getRemiseValue() + "%";
+    this.enable = remise.isEnable();
+  }
+
+  public boolean isEnable() {
+    return enable;
+  }
+
+  public RemiseDTO setEnable(boolean enable) {
+    this.enable = enable;
+    return this;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public LocalDate getBegin() {
+    return begin;
+  }
+
+  public RemiseDTO setBegin(LocalDate begin) {
+    this.begin = begin;
+    return this;
+  }
+
+  public LocalDate getEnd() {
+    return end;
+  }
+
+  public RemiseDTO setEnd(LocalDate end) {
+    this.end = end;
+    return this;
   }
 
   public Long getId() {

@@ -7,28 +7,27 @@ import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 public class ThirdPartySaleDTO extends SaleDTO {
-  @Getter
+
   private Long ayantDroitId;
-  @Getter
+
   private String ayantDroitFirstName;
-  @Getter
+
   private String ayantDroitLastName;
-  @Getter
+
   private String ayantDroitNum;
   private List<ClientTiersPayantDTO> tiersPayants = new ArrayList<>();
-  @Getter
+
   private List<ThirdPartySaleLineDTO> thirdPartySaleLines = new ArrayList<>();
-  @Getter
+
   private Integer partTiersPayant;
-  @Getter
+
   private Integer partAssure;
-  @Getter
+
   private String numBon;
-  @Getter
+
   private boolean sansBon;
 
   public ThirdPartySaleDTO() {
@@ -50,46 +49,6 @@ public class ThirdPartySaleDTO extends SaleDTO {
     buildTiersPayantDTOFromSale(thirdPartySales.getThirdPartySaleLines());
   }
 
-  public ThirdPartySaleDTO setSansBon(boolean sansBon) {
-    this.sansBon = sansBon;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setPartAssure(Integer partAssure) {
-    this.partAssure = partAssure;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setPartTiersPayant(Integer partTiersPayant) {
-    this.partTiersPayant = partTiersPayant;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setNumBon(String numBon) {
-    this.numBon = numBon;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setAyantDroitId(Long ayantDroitId) {
-    this.ayantDroitId = ayantDroitId;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setAyantDroitFirstName(String ayantDroitFirstName) {
-    this.ayantDroitFirstName = ayantDroitFirstName;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setAyantDroitLastName(String ayantDroitLastName) {
-    this.ayantDroitLastName = ayantDroitLastName;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setAyantDroitNum(String ayantDroitNum) {
-    this.ayantDroitNum = ayantDroitNum;
-    return this;
-  }
-
   public List<ClientTiersPayantDTO> getTiersPayants() {
     if (tiersPayants != null) {
       tiersPayants.sort(Comparator.comparing(ClientTiersPayantDTO::getCategorie));
@@ -99,11 +58,6 @@ public class ThirdPartySaleDTO extends SaleDTO {
 
   public ThirdPartySaleDTO setTiersPayants(List<ClientTiersPayantDTO> tiersPayants) {
     this.tiersPayants = tiersPayants;
-    return this;
-  }
-
-  public ThirdPartySaleDTO setThirdPartySaleLines(List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
-    this.thirdPartySaleLines = thirdPartySaleLines;
     return this;
   }
 
@@ -128,5 +82,84 @@ public class ThirdPartySaleDTO extends SaleDTO {
     this.setTiersPayants(clientTiersPayantDTOS);
   }
 
+  public Long getAyantDroitId() {
+    return ayantDroitId;
+  }
 
+  public ThirdPartySaleDTO setAyantDroitId(Long ayantDroitId) {
+    this.ayantDroitId = ayantDroitId;
+    return this;
+  }
+
+  public String getAyantDroitFirstName() {
+    return ayantDroitFirstName;
+  }
+
+  public ThirdPartySaleDTO setAyantDroitFirstName(String ayantDroitFirstName) {
+    this.ayantDroitFirstName = ayantDroitFirstName;
+    return this;
+  }
+
+  public String getAyantDroitLastName() {
+    return ayantDroitLastName;
+  }
+
+  public ThirdPartySaleDTO setAyantDroitLastName(String ayantDroitLastName) {
+    this.ayantDroitLastName = ayantDroitLastName;
+    return this;
+  }
+
+  public String getAyantDroitNum() {
+    return ayantDroitNum;
+  }
+
+  public ThirdPartySaleDTO setAyantDroitNum(String ayantDroitNum) {
+    this.ayantDroitNum = ayantDroitNum;
+    return this;
+  }
+
+  public List<ThirdPartySaleLineDTO> getThirdPartySaleLines() {
+    return thirdPartySaleLines;
+  }
+
+  public ThirdPartySaleDTO setThirdPartySaleLines(List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
+    this.thirdPartySaleLines = thirdPartySaleLines;
+    return this;
+  }
+
+  public Integer getPartTiersPayant() {
+    return partTiersPayant;
+  }
+
+  public ThirdPartySaleDTO setPartTiersPayant(Integer partTiersPayant) {
+    this.partTiersPayant = partTiersPayant;
+    return this;
+  }
+
+  public Integer getPartAssure() {
+    return partAssure;
+  }
+
+  public ThirdPartySaleDTO setPartAssure(Integer partAssure) {
+    this.partAssure = partAssure;
+    return this;
+  }
+
+  public String getNumBon() {
+    return numBon;
+  }
+
+  public ThirdPartySaleDTO setNumBon(String numBon) {
+    this.numBon = numBon;
+    return this;
+  }
+
+  public boolean isSansBon() {
+    return sansBon;
+  }
+
+  public ThirdPartySaleDTO setSansBon(boolean sansBon) {
+    this.sansBon = sansBon;
+    return this;
+  }
 }

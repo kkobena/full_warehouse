@@ -17,7 +17,7 @@ import { IStoreInventoryLine } from '../../shared/model/store-inventory-line.mod
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from '@ag-grid-community/angular';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS, formatNumberToString } from '../../shared/util/warehouse-util';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';

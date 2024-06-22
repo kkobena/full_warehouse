@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
+import SharedModule from '../shared.module';
 import { IFilterOptions } from './filter.model';
-import { WarehouseCommonModule } from '../warehouse-common/warehouse-common.module';
 
 @Component({
   standalone: true,
   selector: 'jhi-filter',
+  imports: [SharedModule],
   templateUrl: './filter.component.html',
-  imports: [WarehouseCommonModule],
 })
-export class FilterComponent {
+export default class FilterComponent {
   @Input() filters!: IFilterOptions;
 
   clearAllFilters(): void {

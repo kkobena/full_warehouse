@@ -5,7 +5,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { NgIf } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
-import { TranslateDirective } from '../../../shared/language/translate.directive';
 import { ErrorService } from '../../../shared/error.service';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
@@ -18,6 +17,8 @@ import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { CalendarModule } from 'primeng/calendar';
 import { getTypeName } from '../mvt-caisse-util';
+import { TranslateDirective } from '../../../shared/language';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'jhi-form-transaction',
@@ -33,6 +34,7 @@ import { getTypeName } from '../mvt-caisse-util';
     TranslateDirective,
     DropdownModule,
     CalendarModule,
+    InputNumberModule,
   ],
   templateUrl: './form-transaction.component.html',
   styleUrl: './form-transaction.component.scss',
@@ -41,7 +43,7 @@ export class FormTransactionComponent implements OnInit {
   isSaving = false;
   isValid = true;
   appendTo = 'body';
-
+  maxDate = new Date();
   editForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],

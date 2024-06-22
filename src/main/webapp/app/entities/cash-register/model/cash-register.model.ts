@@ -2,6 +2,7 @@ import { IUser } from '../../../core/user/user.model';
 import { Ticketing } from './ticketing.model';
 import { IPaymentMode, PaymentMode } from '../../../shared/model/payment-mode.model';
 import { TypeCa } from '../../../shared/model/enumerations/type-ca.model';
+import { Tuple } from '../../../shared/model/tuple.model';
 
 export class CashRegister {
   id?: number;
@@ -118,4 +119,15 @@ export class FinancialTransaction {
   typeFinancialTransaction?: TypeFinancialTransaction;
   typeTransaction?: string;
   amount?: number;
+}
+
+export class MvtCaisseWrapper {
+  modesPaiementAmounts?: Tuple[];
+  typeTransactionAmounts?: Tuple[];
+  totalAmount?: number;
+  debitedAmount?: number;
+  creditedAmount?: number;
+  totalPaymentAmount?: number;
+  totalSaleAmount?: number;
+  totalMobileAmount?: number;
 }

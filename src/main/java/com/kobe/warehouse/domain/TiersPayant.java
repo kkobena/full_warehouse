@@ -19,11 +19,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-@Getter
 @Entity
 @Table(
     name = "tiers_payant",
@@ -117,24 +115,8 @@ public class TiersPayant implements Serializable {
 
   public TiersPayant() {}
 
-  public TiersPayant setConsommations(Set<Consommation> consommations) {
-    this.consommations = consommations;
-    return this;
-  }
-
-  public TiersPayant setUpdatedBy(User updatedBy) {
-    this.updatedBy = updatedBy;
-    return this;
-  }
-
-  public TiersPayant setCreated(LocalDateTime created) {
-    this.created = created;
-    return this;
-  }
-
-  public TiersPayant setUpdated(LocalDateTime updated) {
-    this.updated = updated;
-    return this;
+  public Long getId() {
+    return id;
   }
 
   public TiersPayant setId(Long id) {
@@ -142,9 +124,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public @NotNull String getName() {
+    return name;
+  }
+
   public TiersPayant setName(String name) {
     this.name = name;
     return this;
+  }
+
+  public @NotNull String getFullName() {
+    return fullName;
   }
 
   public TiersPayant setFullName(String fullName) {
@@ -152,9 +142,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public Integer getNbreBons() {
+    return nbreBons;
+  }
+
   public TiersPayant setNbreBons(Integer nbreBons) {
     this.nbreBons = nbreBons;
     return this;
+  }
+
+  public Long getMontantMaxParFcture() {
+    return montantMaxParFcture;
   }
 
   public TiersPayant setMontantMaxParFcture(Long montantMaxParFcture) {
@@ -162,9 +160,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public String getCodeOrganisme() {
+    return codeOrganisme;
+  }
+
   public TiersPayant setCodeOrganisme(String codeOrganisme) {
     this.codeOrganisme = codeOrganisme;
     return this;
+  }
+
+  public String getCodeRegroupement() {
+    return codeRegroupement;
   }
 
   public TiersPayant setCodeRegroupement(String coeRegroupement) {
@@ -172,9 +178,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public Long getConsoMensuelle() {
+    return consoMensuelle;
+  }
+
   public TiersPayant setConsoMensuelle(Long consoMensuelle) {
     this.consoMensuelle = consoMensuelle;
     return this;
+  }
+
+  public Boolean getPlafondAbsolu() {
+    return plafondAbsolu;
   }
 
   public TiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
@@ -182,9 +196,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public String getAdresse() {
+    return adresse;
+  }
+
   public TiersPayant setAdresse(String adresse) {
     this.adresse = adresse;
     return this;
+  }
+
+  public String getTelephone() {
+    return telephone;
   }
 
   public TiersPayant setTelephone(String telephone) {
@@ -192,9 +214,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public String getTelephoneFixe() {
+    return telephoneFixe;
+  }
+
   public TiersPayant setTelephoneFixe(String telephoneFixe) {
     this.telephoneFixe = telephoneFixe;
     return this;
+  }
+
+  public String getEmail() {
+    return email;
   }
 
   public TiersPayant setEmail(String email) {
@@ -202,9 +232,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public Boolean getToBeExclude() {
+    return toBeExclude;
+  }
+
   public TiersPayant setToBeExclude(Boolean toBeExclude) {
     this.toBeExclude = toBeExclude;
     return this;
+  }
+
+  public Long getPlafondConso() {
+    return plafondConso;
   }
 
   public TiersPayant setPlafondConso(Long plafondConso) {
@@ -212,9 +250,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public @NotNull TiersPayantStatut getStatut() {
+    return statut;
+  }
+
   public TiersPayant setStatut(TiersPayantStatut statut) {
     this.statut = statut;
     return this;
+  }
+
+  public @NotNull TiersPayantCategorie getCategorie() {
+    return categorie;
   }
 
   public TiersPayant setCategorie(TiersPayantCategorie categorie) {
@@ -222,9 +268,17 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public Long getRemiseForfaitaire() {
+    return remiseForfaitaire;
+  }
+
   public TiersPayant setRemiseForfaitaire(Long remiseForfaitaire) {
     this.remiseForfaitaire = remiseForfaitaire;
     return this;
+  }
+
+  public Integer getNbreBordereaux() {
+    return nbreBordereaux;
   }
 
   public TiersPayant setNbreBordereaux(Integer nbreBordereaux) {
@@ -232,8 +286,48 @@ public class TiersPayant implements Serializable {
     return this;
   }
 
+  public GroupeTiersPayant getGroupeTiersPayant() {
+    return groupeTiersPayant;
+  }
+
   public TiersPayant setGroupeTiersPayant(GroupeTiersPayant groupeTiersPayant) {
     this.groupeTiersPayant = groupeTiersPayant;
+    return this;
+  }
+
+  public LocalDateTime getCreated() {
+    return created;
+  }
+
+  public TiersPayant setCreated(LocalDateTime created) {
+    this.created = created;
+    return this;
+  }
+
+  public LocalDateTime getUpdated() {
+    return updated;
+  }
+
+  public TiersPayant setUpdated(LocalDateTime updated) {
+    this.updated = updated;
+    return this;
+  }
+
+  public @NotNull User getUpdatedBy() {
+    return updatedBy;
+  }
+
+  public TiersPayant setUpdatedBy(User updatedBy) {
+    this.updatedBy = updatedBy;
+    return this;
+  }
+
+  public Set<Consommation> getConsommations() {
+    return consommations;
+  }
+
+  public TiersPayant setConsommations(Set<Consommation> consommations) {
+    this.consommations = consommations;
     return this;
   }
 }

@@ -58,12 +58,11 @@ public class InventoryTransactionService {
   public Page<InventoryTransactionDTO> getAllInventoryTransactions(
       Pageable pageable, Long produitId, String startDate, String endDate, Integer type) {
     this.inventoryTransactionSpec.setInventoryTransactionFilter(
-        InventoryTransactionFilterDTO.builder()
-            .endDate(endDate)
-            .produitId(produitId)
-            .startDate(startDate)
-            .type(type)
-            .build());
+        new InventoryTransactionFilterDTO()
+            .setEndDate(endDate)
+            .setProduitId(produitId)
+            .setStartDate(startDate)
+            .setType(type));
 
     return inventoryTransactionRepository
         .findAll(this.inventoryTransactionSpec, pageable)

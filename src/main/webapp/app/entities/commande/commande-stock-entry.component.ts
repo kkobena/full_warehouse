@@ -9,7 +9,7 @@ import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from '@ag-grid-community/angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';

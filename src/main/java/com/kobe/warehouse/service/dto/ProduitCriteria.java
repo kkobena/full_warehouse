@@ -3,9 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.io.Serializable;
-import lombok.Getter;
 
-@Getter
 public class ProduitCriteria implements Serializable {
   private static final long serialVersionUID = 1L;
 
@@ -39,34 +37,17 @@ public class ProduitCriteria implements Serializable {
   private Long rayonNot;
   private Long remiseNot;
 
+  public Long getId() {
+    return id;
+  }
+
   public ProduitCriteria setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public ProduitCriteria setRemiseNot(Long remiseNot) {
-    this.remiseNot = remiseNot;
-    return this;
-  }
-
-  public ProduitCriteria setTableauId(Long tableauId) {
-    this.tableauId = tableauId;
-    return this;
-  }
-
-  public ProduitCriteria setTableauNot(Long tableauNot) {
-    this.tableauNot = tableauNot;
-    return this;
-  }
-
-  public ProduitCriteria setRayonNot(Long rayonNot) {
-    this.rayonNot = rayonNot;
-    return this;
-  }
-
-  public ProduitCriteria setStorageId(Long storageId) {
-    this.storageId = storageId;
-    return this;
+  public String getCodeEan() {
+    return codeEan;
   }
 
   public ProduitCriteria setCodeEan(String codeEan) {
@@ -74,9 +55,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public String getCodeCip() {
+    return codeCip;
+  }
+
   public ProduitCriteria setCodeCip(String codeCip) {
     this.codeCip = codeCip;
     return this;
+  }
+
+  public String getLibelle() {
+    return libelle;
   }
 
   public ProduitCriteria setLibelle(String libelle) {
@@ -84,9 +73,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Status getStatus() {
+    return status;
+  }
+
   public ProduitCriteria setStatus(Status status) {
     this.status = status;
     return this;
+  }
+
+  public Boolean getDateperemption() {
+    return dateperemption;
   }
 
   public ProduitCriteria setDateperemption(Boolean dateperemption) {
@@ -94,9 +91,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Boolean getDeconditionnable() {
+    return deconditionnable;
+  }
+
   public ProduitCriteria setDeconditionnable(Boolean deconditionnable) {
     this.deconditionnable = deconditionnable;
     return this;
+  }
+
+  public Long getQtySeuilMini() {
+    return qtySeuilMini;
   }
 
   public ProduitCriteria setQtySeuilMini(Long qtySeuilMini) {
@@ -104,9 +109,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Integer getQtyAppro() {
+    return qtyAppro;
+  }
+
   public ProduitCriteria setQtyAppro(Integer qtyAppro) {
     this.qtyAppro = qtyAppro;
     return this;
+  }
+
+  public Long getParentId() {
+    return parentId;
   }
 
   public ProduitCriteria setParentId(Long parentId) {
@@ -114,9 +127,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Integer getPrixPaf() {
+    return prixPaf;
+  }
+
   public ProduitCriteria setPrixPaf(Integer prixPaf) {
     this.prixPaf = prixPaf;
     return this;
+  }
+
+  public Integer getPrixUni() {
+    return prixUni;
   }
 
   public ProduitCriteria setPrixUni(Integer prixUni) {
@@ -124,9 +145,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Long getFormeId() {
+    return formeId;
+  }
+
   public ProduitCriteria setFormeId(Long formeId) {
     this.formeId = formeId;
     return this;
+  }
+
+  public Long getFamilleId() {
+    return familleId;
   }
 
   public ProduitCriteria setFamilleId(Long familleId) {
@@ -134,9 +163,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Long getGammeId() {
+    return gammeId;
+  }
+
   public ProduitCriteria setGammeId(Long gammeId) {
     this.gammeId = gammeId;
     return this;
+  }
+
+  public Long getFabriquantId() {
+    return fabriquantId;
   }
 
   public ProduitCriteria setFabriquantId(Long fabriquantId) {
@@ -144,9 +181,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Long getLaboratoireId() {
+    return laboratoireId;
+  }
+
   public ProduitCriteria setLaboratoireId(Long laboratoireId) {
     this.laboratoireId = laboratoireId;
     return this;
+  }
+
+  public Long getTvaId() {
+    return tvaId;
   }
 
   public ProduitCriteria setTvaId(Long tvaId) {
@@ -154,9 +199,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Long getMagasinId() {
+    return magasinId;
+  }
+
   public ProduitCriteria setMagasinId(Long magasinId) {
     this.magasinId = magasinId;
     return this;
+  }
+
+  public Long getRayonId() {
+    return rayonId;
   }
 
   public ProduitCriteria setRayonId(Long rayonId) {
@@ -164,9 +217,17 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public String getSearch() {
+    return search;
+  }
+
   public ProduitCriteria setSearch(String search) {
     this.search = search;
     return this;
+  }
+
+  public Boolean getDeconditionne() {
+    return deconditionne;
   }
 
   public ProduitCriteria setDeconditionne(Boolean deconditionne) {
@@ -174,13 +235,66 @@ public class ProduitCriteria implements Serializable {
     return this;
   }
 
+  public Long getRemiseId() {
+    return remiseId;
+  }
+
   public ProduitCriteria setRemiseId(Long remiseId) {
     this.remiseId = remiseId;
     return this;
   }
 
+  public Long getTableauId() {
+    return tableauId;
+  }
+
+  public ProduitCriteria setTableauId(Long tableauId) {
+    this.tableauId = tableauId;
+    return this;
+  }
+
+  public Long getStorageId() {
+    return storageId;
+  }
+
+  public ProduitCriteria setStorageId(Long storageId) {
+    this.storageId = storageId;
+    return this;
+  }
+
+  public TypeProduit getTypeProduit() {
+    return typeProduit;
+  }
+
   public ProduitCriteria setTypeProduit(TypeProduit typeProduit) {
     this.typeProduit = typeProduit;
+    return this;
+  }
+
+  public Long getTableauNot() {
+    return tableauNot;
+  }
+
+  public ProduitCriteria setTableauNot(Long tableauNot) {
+    this.tableauNot = tableauNot;
+    return this;
+  }
+
+  public Long getRayonNot() {
+    return rayonNot;
+  }
+
+  public ProduitCriteria setRayonNot(Long rayonNot) {
+    this.rayonNot = rayonNot;
+    return this;
+  }
+
+  public Long getRemiseNot() {
+    return remiseNot;
+  }
+
+  public ProduitCriteria setRemiseNot(Long remiseNot) {
+    this.remiseNot = remiseNot;
     return this;
   }
 

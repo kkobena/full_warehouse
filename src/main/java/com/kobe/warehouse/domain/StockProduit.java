@@ -14,7 +14,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Getter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
@@ -24,7 +23,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.LastModifiedBy;
 
 /** A StockProduit. */
-@Getter
 @Entity
 @Table(
     name = "stock_produit",
@@ -77,9 +75,64 @@ public class StockProduit implements Serializable {
   @Column(name = "last_modified_by", length = 50)
   private String lastModifiedBy;
 
-  public StockProduit setTotalStockQuantity(Integer totalStockQuantity) {
-    this.totalStockQuantity = totalStockQuantity;
-    return this;
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public @NotNull Integer getQtyStock() {
+    return qtyStock;
+  }
+
+  public void setQtyStock(Integer qtyStock) {
+    this.qtyStock = qtyStock;
+  }
+
+  public @NotNull Integer getQtyVirtual() {
+    return qtyVirtual;
+  }
+
+  public void setQtyVirtual(Integer qtyVirtual) {
+    this.qtyVirtual = qtyVirtual;
+  }
+
+  public @NotNull @Min(0) Integer getQtyUG() {
+    return qtyUG;
+  }
+
+  public void setQtyUG(Integer qtyUG) {
+    this.qtyUG = qtyUG;
+  }
+
+  public @NotNull LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public @NotNull LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public @NotNull Produit getProduit() {
+    return produit;
+  }
+
+  public void setProduit(Produit produit) {
+    this.produit = produit;
+  }
+
+  public @NotNull Storage getStorage() {
+    return storage;
   }
 
   public StockProduit setStorage(Storage storage) {
@@ -87,26 +140,17 @@ public class StockProduit implements Serializable {
     return this;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public Integer getTotalStockQuantity() {
+    return totalStockQuantity;
   }
 
-  public void setQtyStock(Integer qtyStock) {
-    this.qtyStock = qtyStock;
-  }
-
-  public StockProduit qtyStock(Integer qtyStock) {
-    this.qtyStock = qtyStock;
+  public StockProduit setTotalStockQuantity(Integer totalStockQuantity) {
+    this.totalStockQuantity = totalStockQuantity;
     return this;
   }
 
-  public void setQtyVirtual(Integer qtyVirtual) {
-    this.qtyVirtual = qtyVirtual;
-  }
-
-  public StockProduit qtyVirtual(Integer qtyVirtual) {
-    this.qtyVirtual = qtyVirtual;
-    return this;
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
   }
 
   public StockProduit setLastModifiedBy(String lastModifiedBy) {
@@ -114,8 +158,14 @@ public class StockProduit implements Serializable {
     return this;
   }
 
-  public void setQtyUG(Integer qtyUG) {
-    this.qtyUG = qtyUG;
+  public StockProduit qtyStock(Integer qtyStock) {
+    this.qtyStock = qtyStock;
+    return this;
+  }
+
+  public StockProduit qtyVirtual(Integer qtyVirtual) {
+    this.qtyVirtual = qtyVirtual;
+    return this;
   }
 
   public StockProduit qtyUG(Integer qtyUG) {
@@ -123,26 +173,14 @@ public class StockProduit implements Serializable {
     return this;
   }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
   public StockProduit createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
-
   public StockProduit updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public void setProduit(Produit produit) {
-    this.produit = produit;
   }
 
   public StockProduit produit(Produit produit) {

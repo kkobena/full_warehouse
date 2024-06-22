@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.dto.enumeration;
 
-import lombok.Getter;
-
-@Getter
 public enum TypeVenteDTO {
   CashSale("VNO"),
   ThirdPartySales("VO");
@@ -10,5 +7,9 @@ public enum TypeVenteDTO {
 
   TypeVenteDTO(String value) {
     this.value = value;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

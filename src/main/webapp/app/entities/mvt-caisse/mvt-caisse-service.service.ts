@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { FinancialTransaction, MvtCaisse, MvtCaisseSum } from '../cash-register/model/cash-register.model';
+import { FinancialTransaction, MvtCaisse, MvtCaisseWrapper } from '../cash-register/model/cash-register.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { Observable } from 'rxjs';
 import { createRequestOptions } from '../../shared/util/request-util';
@@ -41,9 +41,9 @@ export class MvtCaisseServiceService {
     });
   }
 
-  findAllMvtsSum(req?: any): Observable<HttpResponse<MvtCaisseSum[]>> {
+  findAllMvtsSum(req?: any): Observable<HttpResponse<MvtCaisseWrapper>> {
     const options = createRequestOptions(req);
-    return this.http.get<MvtCaisseSum[]>(this.resourceUrl + '/mvt-caisses/sum', {
+    return this.http.get<MvtCaisseWrapper>(this.resourceUrl + '/mvt-caisses/sum', {
       params: options,
       observe: 'response',
     });

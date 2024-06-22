@@ -2,9 +2,6 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,10 +12,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /** A Decondition. */
-@Getter
 @Entity
 @Table(name = "decondition")
 public class Decondition implements Serializable {
@@ -63,22 +61,64 @@ public class Decondition implements Serializable {
   @NotNull
   private WarehouseCalendar calendar;
 
-  public Decondition setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
+  public Long getId() {
+    return id;
   }
 
   public void setId(Long id) {
     this.id = id;
   }
 
+  public @NotNull Integer getQtyMvt() {
+    return qtyMvt;
+  }
+
   public void setQtyMvt(Integer qtyMvt) {
     this.qtyMvt = qtyMvt;
   }
 
-  public Decondition qtyMvt(Integer qtyMvt) {
-    this.qtyMvt = qtyMvt;
-    return this;
+  public @NotNull LocalDateTime getDateMtv() {
+    return dateMtv;
+  }
+
+  public void setDateMtv(LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+  }
+
+  public @NotNull Integer getStockBefore() {
+    return stockBefore;
+  }
+
+  public void setStockBefore(Integer stockBefore) {
+    this.stockBefore = stockBefore;
+  }
+
+  public @NotNull Integer getStockAfter() {
+    return stockAfter;
+  }
+
+  public void setStockAfter(Integer stockAfter) {
+    this.stockAfter = stockAfter;
+  }
+
+  public @NotNull User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public @NotNull Produit getProduit() {
+    return produit;
+  }
+
+  public void setProduit(Produit produit) {
+    this.produit = produit;
+  }
+
+  public @NotNull TypeDeconditionnement getTypeDeconditionnement() {
+    return typeDeconditionnement;
   }
 
   public Decondition setTypeDeconditionnement(TypeDeconditionnement typeDeconditionnement) {
@@ -86,8 +126,18 @@ public class Decondition implements Serializable {
     return this;
   }
 
-  public void setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
+  public @NotNull WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public Decondition setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+  public Decondition qtyMvt(Integer qtyMvt) {
+    this.qtyMvt = qtyMvt;
+    return this;
   }
 
   public Decondition dateMtv(LocalDateTime dateMtv) {
@@ -95,17 +145,9 @@ public class Decondition implements Serializable {
     return this;
   }
 
-  public void setStockBefore(Integer stockBefore) {
-    this.stockBefore = stockBefore;
-  }
-
   public Decondition stockBefore(Integer stockBefore) {
     this.stockBefore = stockBefore;
     return this;
-  }
-
-  public void setStockAfter(Integer stockAfter) {
-    this.stockAfter = stockAfter;
   }
 
   public Decondition stockAfter(Integer stockAfter) {
@@ -113,17 +155,9 @@ public class Decondition implements Serializable {
     return this;
   }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
-
   public Decondition user(User user) {
     this.user = user;
     return this;
-  }
-
-  public void setProduit(Produit produit) {
-    this.produit = produit;
   }
 
   public Decondition produit(Produit produit) {

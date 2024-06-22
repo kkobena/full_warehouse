@@ -13,7 +13,7 @@
 
 </p-confirmDialog>
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
+          [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"
                   accept=".csv,.xls,.xlsx"

@@ -6,7 +6,7 @@ import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSum;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -29,7 +29,7 @@ public interface FinancialTransactionService {
 
   List<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter);
 
-  List<MvtCaisseSum> getMvtCaisseSum(TransactionFilterDTO transactionFilter);
+  MvtCaisseWrapper getMvtCaisseSum(TransactionFilterDTO transactionFilter);
 
   Optional<FinancialTransactionDTO> findById(Long id);
 }

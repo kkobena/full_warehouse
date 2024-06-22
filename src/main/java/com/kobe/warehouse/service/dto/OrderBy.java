@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-import lombok.Getter;
-
-@Getter
 public enum OrderBy {
   QUANTITY_SOLD("quantity_sold"),
   AMOUNT("sales_amount");
@@ -11,5 +8,9 @@ public enum OrderBy {
 
   OrderBy(String value) {
     this.value = value;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

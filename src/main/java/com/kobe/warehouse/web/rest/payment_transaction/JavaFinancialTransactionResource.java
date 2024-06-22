@@ -4,12 +4,17 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
 import com.kobe.warehouse.service.dto.Pair;
+import com.kobe.warehouse.service.dto.enumeration.Order;
 import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
+import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,5 +70,33 @@ public class JavaFinancialTransactionResource extends FinancialTransactionProxy 
   @GetMapping("/payment-transactions/types")
   public ResponseEntity<List<Pair>> fetchTypes() {
     return super.getTypes();
+  }
+
+  @GetMapping("/payment-transactions/mvt-caisses/sum")
+  public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
+      @RequestParam(value = "search", required = false) String search,
+      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+      @RequestParam(value = "toDate", required = false) LocalDate toDate,
+      @RequestParam(value = "userId", required = false) Long userId,
+      @RequestParam(value = "typeFinancialTransactions", required = false)
+          Set<TypeFinancialTransaction> typeFinancialTransactions,
+      @RequestParam(value = "categorieChiffreAffaires", required = false)
+          Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+      @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
+      @RequestParam(value = "order", required = false) Order order,
+      @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
+      @RequestParam(value = "toTime", required = false) LocalTime toTime) {
+    return super.getMvtCaisseSum(
+        new TransactionFilterDTO(
+            fromDate,
+            toDate,
+            userId,
+            search,
+            typeFinancialTransactions,
+            categorieChiffreAffaires,
+            paymentModes,
+            order,
+            fromTime,
+            toTime));
   }
 }

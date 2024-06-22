@@ -5,11 +5,11 @@
     </div>
 
     <div class="col-md-8">
-      <h1 jhiTranslate="error.title">Page d'erreur !</h1>
+      <h1 jhiTranslate="error.title">Page d&apos;erreur !</h1>
 
-      <div *ngIf="errorMessage">
-        <div class="alert alert-danger">{{ errorMessage }}</div>
-      </div>
+      @if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+      }
     </div>
   </div>
 </div>

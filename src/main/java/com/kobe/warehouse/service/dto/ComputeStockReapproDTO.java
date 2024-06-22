@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-import lombok.Getter;
-
-@Getter
 public class ComputeStockReapproDTO {
   private final long id;
   private final int qtySold;
@@ -14,5 +11,21 @@ public class ComputeStockReapproDTO {
     this.qtySold = qtySold;
     this.itemQtySold = itemQtySold;
     this.itemQty = itemQty;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public int getQtySold() {
+    return qtySold;
+  }
+
+  public int getItemQtySold() {
+    return itemQtySold;
+  }
+
+  public int getItemQty() {
+    return itemQty;
   }
 }

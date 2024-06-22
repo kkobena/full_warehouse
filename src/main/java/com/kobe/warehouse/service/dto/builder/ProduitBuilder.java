@@ -33,11 +33,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-@Slf4j
 public final class ProduitBuilder {
   private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
@@ -306,24 +304,23 @@ public final class ProduitBuilder {
   public static ProduitDTO partialFromProduit(Produit produit) {
     Produit parent = produit.getParent();
     ProduitDTO produitDTO =
-        ProduitDTO.builder()
-            .id(produit.getId())
-            .libelle(produit.getLibelle())
+        new ProduitDTO()
+            .setId(produit.getId())
+            .setLibelle(produit.getLibelle())
             .cmuAmount(produit.getCmuAmount())
-            .typeProduit(produit.getTypeProduit())
-            .costAmount(produit.getCostAmount())
-            .regularUnitPrice(produit.getRegularUnitPrice())
-            .netUnitPrice(produit.getNetUnitPrice())
-            .createdAt(produit.getCreatedAt())
-            .updatedAt(produit.getUpdatedAt())
-            .itemQty(produit.getItemQty())
-            .itemQuantity(produit.getProduits().stream().mapToInt(Produit::getItemQty).sum())
-            .itemCostAmount(produit.getItemCostAmount())
-            .itemRegularUnitPrice(produit.getItemRegularUnitPrice())
-            .produitId(Objects.nonNull(parent) ? parent.getId() : null)
-            .typeProduit(produit.getTypeProduit())
-            .produitLibelle(Objects.nonNull(parent) ? parent.getLibelle() : null)
-            .build();
+            .setTypeProduit(produit.getTypeProduit())
+            .setCostAmount(produit.getCostAmount())
+            .setRegularUnitPrice(produit.getRegularUnitPrice())
+            .setNetUnitPrice(produit.getNetUnitPrice())
+            .setCreatedAt(produit.getCreatedAt())
+            .setUpdatedAt(produit.getUpdatedAt())
+            .setItemQty(produit.getItemQty())
+            .setItemQuantity(produit.getProduits().stream().mapToInt(Produit::getItemQty).sum())
+            .setItemCostAmount(produit.getItemCostAmount())
+            .setItemRegularUnitPrice(produit.getItemRegularUnitPrice())
+            .setProduitId(Objects.nonNull(parent) ? parent.getId() : null)
+            .setTypeProduit(produit.getTypeProduit())
+            .setProduitLibelle(Objects.nonNull(parent) ? parent.getLibelle() : null);
     produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
     produitDTO.setDateperemption(produit.getCheckExpiryDate());
     produitDTO.setChiffre(produit.getChiffre());
@@ -517,8 +514,6 @@ public final class ProduitBuilder {
 
   public static FournisseurProduitDTO fromPrincipal(Produit produit) {
     FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-    log.info(fournisseurProduit.getCodeCip());
-
     return Optional.ofNullable(fournisseurProduit).map(FournisseurProduitDTO::new).orElse(null);
   }
 
@@ -679,17 +674,19 @@ public final class ProduitBuilder {
               .orElse(produitDTO.getRegularUnitPrice()));
     }
   }
-  public static ProduitDTO fromProductLiteList(Produit produit, StockProduit stockProduitPointOfSale,Magasin magasin) {
+
+  public static ProduitDTO fromProductLiteList(
+      Produit produit, StockProduit stockProduitPointOfSale, Magasin magasin) {
     ProduitDTO produitDTO = partialFromProduit(produit);
     rayonProduits(produitDTO, produit);
     produitDTO.setStatus(produit.getStatus().ordinal());
-      stockProduits(produitDTO, produit, magasin.getId());
-      stockProduit(produitDTO, stockProduitPointOfSale);
+    stockProduits(produitDTO, produit, magasin.getId());
+    stockProduit(produitDTO, stockProduitPointOfSale);
     produitDTO.setFournisseurProduit(
         Optional.ofNullable(produit.getFournisseurProduitPrincipal())
             .map(FournisseurProduitDTO::new)
             .orElse(null));
-  //  produitDTO.setDisplayField(buildDisplayName(produitDTO));
+    //  produitDTO.setDisplayField(buildDisplayName(produitDTO));
     setUnitPrice(produitDTO);
     return produitDTO;
   }

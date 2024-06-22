@@ -2,12 +2,12 @@ import { CUSTOM_ELEMENTS_SCHEMA, LOCALE_ID, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AlertComponent } from '../alert/alert.component';
 import { AlertErrorComponent } from '../alert/alert-error.component';
-import { FindLanguageFromKeyPipe } from '../language/find-language-from-key.pipe';
-import { TranslateDirective } from '../language/translate.directive';
+
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { AlertInfoComponent } from '../alert/alert-info.component';
+import { FindLanguageFromKeyPipe, TranslateDirective } from '../language';
 
 @NgModule({
   declarations: [],

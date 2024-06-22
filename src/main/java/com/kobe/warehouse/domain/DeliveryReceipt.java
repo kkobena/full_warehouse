@@ -26,9 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(
     name = "delivery_receipt",
@@ -118,42 +116,22 @@ public class DeliveryReceipt implements Serializable {
       mappedBy = "deliveryReceipt",
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
 
-    public DeliveryReceipt setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
+  @ManyToOne(optional = false)
+  @NotNull
+  private WarehouseCalendar calendar;
 
-    public DeliveryReceipt setType(TypeDeliveryReceipt type) {
-    this.type = type;
-    return this;
-  }
-
-  public DeliveryReceipt setNetAmount(Integer netAmount) {
-    this.netAmount = netAmount;
-    return this;
-  }
-
-  public DeliveryReceipt setPaimentStatut(PaimentStatut paimentStatut) {
-    this.paimentStatut = paimentStatut;
-    return this;
-  }
-
-  public DeliveryReceipt setOrderReference(String orderReference) {
-    this.orderReference = orderReference;
-    return this;
-  }
-
-  public DeliveryReceipt setTaxAmount(Integer taxAmount) {
-    this.taxAmount = taxAmount;
-    return this;
-  }
-
-  public Long id() {
+  public Long getId() {
     return id;
+  }
+
+  public DeliveryReceipt setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getNumberTransaction() {
+    return numberTransaction;
   }
 
   public DeliveryReceipt setNumberTransaction(String numberTransaction) {
@@ -161,9 +139,17 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public String getSequenceBon() {
+    return sequenceBon;
+  }
+
   public DeliveryReceipt setSequenceBon(String sequenceBon) {
     this.sequenceBon = sequenceBon;
     return this;
+  }
+
+  public String getReceiptRefernce() {
+    return receiptRefernce;
   }
 
   public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
@@ -171,9 +157,26 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public String getOrderReference() {
+    return orderReference;
+  }
+
+  public DeliveryReceipt setOrderReference(String orderReference) {
+    this.orderReference = orderReference;
+    return this;
+  }
+
+  public @NotNull LocalDate getReceiptDate() {
+    return receiptDate;
+  }
+
   public DeliveryReceipt setReceiptDate(LocalDate receiptDate) {
     this.receiptDate = receiptDate;
     return this;
+  }
+
+  public Integer getDiscountAmount() {
+    return discountAmount;
   }
 
   public DeliveryReceipt setDiscountAmount(Integer discountAmount) {
@@ -181,9 +184,17 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public Integer getReceiptAmount() {
+    return receiptAmount;
+  }
+
   public DeliveryReceipt setReceiptAmount(Integer receiptAmount) {
     this.receiptAmount = receiptAmount;
     return this;
+  }
+
+  public @NotNull LocalDateTime getCreatedDate() {
+    return createdDate;
   }
 
   public DeliveryReceipt setCreatedDate(LocalDateTime createdDate) {
@@ -191,9 +202,17 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public LocalDateTime getModifiedDate() {
+    return modifiedDate;
+  }
+
   public DeliveryReceipt setModifiedDate(LocalDateTime modifiedDate) {
     this.modifiedDate = modifiedDate;
     return this;
+  }
+
+  public User getCreatedUser() {
+    return createdUser;
   }
 
   public DeliveryReceipt setCreatedUser(User createdUser) {
@@ -201,9 +220,17 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public User getModifiedUser() {
+    return modifiedUser;
+  }
+
   public DeliveryReceipt setModifiedUser(User modifiedUser) {
     this.modifiedUser = modifiedUser;
     return this;
+  }
+
+  public @NotNull ReceiptStatut getReceiptStatut() {
+    return receiptStatut;
   }
 
   public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
@@ -211,9 +238,35 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
+  public @NotNull PaimentStatut getPaimentStatut() {
+    return paimentStatut;
+  }
+
+  public DeliveryReceipt setPaimentStatut(PaimentStatut paimentStatut) {
+    this.paimentStatut = paimentStatut;
+    return this;
+  }
+
+  public @NotNull TypeDeliveryReceipt getType() {
+    return type;
+  }
+
+  public DeliveryReceipt setType(TypeDeliveryReceipt type) {
+    this.type = type;
+    return this;
+  }
+
+  public Set<PaymentFournisseur> getPaymentFournisseurs() {
+    return paymentFournisseurs;
+  }
+
   public DeliveryReceipt setPaymentFournisseurs(Set<PaymentFournisseur> paymentFournisseurs) {
     this.paymentFournisseurs = paymentFournisseurs;
     return this;
+  }
+
+  public @NotNull Fournisseur getFournisseur() {
+    return fournisseur;
   }
 
   public DeliveryReceipt setFournisseur(Fournisseur fournisseur) {
@@ -221,9 +274,44 @@ public class DeliveryReceipt implements Serializable {
     return this;
   }
 
-  public DeliveryReceipt setId(Long id) {
-    this.id = id;
+  public Integer getNetAmount() {
+    return netAmount;
+  }
+
+  public DeliveryReceipt setNetAmount(Integer netAmount) {
+    this.netAmount = netAmount;
     return this;
+  }
+
+  public Integer getTaxAmount() {
+    return taxAmount;
+  }
+
+  public DeliveryReceipt setTaxAmount(Integer taxAmount) {
+    this.taxAmount = taxAmount;
+    return this;
+  }
+
+  public List<DeliveryReceiptItem> getReceiptItems() {
+    return receiptItems;
+  }
+
+  public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
+    this.receiptItems = receiptItems;
+    return this;
+  }
+
+  public @NotNull WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public DeliveryReceipt setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+  public Long id() {
+    return id;
   }
 
   public DeliveryReceipt addReceiptItem(DeliveryReceiptItem receiptItem) {
@@ -235,11 +323,6 @@ public class DeliveryReceipt implements Serializable {
   public DeliveryReceipt removeReceiptItem(DeliveryReceiptItem receiptItem) {
     receiptItems.remove(receiptItem);
     receiptItem.setDeliveryReceipt(null);
-    return this;
-  }
-
-  public DeliveryReceipt setReceiptItems(List<DeliveryReceiptItem> receiptItems) {
-    this.receiptItems = receiptItems;
     return this;
   }
 

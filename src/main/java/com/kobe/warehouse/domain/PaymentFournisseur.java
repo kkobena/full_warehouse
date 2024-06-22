@@ -11,12 +11,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Getter;
 
 /**
  * A PaymentFournisseur.
  */
-@Getter
+
 @Entity
 @Table(name = "payment_fournisseur")
 public class PaymentFournisseur implements Serializable {
@@ -59,26 +58,9 @@ public class PaymentFournisseur implements Serializable {
     @NotNull
     private WarehouseCalendar calendar;
 
-    public PaymentFournisseur setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-  public void setNetAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-    }
-
     public PaymentFournisseur netAmount(Integer netAmount) {
         this.netAmount = netAmount;
         return this;
-    }
-
-  public void setPaidAmount(Integer paidAmount) {
-        this.paidAmount = paidAmount;
     }
 
     public PaymentFournisseur paidAmount(Integer paidAmount) {
@@ -86,31 +68,61 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
-  public void setRestToPay(Integer restToPay) {
-        this.restToPay = restToPay;
-    }
-
     public PaymentFournisseur restToPay(Integer restToPay) {
         this.restToPay = restToPay;
         return this;
     }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public @NotNull Integer getNetAmount() {
+        return netAmount;
+    }
+
+  public void setNetAmount(Integer netAmount) {
+        this.netAmount = netAmount;
+    }
+
+    public @NotNull Integer getPaidAmount() {
+        return paidAmount;
+    }
+
+  public void setPaidAmount(Integer paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public @NotNull Integer getRestToPay() {
+        return restToPay;
+    }
+
+  public void setRestToPay(Integer restToPay) {
+        this.restToPay = restToPay;
+    }
+
+    public @NotNull LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public PaymentFournisseur createdAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
+    public @NotNull LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
   public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public PaymentFournisseur updatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
+    public DeliveryReceipt getDeliveryReceipt() {
+        return deliveryReceipt;
     }
 
   public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
@@ -118,8 +130,31 @@ public class PaymentFournisseur implements Serializable {
         return this;
     }
 
+    public PaymentMode getPaymentMode() {
+        return paymentMode;
+    }
+
   public void setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
+    }
+
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
+
+    public PaymentFournisseur setCalendar(WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
+
+    public PaymentFournisseur createdAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public PaymentFournisseur updatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

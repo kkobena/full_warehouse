@@ -6,10 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Getter;
 
 /** A Ajustement. */
-@Getter
 @Entity
 @Table(
     name = "ajustement",
@@ -55,9 +53,40 @@ public class Ajustement implements Serializable {
 
   @ManyToOne private MotifAjustement motifAjustement;
 
-  public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
-    this.motifAjustement = motifAjustement;
-    return this;
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public @NotNull Integer getQtyMvt() {
+    return qtyMvt;
+  }
+
+  public void setQtyMvt(Integer qtyMvt) {
+    this.qtyMvt = qtyMvt;
+  }
+
+  public @NotNull LocalDateTime getDateMtv() {
+    return dateMtv;
+  }
+
+  public void setDateMtv(LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+  }
+
+  public @NotNull Integer getStockBefore() {
+    return stockBefore;
+  }
+
+  public void setStockBefore(Integer stockBefore) {
+    this.stockBefore = stockBefore;
+  }
+
+  public @NotNull AjustType getType() {
+    return type;
   }
 
   public Ajustement setType(AjustType type) {
@@ -65,20 +94,37 @@ public class Ajustement implements Serializable {
     return this;
   }
 
-  public void setStockBefore(Integer stockBefore) {
-    this.stockBefore = stockBefore;
+  public @NotNull Integer getStockAfter() {
+    return stockAfter;
   }
 
   public void setStockAfter(Integer stockAfter) {
     this.stockAfter = stockAfter;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public @NotNull Produit getProduit() {
+    return produit;
   }
 
-  public void setQtyMvt(Integer qtyMvt) {
-    this.qtyMvt = qtyMvt;
+  public void setProduit(Produit produit) {
+    this.produit = produit;
+  }
+
+  public @NotNull Ajust getAjust() {
+    return ajust;
+  }
+
+  public void setAjust(Ajust ajust) {
+    this.ajust = ajust;
+  }
+
+  public MotifAjustement getMotifAjustement() {
+    return motifAjustement;
+  }
+
+  public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
+    this.motifAjustement = motifAjustement;
+    return this;
   }
 
   public Ajustement qtyMvt(Integer qtyMvt) {
@@ -86,17 +132,9 @@ public class Ajustement implements Serializable {
     return this;
   }
 
-  public void setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-  }
-
   public Ajustement dateMtv(LocalDateTime dateMtv) {
     this.dateMtv = dateMtv;
     return this;
-  }
-
-  public void setProduit(Produit produit) {
-    this.produit = produit;
   }
 
   public Ajustement produit(Produit produit) {
@@ -132,9 +170,5 @@ public class Ajustement implements Serializable {
         + getDateMtv()
         + "'"
         + "}";
-  }
-
-  public void setAjust(Ajust ajust) {
-    this.ajust = ajust;
   }
 }

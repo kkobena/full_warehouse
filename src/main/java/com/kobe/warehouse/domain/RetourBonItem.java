@@ -12,11 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "retour_bon_item")
 public class RetourBonItem implements Serializable {
@@ -42,16 +38,88 @@ public class RetourBonItem implements Serializable {
   @NotNull
   private DeliveryReceiptItem deliveryReceiptItem;
 
-    @ManyToOne
-    private Lot lot;
+  @ManyToOne private Lot lot;
 
-    @NotNull
-    @Min(1)
-    @Column(name = "qty_mvt", nullable = false,length = 8)
-    private Integer qtyMvt;
-    @Column(name = "init_stock", nullable = false,length = 8)
-    private Integer initStock;
+  @NotNull
+  @Min(1)
+  @Column(name = "qty_mvt", nullable = false, length = 8)
+  private Integer qtyMvt;
 
-    @Column(name = "after_stock",length = 8)
-    private Integer afterStock;
+  @Column(name = "init_stock", nullable = false, length = 8)
+  private Integer initStock;
+
+  @Column(name = "after_stock", length = 8)
+  private Integer afterStock;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public @NotNull LocalDateTime getDateMtv() {
+    return dateMtv;
+  }
+
+  public void setDateMtv(@NotNull LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+  }
+
+  public @NotNull RetourBon getRetourBon() {
+    return retourBon;
+  }
+
+  public void setRetourBon(@NotNull RetourBon retourBon) {
+    this.retourBon = retourBon;
+  }
+
+  public @NotNull MotifRetourProduit getMotifRetour() {
+    return motifRetour;
+  }
+
+  public void setMotifRetour(@NotNull MotifRetourProduit motifRetour) {
+    this.motifRetour = motifRetour;
+  }
+
+  public @NotNull DeliveryReceiptItem getDeliveryReceiptItem() {
+    return deliveryReceiptItem;
+  }
+
+  public void setDeliveryReceiptItem(@NotNull DeliveryReceiptItem deliveryReceiptItem) {
+    this.deliveryReceiptItem = deliveryReceiptItem;
+  }
+
+  public Lot getLot() {
+    return lot;
+  }
+
+  public void setLot(Lot lot) {
+    this.lot = lot;
+  }
+
+  public @NotNull @Min(1) Integer getQtyMvt() {
+    return qtyMvt;
+  }
+
+  public void setQtyMvt(@NotNull @Min(1) Integer qtyMvt) {
+    this.qtyMvt = qtyMvt;
+  }
+
+  public Integer getInitStock() {
+    return initStock;
+  }
+
+  public void setInitStock(Integer initStock) {
+    this.initStock = initStock;
+  }
+
+  public Integer getAfterStock() {
+    return afterStock;
+  }
+
+  public void setAfterStock(Integer afterStock) {
+    this.afterStock = afterStock;
+  }
 }

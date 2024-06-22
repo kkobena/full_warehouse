@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
+import { StateStorageService } from 'app/core/auth/state-storage.service';
+import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
 import { VERSION } from 'app/app.constants';
 import { LANGUAGES } from 'app/config/language.constants';
-import { Account } from 'app/core/auth/account.model';
 import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
+import ActiveMenuDirective from './active-menu.directive';
+import NavbarItem from './navbar-item.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import {
   faCoins,
   faSackDollar,
@@ -19,28 +23,23 @@ import {
   faUserTimes,
   faWarehouse,
 } from '@fortawesome/free-solid-svg-icons';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { HasAnyAuthorityDirective } from '../../shared/auth/has-any-authority.directive';
-import ActiveMenuDirective from './active-menu.directive';
-import NavbarItem from './navbar-item.model';
-import { StateStorageService } from '../../core/auth/state-storage.service';
 
 @Component({
   standalone: true,
-
   selector: 'jhi-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss'],
+  styleUrl: './navbar.component.scss',
   imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective, ActiveMenuDirective],
 })
-export class NavbarComponent implements OnInit {
+export default class NavbarComponent implements OnInit {
+  inProduction?: boolean;
+  isNavbarCollapsed = signal(true);
+  languages = LANGUAGES;
+  openAPIEnabled?: boolean;
+  version = '';
+  account = inject(AccountService).trackCurrentAccount();
   entitiesNavbarItems: NavbarItem[] = [];
-  protected inProduction?: boolean;
-  protected isNavbarCollapsed = true;
-  protected languages = LANGUAGES;
-  protected openAPIEnabled?: boolean = false;
-  protected version = '';
-  protected account: Account | null = null;
+
   // protected entitiesNavbarItems: any[] = [];
   protected readonly faUserTimes = faUserTimes;
   protected readonly hideLanguage?: boolean = true;
@@ -52,15 +51,13 @@ export class NavbarComponent implements OnInit {
   protected menuStock: string[];
   protected readonly faSackDollar = faSackDollar;
   protected faCoins = faCoins;
+  private loginService = inject(LoginService);
+  private translateService = inject(TranslateService);
+  private stateStorageService = inject(StateStorageService);
+  private profileService = inject(ProfileService);
+  private router = inject(Router);
 
-  constructor(
-    private loginService: LoginService,
-    private translateService: TranslateService,
-    private stateStorageService: StateStorageService,
-    private accountService: AccountService,
-    private profileService: ProfileService,
-    private router: Router,
-  ) {
+  constructor() {
     this.menuStock = ['gestion-entree', 'commande', 'gestion-stock', 'produit'];
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
@@ -71,42 +68,8 @@ export class NavbarComponent implements OnInit {
     this.entitiesNavbarItems = EntityNavbarItems;
     this.profileService.getProfileInfo().subscribe(profileInfo => {
       this.inProduction = profileInfo.inProduction;
+
     });
-
-    this.accountService.getAuthenticationState().subscribe(account => {
-      this.account = account;
-    });
-  }
-
-  /*
-    changeLanguage(languageKey: string): void {
-      this.sessionStorageService.store('locale', languageKey);
-      this.translateService.use(languageKey);
-    }
-  */
-  collapseNavbar(): void {
-    this.isNavbarCollapsed = true;
-  }
-
-  login(): void {
-    this.router.navigate(['/login']);
-  }
-
-  /* logout(): void {
-    this.collapseNavbar();
-    this.loginService.logout();
-  }*/
-
-  isAuthenticated(): boolean {
-    return this.accountService.isAuthenticated();
-  }
-
-  toggleNavbar(): void {
-    this.isNavbarCollapsed = !this.isNavbarCollapsed;
-  }
-
-  getImageUrl(): string {
-    return '';
   }
 
   changeLanguage(languageKey: string): void {
@@ -114,9 +77,23 @@ export class NavbarComponent implements OnInit {
     this.translateService.use(languageKey);
   }
 
+  collapseNavbar(): void {
+    this.isNavbarCollapsed.set(true);
+  }
+
+  login(): void {
+    this.router.navigate(['/login']);
+  }
+
   logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
     this.router.navigate(['']);
+  }
+  isAuthenticated(): boolean {
+    return this.account() !== null
+  }
+  toggleNavbar(): void {
+    this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }
 }

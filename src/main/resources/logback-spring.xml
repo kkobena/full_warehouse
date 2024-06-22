@@ -30,6 +30,8 @@
     </root>
     -->
 
+    <logger level="INFO" name="com.kobe.warehouse"/>
+
     <logger level="WARN" name="angus.activation"/>
     <logger level="WARN" name="jakarta.activation"/>
     <logger level="WARN" name="jakarta.mail"/>

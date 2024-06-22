@@ -20,31 +20,14 @@
     "enableHibernateCache": false,
     "enableSwaggerCodegen": false,
     "enableTranslation": true,
-    "entities": [
-      "DateDimension",
-      "InventoryTransaction",
-      "Categorie",
-      "Produit",
-      "Customer",
-      "SalesLine",
-      "Sales",
-      "Payment",
-      "PaymentMode",
-      "OrderLine",
-      "Commande",
-      "PaymentFournisseur",
-      "StoreInventoryLine",
-      "StoreInventory",
-      "Menu",
-      "Magasin",
-      "Reference",
-      "Decondition",
-      "Ajustement"
-    ],
+    "entities": [],
     "entitySuffix": "",
     "jhiPrefix": "jhi",
-    "jhipsterVersion": "8.1.0",
-    "languages": ["fr", "en"],
+    "jhipsterVersion": "8.5.0",
+    "languages": [
+      "fr",
+      "en"
+    ],
     "lastLiquibaseTimestamp": 1616265904000,
     "messageBroker": false,
     "nativeLanguage": "fr",
@@ -64,11 +47,11 @@
     "serviceDiscoveryType": false,
     "skipCheckLengthOfIdentifier": false,
     "skipClient": false,
-    "skipFakeData": false,
+    "skipFakeData": true,
     "skipUserManagement": false,
     "testFrameworks": [],
     "useSass": true,
     "websocket": false,
-    "withAdminUi": true
+    "withAdminUi": false
   }
 }

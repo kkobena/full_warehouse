@@ -9,7 +9,7 @@ import { InventoryTransactionService } from './inventory-transaction.service';
 import moment from 'moment';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { AgGridModule } from 'ag-grid-angular';
+import { AgGridModule } from '@ag-grid-community/angular';
 
 @Component({
   selector: 'jhi-inventory-transaction',

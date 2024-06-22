@@ -1,59 +1,56 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { combineLatest } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
+import SharedModule from 'app/shared/shared.module';
+import { SortByDirective, SortDirective, SortService, SortState, sortStateSignal } from 'app/shared/sort';
 import { ITEMS_PER_PAGE } from 'app/config/pagination.constants';
-import { ASC, DESC, SORT } from 'app/config/navigation.constants';
+import { SORT } from 'app/config/navigation.constants';
+import { ItemCountComponent } from 'app/shared/pagination';
 import { AccountService } from 'app/core/auth/account.service';
-import { Account } from 'app/core/auth/account.model';
 import { UserManagementService } from '../service/user-management.service';
 import { User } from '../user-management.model';
-import { UserManagementDeleteDialogComponent } from '../delete/user-management-delete-dialog.component';
+import UserManagementDeleteDialogComponent from '../delete/user-management-delete-dialog.component';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
-import { PanelModule } from 'primeng/panel';
-import { SortDirective } from '../../../shared/sort/sort.directive';
-import { SortByDirective } from '../../../shared/sort/sort-by.directive';
 import { RippleModule } from 'primeng/ripple';
-import { ItemCountComponent } from '../../../shared/pagination/item-count.component';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
+  standalone: true,
   selector: 'jhi-user-mgmt',
   templateUrl: './user-management.component.html',
-  standalone: true,
   imports: [
     WarehouseCommonModule,
-    ItemCountComponent,
-    RouterModule,
     ButtonModule,
     RippleModule,
     PanelModule,
+    RouterModule,
+    SharedModule,
+    UserManagementDeleteDialogComponent,
     SortDirective,
     SortByDirective,
+    ItemCountComponent,
   ],
 })
-export class UserManagementComponent implements OnInit {
-  currentAccount: Account | null = null;
-  users: User[] | null = null;
-  isLoading = false;
-  totalItems = 0;
+export default class UserManagementComponent implements OnInit {
+  currentAccount = inject(AccountService).trackCurrentAccount();
+  users = signal<User[] | null>(null);
+  isLoading = signal(false);
+  totalItems = signal(0);
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
-  predicate!: string;
-  ascending!: boolean;
+  sortState = sortStateSignal({});
 
-  constructor(
-    private userService: UserManagementService,
-    private accountService: AccountService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private modalService: NgbModal,
-  ) {}
+  private userService = inject(UserManagementService);
+  private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
+  private sortService = inject(SortService);
+  private modalService = inject(NgbModal);
 
   ngOnInit(): void {
-    this.accountService.identity().subscribe(account => (this.currentAccount = account));
     this.handleNavigation();
   }
 
@@ -62,7 +59,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   trackIdentity(_index: number, item: User): number {
-    return item.id;
+    return item.id!;
   }
 
   deleteUser(user: User): void {
@@ -80,28 +77,28 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadAll(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.userService
       .query({
         page: this.page - 1,
         size: this.itemsPerPage,
-        sort: this.sort(),
+        sort: this.sortService.buildSortParam(this.sortState(), 'id'),
       })
       .subscribe({
         next: (res: HttpResponse<User[]>) => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.onSuccess(res.body, res.headers);
         },
-        error: () => (this.isLoading = false),
+        error: () => this.isLoading.set(false),
       });
   }
 
-  transition(): void {
+  transition(sortState?: SortState): void {
     this.router.navigate(['./'], {
       relativeTo: this.activatedRoute.parent,
       queryParams: {
         page: this.page,
-        sort: `${this.predicate},${this.ascending ? ASC : DESC}`,
+        sort: this.sortService.buildSortParam(sortState ?? this.sortState()),
       },
     });
   }
@@ -110,23 +107,13 @@ export class UserManagementComponent implements OnInit {
     combineLatest([this.activatedRoute.data, this.activatedRoute.queryParamMap]).subscribe(([data, params]) => {
       const page = params.get('page');
       this.page = +(page ?? 1);
-      const sort = (params.get(SORT) ?? data['defaultSort']).split(',');
-      this.predicate = sort[0];
-      this.ascending = sort[1] === ASC;
+      this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data['defaultSort']));
       this.loadAll();
     });
   }
 
-  private sort(): string[] {
-    const result = [`${this.predicate},${this.ascending ? ASC : DESC}`];
-    if (this.predicate !== 'id') {
-      result.push('id');
-    }
-    return result;
-  }
-
   private onSuccess(users: User[] | null, headers: HttpHeaders): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.users = users;
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
+    this.users.set(users);
   }
 }

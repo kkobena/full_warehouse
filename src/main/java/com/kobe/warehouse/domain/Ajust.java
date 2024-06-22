@@ -1,16 +1,15 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-@Getter
 @Entity
 @Table(name = "ajust")
 public class Ajust implements Serializable {
@@ -50,39 +49,71 @@ public class Ajust implements Serializable {
       cascade = {CascadeType.REMOVE})
   private List<Ajustement> ajustements = new ArrayList<>();
 
-  public void setId(Long id) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
     this.id = id;
   }
 
-  public void setStatut(AjustementStatut statut) {
-    this.statut = statut;
-  }
-
-  public Ajust setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
-
-  public Ajust setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
-
-  public void setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-  }
+    public List<Ajustement> getAjustements() {
+        return ajustements;
+    }
 
   public Ajust setAjustements(List<Ajustement> ajustements) {
     this.ajustements = ajustements;
     return this;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
+
+  public Ajust setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
   }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+  public Ajust setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
+    return this;
+  }
+
+    public @NotNull Storage getStorage() {
+        return storage;
+    }
 
   public Ajust setStorage(Storage storage) {
     this.storage = storage;
     return this;
+  }
+
+    public @NotNull AjustementStatut getStatut() {
+        return statut;
+    }
+
+  public void setStatut(AjustementStatut statut) {
+    this.statut = statut;
+  }
+
+    public @NotNull User getUser() {
+        return user;
+    }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+    public @NotNull LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
+
+  public void setDateMtv(LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
   }
 }

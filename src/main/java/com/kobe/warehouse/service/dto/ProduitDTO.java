@@ -9,25 +9,21 @@ import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Singular;
 
-@Builder
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class ProduitDTO {
 
-  @Default private String codeCip = "";
+  private Integer prixMnp = 0;
+  private Set<StockProduitDTO> stockProduits;
+  private Set<FournisseurProduitDTO> fournisseurProduits;
+  private Boolean dateperemption = false;
+  private Boolean chiffre = true;
+  private List<RayonProduitDTO> rayonProduits;
+  private List<ParcoursProduit> parcoursProduits;
+  private String codeCip = "";
   private Long id;
   private String libelle;
   private int itemQuantity;
@@ -45,11 +41,10 @@ public class ProduitDTO {
   private Long produitId;
   private String produitLibelle;
   private int quantityReceived;
-  @Singular private List<ProduitDTO> produits;
+  private List<ProduitDTO> produits = new ArrayList<>();
   private LocalDateTime lastDateOfSale;
   private LocalDateTime lastOrderDate;
   private LocalDateTime lastInventoryDate;
-  @Default private Integer prixMnp = 0;
   private Long parentId;
   private Long fournisseurId;
   private String parentLibelle;
@@ -65,18 +60,14 @@ public class ProduitDTO {
   private String gammeLibelle;
   private Long tvaId;
   private Integer tvaTaux;
-  @Singular private Set<StockProduitDTO> stockProduits;
-  @Singular private Set<FournisseurProduitDTO> fournisseurProduits;
   private StockProduitDTO stockProduit;
   private FournisseurProduitDTO fournisseurProduit;
   private String qtyStatus;
-  @Default private Integer qtyAppro = 0;
-  @Default private Integer qtySeuilMini = 0;
-  @Default private Boolean dateperemption = false;
-  @Default private Boolean chiffre = true;
+  private Integer qtyAppro = 0;
+  private Integer qtySeuilMini = 0;
   private int totalQuantity;
   private int qtyReserve;
-  @Default private Boolean deconditionnable = false;
+  private Boolean deconditionnable = false;
   private String codeEan;
   private String rayonLibelle;
   private Long remiseId;
@@ -94,40 +85,13 @@ public class ProduitDTO {
   private int saleOfPointStock;
   private int saleOfPointVirtualStock;
   private String expirationDate;
-  @Getter private String displayField;
-  @Singular private List<RayonProduitDTO> rayonProduits;
-  @Singular private List<ParcoursProduit> parcoursProduits;
-  @Singular private List<DailyStock> dailyStocks;
-  @Getter private TableauDTO tableau;
-  @Getter private int unitPrice;
-
-  public ProduitDTO setUnitPrice(int unitPrice) {
-    this.unitPrice = unitPrice;
-    return this;
-  }
-
-  public ProduitDTO setDisplayField(String displayField) {
-    this.displayField = displayField;
-    return this;
-  }
-
-  public ProduitDTO setTableau(TableauDTO tableau) {
-    this.tableau = tableau;
-    return this;
-  }
-
-  public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
-    this.saleOfPointStock = saleOfPointStock;
-    return this;
-  }
+  private String displayField;
+  private List<DailyStock> dailyStocks = new ArrayList<>();
+  private TableauDTO tableau;
+  private int unitPrice;
 
   public ProduitDTO displayStatut(String displayStatut) {
     this.displayStatut = displayStatut;
-    return this;
-  }
-
-  public ProduitDTO setStorageId(Long storageId) {
-    this.storageId = storageId;
     return this;
   }
 
@@ -196,109 +160,13 @@ public class ProduitDTO {
     return this;
   }
 
-  public ProduitDTO setStorageId(long storageId) {
-    this.storageId = storageId;
+  public ProduitDTO dailyStocks(List<DailyStock> dailyStocks) {
+    this.dailyStocks = dailyStocks;
     return this;
   }
 
-  public ProduitDTO setSaleOfPointVirtualStock(int saleOfPointVirtualStock) {
-    this.saleOfPointVirtualStock = saleOfPointVirtualStock;
-    return this;
-  }
-
-  public ProduitDTO setFournisseurId(Long fournisseurId) {
-    this.fournisseurId = fournisseurId;
-    return this;
-  }
-
-  public ProduitDTO setLibelle(String libelle) {
-    this.libelle = libelle;
-    return this;
-  }
-
-  public ProduitDTO setTypeProduit(TypeProduit typeProduit) {
-    this.typeProduit = typeProduit;
-    return this;
-  }
-
-  public ProduitDTO setQuantity(Integer quantity) {
-    this.quantity = quantity;
-    return this;
-  }
-
-  public ProduitDTO setCostAmount(Integer costAmount) {
-    this.costAmount = costAmount;
-    return this;
-  }
-
-  public ProduitDTO setRegularUnitPrice(Integer regularUnitPrice) {
-    this.regularUnitPrice = regularUnitPrice;
-    return this;
-  }
-
-  public ProduitDTO setNetUnitPrice(Integer netUnitPrice) {
-    this.netUnitPrice = netUnitPrice;
-    return this;
-  }
-
-  public ProduitDTO setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public ProduitDTO setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
-  public ProduitDTO setItemQty(Integer itemQty) {
-    this.itemQty = itemQty;
-    return this;
-  }
-
-  public ProduitDTO setItemCostAmount(Integer itemCostAmount) {
-    this.itemCostAmount = itemCostAmount;
-    return this;
-  }
-
-  public ProduitDTO setItemRegularUnitPrice(Integer itemRegularUnitPrice) {
-    this.itemRegularUnitPrice = itemRegularUnitPrice;
-    return this;
-  }
-
-  public ProduitDTO setProduitId(Long produitId) {
-    this.produitId = produitId;
-    return this;
-  }
-
-  public ProduitDTO setProduitLibelle(String produitLibelle) {
-    this.produitLibelle = produitLibelle;
-    return this;
-  }
-
-  public ProduitDTO setQuantityReceived(int quantityReceived) {
-    this.quantityReceived = quantityReceived;
-    return this;
-  }
-
-  public ProduitDTO setProduits(List<ProduitDTO> produits) {
-    this.produits = produits;
-    return this;
-  }
-
-  public ProduitDTO setLastDateOfSale(LocalDateTime lastDateOfSale) {
-    this.lastDateOfSale = lastDateOfSale;
-    return this;
-  }
-
-  public ProduitDTO setLastOrderDate(LocalDateTime lastOrderDate) {
-    this.lastOrderDate = lastOrderDate;
-    return this;
-  }
-
-  public ProduitDTO setLastInventoryDate(LocalDateTime lastInventoryDate) {
-    this.lastInventoryDate = lastInventoryDate;
-    return this;
+  public String getCodeCip() {
+    return codeCip;
   }
 
   public ProduitDTO setCodeCip(String codeCip) {
@@ -306,9 +174,358 @@ public class ProduitDTO {
     return this;
   }
 
+  public Long getId() {
+    return id;
+  }
+
+  public ProduitDTO setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getLibelle() {
+    return libelle;
+  }
+
+  public ProduitDTO setLibelle(String libelle) {
+    this.libelle = libelle;
+    return this;
+  }
+
+  public int getItemQuantity() {
+    return itemQuantity;
+  }
+
+  public ProduitDTO setItemQuantity(int itemQuantity) {
+    this.itemQuantity = itemQuantity;
+    return this;
+  }
+
+  public int getQtyUG() {
+    return qtyUG;
+  }
+
+  public ProduitDTO setQtyUG(int qtyUG) {
+    this.qtyUG = qtyUG;
+    return this;
+  }
+
+  public TypeProduit getTypeProduit() {
+    return typeProduit;
+  }
+
+  public ProduitDTO setTypeProduit(TypeProduit typeProduit) {
+    this.typeProduit = typeProduit;
+    return this;
+  }
+
+  public Integer getQuantity() {
+    return quantity;
+  }
+
+  public ProduitDTO setQuantity(Integer quantity) {
+    this.quantity = quantity;
+    return this;
+  }
+
+  public Integer getCostAmount() {
+    return costAmount;
+  }
+
+  public ProduitDTO setCostAmount(Integer costAmount) {
+    this.costAmount = costAmount;
+    return this;
+  }
+
+  public Integer getRegularUnitPrice() {
+    return regularUnitPrice;
+  }
+
+  public ProduitDTO setRegularUnitPrice(Integer regularUnitPrice) {
+    this.regularUnitPrice = regularUnitPrice;
+    return this;
+  }
+
+  public Integer getNetUnitPrice() {
+    return netUnitPrice;
+  }
+
+  public ProduitDTO setNetUnitPrice(Integer netUnitPrice) {
+    this.netUnitPrice = netUnitPrice;
+    return this;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public ProduitDTO setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public ProduitDTO setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public Integer getItemQty() {
+    return itemQty;
+  }
+
+  public ProduitDTO setItemQty(Integer itemQty) {
+    this.itemQty = itemQty;
+    return this;
+  }
+
+  public Integer getItemCostAmount() {
+    return itemCostAmount;
+  }
+
+  public ProduitDTO setItemCostAmount(Integer itemCostAmount) {
+    this.itemCostAmount = itemCostAmount;
+    return this;
+  }
+
+  public Integer getItemRegularUnitPrice() {
+    return itemRegularUnitPrice;
+  }
+
+  public ProduitDTO setItemRegularUnitPrice(Integer itemRegularUnitPrice) {
+    this.itemRegularUnitPrice = itemRegularUnitPrice;
+    return this;
+  }
+
+  public Long getProduitId() {
+    return produitId;
+  }
+
+  public ProduitDTO setProduitId(Long produitId) {
+    this.produitId = produitId;
+    return this;
+  }
+
+  public String getProduitLibelle() {
+    return produitLibelle;
+  }
+
+  public ProduitDTO setProduitLibelle(String produitLibelle) {
+    this.produitLibelle = produitLibelle;
+    return this;
+  }
+
+  public int getQuantityReceived() {
+    return quantityReceived;
+  }
+
+  public ProduitDTO setQuantityReceived(int quantityReceived) {
+    this.quantityReceived = quantityReceived;
+    return this;
+  }
+
+  public List<ProduitDTO> getProduits() {
+    return produits;
+  }
+
+  public ProduitDTO setProduits(List<ProduitDTO> produits) {
+    this.produits = produits;
+    return this;
+  }
+
+  public LocalDateTime getLastDateOfSale() {
+    return lastDateOfSale;
+  }
+
+  public ProduitDTO setLastDateOfSale(LocalDateTime lastDateOfSale) {
+    this.lastDateOfSale = lastDateOfSale;
+    return this;
+  }
+
+  public LocalDateTime getLastOrderDate() {
+    return lastOrderDate;
+  }
+
+  public ProduitDTO setLastOrderDate(LocalDateTime lastOrderDate) {
+    this.lastOrderDate = lastOrderDate;
+    return this;
+  }
+
+  public LocalDateTime getLastInventoryDate() {
+    return lastInventoryDate;
+  }
+
+  public ProduitDTO setLastInventoryDate(LocalDateTime lastInventoryDate) {
+    this.lastInventoryDate = lastInventoryDate;
+    return this;
+  }
+
+  public Integer getPrixMnp() {
+    return prixMnp;
+  }
+
+  public ProduitDTO setPrixMnp(Integer prixMnp) {
+    this.prixMnp = prixMnp;
+    return this;
+  }
+
+  public Long getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(Long parentId) {
+    this.parentId = parentId;
+  }
+
+  public Long getFournisseurId() {
+    return fournisseurId;
+  }
+
+  public ProduitDTO setFournisseurId(Long fournisseurId) {
+    this.fournisseurId = fournisseurId;
+    return this;
+  }
+
+  public String getParentLibelle() {
+    return parentLibelle;
+  }
+
+  public void setParentLibelle(String parentLibelle) {
+    this.parentLibelle = parentLibelle;
+  }
+
+  public void parentLibelle(String parentLibelle) {
+    this.parentLibelle = parentLibelle;
+  }
+
+  public Long getLaboratoireId() {
+    return laboratoireId;
+  }
+
+  public void setLaboratoireId(Long laboratoireId) {
+    this.laboratoireId = laboratoireId;
+  }
+
+  public String getLaboratoireLibelle() {
+    return laboratoireLibelle;
+  }
+
+  public void setLaboratoireLibelle(String laboratoireLibelle) {
+    this.laboratoireLibelle = laboratoireLibelle;
+  }
+
+  public Long getFormeId() {
+    return formeId;
+  }
+
+  public void setFormeId(Long formeId) {
+    this.formeId = formeId;
+  }
+
+  public String getFormeLibelle() {
+    return formeLibelle;
+  }
+
+  public void setFormeLibelle(String formeLibelle) {
+    this.formeLibelle = formeLibelle;
+  }
+
+  public Long getTypeEtiquetteId() {
+    return typeEtiquetteId;
+  }
+
+  public void setTypeEtiquetteId(Long typeEtiquetteId) {
+    this.typeEtiquetteId = typeEtiquetteId;
+  }
+
+  public String getTypeEtiquetteLibelle() {
+    return typeEtiquetteLibelle;
+  }
+
+  public void setTypeEtiquetteLibelle(String typeEtiquetteLibelle) {
+    this.typeEtiquetteLibelle = typeEtiquetteLibelle;
+  }
+
+  public Long getFamilleId() {
+    return familleId;
+  }
+
+  public void setFamilleId(Long familleId) {
+    this.familleId = familleId;
+  }
+
+  public String getFamilleLibelle() {
+    return familleLibelle;
+  }
+
+  public void setFamilleLibelle(String familleLibelle) {
+    this.familleLibelle = familleLibelle;
+  }
+
+  public Long getGammeId() {
+    return gammeId;
+  }
+
+  public void setGammeId(Long gammeId) {
+    this.gammeId = gammeId;
+  }
+
+  public String getGammeLibelle() {
+    return gammeLibelle;
+  }
+
+  public void setGammeLibelle(String gammeLibelle) {
+    this.gammeLibelle = gammeLibelle;
+  }
+
+  public Long getTvaId() {
+    return tvaId;
+  }
+
+  public void setTvaId(Long tvaId) {
+    this.tvaId = tvaId;
+  }
+
+  public Integer getTvaTaux() {
+    return tvaTaux;
+  }
+
+  public void setTvaTaux(Integer tvaTaux) {
+    this.tvaTaux = tvaTaux;
+  }
+
+  public Set<StockProduitDTO> getStockProduits() {
+    return stockProduits;
+  }
+
+  public ProduitDTO setStockProduits(Set<StockProduitDTO> stockProduits) {
+    this.stockProduits = stockProduits;
+    return this;
+  }
+
+  public Set<FournisseurProduitDTO> getFournisseurProduits() {
+    return fournisseurProduits;
+  }
+
+  public ProduitDTO setFournisseurProduits(Set<FournisseurProduitDTO> fournisseurProduits) {
+    this.fournisseurProduits = fournisseurProduits;
+    return this;
+  }
+
+  public StockProduitDTO getStockProduit() {
+    return stockProduit;
+  }
+
   public ProduitDTO setStockProduit(StockProduitDTO stockProduit) {
     this.stockProduit = stockProduit;
     return this;
+  }
+
+  public FournisseurProduitDTO getFournisseurProduit() {
+    return fournisseurProduit;
   }
 
   public ProduitDTO setFournisseurProduit(FournisseurProduitDTO fournisseurProduit) {
@@ -319,9 +536,25 @@ public class ProduitDTO {
     return this;
   }
 
+  public String getQtyStatus() {
+    return qtyStatus;
+  }
+
+  public void setQtyStatus(String qtyStatus) {
+    this.qtyStatus = qtyStatus;
+  }
+
+  public Integer getQtyAppro() {
+    return qtyAppro;
+  }
+
   public ProduitDTO setQtyAppro(Integer qtyAppro) {
     this.qtyAppro = qtyAppro;
     return this;
+  }
+
+  public Integer getQtySeuilMini() {
+    return qtySeuilMini;
   }
 
   public ProduitDTO setQtySeuilMini(Integer qtySeuilMini) {
@@ -329,9 +562,43 @@ public class ProduitDTO {
     return this;
   }
 
+  public Boolean getDateperemption() {
+    return dateperemption;
+  }
+
+  public ProduitDTO setDateperemption(Boolean dateperemption) {
+    this.dateperemption = dateperemption;
+    return this;
+  }
+
+  public Boolean getChiffre() {
+    return chiffre;
+  }
+
+  public ProduitDTO setChiffre(Boolean chiffre) {
+    this.chiffre = chiffre;
+    return this;
+  }
+
+  public int getTotalQuantity() {
+    return totalQuantity;
+  }
+
   public ProduitDTO setTotalQuantity(int totalQuantity) {
     this.totalQuantity = totalQuantity;
     return this;
+  }
+
+  public int getQtyReserve() {
+    return qtyReserve;
+  }
+
+  public void setQtyReserve(int qtyReserve) {
+    this.qtyReserve = qtyReserve;
+  }
+
+  public Boolean getDeconditionnable() {
+    return deconditionnable;
   }
 
   public ProduitDTO setDeconditionnable(Boolean deconditionnable) {
@@ -339,9 +606,17 @@ public class ProduitDTO {
     return this;
   }
 
+  public String getCodeEan() {
+    return codeEan;
+  }
+
   public ProduitDTO setCodeEan(String codeEan) {
     this.codeEan = codeEan;
     return this;
+  }
+
+  public String getRayonLibelle() {
+    return rayonLibelle;
   }
 
   public ProduitDTO setRayonLibelle(String rayonLibelle) {
@@ -349,9 +624,17 @@ public class ProduitDTO {
     return this;
   }
 
+  public Long getRemiseId() {
+    return remiseId;
+  }
+
   public ProduitDTO setRemiseId(Long remiseId) {
     this.remiseId = remiseId;
     return this;
+  }
+
+  public long getRayonId() {
+    return rayonId;
   }
 
   public ProduitDTO setRayonId(Long rayonId) {
@@ -364,9 +647,52 @@ public class ProduitDTO {
     return this;
   }
 
+  public long getStorageId() {
+    return storageId;
+  }
+
+  public ProduitDTO setStorageId(Long storageId) {
+    this.storageId = storageId;
+    return this;
+  }
+
+  public ProduitDTO setStorageId(long storageId) {
+    this.storageId = storageId;
+    return this;
+  }
+
+  public float getTauxRemise() {
+    return tauxRemise;
+  }
+
   public ProduitDTO setTauxRemise(float tauxRemise) {
     this.tauxRemise = tauxRemise;
     return this;
+  }
+
+  public Integer getCmuAmount() {
+    return cmuAmount;
+  }
+
+  public void setCmuAmount(Integer cmuAmount) {
+    this.cmuAmount = cmuAmount;
+  }
+
+  public ProduitDTO cmuAmount(Integer cmuAmount) {
+    this.cmuAmount = cmuAmount;
+    return this;
+  }
+
+  public LocalDate getPerimeAt() {
+    return perimeAt;
+  }
+
+  public void setPerimeAt(LocalDate perimeAt) {
+    this.perimeAt = perimeAt;
+  }
+
+  public int getStatus() {
+    return status;
   }
 
   public ProduitDTO setStatus(int status) {
@@ -374,8 +700,90 @@ public class ProduitDTO {
     return this;
   }
 
-  public ProduitDTO dailyStocks(List<DailyStock> dailyStocks) {
+  public String getDisplayStatut() {
+    return displayStatut;
+  }
+
+  public void setDisplayStatut(String displayStatut) {
+    this.displayStatut = displayStatut;
+  }
+
+  public int getSaleOfPointStock() {
+    return saleOfPointStock;
+  }
+
+  public ProduitDTO setSaleOfPointStock(int saleOfPointStock) {
+    this.saleOfPointStock = saleOfPointStock;
+    return this;
+  }
+
+  public int getSaleOfPointVirtualStock() {
+    return saleOfPointVirtualStock;
+  }
+
+  public ProduitDTO setSaleOfPointVirtualStock(int saleOfPointVirtualStock) {
+    this.saleOfPointVirtualStock = saleOfPointVirtualStock;
+    return this;
+  }
+
+  public String getExpirationDate() {
+    return expirationDate;
+  }
+
+  public void setExpirationDate(String expirationDate) {
+    this.expirationDate = expirationDate;
+  }
+
+  public String getDisplayField() {
+    return displayField;
+  }
+
+  public ProduitDTO setDisplayField(String displayField) {
+    this.displayField = displayField;
+    return this;
+  }
+
+  public List<RayonProduitDTO> getRayonProduits() {
+    return rayonProduits;
+  }
+
+  public ProduitDTO setRayonProduits(List<RayonProduitDTO> rayonProduits) {
+    this.rayonProduits = rayonProduits;
+    return this;
+  }
+
+  public List<ParcoursProduit> getParcoursProduits() {
+    return parcoursProduits;
+  }
+
+  public ProduitDTO setParcoursProduits(List<ParcoursProduit> parcoursProduits) {
+    this.parcoursProduits = parcoursProduits;
+    return this;
+  }
+
+  public List<DailyStock> getDailyStocks() {
+    return dailyStocks;
+  }
+
+  public void setDailyStocks(List<DailyStock> dailyStocks) {
     this.dailyStocks = dailyStocks;
+  }
+
+  public TableauDTO getTableau() {
+    return tableau;
+  }
+
+  public ProduitDTO setTableau(TableauDTO tableau) {
+    this.tableau = tableau;
+    return this;
+  }
+
+  public int getUnitPrice() {
+    return unitPrice;
+  }
+
+  public ProduitDTO setUnitPrice(int unitPrice) {
+    this.unitPrice = unitPrice;
     return this;
   }
 }

@@ -1,19 +1,13 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.ImportationRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.service.dto.CommandeModel;
-import com.kobe.warehouse.service.dto.OrderLineDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ImportationCommandService {
@@ -44,10 +38,4 @@ public class ImportationCommandService {
     this.fournisseurProduitRepository = fournisseurProduitRepository;
     this.importationRepository = importationRepository;
   }
-
-
-
-
-
-
 }

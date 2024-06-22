@@ -7,9 +7,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-import lombok.Getter;
 
-@Getter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = RemiseClientDTO.class, name = "remiseClient"),

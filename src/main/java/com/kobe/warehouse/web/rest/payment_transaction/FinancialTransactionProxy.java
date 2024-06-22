@@ -6,7 +6,7 @@ import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSum;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -47,8 +47,7 @@ public class FinancialTransactionProxy {
     return ResponseEntity.ok().headers(headers).body(page.getContent());
   }
 
-  public ResponseEntity<List<MvtCaisseSum>> getMvtCaisseSum(
-      TransactionFilterDTO transactionFilter) {
+  public ResponseEntity<MvtCaisseWrapper> getMvtCaisseSum(TransactionFilterDTO transactionFilter) {
 
     return ResponseEntity.ok(financialTransactionService.getMvtCaisseSum(transactionFilter));
   }

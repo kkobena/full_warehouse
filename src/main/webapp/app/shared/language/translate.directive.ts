@@ -1,10 +1,9 @@
-import { Directive, ElementRef, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { inject, Input, Directive, ElementRef, OnChanges, OnInit, OnDestroy } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { translationNotFoundMessage } from "app/config/translation.config";
-import { PrimeNGConfig } from "primeng/api";
+import { translationNotFoundMessage } from 'app/config/translation.config';
 
 /**
  * A wrapper directive on top of the translate pipe as the inbuilt translate directive from ngx-translate is too verbose and buggy
@@ -13,17 +12,14 @@ import { PrimeNGConfig } from "primeng/api";
   standalone: true,
   selector: '[jhiTranslate]',
 })
-export class TranslateDirective implements OnChanges, OnInit, OnDestroy {
+export default class TranslateDirective implements OnChanges, OnInit, OnDestroy {
   @Input() jhiTranslate!: string;
   @Input() translateValues?: { [key: string]: unknown };
 
   private readonly directiveDestroyed = new Subject();
 
-  constructor(
-    private el: ElementRef,
-    private translateService: TranslateService,
-    private config: PrimeNGConfig,
-  ) {}
+  private el = inject(ElementRef);
+  private translateService = inject(TranslateService);
 
   ngOnInit(): void {
     this.translateService.onLangChange.pipe(takeUntil(this.directiveDestroyed)).subscribe(() => {
@@ -52,9 +48,6 @@ export class TranslateDirective implements OnChanges, OnInit, OnDestroy {
           this.el.nativeElement.innerHTML = value;
         },
         error: () => `${translationNotFoundMessage}[${this.jhiTranslate}]`,
-        complete: () => {
-          this.translateService.get('primeng').subscribe(res => this.config.setTranslation(res));
-        },
       });
   }
 }

@@ -18,11 +18,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-@Getter
 @Entity
 @Table(
     name = "importation",
@@ -68,9 +66,8 @@ public class Importation implements Serializable {
   @Column(columnDefinition = "json", name = "ligne_en_erreur")
   private Set<Object> ligneEnErreur = new HashSet<>();
 
-  public Importation setLigneEnErreur(Set<Object> ligneEnErreur) {
-    this.ligneEnErreur = ligneEnErreur;
-    return this;
+  public Long getId() {
+    return id;
   }
 
   public Importation setId(Long id) {
@@ -78,9 +75,17 @@ public class Importation implements Serializable {
     return this;
   }
 
+  public @NotNull ImportationType getImportationType() {
+    return importationType;
+  }
+
   public Importation setImportationType(ImportationType importationType) {
     this.importationType = importationType;
     return this;
+  }
+
+  public int getTotalZise() {
+    return totalZise;
   }
 
   public Importation setTotalZise(int totalZise) {
@@ -88,9 +93,17 @@ public class Importation implements Serializable {
     return this;
   }
 
+  public int getSize() {
+    return size;
+  }
+
   public Importation setSize(int size) {
     this.size = size;
     return this;
+  }
+
+  public int getErrorSize() {
+    return errorSize;
   }
 
   public Importation setErrorSize(int errorSize) {
@@ -98,9 +111,17 @@ public class Importation implements Serializable {
     return this;
   }
 
+  public @NotNull ImportationStatus getImportationStatus() {
+    return importationStatus;
+  }
+
   public Importation setImportationStatus(ImportationStatus importationStatus) {
     this.importationStatus = importationStatus;
     return this;
+  }
+
+  public @NotNull User getUser() {
+    return user;
   }
 
   public Importation setUser(User user) {
@@ -108,13 +129,30 @@ public class Importation implements Serializable {
     return this;
   }
 
+  public @NotNull LocalDateTime getCreated() {
+    return created;
+  }
+
   public Importation setCreated(LocalDateTime created) {
     this.created = created;
     return this;
   }
 
+  public LocalDateTime getUpdated() {
+    return updated;
+  }
+
   public Importation setUpdated(LocalDateTime updated) {
     this.updated = updated;
+    return this;
+  }
+
+  public Set<Object> getLigneEnErreur() {
+    return ligneEnErreur;
+  }
+
+  public Importation setLigneEnErreur(Set<Object> ligneEnErreur) {
+    this.ligneEnErreur = ligneEnErreur;
     return this;
   }
 }

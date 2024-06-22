@@ -122,7 +122,7 @@ public class CommandeReportService extends CommonService {
     int index = 1;
     if (startAt > 1) {
       for (int i = 1; i <= startAt; i++) {
-        etiquettes.add(EtiquetteDTO.builder().print(false).order(index).build());
+        etiquettes.add(new EtiquetteDTO().setPrint(false).setOrder(index));
         index++;
       }
 
@@ -165,15 +165,14 @@ public class CommandeReportService extends CommonService {
       DeliveryReceiptItem item, String date, int order, String rasionSociale) {
     FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
 
-    return EtiquetteDTO.builder()
-        .code(fournisseurProduit.getCodeCip())
-        .prix(String.format("%s CFA", NumberUtil.formatToString(item.getRegularUnitPrice())))
-        .print(true)
-        .date(date)
-        .order(order)
-        .magasin(rasionSociale)
-        .libelle(fournisseurProduit.getProduit().getLibelle())
-        .build();
+    return new EtiquetteDTO()
+        .setCode(fournisseurProduit.getCodeCip())
+        .setPrix(String.format("%s CFA", NumberUtil.formatToString(item.getRegularUnitPrice())))
+        .setPrint(true)
+        .setDate(date)
+        .setOrder(order)
+        .setMagasin(rasionSociale)
+        .setLibelle(fournisseurProduit.getProduit().getLibelle());
   }
 
   public Resource printEtiquettes(Set<DeliveryReceiptItem> receiptItem, int startAt)

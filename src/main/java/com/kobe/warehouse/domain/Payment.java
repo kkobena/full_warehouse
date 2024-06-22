@@ -2,8 +2,6 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,10 +14,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /** A Payment. */
-@Getter
 @Entity
 @Table(
     name = "payment",
@@ -89,34 +87,80 @@ public class Payment implements Serializable, Cloneable {
   @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
   private Boolean canceled = false;
 
-  public Payment setStatut(SalesStatut statut) {
-    this.statut = statut;
-    return this;
+  public Long getId() {
+    return id;
   }
 
-  public Payment setCanceled(Boolean canceled) {
-    this.canceled = canceled;
-    return this;
+  public void setId(Long id) {
+    this.id = id;
   }
 
-  public Payment setPartAssure(Integer partAssure) {
-    this.partAssure = partAssure;
-    return this;
+  public @NotNull Integer getNetAmount() {
+    return netAmount;
   }
 
-  public Payment setPartTiersPayant(Integer partTiersPayant) {
-    this.partTiersPayant = partTiersPayant;
-    return this;
+  public void setNetAmount(Integer netAmount) {
+    this.netAmount = netAmount;
   }
 
-  public Payment setTicketCode(String ticketCode) {
-    this.ticketCode = ticketCode;
-    return this;
+  public @NotNull Integer getPaidAmount() {
+    return paidAmount;
   }
 
-  public Payment setMontantVerse(Integer montantVerse) {
-    this.montantVerse = montantVerse;
-    return this;
+  public void setPaidAmount(Integer paidAmount) {
+    this.paidAmount = paidAmount;
+  }
+
+  public @NotNull LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public @NotNull LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public PaymentMode getPaymentMode() {
+    return paymentMode;
+  }
+
+  public void setPaymentMode(PaymentMode paymentMode) {
+    this.paymentMode = paymentMode;
+  }
+
+  public @NotNull User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public Customer getCustomer() {
+    return customer;
+  }
+
+  public void setCustomer(Customer customer) {
+    this.customer = customer;
+  }
+
+  public Sales getSales() {
+    return sales;
+  }
+
+  public void setSales(Sales sales) {
+    this.sales = sales;
+  }
+
+  public @NotNull LocalDateTime getEffectiveUpdateDate() {
+    return effectiveUpdateDate;
   }
 
   public Payment setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
@@ -124,20 +168,58 @@ public class Payment implements Serializable, Cloneable {
     return this;
   }
 
-  public void setSales(Sales sales) {
-    this.sales = sales;
+  public @NotNull Integer getMontantVerse() {
+    return montantVerse;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+  public Payment setMontantVerse(Integer montantVerse) {
+    this.montantVerse = montantVerse;
+    return this;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public @Size(max = 50) String getTicketCode() {
+    return ticketCode;
   }
 
-  public void setNetAmount(Integer netAmount) {
-    this.netAmount = netAmount;
+  public Payment setTicketCode(String ticketCode) {
+    this.ticketCode = ticketCode;
+    return this;
+  }
+
+  public @NotNull SalesStatut getStatut() {
+    return statut;
+  }
+
+  public Payment setStatut(SalesStatut statut) {
+    this.statut = statut;
+    return this;
+  }
+
+  public Integer getPartAssure() {
+    return partAssure;
+  }
+
+  public Payment setPartAssure(Integer partAssure) {
+    this.partAssure = partAssure;
+    return this;
+  }
+
+  public Integer getPartTiersPayant() {
+    return partTiersPayant;
+  }
+
+  public Payment setPartTiersPayant(Integer partTiersPayant) {
+    this.partTiersPayant = partTiersPayant;
+    return this;
+  }
+
+  public Boolean getCanceled() {
+    return canceled;
+  }
+
+  public Payment setCanceled(Boolean canceled) {
+    this.canceled = canceled;
+    return this;
   }
 
   public Payment netAmount(Integer netAmount) {
@@ -145,17 +227,9 @@ public class Payment implements Serializable, Cloneable {
     return this;
   }
 
-  public void setPaidAmount(Integer paidAmount) {
-    this.paidAmount = paidAmount;
-  }
-
   public Payment paidAmount(Integer paidAmount) {
     this.paidAmount = paidAmount;
     return this;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
   }
 
   public Payment createdAt(LocalDateTime createdAt) {
@@ -163,26 +237,14 @@ public class Payment implements Serializable, Cloneable {
     return this;
   }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
-
   public Payment updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
 
-  public void setPaymentMode(PaymentMode paymentMode) {
-    this.paymentMode = paymentMode;
-  }
-
   public Payment paymentMode(PaymentMode paymentMode) {
     this.paymentMode = paymentMode;
     return this;
-  }
-
-  public void setCustomer(Customer customer) {
-    this.customer = customer;
   }
 
   @Override

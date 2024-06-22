@@ -18,7 +18,10 @@ export interface IFilterOption {
 }
 
 export class FilterOption implements IFilterOption {
-  constructor(public name: string, public values: string[] = []) {
+  constructor(
+    public name: string,
+    public values: string[] = [],
+  ) {
     this.values = [...new Set(values)];
   }
 
@@ -97,7 +100,7 @@ export class FilterOptions implements IFilterOptions {
     params.keys
       .filter(paramKey => filterRegex.test(paramKey))
       .forEach(matchingParam => {
-        const matches = matchingParam.match(filterRegex);
+        const matches = filterRegex.exec(matchingParam);
         if (matches && matches.length > 1) {
           this.getFilterOptionByName(matches[1], true).addValue(...params.getAll(matchingParam));
         }
@@ -118,7 +121,7 @@ export class FilterOptions implements IFilterOptions {
   }
 
   removeFilter(name: string, value: string): boolean {
-    if (this.getFilterOptionByName(name).removeValue(value)) {
+    if (this.getFilterOptionByName(name)?.removeValue(value)) {
       this.changed();
       return true;
     }
@@ -135,7 +138,7 @@ export class FilterOptions implements IFilterOptions {
     if (thisFilters.length !== otherFilters.length) {
       return false;
     }
-    return thisFilters.every(option => other.getFilterOptionByName(option.name).equals(option));
+    return thisFilters.every(option => other.getFilterOptionByName(option.name)?.equals(option));
   }
 
   protected clone(): FilterOptions {

@@ -1,26 +1,25 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, OnInit, AfterViewInit, ElementRef, signal, viewChild } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import PasswordStrengthBarComponent from 'app/account/password/password-strength-bar/password-strength-bar.component';
+import SharedModule from 'app/shared/shared.module';
 
 import { PasswordResetFinishService } from './password-reset-finish.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { PasswordStrengthBarComponent } from '../../password/password-strength-bar/password-strength-bar.component';
 
 @Component({
-  selector: 'jhi-password-reset-finish',
   standalone: true,
-  imports: [WarehouseCommonModule, RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
+  selector: 'jhi-password-reset-finish',
+  imports: [SharedModule, RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
   templateUrl: './password-reset-finish.component.html',
 })
-export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
-  @ViewChild('newPassword', { static: false })
-  newPassword?: ElementRef;
+export default class PasswordResetFinishComponent implements OnInit, AfterViewInit {
+  newPassword = viewChild.required<ElementRef>('newPassword');
 
-  initialized = false;
-  doNotMatch = false;
-  error = false;
-  success = false;
-  key = '';
+  initialized = signal(false);
+  doNotMatch = signal(false);
+  error = signal(false);
+  success = signal(false);
+  key = signal('');
 
   passwordForm = new FormGroup({
     newPassword: new FormControl('', {
@@ -33,38 +32,34 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
     }),
   });
 
-  constructor(
-    private passwordResetFinishService: PasswordResetFinishService,
-    private route: ActivatedRoute,
-  ) {}
+  private passwordResetFinishService = inject(PasswordResetFinishService);
+  private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['key']) {
-        this.key = params['key'];
+        this.key.set(params['key']);
       }
-      this.initialized = true;
+      this.initialized.set(true);
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.newPassword) {
-      this.newPassword.nativeElement.focus();
-    }
+    this.newPassword().nativeElement.focus();
   }
 
   finishReset(): void {
-    this.doNotMatch = false;
-    this.error = false;
+    this.doNotMatch.set(false);
+    this.error.set(false);
 
     const { newPassword, confirmPassword } = this.passwordForm.getRawValue();
 
     if (newPassword !== confirmPassword) {
-      this.doNotMatch = true;
+      this.doNotMatch.set(true);
     } else {
-      this.passwordResetFinishService.save(this.key, newPassword).subscribe({
-        next: () => (this.success = true),
-        error: () => (this.error = true),
+      this.passwordResetFinishService.save(this.key(), newPassword).subscribe({
+        next: () => this.success.set(true),
+        error: () => this.error.set(true),
       });
     }
   }

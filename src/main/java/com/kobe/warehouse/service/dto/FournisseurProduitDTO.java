@@ -4,12 +4,10 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
-import java.time.LocalDateTime;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import java.time.LocalDateTime;
 
-@Getter
 public class FournisseurProduitDTO {
 
   private Long id;
@@ -69,10 +67,8 @@ public class FournisseurProduitDTO {
         .setPrincipal(f.isPrincipal());
   }
 
-  public FournisseurProduitDTO setProduit(ProduitDTO produit) {
-    this.produit = produit;
-
-    return this;
+  public Long getId() {
+    return id;
   }
 
   public FournisseurProduitDTO setId(Long id) {
@@ -80,9 +76,17 @@ public class FournisseurProduitDTO {
     return this;
   }
 
+  public String getCodeCip() {
+    return codeCip;
+  }
+
   public FournisseurProduitDTO setCodeCip(String codeCip) {
     this.codeCip = codeCip;
     return this;
+  }
+
+  public @NotNull @Min(value = 1) Integer getPrixAchat() {
+    return prixAchat;
   }
 
   public FournisseurProduitDTO setPrixAchat(Integer prixAchat) {
@@ -90,9 +94,17 @@ public class FournisseurProduitDTO {
     return this;
   }
 
+  public @NotNull @Min(value = 1) Integer getPrixUni() {
+    return prixUni;
+  }
+
   public FournisseurProduitDTO setPrixUni(Integer prixUni) {
     this.prixUni = prixUni;
     return this;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
   }
 
   public FournisseurProduitDTO setCreatedAt(LocalDateTime createdAt) {
@@ -100,9 +112,17 @@ public class FournisseurProduitDTO {
     return this;
   }
 
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
   public FournisseurProduitDTO setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  public Long getProduitId() {
+    return produitId;
   }
 
   public FournisseurProduitDTO setProduitId(Long produitId) {
@@ -110,9 +130,17 @@ public class FournisseurProduitDTO {
     return this;
   }
 
+  public String getProduitLibelle() {
+    return produitLibelle;
+  }
+
   public FournisseurProduitDTO setProduitLibelle(String produitLibelle) {
     this.produitLibelle = produitLibelle;
     return this;
+  }
+
+  public Long getFournisseurId() {
+    return fournisseurId;
   }
 
   public FournisseurProduitDTO setFournisseurId(Long fournisseurId) {
@@ -120,13 +148,31 @@ public class FournisseurProduitDTO {
     return this;
   }
 
+  public String getFournisseurLibelle() {
+    return fournisseurLibelle;
+  }
+
   public FournisseurProduitDTO setFournisseurLibelle(String fournisseurLibelle) {
     this.fournisseurLibelle = fournisseurLibelle;
     return this;
   }
 
+  public boolean isPrincipal() {
+    return principal;
+  }
+
   public FournisseurProduitDTO setPrincipal(boolean principal) {
     this.principal = principal;
+    return this;
+  }
+
+  public ProduitDTO getProduit() {
+    return produit;
+  }
+
+  public FournisseurProduitDTO setProduit(ProduitDTO produit) {
+    this.produit = produit;
+
     return this;
   }
 }

@@ -1,8 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,11 +12,9 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Entity
 @Table(
     name = "product_state",
@@ -41,4 +37,40 @@ public class ProductState implements Serializable {
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "state", nullable = false, length = 1)
   private ProductStateEnum state;
+
+  public Long getId() {
+    return id;
+  }
+
+  public ProductState setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public LocalDateTime getUpdated() {
+    return updated;
+  }
+
+  public ProductState setUpdated(LocalDateTime updated) {
+    this.updated = updated;
+    return this;
+  }
+
+  public @NotNull Produit getProduit() {
+    return produit;
+  }
+
+  public ProductState setProduit(@NotNull Produit produit) {
+    this.produit = produit;
+    return this;
+  }
+
+  public @NotNull ProductStateEnum getState() {
+    return state;
+  }
+
+  public ProductState setState(@NotNull ProductStateEnum state) {
+    this.state = state;
+    return this;
+  }
 }

@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
+
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
 import { CommonModule } from '@angular/common';
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 @Component({
   standalone: true,
@@ -34,7 +35,9 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
       (receiptItem.updated && receiptItem.quantityReceived !== receiptItem.quantityRequested);
     if (mustBeUpdate) {
       return 'progress-bar bg-warning';
-    } else if (receiptItem.updated || !mustBeUpdate) {return 'progress-bar bg-success';}
+    } else if (receiptItem.updated || !mustBeUpdate) {
+      return 'progress-bar bg-success';
+    }
     return 'progress-bar bg-secondary';
   }
 

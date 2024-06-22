@@ -19,10 +19,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
 
 /** A StoreInventory. */
-@Getter
+
 @Entity
 @Table(name = "store_inventory")
 public class StoreInventory implements Serializable {
@@ -92,17 +91,137 @@ public class StoreInventory implements Serializable {
   @NotNull
   private WarehouseCalendar calendar;
 
-  public Integer getGapCost() {
+    public Long getId() {
+        return id;
+    }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+    public @NotNull Long getInventoryValueCostBegin() {
+        return inventoryValueCostBegin;
+    }
+
+  public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
+    this.inventoryValueCostBegin = inventoryValueCostBegin;
+  }
+
+    public @NotNull Long getInventoryAmountBegin() {
+        return inventoryAmountBegin;
+    }
+
+  public void setInventoryAmountBegin(Long inventoryAmountBegin) {
+    this.inventoryAmountBegin = inventoryAmountBegin;
+  }
+
+    public @NotNull LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+    public @NotNull LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+    public @NotNull Long getInventoryValueCostAfter() {
+        return inventoryValueCostAfter;
+    }
+
+  public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
+    this.inventoryValueCostAfter = inventoryValueCostAfter;
+  }
+
+    public @NotNull Long getInventoryAmountAfter() {
+        return inventoryAmountAfter;
+    }
+
+  public void setInventoryAmountAfter(Long inventoryAmountAfter) {
+    this.inventoryAmountAfter = inventoryAmountAfter;
+  }
+
+    public List<StoreInventoryLine> getStoreInventoryLines() {
+        return storeInventoryLines;
+    }
+
+  public void setStoreInventoryLines(List<StoreInventoryLine> storeInventoryLines) {
+    this.storeInventoryLines = storeInventoryLines;
+  }
+
+    public @NotNull User getUser() {
+        return user;
+    }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+    public @NotNull InventoryStatut getStatut() {
+        return statut;
+    }
+
+  public void setStatut(InventoryStatut statut) {
+    this.statut = statut;
+  }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+  public StoreInventory setStorage(Storage storage) {
+    this.storage = storage;
+    return this;
+  }
+
+    public Rayon getRayon() {
+        return rayon;
+    }
+
+  public StoreInventory setRayon(Rayon rayon) {
+    this.rayon = rayon;
+    return this;
+  }
+
+    public @NotNull InventoryType getInventoryType() {
+        return inventoryType;
+    }
+
+  public StoreInventory setInventoryType(InventoryType inventoryType) {
+    this.inventoryType = inventoryType;
+    return this;
+  }
+
+    public @NotNull InventoryCategory getInventoryCategory() {
+        return inventoryCategory;
+    }
+
+  public StoreInventory setInventoryCategory(InventoryCategory inventoryCategory) {
+    this.inventoryCategory = inventoryCategory;
+    return this;
+  }
+
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
+
+  public StoreInventory setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+    public Integer getGapCost() {
     return gapCost;
   }
 
   public StoreInventory setGapCost(Integer gapCost) {
     this.gapCost = gapCost;
-    return this;
-  }
-
-  public StoreInventory setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
     return this;
   }
 
@@ -115,25 +234,9 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public void setInventoryValueCostBegin(Long inventoryValueCostBegin) {
-    this.inventoryValueCostBegin = inventoryValueCostBegin;
-  }
-
   public StoreInventory inventoryValueCostBegin(Long inventoryValueCostBegin) {
     this.inventoryValueCostBegin = inventoryValueCostBegin;
     return this;
-  }
-
-  public void setInventoryAmountBegin(Long inventoryAmountBegin) {
-    this.inventoryAmountBegin = inventoryAmountBegin;
   }
 
   public StoreInventory inventoryAmountBegin(Long inventoryAmountBegin) {
@@ -141,21 +244,9 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-  public void setStatut(InventoryStatut statut) {
-    this.statut = statut;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
   public StoreInventory createdAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
-  }
-
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public StoreInventory updatedAt(LocalDateTime updatedAt) {
@@ -163,26 +254,14 @@ public class StoreInventory implements Serializable {
     return this;
   }
 
-  public void setInventoryValueCostAfter(Long inventoryValueCostAfter) {
-    this.inventoryValueCostAfter = inventoryValueCostAfter;
-  }
-
   public StoreInventory inventoryValueCostAfter(Long inventoryValueCostAfter) {
     this.inventoryValueCostAfter = inventoryValueCostAfter;
     return this;
   }
 
-  public void setInventoryAmountAfter(Long inventoryAmountAfter) {
-    this.inventoryAmountAfter = inventoryAmountAfter;
-  }
-
   public StoreInventory inventoryAmountAfter(Long inventoryAmountAfter) {
     this.inventoryAmountAfter = inventoryAmountAfter;
     return this;
-  }
-
-  public void setStoreInventoryLines(List<StoreInventoryLine> storeInventoryLines) {
-    this.storeInventoryLines = storeInventoryLines;
   }
 
   public StoreInventory storeInventoryLines(List<StoreInventoryLine> storeInventoryLines) {
@@ -199,26 +278,6 @@ public class StoreInventory implements Serializable {
   public StoreInventory removeStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
     storeInventoryLines.remove(storeInventoryLine);
     storeInventoryLine.setStoreInventory(null);
-    return this;
-  }
-
-  public StoreInventory setStorage(Storage storage) {
-    this.storage = storage;
-    return this;
-  }
-
-  public StoreInventory setRayon(Rayon rayon) {
-    this.rayon = rayon;
-    return this;
-  }
-
-  public StoreInventory setInventoryType(InventoryType inventoryType) {
-    this.inventoryType = inventoryType;
-    return this;
-  }
-
-  public StoreInventory setInventoryCategory(InventoryCategory inventoryCategory) {
-    this.inventoryCategory = inventoryCategory;
     return this;
   }
 

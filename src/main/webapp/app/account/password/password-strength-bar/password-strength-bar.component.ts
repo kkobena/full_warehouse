@@ -1,39 +1,19 @@
-import { Component, ElementRef, Input, Renderer2 } from '@angular/core';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { Component, ElementRef, inject, Input, Renderer2 } from '@angular/core';
+
+import SharedModule from 'app/shared/shared.module';
 
 @Component({
-  selector: 'jhi-password-strength-bar',
   standalone: true,
-  imports: [WarehouseCommonModule],
+  selector: 'jhi-password-strength-bar',
+  imports: [SharedModule],
   templateUrl: './password-strength-bar.component.html',
-  styleUrls: ['./password-strength-bar.component.scss'],
+  styleUrl: './password-strength-bar.component.scss',
 })
-export class PasswordStrengthBarComponent {
+export default class PasswordStrengthBarComponent {
   colors = ['#F00', '#F90', '#FF0', '#9F0', '#0F0'];
 
-  constructor(
-    private renderer: Renderer2,
-    private elementRef: ElementRef,
-  ) {}
-
-  @Input()
-  set passwordToCheck(password: string) {
-    if (password) {
-      const c = this.getColor(this.measureStrength(password));
-      const element = this.elementRef.nativeElement;
-      if (element.className) {
-        this.renderer.removeClass(element, element.className);
-      }
-      const lis = element.getElementsByTagName('li');
-      for (let i = 0; i < lis.length; i++) {
-        if (i < c.idx) {
-          this.renderer.setStyle(lis[i], 'backgroundColor', c.color);
-        } else {
-          this.renderer.setStyle(lis[i], 'backgroundColor', '#DDD');
-        }
-      }
-    }
-  }
+  private renderer = inject(Renderer2);
+  private elementRef = inject(ElementRef);
 
   measureStrength(p: string): number {
     let force = 0;
@@ -74,5 +54,24 @@ export class PasswordStrengthBarComponent {
       }
     }
     return { idx: idx + 1, color: this.colors[idx] };
+  }
+
+  @Input()
+  set passwordToCheck(password: string) {
+    if (password) {
+      const c = this.getColor(this.measureStrength(password));
+      const element = this.elementRef.nativeElement;
+      if (element.className) {
+        this.renderer.removeClass(element, element.className);
+      }
+      const lis = element.getElementsByTagName('li');
+      for (let i = 0; i < lis.length; i++) {
+        if (i < c.idx) {
+          this.renderer.setStyle(lis[i], 'backgroundColor', c.color);
+        } else {
+          this.renderer.setStyle(lis[i], 'backgroundColor', '#DDD');
+        }
+      }
+    }
   }
 }

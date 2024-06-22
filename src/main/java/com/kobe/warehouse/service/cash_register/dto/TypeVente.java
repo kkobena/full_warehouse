@@ -3,7 +3,8 @@ package com.kobe.warehouse.service.cash_register.dto;
 public enum TypeVente {
   CASH_SALE("CashSale"),
   CREDIT_SALE("ThirdPartySales"),
-  VENTES_DEPOTS("VenteDepot");
+  VENTES_DEPOTS("VenteDepot"),
+  VENTES_DEPOT_AGREE("VenteDepotAgree");
   private final String value;
 
   TypeVente(String value) {

@@ -13,10 +13,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Getter;
 
 /** A Sales. */
-@Getter
 @Entity
 @Table(
     name = "sales",
@@ -231,231 +229,40 @@ public class Sales implements Serializable, Cloneable {
   @NotNull
   private WarehouseCalendar calendar;
 
-  public Sales setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
-
-  public Sales setOrigineVente(OrigineVente origineVente) {
-    this.origineVente = origineVente;
-    return this;
-  }
-
-  public Sales setCashRegister(CashRegister cashRegister) {
-    this.cashRegister = cashRegister;
-    return this;
-  }
-
-  public Sales setAvoir(Avoir avoir) {
-    this.avoir = avoir;
-    return this;
-  }
-
-  public Sales setCaisse(Poste caisse) {
-    this.caisse = caisse;
-    return this;
-  }
-
-  public Sales setLastCaisse(Poste lastCaisse) {
-    this.lastCaisse = lastCaisse;
-    return this;
-  }
-
-  public Sales setMonnaie(Integer monnaie) {
-    this.monnaie = monnaie;
-    return this;
-  }
-
-  public Sales setTvaEmbeded(String tvaEmbeded) {
-    this.tvaEmbeded = tvaEmbeded;
-    return this;
-  }
-
-  public Sales setLastUserEdit(User lastUserEdit) {
-    this.lastUserEdit = lastUserEdit;
-    return this;
-  }
-
-  public Sales setCategorieChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
-    this.categorieChiffreAffaire = categorieChiffreAffaire;
-    return this;
-  }
-
-  public Sales setCanceled(Boolean canceled) {
-    this.canceled = canceled;
-    return this;
-  }
-
-  public Sales setTickets(Set<Ticket> tickets) {
-    this.tickets = tickets;
-    return this;
-  }
-
-  public Sales setCustomer(Customer customer) {
-    this.customer = customer;
-    return this;
-  }
-
-  public Sales setStatutCaisse(SalesStatut statutCaisse) {
-    this.statutCaisse = statutCaisse;
-    return this;
-  }
-
-  public Sales setNetUgAmount(Integer netUgAmount) {
-    this.netUgAmount = netUgAmount;
-    return this;
-  }
-
-  public Sales setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
-    this.discountAmountHorsUg = discountAmountHorsUg;
-    return this;
-  }
-
-  public Sales setDiscountAmountUg(Integer discountAmountUg) {
-    this.discountAmountUg = discountAmountUg;
-    return this;
-  }
-
-  public Sales setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
-
-  public Sales setDiffere(boolean differe) {
-    this.differe = differe;
-    return this;
-  }
-
-  public Sales setHtAmountUg(Integer htAmountUg) {
-    this.htAmountUg = htAmountUg;
-    return this;
-  }
-
-  public Sales setCassier(User cassier) {
-    this.cassier = cassier;
-    return this;
-  }
-
-  public Sales setNatureVente(NatureVente natureVente) {
-    this.natureVente = natureVente;
-    return this;
-  }
-
-  public Sales setTypePrescription(TypePrescription typePrescription) {
-    this.typePrescription = typePrescription;
-    return this;
-  }
-
-  public Sales setPaymentStatus(PaymentStatus paymentStatus) {
-    this.paymentStatus = paymentStatus;
-    return this;
-  }
-
-  public Sales setCopy(Boolean copy) {
-    this.copy = copy;
-    return this;
-  }
-
-  public Sales setImported(boolean imported) {
-    this.imported = imported;
-    return this;
-  }
-
-  public Sales setMargeUg(Integer margeUg) {
-    this.margeUg = margeUg;
-    return this;
-  }
-
-  public Sales setMontantttcUg(Integer montantttcUg) {
-    this.montantttcUg = montantttcUg;
-    return this;
-  }
-
-  public Sales setMontantnetUg(Integer montantnetUg) {
-    this.montantnetUg = montantnetUg;
-    return this;
-  }
-
-  public Sales setMontantTvaUg(Integer montantTvaUg) {
-    this.montantTvaUg = montantTvaUg;
-    return this;
-  }
-
-  public Sales setRestToPay(Integer restToPay) {
-    this.restToPay = restToPay;
-    return this;
-  }
-
-  public void setNumberTransaction(String numberTransaction) {
-    this.numberTransaction = numberTransaction;
-  }
-
-  public Sales setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
-    this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
-    return this;
-  }
-
-  public Sales setToIgnore(boolean toIgnore) {
-    this.toIgnore = toIgnore;
-    return this;
-  }
-
-  public Sales setCanceledSale(Sales canceledSale) {
-    this.canceledSale = canceledSale;
-    return this;
-  }
-
-  public void setMagasin(Magasin magasin) {
-    this.magasin = magasin;
-  }
-
-  public void setPayments(Set<Payment> payments) {
-    this.payments = payments;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
+  public Long getId() {
+    return id;
   }
 
   public void setId(Long id) {
     this.id = id;
   }
 
+  public @NotNull String getNumberTransaction() {
+    return numberTransaction;
+  }
+
+  public void setNumberTransaction(String numberTransaction) {
+    this.numberTransaction = numberTransaction;
+  }
+
+  public @NotNull Integer getDiscountAmount() {
+    return discountAmount;
+  }
+
   public void setDiscountAmount(Integer discountAmount) {
     this.discountAmount = discountAmount;
   }
 
-  public Sales discountAmount(Integer discountAmount) {
-    this.discountAmount = discountAmount;
-    return this;
-  }
-
-  public Sales setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
-    this.effectiveUpdateDate = effectiveUpdateDate;
-    return this;
-  }
-
-  public Sales setAmountToBePaid(Integer amountToBePaid) {
-    this.amountToBePaid = amountToBePaid;
-    return this;
-  }
-
-  public Sales setPayrollAmount(Integer payrollAmount) {
-    this.payrollAmount = payrollAmount;
-    return this;
-  }
-
-  public void setRemise(Remise remise) {
-    this.remise = remise;
+  public @NotNull Integer getSalesAmount() {
+    return salesAmount;
   }
 
   public void setSalesAmount(Integer salesAmount) {
     this.salesAmount = salesAmount;
   }
 
-  public Sales salesAmount(Integer salesAmount) {
-    this.salesAmount = salesAmount;
-    return this;
+  public @NotNull Integer getHtAmount() {
+    return htAmount;
   }
 
   public Sales setHtAmount(Integer htAmount) {
@@ -463,8 +270,445 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
+  public @NotNull Integer getNetAmount() {
+    return netAmount;
+  }
+
   public void setNetAmount(Integer netAmount) {
     this.netAmount = netAmount;
+  }
+
+  public @NotNull Integer getTaxAmount() {
+    return taxAmount;
+  }
+
+  public void setTaxAmount(Integer taxAmount) {
+    this.taxAmount = taxAmount;
+  }
+
+  public @NotNull Integer getCostAmount() {
+    return costAmount;
+  }
+
+  public void setCostAmount(Integer costAmount) {
+    this.costAmount = costAmount;
+  }
+
+  public @NotNull Integer getAmountToBePaid() {
+    return amountToBePaid;
+  }
+
+  public Sales setAmountToBePaid(Integer amountToBePaid) {
+    this.amountToBePaid = amountToBePaid;
+    return this;
+  }
+
+  public @NotNull Integer getPayrollAmount() {
+    return payrollAmount;
+  }
+
+  public Sales setPayrollAmount(Integer payrollAmount) {
+    this.payrollAmount = payrollAmount;
+    return this;
+  }
+
+  public @NotNull Integer getRestToPay() {
+    return restToPay;
+  }
+
+  public Sales setRestToPay(Integer restToPay) {
+    this.restToPay = restToPay;
+    return this;
+  }
+
+  public Integer getAmountToBeTakenIntoAccount() {
+    return amountToBeTakenIntoAccount;
+  }
+
+  public Sales setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
+    this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+    return this;
+  }
+
+  public Integer getMargeUg() {
+    return margeUg;
+  }
+
+  public Sales setMargeUg(Integer margeUg) {
+    this.margeUg = margeUg;
+    return this;
+  }
+
+  public Integer getMontantttcUg() {
+    return montantttcUg;
+  }
+
+  public Sales setMontantttcUg(Integer montantttcUg) {
+    this.montantttcUg = montantttcUg;
+    return this;
+  }
+
+  public Integer getMontantnetUg() {
+    return montantnetUg;
+  }
+
+  public Sales setMontantnetUg(Integer montantnetUg) {
+    this.montantnetUg = montantnetUg;
+    return this;
+  }
+
+  public Integer getMontantTvaUg() {
+    return montantTvaUg;
+  }
+
+  public Sales setMontantTvaUg(Integer montantTvaUg) {
+    this.montantTvaUg = montantTvaUg;
+    return this;
+  }
+
+  public @NotNull Integer getDiscountAmountHorsUg() {
+    return discountAmountHorsUg;
+  }
+
+  public Sales setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
+    this.discountAmountHorsUg = discountAmountHorsUg;
+    return this;
+  }
+
+  public @NotNull Integer getDiscountAmountUg() {
+    return discountAmountUg;
+  }
+
+  public Sales setDiscountAmountUg(Integer discountAmountUg) {
+    this.discountAmountUg = discountAmountUg;
+    return this;
+  }
+
+  public @NotNull Integer getNetUgAmount() {
+    return netUgAmount;
+  }
+
+  public Sales setNetUgAmount(Integer netUgAmount) {
+    this.netUgAmount = netUgAmount;
+    return this;
+  }
+
+  public @NotNull Integer getHtAmountUg() {
+    return htAmountUg;
+  }
+
+  public Sales setHtAmountUg(Integer htAmountUg) {
+    this.htAmountUg = htAmountUg;
+    return this;
+  }
+
+  public @NotNull SalesStatut getStatut() {
+    return statut;
+  }
+
+  public void setStatut(SalesStatut statut) {
+    this.statut = statut;
+  }
+
+  public @NotNull LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public @NotNull LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public Set<SalesLine> getSalesLines() {
+    return salesLines;
+  }
+
+  public void setSalesLines(Set<SalesLine> salesLines) {
+    this.salesLines = salesLines;
+  }
+
+  public Remise getRemise() {
+    return remise;
+  }
+
+  public void setRemise(Remise remise) {
+    this.remise = remise;
+  }
+
+  public @NotNull User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public @NotNull User getSeller() {
+    return seller;
+  }
+
+  public Sales setSeller(User seller) {
+    this.seller = seller;
+    return this;
+  }
+
+  public @NotNull User getCassier() {
+    return cassier;
+  }
+
+  public Sales setCassier(User cassier) {
+    this.cassier = cassier;
+    return this;
+  }
+
+  public Set<Payment> getPayments() {
+    return payments;
+  }
+
+  public void setPayments(Set<Payment> payments) {
+    this.payments = payments;
+  }
+
+  public @NotNull Magasin getMagasin() {
+    return magasin;
+  }
+
+  public void setMagasin(Magasin magasin) {
+    this.magasin = magasin;
+  }
+
+  public Sales getCanceledSale() {
+    return canceledSale;
+  }
+
+  public Sales setCanceledSale(Sales canceledSale) {
+    this.canceledSale = canceledSale;
+    return this;
+  }
+
+  public @NotNull User getLastUserEdit() {
+    return lastUserEdit;
+  }
+
+  public Sales setLastUserEdit(User lastUserEdit) {
+    this.lastUserEdit = lastUserEdit;
+    return this;
+  }
+
+  public @NotNull LocalDateTime getEffectiveUpdateDate() {
+    return effectiveUpdateDate;
+  }
+
+  public Sales setEffectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
+    this.effectiveUpdateDate = effectiveUpdateDate;
+    return this;
+  }
+
+  public boolean isToIgnore() {
+    return toIgnore;
+  }
+
+  public Sales setToIgnore(boolean toIgnore) {
+    this.toIgnore = toIgnore;
+    return this;
+  }
+
+  public Boolean getCopy() {
+    return copy;
+  }
+
+  public Sales setCopy(Boolean copy) {
+    this.copy = copy;
+    return this;
+  }
+
+  public boolean isImported() {
+    return imported;
+  }
+
+  public Sales setImported(boolean imported) {
+    this.imported = imported;
+    return this;
+  }
+
+  public @NotNull PaymentStatus getPaymentStatus() {
+    return paymentStatus;
+  }
+
+  public Sales setPaymentStatus(PaymentStatus paymentStatus) {
+    this.paymentStatus = paymentStatus;
+    return this;
+  }
+
+  public @NotNull NatureVente getNatureVente() {
+    return natureVente;
+  }
+
+  public Sales setNatureVente(NatureVente natureVente) {
+    this.natureVente = natureVente;
+    return this;
+  }
+
+  public @NotNull OrigineVente getOrigineVente() {
+    return origineVente;
+  }
+
+  public Sales setOrigineVente(OrigineVente origineVente) {
+    this.origineVente = origineVente;
+    return this;
+  }
+
+  public @NotNull TypePrescription getTypePrescription() {
+    return typePrescription;
+  }
+
+  public Sales setTypePrescription(TypePrescription typePrescription) {
+    this.typePrescription = typePrescription;
+    return this;
+  }
+
+  @NotNull
+  public boolean isDiffere() {
+    return differe;
+  }
+
+  public Sales setDiffere(boolean differe) {
+    this.differe = differe;
+    return this;
+  }
+
+  public @NotNull SalesStatut getStatutCaisse() {
+    return statutCaisse;
+  }
+
+  public Sales setStatutCaisse(SalesStatut statutCaisse) {
+    this.statutCaisse = statutCaisse;
+    return this;
+  }
+
+  public @NotNull CategorieChiffreAffaire getCategorieChiffreAffaire() {
+    return categorieChiffreAffaire;
+  }
+
+  public Sales setCategorieChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
+    this.categorieChiffreAffaire = categorieChiffreAffaire;
+    return this;
+  }
+
+  public Poste getCaisse() {
+    return caisse;
+  }
+
+  public Sales setCaisse(Poste caisse) {
+    this.caisse = caisse;
+    return this;
+  }
+
+  public Poste getLastCaisse() {
+    return lastCaisse;
+  }
+
+  public Sales setLastCaisse(Poste lastCaisse) {
+    this.lastCaisse = lastCaisse;
+    return this;
+  }
+
+  public Customer getCustomer() {
+    return customer;
+  }
+
+  public Sales setCustomer(Customer customer) {
+    this.customer = customer;
+    return this;
+  }
+
+  public Boolean getCanceled() {
+    return canceled;
+  }
+
+  public Sales setCanceled(Boolean canceled) {
+    this.canceled = canceled;
+    return this;
+  }
+
+  public Set<Ticket> getTickets() {
+    return tickets;
+  }
+
+  public Sales setTickets(Set<Ticket> tickets) {
+    this.tickets = tickets;
+    return this;
+  }
+
+  public String getTvaEmbeded() {
+    return tvaEmbeded;
+  }
+
+  public Sales setTvaEmbeded(String tvaEmbeded) {
+    this.tvaEmbeded = tvaEmbeded;
+    return this;
+  }
+
+  public String getCommentaire() {
+    return commentaire;
+  }
+
+  public Sales setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
+    return this;
+  }
+
+  public @NotNull Integer getMonnaie() {
+    return monnaie;
+  }
+
+  public Sales setMonnaie(Integer monnaie) {
+    this.monnaie = monnaie;
+    return this;
+  }
+
+  public Avoir getAvoir() {
+    return avoir;
+  }
+
+  public Sales setAvoir(Avoir avoir) {
+    this.avoir = avoir;
+    return this;
+  }
+
+  public CashRegister getCashRegister() {
+    return cashRegister;
+  }
+
+  public Sales setCashRegister(CashRegister cashRegister) {
+    this.cashRegister = cashRegister;
+    return this;
+  }
+
+  public @NotNull WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public Sales setCalendar(WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+  public Sales discountAmount(Integer discountAmount) {
+    this.discountAmount = discountAmount;
+    return this;
+  }
+
+  public Sales salesAmount(Integer salesAmount) {
+    this.salesAmount = salesAmount;
+    return this;
   }
 
   public Sales netAmount(Integer netAmount) {
@@ -472,17 +716,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public void setTaxAmount(Integer taxAmount) {
-    this.taxAmount = taxAmount;
-  }
-
   public Sales taxAmount(Integer taxAmount) {
     this.taxAmount = taxAmount;
     return this;
-  }
-
-  public void setCostAmount(Integer costAmount) {
-    this.costAmount = costAmount;
   }
 
   public Sales costAmount(Integer costAmount) {
@@ -490,17 +726,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public void setStatut(SalesStatut statut) {
-    this.statut = statut;
-  }
-
   public Sales statut(SalesStatut statut) {
     this.statut = statut;
     return this;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
   }
 
   public Sales createdAt(LocalDateTime createdAt) {
@@ -508,17 +736,9 @@ public class Sales implements Serializable, Cloneable {
     return this;
   }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
-
   public Sales updatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public void setSalesLines(Set<SalesLine> salesLines) {
-    this.salesLines = salesLines;
   }
 
   public Sales salesLines(Set<SalesLine> salesLines) {
@@ -535,11 +755,6 @@ public class Sales implements Serializable, Cloneable {
   public Sales removeSalesLine(SalesLine salesLine) {
     salesLines.remove(salesLine);
     salesLine.setSales(null);
-    return this;
-  }
-
-  public Sales setSeller(User seller) {
-    this.seller = seller;
     return this;
   }
 

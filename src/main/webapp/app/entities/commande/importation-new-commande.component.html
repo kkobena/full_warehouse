@@ -8,10 +8,11 @@
     <div class="form-group col">
       <label class="form-control-label">Fournisseurs</label>
       <p-dropdown [(ngModel)]="fournisseurSelectedId" [appendTo]="appendTo"
+                  [filter]="true"
 
-                  [filter]="true" [options]="fournisseurs"
+                  [options]="fournisseurs" [style]="{width: '100%'}"
                   optionLabel="libelle" optionValue="id" placeholder="Séléctionner un fournisseur "
-                  styleClass="form-control ngCombo">
+      >
       </p-dropdown>
 
     </div>
@@ -20,15 +21,16 @@
     <div class="form-group col">
       <label class="form-control-label">Model de fichier</label>
       <p-dropdown [(ngModel)]="modelSelected" [appendTo]="appendTo" [filter]="false"
-
-                  [options]="models" optionLabel="label"
-                  optionValue="value" placeholder="Séléctionner un model de fichier " styleClass="form-control ngCombo">
+                  [options]="models"
+                  [style]="{width: '100%'}" optionLabel="label"
+                  optionValue="value" placeholder="Séléctionner un model de fichier ">
       </p-dropdown>
 
     </div>
   </div>
   <div class="form-row">
-    <p-fileUpload #fileUpload (uploadHandler)="uploadHandler($event,fileUpload)" [auto]="true" [customUpload]="true"
+    <p-fileUpload #fileUpload (uploadHandler)="uploadHandler($event,fileUpload)" [auto]="true"
+                  [customUpload]="true"
                   [showCancelButton]="true" accept=".csv,.txt"
                   chooseLabel="Importer un fichier" mode="basic">
     </p-fileUpload>

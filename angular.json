@@ -20,6 +20,10 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "file-saver",
+              "moment"
+            ],
             "customWebpackConfig": {
               "path": "./webpack/webpack.custom.js"
             },
@@ -63,8 +67,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "10kb"
                 }
               ]
             },
@@ -112,6 +116,6 @@
       "environment": "all"
     },
     "packageManager": "npm",
-    "analytics": "bbcc3501-9e5f-4442-8964-ee3865d1506f"
+    "analytics": "9a3c73e5-aa8b-4bce-a6da-fd840b488e9a"
   }
 }

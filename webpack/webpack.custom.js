@@ -5,7 +5,7 @@ const { hashElement } = require('folder-hash');
 const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const WebpackNotifierPlugin = require('webpack-notifier');
+//const WebpackNotifierPlugin = require('webpack-notifier');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 
@@ -37,7 +37,7 @@ module.exports = async (config, options, targetOptions) => {
   }
 
   // configuring proxy for back end service
-  const tls = Boolean(config.devServer && config.devServer.https);
+  const tls = config.devServer?.server?.type === 'https';
   if (config.devServer) {
     config.devServer.proxy = proxyConfig({ tls });
   }

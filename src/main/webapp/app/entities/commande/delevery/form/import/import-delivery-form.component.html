@@ -7,11 +7,9 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Fournisseurs</label>
-        <p-dropdown [appendTo]="appendTo" [filter]="true"
-
-                    [options]="fournisseurs" formControlName="fournisseur"
-                    optionLabel="libelle" placeholder="Séléctionner un fournisseur "
-                    styleClass="form-control ngCombo">
+        <p-dropdown [appendTo]="appendTo" [filter]="true" [options]="fournisseurs"
+                    [style]="{width: '100%'}" formControlName="fournisseur"
+                    optionLabel="libelle" placeholder="Séléctionner un fournisseur ">
         </p-dropdown>
         <div
           *ngIf="editForm.get('fournisseur')!.invalid && (editForm.get('fournisseur')!.dirty || editForm.get('fournisseur')!.touched)">
@@ -27,10 +25,10 @@
       <div class="form-group col">
         <label class="form-control-label">Model de fichier</label>
         <p-dropdown [appendTo]="appendTo" [filter]="false" [options]="models"
+                    [style]="{width: '100%'}"
 
                     formControlName="model" optionLabel="label"
-                    placeholder="Séléctionner un model de fichier"
-                    styleClass="form-control ngCombo">
+                    placeholder="Séléctionner un model de fichier">
         </p-dropdown>
         <div
           *ngIf="editForm.get('model')!.invalid && (editForm.get('model')!.dirty || editForm.get('model')!.touched)">

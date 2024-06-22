@@ -2,15 +2,18 @@
   <div class="d-flex justify-content-center " style="padding-top: 2rem;">
     <div class="col-lg-4 col-md-5 col-sm-8">
       <p-card header="Authentification">
-        <div *ngIf="authenticationError" class="alert alert-danger"
-             data-cy="loginError" jhiTranslate="login.messages.error.authentication">
-          <strong>Erreur d'authentification !</strong> Veuillez vérifier vos identifiants de
-          connexion.
-        </div>
-        <form (ngSubmit)="login()" [formGroup]="loginForm" class="form" role="form">
+        <h1 data-cy="loginTitle" jhiTranslate="login.title">Authentification</h1>
+        @if (authenticationError()) {
+          <div class="alert alert-danger" data-cy="loginError"
+               jhiTranslate="login.messages.error.authentication">
+            <strong>Erreur d&apos;authentification !</strong> Veuillez vérifier vos identifiants de
+            connexion.
+          </div>
+        }
+        <form (ngSubmit)="login()" [formGroup]="loginForm" class="form">
           <div class="mb-3">
             <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom
-              d'utilisateur</label>
+              d&apos;utilisateur</label>
             <input
               #username
               class="form-control"
@@ -45,15 +48,12 @@
             </label>
           </div>
 
-          <button class="p-button-raised p-button-primary"
-                  data-cy="submit" jhiTranslate="login.form.button" pButton
-                  pRipple
+          <button class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button"
                   type="submit">Connexion
           </button>
         </form>
       </p-card>
-
-
     </div>
+
   </div>
 </div>

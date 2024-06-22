@@ -8,7 +8,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 
 import { Session } from './session.model';
-import { SessionsComponent } from './sessions.component';
+import SessionsComponent from './sessions.component';
 import { SessionsService } from './sessions.service';
 
 describe('SessionsComponent', () => {
@@ -28,8 +28,7 @@ describe('SessionsComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      declarations: [SessionsComponent],
+      imports: [HttpClientTestingModule, SessionsComponent],
       providers: [AccountService],
     })
       .overrideTemplate(SessionsComponent, '')
@@ -52,7 +51,7 @@ describe('SessionsComponent', () => {
       expect(comp.error).toBe(false);
       expect(comp.account).toEqual(account);
       expect(comp.sessions).toEqual(sessions);
-    })
+    }),
   ));
 
   it('should call delete on Sessions to invalidate a session', inject(
@@ -67,7 +66,7 @@ describe('SessionsComponent', () => {
       tick();
 
       expect(service.delete).toHaveBeenCalledWith('xyz');
-    })
+    }),
   ));
 
   it('should call delete on Sessions and notify of error', inject(
@@ -75,7 +74,7 @@ describe('SessionsComponent', () => {
     fakeAsync((mockAccountService: AccountService, service: SessionsService) => {
       mockAccountService.identity = jest.fn(() => of(account));
       jest.spyOn(service, 'findAll').mockReturnValue(of(sessions));
-      jest.spyOn(service, 'delete').mockReturnValue(throwError({}));
+      jest.spyOn(service, 'delete').mockReturnValue(throwError(() => {}));
 
       comp.ngOnInit();
       comp.invalidate('xyz');
@@ -83,7 +82,7 @@ describe('SessionsComponent', () => {
 
       expect(comp.success).toBe(false);
       expect(comp.error).toBe(true);
-    })
+    }),
   ));
 
   it('should call notify of success upon session invalidation', inject(
@@ -99,6 +98,6 @@ describe('SessionsComponent', () => {
 
       expect(comp.error).toBe(false);
       expect(comp.success).toBe(true);
-    })
+    }),
   ));
 });

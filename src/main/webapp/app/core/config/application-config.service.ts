@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ApplicationConfigService {
   private endpointPrefix = '';
+  private microfrontend = false;
 
   setEndpointPrefix(endpointPrefix: string): void {
     this.endpointPrefix = endpointPrefix;

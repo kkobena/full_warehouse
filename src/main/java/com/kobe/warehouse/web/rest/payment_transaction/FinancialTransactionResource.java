@@ -9,7 +9,7 @@ import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSum;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -103,16 +103,16 @@ public class FinancialTransactionResource extends FinancialTransactionProxy {
   }
 
   @GetMapping("/payment-transactions/mvt-caisses/sum")
-  public ResponseEntity<List<MvtCaisseSum>> fetchMvtCaisseSum(
+  public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
       @RequestParam(value = "search", required = false) String search,
       @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
       @RequestParam(value = "toDate", required = false) LocalDate toDate,
       @RequestParam(value = "userId", required = false) Long userId,
-      @RequestParam(value = "typeFinancialTransaction", required = false)
+      @RequestParam(value = "typeFinancialTransactions", required = false)
           Set<TypeFinancialTransaction> typeFinancialTransactions,
-      @RequestParam(value = "categorieChiffreAffaire", required = false)
+      @RequestParam(value = "categorieChiffreAffaires", required = false)
           Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      @RequestParam(value = "paymentMode", required = false) Set<String> paymentModes,
+      @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
       @RequestParam(value = "order", required = false) Order order,
       @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
       @RequestParam(value = "toTime", required = false) LocalTime toTime) {

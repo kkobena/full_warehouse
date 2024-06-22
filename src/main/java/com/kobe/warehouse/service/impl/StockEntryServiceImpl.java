@@ -304,15 +304,16 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     DeliveryReceipt deliveryReceipt = importNewBon(uploadDeleiveryReceipt);
     return switch (extension) {
-      case FileUtil.CSV -> uploadCSVFormat(
-          deliveryReceipt, uploadDeleiveryReceipt.getModel(), multipartFile);
+      case FileUtil.CSV ->
+          uploadCSVFormat(deliveryReceipt, uploadDeleiveryReceipt.getModel(), multipartFile);
       case FileUtil.TXT -> uploadTXTFormat(deliveryReceipt, multipartFile);
-      default -> throw new GenericError(
-          String.format(
-              "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
-              uploadDeleiveryReceipt.getModel().name()),
-          "commande",
-          "modelimportation");
+      default ->
+          throw new GenericError(
+              String.format(
+                  "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
+                  uploadDeleiveryReceipt.getModel().name()),
+              "commande",
+              "modelimportation");
     };
   }
 
@@ -443,16 +444,15 @@ public class StockEntryServiceImpl implements StockEntryService {
   }
 
   private DeliveryReceiptLiteDTO fromEntity(DeliveryReceipt deliveryReceipt) {
-    return DeliveryReceiptLiteDTO.builder()
-        .id(deliveryReceipt.getId())
-        .receiptAmount(deliveryReceipt.getReceiptAmount())
-        .receiptDate(deliveryReceipt.getReceiptDate())
-        .receiptFullDate(deliveryReceipt.getReceiptDate().atStartOfDay())
-        .orderReference(deliveryReceipt.getOrderReference())
-        .sequenceBon(deliveryReceipt.getSequenceBon())
-        .receiptRefernce(deliveryReceipt.getReceiptRefernce())
-        .taxAmount(deliveryReceipt.getTaxAmount())
-        .build();
+    return new DeliveryReceiptLiteDTO()
+        .setId(deliveryReceipt.getId())
+        .setReceiptAmount(deliveryReceipt.getReceiptAmount())
+        .setReceiptDate(deliveryReceipt.getReceiptDate())
+        .setReceiptFullDate(deliveryReceipt.getReceiptDate().atStartOfDay())
+        .setOrderReference(deliveryReceipt.getOrderReference())
+        .setSequenceBon(deliveryReceipt.getSequenceBon())
+        .setReceiptRefernce(deliveryReceipt.getReceiptRefernce())
+        .setTaxAmount(deliveryReceipt.getTaxAmount());
   }
 
   private DeliveryReceipt importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
@@ -960,13 +960,13 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     commandeResponseDTO =
         switch (commandeModel) {
-          case LABOREX -> uploadLaborexModelCSVFormat(
-              deliveryReceipt, multipartFile, items, longOrderLineMap);
-          case COPHARMED -> uploadCOPHARMEDCSVFormat(
-              deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case LABOREX ->
+              uploadLaborexModelCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case COPHARMED ->
+              uploadCOPHARMEDCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
           case DPCI -> uploadDPCICSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-          case TEDIS -> uploadTEDISCSVFormat(
-              deliveryReceipt, multipartFile, items, longOrderLineMap);
+          case TEDIS ->
+              uploadTEDISCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
         };
     return commandeResponseDTO.setEntity(
         fromEntity(this.deliveryReceiptRepository.save(deliveryReceipt)));

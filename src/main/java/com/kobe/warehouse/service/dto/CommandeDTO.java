@@ -5,9 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.Getter;
 
-@Getter
 public class CommandeDTO extends CommandeWrapperDTO {
 
   private List<OrderLineDTO> orderLines;
@@ -35,10 +33,8 @@ public class CommandeDTO extends CommandeWrapperDTO {
     setTotalProduits(orderLines.size());
   }
 
-
-  public CommandeDTO setLastUserEdit(UserDTO lastUserEdit) {
-    this.lastUserEdit = lastUserEdit;
-    return this;
+  public List<OrderLineDTO> getOrderLines() {
+    return orderLines;
   }
 
   public CommandeDTO setOrderLines(List<OrderLineDTO> orderLines) {
@@ -46,9 +42,17 @@ public class CommandeDTO extends CommandeWrapperDTO {
     return this;
   }
 
+  public MagasinDTO getMagasin() {
+    return magasin;
+  }
+
   public CommandeDTO setMagasin(MagasinDTO magasin) {
     this.magasin = magasin;
     return this;
+  }
+
+  public UserDTO getUser() {
+    return user;
   }
 
   public CommandeDTO setUser(UserDTO user) {
@@ -56,5 +60,12 @@ public class CommandeDTO extends CommandeWrapperDTO {
     return this;
   }
 
+  public UserDTO getLastUserEdit() {
+    return lastUserEdit;
+  }
 
+  public CommandeDTO setLastUserEdit(UserDTO lastUserEdit) {
+    this.lastUserEdit = lastUserEdit;
+    return this;
+  }
 }

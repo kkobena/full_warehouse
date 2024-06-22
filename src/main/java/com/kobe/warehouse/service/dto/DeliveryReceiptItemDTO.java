@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.CollectionUtils;
 
-@Getter
 public class DeliveryReceiptItemDTO {
 
   private final Long id;
@@ -40,9 +38,9 @@ public class DeliveryReceiptItemDTO {
   private final Boolean updated;
   private final Integer quantityReceivedTmp;
   private final Integer costAmount;
-  private final Integer  afterStock;
+  private final Integer afterStock;
 
-    public DeliveryReceiptItemDTO(DeliveryReceiptItem receiptItem) {
+  public DeliveryReceiptItemDTO(DeliveryReceiptItem receiptItem) {
     id = receiptItem.getId();
     ugQuantity = receiptItem.getUgQuantity();
     quantityReceived = receiptItem.getQuantityReceived();
@@ -53,7 +51,7 @@ public class DeliveryReceiptItemDTO {
     netAmount = receiptItem.getNetAmount();
     taxAmount = receiptItem.getTaxAmount();
     createdDate = receiptItem.getCreatedDate();
-      orderCostAmount=receiptItem.getOrderCostAmount();
+    orderCostAmount = receiptItem.getOrderCostAmount();
     effectifGrossIncome = receiptItem.getEffectifGrossIncome();
     effectifOrderAmount = receiptItem.getEffectifOrderAmount();
     FournisseurProduit fournisseurProduit = receiptItem.getFournisseurProduit();
@@ -69,12 +67,112 @@ public class DeliveryReceiptItemDTO {
     fournisseurProduitEan = produit.getCodeEan();
     fournisseurProduitLibelle = produit.getLibelle();
     updated = receiptItem.getUpdated();
-    afterStock=receiptItem.getAfterStock();
+    afterStock = receiptItem.getAfterStock();
     quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
     List<Lot> lots1 = receiptItem.getLots();
     lots =
         !CollectionUtils.isEmpty(lots1)
             ? lots1.stream().map(LotDTO::new).toList()
             : new ArrayList<>();
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public Integer getUgQuantity() {
+    return ugQuantity;
+  }
+
+  public Integer getQuantityReceived() {
+    return quantityReceived;
+  }
+
+  public Integer getInitStock() {
+    return initStock;
+  }
+
+  public Integer getQuantityRequested() {
+    return quantityRequested;
+  }
+
+  public Integer getQuantityReturned() {
+    return quantityReturned;
+  }
+
+  public Integer getDiscountAmount() {
+    return discountAmount;
+  }
+
+  public Integer getNetAmount() {
+    return netAmount;
+  }
+
+  public Integer getTaxAmount() {
+    return taxAmount;
+  }
+
+  public LocalDateTime getCreatedDate() {
+    return createdDate;
+  }
+
+  public Integer getOrderUnitPrice() {
+    return orderUnitPrice;
+  }
+
+  public Integer getRegularUnitPrice() {
+    return regularUnitPrice;
+  }
+
+  public Integer getOrderCostAmount() {
+    return orderCostAmount;
+  }
+
+  public Integer getEffectifGrossIncome() {
+    return effectifGrossIncome;
+  }
+
+  public Integer getEffectifOrderAmount() {
+    return effectifOrderAmount;
+  }
+
+  public long getFournisseurProduitId() {
+    return fournisseurProduitId;
+  }
+
+  public long getProduitId() {
+    return produitId;
+  }
+
+  public String getFournisseurProduitLibelle() {
+    return fournisseurProduitLibelle;
+  }
+
+  public String getFournisseurProduitCip() {
+    return fournisseurProduitCip;
+  }
+
+  public String getFournisseurProduitEan() {
+    return fournisseurProduitEan;
+  }
+
+  public List<LotDTO> getLots() {
+    return lots;
+  }
+
+  public Boolean getUpdated() {
+    return updated;
+  }
+
+  public Integer getQuantityReceivedTmp() {
+    return quantityReceivedTmp;
+  }
+
+  public Integer getCostAmount() {
+    return costAmount;
+  }
+
+  public Integer getAfterStock() {
+    return afterStock;
   }
 }

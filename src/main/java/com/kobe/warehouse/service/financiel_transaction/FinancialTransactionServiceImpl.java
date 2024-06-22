@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
@@ -16,12 +17,15 @@ import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
+import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.enumeration.Order;
 import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSum;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.service.utils.DateUtil;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
@@ -37,6 +41,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -56,9 +61,9 @@ import org.springframework.util.StringUtils;
 public class FinancialTransactionServiceImpl implements FinancialTransactionService {
   private static final String FULL_BASE_COUNT_QUERY =
       """
-SELECT COUNT(*) as total FROM (SELECT s.id,s.updated_at as createdAt,s.number_transaction as numberTransaction,'vente' as typeMvt,s.dtype as typeTransaction,s.ca as ca,p.payment_mode_code as paymentModeCode
+SELECT COUNT(*) as total FROM (SELECT s.id,s.updated_at as createdAt,s.number_transaction as numberTransaction,'vente' as typeMvt,s.dtype as typeTransaction,s.ca as ca,p.payment_mode_code as paymentModeCode,s.user_id as userId
  FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id LEFT JOIN customer c ON s.customer_id = c.id   union
- SELECT  pt.id,pt.created_at as createdAt,pt.ticket_code as numberTransaction,'transaction' as typeMvt,pt.type_transaction as typeTransaction,pt.categorie_ca as ca,pt.payment_mode_code as paymentModeCode
+ SELECT  pt.id,pt.created_at as createdAt,pt.ticket_code as numberTransaction,'transaction' as typeMvt,pt.type_transaction as typeTransaction,pt.categorie_ca as ca,pt.payment_mode_code as paymentModeCode,pt.user_id as userId
  FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
 JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt
   """;
@@ -85,65 +90,27 @@ FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id L
   ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
 JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt
 """;
-  private static final String SQL_ONLY_SALES =
-      """
-SELECT wc.work_day,
- s.id AS saleId, p.paid_amount as paidAmount,p.payment_mode_code as paymentModeCode,
- md.libelle as paymentModeLibelle,s.dtype AS typeVente,concat(u.first_name,' ',u.last_name) as userFullName
-,concat(c.first_name,' ',c.last_name) as customerFullName,s.updated_at as saleDate,s.number_transaction
- as saleNumberTransaction,s.num_bon as saleNumBon,s.statut as saleStatut,s.ca as saleCa
-FROM warehouse_calendar wc  JOIN sales s ON wc.work_day = s.calendar_work_day
- join payment p ON s.id = p.sales_id JOIN
-     payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id
-  LEFT JOIN customer c ON s.customer_id = c.id
-
-""";
-
-  private static final String SQL_ONLY_TRANSACTION_BASE =
-      """
-SELECT pt.categorie_ca AS transactionCategorieCa, pt.ticket_code as paymentTransactionTicketCode, pt.user_id AS transactionUserId, pt.calendar_work_day AS work_day, pt.amount AS paymentTransactionAmount,pt.created_at as paymentTransactionAmountCreated,pt.type_transaction as typeTransaction, concat(up.first_name,' ',up.last_name)
-as transactionUserFullName,concat(pc.first_name,' ',pc.last_name) as transactionCustomerFullName,tp.name as tiersPayantName, pmp.libelle as transactionPaymentModeLibelle,pmp.code as transactionPaymentModeCode,
-pt.id as transactionId FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
-JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code;
-""";
-
-  private static final String SQL_ONLY_SALES_COUNT =
-      """
-SELECT count(*) AS total
-FROM warehouse_calendar wc  JOIN sales s ON wc.work_day = s.calendar_work_day
-  join payment p ON s.id = p.sales_id JOIN
-  payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id
-  LEFT JOIN customer c ON s.customer_id = c.id
-""";
-  private static final String SQL_ONLY_TRANSACTION_COUNT =
-      """
-SELECT count(*) FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code
-""";
 
   private static final String USER_ID = " AND mvt.userId  = %d ";
   private static final String DATE = " WHERE mvt.createdAt BETWEEN '%s' AND '%s' ";
   private static final String SEARCH = " AND LOWER(mvt.numberTransaction) LIKE '%s' ";
-  private static final String TYPE_EVENT = " AND mvt.typeMvt ='%s' ";
   private static final String TYPE = " AND mvt.typeTransaction IN (%s) ";
   private static final String PAYMENT_MODE = " AND  mvt.paymentModeCode IN (%s) ";
   private static final String CATEGORIE_CHIFFRE_AFFAIRE = " AND mvt.ca IN (%s) ";
   private static final String SQL_FULL_BASE_QUERY_ORDER_BY = " ORDER BY mvt.createdAt %s";
 
-  private static final String SQL_FULL_BASE_QUERY_TOTAUX =
+  private static final String SALES_SUM_SQL_QUERY =
       """
-SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentModeCode,mvt.paymentModeLibelle FROM (SELECT 'vente' as typeMvt,
-                       p.paid_amount as amount,p.payment_mode_code as paymentModeCode,
-                      md.libelle as paymentModeLibelle,s.dtype AS typeTransaction,s.updated_at as createdAt
-               FROM  sales s join payment p ON s.id = p.sales_id JOIN
-                     payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id
-                             LEFT JOIN customer c ON s.customer_id = c.id   union
-               SELECT 'transaction' as typeMvt, pt.amount AS amount,pt.payment_mode_code as paymentModeCode,
-                      pmp.libelle as paymentModeLibelle,pt.type_transaction as typeTransaction,pt.created_at as createdAt
-               FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp
-  ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
- JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt group by mvt.typeMvt,mvt.typeTransaction,mvt.paymentModeCode,mvt.paymentModeLibelle
+SELECT 'vente' as typeMvt, SUM(p.paid_amount) as amount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,s.dtype AS typeTransaction FROM  sales s join payment p ON s.id = p.sales_id
+JOIN payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id LEFT JOIN customer c ON s.customer_id = c.id
 
 """;
+
+  private static final String TRANSACTION_SUM_SQL_QUERY =
+      """
+SELECT 'transaction' as typeMvt, SUM(pt.amount) AS amount,pt.payment_mode_code as paymentModeCode,pmp.libelle as paymentModeLibelle,pt.type_transaction as typeTransaction
+FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp  ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code
+  """;
 
   private final PaymentTransactionRepository paymentTransactionRepository;
   private final UserService userService;
@@ -223,33 +190,8 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
   }
 
   @Override
-  public List<MvtCaisseSum> getMvtCaisseSum(TransactionFilterDTO transactionFilter) {
-    List<MvtCaisseSum> mvtCaisseSums = new ArrayList<>();
-    List<MvtCaisseSum> mvtCaisseSumsFinal = new ArrayList<>();
-    fetchSalesAndTransactionTotaux(transactionFilter)
-        .forEach(tuple -> mvtCaisseSums.addAll(buildSumFromTuple(tuple)));
-    mvtCaisseSums.stream()
-        .collect(
-            Collectors.groupingBy(
-                MvtCaisseSum::getPaymentModeCode,
-                Collectors.groupingBy(MvtCaisseSum::getTypeTransaction)))
-        .forEach(
-            (paymentModeCode, typeTransactionMap) -> {
-              typeTransactionMap.forEach(
-                  (typeTransaction, mvtCaisseSums1) -> {
-                    BigDecimal amount =
-                        mvtCaisseSums1.stream()
-                            .map(MvtCaisseSum::getAmount)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    mvtCaisseSumsFinal.add(
-                        new MvtCaisseSum()
-                            .setAmount(amount)
-                            .setPaymentModeCode(paymentModeCode)
-                            .setPaymentModeLibelle(mvtCaisseSums1.get(0).getPaymentModeLibelle())
-                            .setTypeTransaction(typeTransaction));
-                  });
-            });
-    return mvtCaisseSumsFinal;
+  public MvtCaisseWrapper getMvtCaisseSum(TransactionFilterDTO transactionFilter) {
+    return buildMvtCaisseWrapper(transactionFilter);
   }
 
   @Override
@@ -276,15 +218,15 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
     paymentTransaction.setOrganismeId(financialTransaction.getOrganismeId());
     paymentTransaction.setUser(userService.getUser());
     switch (financialTransaction.getTypeTransaction()) {
-      case REGLEMENT_DIFFERE:
-      case REGLEMENT_TIERS_PAYANT:
-      case ENTREE_CAISSE:
+      case REGLEMENT_DIFFERE, REGLEMENT_TIERS_PAYANT, ENTREE_CAISSE:
         paymentTransaction.setCredit(true);
         break;
-      case SORTIE_CAISSE:
-      case REGLMENT_FOURNISSEUR:
+      case SORTIE_CAISSE, REGLMENT_FOURNISSEUR:
         paymentTransaction.setCredit(false);
         break;
+      default:
+        throw new IllegalArgumentException(
+            "Unexpected value: " + financialTransaction.getTypeTransaction());
     }
     return paymentTransaction;
   }
@@ -316,6 +258,9 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
                 .getReferenceById(paymentTransaction.getOrganismeId())
                 .getLibelle());
         break;
+      default:
+        throw new IllegalArgumentException(
+            "Unexpected value: " + paymentTransaction.getTypeFinancialTransaction());
     }
     var user = paymentTransaction.getUser();
     financialTransactionDTO.setUserFullName(
@@ -386,9 +331,7 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
     return predicates;
   }
 
-  private String getWhereClause(TransactionFilterDTO financielTransactionFilter) {
-    StringBuilder where = new StringBuilder();
-
+  private Pair buildPeriode(TransactionFilterDTO financielTransactionFilter) {
     LocalDateTime fromDate =
         Objects.nonNull(financielTransactionFilter.fromDate())
             ? LocalDateTime.of(financielTransactionFilter.fromDate(), LocalTime.MIN)
@@ -397,6 +340,14 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
         Objects.nonNull(financielTransactionFilter.toDate())
             ? LocalDateTime.of(financielTransactionFilter.toDate(), LocalTime.MAX)
             : LocalDateTime.now();
+    return new Pair(fromDate, toDate);
+  }
+
+  private String getWhereClause(TransactionFilterDTO financielTransactionFilter) {
+    StringBuilder where = new StringBuilder();
+    Pair periode = buildPeriode(financielTransactionFilter);
+    LocalDateTime fromDate = (LocalDateTime) periode.key();
+    LocalDateTime toDate = (LocalDateTime) periode.value();
 
     where.append(String.format(DATE, fromDate, toDate));
     if (financielTransactionFilter.userId() != null) {
@@ -406,30 +357,23 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
       String search = "%" + financielTransactionFilter.search().toLowerCase() + "%";
       where.append(String.format(SEARCH, search));
     }
-    /* if (StringUtils.hasText(financielTransactionFilter.typeFinancialTransactions())) {
-      where.append(String.format(TYPE, financielTransactionFilter.typeFinancialTransactions()));
-    }*/
+
     if (financielTransactionFilter.typeFinancialTransactions() != null
         && !financielTransactionFilter.typeFinancialTransactions().isEmpty()) {
-      // StringBuilder typeBuilder = new StringBuilder();
-      var type =
-          getTypeTransaction(financielTransactionFilter.typeFinancialTransactions()).stream()
-              .map(String::valueOf)
-              .collect(Collectors.joining(","));
-      var typesVente =
-          getTypeVente(financielTransactionFilter.typeFinancialTransactions()).stream()
-              .collect(Collectors.joining(","));
 
-      if (typesVente.length() > 0) {
+      var type = convertAllTypeToString(financielTransactionFilter);
+      var typesVente = getTypeVentes(financielTransactionFilter);
 
-        if (type.length() > 0) {
+      if (!typesVente.isEmpty()) {
+
+        if (!type.isEmpty()) {
           where.append(String.format(TYPE, type.concat(",").concat(typesVente)));
         } else {
           where.append(String.format(TYPE, typesVente));
         }
 
       } else {
-        if (type.length() > 0) {
+        if (!type.isEmpty()) {
           where.append(String.format(TYPE, type));
         }
       }
@@ -513,20 +457,20 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
         + getOrderByClause(financielTransactionFilter);
   }
 
-  private String getFullBaseTotauxQuery(TransactionFilterDTO financielTransactionFilter) {
-    return SQL_FULL_BASE_QUERY_TOTAUX + getWhereClause(financielTransactionFilter);
+  private String getSalesSumSqlQuery(TransactionFilterDTO financielTransactionFilter) {
+    return SALES_SUM_SQL_QUERY
+        + getSaleSumWhereClause(financielTransactionFilter)
+        + " GROUP by paymentModeCode,typeTransaction";
+  }
+
+  private String getTransactionSumSqlQuery(TransactionFilterDTO financielTransactionFilter) {
+    return TRANSACTION_SUM_SQL_QUERY
+        + getTransactionSumWhereClause(financielTransactionFilter)
+        + " GROUP by paymentModeCode,typeTransaction";
   }
 
   private String getFullBaseCountQuery(TransactionFilterDTO financielTransactionFilter) {
     return FULL_BASE_COUNT_QUERY + getWhereClause(financielTransactionFilter);
-  }
-
-  private String getOnlyTransactionOrderByClause(TransactionFilterDTO financielTransactionFilter) {
-    if (Objects.isNull(financielTransactionFilter.order())) {
-      Order order = Order.DESC;
-      return String.format(" ORDER BY pt.created_at %s", order.name());
-    }
-    return String.format(" ORDER BY pt.created_at %s", financielTransactionFilter.order().name());
   }
 
   private List<Tuple> fetchSalesAndTransaction(
@@ -550,35 +494,57 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
 
   private List<Tuple> fetchSalesAndTransactionTotaux(
       TransactionFilterDTO financielTransactionFilter) {
-    return em.createNativeQuery(getFullBaseTotauxQuery(financielTransactionFilter), Tuple.class)
+    return em.createNativeQuery(getSalesSumSqlQuery(financielTransactionFilter), Tuple.class)
         .getResultList();
   }
 
-  private List<MvtCaisseSum> buildSumFromTuple(Tuple tuple) {
-    if (Objects.isNull(tuple.get("paidAmount", BigDecimal.class))
-        && Objects.isNull(tuple.get("paymentTransactionAmount", BigDecimal.class))) {
-      return List.of();
+  private List<MvtCaisseSum> buildSalesAndTransactionTotaux(
+      TransactionFilterDTO financielTransactionFilter) {
+    return fetchSalesAndTransactionTotaux(financielTransactionFilter).stream()
+        .map(this::buildSumFromTuple)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList());
+  }
+
+  private List<Tuple> fetchTransactionSum(TransactionFilterDTO financielTransactionFilter) {
+    return em.createNativeQuery(getTransactionSumSqlQuery(financielTransactionFilter), Tuple.class)
+        .getResultList();
+  }
+
+  private List<MvtCaisseSum> buildTransactionSum(TransactionFilterDTO financielTransactionFilter) {
+    return fetchTransactionSum(financielTransactionFilter).stream()
+        .map(this::buildSumFromTuple)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList());
+  }
+
+  private Optional<MvtCaisseSum> buildSumFromTuple(Tuple tuple) {
+    if (Objects.isNull(tuple.get("amount"))) {
+      return Optional.empty();
     }
-    List<MvtCaisseSum> mvtCaisseSums = new ArrayList<>();
-    if (Objects.nonNull(tuple.get("paidAmount", BigDecimal.class))) {
-      TypeVente typeVente = TypeVente.fromValue(tuple.get("typeVente", String.class));
-      MvtCaisseSum mvtCaisseSum = new MvtCaisseSum();
-      mvtCaisseSum.setAmount(tuple.get("paidAmount", BigDecimal.class));
-      mvtCaisseSum.setPaymentModeCode(tuple.get("salePaymentModeCode", String.class));
-      mvtCaisseSum.setPaymentModeLibelle(tuple.get("salePaymentModeLibelle", String.class));
+    MvtCaisseSum mvtCaisseSum = new MvtCaisseSum();
+    if (tuple.get("amount") instanceof BigDecimal) {
+      mvtCaisseSum.setAmount(tuple.get("amount", BigDecimal.class));
+    } else {
+      mvtCaisseSum.setAmount(BigDecimal.valueOf(tuple.get("amount", Double.class)));
+    }
+    mvtCaisseSum.setPaymentModeLibelle(tuple.get("paymentModeLibelle", String.class));
+    mvtCaisseSum.setPaymentModeCode(tuple.get("paymentModeCode", String.class));
+    mvtCaisseSum.setType(tuple.get("typeMvt", String.class));
+
+    if (mvtCaisseSum.getType().equals("vente")) {
+      TypeVente typeVente = TypeVente.fromValue(tuple.get("typeTransaction", String.class));
       mvtCaisseSum.setTypeTransaction(TypeFinancialTransaction.valueOf(typeVente.name()));
-      mvtCaisseSums.add(mvtCaisseSum);
     }
-    if (Objects.nonNull(tuple.get("paymentTransactionAmount", BigDecimal.class))) {
-      MvtCaisseSum mvtCaisseSum = new MvtCaisseSum();
-      mvtCaisseSum.setAmount(tuple.get("paymentTransactionAmount", BigDecimal.class));
-      mvtCaisseSum.setPaymentModeCode(tuple.get("transactionPaymentModeCode", String.class));
-      mvtCaisseSum.setPaymentModeLibelle(tuple.get("transactionPaymentModeLibelle", String.class));
+    if (mvtCaisseSum.getType().equals("transaction")) {
       mvtCaisseSum.setTypeTransaction(
-          TypeFinancialTransaction.values()[tuple.get("typeTransaction", Integer.class)]);
-      mvtCaisseSums.add(mvtCaisseSum);
+          TypeFinancialTransaction.values()[tuple.get("typeTransaction", Byte.class)]);
     }
-    return mvtCaisseSums;
+    mvtCaisseSum.setTransactionTypeAffichage(
+        mvtCaisseSum.getTypeTransaction().getTransactionTypeAffichage());
+    return Optional.of(mvtCaisseSum);
   }
 
   private MvtCaisseDTO buildFromTuple(Tuple tuple) {
@@ -614,5 +580,174 @@ SELECT sum(mvt.amount) AS amount,mvt.typeMvt,mvt.typeTransaction,mvt.paymentMode
           DateUtil.format(tuple.get("transactionDate", Timestamp.class)));
     }
     return mvtCaisseDTO;
+  }
+
+  private String getSaleSumWhereClause(TransactionFilterDTO financielTransactionFilter) {
+    StringBuilder where = new StringBuilder();
+    Pair periode = buildPeriode(financielTransactionFilter);
+    LocalDateTime fromDate = (LocalDateTime) periode.key();
+    LocalDateTime toDate = (LocalDateTime) periode.value();
+
+    where.append(String.format(" WHERE s.updated_at BETWEEN '%s' AND '%s' ", fromDate, toDate));
+    if (financielTransactionFilter.userId() != null) {
+      where.append(String.format(" AND s.user_id=%d ", financielTransactionFilter.userId()));
+    }
+    if (StringUtils.hasText(financielTransactionFilter.search())) {
+      String search = "%" + financielTransactionFilter.search().toLowerCase() + "%";
+      where.append(String.format(" AND s.number_transaction LIKE '%s' ", search));
+    }
+
+    if (financielTransactionFilter.typeFinancialTransactions() != null
+        && !financielTransactionFilter.typeFinancialTransactions().isEmpty()) {
+
+      var typesVente = getTypeVentes(financielTransactionFilter);
+      if (!typesVente.isEmpty()) {
+        where.append(String.format(" AND s.dtype IN (%s) ", typesVente));
+      }
+    }
+
+    if (CollectionUtils.isNotEmpty(financielTransactionFilter.paymentModes())) {
+      String paymentModes =
+          financielTransactionFilter.paymentModes().stream()
+              .map(e -> "'" + e + "'")
+              .collect(Collectors.joining(","));
+      where.append(String.format(" AND md.code IN (%s) ", paymentModes));
+    }
+    if (CollectionUtils.isNotEmpty(financielTransactionFilter.categorieChiffreAffaires())) {
+
+      var categorieChiffreAffaires =
+          financielTransactionFilter.categorieChiffreAffaires().stream()
+              .map(e -> "'" + e.name() + "'")
+              .collect(Collectors.joining(","));
+      var ca = String.format(" AND s.ca IN (%s) ", categorieChiffreAffaires);
+      where.append(ca);
+    }
+
+    return where.toString();
+  }
+
+  private String convertAllTypeToString(TransactionFilterDTO financielTransactionFilter) {
+    return getTypeTransaction(financielTransactionFilter.typeFinancialTransactions()).stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(","));
+  }
+
+  private String getTypeVentes(TransactionFilterDTO financielTransactionFilter) {
+    return String.join(",", getTypeVente(financielTransactionFilter.typeFinancialTransactions()));
+  }
+
+  private String getTransactionSumWhereClause(TransactionFilterDTO financielTransactionFilter) {
+    StringBuilder where = new StringBuilder();
+    Pair periode = buildPeriode(financielTransactionFilter);
+    LocalDateTime fromDate = (LocalDateTime) periode.key();
+    LocalDateTime toDate = (LocalDateTime) periode.value();
+
+    where.append(String.format(" WHERE pt.created_at BETWEEN '%s' AND '%s' ", fromDate, toDate));
+    if (financielTransactionFilter.userId() != null) {
+      where.append(String.format(" AND pt.user_id=%d ", financielTransactionFilter.userId()));
+    }
+    if (StringUtils.hasText(financielTransactionFilter.search())) {
+      String search = "%" + financielTransactionFilter.search().toLowerCase() + "%";
+      where.append(String.format(" AND pt.ticket_code LIKE '%s' ", search));
+    }
+
+    if (financielTransactionFilter.typeFinancialTransactions() != null
+        && !financielTransactionFilter.typeFinancialTransactions().isEmpty()) {
+
+      var type = convertAllTypeToString(financielTransactionFilter);
+
+      if (!type.isEmpty()) {
+        where.append(String.format(" AND pt.type_transaction IN (%s) ", type));
+      }
+    }
+
+    if (CollectionUtils.isNotEmpty(financielTransactionFilter.paymentModes())) {
+      String paymentModes =
+          financielTransactionFilter.paymentModes().stream()
+              .map(e -> "'" + e + "'")
+              .collect(Collectors.joining(","));
+      where.append(String.format(" AND pmp.code IN (%s) ", paymentModes));
+    }
+    if (CollectionUtils.isNotEmpty(financielTransactionFilter.categorieChiffreAffaires())) {
+
+      var categorieChiffreAffairesOrdinal =
+          financielTransactionFilter.categorieChiffreAffaires().stream()
+              .map(e -> String.valueOf(e.ordinal()))
+              .collect(Collectors.joining(","));
+      var ca = String.format(" AND s.ca IN (%s) ", categorieChiffreAffairesOrdinal);
+      where.append(ca);
+    }
+
+    return where.toString();
+  }
+
+  private MvtCaisseWrapper buildMvtCaisseWrapper(TransactionFilterDTO transactionFilter) {
+    MvtCaisseWrapper mvtCaisseWrapper = new MvtCaisseWrapper();
+    List<MvtCaisseSum> mvtCaisseSums = buildSalesAndTransactionTotaux(transactionFilter);
+    Set<TypeFinancialTransaction> typeFinancialTransactions =
+        transactionFilter.typeFinancialTransactions();
+    if (Objects.isNull(typeFinancialTransactions) || typeFinancialTransactions.isEmpty()) {
+      mvtCaisseSums.addAll(buildTransactionSum(transactionFilter));
+    } else {
+      if (!getTypeTransaction(typeFinancialTransactions).isEmpty()) {
+        mvtCaisseSums.addAll(buildTransactionSum(transactionFilter));
+      }
+    }
+
+    BigDecimal totalPaymentAmount = new BigDecimal(0);
+    BigDecimal totalMobileAmount = new BigDecimal(0);
+    BigDecimal creditedAmount = new BigDecimal(0);
+    BigDecimal debitedAmount = new BigDecimal(0);
+    List<com.kobe.warehouse.service.dto.records.Tuple> typeTransactionAmounts = new ArrayList<>();
+    List<com.kobe.warehouse.service.dto.records.Tuple> modesPaiementAmounts = new ArrayList<>();
+    List<MvtCaisseSum> groupingByMode = new ArrayList<>();
+    for (Entry<TransactionTypeAffichage, List<MvtCaisseSum>> transactionTypeAffichageListEntry :
+        mvtCaisseSums.stream()
+            .collect(Collectors.groupingBy(MvtCaisseSum::getTransactionTypeAffichage))
+            .entrySet()) {
+      TransactionTypeAffichage key = transactionTypeAffichageListEntry.getKey();
+      List<MvtCaisseSum> value = transactionTypeAffichageListEntry.getValue();
+      BigDecimal typeAmount = new BigDecimal(0);
+      groupingByMode.addAll(value);
+      for (MvtCaisseSum mvtCaisseSum : value) {
+        typeAmount = typeAmount.add(mvtCaisseSum.getAmount());
+
+        if (ServiceUtil.isPaymentMode(mvtCaisseSum.getPaymentModeCode())) {
+          totalMobileAmount = totalMobileAmount.add(mvtCaisseSum.getAmount());
+        }
+      }
+      switch (key) {
+        case VNO, VO:
+          totalPaymentAmount = totalPaymentAmount.add(typeAmount);
+          break;
+        case ENTREE_CAISSE, REGLEMENT_DIFFERE, REGLEMENT_TIERS_PAYANT:
+          creditedAmount = creditedAmount.add(typeAmount);
+          break;
+        case SORTIE_CAISSE, REGLEMENT_FOURNISSEUR:
+          debitedAmount = debitedAmount.add(typeAmount);
+          break;
+        default:
+          break;
+      }
+      typeTransactionAmounts.add(
+          new com.kobe.warehouse.service.dto.records.Tuple(key.name(), key.getValue(), typeAmount));
+    }
+    groupingByMode.stream()
+        .collect(Collectors.groupingBy(MvtCaisseSum::getPaymentModeCode))
+        .forEach(
+            (k, v) -> {
+              BigDecimal amount =
+                  v.stream().map(MvtCaisseSum::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+              modesPaiementAmounts.add(
+                  new com.kobe.warehouse.service.dto.records.Tuple(
+                      k, v.getFirst().getPaymentModeLibelle(), amount));
+            });
+    mvtCaisseWrapper.setCreditedAmount(creditedAmount);
+    mvtCaisseWrapper.setDebitedAmount(debitedAmount);
+    mvtCaisseWrapper.setTotalMobileAmount(totalMobileAmount);
+    mvtCaisseWrapper.setTotalPaymentAmount(totalPaymentAmount);
+    mvtCaisseWrapper.setTypeTransactionAmounts(typeTransactionAmounts);
+    mvtCaisseWrapper.setModesPaiementAmounts(modesPaiementAmounts);
+    return mvtCaisseWrapper;
   }
 }

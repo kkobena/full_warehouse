@@ -112,5 +112,4 @@ export const fontAwesomeIcons = [
   faClock,
   faPause,
   faCopy,
-  // jhipster-needle-add-icon-import
 ];

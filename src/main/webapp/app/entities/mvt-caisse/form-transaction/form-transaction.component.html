@@ -55,11 +55,15 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label"
-               for="field_amount">Montant</label>
-        <input autocomplete="off" class="form-control" formControlName="amount" id="field_amount"
-               name="amount"
-               pInputText
-               pKeyFilter="int" type="text" />
+        >Montant</label>
+        <!--        <input autocomplete="off" class="form-control" formControlName="amount" id="field_amount"-->
+        <!--               name="amount"-->
+        <!--               pInputText-->
+        <!--               pKeyFilter="int" type="text" />-->
+        <p-inputNumber [max]="90000000"
+                       [min]="0" formControlName="amount"
+                       inputId="field_amount" name="amount"
+        />
         <div
           *ngIf="editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)">
           <small *ngIf="editForm.get('amount')?.errors?.required" class="form-text text-danger"
@@ -75,9 +79,10 @@
       <div class="form-group col">
         <label class="form-control-label" for="transactionDate">Date transaction</label>
 
-        <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
-                    appendTo="body"
-                    dateFormat="dd/mm/yy" formControlName="transactionDate" id="transactionDate"
+        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true" [showButtonBar]="true"
+                    [style]="{'width':'100%'}"
+                    appendTo="body" dateFormat="dd/mm/yy" formControlName="transactionDate"
+                    id="transactionDate"
                     inputId="transactionDate"
                     name="transactionDate"
         ></p-calendar>
@@ -92,6 +97,7 @@
                id="field_commentaire" name="commentaire"
                pInputText
                type="text" />
+
 
       </div>
     </div>

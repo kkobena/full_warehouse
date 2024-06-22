@@ -2,7 +2,7 @@
 name: warehouse
 services:
   mariadb:
-    image: mariadb:11.2.2
+    image: mariadb:11.3.2
     volumes:
       - ./config/mariadb:/etc/mariadb/conf.d
     # volumes:

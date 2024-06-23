@@ -25,7 +25,17 @@ public class BalanceCaisseDTO {
   private String modePaiement;
   private String libelleModePaiement;
   private TypeVente typeVente;
+  private long montantDepot;
   private TransactionTypeAffichage typeVeTypeAffichage;
+
+  public long getMontantDepot() {
+    return montantDepot;
+  }
+
+  public BalanceCaisseDTO setMontantDepot(long montantDepot) {
+    this.montantDepot = montantDepot;
+    return this;
+  }
 
   public long getMontantVirement() {
     return montantVirement;

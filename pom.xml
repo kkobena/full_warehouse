@@ -488,16 +488,21 @@
             <groupId>org.hibernate.orm</groupId>
 
         </dependency>
-
         <dependency>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <groupId>org.xhtmlrenderer</groupId>
+            <version>9.8.0</version>
+        </dependency>
+
+        <!--<dependency>
             <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <groupId>org.xhtmlrenderer</groupId>
             <version>9.3.1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <artifactId>icu4j</artifactId>
             <groupId>com.ibm.icu</groupId>
-            <version>74.2</version>
+            <version>75.1</version>
         </dependency>
         <dependency>
             <artifactId>lombok</artifactId>
@@ -518,7 +523,7 @@
         <dependency>
             <artifactId>jasperreports</artifactId>
             <groupId>net.sf.jasperreports</groupId>
-            <version>6.21.0</version>
+            <version>7.0.0</version>
         </dependency>
         <dependency>
             <artifactId>barcode4j</artifactId>
@@ -528,12 +533,12 @@
         <dependency>
             <artifactId>batik-bridge</artifactId>
             <groupId>org.apache.xmlgraphics</groupId>
-            <version>1.12</version>
+            <version>1.17</version>
         </dependency>
         <dependency>
             <artifactId>pdfbox</artifactId>
             <groupId>org.apache.pdfbox</groupId>
-            <version>3.0.0</version>
+            <version>3.0.2</version>
         </dependency>
 
         <dependency>

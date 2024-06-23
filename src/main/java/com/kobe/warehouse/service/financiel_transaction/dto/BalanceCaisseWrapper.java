@@ -1,14 +1,14 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import com.kobe.warehouse.service.dto.records.Tuple;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BalanceCaisseWrapper {
   private final short typeSalePercent = 100;
-  private final Set<BalanceCaisseDTO> balanceCaisses = new HashSet<>();
-  private final Set<Tuple> mvtCaisses = new HashSet<>();
-  private final Set<Tuple> mvtCaissesByModes = new HashSet<>();
+  private final List<Tuple> mvtCaissesByModes = new ArrayList<>();
+  private List<BalanceCaisseDTO> balanceCaisses = new ArrayList<>();
+  private List<Tuple> mvtCaisses = new ArrayList<>();
   private int count;
   private long montantTtc;
   private long montantHt;
@@ -24,16 +24,31 @@ public class BalanceCaisseWrapper {
   private long montantDiffere;
   private long panierMoyen;
   private long montantVirement;
+  private long montantDepot;
   private String periode;
-  private Set<BalanceCaisseSum> balanceCaisseSums = new HashSet<>();
+  private List<BalanceCaisseSum> balanceCaisseSums = new ArrayList<>();
   private BalanceCaisseWrapperSum balanceCaisseWrapperSum;
+
+  public long getMontantDepot() {
+    return montantDepot;
+  }
+
+  public BalanceCaisseWrapper setMontantDepot(long montantDepot) {
+    this.montantDepot = montantDepot;
+    return this;
+  }
 
   public short getTypeSalePercent() {
     return typeSalePercent;
   }
 
-  public Set<BalanceCaisseDTO> getBalanceCaisses() {
+  public List<BalanceCaisseDTO> getBalanceCaisses() {
     return balanceCaisses;
+  }
+
+  public BalanceCaisseWrapper setBalanceCaisses(List<BalanceCaisseDTO> balanceCaisses) {
+    this.balanceCaisses = balanceCaisses;
+    return this;
   }
 
   public int getCount() {
@@ -171,11 +186,16 @@ public class BalanceCaisseWrapper {
     return this;
   }
 
-  public Set<Tuple> getMvtCaisses() {
+  public List<Tuple> getMvtCaisses() {
     return mvtCaisses;
   }
 
-  public Set<Tuple> getMvtCaissesByModes() {
+  public BalanceCaisseWrapper setMvtCaisses(List<Tuple> mvtCaisses) {
+    this.mvtCaisses = mvtCaisses;
+    return this;
+  }
+
+  public List<Tuple> getMvtCaissesByModes() {
     return mvtCaissesByModes;
   }
 
@@ -188,11 +208,11 @@ public class BalanceCaisseWrapper {
     return this;
   }
 
-  public Set<BalanceCaisseSum> getBalanceCaisseSums() {
+  public List<BalanceCaisseSum> getBalanceCaisseSums() {
     return balanceCaisseSums;
   }
 
-  public BalanceCaisseWrapper setBalanceCaisseSums(Set<BalanceCaisseSum> balanceCaisseSums) {
+  public BalanceCaisseWrapper setBalanceCaisseSums(List<BalanceCaisseSum> balanceCaisseSums) {
     this.balanceCaisseSums = balanceCaisseSums;
     return this;
   }

@@ -2,7 +2,10 @@ package com.kobe.warehouse.service.financiel_transaction;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
+import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import jakarta.persistence.EntityManager;
@@ -37,7 +40,20 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
       Set<CategorieChiffreAffaire> categorieChiffreAffaires,
       Set<SalesStatut> statuts,
       Set<TypeVente> typeVentes) {
-    return null;
+
+    Pair pair =
+        buildBalanceCaisses(
+            getSales(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes));
+    List<BalanceCaisseDTO> mvt = buildMvt(getMvt(fromDate, toDate, categorieChiffreAffaires));
+    List<BalanceCaisseDTO> balanceCaisses = (List<BalanceCaisseDTO>) pair.key();
+    BalanceCaisseWrapper balanceCaisseWrapper = new BalanceCaisseWrapper();
+    balanceCaisseWrapper.setBalanceCaisses(balanceCaisses);
+    BalanceCaisseDTO depot = (BalanceCaisseDTO) pair.value();
+    if (Objects.nonNull(depot)) {
+      balanceCaisseWrapper.setMontantDepot(depot.getMontantDepot());
+    }
+
+    return balanceCaisseWrapper;
   }
 
   private List<Tuple> getSales(
@@ -105,24 +121,44 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
       balanceCaisseDTOS.add(balanceCaisseDTO);
     }
     BalanceCaisseDTO depot = null;
+    BalanceCaisseDTO vno = null;
+    BalanceCaisseDTO vo = null;
+    long totalVente = 0L;
     for (Entry<TypeVente, List<BalanceCaisseDTO>> typeVenteListEntry :
         balanceCaisseDTOS.stream()
             .collect(Collectors.groupingBy(BalanceCaisseDTO::getTypeVente))
             .entrySet()) {
-      BalanceCaisseDTO vno = null;
-      BalanceCaisseDTO vo = null;
 
       switch (typeVenteListEntry.getKey()) {
         case CASH_SALE:
-          vno = new BalanceCaisseDTO();
+          if (vno == null) {
+            vno = new BalanceCaisseDTO();
+          }
+          vno.setTypeVeTypeAffichage(TransactionTypeAffichage.VNO);
+          vno.setTypeSale("VNO");
+          for (BalanceCaisseDTO e : typeVenteListEntry.getValue()) {
+            upadateBalance(vno, e);
+          }
           break;
         case CREDIT_SALE, VENTES_DEPOT_AGREE:
           if (vo == null) {
             vo = new BalanceCaisseDTO();
           }
+          vo.setTypeVeTypeAffichage(TransactionTypeAffichage.VO);
+          vo.setTypeSale("VO");
+          for (BalanceCaisseDTO e : typeVenteListEntry.getValue()) {
+            upadateBalance(vo, e);
+          }
           break;
         case VENTES_DEPOTS:
-          depot = new BalanceCaisseDTO();
+          if (depot == null) {
+            depot = new BalanceCaisseDTO();
+          }
+          depot.setTypeVeTypeAffichage(TransactionTypeAffichage.VENTES_DEPOTS);
+          depot.setTypeSale(TransactionTypeAffichage.VENTES_DEPOTS.getValue());
+          for (BalanceCaisseDTO e : typeVenteListEntry.getValue()) {
+            upadateBalance(depot, e);
+          }
           break;
       }
       if (vno != null) {
@@ -134,6 +170,16 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     }
 
     return new com.kobe.warehouse.service.dto.Pair(balanceCaisses, depot);
+  }
+
+  private void upadateBalance(BalanceCaisseDTO b, BalanceCaisseDTO e) {
+    b.setCount(b.getCount() + e.getCount());
+    b.setMontantDiscount(b.getMontantDiscount() + e.getMontantDiscount());
+    b.setMontantTtc(b.getMontantTtc() + e.getMontantTtc());
+    b.setMontantPaye(b.getMontantPaye() + e.getMontantPaye());
+    b.setMontantHt(b.getMontantHt() + e.getMontantHt());
+    b.setMontantNet(b.getMontantNet() + e.getMontantNet());
+    b.setMontantCash(b.getMontantPaye());
   }
 
   private List<Tuple> getMvt(
@@ -171,5 +217,21 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
       log.error("Error getMvt", e);
     }
     return Collections.emptyList();
+  }
+
+  private List<BalanceCaisseDTO> buildMvt(List<Tuple> tuples) {
+    List<BalanceCaisseDTO> balanceCaisseDTOS = new ArrayList<>();
+    for (Tuple tuple : tuples) {
+      BalanceCaisseDTO balanceCaisseDTO = new BalanceCaisseDTO();
+      balanceCaisseDTO.setMontantTtc(tuple.get("amount", BigDecimal.class).longValue());
+      balanceCaisseDTO.setModePaiement(tuple.get("modePaiement", String.class));
+      TypeFinancialTransaction typeFinancialTransaction =
+          TypeFinancialTransaction.values()[tuple.get("typeTransaction", Byte.class)];
+      balanceCaisseDTO.setLibelleModePaiement(tuple.get("libelleModePaiement", String.class));
+      balanceCaisseDTO.setTypeVeTypeAffichage(
+          typeFinancialTransaction.getTransactionTypeAffichage());
+      balanceCaisseDTOS.add(balanceCaisseDTO);
+    }
+    return balanceCaisseDTOS;
   }
 }

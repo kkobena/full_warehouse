@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -126,8 +125,8 @@ public class SaleDTO implements Serializable {
         sale.getSalesLines().stream()
             .map(SaleLineDTO::new)
             .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
-            .collect(Collectors.toList());
-    this.payments = sale.getPayments().stream().map(PaymentDTO::new).collect(Collectors.toList());
+            .toList();
+    this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
     User user = sale.getUser();
     this.userFullName = user.getFirstName() + " " + user.getLastName();
     this.numberTransaction = sale.getNumberTransaction();

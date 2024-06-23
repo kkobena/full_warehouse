@@ -25,8 +25,8 @@ FROM sales s LEFT JOIN  payment p  ON p.sales_id=s.id JOIN payment_mode pm ON pm
 """;
   String MVT_QUERY =
       """
-SELECT SUM(p.amount) as amout,p.payment_mode_code AS modePaiement,pm.libelle,p.type_transaction FROM  payment_transaction p  join payment_mode pm ON  p.payment_mode_code = pm.code
-WHERE DATE(p.created_at) BETWEEN :toDate AND :toDate AND p.categorie_ca in (:categorie) group by p.payment_mode_code,p.type_transaction;
+SELECT SUM(p.amount) as amount,p.payment_mode_code AS modePaiement,pm.libelle as libelleModePaiement,p.type_transaction as typeTransaction  FROM  payment_transaction p  join payment_mode pm ON  p.payment_mode_code = pm.code
+WHERE DATE(p.created_at) BETWEEN :toDate AND :toDate AND p.categorie_ca in (:categorie) group by p.payment_mode_code,p.type_transaction
 """;
 
   BalanceCaisseWrapper getBalanceCaisse(

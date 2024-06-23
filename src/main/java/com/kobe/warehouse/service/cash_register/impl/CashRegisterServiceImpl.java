@@ -172,7 +172,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             cashRegister.getId(),
             Set.of(CategorieChiffreAffaire.CA.name()),
             Set.of(SalesStatut.CLOSED.name()));
-    System.err.println(salesData.size());
+
     salesData.stream()
         .collect(Collectors.groupingBy(e -> this.getTypeVenteFromLibelle(e.getTypeVente())))
         .forEach(
@@ -182,6 +182,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
                     case CASH_SALE -> TypeFinancialTransaction.CASH_SALE;
                     case CREDIT_SALE -> TypeFinancialTransaction.CREDIT_SALE;
                     case VENTES_DEPOTS -> TypeFinancialTransaction.VENTES_DEPOTS;
+                    case VENTES_DEPOT_AGREE -> TypeFinancialTransaction.VENTES_DEPOTS_AGREE;
                   };
               buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
             });

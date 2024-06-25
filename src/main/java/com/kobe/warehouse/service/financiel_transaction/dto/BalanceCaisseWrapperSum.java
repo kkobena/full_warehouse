@@ -6,7 +6,7 @@ public class BalanceCaisseWrapperSum {
   private long montantMobileMoney;
   private long montantCheck;
   private long montantVirement;
-  private long total;
+  private long totalVente;
 
   public long getMontantCash() {
     return montantCash;
@@ -53,12 +53,12 @@ public class BalanceCaisseWrapperSum {
     return this;
   }
 
-  public long getTotal() {
-    return total;
+  public long getTotalVente() {
+    return totalVente;
   }
 
-  public BalanceCaisseWrapperSum setTotal(long total) {
-    this.total = total;
+  public BalanceCaisseWrapperSum setTotalVente(long totalVente) {
+    this.totalVente = totalVente;
     return this;
   }
 }

@@ -6,9 +6,9 @@ import java.util.List;
 
 public class BalanceCaisseWrapper {
   private final short typeSalePercent = 100;
-  private final List<Tuple> mvtCaissesByModes = new ArrayList<>();
-  private List<BalanceCaisseDTO> balanceCaisses = new ArrayList<>();
+  private List<Tuple> mvtCaissesByModes = new ArrayList<>();
   private List<Tuple> mvtCaisses = new ArrayList<>();
+  private List<BalanceCaisseDTO> balanceCaisses = new ArrayList<>();
   private int count;
   private long montantTtc;
   private long montantHt;
@@ -25,9 +25,139 @@ public class BalanceCaisseWrapper {
   private long panierMoyen;
   private long montantVirement;
   private long montantDepot;
+  private long montantTaxe;
+  private long montantAchat;
+  private long montantMarge;
+  private long amountToBePaid;
+  private long amountToBeTakenIntoAccount;
+  private long montantNetUg;
+  private long montantTtcUg;
+  private long montantHtUg;
+  private long partAssure;
+  private long partTiersPayant;
+  private long montantPaye;
   private String periode;
   private List<BalanceCaisseSum> balanceCaisseSums = new ArrayList<>();
   private BalanceCaisseWrapperSum balanceCaisseWrapperSum;
+  private float ratioVenteAchat;
+  private float ratioAchatVente;
+
+  public float getRatioVenteAchat() {
+    return ratioVenteAchat;
+  }
+
+  public BalanceCaisseWrapper setRatioVenteAchat(float ratioVenteAchat) {
+    this.ratioVenteAchat = ratioVenteAchat;
+    return this;
+  }
+
+  public float getRatioAchatVente() {
+    return ratioAchatVente;
+  }
+
+  public BalanceCaisseWrapper setRatioAchatVente(float ratioAchatVente) {
+    this.ratioAchatVente = ratioAchatVente;
+    return this;
+  }
+
+  public long getMontantTaxe() {
+    return montantTaxe;
+  }
+
+  public BalanceCaisseWrapper setMontantTaxe(long montantTaxe) {
+    this.montantTaxe = montantTaxe;
+    return this;
+  }
+
+  public long getMontantPaye() {
+    return montantPaye;
+  }
+
+  public BalanceCaisseWrapper setMontantPaye(long montantPaye) {
+    this.montantPaye = montantPaye;
+    return this;
+  }
+
+  public long getPartAssure() {
+    return partAssure;
+  }
+
+  public BalanceCaisseWrapper setPartAssure(long partAssure) {
+    this.partAssure = partAssure;
+    return this;
+  }
+
+  public long getPartTiersPayant() {
+    return partTiersPayant;
+  }
+
+  public BalanceCaisseWrapper setPartTiersPayant(long partTiersPayant) {
+    this.partTiersPayant = partTiersPayant;
+    return this;
+  }
+
+  public long getMontantAchat() {
+    return montantAchat;
+  }
+
+  public BalanceCaisseWrapper setMontantAchat(long montantAchat) {
+    this.montantAchat = montantAchat;
+    return this;
+  }
+
+  public long getMontantMarge() {
+    return montantMarge;
+  }
+
+  public BalanceCaisseWrapper setMontantMarge(long montantMarge) {
+    this.montantMarge = montantMarge;
+    return this;
+  }
+
+  public long getAmountToBePaid() {
+    return amountToBePaid;
+  }
+
+  public BalanceCaisseWrapper setAmountToBePaid(long amountToBePaid) {
+    this.amountToBePaid = amountToBePaid;
+    return this;
+  }
+
+  public long getAmountToBeTakenIntoAccount() {
+    return amountToBeTakenIntoAccount;
+  }
+
+  public BalanceCaisseWrapper setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
+    this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+    return this;
+  }
+
+  public long getMontantNetUg() {
+    return montantNetUg;
+  }
+
+  public BalanceCaisseWrapper setMontantNetUg(long montantNetUg) {
+    this.montantNetUg = montantNetUg;
+    return this;
+  }
+
+  public long getMontantTtcUg() {
+    return montantTtcUg;
+  }
+
+  public BalanceCaisseWrapper setMontantTtcUg(long montantTtcUg) {
+    this.montantTtcUg = montantTtcUg;
+    return this;
+  }
+
+  public long getMontantHtUg() {
+    return montantHtUg;
+  }
+
+  public BalanceCaisseWrapper setMontantHtUg(long montantHtUg) {
+    this.montantHtUg = montantHtUg;
+    return this;
+  }
 
   public long getMontantDepot() {
     return montantDepot;
@@ -197,6 +327,11 @@ public class BalanceCaisseWrapper {
 
   public List<Tuple> getMvtCaissesByModes() {
     return mvtCaissesByModes;
+  }
+
+  public BalanceCaisseWrapper setMvtCaissesByModes(List<Tuple> mvtCaissesByModes) {
+    this.mvtCaissesByModes = mvtCaissesByModes;
+    return this;
   }
 
   public String getPeriode() {

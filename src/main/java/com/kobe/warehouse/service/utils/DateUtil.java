@@ -14,6 +14,7 @@ public final class DateUtil {
 
   private static final Logger log = LoggerFactory.getLogger(DateUtil.class);
   private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  private static final String DD_MM_YYYY = "dd-MM-yyy";
   private static final String TIME_FORMAT = "HH:mm";
 
   public static LocalDate getLastMonthFromNow() {
@@ -70,5 +71,12 @@ public final class DateUtil {
       case NOVEMBER -> "NOVEMBRE";
       case DECEMBER -> "DECEMBRE";
     };
+  }
+
+  public static String format(LocalDate date) {
+    if (date == null) {
+      return "";
+    }
+    return date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY));
   }
 }

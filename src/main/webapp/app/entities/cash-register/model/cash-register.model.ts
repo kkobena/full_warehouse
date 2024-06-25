@@ -131,3 +131,66 @@ export class MvtCaisseWrapper {
   totalSaleAmount?: number;
   totalMobileAmount?: number;
 }
+
+export class Taxe {
+  mvtDate: any;
+  montantHt: number;
+  montantTaxe: number;
+  montantTtc: number;
+  montantNet: number;
+  montantRemise: number;
+  montantAchat: number;
+  montantRemiseUg: number;
+  montantTvaUg: number;
+  codeTva: number;
+  amountToBeTakenIntoAccount: number;
+  montantTtcUg: number;
+}
+
+export class TaxeWrapper {
+  montantHt: number;
+  montantTaxe: number;
+  montantTtc: number;
+  montantNet: number;
+  montantRemise: number;
+  montantAchat: number;
+  montantRemiseUg: number;
+  montantTvaUg: number;
+  amountToBeTakenIntoAccount: number;
+  montantTtcUg: number;
+  taxes: Taxe[];
+  groupDate: boolean;
+}
+
+export class Achat {
+  montantNet: number;
+  montantTtc: number;
+  montantHt: number;
+  montantTaxe: number;
+  groupeGrossisteId: number;
+  groupeGrossiste: string;
+  montantRemise: number;
+  ordreAffichage: number;
+  mvtDate: string;
+}
+
+export class TableauPharmacien {
+  montantComptant: number;
+  montantTtc: number;
+  montantCredit: number;
+  montantRemise: number;
+  montantNet: number;
+  montantAchat: number;
+  montantAchatNet: number;
+  montantTaxe: number;
+  nombreVente: number;
+  montantAvoir: number;
+  montantHt: number;
+  amountToBePaid: number;
+  amountToBeTakenIntoAccount: number;
+  montantNetUg: number;
+  montantTtcUg: number;
+  montantHtUg: number;
+  partAssure: number;
+  achats: Map<string, Achat[]>;
+}

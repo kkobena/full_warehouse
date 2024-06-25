@@ -1,5 +1,8 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -57,6 +60,20 @@ public class Magasin implements Serializable {
 
   @Column(name = "welcome_message")
   private String welcomeMessage;
+
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type_magasin", nullable = false, length = 20)
+  private TypeMagasin typeMagasin = TypeMagasin.OFFICINE;
+
+  public @NotNull TypeMagasin getTypeMagasin() {
+    return typeMagasin;
+  }
+
+  public Magasin setTypeMagasin(@NotNull TypeMagasin typeMagasin) {
+    this.typeMagasin = typeMagasin;
+    return this;
+  }
 
   public Storage getPointOfSale() {
     return pointOfSale;

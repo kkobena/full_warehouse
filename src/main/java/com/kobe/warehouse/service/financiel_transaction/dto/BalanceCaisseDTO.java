@@ -26,7 +26,80 @@ public class BalanceCaisseDTO {
   private String libelleModePaiement;
   private TypeVente typeVente;
   private long montantDepot;
+  private long montantAchat;
+  private long montantMarge;
+  private long amountToBePaid;
+  private long amountToBeTakenIntoAccount;
+  private long montantNetUg;
+  private long montantTtcUg;
+  private long montantHtUg;
+  private long montantTaxe;
+  private long partAssure;
+  private long partTiersPayant;
   private TransactionTypeAffichage typeVeTypeAffichage;
+
+  public long getAmountToBePaid() {
+    return amountToBePaid;
+  }
+
+  public BalanceCaisseDTO setAmountToBePaid(long amountToBePaid) {
+    this.amountToBePaid = amountToBePaid;
+    return this;
+  }
+
+  public long getAmountToBeTakenIntoAccount() {
+    return amountToBeTakenIntoAccount;
+  }
+
+  public BalanceCaisseDTO setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
+    this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+    return this;
+  }
+
+  public long getMontantNetUg() {
+    return montantNetUg;
+  }
+
+  public BalanceCaisseDTO setMontantNetUg(long montantNetUg) {
+    this.montantNetUg = montantNetUg;
+    return this;
+  }
+
+  public long getMontantTtcUg() {
+    return montantTtcUg;
+  }
+
+  public BalanceCaisseDTO setMontantTtcUg(long montantTtcUg) {
+    this.montantTtcUg = montantTtcUg;
+    return this;
+  }
+
+  public long getMontantHtUg() {
+    return montantHtUg;
+  }
+
+  public BalanceCaisseDTO setMontantHtUg(long montantHtUg) {
+    this.montantHtUg = montantHtUg;
+    return this;
+  }
+
+  public long getMontantAchat() {
+    return montantAchat;
+  }
+
+  public BalanceCaisseDTO setMontantAchat(long montantAchat) {
+    this.montantAchat = montantAchat;
+    return this;
+  }
+
+  public long getMontantMarge() {
+    return montantMarge;
+  }
+
+  public BalanceCaisseDTO setMontantMarge(long montantMarge) {
+    this.montantMarge = montantMarge;
+    return this;
+  }
 
   public long getMontantDepot() {
     return montantDepot;
@@ -232,6 +305,33 @@ public class BalanceCaisseDTO {
 
   public BalanceCaisseDTO setPanierMoyen(long panierMoyen) {
     this.panierMoyen = panierMoyen;
+    return this;
+  }
+
+  public long getMontantTaxe() {
+    return montantTaxe;
+  }
+
+  public BalanceCaisseDTO setMontantTaxe(long montantTaxe) {
+    this.montantTaxe = montantTaxe;
+    return this;
+  }
+
+  public long getPartAssure() {
+    return partAssure;
+  }
+
+  public BalanceCaisseDTO setPartAssure(long partAssure) {
+    this.partAssure = partAssure;
+    return this;
+  }
+
+  public long getPartTiersPayant() {
+    return partTiersPayant;
+  }
+
+  public BalanceCaisseDTO setPartTiersPayant(long partTiersPayant) {
+    this.partTiersPayant = partTiersPayant;
     return this;
   }
 }

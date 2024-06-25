@@ -22,7 +22,7 @@ import tech.jhipster.web.util.ResponseUtil;
 public class FinancialTransactionProxy {
   private final FinancialTransactionService financialTransactionService;
 
-  public FinancialTransactionProxy(FinancialTransactionService financialTransactionService) {
+   public FinancialTransactionProxy(FinancialTransactionService financialTransactionService) {
     this.financialTransactionService = financialTransactionService;
   }
 

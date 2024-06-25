@@ -1033,7 +1033,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.2.5</maven.version>
 
-        <node.version>v20.14.0</node.version>
+        <node.version>v20.15.0</node.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
         <npm.version>10.8.1</npm.version>
         <profile.api-docs/>
@@ -1053,5 +1053,5 @@
         <start-class>com.kobe.warehouse.WarehouseApp</start-class>
     </properties>
 
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 </project>

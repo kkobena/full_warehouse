@@ -5,7 +5,7 @@
 
     <div class="d-flex justify-content-end">
       <button (click)="loadAll()" [disabled]="isLoading()" class="btn btn-info me-2">
-        <fa-icon [spin]="isLoading()" icon="sync"></fa-icon>
+        <fa-icon [animation]="isLoading() ? 'spin' : undefined" icon="sync"></fa-icon>
         <span jhiTranslate="userManagement.home.refreshListLabel">Actualiser la liste</span>
       </button>
       <button [routerLink]="['./new']" class="btn btn-primary jh-create-entity">

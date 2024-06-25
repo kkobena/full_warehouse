@@ -5,7 +5,7 @@ const { hashElement } = require('folder-hash');
 const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-//const WebpackNotifierPlugin = require('webpack-notifier');
+const WebpackNotifierPlugin = require('webpack-notifier');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 
@@ -29,10 +29,10 @@ module.exports = async (config, options, targetOptions) => {
           },
         },
       }),
-      /* new WebpackNotifierPlugin({
-         title: 'Warehouse',
-         contentImage: path.join(__dirname, 'logo-jhipster.png'),
-       }),*/
+      new WebpackNotifierPlugin({
+        title: 'Warehouse',
+        contentImage: path.join(__dirname, 'logo-jhipster.png'),
+      }),
     );
   }
 
@@ -123,14 +123,8 @@ module.exports = async (config, options, targetOptions) => {
     new MergeJsonWebpackPlugin({
       output: {
         groupBy: [
-          {
-            pattern: './src/main/webapp/i18n/fr/*.json',
-            fileName: './i18n/fr.json',
-          },
-          {
-            pattern: './src/main/webapp/i18n/en/*.json',
-            fileName: './i18n/en.json',
-          },
+          { pattern: './src/main/webapp/i18n/fr/*.json', fileName: './i18n/fr.json' },
+          { pattern: './src/main/webapp/i18n/en/*.json', fileName: './i18n/en.json' },
           // jhipster-needle-i18n-language-webpack - JHipster will add/remove languages in this array
         ],
       },

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+/* jhipster-needle-add-admin-module-import - JHipster will add admin modules imports here */
 
 const routes: Routes = [
   {

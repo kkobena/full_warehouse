@@ -23,11 +23,8 @@
     "entities": [],
     "entitySuffix": "",
     "jhiPrefix": "jhi",
-    "jhipsterVersion": "8.5.0",
-    "languages": [
-      "fr",
-      "en"
-    ],
+    "jhipsterVersion": "8.6.0",
+    "languages": ["fr", "en"],
     "lastLiquibaseTimestamp": 1616265904000,
     "messageBroker": false,
     "nativeLanguage": "fr",

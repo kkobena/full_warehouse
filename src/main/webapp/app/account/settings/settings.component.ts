@@ -11,6 +11,7 @@ const initialAccount: Account = {} as Account;
 
 @Component({
   standalone: true,
+  selector: 'jhi-settings',
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
   templateUrl: './settings.component.html',
 })

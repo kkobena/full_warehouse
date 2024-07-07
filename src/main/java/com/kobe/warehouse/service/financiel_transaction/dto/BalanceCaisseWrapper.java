@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BalanceCaisseWrapper {
-  private final short typeSalePercent = 100;
+
   private List<Tuple> mvtCaissesByModes = new ArrayList<>();
   private List<Tuple> mvtCaisses = new ArrayList<>();
   private List<BalanceCaisseDTO> balanceCaisses = new ArrayList<>();
@@ -169,7 +169,7 @@ public class BalanceCaisseWrapper {
   }
 
   public short getTypeSalePercent() {
-    return typeSalePercent;
+    return 100;
   }
 
   public List<BalanceCaisseDTO> getBalanceCaisses() {

@@ -1,18 +1,21 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.service.cash_register.dto.TypeVente;
+import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,76 +27,42 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TableauPharmacienServiceImpl implements TableauPharmacienService {
-  private static final Logger log = LoggerFactory.getLogger(TableauPharmacienServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TableauPharmacienServiceImpl.class);
+  private static final long GROUP_OTHER_ID = -1L;
   private final EntityManager entityManager;
+  private final GroupeFournisseurRepository groupeFournisseurRepository;
+  private final Set<Long> groupeFournisseurs = new HashSet<>();
 
-  public TableauPharmacienServiceImpl(EntityManager entityManager) {
+  public TableauPharmacienServiceImpl(
+      EntityManager entityManager, GroupeFournisseurRepository groupeFournisseurRepository) {
     this.entityManager = entityManager;
+    this.groupeFournisseurRepository = groupeFournisseurRepository;
+    groupeFournisseurs.addAll(
+        fetchGroupGrossisteToDisplay().stream()
+            .map(GroupeFournisseurDTO::getId)
+            .collect(Collectors.toSet()));
   }
 
   @Override
-  public TableauPharmacienWrapper getTableauPharmacien(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes,
-      String groupeBy) {
-    return computeData(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy);
+  public TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam) {
+    return computeData(mvtParam);
   }
 
-  private List<Tuple> executeQuery(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes,
-      String groupeBy) {
-    if (Objects.isNull(typeVentes) || typeVentes.isEmpty()) {
-      typeVentes = Set.of(TypeVente.CASH_SALE, TypeVente.CREDIT_SALE, TypeVente.VENTES_DEPOT_AGREE);
-    }
-    if (Objects.isNull(statuts) || statuts.isEmpty()) {
-      statuts = Set.of(SalesStatut.CLOSED);
-    }
-    if (Objects.isNull(categorieChiffreAffaires) || categorieChiffreAffaires.isEmpty()) {
-      categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CA);
-    }
-    if (Objects.isNull(fromDate)) {
-      fromDate = LocalDate.now();
-    }
-    if (Objects.isNull(toDate)) {
-      toDate = fromDate;
-    }
+  private List<Tuple> executeQuery(MvtParam mvtParam) {
 
     return entityManager
-        .createNativeQuery(buildQuery(groupeBy), Tuple.class)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
-        .setParameter(
-            "statuts",
-            statuts.stream().map(e -> "'" + e.name() + "'").collect(Collectors.joining(",")))
-        .setParameter(
-            "typesVente",
-            typeVentes.stream().map(e -> "'" + e.getValue() + "'").collect(Collectors.joining(",")))
-        .setParameter(
-            "ca",
-            categorieChiffreAffaires.stream()
-                .map(e -> "'" + e.name() + "'")
-                .collect(Collectors.joining(",")))
+        .createNativeQuery(buildQuery(mvtParam), Tuple.class)
+        .setParameter(1, mvtParam.getFromDate())
+        .setParameter(2, mvtParam.getToDate())
         .getResultList();
   }
 
-  private List<Tuple> executeAchatQuery(LocalDate fromDate, LocalDate toDate, String groupeBy) {
-    if (Objects.isNull(fromDate)) {
-      fromDate = LocalDate.now();
-    }
-    if (Objects.isNull(toDate)) {
-      toDate = fromDate;
-    }
+  private List<Tuple> executeAchatQuery(MvtParam mvtParam) {
+
     return entityManager
-        .createNativeQuery(buildAchatQuery(groupeBy), Tuple.class)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
+        .createNativeQuery(buildAchatQuery(mvtParam.getGroupeBy()), Tuple.class)
+        .setParameter(1, mvtParam.getFromDate())
+        .setParameter(2, mvtParam.getToDate())
         .getResultList();
   }
 
@@ -116,6 +85,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
               updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO);
               return achatDTO;
             })
+        .sorted(Comparator.comparing(AchatDTO::getOrdreAffichage))
         .toList();
   }
 
@@ -134,26 +104,39 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
   }
 
   private List<TableauPharmacienDTO> buildTableauPharmacienFromTuple(
-      List<Tuple> tuples, TableauPharmacienWrapper tableauPharmacienWrapper) {
+      List<Tuple> tuples,
+      TableauPharmacienWrapper tableauPharmacienWrapper,
+      boolean groupingByMonth) {
     return tuples.stream()
         .map(
             t -> {
               TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
-              long montantCredit = t.get("montantCredit", BigDecimal.class).longValue();
-              montantCredit += t.get("montantDiffere", BigDecimal.class).longValue();
-
+              long montantCredit = 0L;
+              long partAssure = 0L;
+              if (Objects.nonNull(t.get("partTiersPayant", BigDecimal.class))) {
+                montantCredit = t.get("partTiersPayant", BigDecimal.class).longValue();
+              }
+              if (Objects.nonNull(t.get("montantDiffere", BigDecimal.class))) {
+                montantCredit += t.get("montantDiffere", BigDecimal.class).longValue();
+              }
+              if (Objects.nonNull(t.get("partAssure", BigDecimal.class))) {
+                partAssure = t.get("partAssure", BigDecimal.class).longValue();
+              }
               tableauPharmacienDTO
                   .setAmountToBePaid(t.get("amountToBePaid", BigDecimal.class).longValue())
                   .setMontantNetUg(t.get("montantNetUg", BigDecimal.class).longValue())
                   .setMontantTtcUg(t.get("montantTtcUg", BigDecimal.class).longValue())
                   .setMontantHtUg(t.get("montantHtUg", BigDecimal.class).longValue())
-                  .setNombreVente(t.get("numberCount", BigInteger.class).intValue())
+                  .setNombreVente(t.get("numberCount", Long.class).intValue())
                   .setAmountToBeTakenIntoAccount(
                       t.get("amountToBeTakenIntoAccount", BigDecimal.class).longValue())
                   .setMontantAchat(t.get("montantAchat", BigDecimal.class).longValue())
                   .setMontantCredit(montantCredit)
-                  .setPartAssure(t.get("partAssure", BigDecimal.class).longValue())
-                  .setMvtDate(LocalDate.parse(t.get("mvtDate", String.class)))
+                  .setPartAssure(partAssure)
+                  .setMvtDate(
+                      groupingByMonth
+                          ? DateUtil.formaFromYearMonth(t.get("mvtDate", String.class))
+                          : LocalDate.parse(t.get("mvtDate", String.class)))
                   .setMontantComptant(t.get("montantPaye", BigDecimal.class).longValue())
                   .setMontantTtc(t.get("montantTtc", BigDecimal.class).longValue())
                   .setMontantHt(t.get("montantHt", BigDecimal.class).longValue())
@@ -190,11 +173,13 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
   private List<TableauPharmacienDTO> addAchatsToTableauPharmacien(
       List<TableauPharmacienDTO> tableauPharmaciens, List<AchatDTO> achats) {
-    Map<LocalDate, List<AchatDTO>> map =
-        achats.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
-    if (map.isEmpty()) {
+    if (achats.isEmpty()) {
       return tableauPharmaciens;
     }
+
+    Map<LocalDate, List<AchatDTO>> map =
+        achats.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
+
     if (tableauPharmaciens.isEmpty()) {
       updateTableauPharmaciens(map, tableauPharmaciens);
       return tableauPharmaciens;
@@ -202,7 +187,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     for (TableauPharmacienDTO tableauPharmacien : tableauPharmaciens) {
       List<AchatDTO> achatDTOS = map.remove(tableauPharmacien.getMvtDate());
       if (Objects.nonNull(achatDTOS)) {
-        tableauPharmacien.getAchats().put(tableauPharmacien.getMvtDate(), achatDTOS);
+        tableauPharmacien.setGroupAchats(computeGroupFournisseurAchatPerDay(achatDTOS));
       }
       if (!map.isEmpty()) {
         updateTableauPharmaciens(map, tableauPharmaciens);
@@ -212,31 +197,60 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     return tableauPharmaciens;
   }
 
+  private Map<Long, AchatDTO> computeGroupFournisseurAchatPerDay(List<AchatDTO> achatsParJour) {
+    Map<Long, AchatDTO> groupByGroupGrossisteId = new HashMap<>();
+    achatsParJour.stream()
+        .collect(Collectors.groupingBy(AchatDTO::getGroupeGrossisteId))
+        .forEach(
+            (key, value) -> {
+              Long topKey = null;
+              for (Long groupeFournisseur : groupeFournisseurs) {
+                if (Objects.equals(groupeFournisseur, key)) {
+                  topKey = key;
+                  break;
+                }
+              }
+              if (Objects.isNull(topKey)) {
+                topKey = GROUP_OTHER_ID;
+              }
+              AchatDTO achatDTO;
+              if (groupByGroupGrossisteId.containsKey(topKey)) {
+                achatDTO = groupByGroupGrossisteId.get(topKey);
+              } else {
+                achatDTO = new AchatDTO();
+              }
+              for (AchatDTO dto : value) {
+                achatDTO.setMontantNet(achatDTO.getMontantNet() + dto.getMontantNet());
+                achatDTO.setMontantTtc(achatDTO.getMontantTtc() + dto.getMontantTtc());
+                achatDTO.setMontantHt(achatDTO.getMontantHt() + dto.getMontantHt());
+                achatDTO.setMontantTaxe(achatDTO.getMontantTaxe() + dto.getMontantTaxe());
+                achatDTO.setMontantRemise(achatDTO.getMontantRemise() + dto.getMontantRemise());
+              }
+              groupByGroupGrossisteId.put(topKey, achatDTO);
+            });
+    return groupByGroupGrossisteId;
+  }
+
   private void updateTableauPharmaciens(
       Map<LocalDate, List<AchatDTO>> map, List<TableauPharmacienDTO> tableauPharmaciens) {
     map.forEach(
         (k, v) -> {
           TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
-          tableauPharmacienDTO.setMvtDate(k).getAchats().put(k, v);
+          tableauPharmacienDTO.setMvtDate(k);
+
+          tableauPharmacienDTO.setGroupAchats(computeGroupFournisseurAchatPerDay(v));
           tableauPharmaciens.add(tableauPharmacienDTO);
         });
   }
 
-  private TableauPharmacienWrapper computeData(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes,
-      String groupeBy) {
+  private TableauPharmacienWrapper computeData(MvtParam mvtParam) {
     TableauPharmacienWrapper tableauPharmacienWrapper = new TableauPharmacienWrapper();
-    List<Tuple> tuples =
-        executeQuery(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy);
+    List<Tuple> tuples = executeQuery(mvtParam);
     List<TableauPharmacienDTO> tableauPharmaciens =
-        buildTableauPharmacienFromTuple(tuples, tableauPharmacienWrapper);
-    List<Tuple> achatTuples = executeAchatQuery(fromDate, toDate, groupeBy);
+        buildTableauPharmacienFromTuple(
+            tuples, tableauPharmacienWrapper, "month".equals(mvtParam.getGroupeBy()));
+    List<Tuple> achatTuples = executeAchatQuery(mvtParam);
     List<AchatDTO> achats = buildAchatsFromTuple(achatTuples, tableauPharmacienWrapper);
-    achats.sort(Comparator.comparing(AchatDTO::getOrdreAffichage));
     List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, achats);
     computeRatioVenteAchat(tableauPharmacienWrapper);
     computeRatioAchatVente(tableauPharmacienWrapper);
@@ -244,7 +258,11 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
   }
 
   private void computeRatioVenteAchat(TableauPharmacienWrapper tableauPharmacienWrapper) {
+    if (tableauPharmacienWrapper.getMontantAchatNet() == 0) {
+      return;
+    }
     try {
+
       tableauPharmacienWrapper.setRatioVenteAchat(
           BigDecimal.valueOf(tableauPharmacienWrapper.getMontantVenteNet())
               .divide(
@@ -253,12 +271,16 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                   RoundingMode.FLOOR)
               .floatValue());
     } catch (Exception e) {
-      log.warn("Error", e.getMessage());
+      LOG.warn("Error {}", e.getMessage());
     }
   }
 
   private void computeRatioAchatVente(TableauPharmacienWrapper tableauPharmacienWrapper) {
+    if (tableauPharmacienWrapper.getMontantVenteNet() == 0) {
+      return;
+    }
     try {
+
       tableauPharmacienWrapper.setRatioAchatVente(
           BigDecimal.valueOf(tableauPharmacienWrapper.getMontantAchatNet())
               .divide(
@@ -267,7 +289,24 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                   RoundingMode.FLOOR)
               .floatValue());
     } catch (Exception e) {
-      log.warn("Error", e.getMessage());
+      LOG.warn("Error {}", e.getMessage());
+    }
+  }
+
+  public List<GroupeFournisseurDTO> fetchGroupGrossisteToDisplay() {
+    var all = groupeFournisseurRepository.findAllByOrderByOdreAsc();
+    if (all.size() > 4) {
+      List<GroupeFournisseurDTO> topN =
+          new java.util.ArrayList<>(all.stream().limit(4).map(GroupeFournisseurDTO::new).toList());
+      topN.addLast(
+          new GroupeFournisseurDTO().setId(GROUP_OTHER_ID).setLibelle("Autres").setOdre(1000_1000));
+      topN.sort(Comparator.comparing(GroupeFournisseurDTO::getOdre));
+      return topN;
+    } else {
+      return all.stream()
+          .sorted(Comparator.comparing(GroupeFournisseur::getOdre))
+          .map(GroupeFournisseurDTO::new)
+          .toList();
     }
   }
 }

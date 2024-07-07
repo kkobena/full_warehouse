@@ -13,8 +13,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { ToolbarModule } from 'primeng/toolbar';
 import { VisualisationMvtCaisseComponent } from './visualisation-mvt-caisse.component';
-import { BalanceMvtCaisseComponent } from './balance-mvt-caisse.component';
+
 import { TableauPharmacienComponent } from './tableau-pharmacien/tableau-pharmacien.component';
+import { BalanceMvtCaisseComponent } from './balance-mvt-caisse/balance-mvt-caisse.component';
+import { TaxeReportComponent } from "./taxe-report/taxe-report.component";
 
 @Component({
   selector: 'jhi-mvt-caisse',
@@ -35,6 +37,7 @@ import { TableauPharmacienComponent } from './tableau-pharmacien/tableau-pharmac
     VisualisationMvtCaisseComponent,
     BalanceMvtCaisseComponent,
     TableauPharmacienComponent,
+    TaxeReportComponent,
   ],
   templateUrl: './mvt-caisse.component.html',
   styleUrl: './mvt-caisse.component.scss',

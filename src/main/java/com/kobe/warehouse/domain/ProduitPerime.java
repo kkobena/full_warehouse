@@ -13,11 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(
     name = "produit_perime",
@@ -63,4 +59,98 @@ public class ProduitPerime implements Serializable {
   @ManyToOne(optional = false)
   @NotNull
   private WarehouseCalendar calendar;
+
+    public Long getId() {
+        return id;
+    }
+
+    public ProduitPerime setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public @NotNull Produit getProduit() {
+        return produit;
+    }
+
+    public ProduitPerime setProduit(@NotNull Produit produit) {
+        this.produit = produit;
+        return this;
+    }
+
+    public Lot getLot() {
+        return lot;
+    }
+
+    public ProduitPerime setLot(Lot lot) {
+        this.lot = lot;
+        return this;
+    }
+
+    public @NotNull LocalDateTime getCreated() {
+        return created;
+    }
+
+    public ProduitPerime setCreated(@NotNull LocalDateTime created) {
+        this.created = created;
+        return this;
+    }
+
+    @Min(1)
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public ProduitPerime setQuantity(@Min(1) int quantity) {
+        this.quantity = quantity;
+        return this;
+    }
+
+    public @NotNull LocalDate getPeremptionDate() {
+        return peremptionDate;
+    }
+
+    public ProduitPerime setPeremptionDate(@NotNull LocalDate peremptionDate) {
+        this.peremptionDate = peremptionDate;
+        return this;
+    }
+
+    public @NotNull User getUser() {
+        return user;
+    }
+
+    public ProduitPerime setUser(@NotNull User user) {
+        this.user = user;
+        return this;
+    }
+
+    @Min(1)
+    @NotNull
+    public int getInitStock() {
+        return initStock;
+    }
+
+    public ProduitPerime setInitStock(@Min(1) @NotNull int initStock) {
+        this.initStock = initStock;
+        return this;
+    }
+
+    @NotNull
+    public int getAfterStock() {
+        return afterStock;
+    }
+
+    public ProduitPerime setAfterStock(@NotNull int afterStock) {
+        this.afterStock = afterStock;
+        return this;
+    }
+
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
+
+    public ProduitPerime setCalendar(@NotNull WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 }

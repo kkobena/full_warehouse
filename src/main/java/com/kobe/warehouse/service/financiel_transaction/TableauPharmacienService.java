@@ -1,14 +1,12 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.service.cash_register.dto.TypeVente;
+import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.Pair;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
-public interface TableauPharmacienService {
+public interface TableauPharmacienService extends MvtCommonService {
   String SALE_QUERY =
       """
     SELECT %s,
@@ -22,10 +20,10 @@ public interface TableauPharmacienService {
     """;
   String DATE_COLUMN = "DATE_FORMAT(s.updated_at, '%Y-%m-%d') AS mvtDate";
   String DATE_AS_MONTH = "DATE_FORMAT(s.updated_at, '%Y-%m') AS mvtDate";
-  String SALE_QUERY_WHERE =
-      """
-   WHERE DATE(s.updated_at) BETWEEN :fromDate AND :toDate AND s.statut IN (:statuts) AND s.dtype IN (:typesVente) AND s.ca in (:ca)
-  """;
+
+  String WHERE_CLAUSE =
+      " WHERE DATE(s.updated_at) BETWEEN ?1 AND ?2 AND s.statut IN (%s) AND s.dtype IN (%s) AND s.ca IN (%s) ";
+
   String SALE_QUERY_GROUP_BY =
       """
      GROUP BY mvtDate ORDER BY mvtDate
@@ -36,18 +34,14 @@ public interface TableauPharmacienService {
   SUM(dr.tax_amount) AS montantTaxe,SUM(dr.receipt_amount) as montantTtc,SUM(dr.discount_amount) as montantRemise,
   gf.id as groupeGrossisteId,gf.libelle as groupeGrossiste,gf.odre as ordreAffichage FROM  delivery_receipt dr
   JOIN fournisseur f ON f.id=dr.fournisseur_id  JOIN  groupe_fournisseur gf ON gf.id=f.groupe_fournisseur_id
-  WHERE dr.modified_date BETWEEN :fromDate AND :toDate AND dr.receipt_status='CLOSE' group by mvtDate,groupeGrossisteId ORDER BY mvtDate
+  WHERE dr.modified_date BETWEEN ?1 AND ?2 AND dr.receipt_status='CLOSE' group by mvtDate,groupeGrossisteId ORDER BY mvtDate
   """;
   String ACHAT_GROUP_BY_DATE = " DATE_FORMAT(dr.modified_date, '%Y-%m-%d') AS mvtDate";
   String ACHAT_GROUP_BY_MONTH = " DATE_FORMAT(dr.modified_date, '%Y-%m') AS mvtDate";
 
-  TableauPharmacienWrapper getTableauPharmacien(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes,
-      String groupeBy);
+  TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam);
+
+  List<GroupeFournisseurDTO> fetchGroupGrossisteToDisplay();
 
   default Pair getGroupBy(String groupeBy) {
     if ("month".equals(groupeBy)) {
@@ -56,10 +50,14 @@ public interface TableauPharmacienService {
     return new Pair(DATE_COLUMN, ACHAT_GROUP_BY_DATE);
   }
 
-  default String buildQuery(String groupeBy) {
-    return String.format(SALE_QUERY, getGroupBy(groupeBy).key().toString())
-        + SALE_QUERY_WHERE
+  default String buildQuery(MvtParam mvtParam) {
+    return String.format(SALE_QUERY, getGroupBy(mvtParam.getGroupeBy()).key().toString())
+        + buildWhereClause(mvtParam)
         + SALE_QUERY_GROUP_BY;
+  }
+
+  private String buildWhereClause(MvtParam mvtParam) {
+    return this.buildWhereClause(WHERE_CLAUSE, mvtParam);
   }
 
   default String buildAchatQuery(String groupeBy) {

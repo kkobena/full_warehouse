@@ -1,0 +1,250 @@
+<div class="mvt-caisse">
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <div class="input-group">
+        <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '200px'}"
+                    dateFormat="dd/mm/yy"
+                    inputId="dateDebut"
+                    placeholder="Date début"
+                    selectOtherMonths="true" showIcon="true"></p-calendar>&nbsp;
+
+        <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '200px',margingRight: '10px'}" dateFormat="dd/mm/yy"
+                    inputId="dateFin"
+                    placeholder="Date fin"
+                    selectOtherMonths="true"
+                    showIcon="true"></p-calendar>&nbsp;
+
+
+      </div>
+    </div>
+    <div class="p-toolbar-group-end">
+      <div class="input-group">
+
+        <p-button (click)="onSearch()" [disabled]="loading"
+                  [loading]="loading"
+                  icon="pi pi-search"
+                  label="Rechercher"
+                  pTooltip="Rechercher"
+                  severity="info"
+                  tooltipPosition="top"
+        ></p-button>&nbsp;
+
+        <p-button (click)="onPrint()" icon="pi pi-print" label="Imprimer" pTooltip="Imprimer"
+                  severity="warning"
+                  tooltipPosition="top"
+        />
+      </div>
+
+
+    </div>
+  </p-toolbar>
+  <div class="row mvt-caisse-data-section">
+    @if (balanceMvtCaisseWrapper) {
+      @if (balanceMvtCaisseWrapper.balanceCaisses.length > 0) {
+        <div class=" col-12">
+          <div class="table-responsive">
+            <table class="table  table-secondary table-striped table-bordered table-hover">
+              <thead>
+              <tr>
+                <th rowspan="2" class="text-center">Type</th>
+                <th rowspan="2" class="text-center">Nombre</th>
+                <th colspan="4" class="text-center">Montants</th>
+                <th rowspan="2" class="text-center">Pamier.Moyen</th>
+                <th colspan="5" class="text-center">Modes règlements</th>
+                <th rowspan="2" class="text-center">Différé</th>
+                <th rowspan="2" class="text-center">Tiers-payant</th>
+              </tr>
+              <tr>
+                <th class="text-center">Brut(TTC)</th>
+                <th class="text-center">Remise</th>
+                <th class="text-center">Net(TTC)</th>
+                <th class="text-center">%</th>
+                <th class="text-center">Espèce</th>
+                <th class="text-center">Chèque</th>
+                <th class="text-center">CB</th>
+                <th class="text-center">Virement</th>
+                <th class="text-center">Mobile</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (item of balanceMvtCaisseWrapper.balanceCaisses; track $index) {
+
+                  <tr>
+                    <td>{{ item.typeVeTypeAffichage }}</td>
+                    <td class="amount-td-column">{{ item.count | number }}</td>
+                    <td class="amount-td-column">{{ item.montantTtc | number }}</td>
+                    <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
+                    <td class="amount-td-column">{{ item.montantNet | number }}</td>
+                    <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
+                    <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCash | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCheck | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCard | number }}</td>
+                    <td class="amount-td-column">{{ item.montantVirement | number }}</td>
+                    <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
+                    <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
+                    <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
+
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+              <tr>
+                <td class="tf-column">Total</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.count | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantTtc | number }}</td>
+                <td
+                  class="amount-column">{{ balanceMvtCaisseWrapper.montantDiscount | number }}
+                </td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantNet | number }}</td>
+                <td class="amount-column">100</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.panierMoyen | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCash | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCheck | number }}
+                </td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCard | number }}</td>
+                <td
+                  class="amount-column">{{ balanceMvtCaisseWrapper.montantVirement | number }}
+                </td>
+                <td
+                  class="amount-column">{{ balanceMvtCaisseWrapper.montantMobileMoney | number }}
+                </td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiffere | number }}
+                </td>
+                <td
+                  class="amount-column">{{ balanceMvtCaisseWrapper.partTiersPayant | number }}
+                </td>
+              </tfoot>
+            </table>
+
+
+          </div>
+
+        </div>
+
+      }
+      <div class="row col-md-12 col-12">
+        <div class="col-md-6 col-6">
+          <div class="card ">
+            <div class="card-header text-bg-success">Information sur la vente</div>
+            <div class="card-body mvt-balance-card">
+              <ul class="list-group">
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Total TTC
+                  <span
+                    class="badge text-bg-secondary  rounded-pill">{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
+
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Total TVA
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Total TH
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Total comptant
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Total achat
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Marge
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Ratio V/A
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Ratio A/V
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-md-6 col-6">
+          @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
+
+            <div class="card ">
+              <div class="card-header text-bg-warning">Montant ventes par modes règlement</div>
+              <div class="card-body mvt-balance-card">
+                <ul class="list-group mvt-caisse-list">
+                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
+
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      {{ mvtCaisse.libelle }}
+                      <span
+                        class="badge text-bg-secondary rounded-pill">{{ mvtCaisse.value | number }}</span>
+                    </li>
+                  }
+                </ul>
+
+              </div>
+            </div>
+            <p-divider></p-divider>
+          }
+
+
+          @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
+            <div class="card ">
+              <div class="card-header text-bg-primary">Information sur les mouvements de caisse
+              </div>
+              <div class="card-body mvt-balance-card">
+                <ul class="list-group mvt-caisse-list">
+                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
+                    @if (mvtCaisse.key == 'SORTIE_CAISSE') {
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ mvtCaisse.libelle }}
+                        <span
+                          class="badge text-bg-danger rounded-pill">{{
+                            mvtCaisse.value * (-1) | number
+                          }}</span>
+                      </li>
+
+                    } @else {
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ mvtCaisse.libelle }}
+                        <span
+                          class="badge text-bg-secondary rounded-pill">{{ mvtCaisse.value | number }}</span>
+                      </li>
+                    }
+
+
+                  }
+                </ul>
+
+              </div>
+            </div>
+
+
+          }
+
+
+        </div>
+      </div>
+
+    } @else {
+      <div class="alert alert-warning" role="alert">
+        <strong>Information!</strong> Aucune donnée à afficher.
+      </div>
+    }
+
+  </div>
+</div>

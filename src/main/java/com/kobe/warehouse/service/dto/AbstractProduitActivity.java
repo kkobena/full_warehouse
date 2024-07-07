@@ -9,7 +9,7 @@ public abstract class AbstractProduitActivity {
   private final LocalDateTime min;
   private final LocalDateTime max;
 
-  public AbstractProduitActivity(
+  protected AbstractProduitActivity(
       LocalDate dateMvt, Integer qtyMvt, LocalDateTime min, LocalDateTime max) {
     this.dateMvt = dateMvt;
     this.qtyMvt = qtyMvt;

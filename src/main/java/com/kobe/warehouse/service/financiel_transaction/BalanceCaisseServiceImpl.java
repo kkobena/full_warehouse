@@ -2,19 +2,17 @@ package com.kobe.warehouse.service.financiel_transaction;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,64 +34,29 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
   }
 
   @Override
-  public BalanceCaisseWrapper getBalanceCaisse(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes) {
+  public BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam) {
 
-    List<BalanceCaisseDTO> mvt = buildMvt(getMvt(fromDate, toDate, categorieChiffreAffaires));
+    List<BalanceCaisseDTO> mvt = buildMvt(getMvt(mvtParam));
     BalanceCaisseWrapper balanceCaisseWrapper =
-        computeBalanceCaisses(
-            buildBalanceCaisses(
-                getSales(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes)));
+        computeBalanceCaisses(buildBalanceCaisses(getSales(mvtParam)));
     updateModePayment(balanceCaisseWrapper, mvt);
     computeMvts(balanceCaisseWrapper, mvt);
     balanceCaisseWrapper.setPeriode(
-        "Du " + DateUtil.format(fromDate) + " au " + DateUtil.format(toDate));
+        "Du "
+            + DateUtil.format(mvtParam.getFromDate())
+            + " au "
+            + DateUtil.format(mvtParam.getToDate()));
     return balanceCaisseWrapper;
   }
 
-  private List<Tuple> getSales(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes) {
-    if (Objects.isNull(typeVentes) || typeVentes.isEmpty()) {
-      typeVentes = Set.of(TypeVente.CASH_SALE, TypeVente.CREDIT_SALE, TypeVente.VENTES_DEPOT_AGREE);
-    }
-    if (Objects.isNull(statuts) || statuts.isEmpty()) {
-      statuts = Set.of(SalesStatut.CLOSED);
-    }
-    if (Objects.isNull(categorieChiffreAffaires) || categorieChiffreAffaires.isEmpty()) {
-      categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CA);
-    }
-    if (Objects.isNull(fromDate)) {
-      fromDate = LocalDate.now();
-    }
-    if (Objects.isNull(toDate)) {
-      toDate = fromDate;
-    }
+  private List<Tuple> getSales(MvtParam mvtParam) {
+
     try {
       return entityManager
-          .createNativeQuery(SALE_QUERY + SALE_QUERY_WHERE + SALE_QUERY_GROUP_BY, Tuple.class)
-          .setParameter("fromDate", fromDate)
-          .setParameter("toDate", toDate)
-          .setParameter(
-              "statuts",
-              statuts.stream().map(e -> "'" + e.name() + "'").collect(Collectors.joining(",")))
-          .setParameter(
-              "typesVente",
-              typeVentes.stream()
-                  .map(e -> "'" + e.getValue() + "'")
-                  .collect(Collectors.joining(",")))
-          .setParameter(
-              "ca",
-              categorieChiffreAffaires.stream()
-                  .map(e -> "'" + e.name() + "'")
-                  .collect(Collectors.joining(",")))
+          .createNativeQuery(
+              SALE_QUERY + this.getWhereClause(mvtParam) + SALE_QUERY_GROUP_BY, Tuple.class)
+          .setParameter(1, mvtParam.getFromDate())
+          .setParameter(2, mvtParam.getToDate())
           .getResultList();
     } catch (Exception e) {
       log.error("Error getSales", e);
@@ -107,7 +70,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     for (Tuple tuple : tuples) {
       BalanceCaisseDTO balanceCaisseDTO = new BalanceCaisseDTO();
       balanceCaisseDTO.setTypeVente(TypeVente.fromValue(tuple.get("typeSale", String.class)));
-      balanceCaisseDTO.setCount(tuple.get("numberCount", BigInteger.class).bitCount());
+      balanceCaisseDTO.setCount(tuple.get("numberCount", Long.class).intValue());
       balanceCaisseDTO.setMontantDiscount(
           tuple.get("montantDiscount", BigDecimal.class).longValue());
       balanceCaisseDTO.setMontantTtc(tuple.get("montantTtc", BigDecimal.class).longValue());
@@ -324,41 +287,35 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     }
   }
 
-  private List<Tuple> getMvt(
-      LocalDate fromDate, LocalDate toDate, Set<CategorieChiffreAffaire> categorieChiffreAffaires) {
-    if (Objects.isNull(categorieChiffreAffaires) || categorieChiffreAffaires.isEmpty()) {
-      categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CA);
-    } else {
-      if (categorieChiffreAffaires.contains(CategorieChiffreAffaire.CALLEBASE)
-          && categorieChiffreAffaires.size() > 1) {
-        categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CALLEBASE);
-      }
-      if (categorieChiffreAffaires.contains(CategorieChiffreAffaire.TO_IGNORE)
-          && categorieChiffreAffaires.size() > 1) {
-        categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.TO_IGNORE);
-      }
+  private List<Tuple> getMvt(MvtParam mvtParam) {
+    Set<CategorieChiffreAffaire> categorieChiffreAffaires = mvtParam.getCategorieChiffreAffaires();
+
+    if (categorieChiffreAffaires.contains(CategorieChiffreAffaire.CALLEBASE)
+        && categorieChiffreAffaires.size() > 1) {
+      categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CALLEBASE);
     }
-    if (Objects.isNull(fromDate)) {
-      fromDate = LocalDate.now();
-    }
-    if (Objects.isNull(toDate)) {
-      toDate = fromDate;
+    if (categorieChiffreAffaires.contains(CategorieChiffreAffaire.TO_IGNORE)
+        && categorieChiffreAffaires.size() > 1) {
+      categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.TO_IGNORE);
     }
     try {
       return entityManager
-          .createNativeQuery(MVT_QUERY)
-          .setParameter("fromDate", fromDate)
-          .setParameter("toDate", toDate)
-          .setParameter(
-              "categorie",
-              categorieChiffreAffaires.stream()
-                  .map(e -> String.valueOf(e.ordinal()))
-                  .collect(Collectors.joining(",")))
+          .createNativeQuery(buildMvQuery(categorieChiffreAffaires), Tuple.class)
+          .setParameter(1, mvtParam.getFromDate())
+          .setParameter(2, mvtParam.getToDate())
           .getResultList();
     } catch (Exception e) {
       log.error("Error getMvt", e);
     }
     return Collections.emptyList();
+  }
+
+  private String buildMvQuery(Set<CategorieChiffreAffaire> categorieChiffreAffaires) {
+    return String.format(
+        MVT_QUERY,
+        categorieChiffreAffaires.stream()
+            .map(e -> String.valueOf(e.ordinal()))
+            .collect(Collectors.joining(",")));
   }
 
   private List<BalanceCaisseDTO> buildMvt(List<Tuple> tuples) {
@@ -454,6 +411,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 case CH:
                   balanceCaisseWrapper.setMontantCheck(
                       balanceCaisseWrapper.getMontantCheck() + amount);
+                  break;
+                case null:
                   break;
               }
             });

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
+import com.kobe.warehouse.service.dto.DoughnutChart;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,16 @@ public class TaxeWrapperDTO {
   private long amountToBeTakenIntoAccount;
   private long montantTtcUg;
   private List<TaxeDTO> taxes = new ArrayList<>();
+  private DoughnutChart chart;
+
+  public DoughnutChart getChart() {
+    return chart;
+  }
+
+  public TaxeWrapperDTO setChart(DoughnutChart chart) {
+    this.chart = chart;
+    return this;
+  }
 
   public boolean isGroupDate() {
     return groupDate;

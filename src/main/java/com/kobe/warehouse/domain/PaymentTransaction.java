@@ -17,10 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Getter;
 
 /** A Payment. */
-@Getter
 @Entity
 @Table(
     name = "payment_transaction",

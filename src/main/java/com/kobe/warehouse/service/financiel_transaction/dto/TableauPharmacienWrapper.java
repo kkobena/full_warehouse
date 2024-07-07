@@ -21,17 +21,27 @@ public class TableauPharmacienWrapper {
   private long montantAchatRemise;
   private long montantAchatTtc;
   private long montantAchatHt;
+  private long montantAvoirFournisseur;
 
-    public long getMontantAchatHt() {
-        return montantAchatHt;
-    }
+  public long getMontantAvoirFournisseur() {
+    return montantAvoirFournisseur;
+  }
 
-    public TableauPharmacienWrapper setMontantAchatHt(long montantAchatHt) {
-        this.montantAchatHt = montantAchatHt;
-        return this;
-    }
+  public TableauPharmacienWrapper setMontantAvoirFournisseur(long montantAvoirFournisseur) {
+    this.montantAvoirFournisseur = montantAvoirFournisseur;
+    return this;
+  }
 
-    public long getMontantAchat() {
+  public long getMontantAchatHt() {
+    return montantAchatHt;
+  }
+
+  public TableauPharmacienWrapper setMontantAchatHt(long montantAchatHt) {
+    this.montantAchatHt = montantAchatHt;
+    return this;
+  }
+
+  public long getMontantAchat() {
     return montantAchat;
   }
 
@@ -116,45 +126,45 @@ public class TableauPharmacienWrapper {
     return tableauPharmaciens;
   }
 
-    public long getMontantAchatNet() {
-        return montantAchatNet;
-    }
-
-    public TableauPharmacienWrapper setMontantAchatNet(long montantAchatNet) {
-        this.montantAchatNet = montantAchatNet;
-        return this;
-    }
-
-    public long getMontantAchatTaxe() {
-        return montantAchatTaxe;
-    }
-
-    public TableauPharmacienWrapper setMontantAchatTaxe(long montantAchatTaxe) {
-        this.montantAchatTaxe = montantAchatTaxe;
-        return this;
-    }
-
-    public long getMontantAchatRemise() {
-        return montantAchatRemise;
-    }
-
-    public TableauPharmacienWrapper setMontantAchatRemise(long montantAchatRemise) {
-        this.montantAchatRemise = montantAchatRemise;
-        return this;
-    }
-
-    public long getMontantAchatTtc() {
-        return montantAchatTtc;
-    }
-
-    public TableauPharmacienWrapper setMontantAchatTtc(long montantAchatTtc) {
-        this.montantAchatTtc = montantAchatTtc;
-        return this;
-    }
-
-    public TableauPharmacienWrapper setTableauPharmaciens(
+  public TableauPharmacienWrapper setTableauPharmaciens(
       List<TableauPharmacienDTO> tableauPharmaciens) {
     this.tableauPharmaciens = tableauPharmaciens;
+    return this;
+  }
+
+  public long getMontantAchatNet() {
+    return montantAchatNet;
+  }
+
+  public TableauPharmacienWrapper setMontantAchatNet(long montantAchatNet) {
+    this.montantAchatNet = montantAchatNet;
+    return this;
+  }
+
+  public long getMontantAchatTaxe() {
+    return montantAchatTaxe;
+  }
+
+  public TableauPharmacienWrapper setMontantAchatTaxe(long montantAchatTaxe) {
+    this.montantAchatTaxe = montantAchatTaxe;
+    return this;
+  }
+
+  public long getMontantAchatRemise() {
+    return montantAchatRemise;
+  }
+
+  public TableauPharmacienWrapper setMontantAchatRemise(long montantAchatRemise) {
+    this.montantAchatRemise = montantAchatRemise;
+    return this;
+  }
+
+  public long getMontantAchatTtc() {
+    return montantAchatTtc;
+  }
+
+  public TableauPharmacienWrapper setMontantAchatTtc(long montantAchatTtc) {
+    this.montantAchatTtc = montantAchatTtc;
     return this;
   }
 

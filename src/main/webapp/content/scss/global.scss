@@ -1427,6 +1427,7 @@ menu  de la vente
 .mvt-caisse {
   .mvt-caisse-data-section {
     padding-left: 0.5rem;
+    padding-top: 0.2rem;
 
     .col-md-9, .col-lg-9, .col-xl-9 {
       padding-left: 0.1rem;
@@ -1450,15 +1451,15 @@ menu  de la vente
             font-weight: 600;
 
             span {
-              font-size: 13px;
-              font-weight: 600;
+
+              font-weight: 700;
             }
           }
 
         }
 
         .p-card-title {
-          padding: 0.2rem 0.2rem;
+          padding: 0.1rem 0.1rem;
         }
 
         padding: 0.2rem 0.2rem;
@@ -1488,4 +1489,43 @@ menu  de la vente
 .amount-column {
   text-align: right;
   font-weight: 700;
+  font-style: italic;
+}
+
+.amount-td-column {
+  text-align: right;
+  font-weight: 600;
+}
+
+.tva-radio {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  .tva-radio-label {
+
+    margin-bottom: 3px;
+
+    span {
+      padding-top: 0.5rem !important;
+    }
+
+  }
+}
+
+.tf-column {
+  text-align: left;
+  font-weight: 900;
+}
+
+.mvt-balance-card {
+  .list-group {
+    .list-group-item {
+      font-weight: 700;
+
+      .badge {
+        font-weight: 900;
+        font-size: 12px
+      }
+    }
+  }
 }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 public class TableauPharmacienDTO {
@@ -23,7 +22,8 @@ public class TableauPharmacienDTO {
   private long montantTtcUg;
   private long montantHtUg;
   private long partAssure;
-  private Map<LocalDate, List<AchatDTO>> achats;
+  private Map<Long, AchatDTO> groupAchats;
+  private long montantAvoirFournisseur;
 
   public long getAmountToBeTakenIntoAccount() {
     return amountToBeTakenIntoAccount;
@@ -187,12 +187,21 @@ public class TableauPharmacienDTO {
     return this;
   }
 
-  public Map<LocalDate, List<AchatDTO>> getAchats() {
-    return achats;
+  public Map<Long, AchatDTO> getGroupAchats() {
+    return groupAchats;
   }
 
-  public TableauPharmacienDTO setAchats(Map<LocalDate, List<AchatDTO>> achats) {
-    this.achats = achats;
+  public TableauPharmacienDTO setGroupAchats(Map<Long, AchatDTO> groupAchats) {
+    this.groupAchats = groupAchats;
+    return this;
+  }
+
+  public long getMontantAvoirFournisseur() {
+    return montantAvoirFournisseur;
+  }
+
+  public TableauPharmacienDTO setMontantAvoirFournisseur(long montantAvoirFournisseur) {
+    this.montantAvoirFournisseur = montantAvoirFournisseur;
     return this;
   }
 }

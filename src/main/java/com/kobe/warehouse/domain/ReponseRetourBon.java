@@ -17,11 +17,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "reponse_retour_bon")
 public class ReponseRetourBon implements Serializable {
@@ -61,4 +57,86 @@ public class ReponseRetourBon implements Serializable {
 
   @OneToMany(mappedBy = "reponseRetourBon")
   private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
+
+  public Long getId() {
+    return id;
+  }
+
+  public ReponseRetourBon setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public @NotNull LocalDateTime getDateMtv() {
+    return dateMtv;
+  }
+
+  public ReponseRetourBon setDateMtv(@NotNull LocalDateTime dateMtv) {
+    this.dateMtv = dateMtv;
+    return this;
+  }
+
+  public @NotNull LocalDateTime getModifiedDate() {
+    return modifiedDate;
+  }
+
+  public ReponseRetourBon setModifiedDate(@NotNull LocalDateTime modifiedDate) {
+    this.modifiedDate = modifiedDate;
+    return this;
+  }
+
+  public @NotNull User getUser() {
+    return user;
+  }
+
+  public ReponseRetourBon setUser(@NotNull User user) {
+    this.user = user;
+    return this;
+  }
+
+  public @NotNull RetourBon getRetourBon() {
+    return retourBon;
+  }
+
+  public ReponseRetourBon setRetourBon(@NotNull RetourBon retourBon) {
+    this.retourBon = retourBon;
+    return this;
+  }
+
+  public @NotNull RetourBonStatut getStatut() {
+    return statut;
+  }
+
+  public ReponseRetourBon setStatut(@NotNull RetourBonStatut statut) {
+    this.statut = statut;
+    return this;
+  }
+
+  public String getCommentaire() {
+    return commentaire;
+  }
+
+  public ReponseRetourBon setCommentaire(String commentaire) {
+    this.commentaire = commentaire;
+    return this;
+  }
+
+  public @NotNull WarehouseCalendar getCalendar() {
+    return calendar;
+  }
+
+  public ReponseRetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
+    this.calendar = calendar;
+    return this;
+  }
+
+  public List<ReponseRetourBonItem> getReponseRetourBonItems() {
+    return reponseRetourBonItems;
+  }
+
+  public ReponseRetourBon setReponseRetourBonItems(
+      List<ReponseRetourBonItem> reponseRetourBonItems) {
+    this.reponseRetourBonItems = reponseRetourBonItems;
+    return this;
+  }
 }

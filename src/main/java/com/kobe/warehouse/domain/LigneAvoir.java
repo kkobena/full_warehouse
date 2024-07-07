@@ -12,9 +12,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(
     name = "ligne_avoir",

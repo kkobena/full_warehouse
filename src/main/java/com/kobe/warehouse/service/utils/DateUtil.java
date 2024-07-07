@@ -5,17 +5,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 public final class DateUtil {
-
-  private static final Logger log = LoggerFactory.getLogger(DateUtil.class);
   private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
   private static final String DD_MM_YYYY = "dd-MM-yyy";
   private static final String TIME_FORMAT = "HH:mm";
+  private DateUtil() {}
 
   public static LocalDate getLastMonthFromNow() {
     LocalDate lastMonth = LocalDate.now().minusMonths(1);
@@ -73,10 +73,25 @@ public final class DateUtil {
     };
   }
 
+  public static String displayMonthName(Month month) {
+    Objects.requireNonNull(month);
+    return month.getDisplayName(TextStyle.FULL, Locale.FRANCE);
+  }
+
   public static String format(LocalDate date) {
     if (date == null) {
       return "";
     }
     return date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY));
+  }
+
+  public static LocalDate formaFromYearMonth(String date) {
+    if (StringUtils.hasLength(date)) {
+      String[] parts = date.split("-");
+      Month month = Month.of(Integer.parseInt(parts[1]));
+      return LocalDate.of(
+          Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), month.maxLength());
+    }
+    return null;
   }
 }

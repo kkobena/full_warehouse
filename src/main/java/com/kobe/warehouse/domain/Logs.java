@@ -1,8 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,9 +12,9 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-@Getter
 @Entity
 @Table(
     name = "logs",
@@ -61,19 +59,71 @@ public class Logs implements Serializable {
 
   @ManyToOne private Produit produit;
 
+    public Long getId() {
+        return id;
+    }
+
     public Logs setId(Long id) {
     this.id = id;
     return this;
   }
+
+    public @NotNull TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public Logs setTransactionType(TransactionType transactionType) {
+    this.transactionType = transactionType;
+    return this;
+  }
+
+    public @NotNull LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Logs setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+    public @NotNull String getComments() {
+        return comments;
+    }
+
+    public Logs setComments(String comments) {
+    this.comments = comments;
+    return this;
+  }
+
+    public @NotNull User getUser() {
+        return user;
+    }
+
+    public Logs setUser(User user) {
+    this.user = user;
+    return this;
+  }
+
+    public @NotNull String getIndentityKey() {
+        return indentityKey;
+    }
+
+    public Logs setIndentityKey(String indentityKey) {
+    this.indentityKey = indentityKey;
+    return this;
+  }
+
+    public String getOldObject() {
+        return oldObject;
+    }
 
     public Logs setOldObject(String oldObject) {
     this.oldObject = oldObject;
     return this;
   }
 
-    public Logs setProduit(Produit produit) {
-        this.produit = produit;
-        return this;
+    public String getNewObject() {
+        return newObject;
     }
 
     public Logs setNewObject(String newObject) {
@@ -81,28 +131,12 @@ public class Logs implements Serializable {
     return this;
   }
 
-    public Logs setTransactionType(TransactionType transactionType) {
-    this.transactionType = transactionType;
-    return this;
-  }
+    public Produit getProduit() {
+        return produit;
+    }
 
-    public Logs setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-    public Logs setComments(String comments) {
-    this.comments = comments;
-    return this;
-  }
-
-    public Logs setUser(User user) {
-    this.user = user;
-    return this;
-  }
-
-    public Logs setIndentityKey(String indentityKey) {
-    this.indentityKey = indentityKey;
-    return this;
-  }
+    public Logs setProduit(Produit produit) {
+        this.produit = produit;
+        return this;
+    }
 }

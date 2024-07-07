@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
 
 @Entity
 @Table(name = "ajust")
@@ -43,7 +42,7 @@ public class Ajust implements Serializable {
   @NotNull
   private WarehouseCalendar calendar;
 
-  @Getter
+
   @OneToMany(
       mappedBy = "ajust",
       cascade = {CascadeType.REMOVE})

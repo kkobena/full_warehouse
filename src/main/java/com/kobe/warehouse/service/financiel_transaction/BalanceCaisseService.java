@@ -1,13 +1,9 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
-import java.time.LocalDate;
-import java.util.Set;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 
-public interface BalanceCaisseService {
+public interface BalanceCaisseService extends MvtCommonService {
   String SALE_QUERY =
       """
 SELECT s.dtype AS typeSale,COUNT(s.id) as numberCount,SUM(s.discount_amount) as montantDiscount,
@@ -17,10 +13,7 @@ SUM(s.cost_amount) as montantAchat, SUM(s.marge) as montantMarge,SUM(s.rest_to_p
 SUM(s.montant_net_ug) as montantNetUg,SUM(s.montant_ttc_ug) as montantTtcUg, SUM(s.montant_tva_ug) as montantHtUg,SUM(s.part_tiers_payant) AS partTiersPayant ,SUM(s.part_assure) AS partAssure
 FROM sales s LEFT JOIN  payment p  ON p.sales_id=s.id JOIN payment_mode pm ON pm.code=p.payment_mode_code
 """;
-  String SALE_QUERY_WHERE =
-      """
- WHERE DATE(s.updated_at) BETWEEN :fromDate AND :toDate AND s.statut IN (:statuts) AND s.dtype IN (:typesVente) AND s.ca in (:ca)
-""";
+
   String SALE_QUERY_GROUP_BY =
       """
  GROUP BY s.dtype, p.payment_mode_code
@@ -28,13 +21,14 @@ FROM sales s LEFT JOIN  payment p  ON p.sales_id=s.id JOIN payment_mode pm ON pm
   String MVT_QUERY =
       """
 SELECT SUM(p.amount) as amount,p.payment_mode_code AS modePaiement,pm.libelle as libelleModePaiement,p.type_transaction as typeTransaction  FROM  payment_transaction p  join payment_mode pm ON  p.payment_mode_code = pm.code
-WHERE DATE(p.created_at) BETWEEN :toDate AND :toDate AND p.categorie_ca in (:categorie) group by p.payment_mode_code,p.type_transaction
+WHERE DATE(p.created_at) BETWEEN ?1 AND ?2 AND p.categorie_ca in (%s) group by p.payment_mode_code,p.type_transaction
 """;
+  String WHERE_CLAUSE =
+      " WHERE DATE(s.updated_at) BETWEEN ?1 AND ?2 AND s.statut IN (%s) AND s.dtype IN (%s) AND s.ca IN (%s) ";
 
-  BalanceCaisseWrapper getBalanceCaisse(
-      LocalDate fromDate,
-      LocalDate toDate,
-      Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      Set<SalesStatut> statuts,
-      Set<TypeVente> typeVentes);
+  BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam);
+
+  default String getWhereClause(MvtParam mvtParam) {
+    return this.buildWhereClause(WHERE_CLAUSE, mvtParam);
+  }
 }

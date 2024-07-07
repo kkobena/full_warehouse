@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseService;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import java.time.LocalDate;
 import java.util.Set;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class BalanceProxy {
     return ResponseEntity.ok()
         .body(
             this.balanceCaisseService.getBalanceCaisse(
-                fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes));
+                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, null)
+                    .build()));
   }
 }

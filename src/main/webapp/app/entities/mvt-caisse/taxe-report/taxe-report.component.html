@@ -1,0 +1,168 @@
+<div class="mvt-caisse">
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <div class="input-group">
+        <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '140px'}"
+                    dateFormat="dd/mm/yy"
+                    inputId="dateDebut"
+                    placeholder="Date début"
+                    selectOtherMonths="true" showIcon="true"></p-calendar>&nbsp;
+
+        <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '140px',margingRight: '10px'}" dateFormat="dd/mm/yy"
+                    inputId="dateFin"
+                    placeholder="Date fin"
+                    selectOtherMonths="true"
+                    showIcon="true"></p-calendar>&nbsp;
+
+
+        <p-dropdown [(ngModel)]="selectedVente" [filter]="false" [options]="types"
+                    [showClear]="true"
+
+                    placeholder="Type de vente"
+        ></p-dropdown>&nbsp;
+        <div class="tva-radio flex align-items-center">
+          <p-radioButton
+            (onClick)="onAffichageChange()"
+            [(ngModel)]="groupBy"
+            id="codeTva"
+            inputId="codeTva"
+            name="codeTva"
+            value="codeTva" />
+          <label class="tva-radio-label" for="codeTva">
+            <span>Période</span>
+
+          </label>
+        </div>
+        <div class="tva-radio flex align-items-center">
+          <p-radioButton
+            (onClick)="onAffichageChange()"
+            [(ngModel)]="groupBy"
+            id="daily"
+            inputId="daily"
+            name="daily"
+            value="daily" />
+          <label class="tva-radio-label" for="daily">
+            <span>Journalier</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+    <div class="p-toolbar-group-end">
+      <div class="input-group">
+
+        <p-button (click)="onSearch()" [disabled]="loading"
+                  [loading]="loading"
+                  icon="pi pi-search"
+                  label="Rechercher"
+                  pTooltip="Rechercher"
+                  severity="info"
+                  tooltipPosition="top"
+        ></p-button>&nbsp;
+
+        <p-button (click)="onPrint()" icon="pi pi-print" label="Imprimer" pTooltip="Imprimer"
+                  severity="warning"
+                  tooltipPosition="top"
+        />&nbsp;
+        <p-selectButton
+          [(ngModel)]="affichage"
+          [options]="typeAffichafes"
+          optionLabel="icon" optionValue="value">
+          <ng-template let-item pTemplate>
+            <i [class]="item.icon"></i>
+          </ng-template>
+        </p-selectButton>
+      </div>
+
+    </div>
+  </p-toolbar>
+  <div class="row mvt-caisse-data-section">
+    @if (taxeReportWrapper) {
+      @if (affichage === 'table') {
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered table-hover">
+            @if (groupBy === 'codeTva') {
+              <thead>
+              <tr>
+                <th>Taux</th>
+                <th>Total HT</th>
+                <th>Total TVA</th>
+                <th>Total TTC</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (taxe of taxeReportWrapper.taxes; track $index) {
+                  <tr>
+                    <td>{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+              <tr>
+                <td>Total</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
+              </tfoot>
+            } @else {
+              <thead>
+              <tr>
+                <th>Date</th>
+                <th>Taux</th>
+                <th>Total HT</th>
+                <th>Total TVA</th>
+                <th>Total TTC</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (taxe of taxeReportWrapper.taxes; track $index) {
+                  <tr>
+                    <td>{{ taxe.mvtDate | date : 'dd/MM/yyyy' }}</td>
+                    <td>{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+              <tr>
+                <td colspan="2">Total</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
+                <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
+              </tfoot>
+            }
+          </table>
+        </div>
+
+      } @else {
+        <div class="col-12 card flex justify-content-center">
+
+
+          <p-chart [data]="doughnutChart?.data" [options]="doughnutChart?.options"
+                   [responsive]="true"
+                   type="doughnut"
+          ></p-chart>
+
+
+        </div>
+      }
+
+
+    } @else {
+      <div class="col-12">
+        <div class="alert alert-warning">
+          <p>
+            Aucune donnée à afficher
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

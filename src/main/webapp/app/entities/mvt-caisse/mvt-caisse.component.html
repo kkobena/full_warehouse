@@ -1,4 +1,4 @@
-<p-panel header="Menu mouvements de caisses" styleClass="main-panel">
+<p-panel header="Menu rapport" styleClass="main-panel">
   <div class="row mvts-caisse-gestion">
     <div class="col-2 col-md-2 col-sm-2">
 
@@ -15,6 +15,12 @@
             <a class="flex-sm-fill nav-link " ngbNavLink>Balance caisse</a>
             <ng-template ngbNavContent>
               <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="taxe-report">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Rapport Tva</a>
+            <ng-template ngbNavContent>
+              <jhi-taxe-report></jhi-taxe-report>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="tableau-pharmacien">

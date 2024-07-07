@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -25,91 +24,89 @@ public class Commande implements Serializable, Cloneable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Getter
+
   @Column(name = "order_refernce")
   private String orderRefernce;
 
-  @Getter
+
   @Column(name = "sequence_bon")
   private String sequenceBon;
 
-  @Getter
+
   @Column(name = "receipt_refernce")
   private String receiptRefernce;
 
-  @Getter
+
   @Column(name = "receipt_date")
   private LocalDate receiptDate;
 
-  @Getter
+
   @Column(name = "discount_amount", columnDefinition = "int default '0'")
   private Integer discountAmount = 0;
 
-  @Getter
+
   @NotNull
   @Column(name = "order_amount", nullable = false)
   private Integer orderAmount;
 
-  @Getter
+
   @NotNull
   @Column(name = "gross_amount", nullable = false)
   private Integer grossAmount;
 
-  @Getter
+
   @Column(name = "net_amount", columnDefinition = "int default '0'")
   private Integer netAmount = 0;
 
-  @Getter
+
   @Column(name = "tax_amount", columnDefinition = "int default '0'")
   private Integer taxAmount = 0;
 
-  @Getter
+
   @Column(name = "receipt_amount")
   private Integer receiptAmount;
 
-  @Getter
+
   @NotNull
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
-  @Getter
+
   @NotNull
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  @Getter
   @NotNull
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "order_status")
   private OrderStatut orderStatus;
 
-  @Getter
   @OneToMany(
       mappedBy = "commande",
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private Set<OrderLine> orderLines = new HashSet<>();
 
-  @Getter
+
   @ManyToOne(optional = false)
   @NotNull
   private Magasin magasin;
 
-  @Getter
+
   @ManyToOne(optional = false)
   @NotNull
   private User user;
 
-  @Getter
+
   @ManyToOne(optional = false)
   @NotNull
   private User lastUserEdit;
 
-  @Getter
+
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "type_suggession", length = 3)
   private TypeSuggession typeSuggession;
 
-  @Getter
+
   @ManyToOne(optional = false)
   @NotNull
   private Fournisseur fournisseur;

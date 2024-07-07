@@ -55,50 +55,50 @@
                     <groupId>com.github.eirslett</groupId>
                     <version>${frontend-maven-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <configuration>
-                        <container>
-                            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                            <entrypoint>
-                                <arg>/entrypoint.sh</arg>
-                                <option>-c</option>
-                                <shell>bash</shell>
-                            </entrypoint>
-                            <environment>
-                                <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
-                                <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
-                            </environment>
-                            <ports>
-                                <port>8080</port>
-                            </ports>
-                            <user>1000</user>
-                        </container>
-                        <extraDirectories>
-                            <paths>src/main/docker/jib</paths>
-                            <permissions>
-                                <permission>
-                                    <file>/entrypoint.sh</file>
-                                    <mode>755</mode>
-                                </permission>
-                            </permissions>
-                        </extraDirectories>
-                        <from>
-                            <image>${jib-maven-plugin.image}</image>
-                            <platforms>
-                                <platform>
-                                    <architecture>${jib-maven-plugin.architecture}</architecture>
-                                    <os>linux</os>
-                                </platform>
-                            </platforms>
-                        </from>
-                        <to>
-                            <image>warehouse:latest</image>
-                        </to>
-                    </configuration>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <version>${jib-maven-plugin.version}</version>
-                </plugin>
+                <!--    <plugin>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <configuration>
+                            <container>
+                                <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                                <entrypoint>
+                                    <arg>/entrypoint.sh</arg>
+                                    <option>-c</option>
+                                    <shell>bash</shell>
+                                </entrypoint>
+                                <environment>
+                                    <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
+                                    <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
+                                </environment>
+                                <ports>
+                                    <port>8080</port>
+                                </ports>
+                                <user>1000</user>
+                            </container>
+                            <extraDirectories>
+                                <paths>src/main/docker/jib</paths>
+                                <permissions>
+                                    <permission>
+                                        <file>/entrypoint.sh</file>
+                                        <mode>755</mode>
+                                    </permission>
+                                </permissions>
+                            </extraDirectories>
+                            <from>
+                                <image>${jib-maven-plugin.image}</image>
+                                <platforms>
+                                    <platform>
+                                        <architecture>${jib-maven-plugin.architecture}</architecture>
+                                        <os>linux</os>
+                                    </platform>
+                                </platforms>
+                            </from>
+                            <to>
+                                <image>warehouse:latest</image>
+                            </to>
+                        </configuration>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <version>${jib-maven-plugin.version}</version>
+                    </plugin>-->
 
                 <plugin>
                     <artifactId>checksum-maven-plugin</artifactId>
@@ -179,13 +179,13 @@
                     <configuration>
                         <rules>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster
+                                <message>
                                     supports JDK 17 to 21.
                                 </message>
                                 <version>[17,18),[18,19),[19,20),[20,21),[21,22)</version>
                             </requireJavaVersion>
                             <requireMavenVersion>
-                                <message>You are running an older version of Maven. JHipster
+                                <message>
                                     requires at least Maven ${maven.version}
                                 </message>
                                 <version>[${maven.version},)</version>
@@ -503,12 +503,6 @@
             <artifactId>icu4j</artifactId>
             <groupId>com.ibm.icu</groupId>
             <version>75.1</version>
-        </dependency>
-        <dependency>
-            <artifactId>lombok</artifactId>
-            <groupId>org.projectlombok</groupId>
-            <scope>provided</scope>
-
         </dependency>
         <dependency>
             <artifactId>poi</artifactId>
@@ -996,10 +990,7 @@
     </profiles>
 
     <properties>
-        <!--
-            Build properties
-            The spring-boot version should match the one managed by https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version}
-        -->
+
         <archunit-junit5.version>1.3.0</archunit-junit5.version>
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
         <checkstyle.version>10.17.0</checkstyle.version>

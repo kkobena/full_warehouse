@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeFournisseur;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -45,56 +44,63 @@ public class GroupeFournisseurDTO implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public GroupeFournisseurDTO setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public String getLibelle() {
+    public @NotNull String getLibelle() {
         return libelle;
     }
 
-    public void setLibelle(String libelle) {
+    public GroupeFournisseurDTO setLibelle(@NotNull String libelle) {
         this.libelle = libelle;
+        return this;
     }
 
     public String getAddresspostale() {
         return addresspostale;
     }
 
-    public void setAddresspostale(String addresspostale) {
+    public GroupeFournisseurDTO setAddresspostale(String addresspostale) {
         this.addresspostale = addresspostale;
+        return this;
     }
 
     public String getNumFaxe() {
         return numFaxe;
     }
 
-    public void setNumFaxe(String numFaxe) {
+    public GroupeFournisseurDTO setNumFaxe(String numFaxe) {
         this.numFaxe = numFaxe;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public GroupeFournisseurDTO setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public String getTel() {
         return tel;
     }
 
-    public void setTel(String tel) {
+    public GroupeFournisseurDTO setTel(String tel) {
         this.tel = tel;
+        return this;
     }
 
     public Integer getOdre() {
         return odre;
     }
 
-    public void setOdre(Integer odre) {
+    public GroupeFournisseurDTO setOdre(Integer odre) {
         this.odre = odre;
+        return this;
     }
 
     @Override

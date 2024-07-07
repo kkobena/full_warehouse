@@ -23,13 +23,14 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormTransactionComponent } from './form-transaction/form-transaction.component';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DATE_FORMAT_ISO_DATE } from '../../shared/util/warehouse-util';
-import { getTypeName } from './mvt-caisse-util';
+import { getTypeName, MvtCaisseParams } from './mvt-caisse-util';
 import { ButtonGroupModule } from 'primeng/buttongroup';
 import { DividerModule } from 'primeng/divider';
 import { UserService } from '../../core/user/user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { Tuple } from '../../shared/model/tuple.model';
+import { MvtParamServiceService } from './mvt-param-service.service';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
@@ -92,12 +93,20 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private dialogService = inject(DialogService);
   private primeNGConfig = inject(PrimeNGConfig);
   private translate = inject(TranslateService);
+  private mvtParamServiceService = inject(MvtParamServiceService);
 
   ngOnInit(): void {
+    if (this.mvtParamServiceService.mvtCaisseParam()) {
+      this.fromDate = this.mvtParamServiceService.mvtCaisseParam().fromDate;
+      this.toDate = this.mvtParamServiceService.mvtCaisseParam().toDate;
+      this.selectedTypes = this.mvtParamServiceService.mvtCaisseParam().selectedTypes;
+      this.selectedModes = this.mvtParamServiceService.mvtCaisseParam().paymentModes;
+      this.selectedUser = this.mvtParamServiceService.mvtCaisseParam().selectedUser;
+      this.search = this.mvtParamServiceService.mvtCaisseParam().search;
+    }
     this.loadModes();
     this.loadUsers();
     this.onSearch();
-    this.loadSum();
   }
 
   ngAfterViewInit(): void {
@@ -110,6 +119,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   onSearch(): void {
     this.loadPage();
     this.loadSum();
+    this.updateParam();
   }
 
   loadPage(page?: number): void {
@@ -201,5 +211,32 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     this.mvtCaisseService.findAllMvtsSum(this.buildParams()).subscribe((res: HttpResponse<MvtCaisseWrapper>) => {
       this.mvtCaisseSum = res.body || null;
     });
+  }
+
+  private setParam(): void {
+    const param: MvtCaisseParams = {
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      selectedTypes: this.selectedTypes,
+      paymentModes: this.selectedModes,
+      selectedUser: this.selectedUser,
+      search: this.search,
+    };
+    this.mvtParamServiceService.setMvtCaisseParam(param);
+  }
+
+  private updateParam(): void {
+    const params = this.mvtParamServiceService.mvtCaisseParam();
+    if (params) {
+      params.fromDate = this.fromDate;
+      params.toDate = this.toDate;
+      params.selectedTypes = this.selectedTypes;
+      params.paymentModes = this.selectedModes;
+      params.selectedUser = this.selectedUser;
+      params.search = this.search;
+      this.mvtParamServiceService.setMvtCaisseParam(params);
+    } else {
+      this.setParam();
+    }
   }
 }

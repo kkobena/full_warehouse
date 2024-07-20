@@ -1,5 +1,6 @@
 export interface IClientTiersPayant {
   id?: number;
+  customerId?: number;
   tiersPayantName?: string;
   tiersPayantFullName?: string;
   num?: string;
@@ -32,6 +33,6 @@ export class ClientTiersPayant implements IClientTiersPayant {
     public tiersPayant?: any,
     public categorie?: number,
     public numBon?: string,
-    public typeTiersPayant?: string
+    public typeTiersPayant?: string,
   ) {}
 }

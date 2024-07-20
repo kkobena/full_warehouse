@@ -26,12 +26,13 @@
 
         </div>
         <div class="row" style="margin-top: 0.5rem;">
-          @for (modePay of selectModeReglementService.modeReglements();track trackPaymentModeId;let index = $index;let isFirst = $first;let isLast = $last) {
+          @for (modePay of selectModeReglementService.modeReglements(); track modePay.code) {
             <div class="col-md-6 ">
 
               <div class="p-inputgroup">
                 <span class="p-inputgroup-addon {{modePay.styleBtnClass}}"></span>
-                <input (input)="manageCashPaymentMode($event,modePay)" (keydown.enter)="save()"
+                <input autofocus (input)="manageCashPaymentMode($event,modePay)"
+                       (keydown.enter)="save()"
                        [(ngModel)]="modePay.amount" [id]="modePay.code"
                        [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
                        class="payment-mode-input" pInputText />
@@ -94,7 +95,7 @@
 <p-overlayPanel #addOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
-      @for (modePay of reglementsModes;track trackPaymentModeId;let i = $index) {
+      @for (modePay of reglementsModes; track modePay.code; let i = $index) {
         <ng-container>
           <div (click)="onAddPaymentMode(modePay)" class="p-2 mode-reglement-icon">
             <span class="{{modePay.styleImageClass}}"></span>
@@ -111,7 +112,7 @@
 <p-overlayPanel #removeOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
-      @for (modePay of reglementsModes;track trackPaymentModeId;let i = $index) {
+      @for (modePay of reglementsModes; track modePay.code; let i = $index) {
         <ng-container>
           <div (click)="onRemovePaymentMode(modePay)"
 

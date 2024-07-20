@@ -11,7 +11,6 @@ import { SelectModeReglementService } from '../../../service/select-mode-regleme
   standalone: true,
   imports: [WarehouseCommonModule],
   templateUrl: './amount-computing.component.html',
-  styleUrl: './amount-computing.component.scss',
 })
 export class AmountComputingComponent {
   @Input() entryAmount: number = 0;

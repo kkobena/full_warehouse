@@ -55,50 +55,7 @@
                     <groupId>com.github.eirslett</groupId>
                     <version>${frontend-maven-plugin.version}</version>
                 </plugin>
-                <!--    <plugin>
-                        <artifactId>jib-maven-plugin</artifactId>
-                        <configuration>
-                            <container>
-                                <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                                <entrypoint>
-                                    <arg>/entrypoint.sh</arg>
-                                    <option>-c</option>
-                                    <shell>bash</shell>
-                                </entrypoint>
-                                <environment>
-                                    <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
-                                    <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
-                                </environment>
-                                <ports>
-                                    <port>8080</port>
-                                </ports>
-                                <user>1000</user>
-                            </container>
-                            <extraDirectories>
-                                <paths>src/main/docker/jib</paths>
-                                <permissions>
-                                    <permission>
-                                        <file>/entrypoint.sh</file>
-                                        <mode>755</mode>
-                                    </permission>
-                                </permissions>
-                            </extraDirectories>
-                            <from>
-                                <image>${jib-maven-plugin.image}</image>
-                                <platforms>
-                                    <platform>
-                                        <architecture>${jib-maven-plugin.architecture}</architecture>
-                                        <os>linux</os>
-                                    </platform>
-                                </platforms>
-                            </from>
-                            <to>
-                                <image>warehouse:latest</image>
-                            </to>
-                        </configuration>
-                        <groupId>com.google.cloud.tools</groupId>
-                        <version>${jib-maven-plugin.version}</version>
-                    </plugin>-->
+
 
                 <plugin>
                     <artifactId>checksum-maven-plugin</artifactId>
@@ -180,9 +137,9 @@
                         <rules>
                             <requireJavaVersion>
                                 <message>
-                                    supports JDK 17 to 21.
+                                    supports JDK 21 to 22.
                                 </message>
-                                <version>[17,18),[18,19),[19,20),[20,21),[21,22)</version>
+                                <version>[21,22)</version>
                             </requireJavaVersion>
                             <requireMavenVersion>
                                 <message>
@@ -493,12 +450,6 @@
             <groupId>org.xhtmlrenderer</groupId>
             <version>9.8.0</version>
         </dependency>
-
-        <!--<dependency>
-            <artifactId>flying-saucer-pdf-openpdf</artifactId>
-            <groupId>org.xhtmlrenderer</groupId>
-            <version>9.3.1</version>
-        </dependency>-->
         <dependency>
             <artifactId>icu4j</artifactId>
             <groupId>com.ibm.icu</groupId>
@@ -815,32 +766,24 @@
                                 </goals>
                                 <id>install-node-and-npm</id>
                             </execution>
-
-
-                            <!--                            <execution>-->
-                            <!--                                <goals>-->
-                            <!--                                    <goal>install-node-and-npm</goal>-->
-                            <!--                                </goals>-->
-                            <!--                                <id>install-node-and-npm</id>-->
-                            <!--                            </execution>-->
-                            <!--                            <execution>-->
-                            <!--                                <goals>-->
-                            <!--                                    <goal>npm</goal>-->
-                            <!--                                </goals>-->
-                            <!--                                <id>npm install &#45;&#45;legacy-peer-deps</id>-->
-                            <!--                            </execution>-->
-                            <!--                            <execution>-->
-                            <!--                                <configuration>-->
-                            <!--                                    <arguments>run webapp:test</arguments>-->
-                            <!--                                    <npmInheritsProxyConfigFromMaven>false-->
-                            <!--                                    </npmInheritsProxyConfigFromMaven>-->
-                            <!--                                </configuration>-->
-                            <!--                                <goals>-->
-                            <!--                                    <goal>npm</goal>-->
-                            <!--                                </goals>-->
-                            <!--                                <id>webapp build test</id>-->
-                            <!--                                <phase>test</phase>-->
-                            <!--                            </execution>-->
+                            <execution>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <id>npm install</id>
+                            </execution>
+                            <execution>
+                                <configuration>
+                                    <arguments>run webapp:test</arguments>
+                                    <npmInheritsProxyConfigFromMaven>false
+                                    </npmInheritsProxyConfigFromMaven>
+                                </configuration>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <id>webapp build test</id>
+                                <phase>test</phase>
+                            </execution>
                             <execution>
                                 <configuration>
                                     <arguments>run webapp:prod</arguments>

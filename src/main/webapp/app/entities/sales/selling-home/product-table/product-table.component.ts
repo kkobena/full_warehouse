@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, EventEmitter, inject, Output, viewChild } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -12,6 +12,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
+import { QuanityMaxService } from '../../service/quanity-max.service';
+import { HasPriceModificationAuthService } from '../../service/has-price-modification-auth.service';
 
 @Component({
   selector: 'jhi-product-table',
@@ -35,10 +37,9 @@ export class ProductTableComponent {
   @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
   @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
-  @Input('canUpdatePu') canUpdatePu: boolean = false;
-  @Input('qtyMaxToSel') qtyMaxToSel: number;
-  @ViewChild('forcerStockBtn')
-  forcerStockBtn?: ElementRef;
+  forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
+  priceModificationAuthService = inject(HasPriceModificationAuthService);
+  private quantityMaxService = inject(QuanityMaxService);
 
   constructor(
     private currentSaleService: CurrentSaleService,
@@ -90,7 +91,7 @@ export class ProductTableComponent {
     const newQty = Number(event.target.value);
 
     if (newQty > 0) {
-      if (newQty > this.qtyMaxToSel) {
+      if (newQty > this.quantityMaxService.quantityMax()) {
         this.onUpdateConfirmForceStock(salesLine, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
       } else {
         salesLine.quantityRequested = newQty;
@@ -129,6 +130,6 @@ export class ProductTableComponent {
       reject: () => this.itemQtyRequestedEvent.emit(null),
       key: 'forcerStock',
     });
-    this.forcerStockBtn.nativeElement.focus();
+    this.forcerStockBtn().nativeElement.focus();
   }
 }

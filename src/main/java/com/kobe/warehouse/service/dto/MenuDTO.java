@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MenuDTO {
+  private final Set<PrivilegeDTO> privileges = new HashSet<>();
   private Set<MenuDTO> menus = new HashSet<>();
   private TypeMenu typeMenu;
   private String libelle;
@@ -26,6 +27,10 @@ public class MenuDTO {
     this.iconWeb = menu.getIconWeb();
     this.iconJavaClient = menu.getIconJavaClient();
     menus.addAll(menu.getMenus().stream().map(MenuDTO::new).toList());
+  }
+
+  public Set<PrivilegeDTO> getPrivileges() {
+    return privileges;
   }
 
   public Set<MenuDTO> getMenus() {

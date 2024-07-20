@@ -44,7 +44,6 @@ export class SelectModeReglementService {
 
   selectCashModePayment(): void {
     const cashControl = this.paymentModes.find(mode => mode.code === 'CASH') as IPaymentMode;
-    console.log(cashControl);
     this.modeReglements.set([cashControl]);
   }
 

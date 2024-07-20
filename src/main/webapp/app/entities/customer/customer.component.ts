@@ -30,6 +30,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
+import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
+import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 
 @Component({
   selector: 'jhi-customer',
@@ -58,8 +60,8 @@ export class CustomerComponent implements OnInit {
   customers?: ICustomer[];
   types: string[] = ['TOUT', 'ASSURE', 'STANDARD'];
   statuts: object[] = [
-    { value: 'ENABLE', label: 'ACTIF' },
-    { value: 'DISABLE', label: 'DESACTIVE' },
+    { value: 'ENABLE', label: 'Actifs' },
+    { value: 'DISABLE', label: 'Désactivés' },
   ];
   typeSelected = '';
   statutSelected = 'ENABLE';
@@ -75,7 +77,7 @@ export class CustomerComponent implements OnInit {
   splitbuttons: MenuItem[];
   ref!: DynamicDialogRef;
   primngtranslate: Subscription;
-  displayTiersPayantAction = false;
+  displayTiersPayantAction = true;
   jsonDialog = false;
   responseDialog = false;
 
@@ -123,10 +125,10 @@ export class CustomerComponent implements OnInit {
         search: this.search,
         status: this.statutSelected,
       })
-      .subscribe(
-        (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        () => this.onError(),
-      );
+      .subscribe({
+        next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad, dontNavigate),
+        error: () => this.onError(),
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -142,10 +144,10 @@ export class CustomerComponent implements OnInit {
           search: this.search,
           status: this.statutSelected,
         })
-        .subscribe(
-          (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          () => this.onError(),
-        );
+        .subscribe({
+          next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
+          error: () => this.onError(),
+        });
     }
   }
 
@@ -313,11 +315,49 @@ export class CustomerComponent implements OnInit {
     this.uploadJsonDataResponse(this.customerService.uploadJsonData(formData));
   }
 
+  onAddNewTiersPayant(customer: ICustomer): void {
+    this.ref = this.dialogService.open(CustomerTiersPayantComponent, {
+      data: { customer },
+      header: "FORMULAIRE D'AJOUT DE TIERS PAYANT ",
+      width: '50%',
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.loadPage();
+      }
+    });
+  }
+
+  onEditTiersPayant(customer: ICustomer, clientTiersPayant: IClientTiersPayant): void {
+    this.ref = this.dialogService.open(CustomerTiersPayantComponent, {
+      data: { entity: clientTiersPayant, customer },
+      header: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]',
+      width: '50%',
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.loadPage();
+      }
+    });
+  }
+
+  onRemoveTiersPayant(clientTiersPayant: IClientTiersPayant): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment supprimer ce tiers payant ?',
+      header: 'SUPPRESSION DE TIERS PAYANT',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.customerService.deleteTiersPayant(clientTiersPayant.id).subscribe(() => this.loadPage());
+      },
+      key: 'deleteTiersPayant',
+    });
+  }
+
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.subscribe(
-      () => this.onPocesJsonSuccess(),
-      () => this.onImportError(),
-    );
+    result.subscribe({
+      next: () => this.onPocesJsonSuccess(),
+      error: () => this.onImportError(),
+    });
   }
 
   protected onImportError(): void {
@@ -370,5 +410,9 @@ export class CustomerComponent implements OnInit {
   protected onError(): void {
     this.loading = false;
     this.ngbPaginationPage = this.page ?? 1;
+  }
+
+  protected displayTiersPayantAddBtn(customer: ICustomer): boolean {
+    return customer.tiersPayants && customer.tiersPayants.length < 4;
   }
 }

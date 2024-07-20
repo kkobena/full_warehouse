@@ -25,6 +25,7 @@ public class ClientTiersPayantDTO {
   private TiersPayantDto tiersPayant;
   private TiersPayantCategorie typeTiersPayant;
   private String numBon;
+  private long customerId;
 
   public ClientTiersPayantDTO() {}
 
@@ -50,6 +51,62 @@ public class ClientTiersPayantDTO {
             .setName(tiersPayant.getName())
             .setId(tiersPayant.getId())
             .setFullName(tiersPayant.getFullName());
+    this.customerId = c.getAssuredCustomer().getId();
+  }
+
+  @Override
+  public String toString() {
+    return "ClientTiersPayantDTO{"
+        + "id="
+        + id
+        + ", tiersPayantName='"
+        + tiersPayantName
+        + '\''
+        + ", tiersPayantFullName='"
+        + tiersPayantFullName
+        + '\''
+        + ", tiersPayantId="
+        + tiersPayantId
+        + ", num='"
+        + num
+        + '\''
+        + ", plafondConso="
+        + plafondConso
+        + ", plafondJournalier="
+        + plafondJournalier
+        + ", created="
+        + created
+        + ", updated="
+        + updated
+        + ", priorite="
+        + priorite
+        + ", statut="
+        + statut
+        + ", categorie="
+        + categorie
+        + ", taux="
+        + taux
+        + ", plafondAbsolu="
+        + plafondAbsolu
+        + ", tiersPayant="
+        + tiersPayant
+        + ", typeTiersPayant="
+        + typeTiersPayant
+        + ", numBon='"
+        + numBon
+        + '\''
+        + ", customerId="
+        + customerId
+        + '}';
+  }
+
+  public long getCustomerId() {
+    return customerId;
+  }
+
+  public ClientTiersPayantDTO setCustomerId(long customerId) {
+    this.customerId = customerId;
+    return this;
   }
 
   public Long getId() {

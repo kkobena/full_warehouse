@@ -1,0 +1,36 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
+             size="medium"
+             type="timer">
+</ngx-spinner>
+
+
+<p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)"
+          [(visible)]="displayErrorEntryAmountModal"
+          [draggable]="false" [focusOnShow]="true"
+          [modal]="true" [resizable]="false" [showHeader]="true"
+          [style]="{width: '30vw'}"
+          header="Erreur">
+  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
+  <ng-template pTemplate="footer">
+    <button #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()"
+            class="btn btn-danger"
+            data-dismiss="modal"
+            type="button">Fermer
+    </button>
+  </ng-template>
+</p-dialog>
+
+
+<p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 appendTo="body"
+                 key="addModePaymentConfirmDialog">
+  <p-footer>
+    <button (click)="addModePaymentConfirmDialog.reject()" class="p-button-danger"
+            icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #addModePaymentConfirmDialogBtn (click)="addModePaymentConfirmDialog.accept()"
+            icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>

@@ -1,5 +1,5 @@
 <p-toast position="center"></p-toast>
-<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
   <div class="modal-body form-client" id="modal">
     <div [hidden]="true" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
@@ -10,16 +10,23 @@
         <label class="form-control-label"
                for="field_firstName">Nom </label> <span
         style="font-weight: 900;color: red;">*</span>
-        <input autocomplete="off" class="form-control" formControlName="firstName"
+        <input #firstName autocomplete="off" class="form-control" formControlName="firstName"
                id="field_firstName"
                name="firstName" type="text" />
-        <div
-          *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
-          <small *ngIf="editForm.get('firstName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
+          <div>
+            @if (editForm.get('firstName')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
+
+
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label"
@@ -29,14 +36,19 @@
                id="field_lastName"
                name="lastName"
                pInputText type="text" />
-        <div
-          *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
-          <small *ngIf="editForm.get('lastName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
+          || editForm.get('lastName')!.touched)) {
+          <div>
+            @if (editForm.get('lastName')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
 
-        </div>
+          </div>
+        }
+
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label"
@@ -46,28 +58,39 @@
         <input autocomplete="off" class="form-control" formControlName="num" id="field_num"
                name="num"
                pInputText type="text" />
-        <div
-          *ngIf="editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)">
-          <small *ngIf="editForm.get('num')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty
+          || editForm.get('num')!.touched)) {
+          <div>
+            @if (editForm.get('num')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
       </div>
       <div class="form-group col-md-2">
         <label class="form-control-label"
-               for="tiersPayantId">Taux<span style="font-weight: 900;color: red;">*</span></label>
+               for="field_taux">Taux<span style="font-weight: 900;color: red;">*</span></label>
         <input autocomplete="off" class="form-control" formControlName="taux" id="field_taux"
                name="taux"
                pInputText
                pKeyFilter="int" type="text" />
-        <div
-          *ngIf="editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)">
-          <small *ngIf="editForm.get('taux')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty
+          || editForm.get('taux')!.touched)) {
+          <div>
+            @if (editForm.get('taux')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
+
       </div>
 
     </div>
@@ -76,21 +99,34 @@
         <label class="form-control-label"
                for="tiersPayantId">Tiers-payant<span
           style="font-weight: 900;color: red;">*</span></label>
-        <ng-select [(ngModel)]="selectedTiersPayant" [items]="tiersPayants"
 
-                   bindLabel="fullName"
-                   class="form-control" formControlName="tiersPayantId" id="tiersPayantId"
-                   name="tiersPayantId"
-                   placeholder="Sélectionner un Tiers-payant">
-        </ng-select>
-        <div
-          *ngIf="editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)">
-          <small *ngIf="editForm.get('tiersPayantId')?.errors?.required"
-                 class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        <p-autoComplete (completeMethod)="searchTiersPayant($event)"
+                        (onSelect)="onSelectTiersPayant($event)"
+                        [dropdown]="true"
+                        [forceSelection]="true"
+                        [inputStyle]="{'width':'100%'}"
+                        [minLength]="minLength"
+                        [style]="{'width':'100%'}" [suggestions]="tiersPayants"
+                        appendTo="body" formControlName="tiersPayantId"
+                        id="tiersPayantId"
+                        optionLabel="fullName"
+                        placeholder="Taper pour rechercher">
+        </p-autoComplete>
+
+
+        @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty
+          || editForm.get('tiersPayantId')!.touched)) {
+          <div>
+            @if (editForm.get('tiersPayantId')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
+
       </div>
 
       <div class="form-group col-md-3">
@@ -104,10 +140,15 @@
 
       <div class="form-group col-md-3">
         <label class="form-control-label">Date de naissance</label>
-        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true"
-                    [showButtonBar]="true"
-                    appendTo="body" class="form-control form-date-input" formControlName="datNaiss"
-                    inputId="datNaiss"></p-calendar>
+        <p-inputMask [style]="{'width':'100%'}"
+                     formControlName="datNaiss"
+                     inputId="datNaiss"
+                     mask="99/99/9999"
+                     slotChar="dd/mm/yyyy" />
+        <!--        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true"-->
+        <!--                    [showButtonBar]="true"-->
+        <!--                    appendTo="body" class="form-control form-date-input" formControlName="datNaiss"-->
+        <!--                    inputId="datNaiss"></p-calendar>-->
       </div>
 
       <div class="form-group col-md-2">
@@ -139,7 +180,7 @@
       </div>
 
       <div class="form-group col-md-3">
-        <label class="form-control-label">E-mail</label>
+        <label class="form-control-label" for="email">E-mail</label>
         <input autocomplete="off" class="form-control" formControlName="email" id="email"
                name="email"
                pInputText type="email" />
@@ -156,64 +197,71 @@
       <span class="p-tag">Complementaires</span>
 
     </p-divider>
-    <div *ngIf="validSize" style="text-align: right;">
-      <button (click)="addTiersPayant()" class="p-button-rounded p-button-success p-button-sm"
-              icon="pi pi-plus" pButton
-              type="button"></button>
-    </div>
-    <div *ngFor="let tiersPayant of editFormGroups.controls; let i = index"
-         formArrayName="tiersPayants">
-      <ng-container [formGroupName]="i">
-        <input class="form-control" formControlName="id" type="hidden" />
-        <div class="form-row" style="border-bottom: 1px solid #ddd;">
-          <div class="form-group col-md-4">
-            <label class="form-control-label">Tiers-payant<span
-              style="font-weight: 900;color: red;">*</span></label>
-            <p-autoComplete (completeMethod)="searchTiersPayant($event)"
-                            (onSelect)="onSelectTiersPayant($event)"
-                            [forceSelection]="true"
-                            [inputStyle]="{'width':'100%'}"
-                            [minLength]="minLength" [style]="{'width':'100%'}"
-                            [suggestions]="tiersPayants" appendTo="body"
-                            formControlName="tiersPayantId" name="tiersPayantId"
-                            optionLabel="fullName" placeholder="Taper pour rechercher">
-            </p-autoComplete>
-          </div>
-          <div class="form-group col-md-3">
-            <label class="form-control-label">Numéro de sécurité <span
-              style="font-weight: 900;color: red;">*</span>
-            </label>
-            <input autocomplete="off" class="form-control" formControlName="num" name="num"
-                   pInputText type="text" />
-          </div>
-          <div class="form-group col-md-2">
-            <label class="form-control-label">Taux <span
-              style="font-weight: 900;color: red;">*</span>
-            </label>
-            <input autocomplete="off" class="form-control" formControlName="taux" name="taux"
-                   pInputText
-                   pKeyFilter="int" type="text" />
+
+    @if (validSize) {
+      <div style="text-align: right;">
+        <button (click)="addTiersPayant()" class="p-button-rounded p-button-success p-button-sm"
+                icon="pi pi-plus" pButton
+                type="button"></button>
+      </div>
+    }
+    @for (tiersPayant of editFormGroups.controls; ; track i; let i = $index) {
+      <div formArrayName="tiersPayants">
+        <ng-container [formGroupName]="i">
+          <input class="form-control" formControlName="id" type="hidden" />
+          <div class="form-row" style="border-bottom: 1px solid #ddd;">
+            <div class="form-group col-md-4">
+              <label class="form-control-label">Tiers-payant<span
+                style="font-weight: 900;color: red;">*</span></label>
+              <p-autoComplete (completeMethod)="searchTiersPayant($event)"
+                              (onSelect)="onSelectTiersPayant($event)"
+                              [forceSelection]="true"
+                              [inputStyle]="{'width':'100%'}"
+                              [minLength]="minLength" [style]="{'width':'100%'}"
+                              [suggestions]="tiersPayants" appendTo="body"
+                              formControlName="tiersPayantId" name="tiersPayantId"
+                              [dropdown]="true"
+                              optionLabel="fullName" placeholder="Taper pour rechercher">
+              </p-autoComplete>
+            </div>
+            <div class="form-group col-md-3">
+              <label class="form-control-label">Numéro de sécurité <span
+                style="font-weight: 900;color: red;">*</span>
+              </label>
+              <input autocomplete="off" class="form-control" formControlName="num" name="num"
+                     pInputText type="text" />
+            </div>
+            <div class="form-group col-md-2">
+              <label class="form-control-label">Taux <span
+                style="font-weight: 900;color: red;">*</span>
+              </label>
+              <input autocomplete="off" class="form-control" formControlName="taux" name="taux"
+                     pInputText
+                     pKeyFilter="int" type="text" />
+
+            </div>
+            <div class="form-group col-md-2">
+              <label class="form-control-label">Ordre <span
+                style="font-weight: 900;color: red;">*</span>
+              </label>
+              <p-dropdown [options]="catgories" appendTo="body"
+                          class="form-control ngCombo"
+                          formControlName="priorite" optionLabel="label"
+                          optionValue="value"></p-dropdown>
+
+            </div>
+            <div class="form-group col-md-1 pt-4">
+              <button (click)="removeTiersPayant(i)" class="p-button-rounded p-button-danger"
+                      icon="pi pi-times" pButton
+                      type="button"></button>
+            </div>
 
           </div>
-          <div class="form-group col-md-2">
-            <label class="form-control-label">Ordre <span
-              style="font-weight: 900;color: red;">*</span>
-            </label>
-            <p-dropdown [options]="catgories" appendTo="body"
-                        class="form-control ngCombo"
-                        formControlName="priorite" optionLabel="label"
-                        optionValue="value"></p-dropdown>
+        </ng-container>
+      </div>
+    }
 
-          </div>
-          <div class="form-group col-md-1 pt-4">
-            <button (click)="removeTiersPayant(i)" class="p-button-rounded p-button-danger"
-                    icon="pi pi-times" pButton
-                    type="button"></button>
-          </div>
 
-        </div>
-      </ng-container>
-    </div>
   </div>
   <div class="modal-footer">
     <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">

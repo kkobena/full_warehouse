@@ -1,6 +1,6 @@
 <p-toast position="center"></p-toast>
 
-<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
   <div class="modal-body">
     <div [hidden]="true" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
@@ -11,7 +11,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_firstName">Nom</label>
-        <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName" name="firstName"
+        <input autocomplete="off" class="form-control" formControlName="firstName"
+               id="field_firstName" name="firstName"
                pInputText type="text" />
         <div
           *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
@@ -27,7 +28,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_lastName">Prénom(s)</label>
-        <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" name="lastName"
+        <input autocomplete="off" class="form-control" formControlName="lastName"
+               id="field_lastName" name="lastName"
                pInputText type="text" />
         <div
           *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
@@ -42,7 +44,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_phone">Téléphone</label>
-        <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone" name="phone"
+        <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone"
+               name="phone"
                pInputText
                pKeyFilter="int" type="text" />
 
@@ -58,7 +61,8 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label" for="field_email">E-mail</label>
-        <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email"
+        <input autocomplete="off" class="form-control" formControlName="email" id="field_email"
+               name="email"
                pInputText type="email" />
       </div>
     </div>
@@ -70,7 +74,8 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
             type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
     </button>

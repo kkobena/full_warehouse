@@ -11,16 +11,21 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_firstName">Nom</label>
-        <input autocomplete="off" autofocus class="form-control" formControlName="firstName" id="field_firstName"
+        <input autocomplete="off" autofocus class="form-control" formControlName="firstName"
+               id="field_firstName"
                name="firstName" pInputText type="text" />
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
+          <div>
+            @if (editForm.get('firstName')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
 
-        <div
-          *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
-          <small *ngIf="editForm.get('firstName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+          </div>
+        }
+
       </div>
     </div>
 
@@ -28,43 +33,56 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_lastName">Prénom(s)</label>
-        <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" name="lastName"
+        <input autocomplete="off" class="form-control" formControlName="lastName"
+               id="field_lastName" name="lastName"
                pInputText type="text" />
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get(
+          'lastName')!.touched)) {
+          <div>
+            @if (editForm.get('lastName')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
 
-        <div
-          *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
-          <small *ngIf="editForm.get('lastName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+          </div>
+
+        }
+
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label"
                for="field_numAyantDroit">Numéro assuré</label>
-        <input autocomplete="off" class="form-control" formControlName="numAyantDroit" id="field_numAyantDroit"
+        <input autocomplete="off" class="form-control" formControlName="numAyantDroit"
+               id="field_numAyantDroit"
                name="numAyantDroit" pInputText
                pKeyFilter="alphanum" type="text" />
+        @if (editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty
+          || editForm.get('numAyantDroit')!.touched)) {
+          <div>
+            @if (editForm.get('numAyantDroit')?.errors?.required) {
+              <small
+                class="form-text text-danger"
+                jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
 
-        <div
-          *ngIf="editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty || editForm.get('numAyantDroit')!.touched)">
-          <small *ngIf="editForm.get('numAyantDroit')?.errors?.required"
-                 class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+          </div>
+        }
+
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Date de naissance</label>
-        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true"
-                    [showButtonBar]="true"
-                    appendTo="body" class="form-control form-date-input" formControlName="datNaiss"
-                    inputId="datNaiss"></p-calendar>
+        <p-inputMask [style]="{'width':'100%'}"
+                     formControlName="datNaiss"
+                     inputId="datNaiss"
+                     mask="99/99/9999"
+                     slotChar="dd/mm/yyyy" />
       </div>
     </div>
     <div class="form-row">
@@ -83,7 +101,8 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
             type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
     </button>

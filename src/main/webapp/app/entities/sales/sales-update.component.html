@@ -603,7 +603,7 @@
         </div>
         <div class="row" style="margin-top: 0.5rem;">
           <div
-            *ngFor="let modePay of modeReglementSelected;trackBy: trackPaymentModeId; let index = index; let isFirst = first; let isLast = last;"
+            *ngFor="let modePay of modeReglementSelected;trackBy: modePay.code; let index = index; let isFirst = first; let isLast = last;"
             class="col-md-6 ">
 
             <div class="p-inputgroup">

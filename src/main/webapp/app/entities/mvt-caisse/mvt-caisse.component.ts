@@ -16,7 +16,7 @@ import { VisualisationMvtCaisseComponent } from './visualisation-mvt-caisse.comp
 
 import { TableauPharmacienComponent } from './tableau-pharmacien/tableau-pharmacien.component';
 import { BalanceMvtCaisseComponent } from './balance-mvt-caisse/balance-mvt-caisse.component';
-import { TaxeReportComponent } from "./taxe-report/taxe-report.component";
+import { TaxeReportComponent } from './taxe-report/taxe-report.component';
 
 @Component({
   selector: 'jhi-mvt-caisse',
@@ -40,7 +40,6 @@ import { TaxeReportComponent } from "./taxe-report/taxe-report.component";
     TaxeReportComponent,
   ],
   templateUrl: './mvt-caisse.component.html',
-  styleUrl: './mvt-caisse.component.scss',
 })
 export class MvtCaisseComponent {
   protected active = 'mvt-caisse';

@@ -1,66 +1,60 @@
 <div class="modal-body">
-    <p-toolbar styleClass="mb-1">
-        <ng-template pTemplate="left">
-            <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success mr-2"
-                    (click)="addAyantDroit()"></button>
+  <p-toolbar styleClass="mb-1">
+    <ng-template pTemplate="left">
+      <button (click)="addAyantDroit()" class="btn  btn-sm btn-primary"
 
-        </ng-template>
+      >
+        <i class="pi pi-user-plus"></i> Ajouter un ayant droit
+      </button>
 
-    </p-toolbar>
-    <p-table  [value]="customers" dataKey="id" #ayantDroitTable
-             [showCurrentPageReport]="true"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ayant droits"
-             selectionMode="single"
-             [globalFilterFields]="['firstName','lastName','fullName','numAyantDroit','code','num']">
-        <ng-template pTemplate="caption">
-            <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
+    </ng-template>
 
-            <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input type="text" pInputText placeholder="TAPEZ POUR FILTRER"
-           (input)="ayantDroitTable.filterGlobal($event.target.value, 'contains')">
-</span>
-
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width:3%">
-                    #
-                </th>
-                <th style="width:7%">CODE</th>
-                <th>NOM</th>
-                <th>PRENOM(S)</th>
-                <th>Numéro de securité</th>
-                <th style="width:7%"></th>
+  </p-toolbar>
+  @if (customers.length > 0) {
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered table-hover">
+        <thead>
+        <tr>
+          <th style="width:3%">
+            #
+          </th>
+          <th>Nom</th>
+          <th>Prénom(s)</th>
+          <th>Matricule</th>
+          <th>Date de naissance</th>
+          <th style="width:8%">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (ayantDroit of customers; track ayantDroit.id; let i = $index) {
+            <tr (dblclick)="onDbleClick(ayantDroit)" style="cursor: pointer;">
+              <td style="text-align: left;">{{ i + 1 }}</td>
+              <td>{{ ayantDroit.firstName }}</td>
+              <td>{{ ayantDroit.lastName }}</td>
+              <td>{{ ayantDroit.num }}</td>
+              <td>{{ ayantDroit.datNaiss | date :'dd/MM/yyyy' }}</td>
+              <td class="text-center">
+                <button type="button" class="btn  btn-success btn-sm"
+                        (click)="onSelect(ayantDroit)">
+                  <i class="pi pi-check"></i>
+                </button>
+              </td>
             </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
-            <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer;">
-                <td style="text-align: left;">{{rowIndex + 1}}</td>
-                <td>{{customer.code}}</td>
-                <td>{{customer.firstName}}</td>
-                <td>{{customer.lastName}}</td>
-                <td>{{customer.numAyantDroit}}</td>
-
-                <td style="text-align: right;">
-                    <button pButton pRipple icon="pi pi-check"
-                            pTooltip="Séléctionner"
-                            class="p-button-rounded p-button-info p-button-sm  p-mb-3"
-                            (click)="onSelect(customer)"></button>
-                </td>
-            </tr>
-
-        </ng-template>
-
-    </p-table>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="alert alert-warning">
+      <strong>Aucun ayant droit trouvé.</strong>
+    </div>
+  }
 
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="cancel()">
-        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
-    </button>
-
-
+  <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
+    <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
+  </button>
 </div>
 

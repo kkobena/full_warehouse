@@ -71,7 +71,7 @@ public class CustomerDataService {
 
   public Page<CustomerDTO> fetchAllCustomers(
       String categorie, String search, Status status, Pageable pageable) {
-    if (StringUtils.isEmpty(categorie) || categorie.equalsIgnoreCase(EntityConstant.TOUT)) {
+    if (!StringUtils.hasLength(categorie) || categorie.equalsIgnoreCase(EntityConstant.TOUT)) {
       return loadAll(search, status, pageable);
     }
     if (categorie.equalsIgnoreCase(EntityConstant.ASSURE)) {
@@ -89,7 +89,7 @@ public class CustomerDataService {
             Sort.by(Sort.Direction.ASC, "firstName", "lastName"));
     Specification<UninsuredCustomer> specification =
         Specification.where(uninsuredCustomerRepository.specialisation(status));
-    if (!StringUtils.isEmpty(search)) {
+    if (StringUtils.hasLength(search)) {
       specification =
           uninsuredCustomerRepository.specialisationQueryString(search.toUpperCase() + "%");
     }
@@ -114,8 +114,7 @@ public class CustomerDataService {
       q.setMaxResults(pageable.getPageSize());
     }
     List<Customer> customers = q.getResultList();
-    return new PageImpl<>(
-        customers.stream().map(this::mapFromEntity).collect(Collectors.toList()), pageable, count);
+    return new PageImpl<>(customers.stream().map(this::mapFromEntity).toList(), pageable, count);
   }
 
   public Page<CustomerDTO> loadAllAsuredCustomers(String search, Status status, Pageable pageable) {
@@ -178,7 +177,7 @@ public class CustomerDataService {
       Root<Customer> root) {
     predicates.add(cb.equal(root.get(Customer_.status), status));
     predicates.add(cb.equal(root.get(Customer_.typeAssure), TypeAssure.PRINCIPAL));
-    if (!StringUtils.isEmpty(search)) {
+    if (StringUtils.hasLength(search)) {
       Root<AssuredCustomer> assuredCustomerRoot = cb.treat(root, AssuredCustomer.class);
       SetJoin<AssuredCustomer, ClientTiersPayant> tiersPayantSetJoin =
           assuredCustomerRoot.joinSet(AssuredCustomer_.CLIENT_TIERS_PAYANTS, JoinType.LEFT);
@@ -207,7 +206,7 @@ public class CustomerDataService {
       Root<AssuredCustomer> root) {
     predicates.add(cb.equal(root.get(AssuredCustomer_.status), status));
     predicates.add(cb.isNull(root.get(AssuredCustomer_.assurePrincipal)));
-    if (!StringUtils.isEmpty(search)) {
+    if (StringUtils.hasLength(search)) {
       SetJoin<AssuredCustomer, ClientTiersPayant> tiersPayantSetJoin =
           root.joinSet(AssuredCustomer_.CLIENT_TIERS_PAYANTS);
       String queryValue = search.toUpperCase() + "%";
@@ -231,31 +230,31 @@ public class CustomerDataService {
     List<ClientTiersPayantDTO> clientTiersPayantDTOS =
         clientTiersPayantRepository.findAllByAssuredCustomerId(customer.getId()).stream()
             .map(ClientTiersPayantDTO::new)
-            .collect(Collectors.toList());
+            .toList();
     List<AssuredCustomerDTO> ayantDroits =
         assuredCustomerRepository.findAllByAssurePrincipalId(customer.getId()).stream()
             .map(
                 assuredCustomer ->
                     new AssuredCustomerDTO(
                         assuredCustomer, Collections.emptyList(), Collections.emptyList()))
-            .collect(Collectors.toList());
+            .toList();
     return new AssuredCustomerDTO((AssuredCustomer) customer, clientTiersPayantDTOS, ayantDroits);
   }
 
   public CustomerDTO mapFromEntity(Customer customer) {
-    if (customer instanceof AssuredCustomer) {
+    if (customer instanceof AssuredCustomer assuredCust) {
       List<ClientTiersPayantDTO> clientTiersPayantDTOS =
           clientTiersPayantRepository.findAllByAssuredCustomerId(customer.getId()).stream()
               .map(ClientTiersPayantDTO::new)
-              .collect(Collectors.toList());
+              .toList();
       List<AssuredCustomerDTO> ayantDroits =
           assuredCustomerRepository.findAllByAssurePrincipalId(customer.getId()).stream()
               .map(
                   assuredCustomer ->
                       new AssuredCustomerDTO(
                           assuredCustomer, Collections.emptyList(), Collections.emptyList()))
-              .collect(Collectors.toList());
-      return new AssuredCustomerDTO((AssuredCustomer) customer, clientTiersPayantDTOS, ayantDroits);
+              .toList();
+      return new AssuredCustomerDTO(assuredCust, clientTiersPayantDTOS, ayantDroits);
     }
     return new UninsuredCustomerDTO((UninsuredCustomer) customer);
   }
@@ -279,7 +278,7 @@ public class CustomerDataService {
     cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Customer> q = entityManager.createQuery(cq);
     List<Customer> assuredCustomers = q.getResultList();
-    return assuredCustomers.stream().map(this::mapAssuredFromEntity).collect(Collectors.toList());
+    return assuredCustomers.stream().map(this::mapAssuredFromEntity).toList();
   }
 
   private void predicatsAssuredCustomer(
@@ -292,7 +291,7 @@ public class CustomerDataService {
     predicates.add(cb.isNull(root.get(AssuredCustomer_.assurePrincipal)));
     SetJoin<AssuredCustomer, ClientTiersPayant> tiersPayantSetJoin =
         root.joinSet(AssuredCustomer_.CLIENT_TIERS_PAYANTS);
-    if (!StringUtils.isEmpty(search)) {
+    if (StringUtils.hasLength(search)) {
       String queryValue = search.toUpperCase() + "%";
       predicates.add(
           cb.or(
@@ -308,7 +307,7 @@ public class CustomerDataService {
               cb.like(cb.upper(tiersPayantSetJoin.get(ClientTiersPayant_.num)), queryValue),
               cb.like(cb.upper(root.get(AssuredCustomer_.phone)), queryValue)));
     }
-    if (!StringUtils.isEmpty(typeTiersPayant)) {
+    if (StringUtils.hasLength(typeTiersPayant)) {
       predicates.add(
           cb.equal(
               tiersPayantSetJoin.get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie),

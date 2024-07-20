@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeTiersPayant;
+import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import java.io.Serializable;
@@ -296,78 +297,10 @@ public class TiersPayantDto implements Serializable {
     return Objects.hash(id);
   }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName()
-        + "("
-        + "id = "
-        + id
-        + ", "
-        + "name = "
-        + name
-        + ", "
-        + "fullName = "
-        + fullName
-        + ", "
-        + "nbreBons = "
-        + nbreBons
-        + ", "
-        + "montantMaxParFcture = "
-        + montantMaxParFcture
-        + ", "
-        + "nbreFacture = "
-        + nbreFacture
-        + ", "
-        + "codeOrganisme = "
-        + codeOrganisme
-        + ", "
-        + "codeRegroupement = "
-        + codeRegroupement
-        + ", "
-        + "consoMensuelle = "
-        + consoMensuelle
-        + ", "
-        + "plafondAbsolu = "
-        + plafondAbsolu
-        + ", "
-        + "adresse = "
-        + adresse
-        + ", "
-        + "telephone = "
-        + telephone
-        + ", "
-        + "telephoneFixe = "
-        + telephoneFixe
-        + ", "
-        + "email = "
-        + email
-        + ", "
-        + "toBeExclude = "
-        + toBeExclude
-        + ", "
-        + "plafondConso = "
-        + plafondConso
-        + ", "
-        + "plafondClient = "
-        + plafondClient
-        + ", "
-        + "statut = "
-        + statut
-        + ", "
-        + "categorie = "
-        + categorie
-        + ", "
-        + "remiseForfaitaire = "
-        + remiseForfaitaire
-        + ", "
-        + "nbreBordereaux = "
-        + nbreBordereaux
-        + ", "
-        + "created = "
-        + created
-        + ", "
-        + "updated = "
-        + updated
-        + ")";
+  public TiersPayantDto buildLite(TiersPayant tiersPayant) {
+
+    return this.setId(tiersPayant.getId())
+        .setName(tiersPayant.getName())
+        .setFullName(tiersPayant.getFullName());
   }
 }

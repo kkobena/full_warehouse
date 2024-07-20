@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -21,7 +22,7 @@ import org.hibernate.type.SqlTypes;
     })
 public class ClientTiersPayant implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -209,38 +210,5 @@ public class ClientTiersPayant implements Serializable {
   public double getTauxValue() {
     tauxValue = Double.valueOf(taux) / 100;
     return tauxValue;
-  }
-
-  @Override
-  public String toString() {
-    String sb =
-        "ClientTiersPayant{"
-            + "id="
-            + id
-            + ", num='"
-            + num
-            + '\''
-            + ", plafondConso="
-            + plafondConso
-            + ", plafondJournalier="
-            + plafondJournalier
-            + ", created="
-            + created
-            + ", updated="
-            + updated
-            + ", priorite="
-            + priorite
-            + ", statut="
-            + statut
-            + ", taux="
-            + taux
-            + ", consoMensuelle="
-            + consoMensuelle
-            + ", tauxValue="
-            + tauxValue
-            + ", plafondAbsolu="
-            + plafondAbsolu
-            + '}';
-    return sb;
   }
 }

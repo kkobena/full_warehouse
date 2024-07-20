@@ -22,6 +22,13 @@ export const formatNumber = (numberValue: number): string | null => {
 };
 export const DATE_FORMAT_YYYY_MM_DD = (date: Date): string | null => (date ? date.toLocaleDateString('fr-CA') : null);
 export const DATE_FORMAT_ISO_DATE = (date: Date): string | null => (date ? dayjs(date).format('YYYY-MM-DD') : null);
+export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
+  if (date) {
+    const dateArray = date.split('/');
+    return `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`;
+  }
+  return null;
+};
 
 export const BLOCK_SPACE: RegExp = /[^\s]/;
 export const DATE_FORMAT_DD_MM_YYYY_HH_MM_SS = (): string => dayjs().format(DD_MM_YYYY_HH_MM_SS);
@@ -34,3 +41,10 @@ export const priceRangeValidator =
     const inRange = control.value > min && control.value < max;
     return inRange ? null : { outOfRange: true };
   };
+export const FORMAT_ISO_DATE_TO_STRING_FR = (date: string): string | null => {
+  if (date) {
+    const dateArray = date.split('-');
+    return `${dateArray[2]}/${dateArray[1]}/${dateArray[0]}`;
+  }
+  return null;
+};

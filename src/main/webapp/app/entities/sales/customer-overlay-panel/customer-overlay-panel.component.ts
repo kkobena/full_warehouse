@@ -26,7 +26,6 @@ import { SelectedCustomerService } from '../service/selected-customer.service';
   ],
   providers: [],
   templateUrl: './customer-overlay-panel.component.html',
-  styleUrls: ['./customer-overlay-panel.component.scss'],
 })
 export class CustomerOverlayPanelComponent {
   @Output() onCloseEvent = new EventEmitter<boolean>();

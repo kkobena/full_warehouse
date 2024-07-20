@@ -7,7 +7,6 @@ import { CustomerService } from 'app/entities/customer/customer.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
-import moment from 'moment';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +15,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputMaskModule } from 'primeng/inputmask';
+import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
@@ -33,10 +34,10 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     ReactiveFormsModule,
     CalendarModule,
     KeyFilterModule,
+    InputMaskModule,
   ],
 })
 export class FormAyantDroitComponent implements OnInit {
-  maxDate = new Date();
   entity?: ICustomer;
   assure?: ICustomer;
   isSaving = false;
@@ -82,7 +83,8 @@ export class FormAyantDroitComponent implements OnInit {
       id: customer.id,
       firstName: customer.firstName,
       lastName: customer.lastName,
-      datNaiss: customer.datNaiss ? new Date(moment(customer.datNaiss).format('yyyy-MM-DD')) : null,
+      //   datNaiss: customer.datNaiss ? new Date(moment(customer.datNaiss).format('yyyy-MM-DD')) : null,
+      datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
       numAyantDroit: customer.numAyantDroit,
     });
@@ -93,13 +95,14 @@ export class FormAyantDroitComponent implements OnInit {
   }
 
   protected createFromForm(): ICustomer {
+    console.log('datNaiss', this.editForm.get(['datNaiss'])!.value);
     return {
       ...new Customer(),
       id: this.editForm.get(['id'])!.value,
       firstName: this.editForm.get(['firstName'])!.value,
       lastName: this.editForm.get(['lastName'])!.value,
       numAyantDroit: this.editForm.get(['numAyantDroit'])!.value,
-      datNaiss: moment(this.editForm.get(['datNaiss'])!.value),
+      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss'])!.value),
       sexe: this.editForm.get(['sexe'])!.value,
       type: 'ASSURE',
       assureId: this.assure.id,

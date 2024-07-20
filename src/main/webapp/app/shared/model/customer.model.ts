@@ -3,6 +3,7 @@ import { ISales } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IPayment } from 'app/shared/model/payment.model';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
+import { ITiersPayant } from './tierspayant.model';
 
 export interface ICustomer {
   id?: number;
@@ -22,7 +23,7 @@ export interface ICustomer {
   code?: string;
   num?: string;
   categorie?: string;
-  datNaiss?: Moment;
+  datNaiss?: string;
   numAyantDroit?: string;
   sexe?: string;
   remiseId?: number;
@@ -34,6 +35,7 @@ export interface ICustomer {
   ayantDroits?: ICustomer[];
   tiersPayants?: IClientTiersPayant[];
   tiersPayantId?: number;
+  tiersPayant?: ITiersPayant;
 }
 
 export class Customer implements ICustomer {
@@ -56,7 +58,7 @@ export class Customer implements ICustomer {
     public num?: string,
     public numAyantDroit?: string,
     public categorie?: string,
-    public datNaiss?: Moment,
+    public datNaiss?: string,
     public sexe?: string,
     public remiseId?: number,
     public plafondConso?: number,
@@ -66,6 +68,6 @@ export class Customer implements ICustomer {
     public taux?: number,
     public ayantDroits?: ICustomer[],
     public tiersPayants?: IClientTiersPayant[],
-    public tiersPayantId?: number
+    public tiersPayantId?: number,
   ) {}
 }

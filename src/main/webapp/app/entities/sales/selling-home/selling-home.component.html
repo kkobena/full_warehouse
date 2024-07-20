@@ -57,28 +57,39 @@
   <div class=" col-md-2 col-sm-2 selling-menu">
     <p-panel header="Type de vente" styleClass="menu-panel">
       <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
-             orientation="vertical">
+        <div #nav="ngbNav" (navChange)="onNavChange($event)"
+             [(activeId)]="active" animation="true"
+             class="nav flex-column nav-pills "
+             ngbNav orientation="vertical">
           <ng-container ngbNavItem="comptant">
             <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
             <ng-template ngbNavContent>
               <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
                             (responseEvent)="onFinalyse($event)" (saveResponse)="onSave($event)"
                             [canForceStock]="canForceStock" [canUpdatePu]="canUpdatePu"
-                            [isPresale]="isPresale"
-                            [qtyMaxToSel]="qtyMaxToSel"
-                            [userCaissier]="userCaissier" [userSeller]="userSeller">
+                            [isPresale]="isPresale">
 
 
               </jhi-comptant>
             </ng-template>
           </ng-container>
+          <ng-container ngbNavItem="assurance">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
+            <ng-template ngbNavContent>
+              <jhi-assurance>
+
+
+              </jhi-assurance>
+            </ng-template>
+          </ng-container>
         </div>
+
       </p-card>
     </p-panel>
     <p-divider></p-divider>
     <p-panel header="Nature vente" styleClass="menu-panel">
-      <p-selectButton [(ngModel)]="typePrescription" [options]="typePrescriptions"
+      <p-selectButton (onChange)="onTypePrescriptionChange($event)" [(ngModel)]="typePrescription"
+                      [options]="typePrescriptions"
                       optionLabel="name"></p-selectButton>
     </p-panel>
 
@@ -126,94 +137,109 @@
         </div>
 
       </ng-template>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="p-inputgroup">
 
-            <span class="p-inputgroup-addon">Produits</span>
-            <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                            (keydown)="onSelectKeyDow($event)"
-                            (onSelect)="onSelect()"
-                            [(ngModel)]="produitSelected"
-                            [appendTo]="appendTo"
-                            [autofocus]="true"
-                            [dataKey]="'id'"
-                            [dropdown]="true"
-                            [emptyMessage]="notFoundText"
-                            [inputStyle]="{'width':'100%'}"
-                            [minLength]="minLength" [showEmptyMessage]="true"
-                            [style]="{'width':'100%'}" [suggestions]="produits"
-                            optionLabel="libelle">
+      <ng-template pTemplate="content">
+        <div class="sale-body">
 
-              <ng-template let-item pTemplate="item">
-                @if (item.totalQuantity > 0) {
-                  <div>
+          @if (active === 'assurance') {
+            <jhi-assurance-data></jhi-assurance-data>
+          }
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="p-inputgroup">
+
+                <span class="p-inputgroup-addon">Produits</span>
+                <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                                (keydown)="onSelectKeyDow($event)"
+                                (onSelect)="onSelect()"
+                                [(ngModel)]="produitSelected"
+                                [appendTo]="appendTo"
+                                [autofocus]="true"
+                                [dataKey]="'id'"
+                                [dropdown]="true"
+                                [emptyMessage]="notFoundText"
+                                [inputStyle]="{'width':'100%'}"
+                                [minLength]="minLength" [showEmptyMessage]="true"
+                                [style]="{'width':'100%'}" [suggestions]="produits"
+                                optionLabel="libelle">
+
+                  <ng-template let-item pTemplate="item">
+                    @if (item.totalQuantity > 0) {
+                      <div>
             <span
               style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
-                    <span class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
-                  </div>
-                }
+                        <span
+                          class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                      </div>
+                    }
 
 
-                @if (item.totalQuantity <= 0) {
-                  <div>
+                    @if (item.totalQuantity <= 0) {
+                      <div>
                                             <span class="stockless"
                                                   style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
-                    class="stockless"> {{ item.libelle }}</span> <span
-                    class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
-                  </div>
+                        class="stockless"> {{ item.libelle }}</span> <span
+                        class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+                      </div>
+                    }
+
+                  </ng-template>
+
+                </p-autoComplete>
+
+
+              </div>
+            </div>
+            <div class="col-md-2">
+              <p-inputGroup>
+                <span class="p-inputgroup-addon">Qté</span>
+                <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
+                       [(ngModel)]="quantiteSaisie"
+                       pInputText
+                       type="number" />
+                <button (click)="onQtyBntClickEvent()" class="p-button-success" icon="pi pi-plus"
+                        pButton
+                        type="button"></button>
+
+
+              </p-inputGroup>
+            </div>
+            @if (produitSelected) {
+              @if (showStock) {
+
+                <div class="col-md-1">
+                  <p-button label="Stock" styleClass="p-button-success"
+                            badge="{{ produitSelected.totalQuantity |number }}"
+                  ></p-button>
+
+
+                </div>
+              }
+              <div class="col-md-3">
+                Rayons:
+                @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
+                  <p-tag severity="warning">
+                    {{ rayon.libelleRayon }}
+                  </p-tag>
                 }
 
-              </ng-template>
-
-            </p-autoComplete>
+              </div>
 
 
-          </div>
-        </div>
-        <div class="col-md-2">
-          <p-inputGroup>
-            <span class="p-inputgroup-addon">Qté</span>
-            <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
-                   [(ngModel)]="quantiteSaisie"
-                   pInputText
-                   type="number" />
-            <button (click)="onQtyBntClickEvent()" class="p-button-success" icon="pi pi-plus"
-                    pButton
-                    type="button"></button>
-
-
-          </p-inputGroup>
-        </div>
-        @if (produitSelected) {
-          @if (showStock) {
-
-            <div class="col-md-1">
-              <p-button label="Stock" styleClass="p-button-success"
-                        badge="{{ produitSelected.totalQuantity |number }}"
-              ></p-button>
-
-
-            </div>
-          }
-          <div class="col-md-3">
-            Rayons:
-            @for (rayon of produitSelected?.rayonProduits;track rayon.id) {
-              <p-tag severity="warning">
-                {{ rayon.libelleRayon }}
-              </p-tag>
             }
-
           </div>
 
 
-        }
-      </div>
+          <div [ngbNavOutlet]="nav" class="row sale-tab-container">
+
+          </div>
+
+        </div>
+
+      </ng-template>
 
 
-      <div [ngbNavOutlet]="nav" class="row mt-1 bg-light">
-
-      </div>
     </p-panel>
   </div>
 

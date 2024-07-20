@@ -47,22 +47,11 @@
   </p-footer>
 </p-confirmDialog>
 
-<p-dialog (onHide)="onHideHideDialog()" [(visible)]="commonDialog" [draggable]="false"
-          [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true" [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
-  <ng-template pTemplate="footer">
-    <button #commonDialogModalBtn (click)="cancelCommonDialog()" class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">Fermer
-    </button>
-  </ng-template>
-</p-dialog>
+
 <div class="row">
 
 
-  @if (remises.length > 0) {
+  @if (remises.length == -10) {
     <div class="col-md-3">
       <div class="p-inputgroup">
         <span class="p-inputgroup-addon">Remises</span>
@@ -85,8 +74,7 @@
                          (itemPriceEvent)="updateItemPrice($event)"
                          (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
                          (itemQtySoldEvent)="updateItemQtySold($event)"
-                         [canUpdatePu]="canUpdatePu"
-                         [qtyMaxToSel]="qtyMaxToSel">
+      >
 
       </jhi-product-table>
     </div>

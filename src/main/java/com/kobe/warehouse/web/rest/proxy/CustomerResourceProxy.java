@@ -13,6 +13,7 @@ import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +27,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,8 +68,12 @@ public class CustomerResourceProxy {
     this.assuredCustomerService = assuredCustomerService;
   }
 
+  @GetMapping("/customers")
   public ResponseEntity<List<CustomerDTO>> getAllCustomers(
-      Pageable pageable, Status status, String search, String type) {
+      Pageable pageable,
+      @RequestParam(required = false, defaultValue = "ENABLE", name = "status") Status status,
+      @RequestParam(required = false, name = "search") String search,
+      @RequestParam(required = false, name = "type", defaultValue = "TOUT") String type) {
     log.debug("REST request to get a page of Customers");
     Page<CustomerDTO> page = customerDataService.fetchAllCustomers(type, search, status, pageable);
     HttpHeaders headers =
@@ -72,20 +82,25 @@ public class CustomerResourceProxy {
     return ResponseEntity.ok().headers(headers).body(page.getContent());
   }
 
-  public ResponseEntity<CustomerDTO> getCustomer(Long id) {
+  @GetMapping("/customers/{id}")
+  public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
     log.debug("REST request to get Customer : {}", id);
     Optional<CustomerDTO> customer = customerDataService.getOneCustomer(id);
     return ResponseUtil.wrapOrNotFound(customer);
   }
 
+  @GetMapping("/customers/purchases")
   public ResponseEntity<List<SaleDTO>> customerPurchases(
-      long id, LocalDate fromDate, LocalDate toDate) {
+      @RequestParam(value = "customerId") long id,
+      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+      @RequestParam(value = "toDate", required = false) LocalDate toDate) {
     List<SaleDTO> data = saleService.customerPurchases(id, fromDate, toDate);
     return ResponseEntity.ok().body(data);
   }
 
-  public ResponseEntity<UninsuredCustomerDTO> createUninsuredCustomer(UninsuredCustomerDTO customer)
-      throws URISyntaxException {
+  @PostMapping("/customers/uninsured")
+  public ResponseEntity<UninsuredCustomerDTO> createUninsuredCustomer(
+      @Valid @RequestBody UninsuredCustomerDTO customer) throws URISyntaxException {
     log.debug("REST request to save Customer : {}", customer);
     if (customer.getId() != null) {
       throw new BadRequestAlertException(
@@ -99,8 +114,9 @@ public class CustomerResourceProxy {
         .body(result);
   }
 
+  @PutMapping("/customers/uninsured")
   public ResponseEntity<UninsuredCustomerDTO> updateUninsuredCustomer(
-      UninsuredCustomerDTO uninsuredCustomerDTO) throws URISyntaxException {
+      @Valid @RequestBody UninsuredCustomerDTO uninsuredCustomerDTO) throws URISyntaxException {
     log.debug("REST request to update Customer : {}", uninsuredCustomerDTO);
     if (uninsuredCustomerDTO.getId() == null) {
       throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -113,6 +129,7 @@ public class CustomerResourceProxy {
         .body(result);
   }
 
+  @GetMapping("/customers/uninsured")
   public ResponseEntity<List<UninsuredCustomerDTO>> getAllUninsuredCustomers(
       @RequestParam(value = "search", required = false) String search) {
     log.debug("REST request to get a page of Customers");
@@ -120,6 +137,7 @@ public class CustomerResourceProxy {
     return ResponseEntity.ok().body(dtoList);
   }
 
+  @DeleteMapping("/customers/{id}")
   public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
     log.debug("REST request to delete Customer : {}", id);
     uninsuredCustomerService.deleteCustomerById(id);
@@ -129,28 +147,29 @@ public class CustomerResourceProxy {
         .build();
   }
 
+  @PostMapping("/customers/importjson")
   public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file)
-      throws URISyntaxException, IOException {
+      throws IOException {
     ResponseDTO responseDTO = importationCustomer.updateStocFromJSON(file.getInputStream());
     return ResponseEntity.ok(responseDTO);
   }
 
+  @GetMapping("/customers/assured")
   public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
       @RequestParam(value = "search", required = false) String search,
       @RequestParam(value = "typeTiersPayant", required = false) String typeTiersPayant) {
     log.debug("REST request to get a page of Customers");
-    List<AssuredCustomerDTO> dtoList = assuredCustomerService.fetch(search, typeTiersPayant);
-    return ResponseEntity.ok().body(dtoList);
+    return ResponseEntity.ok().body(assuredCustomerService.fetch(search, typeTiersPayant));
   }
 
+  @GetMapping("/customers/tiers-payants/{id}")
   public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(
       @PathVariable("id") Long id) {
-    List<ClientTiersPayantDTO> dtoList = customerDataService.fetchCustomersTiersPayant(id);
-    return ResponseEntity.ok().body(dtoList);
+    return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
   }
 
+  @GetMapping("/customers/ayant-droits/{id}")
   public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Long id) {
-    List<AssuredCustomerDTO> dtoList = customerDataService.fetchAyantDroit(id);
-    return ResponseEntity.ok().body(dtoList);
+    return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
   }
 }

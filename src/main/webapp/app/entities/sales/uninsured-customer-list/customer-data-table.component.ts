@@ -29,7 +29,6 @@ import { SelectedCustomerService } from '../service/selected-customer.service';
     FormsModule,
   ],
   templateUrl: './customer-data-table.component.html',
-  styleUrl: './customer-data-table.component.scss',
 })
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];

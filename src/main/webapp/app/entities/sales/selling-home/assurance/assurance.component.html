@@ -1,1 +1,25 @@
-<p>assurance works!</p>
+<p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
+                 key="forcerStock">
+
+
+  <p-footer>
+    <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #forcerStockBtn (click)="forcerStock.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>
+
+<p-dialog (onHide)="onHideHideDialog()" [(visible)]="commonDialog" [draggable]="false"
+          [focusOnShow]="true"
+          [modal]="true" [resizable]="false" [showHeader]="true" [style]="{width: '30vw'}"
+          header="Erreur">
+  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
+  <ng-template pTemplate="footer">
+    <button #commonDialogModalBtn (click)="cancelCommonDialog()" class="btn btn-danger"
+            data-dismiss="modal"
+            type="button">Fermer
+    </button>
+  </ng-template>
+</p-dialog>

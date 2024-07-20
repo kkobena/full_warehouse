@@ -49,7 +49,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -146,19 +145,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError {
     SalesLine saleLine =
         salesLineService.createSaleLineFromDTO(
-            dto.getSalesLines().get(0),
+            dto.getSalesLines().getFirst(),
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
     ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
     thirdPartySales.getSalesLines().add(saleLine);
     computeSaleEagerAmount(thirdPartySales, saleLine.getSalesAmount(), 0);
     processDiscount(thirdPartySales, saleLine, null);
     NatureVente natureVente = dto.getNatureVente();
-    if (natureVente == NatureVente.ASSURANCE) {
-      computeAmounts(dto, thirdPartySales);
-    } else if (natureVente == NatureVente.CARNET) {
-      computeCarnetAmounts(dto, thirdPartySales);
-    } else {
-      throw new RuntimeException("Not yet implemented");
+    switch (natureVente) {
+      case NatureVente.ASSURANCE -> {
+        computeAmounts(dto, thirdPartySales);
+      }
+      case NatureVente.CARNET -> {
+        computeCarnetAmounts(dto, thirdPartySales);
+      }
+      default -> {
+        throw new RuntimeException("Not yet implemented");
+      }
     }
 
     upddateThirdPartySaleAmounts(thirdPartySales, saleLine, null);
@@ -195,7 +198,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 Comparator.comparing(
                     o -> o.getClientTiersPayant().getPriorite().getValue(),
                     Comparator.naturalOrder()))
-            .collect(Collectors.toList());
+            .toList();
     long netAmount =
         thirdPartySales.getNatureVente() == NatureVente.ASSURANCE
             ? thirdPartySales.getSalesAmount()
@@ -308,7 +311,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
   @Override
   public int buildConsommationId() {
-    return Integer.valueOf(LocalDate.now().format(dateTimeFormatter));
+    return Integer.parseInt(LocalDate.now().format(dateTimeFormatter));
   }
 
   private ThirdPartySaleLine createThirdPartySaleLine(
@@ -374,7 +377,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   }
 
   private boolean checkIfNumBonIsAlReadyUse(String numBon, Long clientTiersPayantId) {
-    if (StringUtils.isEmpty(numBon)) return false;
+    if (!StringUtils.hasLength(numBon)) return false;
     return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
             numBon, clientTiersPayantId, SalesStatut.CLOSED)
         > 0;
@@ -387,10 +390,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
     if (salesLineOp.isPresent()) {
       SalesLine salesLine = salesLineOp.get();
-      SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+      SalesLine oldSalesLine = (SalesLine) salesLine.clone();
       salesLineService.updateSaleLine(dto, salesLine, storageId);
       ThirdPartySales thirdPartySales = (ThirdPartySales) salesLine.getSales();
-      computeThirdPartySaleAmounts(thirdPartySales, salesLine, OldSalesLine);
+      computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldSalesLine);
       thirdPartySaleRepository.save(thirdPartySales);
       return new SaleLineDTO(salesLine);
     }
@@ -418,12 +421,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
       throws StockException, DeconditionnementStockOut {
     SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-    SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+    SalesLine oldsalesline = (SalesLine) salesLine.clone();
     salesLineService.updateItemQuantityRequested(
         saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
     Sales sales = salesLine.getSales();
     ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
-    computeThirdPartySaleAmounts(thirdPartySales, salesLine, OldSalesLine);
+    computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
     thirdPartySaleRepository.saveAndFlush(thirdPartySales);
     return new SaleLineDTO(salesLine);
   }
@@ -431,12 +434,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
   @Override
   public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
     SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-    SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+    SalesLine oldsalesline = (SalesLine) salesLine.clone();
     salesLineService.updateItemRegularPrice(
         saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
     Sales sales = salesLine.getSales();
     ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
-    computeThirdPartySaleAmounts(thirdPartySales, salesLine, OldSalesLine);
+    computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
     thirdPartySaleRepository.saveAndFlush(thirdPartySales);
     return new SaleLineDTO(salesLine);
   }
@@ -459,10 +462,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
               List<Ticket> tickets = ticketService.findAllBySaleId(sales.getId());
               paymentService
                   .findAllBySalesId(sales.getId())
-                  .forEach(
-                      payment -> {
-                        paymentService.clonePayment(payment, tickets, copy);
-                      });
+                  .forEach(payment -> paymentService.clonePayment(payment, tickets, copy));
               salesLineService.cloneSalesLine(
                   sales.getSalesLines(),
                   copy,
@@ -500,8 +500,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
           for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
             ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
             if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
-              if ((!StringUtils.isEmpty(clientTiersPayantDTO.getNumBon())
-                      && !StringUtils.isEmpty(thirdPartySaleLine.getNumBon()))
+              if ((StringUtils.hasLength(clientTiersPayantDTO.getNumBon())
+                      && StringUtils.hasLength(thirdPartySaleLine.getNumBon()))
                   && (!clientTiersPayantDTO.getNumBon().equals(thirdPartySaleLine.getNumBon()))) {
                 if (checkIfNumBonIsAlReadyUse(
                     clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId()))
@@ -515,10 +515,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
           updateTiersPayantAccount(thirdPartySaleLine);
         });
     p.getThirdPartySaleLines().stream()
-        .sorted(
+        .min(
             Comparator.comparing(
                 e -> e.getClientTiersPayant().getPriorite().getValue(), Comparator.naturalOrder()))
-        .findFirst()
         .ifPresent(o -> p.setNumBon(o.getNumBon()));
     thirdPartySaleRepository.save(p);
     response.setMessage(ticket.getCode());
@@ -554,24 +553,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         .findOneWithEagerSalesLines(id)
         .ifPresent(
             sales -> {
-              paymentService
-                  .findAllBySalesId(sales.getId())
-                  .forEach(
-                      payment -> {
-                        paymentService.delete(payment);
-                      });
-              ticketService
-                  .findAllBySaleId(sales.getId())
-                  .forEach(
-                      ticket -> {
-                        ticketService.delete(ticket);
-                      });
-              sales
-                  .getSalesLines()
-                  .forEach(
-                      salesLine -> {
-                        salesLineService.deleteSaleLine(salesLine);
-                      });
+              paymentService.findAllBySalesId(sales.getId()).forEach(paymentService::delete);
+              ticketService.findAllBySaleId(sales.getId()).forEach(ticketService::delete);
+              sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
               thirdPartySaleRepository.delete(sales);
             });
   }
@@ -645,8 +629,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     this.intSale(dto, c);
     c.setCustomer(assuredCustomer);
     c.setAyantDroit(assuredCustomer);
-    getAyantDroitFromId(dto.getAyantDroitId())
-        .ifPresent(assuredCustomer1 -> c.setAyantDroit(assuredCustomer1));
+    getAyantDroitFromId(dto.getAyantDroitId()).ifPresent(c::setAyantDroit);
     return c;
   }
 

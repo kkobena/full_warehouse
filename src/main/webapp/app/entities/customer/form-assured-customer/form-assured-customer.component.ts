@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ErrorService } from 'app/shared/error.service';
@@ -9,10 +9,8 @@ import { ITiersPayant } from 'app/shared/model/tierspayant.model';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
-import moment from 'moment';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { NgSelectModule } from '@ng-select/ng-select';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -25,6 +23,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CalendarModule } from 'primeng/calendar';
 import { DividerModule } from 'primeng/divider';
+import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
+import { InputMaskModule } from 'primeng/inputmask';
 
 @Component({
   selector: 'jhi-form-assured-customer',
@@ -35,7 +35,6 @@ import { DividerModule } from 'primeng/divider';
     WarehouseCommonModule,
     ToastModule,
     FormsModule,
-    NgSelectModule,
     ButtonModule,
     RippleModule,
     ConfirmDialogModule,
@@ -48,9 +47,10 @@ import { DividerModule } from 'primeng/divider';
     CalendarModule,
     DividerModule,
     KeyFilterModule,
+    InputMaskModule,
   ],
 })
-export class FormAssuredCustomerComponent implements OnInit {
+export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;
   catgories = [
     { label: 'RC1', value: 1 },
@@ -58,38 +58,27 @@ export class FormAssuredCustomerComponent implements OnInit {
     { label: 'RC3', value: 3 },
   ];
 
-  categoriesComplementaires = [
-    { name: 'T0', value: 0 },
-    { name: 'T1', value: 1 },
-    { name: 'T2', value: 2 },
-    {
-      name: 'T3',
-      value: 3,
-    },
-  ];
   isSaving = false;
   isValid = true;
   validSize = true;
   ayantDroitSize = true;
-  minLength = 2;
-  selectedTiersPayant!: ITiersPayant | null;
+  minLength = 3;
   tiersPayant!: ITiersPayant | null;
   tiersPayants: ITiersPayant[] = [];
-  maxDate = new Date();
   plafonds = [
     { label: 'Non', value: false },
     { label: 'Oui', value: true },
   ];
+  firstName = viewChild.required<ElementRef>('firstName');
   editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required]],
     lastName: [null, [Validators.required]],
     tiersPayantId: [null, [Validators.required]],
-    taux: [null, [Validators.required, Validators.min(10), Validators.max(100)]],
+    taux: [null, [Validators.required, Validators.min(5), Validators.max(100)]],
     num: [null, [Validators.required]],
     phone: [],
     email: [],
-    telephone: [],
     adresse: [],
     sexe: [],
     datNaiss: [],
@@ -120,7 +109,12 @@ export class FormAssuredCustomerComponent implements OnInit {
       this.updateForm(this.entity);
       this.buildTiersPayant(this.entity.tiersPayants);
     }
-    this.populate();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.firstName().nativeElement.focus();
+    }, 30);
   }
 
   save(): void {
@@ -136,20 +130,6 @@ export class FormAssuredCustomerComponent implements OnInit {
 
   cancel(): void {
     this.ref.close();
-  }
-
-  populate(): void {
-    this.tiersPayantService
-      .query({
-        size: 9999,
-        page: 0,
-      })
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => {
-        this.tiersPayants = res.body || [];
-        if (this.entity) {
-          this.selectedTiersPayant = this.tiersPayants.find(e => e.id === this.entity.tiersPayantId) || null;
-        }
-      });
   }
 
   addAyantDroit(): void {
@@ -216,7 +196,7 @@ export class FormAssuredCustomerComponent implements OnInit {
     this.tiersPayantService
       .query({
         page: 0,
-        size: 99999,
+        size: 10,
         type: 'ASSURANCE',
         search: query,
       })
@@ -268,9 +248,9 @@ export class FormAssuredCustomerComponent implements OnInit {
       email: customer.email,
       phone: customer.phone,
       num: customer.num,
-      datNaiss: customer.datNaiss ? new Date(moment(customer.datNaiss).format('yyyy-MM-DD')) : null,
+      datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
-      tiersPayantId: customer.tiersPayantId,
+      tiersPayantId: customer.tiersPayant,
       plafondConso: customer.plafondConso,
       plafondJournalier: customer.plafondJournalier,
       plafondAbsolu: customer.plafondAbsolu,
@@ -288,7 +268,7 @@ export class FormAssuredCustomerComponent implements OnInit {
       phone: this.editForm.get(['phone'])!.value,
       type: 'ASSURE',
       num: this.editForm.get(['num'])!.value,
-      datNaiss: moment(this.editForm.get(['datNaiss'])!.value),
+      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss'])!.value),
       sexe: this.editForm.get(['sexe'])!.value,
       tiersPayantId: this.editForm.get(['tiersPayantId'])!.value.id,
       plafondConso: this.editForm.get(['plafondConso'])!.value,
@@ -311,10 +291,10 @@ export class FormAssuredCustomerComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
-      res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error),
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
+      error: (error: any) => this.onSaveError(error),
+    });
   }
 
   protected onSaveSuccess(customer: ICustomer | null): void {

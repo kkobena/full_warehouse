@@ -15,14 +15,6 @@ h4 {
   font-weight: 300;
 }
 
-body {
-  // background: #f7f7f7;
-}
-
-.nav-home, .row {
-  // background: #EFEFEF;
-  //background: #f7f7f7;
-}
 
 .justify-content-center {
   background: #f7f7f7;
@@ -1231,6 +1223,19 @@ menu  de la vente
  */
 .selling {
   .sale-container {
+    .p-panel:first-child {
+      //padding: 0;
+
+      .p-panel-content {
+        padding: 0.3rem;
+
+        div:first-child {
+          //padding: 0;
+
+        }
+      }
+
+    }
 
   }
 
@@ -1528,4 +1533,83 @@ menu  de la vente
       }
     }
   }
+}
+
+.assurance-data-main-contanier {
+  padding: 0;
+  margin: 0 0 3px;
+  background-color: #f7f7f7;
+
+  .p-panel {
+    padding: 0;
+    margin: 0;
+
+    .p-panel-content {
+      padding: 3px !important;
+      margin: 0;
+      background-color: #f7f7f7;
+
+      .row {
+        margin: 0;
+        padding: 0;
+      }
+
+      div {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+
+  //
+  .assurance-data {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+
+    .bon {
+      font-weight: 700;
+    }
+
+    div {
+      padding-right: 2px !important;
+    }
+
+    .list-group-item {
+      padding: 0.000001rem 0.2rem;
+      background-color: #f9f9f9;
+
+      span {
+        font-weight: 700;
+      }
+
+    }
+  }
+}
+
+.menu-panel {
+  .p-panel-content:last-child {
+    text-align: center;
+    padding: 0.3rem 0 !important;
+  }
+
+  .p-panel-header {
+    padding: 0.4rem;
+  }
+
+}
+
+.sale-tab-container {
+  background-color: #EEEEEE;
+  padding: 0;
+  margin: 0.3rem 0;
+}
+
+.p-divider.p-divider-horizontal {
+  margin: 0.5rem 0;
+  padding: 0 1rem;
+}
+
+.sale-body {
+  background-color: #EEEEEE;
 }

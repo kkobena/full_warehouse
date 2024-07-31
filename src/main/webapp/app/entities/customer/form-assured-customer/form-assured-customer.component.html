@@ -205,7 +205,7 @@
                 type="button"></button>
       </div>
     }
-    @for (tiersPayant of editFormGroups.controls; ; track i; let i = $index) {
+    @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
       <div formArrayName="tiersPayants">
         <ng-container [formGroupName]="i">
           <input class="form-control" formControlName="id" type="hidden" />

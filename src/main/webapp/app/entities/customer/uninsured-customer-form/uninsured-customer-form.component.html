@@ -11,16 +11,23 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_firstName">Nom</label>
-        <input autocomplete="off" class="form-control" formControlName="firstName"
-               id="field_firstName" name="firstName"
+        <input #firstName autocomplete="off" class="form-control"
+               formControlName="firstName" id="field_firstName" name="firstName"
                pInputText type="text" />
-        <div
-          *ngIf="editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)">
-          <small *ngIf="editForm.get('firstName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
+          <div>
+            @if (editForm.get('firstName')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+
+          </div>
+        }
+
       </div>
     </div>
 
@@ -31,13 +38,19 @@
         <input autocomplete="off" class="form-control" formControlName="lastName"
                id="field_lastName" name="lastName"
                pInputText type="text" />
-        <div
-          *ngIf="editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)">
-          <small *ngIf="editForm.get('lastName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get(
+          'lastName')!.touched)) {
+
+          <div>
+            @if (editForm.get('lastName')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
       </div>
     </div>
     <div class="form-row">
@@ -49,13 +62,18 @@
                pInputText
                pKeyFilter="int" type="text" />
 
-        <div
-          *ngIf="editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)">
-          <small *ngIf="editForm.get('phone')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get(
+          'phone')!.touched)) {
+          <div>
+            @if (editForm.get('phone')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
       </div>
     </div>
     <div class="form-row">

@@ -1613,3 +1613,48 @@ menu  de la vente
 .sale-body {
   background-color: #EEEEEE;
 }
+
+.inline-flex {
+  display: inline-flex !important;
+}
+
+.form-client-step {
+  padding: 0;
+
+  .p-stepper {
+    .card-body {
+      background-color: #EEEEEE;
+    }
+
+    .p-stepper-header {
+
+      padding: 0.4rem 0.3rem;
+
+    }
+
+    .p-stepper-panels {
+      background-color: #EEEEEE;
+      padding: 0;
+      color: #333333;
+
+      .p-card {
+        padding: 0;
+        margin: 0;
+        background-color: #EEEEEE;
+
+        .p-card-body {
+          margin: 0;
+          background-color: #EEEEEE;
+          padding: 0.4rem;
+
+          .p-card-content {
+            padding: 0.4rem;
+            margin: 0;
+            background-color: #EEEEEE;
+          }
+        }
+      }
+    }
+  }
+
+}

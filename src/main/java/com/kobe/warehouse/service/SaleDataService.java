@@ -169,19 +169,16 @@ public class SaleDataService {
     cq.select(root).distinct(true);
     cq.where(cb.equal(root.get(Sales_.id), id));
     TypedQuery<Sales> q = em.createQuery(cq);
-    Sales sales = q.getSingleResult();
-    return sales;
+    return q.getSingleResult();
   }
 
   public SaleDTO getOneSaleDTO(Long id) {
     Sales sales = getOne(id);
-    if (sales instanceof CashSale cashSale) {
-      return new CashSaleDTO(cashSale);
-    } else if (sales instanceof ThirdPartySales thirdPartySales) {
-      return new ThirdPartySaleDTO(thirdPartySales);
-    } else {
-      throw new RuntimeException("Not yet implemented");
-    }
+    return switch (sales) {
+      case CashSale cashSale -> new CashSaleDTO(cashSale);
+      case ThirdPartySales thirdPartySales -> new ThirdPartySaleDTO(thirdPartySales);
+      default -> throw new RuntimeException("Not yet implemented");
+    };
   }
 
   private void predicates(
@@ -218,11 +215,11 @@ public class SaleDataService {
     cq.select(root).distinct(true);
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(cb.equal(root.get("id"), id));
-    cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+    cq.where(cb.and(predicates.toArray(new Predicate[0])));
     TypedQuery<Sales> q = em.createQuery(cq);
     Sales sales = q.getSingleResult();
-    if (sales instanceof ThirdPartySales) {
-      return buildFromEntity((ThirdPartySales) sales);
+    if (sales instanceof ThirdPartySales thirdPartySales) {
+      return buildFromEntity(thirdPartySales);
     } else {
       return new CashSaleDTO((CashSale) sales);
     }

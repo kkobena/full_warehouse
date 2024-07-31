@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -8,7 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { ConfirmationService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
@@ -36,7 +36,7 @@ import { ITypePrescription } from '../../../shared/model/prescription-vente.mode
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
 import { IRemise } from '../../../shared/model/remise.model';
-import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse } from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
 import { Observable, Subscription } from 'rxjs';
@@ -53,7 +53,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { AssuranceService } from '../assurance.service';
 import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
 import { HttpResponse } from '@angular/common/http';
-import { saveAs } from 'file-saver';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ProductTableComponent } from './product-table/product-table.component';
 import { CardModule } from 'primeng/card';
@@ -74,11 +73,15 @@ import { AssuranceDataComponent } from './assurance/assurance-data/assurance-dat
 import { TypePrescriptionService } from '../service/type-prescription.service';
 import { UserCaissierService } from '../service/user-caissier.service';
 import { UserVendeurService } from '../service/user-vendeur.service';
+import { SaleEvent, SaleEventManager } from '../service/sale-event-manager.service';
+import { VoSalesService } from '../service/vo-sales.service';
+import { HasAuthorityService } from '../service/has-authority.service';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'jhi-selling-home',
   standalone: true,
-  providers: [ConfirmationService, DialogService],
+  providers: [ConfirmationService, DialogService, MessageService],
   imports: [
     WarehouseCommonModule,
     PreventeModalComponent,
@@ -118,12 +121,16 @@ import { UserVendeurService } from '../service/user-vendeur.service';
     InputGroupModule,
     AssuranceComponent,
     AssuranceDataComponent,
+    ToastModule,
   ],
   templateUrl: './selling-home.component.html',
 })
-export class SellingHomeComponent implements OnInit, AfterViewInit {
+export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  responseEvent: Subscription;
+  saveResponse: Subscription;
+  inputBoxFocus: Subscription;
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
-
+  canForceStock: boolean;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
   readonly ASSURANCE = 'ASSURANCE';
@@ -140,9 +147,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   userCaissierService = inject(UserCaissierService);
   userVendeurService = inject(UserVendeurService);
   currentAccount = this.accountService.trackCurrentAccount();
+  hasAuthorityService = inject(HasAuthorityService);
+  messageService = inject(MessageService);
   protected check = true; // mis pour le focus produit et dialogue button
   protected printInvoice = false;
-  protected canForceStock = true;
   protected naturesVentes: INatureVente[] = [];
   protected naturesVente: INatureVente | null = null;
   protected users: IUser[];
@@ -179,6 +187,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   protected active = 'comptant';
   protected monnaie: number;
   protected derniereMonnaie: number;
+  private readonly saleEventManager = inject(SaleEventManager);
 
   constructor(
     protected selectModeReglementService: SelectModeReglementService,
@@ -186,6 +195,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     protected selectedCustomerService: SelectedCustomerService,
     protected lastCurrencyGivenService: LastCurrencyGivenService,
     protected salesService: SalesService,
+    protected assuranceSalesService: VoSalesService,
     protected customerService: CustomerService,
     protected produitService: ProduitService,
     protected activatedRoute: ActivatedRoute,
@@ -202,6 +212,26 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     public primeNGConfig: PrimeNGConfig,
     private assuranceService: AssuranceService,
   ) {
+    // this. canForceStock=this.hasAuthorityService.hasAuthorities('FORCE_STOCK');
+    this.canForceStock = true;
+    this.responseEvent = this.saleEventManager.subscribe('responseEvent', (response: SaleEvent<unknown> | string) => {
+      if (response instanceof FinalyseSale) {
+        this.onFinalyse(response);
+      }
+    });
+    this.saveResponse = this.saleEventManager.subscribe('saveResponse', (response: SaleEvent<unknown> | string) => {
+      if (response instanceof SaveResponse) {
+        this.onSave(response);
+      } else if (response instanceof StockError) {
+        this.onStockOutError(response);
+      }
+    });
+    this.inputBoxFocus = this.saleEventManager.subscribe('inputBoxFocus', (response: SaleEvent<unknown> | string) => {
+      if (response instanceof InputToFocus) {
+        this.getControlToFocus(response);
+      }
+    });
+
     this.imagesPath = 'data:image/';
     this.base64 = ';base64,';
     this.searchValue = '';
@@ -214,19 +244,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     });
     effect(() => {
       if (this.selectedCustomerService.selectedCustomerSignal() && this.sale) {
-        this.salesService
-          .addCustommerToCashSale({
-            key: this.sale.id,
-            value: this.selectedCustomerService.selectedCustomerSignal().id,
-          })
-          .subscribe(() => {
-            this.sale.customerId = this.selectedCustomerService.selectedCustomerSignal().id;
-
-            this.currentSaleService.setCurrentSale(this.sale);
-          });
+        this.onAddCustommer();
       } else {
         if (this.sale) {
-          this.salesService.removeCustommerToCashSale(this.sale.id).subscribe(() => {});
+          this.onRemoveCustomer();
         }
       }
     });
@@ -236,6 +257,40 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     effect(() => {
       this.monnaie = this.lastCurrencyGivenService.givenCurrency();
     });
+  }
+
+  onRemoveCustomer(): void {
+    if (this.active === 'comptant') {
+      this.salesService.removeCustommerToCashSale(this.sale.id).subscribe(() => {});
+    } else {
+      console.log('remove customer');
+    }
+  }
+
+  onAddCustommer(): void {
+    if (this.active === 'comptant') {
+      this.salesService
+        .addCustommerToCashSale({
+          key: this.sale.id,
+          value: this.selectedCustomerService.selectedCustomerSignal().id,
+        })
+        .subscribe(() => {
+          this.sale.customerId = this.selectedCustomerService.selectedCustomerSignal().id;
+
+          this.currentSaleService.setCurrentSale(this.sale);
+        });
+    } else {
+      this.assuranceSalesService
+        .changeCustommer({
+          key: this.sale.id,
+          value: this.selectedCustomerService.selectedCustomerSignal().id,
+        })
+        .subscribe(() => {
+          this.sale.customerId = this.selectedCustomerService.selectedCustomerSignal().id;
+
+          this.currentSaleService.setCurrentSale(this.sale);
+        });
+    }
   }
 
   isCashSale(): boolean {
@@ -249,6 +304,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       this.currentSaleService.setCurrentSale(sales);
       if (sales && sales.type === 'VNO') {
         this.active = 'comptant';
+      } else if (sales && sales.type === 'VO') {
+        this.active = 'assurance';
       }
       this.selectedCustomerService.setCustomer(sales.customer);
       this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
@@ -416,6 +473,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     if (qytMvt <= 0) {
       return;
     }
+
     const qtyMaxToSel = this.quantityMaxService.quantityMax();
     if (this.produitSelected !== null && this.produitSelected !== undefined) {
       const currentStock = this.produitSelected.totalQuantity;
@@ -458,7 +516,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
-
     this.onAddNewQty(qytMvt);
   }
 
@@ -470,8 +527,23 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         } else {
           this.comptantComponent().createComptant(this.createSalesLine(this.produitSelected, qytMvt));
         }
-      } else if (this.naturesVente && (this.naturesVente.code === this.CARNET || this.naturesVente.code === this.ASSURANCE)) {
-        // this.subscribeToSaveLineResponse(this.assuranceService.addItem(this.createSalesLine(this.produitSelected, qytMvt)));
+      } else if (this.active === 'assurance') {
+        if (this.selectedCustomerService.selectedCustomerSignal()) {
+          if (this.currentSaleService.currentSale()) {
+            this.assuranceComponent().onAddProduit(this.createSalesLine(this.produitSelected, qytMvt));
+          } else {
+            this.assuranceComponent().create(this.createSalesLine(this.produitSelected, qytMvt));
+          }
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            key: 'error',
+            summary: 'Erreur',
+            detail: 'Veuillez selectionner un client',
+          });
+          this.assuranceDataComponent().searchInput().nativeElement.focus();
+        }
+        // this.assuranceComponent().onAddProduit(this.createSalesLine(this.produitSelected, qytMvt));
       }
     }
 
@@ -488,15 +560,23 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   print(sale: ISales | null): void {
     if (sale !== null && sale !== undefined) {
-      this.salesService.print(sale.id).subscribe(blod => saveAs(blod));
-      this.sale = null;
-      this.loadProduits();
+      if (this.active === 'comptant') {
+        this.comptantComponent().print(sale);
+      } else {
+        this.assuranceComponent().print(sale);
+      }
+      this.currentSaleService.setCurrentSale(null);
       this.selectedCustomerService.setCustomer(null);
+      this.loadProduits();
     }
   }
 
-  printSale(saleId: number, categorie: string): void {
-    this.salesService.printReceipt(saleId, categorie).subscribe();
+  printSale(saleId: number): void {
+    if (this.active === 'comptant') {
+      this.comptantComponent().printSale(saleId);
+    } else {
+      this.assuranceComponent().printSale(saleId);
+    }
   }
 
   openInfoDialog(message: string, infoClass: string): void {
@@ -628,13 +708,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   onFinalyse(finalyseSale: FinalyseSale): void {
     if (finalyseSale.success) {
-      let saleType = 'vno';
-      if (this.active === 'vo') {
-        saleType = 'vo';
-      }
       if (!finalyseSale.putOnStandBy) {
         if (this.printTicket) {
-          this.printSale(finalyseSale.saleId, saleType);
+          this.printSale(finalyseSale.saleId);
         }
         if (this.printInvoice) {
           this.onPrintInvoice();
@@ -701,6 +777,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   onTypePrescriptionChange(event: any): void {
     this.typePrescriptionService.setTypePrescription(event.value);
+  }
+
+  ngOnDestroy(): void {
+    this.saleEventManager.destroy(this.responseEvent);
+    this.saleEventManager.destroy(this.saveResponse);
   }
 
   protected processQtyRequested(salesLine: ISalesLine): void {
@@ -781,7 +862,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   }
 
   protected refresh(): void {
-    this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+    if (this.active === 'comptant') {
+      this.subscribeToSaveResponse(this.salesService.find(this.sale?.id));
+    } else {
+      this.subscribeToSaveResponse(this.assuranceSalesService.find(this.sale?.id));
+    }
   }
 
   protected onStockError(salesLine: ISalesLine, error: any): void {
@@ -812,11 +897,33 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected onStockOutError(error: any): void {
-    if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-      });
+  protected onStockOutError(stockError: StockError): void {
+    const error = stockError.err.error;
+    const salesLine = stockError.saleLine;
+    if (error) {
+      if (error.error.errorKey === 'stock') {
+        if (this.canForceStock) {
+          salesLine.forceStock = true;
+          this.onUpdateConfirmForceStock(
+            salesLine,
+            'La quantité saisie est supérieure à la quantité stock du produit. Voullez-vous continuer ?',
+          );
+        } else {
+          this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
+            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+          });
+        }
+      } else if (error.error.errorKey === 'stockChInsufisant') {
+        this.produitService.find(Number(error.error.title)).subscribe(res => {
+          const prod = res.body;
+          if (prod && prod.totalQuantity > 0) {
+            // si quantite CH
+            this.confirmDeconditionnement(salesLine, prod, salesLine.quantityRequested);
+          } else {
+            this.openInfoDialog('La quantité saisie est supérieure à la quantité stock du produit', 'alert alert-danger');
+          }
+        });
+      }
     }
   }
 
@@ -857,25 +964,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     };
   }
 
-  private createSaleComptant(produit: IProduit, quantitySold: number): ISales {
-    let currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
-
-    if (currentCustomer && currentCustomer.type === 'ASSURE') {
-      currentCustomer = null;
-    }
-    return {
-      ...new Sales(),
-      salesLines: [this.createSalesLine(produit, quantitySold)],
-      customerId: currentCustomer?.id,
-      natureVente: this.COMPTANT,
-      typePrescription: this.typePrescription?.code,
-      cassierId: this.userCaissier?.id,
-      sellerId: this.userSeller?.id,
-      type: 'VNO',
-      categorie: 'VNO',
-    };
-  }
-
   private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
     return {
       ...new SalesLine(),
@@ -889,10 +977,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   }
 
   private onPrintInvoice(): void {
-    this.salesService.print(this.sale?.id).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
-    });
+    if (this.active === 'comptant') {
+      this.comptantComponent().printInvoice();
+    } else {
+      this.assuranceComponent().printInvoice();
+    }
   }
 
   private confirmForceStock(qytMvt: number, message: string): void {

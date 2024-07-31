@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -168,10 +169,10 @@ public class SaleReceiptService {
   }
 
   private String buildReceiptFile(SaleDTO saleDTO) {
-    List<SaleLineDTO> saleLines = saleDTO.getSalesLines();
+    List<SaleLineDTO> saleLines = new ArrayList<>(saleDTO.getSalesLines());
     int thatMaxiRowCount = getMaxiRowCount();
     Context context = getContext();
-    int pageNumber = (int) Math.ceil(saleLines.size() / Double.valueOf(thatMaxiRowCount));
+    int pageNumber = (int) Math.ceil(saleLines.size() / (double) thatMaxiRowCount);
     saleLines.sort(Comparator.comparing(SaleLineDTO::getProduitLibelle));
     String destFilePath =
         this.fileStorageLocation
@@ -182,6 +183,7 @@ public class SaleReceiptService {
                     + ".pdf")
             .toFile()
             .getAbsolutePath();
+
     if (pageNumber == 1) {
 
       printOneReceiptPage(
@@ -215,10 +217,9 @@ public class SaleReceiptService {
 
       renderer.layout();
       renderer.createPDF(outputStream);
-    } catch (FileNotFoundException e) {
-      LOG.debug("printOneReceiptPage ===>>", e);
     } catch (IOException | DocumentException e) {
-      LOG.debug("printOneReceiptPage ===>>", e);
+      e.printStackTrace();
+      LOG.error("printOneReceiptPage ===>>", e);
     }
   }
 
@@ -287,7 +288,7 @@ public class SaleReceiptService {
     this.appConfigurationRepository
         .findById(EntityConstant.RECEIPT_MAXI_ROW)
         .ifPresent(
-            appConfiguration -> this.maxiRowCount = Integer.valueOf(appConfiguration.getValue()));
+            appConfiguration -> this.maxiRowCount = Integer.parseInt(appConfiguration.getValue()));
     return this.maxiRowCount;
   }
 

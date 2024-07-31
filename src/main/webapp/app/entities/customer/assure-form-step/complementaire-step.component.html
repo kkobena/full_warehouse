@@ -1,0 +1,92 @@
+<p-card>
+  <ng-template pTemplate="title">
+    <div class="d-flex justify-content-between">
+      <span>Formulaire complémentaires</span>
+      @if (validSize) {
+        <span>
+            <button (click)="addTiersPayant()" class="p-button-rounded p-button-success p-button-sm"
+                    icon="pi pi-plus" pButton
+                    type="button"></button>
+          </span>
+
+      }
+    </div>
+
+  </ng-template>
+  <ng-template pTemplate="content">
+    <form [formGroup]="editForm" name="editForm">
+
+      <div class="row">
+        @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
+          <div formArrayName="tiersPayants" class="col-md-6 card">
+            <ng-container [formGroupName]="i">
+              <div class="card-header d-flex justify-content-end">
+                <button (click)="removeTiersPayant(i)"
+                        class="p-button-rounded p-button-danger p-button-sm btn-sm"
+                        icon="pi pi-times" pButton
+                        type="button"></button>
+              </div>
+              <div class="card-body">
+
+                <input class="form-control" formControlName="id" type="hidden" name="id" />
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label class="form-control-label">Tiers-payant<span
+                      style="font-weight: 900;color: red;">*</span></label>
+                    <p-autoComplete (completeMethod)="searchTiersPayant($event)"
+                                    (onSelect)="onSelectTiersPayant($event)"
+                                    [forceSelection]="true"
+                                    [inputStyle]="{'width':'100%'}"
+                                    [minLength]="minLength" [style]="{'width':'100%'}"
+                                    [suggestions]="tiersPayants" appendTo="body"
+                                    formControlName="tiersPayant" name="tiersPayant"
+                                    [dropdown]="true"
+                                    optionLabel="fullName" placeholder="Taper pour rechercher">
+                    </p-autoComplete>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label class="form-control-label">Numéro de sécurité <span
+                      style="font-weight: 900;color: red;">*</span>
+                    </label>
+                    <input autocomplete="off" class="form-control" formControlName="num" name="num"
+                           pInputText type="text" />
+                  </div>
+
+
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label class="form-control-label">Taux <span
+                      style="font-weight: 900;color: red;">*</span>
+                    </label>
+                    <input autocomplete="off" class="form-control" formControlName="taux"
+                           name="taux"
+                           pInputText
+                           pKeyFilter="int" type="text" />
+
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label class="form-control-label">Ordre <span
+                      style="font-weight: 900;color: red;">*</span>
+                    </label>
+                    <p-dropdown [options]="catgories" appendTo="body"
+                                class="form-control ngCombo" name="priorite"
+                                formControlName="priorite" optionLabel="label"
+                                optionValue="value"></p-dropdown>
+
+                  </div>
+
+                </div>
+              </div>
+
+            </ng-container>
+          </div>
+        }
+
+      </div>
+    </form>
+
+  </ng-template>
+</p-card>
+
+<p-toast position="center"></p-toast>

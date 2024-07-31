@@ -76,7 +76,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
                   .setNumBon(thirdPartySaleLine.getNumBon()));
         });
     if (StringUtils.isEmpty(this.numBon) && !thirdPartySaleLineDTOS.isEmpty()) {
-      this.numBon = thirdPartySaleLines.get(0).getNumBon();
+      this.numBon = thirdPartySaleLines.getFirst().getNumBon();
     }
     this.setThirdPartySaleLines(thirdPartySaleLineDTOS);
     this.setTiersPayants(clientTiersPayantDTOS);

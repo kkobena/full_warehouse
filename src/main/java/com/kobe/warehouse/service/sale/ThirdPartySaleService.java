@@ -11,6 +11,7 @@ import com.kobe.warehouse.web.rest.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.web.rest.errors.GenericError;
 import com.kobe.warehouse.web.rest.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.web.rest.errors.PaymentAmountException;
+import com.kobe.warehouse.web.rest.errors.PlafondVenteException;
 import com.kobe.warehouse.web.rest.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.web.rest.errors.StockException;
 import com.kobe.warehouse.web.rest.errors.ThirdPartySalesTiersPayantException;
@@ -20,15 +21,9 @@ import java.util.Set;
 
 public interface ThirdPartySaleService {
 
-  ThirdPartySales computeCarnetAmounts(
-      ThirdPartySaleDTO thirdPartySaleDTO, ThirdPartySales thirdPartySales)
-      throws GenericError, NumBonAlreadyUseException;
-
   void processDiscount(ThirdPartySales thirdPartySales, SalesLine saleLine, SalesLine oldSaleLine);
 
   void processDiscountWhenRemovingItem(ThirdPartySales thirdPartySales, SalesLine saleLine);
-
-  void computeAllAmounts(ThirdPartySales thirdPartySales);
 
   ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
@@ -48,16 +43,16 @@ public interface ThirdPartySaleService {
 
   String buildTvaData(Set<SalesLine> salesLines);
 
-  SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto);
+  SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException;
 
   void deleteSaleLineById(Long id);
 
-  ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError;
+  ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, PlafondVenteException;
 
   SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
-      throws StockException, DeconditionnementStockOut;
+      throws StockException, DeconditionnementStockOut, PlafondVenteException;
 
-  SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO);
+  SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
   void cancelSale(Long id);
 
@@ -66,14 +61,15 @@ public interface ThirdPartySaleService {
   ResponseDTO save(ThirdPartySaleDTO dto)
       throws PaymentAmountException,
           SaleNotFoundCustomerException,
-          ThirdPartySalesTiersPayantException;
+          ThirdPartySalesTiersPayantException,
+          PlafondVenteException;
 
-  SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
+  SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
   void deleteSalePrevente(Long id);
 
   ThirdPartySaleDTO addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
-      throws GenericError, NumBonAlreadyUseException;
+      throws GenericError, NumBonAlreadyUseException, PlafondVenteException;
 
-  void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId);
+  void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId)throws PlafondVenteException;
 }

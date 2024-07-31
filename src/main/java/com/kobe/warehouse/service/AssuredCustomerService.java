@@ -38,12 +38,14 @@ public interface AssuredCustomerService {
 
   default void clientTiersPayantFromDto(
       List<ClientTiersPayantDTO> dtos, AssuredCustomer assuredCustomer) {
-    dtos.forEach(
-        c -> {
-          ClientTiersPayant o = this.getClientTiersPayantFromDto(c);
-          o.setAssuredCustomer(assuredCustomer);
-          assuredCustomer.getClientTiersPayants().add(o);
-        });
+    if (dtos != null) {
+      dtos.forEach(
+          c -> {
+            ClientTiersPayant o = this.getClientTiersPayantFromDto(c);
+            o.setAssuredCustomer(assuredCustomer);
+            assuredCustomer.getClientTiersPayants().add(o);
+          });
+    }
   }
 
   default ClientTiersPayant getClientTiersPayantFromDto(AssuredCustomerDTO dto) {
@@ -91,7 +93,7 @@ public interface AssuredCustomerService {
   default void ayantDroitsFromDto(List<AssuredCustomerDTO> dtos, AssuredCustomer assuredCustomer) {
     dtos.forEach(
         tp -> {
-          AssuredCustomer ayantDroit = fromDto(tp);
+          AssuredCustomer ayantDroit = buildAyantDroitfromDto(tp);
           ayantDroit.setTypeAssure(TypeAssure.AYANT_DROIT);
           ayantDroit.setAssurePrincipal(assuredCustomer);
           ayantDroit.setNumAyantDroit(tp.getNumAyantDroit());

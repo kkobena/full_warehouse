@@ -132,6 +132,9 @@ public class SalesLine implements Serializable, Cloneable {
   @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
   private Integer taxAmount = 0;
 
+  @Column(name = "cmu_amount", nullable = false, columnDefinition = "int default '0'")
+  private int cmuAmount;
+
   public Long getId() {
     return id;
   }
@@ -163,6 +166,15 @@ public class SalesLine implements Serializable, Cloneable {
 
   public SalesLine setQuantityUg(Integer quantityUg) {
     this.quantityUg = quantityUg;
+    return this;
+  }
+
+  public int getCmuAmount() {
+    return cmuAmount;
+  }
+
+  public SalesLine setCmuAmount(int cmuAmount) {
+    this.cmuAmount = cmuAmount;
     return this;
   }
 

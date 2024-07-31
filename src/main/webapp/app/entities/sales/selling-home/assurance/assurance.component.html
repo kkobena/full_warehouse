@@ -1,3 +1,22 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
+             size="medium"
+             type="timer">
+</ngx-spinner>
+
+
+<p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 appendTo="body"
+                 key="addModePaymentConfirmDialog">
+  <p-footer>
+    <button (click)="addModePaymentConfirmDialog.reject()" class="p-button-danger"
+            icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #addModePaymentConfirmDialogBtn (click)="addModePaymentConfirmDialog.accept()"
+            icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+</p-confirmDialog>
 <p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStock">
 
@@ -11,15 +30,87 @@
   </p-footer>
 </p-confirmDialog>
 
-<p-dialog (onHide)="onHideHideDialog()" [(visible)]="commonDialog" [draggable]="false"
-          [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true" [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
-  <ng-template pTemplate="footer">
-    <button #commonDialogModalBtn (click)="cancelCommonDialog()" class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">Fermer
-    </button>
-  </ng-template>
-</p-dialog>
+
+<div class="row">
+
+
+  @if (remises.length == -10) {
+    <div class="col-md-3">
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">Remises</span>
+        <p-dropdown [style]="{'width':'100%'}" [(ngModel)]="remise"
+                    [options]="remises"
+                    optionLabel="valeur"
+                    placeholder="Selectionner une remise"></p-dropdown>
+      </div>
+    </div>
+
+  }
+</div>
+
+
+<p-divider></p-divider>
+@if (currentSaleService.currentSale()) {
+  <div class="row">
+    <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+      <jhi-product-table (deleteItemEvent)="confirmDeleteItem($event)"
+                         (itemPriceEvent)="updateItemPrice($event)"
+                         (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
+                         (itemQtySoldEvent)="updateItemQtySold($event)"
+      >
+
+      </jhi-product-table>
+    </div>
+
+    <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 bg-light mb-1 sale-montant-block">
+      <ul class="list-group mt-1">
+        <jhi-amount-computing
+          [entryAmount]="entryAmount">
+
+        </jhi-amount-computing>
+
+        <li class="list-group-item">
+          <p-button (click)="save()" icon="pi pi-check"
+                    label="Terminer"
+                    styleClass="p-button-danger"></p-button>
+
+          <p-button (click)="putCurrentSaleOnStandBy()" icon="pi pi-times"
+                    label="En attente"
+                    styleClass="p-button-secondary"></p-button>
+
+        </li>
+
+
+      </ul>
+
+    </div>
+  </div>
+  <jhi-mode-reglement [isDiffere]="isDiffere"
+                      (paymentModeControlEvent)="manageCashPaymentMode($event)"
+                      (onSaveEvent)="onKeyDown($event)"></jhi-mode-reglement>
+}
+
+<p-confirmDialog #differeConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 appendTo="body"
+                 key="differeConfirmDialog">
+  <p-footer>
+    <button (click)="differeConfirmDialog.reject()" class="p-button-danger"
+            icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button #differeConfirmDialogBtn (click)="differeConfirmDialog.accept()"
+            icon="pi pi-check" label="Oui"
+            pButton type="button"></button>
+  </p-footer>
+</p-confirmDialog>
+
+<p-confirmDialog #avoirConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 appendTo="body"
+                 key="avoirConfirmDialog">
+  <p-footer>
+
+    <button #avoirConfirmDialogBtn (click)="avoirConfirmDialog.accept()"
+            icon="pi pi-check" label="Ajouter"
+            pButton type="button"></button>
+  </p-footer>
+</p-confirmDialog>

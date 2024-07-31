@@ -1,0 +1,81 @@
+<p-toast></p-toast>
+<div class="modal-body form-client-step" id="modal">
+
+  <p-stepper [(activeStep)]="active" [linear]="true">
+    <p-stepperPanel header="Infos Assuré">
+      <ng-template let-nextCallback="nextCallback" pTemplate="content">
+        <jhi-assure-step></jhi-assure-step>
+        <div class="d-flex justify-content-center pt-2 ">
+          @if (assureStepComponent()?.editForm.valid) {
+            <p-button (onClick)="save()" icon="pi pi-check"
+                      iconPos="right" [disabled]="isSaving" [loading]="isSaving"
+                      label="Enregister"
+                      styleClass="p-button-success mx-1" />
+            <p-button (onClick)="onGoAyantDroit(nextCallback)" icon="pi pi-arrow-right"
+                      iconPos="right"
+                      label="Suivant" />
+          }
+
+        </div>
+      </ng-template>
+    </p-stepperPanel>
+    @if (!assureFormStepService.isEdition()) {
+      <p-stepperPanel header="Infos Ayant-droit">
+
+        <ng-template let-nextCallback="nextCallback" let-prevCallback="prevCallback"
+                     pTemplate="content">
+          <jhi-ayant-droit-step></jhi-ayant-droit-step>
+          <div class="d-flex justify-content-center pt-2 ">
+            <p-button (onClick)="onGoBackFromAyantDroit(prevCallback)" icon="pi pi-arrow-left"
+                      label="Précedent"
+                      severity="secondary" />
+            @if (ayantDroitStepComponent()?.isValidForm()) {
+              <p-button (onClick)="save()" icon="pi pi-check" [disabled]="isSaving"
+                        [loading]="isSaving"
+                        iconPos="right"
+                        label="Enregister"
+                        styleClass="p-button-success mx-1" />
+              <p-button (onClick)="onGoComplementaire(nextCallback)" icon="pi pi-arrow-right"
+                        iconPos="right"
+                        label="Suivant" />
+            }
+
+
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+    }
+
+    <p-stepperPanel header="Complémentaires">
+
+      <ng-template let-prevCallback="prevCallback" pTemplate="content">
+        <jhi-complementaire-step></jhi-complementaire-step>
+        <div class="d-flex justify-content-center pt-2 ">
+          <p-button (onClick)="onGoBackFromComplementaire(prevCallback)"
+                    icon="pi pi-arrow-left"
+                    label="Back"
+                    severity="secondary" />
+          @if (complementaireStepComponent()?.editFormGroups?.length > 0
+          && complementaireStepComponent()?.editFormGroups?.valid) {
+            <p-button (onClick)="save()"
+                      [disabled]="isSaving" [loading]="isSaving" icon="pi pi-check"
+                      iconPos="right"
+                      label="Enregister"
+                      styleClass="p-button-success mx-1" />
+          }
+
+        </div>
+      </ng-template>
+    </p-stepperPanel>
+
+  </p-stepper>
+
+
+</div>
+<div class="modal-footer modal-footer-step">
+  <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+  </button>
+
+
+</div>

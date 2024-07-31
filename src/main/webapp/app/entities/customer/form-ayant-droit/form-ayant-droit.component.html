@@ -11,7 +11,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_firstName">Nom</label>
-        <input autocomplete="off" autofocus class="form-control" formControlName="firstName"
+        <input #firstName autocomplete="off" autofocus class="form-control"
+               formControlName="firstName"
                id="field_firstName"
                name="firstName" pInputText type="text" />
         @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty

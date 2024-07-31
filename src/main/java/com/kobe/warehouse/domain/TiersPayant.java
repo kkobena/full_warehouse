@@ -113,7 +113,19 @@ public class TiersPayant implements Serializable {
   @Column(columnDefinition = "json", name = "consommation_json")
   private Set<Consommation> consommations = new HashSet<>();
 
+  @Column(name = "is_cmu", nullable = false)
+  private Boolean cmu = Boolean.FALSE;
+
   public TiersPayant() {}
+
+  public Boolean getCmu() {
+    return cmu;
+  }
+
+  public TiersPayant setCmu(Boolean cmu) {
+    this.cmu = cmu;
+    return this;
+  }
 
   public Long getId() {
     return id;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
@@ -30,7 +30,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     KeyFilterModule,
   ],
 })
-export class UninsuredCustomerFormComponent implements OnInit {
+export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;
   isSaving = false;
   isValid = true;
@@ -41,6 +41,7 @@ export class UninsuredCustomerFormComponent implements OnInit {
     phone: [null, [Validators.required, Validators.min(1)]],
     email: [],
   });
+  firstName = viewChild.required<ElementRef>('firstName');
 
   constructor(
     protected errorService: ErrorService,
@@ -56,6 +57,12 @@ export class UninsuredCustomerFormComponent implements OnInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.firstName().nativeElement.focus();
+    }, 30);
   }
 
   save(): void {

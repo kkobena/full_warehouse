@@ -46,6 +46,8 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { TypePrescriptionService } from '../../service/type-prescription.service';
 import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
+import { saveAs } from 'file-saver';
+import { BaseSaleService } from '../../service/base-sale.service';
 
 @Component({
   selector: 'jhi-comptant',
@@ -90,8 +92,6 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
 })
 export class ComptantComponent {
   @Input('isPresale') isPresale = false;
-  @Input('canUpdatePu') canUpdatePu: boolean = false;
-  @Input('canForceStock') canForceStock: boolean = true;
   readonly appendTo = 'body';
   @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
   @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
@@ -107,10 +107,21 @@ export class ComptantComponent {
   typePrescriptionService = inject(TypePrescriptionService);
   userCaissierService = inject(UserCaissierService);
   userVendeurService = inject(UserVendeurService);
+  selectModeReglementService = inject(SelectModeReglementService);
+  // protected displayErrorModal = false;
+  salesService = inject(SalesService);
+  currentSaleService = inject(CurrentSaleService);
+  customerService = inject(CustomerService);
+  activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
+  modalService = inject(NgbModal);
+  confirmationService = inject(ConfirmationService);
+  errorService = inject(ErrorService);
+  dialogService = inject(DialogService);
+  translate = inject(TranslateService);
+  baseSaleService = inject(BaseSaleService);
   // addModePaymentConfirmDialogBtn = viewChild<ElementRef>('addModePaymentConfirmDialogBtn');
   protected isSaving = false;
-  // protected displayErrorModal = false;
-
   protected displayErrorEntryAmountModal = false;
   protected payments: IPayment[] = [];
   protected modeReglementSelected: IPaymentMode[] = [];
@@ -122,19 +133,7 @@ export class ComptantComponent {
   protected event: any;
   protected entryAmount?: number | null = null;
 
-  constructor(
-    protected selectModeReglementService: SelectModeReglementService,
-    protected salesService: SalesService,
-    protected currentSaleService: CurrentSaleService,
-    protected customerService: CustomerService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    protected confirmationService: ConfirmationService,
-    protected errorService: ErrorService,
-    private dialogService: DialogService,
-    public translate: TranslateService,
-  ) {
+  constructor() {
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
       this.isDiffere = this.sale?.differe;
@@ -200,7 +199,7 @@ export class ComptantComponent {
     const entryAmount = this.getEntryAmount();
     this.sale.payments = this.buildPayment(entryAmount);
     this.sale.type = 'VNO';
-    this.sale.avoir = this.isAvoir();
+    this.sale.avoir = this.baseSaleService.isAvoir();
     this.computExtraInfo();
     if (this.sale.avoir && !this.sale.customerId) {
       this.onOpenCustomer(putsOnStandby);
@@ -334,6 +333,13 @@ export class ComptantComponent {
     this.processItemPrice(salesLine);
   }
 
+  printInvoice(): void {
+    this.salesService.print(this.sale?.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
+  }
+
   subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body.saleId)),
@@ -380,6 +386,29 @@ export class ComptantComponent {
     this.modeReglementComponent().buildPreventeReglementInput();
   }
 
+  print(sale: ISales | null): void {
+    this.salesService.print(sale.id).subscribe(blod => saveAs(blod));
+  }
+
+  printSale(saleId: number): void {
+    this.salesService.printReceipt(saleId).subscribe();
+  }
+
+  updateQtyRequested(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
+    this.salesService.updateItemQtyRequested(salesLine).subscribe({
+      next: () => {
+        if (sale) {
+          this.subscribeToSaveResponse(this.salesService.find(sale.id));
+        }
+      },
+      error: error => {
+        this.subscribeToSaveResponse(this.salesService.find(sale.id));
+        this.baseSaleService.onStockError(salesLine, error);
+      },
+    });
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
@@ -396,7 +425,7 @@ export class ComptantComponent {
 
   protected onSaveError(err: any): void {
     this.isSaving = false;
-    this.saveResponse.emit({ success: true, error: err });
+    this.saveResponse.emit({ success: false, error: err });
     /*const message = 'Une erreur est survenue';
     this.openInfoDialog(message, 'alert alert-danger');*/
   }
@@ -494,17 +523,5 @@ export class ComptantComponent {
       next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
       error: (err: any) => this.onSaveSaveError(err, this.sale),
     });
-  }
-
-  private isAvoir(): boolean {
-    return this.getTotalQtyProduit() - this.getTotalQtyServi() != 0;
-  }
-
-  private getTotalQtyProduit(): number {
-    return this.sale.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
-  }
-
-  private getTotalQtyServi(): number {
-    return this.sale.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 }

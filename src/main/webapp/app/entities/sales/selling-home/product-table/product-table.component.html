@@ -63,7 +63,7 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        @if (priceModificationAuthService.priceAuthority()) {
+        @if (canModifiePrice) {
           <td pEditableColumn
               style="text-align: right;">
             <p-cellEditor>

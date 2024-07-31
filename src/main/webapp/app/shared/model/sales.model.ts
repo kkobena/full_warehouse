@@ -101,14 +101,24 @@ export class Sales implements ISales {
   }
 }
 
-export class QuantitySaleLine {
-  newValue: number;
+export class StockError {
+  err: any;
   saleLine: ISalesLine;
+
+  constructor(err: any, saleLine: ISalesLine) {
+    this.err = err;
+    this.saleLine = saleLine;
+  }
 }
 
 export class SaveResponse {
   success: boolean;
   error?: any;
+
+  constructor(success: boolean, error?: any) {
+    this.success = success;
+    this.error = error;
+  }
 }
 
 export class FinalyseSale {
@@ -116,10 +126,21 @@ export class FinalyseSale {
   error?: any;
   saleId?: number;
   putOnStandBy?: boolean;
+
+  constructor(success: boolean, error?: any, saleId?: number, putOnStandBy?: boolean) {
+    this.success = success;
+    this.error = error;
+    this.saleId = saleId;
+    this.putOnStandBy = putOnStandBy;
+  }
 }
 
 export class InputToFocus {
   control: string;
+
+  constructor(control: string) {
+    this.control = control;
+  }
 }
 
 export class KeyValue {

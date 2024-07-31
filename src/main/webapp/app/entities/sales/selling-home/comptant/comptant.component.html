@@ -67,7 +67,7 @@
 
 
 <p-divider></p-divider>
-@if (sale) {
+@if (this.currentSaleService.currentSale()) {
   <div class="row">
     <div class="col-12 col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
       <jhi-product-table (deleteItemEvent)="confirmDeleteItem($event)"

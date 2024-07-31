@@ -26,14 +26,15 @@ public class ClientTiersPayantDTO {
   private TiersPayantCategorie typeTiersPayant;
   private String numBon;
   private long customerId;
+  private boolean cmu;
 
   public ClientTiersPayantDTO() {}
 
   public ClientTiersPayantDTO(ClientTiersPayant c) {
     this.id = c.getId();
-    TiersPayant tiersPayant = c.getTiersPayant();
-    this.tiersPayantName = tiersPayant.getName();
-    this.tiersPayantFullName = tiersPayant.getFullName();
+    TiersPayant cTiersPayant = c.getTiersPayant();
+    this.tiersPayantName = cTiersPayant.getName();
+    this.tiersPayantFullName = cTiersPayant.getFullName();
     this.num = c.getNum();
     this.plafondConso = c.getPlafondConso();
     this.plafondJournalier = c.getPlafondJournalier();
@@ -44,14 +45,26 @@ public class ClientTiersPayantDTO {
     this.statut = c.getStatut();
     this.taux = c.getTaux();
     this.plafondAbsolu = c.getPlafondAbsolu();
-    this.tiersPayantId = tiersPayant.getId();
-    this.typeTiersPayant = tiersPayant.getCategorie();
+    this.tiersPayantId = cTiersPayant.getId();
+    this.typeTiersPayant = cTiersPayant.getCategorie();
     this.tiersPayant =
         new TiersPayantDto()
-            .setName(tiersPayant.getName())
-            .setId(tiersPayant.getId())
-            .setFullName(tiersPayant.getFullName());
+            .setName(cTiersPayant.getName())
+            .setId(cTiersPayant.getId())
+            .setFullName(cTiersPayant.getFullName());
     this.customerId = c.getAssuredCustomer().getId();
+    if (cTiersPayant.getCmu() != null) {
+      this.cmu = cTiersPayant.getCmu();
+    }
+  }
+
+  public boolean isCmu() {
+    return cmu;
+  }
+
+  public ClientTiersPayantDTO setCmu(boolean cmu) {
+    this.cmu = cmu;
+    return this;
   }
 
   @Override

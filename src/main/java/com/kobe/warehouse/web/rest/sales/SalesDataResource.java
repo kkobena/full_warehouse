@@ -164,13 +164,14 @@ public class SalesDataResource {
         .body(resource);
   }*/
 
-  @GetMapping("/sales/print/vno-receipt/{id}")
+  @GetMapping("/sales/print/receipt/{id}")
   public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {
+
     receiptPrinterService.printCashSale(id);
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/sales/print/vo-receipt/{id}")
+  @GetMapping("/sales/assurance/print/receipt/{id}")
   public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) {
     receiptPrinterService.printVoSale(id);
     return ResponseEntity.ok().build();

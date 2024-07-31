@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
@@ -37,7 +37,8 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
     InputMaskModule,
   ],
 })
-export class FormAyantDroitComponent implements OnInit {
+export class FormAyantDroitComponent implements OnInit, AfterViewInit {
+  firstName = viewChild.required<ElementRef>('firstName');
   entity?: ICustomer;
   assure?: ICustomer;
   isSaving = false;
@@ -94,8 +95,13 @@ export class FormAyantDroitComponent implements OnInit {
     this.ref.close();
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.firstName().nativeElement.focus();
+    }, 30);
+  }
+
   protected createFromForm(): ICustomer {
-    console.log('datNaiss', this.editForm.get(['datNaiss'])!.value);
     return {
       ...new Customer(),
       id: this.editForm.get(['id'])!.value,

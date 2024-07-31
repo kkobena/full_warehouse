@@ -24,6 +24,7 @@ import { DividerModule } from 'primeng/divider';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { VoSalesService } from './service/vo-sales.service';
 
 @Component({
   selector: 'jhi-sales',
@@ -157,6 +158,7 @@ export class SalesComponent implements OnInit {
   primngtranslate: Subscription;
 
   constructor(
+    protected assuranceSalesService: VoSalesService,
     protected salesService: SalesService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
@@ -285,7 +287,11 @@ export class SalesComponent implements OnInit {
   }
 
   printSale(sale: ISales): void {
-    this.salesService.printReceipt(sale.id, sale.categorie).subscribe();
+    if (sale.categorie === 'VNO') {
+      this.salesService.printReceipt(sale.id).subscribe();
+    } else {
+      this.assuranceSalesService.printReceipt(sale.id).subscribe();
+    }
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {

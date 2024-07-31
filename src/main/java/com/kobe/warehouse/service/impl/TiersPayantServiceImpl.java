@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class TiersPayantServiceImpl implements TiersPayantService {
+
     private final Logger log = LoggerFactory.getLogger(TiersPayantServiceImpl.class);
     private final TiersPayantRepository tiersPayantRepository;
     private final StorageService storageService;
@@ -30,13 +31,24 @@ public class TiersPayantServiceImpl implements TiersPayantService {
     @Override
     public TiersPayantDto createFromDto(TiersPayantDto dto) throws GenericError {
         if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
-            if (tiersPayantOp.isPresent())
-                throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme", "tiersPayantExistant");
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(
+                dto.getName(),
+                dto.getFullName(),
+                dto.getCodeOrganisme()
+            );
+            if (tiersPayantOp.isPresent()) {
+                throw new GenericError(
+                    "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme",
+                    "tiersPayantExistant"
+                );
+            }
         } else {
             Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
-            if (tiersPayantOp.isPresent())
-                throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
+            if (tiersPayantOp.isPresent()) {
+                throw new GenericError(
+                    "Il existe dejà  un tiers-payant avec soit avec le même nom ",
+                    "tiersPayantExistant");
+            }
         }
 
         TiersPayant tiersPayant = entityFromDto(dto);
@@ -49,13 +61,24 @@ public class TiersPayantServiceImpl implements TiersPayantService {
     public TiersPayantDto updateFromDto(TiersPayantDto dto) throws GenericError {
         TiersPayant tiersPayant = tiersPayantRepository.getReferenceById(dto.getId());
         if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme());
-            if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId())
-                throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme", "tiersPayantExistant");
+            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(
+                dto.getName(),
+                dto.getFullName(),
+                dto.getCodeOrganisme()
+            );
+            if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId()) {
+                throw new GenericError(
+                    "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme",
+                    "tiersPayantExistant"
+                );
+            }
         } else {
             Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
-            if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId())
-                throw new GenericError("tierspayant", "Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
+            if (tiersPayantOp.isPresent() && tiersPayant.getId() != tiersPayantOp.get().getId()) {
+                throw new GenericError(
+                    "Il existe dejà  un tiers-payant avec soit avec le même nom ",
+                    "tiersPayantExistant");
+            }
         }
 
         tiersPayant = entityFromDto(dto, tiersPayant);
@@ -66,7 +89,13 @@ public class TiersPayantServiceImpl implements TiersPayantService {
 
     @Override
     public void desable(Long id) {
-        tiersPayantRepository.save(tiersPayantRepository.getReferenceById(id).setStatut(TiersPayantStatut.DISABLED).setUpdated(LocalDateTime.now()).setUpdatedBy(storageService.getUser()));
+        tiersPayantRepository.save(
+            tiersPayantRepository
+                .getReferenceById(id)
+                .setStatut(TiersPayantStatut.DISABLED)
+                .setUpdated(LocalDateTime.now())
+                .setUpdatedBy(storageService.getUser())
+        );
     }
 
     @Override
@@ -75,8 +104,7 @@ public class TiersPayantServiceImpl implements TiersPayantService {
             tiersPayantRepository.deleteById(id);
         } catch (Exception e) {
             log.debug("delete {}", e);
-            throw new GenericError("tierspayant", "Il y'a client associés à ce tiers-payant", "tiersPayantClientsAssocies");
+            throw new GenericError("Il y'a client associés à ce tiers-payant", "tiersPayantClientsAssocies");
         }
-
     }
 }

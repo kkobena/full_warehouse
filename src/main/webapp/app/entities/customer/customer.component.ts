@@ -32,6 +32,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
+import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 
 @Component({
   selector: 'jhi-customer',
@@ -54,6 +55,7 @@ import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model
     SplitButtonModule,
     NgxSpinnerModule,
     TooltipModule,
+    AssureFormStepComponent,
   ],
 })
 export class CustomerComponent implements OnInit {
@@ -214,7 +216,7 @@ export class CustomerComponent implements OnInit {
     return result;
   }
 
-  addAssureCustomer(): void {
+  addAssureCustomerOld(): void {
     this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
       data: { entity: null },
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
@@ -228,8 +230,23 @@ export class CustomerComponent implements OnInit {
     });
   }
 
+  addAssureCustomer(): void {
+    this.ref = this.dialogService.open(AssureFormStepComponent, {
+      data: { entity: null },
+      header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      width: '85%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: ICustomer) => {
+      if (resp) {
+        this.loadPage();
+      }
+    });
+  }
+
+  //AssureFormStepComponent
   editAssureCustomer(customer: ICustomer): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
+    this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: { entity: customer },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '85%',

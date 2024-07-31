@@ -3,9 +3,9 @@
     <div class="row assurance-data">
       <div class="col-2 col-md-2 col-lg-2">
 
-        <input (keydown.enter)="load()" [(ngModel)]="search"
+        <input #searchInput (keydown.enter)="load()" [(ngModel)]="search"
                class="form-control border  border-primary"
-               placeholder="Rechercher" type="text">
+               placeholder="Rechercher client" type="text">
       </div>
       @if (selectedCustomerService.selectedCustomerSignal()) {
         <div class="col-10 col-md-10 col-lg-10 row">

@@ -31,7 +31,8 @@ public class CustomerDTO {
   private List<SaleDTO> sales = new ArrayList<>();
   private Set<Payment> payments = new HashSet<>();
   private String code;
-  private LocalDateTime updatedAt, createdAt;
+  private LocalDateTime updatedAt;
+  private LocalDateTime createdAt;
 
   public CustomerDTO() {
     super();

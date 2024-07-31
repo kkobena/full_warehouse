@@ -39,10 +39,8 @@ public class ReceiptPrinterService {
             printerJob.setPrintService(findPrintService());
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
             printerJob.print();
-          } catch (IOException e) {
-            log.debug("printCashSale : {}", e.getLocalizedMessage());
-          } catch (PrinterException e) {
-            log.debug("printCashSale : {}", e.getLocalizedMessage());
+          } catch (IOException | PrinterException e) {
+            log.error("printCashSale : {}", e.getLocalizedMessage());
           }
         };
     runnableTask.run();
@@ -57,9 +55,7 @@ public class ReceiptPrinterService {
             printerJob.setPrintService(findPrintService());
             printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
             printerJob.print();
-          } catch (IOException e) {
-            log.debug("printVoSale : {}", e.getLocalizedMessage());
-          } catch (PrinterException e) {
+          } catch (IOException | PrinterException e) {
             log.debug("printVoSale : {}", e.getLocalizedMessage());
           }
         };

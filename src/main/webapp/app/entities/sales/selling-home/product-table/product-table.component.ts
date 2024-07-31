@@ -13,7 +13,7 @@ import { ConfirmationService } from 'primeng/api';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
 import { QuanityMaxService } from '../../service/quanity-max.service';
-import { HasPriceModificationAuthService } from '../../service/has-price-modification-auth.service';
+import { HasAuthorityService } from '../../service/has-authority.service';
 
 @Component({
   selector: 'jhi-product-table',
@@ -38,7 +38,8 @@ export class ProductTableComponent {
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
   @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
-  priceModificationAuthService = inject(HasPriceModificationAuthService);
+  hasAuthorityService = inject(HasAuthorityService);
+  canModifiePrice: boolean;
   private quantityMaxService = inject(QuanityMaxService);
 
   constructor(
@@ -46,6 +47,8 @@ export class ProductTableComponent {
     private modalService: NgbModal,
     private confirmationService: ConfirmationService,
   ) {
+    // this.canModifiePrice= this.hasAuthorityService.hasAuthorities('ROLE_MODIFIER_PRIX');
+    this.canModifiePrice = true;
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
     });

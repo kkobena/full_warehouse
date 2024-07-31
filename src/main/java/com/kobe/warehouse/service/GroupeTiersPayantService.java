@@ -6,6 +6,13 @@ import com.kobe.warehouse.repository.GroupeTiersPayantRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.rest.errors.GenericError;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -15,17 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Service
 @Transactional
 public class GroupeTiersPayantService {
+
     private final Logger log = LoggerFactory.getLogger(GroupeTiersPayantService.class);
     private final GroupeTiersPayantRepository groupeTiersPayantRepository;
     private final TiersPayantRepository tiersPayantRepository;
@@ -37,8 +37,10 @@ public class GroupeTiersPayantService {
 
     public GroupeTiersPayant create(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
-        if (groupeTiersPayantOptional.isPresent())
-            throw new GenericError("groupeTierspayant", "Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
+        if (groupeTiersPayantOptional.isPresent()) {
+            throw new GenericError("Il existe dejà  un groupe avec le même nom",
+                "groupeTiersPayantExistant");
+        }
         GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
         tiersPayant.setName(groupeTiersPayant.getName());
@@ -50,8 +52,10 @@ public class GroupeTiersPayantService {
     public GroupeTiersPayant update(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
-        if (groupeTiersPayantOptional.isPresent() && groupeTiersPayantOptional.get().getId() != tiersPayant.getId())
-            throw new GenericError("groupeTierspayant", "Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
+        if (groupeTiersPayantOptional.isPresent() && groupeTiersPayantOptional.get().getId() != tiersPayant.getId()) {
+            throw new GenericError("Il existe dejà  un groupe avec le même nom",
+                "groupeTiersPayantExistant");
+        }
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
         tiersPayant.setName(groupeTiersPayant.getName());
         tiersPayant.setTelephone(groupeTiersPayant.getTelephone());
@@ -64,24 +68,25 @@ public class GroupeTiersPayantService {
         if (StringUtils.isEmpty(search)) {
             return groupeTiersPayantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
         }
-        return groupeTiersPayantRepository.findAll(groupeTiersPayantRepository.specialisationQueryString(search + "%"), Sort.by(Sort.Direction.ASC, "name"));
-
+        return groupeTiersPayantRepository.findAll(
+            groupeTiersPayantRepository.specialisationQueryString(search + "%"),
+            Sort.by(Sort.Direction.ASC, "name")
+        );
     }
 
     public void delete(Long id) throws GenericError {
         List<TiersPayant> tiersPayants = tiersPayantRepository.findAllByGroupeTiersPayantId(id);
-        if (tiersPayants.size() > 0)
-            throw new GenericError("groupeTierspayant", "Il  y'a des tierspants associés à ce groupe", "groupeTiersPayantAssocies");
+        if (!tiersPayants.isEmpty()) {
+            throw new GenericError("Il  y'a des tierspants associés à ce groupe",
+                "groupeTiersPayantAssocies");
+        }
         groupeTiersPayantRepository.deleteById(id);
-
     }
 
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';')
-                .withFirstRecordAsHeader()
-                .parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
             records.forEach(record -> {
                 GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
                 tiersPayant.setName(record.get(0));

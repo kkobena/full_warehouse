@@ -1,7 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +30,7 @@ public class AssuredCustomer extends Customer {
   @OneToMany(
       mappedBy = "assuredCustomer",
       orphanRemoval = true,
-      cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
+      cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
   private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
   public AssuredCustomer getAssurePrincipal() {

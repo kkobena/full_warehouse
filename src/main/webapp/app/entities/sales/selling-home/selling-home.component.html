@@ -66,7 +66,6 @@
             <ng-template ngbNavContent>
               <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
                             (responseEvent)="onFinalyse($event)" (saveResponse)="onSave($event)"
-                            [canForceStock]="canForceStock" [canUpdatePu]="canUpdatePu"
                             [isPresale]="isPresale">
 
 
@@ -76,7 +75,7 @@
           <ng-container ngbNavItem="assurance">
             <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
             <ng-template ngbNavContent>
-              <jhi-assurance>
+              <jhi-assurance [isPresale]="isPresale">
 
 
               </jhi-assurance>
@@ -260,3 +259,4 @@
             type="button"></button>
   </p-footer>
 </p-confirmDialog>
+<p-toast key="error" position="center"></p-toast>

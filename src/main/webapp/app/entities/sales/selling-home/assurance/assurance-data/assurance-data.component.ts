@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, Inject, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { AfterViewInit, Component, effect, ElementRef, Inject, inject, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
 import { ICustomer } from '../../../../../shared/model/customer.model';
@@ -50,7 +50,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   selectedCustomerService = inject(SelectedCustomerService);
   confirmationService = inject(ConfirmationService);
   currentSaleService = inject(CurrentSaleService);
-
+  searchInput = viewChild<ElementRef>('searchInput');
   dialogService = inject(DialogService);
   divClass = 'col-md-4 col-sm-4 col-4 bon';
   divCustomer = 'col-md-4 col-sm-4 col-4';
@@ -156,7 +156,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.firstRefBonFocus();
+    this.searchInput().nativeElement.focus();
   }
 
   addComplementaire(): void {

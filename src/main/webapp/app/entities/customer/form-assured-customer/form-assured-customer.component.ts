@@ -132,22 +132,6 @@ export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
     this.ref.close();
   }
 
-  addAyantDroit(): void {
-    const ayantDroits = this.editForm.get('ayantDroits') as FormArray;
-    ayantDroits.push(
-      this.fb.group({
-        num: [null, [Validators.required]],
-        firstName: [null, [Validators.required]],
-        lastName: [null, [Validators.required]],
-        sexe: [],
-        datNaiss: [],
-        phone: [],
-        id: [],
-      }),
-    );
-    this.valideAyantDroitSize();
-  }
-
   addTiersPayant(): void {
     const tiersPayants = this.editForm.get('tiersPayants') as FormArray;
     tiersPayants.push(
@@ -174,12 +158,6 @@ export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
     const tiersPayants = this.editForm.get('tiersPayants') as FormArray;
     tiersPayants.removeAt(index);
     this.validateTiersPayantSize();
-  }
-
-  removeAyantDroit(index: number): void {
-    const ayantDroits = this.editForm.get('ayantDroits') as FormArray;
-    ayantDroits.removeAt(index);
-    this.valideAyantDroitSize();
   }
 
   valideAyantDroitSize(): void {

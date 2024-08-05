@@ -1,42 +1,41 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { CurrentSaleService } from './current-sale.service';
-import { IPaymentMode, PaymentModeControl } from '../../../shared/model/payment-mode.model';
-import { IPayment, Payment } from '../../../shared/model/payment.model';
+import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { SelectModeReglementService } from './select-mode-reglement.service';
-import { ModeReglementComponent } from '../mode-reglement/mode-reglement.component';
-import { AmountComputingComponent } from '../selling-home/comptant/amount-computing/amount-computing.component';
 import { SaleEventManager } from './sale-event-manager.service';
 import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { VoSalesService } from './vo-sales.service';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BaseSaleService {
-  modeReglementComponent: WritableSignal<ModeReglementComponent> = signal<ModeReglementComponent>(null);
-  amountComputingComponent: WritableSignal<AmountComputingComponent> = signal<AmountComputingComponent>(null);
+  quantityMax: WritableSignal<number> = signal<number>(null);
+  maxModePayementNumber: WritableSignal<number> = signal<number>(2);
+  hasSansBon: WritableSignal<boolean> = signal<boolean>(null);
+  salesService = inject(VoSalesService);
+  configurationService = inject(ConfigurationService);
   currentSaleService = inject(CurrentSaleService);
   selectModeReglementService = inject(SelectModeReglementService);
   entryAmount: number;
   readonly CASH = 'CASH';
   private readonly saleEventManager = inject(SaleEventManager);
 
-  constructor() {}
-
-  manageAmountDiv(): void {
-    this.modeReglementComponent().manageAmountDiv();
-  }
-
-  computExtraInfo(): void {
-    this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire;
-  }
-
-  setAmountComputingComponent(amountComputingComponent: AmountComputingComponent): void {
-    this.amountComputingComponent.set(amountComputingComponent);
-  }
-
-  setModeReglementComponent(modeReglementComponent: ModeReglementComponent): void {
-    this.modeReglementComponent.set(modeReglementComponent);
+  constructor() {
+    if (this.hasSansBon() === null) {
+      this.hasSaleWithoutBon();
+    }
+    if (this.quantityMax() === null) {
+      this.getMaxToSale();
+    }
+    /* if (this.maxModePayementNumber() === null) {
+       this.getMaxModePaymentNumber();
+     }*/
   }
 
   isAvoir(): boolean {
@@ -44,50 +43,17 @@ export class BaseSaleService {
   }
 
   getTotalQtyProduit(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
   }
 
   getTotalQtyServi(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 
-  onLoadPrevente(): void {
-    this.modeReglementComponent().buildPreventeReglementInput();
-  }
-
-  buildModePayment(mode: IPaymentMode, entryAmount: number): Payment {
-    const amount = this.currentSaleService.currentSale().amountToBePaid - (entryAmount - mode.amount);
-    return {
-      ...new Payment(),
-      paidAmount: amount,
-      netAmount: amount,
-      paymentMode: mode,
-      montantVerse: mode.amount,
-    };
-  }
-
-  getEntryAmount(): number {
-    return this.modeReglementComponent().getInputSum();
-  }
-
-  manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
-    const modes = this.selectModeReglementService.modeReglements();
-    if (modes.length === 2) {
-      const amount = this.getEntryAmount();
-      modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
-        this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
-
-      this.amountComputingComponent().computeMonnaie(amount);
-    } else {
-      this.amountComputingComponent().computeMonnaie(Number(paymentModeControl.control.target.value));
-    }
-    this.modeReglementComponent().showAddModePaymentButton(paymentModeControl.paymentMode);
-  }
-
-  getCashAmount(): number {
+  getCashAmount(entryAmount: number): number {
     const modes = this.selectModeReglementService.modeReglements();
     let cashInput;
-    this.entryAmount = this.getEntryAmount();
+    this.entryAmount = entryAmount;
     if (modes.length > 0) {
       cashInput = modes.find((input: IPaymentMode) => input.code === this.CASH);
       if (cashInput) {
@@ -101,13 +67,6 @@ export class BaseSaleService {
       }
       return 0;
     }
-  }
-
-  buildPayment(entryAmount: number): IPayment[] {
-    return this.selectModeReglementService
-      .modeReglements()
-      .filter((m: IPaymentMode) => m.amount)
-      .map((mode: IPaymentMode) => this.buildModePayment(mode, entryAmount));
   }
 
   setInputBoxFocus(input: string): void {
@@ -130,16 +89,33 @@ export class BaseSaleService {
       name: 'saveResponse',
       content: new SaveResponse(true),
     });
-
-    this.amountComputingComponent().computeMonnaie(null);
   }
 
   onSaveError(err: any, sale?: ISales): void {
+    if (err.status === 412) {
+      const errorPayload = err.error?.payload as ISales;
+      this.currentSaleService.setCurrentSale(errorPayload);
+    } else {
+      this.currentSaleService.setCurrentSale(sale);
+    }
     this.saleEventManager.broadcast({
       name: 'saveResponse',
       content: new SaveResponse(false, err),
     });
-    this.currentSaleService.setCurrentSale(sale);
+  }
+
+  onCompleteSale(): void {
+    this.saleEventManager.broadcast({
+      name: 'completeSale',
+      content: 'save',
+    });
+  }
+
+  onStandby(): void {
+    this.saleEventManager.broadcast({
+      name: 'completeSale',
+      content: 'standby',
+    });
   }
 
   onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {
@@ -168,6 +144,75 @@ export class BaseSaleService {
     this.saleEventManager.broadcast({
       name: 'saveResponse',
       content: new StockError(err, saleLine),
+    });
+  }
+
+  onRemoveThirdPartySaleLineToSalesSuccess(id: number): void {
+    this.onSaveResponse(this.salesService.removeThirdPartySaleLineToSales(id, this.currentSaleService.currentSale().id));
+  }
+
+  getMaxToSale(): void {
+    this.configurationService.find('APP_QTY_MAX').subscribe({
+      next: res => {
+        if (res.body) {
+          this.quantityMax.set(Number(res.body.value));
+        }
+      },
+      error: () => {
+        this.quantityMax.set(999999);
+      },
+    });
+  }
+
+  hasSaleWithoutBon(): void {
+    this.configurationService.find('APP_SANS_NUM_BON').subscribe({
+      next: res => {
+        if (res.body) {
+          this.hasSansBon.set(Number(res.body.value) === 1);
+        }
+      },
+      error: () => {
+        this.hasSansBon.set(false);
+      },
+    });
+  }
+
+  getMaxModePaymentNumber(): void {
+    this.configurationService.find('APP_MODE_REGL_NUMBER').subscribe({
+      next: res => {
+        if (res.body) {
+          this.maxModePayementNumber.set(Number(res.body.value));
+        }
+      },
+      error: () => {
+        this.maxModePayementNumber.set(2);
+      },
+    });
+  }
+
+  onAddThirdPartySale(id: number, clientTiersPayant: IClientTiersPayant): void {
+    this.onSaveResponse(this.salesService.addComplementaireSales(id, clientTiersPayant));
+  }
+
+  private onSaveResponse(result: Observable<HttpResponse<ISales>>): void {
+    result.subscribe({
+      next: () => {
+        this.salesService.findForEdit(this.currentSaleService.currentSale().id).subscribe({
+          next: res => {
+            this.currentSaleService.setCurrentSale(res.body);
+            this.saleEventManager.broadcast({
+              name: 'saveResponse',
+              content: new SaveResponse(true),
+            });
+          },
+        });
+      },
+      error: err => {
+        this.saleEventManager.broadcast({
+          name: 'saveResponse',
+          content: new SaveResponse(false, err),
+        });
+      },
     });
   }
 }

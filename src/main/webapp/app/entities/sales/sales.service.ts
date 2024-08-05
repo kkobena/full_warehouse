@@ -171,6 +171,14 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id}`, { observe: 'response' });
   }
 
+  transform(req?: any): Observable<HttpResponse<number>> {
+    const options = createRequestOption(req);
+    return this.http.get<number>(this.resourceUrl + '/assurance/transform', {
+      params: options,
+      observe: 'response',
+    });
+  }
+
   protected convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,

@@ -1658,3 +1658,25 @@ menu  de la vente
   }
 
 }
+
+.modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.mode-reglement-label {
+  span {
+    label {
+      vertical-align: top;
+    }
+
+  }
+}
+
+.modal-body {
+  padding: 0.1rem;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 0.8rem;
+}

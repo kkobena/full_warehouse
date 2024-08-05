@@ -1,5 +1,4 @@
-import { Component, effect, ElementRef, EventEmitter, Inject, Input, OnInit, Output, viewChild } from '@angular/core';
-import { ISales } from '../../../shared/model/sales.model';
+import { Component, ElementRef, EventEmitter, inject, Inject, Input, OnInit, Output, signal, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -13,6 +12,8 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
+import { BaseSaleService } from '../service/base-sale.service';
+import { IPayment, Payment } from '../../../shared/model/payment.model';
 
 @Component({
   selector: 'jhi-mode-reglement',
@@ -58,30 +59,21 @@ export class ModeReglementComponent implements OnInit {
   commentaireInput = viewChild<ElementRef>('commentaireInput');
   addOverlayPanel = viewChild<any>('addOverlayPanel');
   removeOverlayPanel = viewChild<any>('removeOverlayPanel');
-  //configurationService = inject(ConfigurationService);
+  currentSaleService = inject(CurrentSaleService);
+  baseSaleService = inject(BaseSaleService);
+  selectModeReglementService = inject(SelectModeReglementService);
+  isShowAddBtn = signal(false);
   protected printTicket = true;
+  protected sansBon = false;
   protected printInvoice = false;
   protected paymentModeToChange: IPaymentMode | null;
-  protected showAddModePaimentBtn = false;
-  protected maxModePayementNumber = 2;
-  protected sale: ISales;
 
-  constructor(
-    protected selectModeReglementService: SelectModeReglementService,
-    @Inject(DOCUMENT) private document: Document,
-    //  private configurationService: ConfigurationService,
-    private currentSaleService: CurrentSaleService,
-  ) {
-    effect(() => {
-      this.sale = this.currentSaleService.currentSale();
-    });
-
+  constructor(@Inject(DOCUMENT) private document: Document) {
     this.updateAvailableMode();
   }
 
   ngOnInit(): void {
     this.selectModeReglementService.resetAmounts();
-    this.maxModePaymentNumber();
     this.buildReglementInput();
   }
 
@@ -112,29 +104,19 @@ export class ModeReglementComponent implements OnInit {
       if (modeToRemove) {
         this.selectModeReglementService.remove(modeToRemove);
         this.updateAvailableMode();
+        setTimeout(() => {
+          this.manageShowAddButton(this.getInputSum());
+        }, 30);
       }
-
-      this.showAddModePaymentButton(this.selectModeReglementService.modeReglements()[0]);
     }
   }
 
-  maxModePaymentNumber(): void {
-    this.maxModePayementNumber = 2;
-    /*  this.configurationService.find('APP_MODE_REGL_NUMBER').subscribe({
-        next: (res: HttpResponse<IConfiguration>) => {
-          if (res.body) {
-            this.maxModePayementNumber = Number(res.body.value);
-          }
-        },
-        error: () => (this.maxModePayementNumber = 2),
-      });*/
-  }
-
-  showAddModePaymentButton(mode: IPaymentMode): void {
-    this.showAddModePaimentBtn =
-      this.selectModeReglementService.modeReglements().length < this.maxModePayementNumber &&
-      mode.amount > 0 &&
-      mode.amount < this.sale?.amountToBePaid;
+  manageShowAddButton(inputAmount: number): void {
+    this.isShowAddBtn.set(
+      this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber() &&
+        inputAmount > 0 &&
+        inputAmount < this.currentSaleService.currentSale()?.amountToBePaid,
+    );
   }
 
   manageShowInfosBancaire(): void {
@@ -144,14 +126,14 @@ export class ModeReglementComponent implements OnInit {
 
   buildPreventeReglementInput(): void {
     this.selectModeReglementService.paymentModes.forEach((mode: IPaymentMode) => {
-      const el = this.sale.payments.find(payment => payment.paymentMode.code === mode.code);
+      const el = this.currentSaleService.currentSale().payments.find(payment => payment.paymentMode.code === mode.code);
       if (el) {
         mode.amount = el.paidAmount;
         if (mode.code === this.CASH && el.montantVerse) {
           mode.amount = el.montantVerse;
-          this.sale.montantVerse = el.montantVerse;
+          this.currentSaleService.currentSale().montantVerse = el.montantVerse;
         }
-        this.currentSaleService.setCurrentSale(this.sale);
+        this.currentSaleService.setCurrentSale(this.currentSaleService.currentSale());
         // this.selectModeReglementService.update(mode);
         this.updateAvailableMode();
       }
@@ -170,7 +152,6 @@ export class ModeReglementComponent implements OnInit {
 
   getInputAtIndex(index: number | null): HTMLInputElement {
     const modeInputs = this.getInputElement();
-
     const indexAt = index === 0 ? index : modeInputs.length - 1;
     if (modeInputs && modeInputs.length > 0) {
       return modeInputs[indexAt];
@@ -180,7 +161,7 @@ export class ModeReglementComponent implements OnInit {
 
   onAddPaymentMode(newMode: IPaymentMode): void {
     const oldModes = this.selectModeReglementService.modeReglements();
-    if (oldModes.length < this.maxModePayementNumber) {
+    if (oldModes.length < this.baseSaleService.maxModePayementNumber()) {
       oldModes[oldModes.length++] = newMode;
       this.selectModeReglementService.setModePayments(oldModes);
       this.updateAvailableMode();
@@ -189,6 +170,7 @@ export class ModeReglementComponent implements OnInit {
         this.focusLastAddInput();
       }, 50);
     }
+    this.isShowAddBtn.set(this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber());
   }
 
   focusLastAddInput(): void {
@@ -196,7 +178,8 @@ export class ModeReglementComponent implements OnInit {
     if (input) {
       input.focus();
       const secondInputDefaultAmount =
-        this.sale.amountToBePaid - this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code !== input.id).amount;
+        this.currentSaleService.currentSale().amountToBePaid -
+        this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code !== input.id).amount;
       input.value = String(secondInputDefaultAmount);
       setTimeout(() => {
         input.select();
@@ -213,7 +196,6 @@ export class ModeReglementComponent implements OnInit {
     const oldModes = this.selectModeReglementService.modeReglements();
     const oldIndex = oldModes.findIndex((el: IPaymentMode) => (el.code = this.paymentModeToChange.code));
     oldModes[oldIndex] = newPaymentMode;
-
     this.selectModeReglementService.setModePayments(oldModes);
     this.updateAvailableMode();
     setTimeout(() => {
@@ -224,7 +206,8 @@ export class ModeReglementComponent implements OnInit {
   manageAmountDiv(): void {
     const input = this.getInputAtIndex(0);
     if (input) {
-      this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code === input.id).amount = this.sale.amountToBePaid;
+      this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code === input.id).amount =
+        this.currentSaleService.currentSale().amountToBePaid;
       input.focus();
       setTimeout(() => {
         input.select();
@@ -245,6 +228,25 @@ export class ModeReglementComponent implements OnInit {
       sum += Number(input.value);
     });
     return sum;
+  }
+
+  onSansBonChange(evt: any): void {
+    this.currentSaleService.setVenteSansBon(evt.checked);
+  }
+
+  buildPayment(entryAmount: number): IPayment[] {
+    const payments: IPayment[] = [];
+    this.selectModeReglementService.modeReglements().forEach((mode: IPaymentMode) => {
+      const input: HTMLInputElement = this.getInputElement().find((e: HTMLInputElement) => e.id === mode.code);
+      if (input) {
+        const amount = Number(input.value);
+        if (amount > 0) {
+          payments.push(this.buildModePayment(mode, amount, entryAmount));
+        }
+      }
+    });
+
+    return payments;
   }
 
   protected onClose(op: OverlayPanel): void {
@@ -274,5 +276,16 @@ export class ModeReglementComponent implements OnInit {
 
   private getInputElement(): HTMLInputElement[] {
     return this.getInputs() as HTMLInputElement[];
+  }
+
+  private buildModePayment(mode: IPaymentMode, inputAmount: number, entryAmount: number): Payment {
+    const amount = this.currentSaleService.currentSale().amountToBePaid - (entryAmount - inputAmount);
+    return {
+      ...new Payment(),
+      paidAmount: amount,
+      netAmount: amount,
+      paymentMode: mode,
+      montantVerse: inputAmount,
+    };
   }
 }

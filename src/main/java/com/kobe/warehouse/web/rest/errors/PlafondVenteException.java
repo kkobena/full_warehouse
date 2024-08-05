@@ -5,14 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class PlafondVenteException extends BadRequestAlertException {
 
-    private final ThirdPartySaleDTO payload;
-
     public PlafondVenteException(ThirdPartySaleDTO payload, String message) {
-        super(HttpStatus.PRECONDITION_FAILED, message);
-        this.payload = payload;
-    }
-
-    public ThirdPartySaleDTO getPayload() {
-        return payload;
+        super(HttpStatus.PRECONDITION_FAILED, message, payload);
     }
 }

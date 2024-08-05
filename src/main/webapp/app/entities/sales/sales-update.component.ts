@@ -350,10 +350,6 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
     return this.tiersPayants;
   }
 
-  removeTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.tiersPayants = this.tiersPayants.filter(e => e.id !== tiersPayant.id);
-  }
-
   removeTiersPayantFromIndex(index: number, id: number): void {
     this.tiersPayants.splice(index, 1);
     this.showTiersPayantBtn();
@@ -873,7 +869,7 @@ export class SalesUpdateComponent implements OnInit, AfterViewInit {
 
   printSale(): void {
     if (this.sale !== null && this.sale !== undefined) {
-      this.salesService.printReceipt(this.sale?.id, this.sale.categorie).subscribe();
+      // this.salesService.printReceipt(this.sale?.id, this.sale.categorie).subscribe();
       this.sale = null;
       this.loadProduits();
       this.customerSelected = null;

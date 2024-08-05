@@ -8,14 +8,25 @@ import { HttpResponse } from '@angular/common/http';
 })
 export class SelectModeReglementService {
   modeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
+  allModeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
   isReadonly: boolean = true;
   paymentModes: IPaymentMode[] = [];
 
   constructor(private modePaymentService: ModePaymentService) {
-    this.modePaymentService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
-      this.paymentModes = this.convertPaymentModes(res);
+    if (this.allModeReglements().length === 0) {
+      this.modePaymentService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
+        this.paymentModes = this.convertPaymentModes(res);
+        this.allModeReglements.set(this.paymentModes);
+        this.selectCashModePayment();
+      });
+    } else {
       this.selectCashModePayment();
-    });
+    }
+  }
+
+  resetAllModeReglements(): void {
+    this.paymentModes = this.allModeReglements();
+    this.selectCashModePayment();
   }
 
   getaAvaillablePaymentsMode(): IPaymentMode[] {

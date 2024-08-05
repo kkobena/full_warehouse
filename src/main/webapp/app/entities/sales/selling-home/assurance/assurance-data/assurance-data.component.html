@@ -2,10 +2,16 @@
   <p-panel>
     <div class="row assurance-data">
       <div class="col-2 col-md-2 col-lg-2">
-
-        <input #searchInput (keydown.enter)="load()" [(ngModel)]="search"
-               class="form-control border  border-primary"
-               placeholder="Rechercher client" type="text">
+        @if (selectedCustomerService.selectedCustomerSignal() && currentSaleService.currentSale()) {
+          <button (click)="onChangeCustomerClick()" type="button"
+                  class="btn btn-link btn-sm text-danger">
+            <span style="font-weight: 700;">  <i class="pi pi-user-minus"></i>&nbsp; Changer de client</span>
+          </button>
+        } @else {
+          <input #searchInput (keydown.enter)="load()" [(ngModel)]="search"
+                 class="form-control border  border-primary"
+                 placeholder="Rechercher client" type="text">
+        }
       </div>
       @if (selectedCustomerService.selectedCustomerSignal()) {
         <div class="col-10 col-md-10 col-lg-10 row">
@@ -16,9 +22,8 @@
                 <span>Assuré</span>
                 <button type="button" class="btn btn-link btn-sm"
                         style="--bs-btn-padding-y: 0; --bs-btn-padding-x:0;"
-
                         (click)="editAssuredCustomer()"><span><i
-                  class="pi pi-user-edit"></i>&nbsp;Modifier</span>
+                  class="pi pi-user-edit"></i>&nbsp;Editer</span>
                 </button>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -52,14 +57,10 @@
                       size="sm"
                       [model]="items" text
                       severity="info" />
-
                   }
-
-
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Nom/Prénom(s)
-
                   <span
                     class="badge bg-secondary">{{ ayantDroit.firstName }} {{ ayantDroit.lastName }}</span>
                 </li>
@@ -72,7 +73,7 @@
             </div>
           }
           @if (selectedTiersPayants()) {
-            @for (tp of selectedTiersPayants(); track tp.tiersPayantId; let i = $index) {
+            @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
               <div [class]="divClass">
                 <div class="row" style="margin-bottom:5px;">
                   <div class="col-9">
@@ -86,11 +87,11 @@
                     Taux: <span>{{ tp.taux }}%</span>
                   </div>
                 </div>
-
                 <div class="input-group tp-input-container">
+                  <input type="hidden" name="taux">
                   <span class="input-group-text">Bon</span>
                   <input type="text" class="form-control tiersPayant-input border  border-primary"
-                         id="{{tp.id}}"
+                         id="{{tp.id}}-{{tp.taux}}-{{tp.categorie}}" [value]="tp.numBon"
                          autocomplete="off" pKeyFilter="alphanum" />
                   @if (selectedTiersPayants().length > 1) {
                     <button class="btn btn-danger" type="button" (click)="removeTiersPayant(tp)"><i
@@ -129,4 +130,15 @@
 
 </p-confirmDialog>
 
+<p-confirmDialog #changeCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+                 key="changeCustomer">
+  <p-footer>
+    <button (click)="changeCustomer.reject()" class="p-button-danger" icon="pi pi-times"
+            label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="changeCustomer.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
 
+</p-confirmDialog>

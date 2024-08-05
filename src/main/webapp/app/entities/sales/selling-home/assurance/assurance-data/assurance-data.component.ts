@@ -12,9 +12,7 @@ import { PanelModule } from 'primeng/panel';
 import { InputTextModule } from 'primeng/inputtext';
 import { DOCUMENT } from '@angular/common';
 import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
-import { TiersPayantCustomerListComponent } from '../../../../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
 import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
-import { FormAssuredCustomerComponent } from '../../../../customer/form-assured-customer/form-assured-customer.component';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TableModule } from 'primeng/table';
 import { SpeedDialModule } from 'primeng/speeddial';
@@ -23,6 +21,9 @@ import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-l
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CurrentSaleService } from '../../../service/current-sale.service';
+import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
+import { BaseSaleService } from '../../../service/base-sale.service';
+import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
 
 @Component({
   selector: 'jhi-assurance-data',
@@ -41,6 +42,8 @@ import { CurrentSaleService } from '../../../service/current-sale.service';
     AyantDroitCustomerListComponent,
     ConfirmPopupModule,
     ConfirmDialogModule,
+    AssureFormStepComponent,
+    AddComplementaireComponent,
   ],
   templateUrl: './assurance-data.component.html',
 })
@@ -59,15 +62,18 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   items: MenuItem[] | undefined;
   messageService = inject(MessageService);
+  baseSaleService = inject(BaseSaleService);
 
   constructor(@Inject(DOCUMENT) private document: Document) {
     effect(
       () => {
         const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
-        this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
-        this.ayantDroit = assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
-        if (!this.ayantDroit) {
-          this.ayantDroit = assuredCustomer;
+        if (!this.currentSaleService.isEdit()) {
+          this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
+          this.ayantDroit = assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
+          if (!this.ayantDroit) {
+            this.ayantDroit = assuredCustomer;
+          }
         }
       },
       { allowSignalWrites: true },
@@ -104,7 +110,11 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         },
       },
     ];
-    //    this.load();
+    const currSale = this.currentSaleService.currentSale();
+    if (currSale) {
+      this.selectedTiersPayants.set(currSale.tiersPayants || []);
+      this.ayantDroit = currSale.ayantDroit || currSale.customer;
+    }
   }
 
   load(): void {
@@ -114,6 +124,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           search: this.search,
           // search: '2201268',
           // search: '1807874',
+          size: 2,
           typeTiersPayant: 'ASSURANCE',
         })
         .subscribe({
@@ -124,7 +135,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
                 this.selectedCustomerService.setCustomer(assuredCustomers[0]);
                 this.firstRefBonFocus();
               } else {
-                this.openAssuredCustomerListTable(assuredCustomers);
+                this.openAssuredCustomerListTable();
               }
               this.search = null;
             } else {
@@ -137,9 +148,9 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     }
   }
 
-  openAssuredCustomerListTable(customers: ICustomer[] | []): void {
+  openAssuredCustomerListTable(): void {
     this.ref = this.dialogService.open(AssuredCustomerListComponent, {
-      data: { customers },
+      data: { searchString: this.search },
       header: 'CLIENTS  ASSURES',
       width: '70%',
       closeOnEscape: false,
@@ -148,9 +159,6 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       if (resp) {
         this.selectedCustomerService.setCustomer(resp);
         this.firstRefBonFocus();
-        /*   setTimeout(() => {
-             this.firstRefBonFocus();
-           }, 100);*/
       }
     });
   }
@@ -161,7 +169,22 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   addComplementaire(): void {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
-    this.ref = this.dialogService.open(TiersPayantCustomerListComponent, {
+    this.ref = this.dialogService.open(AddComplementaireComponent, {
+      data: { tiersPayantsExisting: this.selectedTiersPayants(), assure: currentCustomer },
+      header: 'AJOUTER UN TIERS PAYANT COMPLEMENTAIRE',
+      width: '45%',
+      closeOnEscape: false,
+    });
+    this.ref.onClose.subscribe((resp: IClientTiersPayant) => {
+      if (resp) {
+        if (this.currentSaleService.currentSale()) {
+          this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale().id, resp);
+        }
+        this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
+        this.bonInputFocusOnAddTiersPayant(null);
+      }
+    });
+    /*this.ref = this.dialogService.open(TiersPayantCustomerListComponent, {
       data: { tiersPayants: this.selectedTiersPayants(), assure: currentCustomer },
       header: 'AJOUTER UN TIERS PAYANT COMPLEMENTAIRE',
       width: '70%',
@@ -169,10 +192,13 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     });
     this.ref.onClose.subscribe((resp: IClientTiersPayant) => {
       if (resp) {
+        if (this.currentSaleService.currentSale()) {
+          this.baseSaleService.onCompleteSale();
+        }
         this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
         this.bonInputFocusOnAddTiersPayant(null);
       }
-    });
+    });*/
   }
 
   removeTiersPayant(tiersPayant: IClientTiersPayant): void {
@@ -181,9 +207,11 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       header: 'Supprimer tiers payant',
       icon: 'pi pi-info-circle',
       accept: () => {
-        this.selectedTiersPayants.set(this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id));
         if (this.currentSaleService.currentSale()) {
-          //process to delete tiers payant from sale
+          this.baseSaleService.onRemoveThirdPartySaleLineToSalesSuccess(tiersPayant.id);
+          this.selectedTiersPayants.set(this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id));
+        } else {
+          this.selectedTiersPayants.set(this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id));
         }
       },
       key: 'deleteTiersPayant',
@@ -191,7 +219,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   editAssuredCustomer(): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
+    this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: { entity: this.selectedCustomerService.selectedCustomerSignal() },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '80%',
@@ -204,7 +232,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   addAssuredCustomer(): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
+    this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: { entity: null },
       header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
       width: '80%',
@@ -252,6 +280,34 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     });
   }
 
+  buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
+    const inputs = this.getInputElement();
+    return inputs.map(input => {
+      const tiersPayant = {} as IClientTiersPayant;
+      const ids = input.id.split('-');
+      tiersPayant.numBon = input.value;
+      tiersPayant.id = Number(ids[0]);
+      tiersPayant.taux = Number(ids[1]);
+      tiersPayant.categorie = Number(ids[2]);
+      return tiersPayant;
+    });
+  }
+
+  onChangeCustomerClick(): void {
+    this.confirmationService.confirm({
+      message: 'Etes-vous sûr de vouloir changer le client?',
+      header: 'Changer le client',
+      icon: 'pi pi-info-circle',
+      accept: () => this.openAssuredCustomerListTable(),
+      key: 'changeCustomer',
+    });
+  }
+
+  reset(): void {
+    this.selectedTiersPayants.set([]);
+    this.ayantDroit = null;
+  }
+
   private getInputs(): Element[] {
     const inputs = this.document.querySelectorAll('.tiersPayant-input');
     return Array.from(inputs);
@@ -280,15 +336,5 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         input.select();
       }
     }, 50);
-  }
-
-  private buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
-    const inputs = this.getInputElement();
-    return inputs.map(input => {
-      const tiersPayant = {} as IClientTiersPayant;
-      tiersPayant.num = input.value;
-      tiersPayant.id = Number(input.id);
-      return tiersPayant;
-    });
   }
 }

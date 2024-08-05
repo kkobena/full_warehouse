@@ -41,135 +41,133 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-/** REST controller for managing {@link com.kobe.warehouse.domain.Customer}. */
+/**
+ * REST controller for managing {@link com.kobe.warehouse.domain.Customer}.
+ */
 public class CustomerResourceProxy {
 
-  private static final String ENTITY_NAME = "customer";
-  private final Logger log = LoggerFactory.getLogger(CustomerResourceProxy.class);
-  private final CustomerDataService customerDataService;
-  private final SaleDataService saleService;
-  private final UninsuredCustomerService uninsuredCustomerService;
-  private final ImportationCustomer importationCustomer;
-  private final AssuredCustomerService assuredCustomerService;
+    private static final String ENTITY_NAME = "customer";
+    private final Logger log = LoggerFactory.getLogger(CustomerResourceProxy.class);
+    private final CustomerDataService customerDataService;
+    private final SaleDataService saleService;
+    private final UninsuredCustomerService uninsuredCustomerService;
+    private final ImportationCustomer importationCustomer;
+    private final AssuredCustomerService assuredCustomerService;
 
-  @Value("${jhipster.clientApp.name}")
-  private String applicationName;
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
-  public CustomerResourceProxy(
-      CustomerDataService customerDataService,
-      SaleDataService saleService,
-      UninsuredCustomerService uninsuredCustomerService,
-      ImportationCustomer importationCustomer,
-      AssuredCustomerService assuredCustomerService) {
-    this.customerDataService = customerDataService;
-    this.saleService = saleService;
-    this.uninsuredCustomerService = uninsuredCustomerService;
-    this.importationCustomer = importationCustomer;
-    this.assuredCustomerService = assuredCustomerService;
-  }
-
-  @GetMapping("/customers")
-  public ResponseEntity<List<CustomerDTO>> getAllCustomers(
-      Pageable pageable,
-      @RequestParam(required = false, defaultValue = "ENABLE", name = "status") Status status,
-      @RequestParam(required = false, name = "search") String search,
-      @RequestParam(required = false, name = "type", defaultValue = "TOUT") String type) {
-    log.debug("REST request to get a page of Customers");
-    Page<CustomerDTO> page = customerDataService.fetchAllCustomers(type, search, status, pageable);
-    HttpHeaders headers =
-        PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
-    return ResponseEntity.ok().headers(headers).body(page.getContent());
-  }
-
-  @GetMapping("/customers/{id}")
-  public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
-    log.debug("REST request to get Customer : {}", id);
-    Optional<CustomerDTO> customer = customerDataService.getOneCustomer(id);
-    return ResponseUtil.wrapOrNotFound(customer);
-  }
-
-  @GetMapping("/customers/purchases")
-  public ResponseEntity<List<SaleDTO>> customerPurchases(
-      @RequestParam(value = "customerId") long id,
-      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-      @RequestParam(value = "toDate", required = false) LocalDate toDate) {
-    List<SaleDTO> data = saleService.customerPurchases(id, fromDate, toDate);
-    return ResponseEntity.ok().body(data);
-  }
-
-  @PostMapping("/customers/uninsured")
-  public ResponseEntity<UninsuredCustomerDTO> createUninsuredCustomer(
-      @Valid @RequestBody UninsuredCustomerDTO customer) throws URISyntaxException {
-    log.debug("REST request to save Customer : {}", customer);
-    if (customer.getId() != null) {
-      throw new BadRequestAlertException(
-          "A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+    public CustomerResourceProxy(
+        CustomerDataService customerDataService,
+        SaleDataService saleService,
+        UninsuredCustomerService uninsuredCustomerService,
+        ImportationCustomer importationCustomer,
+        AssuredCustomerService assuredCustomerService
+    ) {
+        this.customerDataService = customerDataService;
+        this.saleService = saleService;
+        this.uninsuredCustomerService = uninsuredCustomerService;
+        this.importationCustomer = importationCustomer;
+        this.assuredCustomerService = assuredCustomerService;
     }
-    UninsuredCustomerDTO result = uninsuredCustomerService.create(customer);
-    return ResponseEntity.created(new URI("/api/customers/" + result.getId()))
-        .headers(
-            HeaderUtil.createEntityCreationAlert(
-                applicationName, true, ENTITY_NAME, result.getId().toString()))
-        .body(result);
-  }
 
-  @PutMapping("/customers/uninsured")
-  public ResponseEntity<UninsuredCustomerDTO> updateUninsuredCustomer(
-      @Valid @RequestBody UninsuredCustomerDTO uninsuredCustomerDTO) throws URISyntaxException {
-    log.debug("REST request to update Customer : {}", uninsuredCustomerDTO);
-    if (uninsuredCustomerDTO.getId() == null) {
-      throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+    @GetMapping("/customers")
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(
+        Pageable pageable,
+        @RequestParam(required = false, defaultValue = "ENABLE", name = "status") Status status,
+        @RequestParam(required = false, name = "search") String search,
+        @RequestParam(required = false, name = "type", defaultValue = "TOUT") String type
+    ) {
+        log.debug("REST request to get a page of Customers");
+        Page<CustomerDTO> page = customerDataService.fetchAllCustomers(type, search, status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-    UninsuredCustomerDTO result = uninsuredCustomerService.update(uninsuredCustomerDTO);
-    return ResponseEntity.ok()
-        .headers(
-            HeaderUtil.createEntityUpdateAlert(
-                applicationName, true, ENTITY_NAME, result.getId().toString()))
-        .body(result);
-  }
 
-  @GetMapping("/customers/uninsured")
-  public ResponseEntity<List<UninsuredCustomerDTO>> getAllUninsuredCustomers(
-      @RequestParam(value = "search", required = false) String search) {
-    log.debug("REST request to get a page of Customers");
-    List<UninsuredCustomerDTO> dtoList = uninsuredCustomerService.fetch(search);
-    return ResponseEntity.ok().body(dtoList);
-  }
+    @GetMapping("/customers/{id}")
+    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
+        log.debug("REST request to get Customer : {}", id);
+        Optional<CustomerDTO> customer = customerDataService.getOneCustomer(id);
+        return ResponseUtil.wrapOrNotFound(customer);
+    }
 
-  @DeleteMapping("/customers/{id}")
-  public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-    log.debug("REST request to delete Customer : {}", id);
-    uninsuredCustomerService.deleteCustomerById(id);
-    return ResponseEntity.noContent()
-        .headers(
-            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-        .build();
-  }
+    @GetMapping("/customers/purchases")
+    public ResponseEntity<List<SaleDTO>> customerPurchases(
+        @RequestParam(value = "customerId") long id,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate
+    ) {
+        List<SaleDTO> data = saleService.customerPurchases(id, fromDate, toDate);
+        return ResponseEntity.ok().body(data);
+    }
 
-  @PostMapping("/customers/importjson")
-  public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file)
-      throws IOException {
-    ResponseDTO responseDTO = importationCustomer.updateStocFromJSON(file.getInputStream());
-    return ResponseEntity.ok(responseDTO);
-  }
+    @PostMapping("/customers/uninsured")
+    public ResponseEntity<UninsuredCustomerDTO> createUninsuredCustomer(@Valid @RequestBody UninsuredCustomerDTO customer)
+        throws URISyntaxException {
+        log.debug("REST request to save Customer : {}", customer);
+        if (customer.getId() != null) {
+            throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        UninsuredCustomerDTO result = uninsuredCustomerService.create(customer);
+        return ResponseEntity.created(new URI("/api/customers/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
 
-  @GetMapping("/customers/assured")
-  public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
-      @RequestParam(value = "search", required = false) String search,
-      @RequestParam(value = "typeTiersPayant", required = false) String typeTiersPayant) {
-    log.debug("REST request to get a page of Customers");
-    return ResponseEntity.ok().body(assuredCustomerService.fetch(search, typeTiersPayant));
-  }
+    @PutMapping("/customers/uninsured")
+    public ResponseEntity<UninsuredCustomerDTO> updateUninsuredCustomer(@Valid @RequestBody UninsuredCustomerDTO uninsuredCustomerDTO) {
+        log.debug("REST request to update Customer : {}", uninsuredCustomerDTO);
+        if (uninsuredCustomerDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        UninsuredCustomerDTO result = uninsuredCustomerService.update(uninsuredCustomerDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
 
-  @GetMapping("/customers/tiers-payants/{id}")
-  public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(
-      @PathVariable("id") Long id) {
-    return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
-  }
+    @GetMapping("/customers/uninsured")
+    public ResponseEntity<List<UninsuredCustomerDTO>> getAllUninsuredCustomers(
+        @RequestParam(value = "search", required = false) String search
+    ) {
+        log.debug("REST request to get a page of Customers");
+        List<UninsuredCustomerDTO> dtoList = uninsuredCustomerService.fetch(search);
+        return ResponseEntity.ok().body(dtoList);
+    }
 
-  @GetMapping("/customers/ayant-droits/{id}")
-  public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Long id) {
-    return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
-  }
+    @DeleteMapping("/customers/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        log.debug("REST request to delete Customer : {}", id);
+        uninsuredCustomerService.deleteCustomerById(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
+    }
+
+    @PostMapping("/customers/importjson")
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file) throws IOException {
+        ResponseDTO responseDTO = importationCustomer.updateStocFromJSON(file.getInputStream());
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/customers/assured")
+    public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
+        @RequestParam(value = "search", required = false) String search,
+        @RequestParam(value = "typeTiersPayant", required = false) String typeTiersPayant,
+        Pageable pageable
+    ) {
+        Page<AssuredCustomerDTO> page = assuredCustomerService.fetch(search, typeTiersPayant, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/customers/tiers-payants/{id}")
+    public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
+    }
+
+    @GetMapping("/customers/ayant-droits/{id}")
+    public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
+    }
 }

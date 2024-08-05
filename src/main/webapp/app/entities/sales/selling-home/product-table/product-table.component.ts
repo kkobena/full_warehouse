@@ -12,8 +12,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
-import { QuanityMaxService } from '../../service/quanity-max.service';
 import { HasAuthorityService } from '../../service/has-authority.service';
+import { BaseSaleService } from '../../service/base-sale.service';
 
 @Component({
   selector: 'jhi-product-table',
@@ -40,7 +40,7 @@ export class ProductTableComponent {
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   hasAuthorityService = inject(HasAuthorityService);
   canModifiePrice: boolean;
-  private quantityMaxService = inject(QuanityMaxService);
+  private baseSaleService = inject(BaseSaleService);
 
   constructor(
     private currentSaleService: CurrentSaleService,
@@ -94,7 +94,7 @@ export class ProductTableComponent {
     const newQty = Number(event.target.value);
 
     if (newQty > 0) {
-      if (newQty > this.quantityMaxService.quantityMax()) {
+      if (newQty > this.baseSaleService.quantityMax()) {
         this.onUpdateConfirmForceStock(salesLine, ' La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?');
       } else {
         salesLine.quantityRequested = newQty;
@@ -113,7 +113,7 @@ export class ProductTableComponent {
 
   onDeleteItem(item: ISalesLine): void {
     this.confirmationService.confirm({
-      message: ' Voullez-vous detacher  ce produit ?',
+      message: ' Voullez-vous supprimer  ce produit ?',
       header: 'RUPPRESSION DE PRODUIT ',
       icon: 'pi pi-info-circle',
       accept: () => this.deleteItemEvent.emit(item),

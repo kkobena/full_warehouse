@@ -1,5 +1,7 @@
 <p-sidebar [(visible)]="pendingSalesSidebar" position="right" styleClass="p-sidebar-lg">
-  <ng-template pTemplate="header">VENTE EN ATTENTES</ng-template>
+  <ng-template pTemplate="header">
+    <span class="font-semibold text-xl">VENTES EN ATTENTES</span>
+  </ng-template>
   <ng-template pTemplate="content">
     <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
                         [user]="userCaissier">
@@ -12,22 +14,6 @@
              type="timer">
 </ngx-spinner>
 
-
-<p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)"
-          [(visible)]="displayErrorEntryAmountModal"
-          [draggable]="false" [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true"
-          [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
-  <ng-template pTemplate="footer">
-    <button #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()"
-            class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">Fermer
-    </button>
-  </ng-template>
-</p-dialog>
 
 <p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
   <p-footer>
@@ -55,7 +41,7 @@
 </p-dialog>
 <div class="row selling">
   <div class=" col-md-2 col-sm-2 selling-menu">
-    <p-panel header="Type de vente" styleClass="menu-panel">
+    <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
       <p-card>
         <div #nav="ngbNav" (navChange)="onNavChange($event)"
              [(activeId)]="active" animation="true"
@@ -76,8 +62,6 @@
             <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
             <ng-template ngbNavContent>
               <jhi-assurance [isPresale]="isPresale">
-
-
               </jhi-assurance>
             </ng-template>
           </ng-container>
@@ -86,7 +70,7 @@
       </p-card>
     </p-panel>
     <p-divider></p-divider>
-    <p-panel header="Nature vente" styleClass="menu-panel">
+    <p-panel header="Sélectionner la nature vente" styleClass="menu-panel">
       <p-selectButton (onChange)="onTypePrescriptionChange($event)" [(ngModel)]="typePrescription"
                       [options]="typePrescriptions"
                       optionLabel="name"></p-selectButton>
@@ -147,7 +131,6 @@
           <div class="row">
             <div class="col-md-6">
               <div class="p-inputgroup">
-
                 <span class="p-inputgroup-addon">Produits</span>
                 <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
                                 (keydown)="onSelectKeyDow($event)"
@@ -162,7 +145,6 @@
                                 [minLength]="minLength" [showEmptyMessage]="true"
                                 [style]="{'width':'100%'}" [suggestions]="produits"
                                 optionLabel="libelle">
-
                   <ng-template let-item pTemplate="item">
                     @if (item.totalQuantity > 0) {
                       <div>
@@ -172,8 +154,6 @@
                           class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
                       </div>
                     }
-
-
                     @if (item.totalQuantity <= 0) {
                       <div>
                                             <span class="stockless"
@@ -247,8 +227,6 @@
 
 <p-confirmDialog #forcerStockDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStockDialog">
-
-
   <p-footer>
     <button (click)="forcerStockDialog.reject()" class="p-button-danger" icon="pi pi-times"
             label="Non"
@@ -259,4 +237,16 @@
             type="button"></button>
   </p-footer>
 </p-confirmDialog>
-<p-toast key="error" position="center"></p-toast>
+<p-toast position="center"></p-toast>
+
+<p-confirmDialog #changeTab key="changeTab">
+  <p-footer>
+    <button (click)="changeTab.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="changeTab.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>
+

@@ -21,6 +21,7 @@ export interface ISales {
   salesLines?: ISalesLine[];
   payments?: Payment[];
   customer?: ICustomer;
+  ayantDroit?: ICustomer;
   customerId?: number;
   numberTransaction?: string;
   natureVente?: string;

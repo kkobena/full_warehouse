@@ -66,10 +66,10 @@ export default class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.entitiesNavbarItems = EntityNavbarItems;
-    this.profileService.getProfileInfo().subscribe(profileInfo => {
-      this.inProduction = profileInfo.inProduction;
+    /*  this.profileService.getProfileInfo().subscribe(profileInfo => {
+        this.inProduction = profileInfo.inProduction;
 
-    });
+      });*/
   }
 
   changeLanguage(languageKey: string): void {
@@ -90,9 +90,11 @@ export default class NavbarComponent implements OnInit {
     this.loginService.logout();
     this.router.navigate(['']);
   }
+
   isAuthenticated(): boolean {
-    return this.account() !== null
+    return this.account() !== null;
   }
+
   toggleNavbar(): void {
     this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }

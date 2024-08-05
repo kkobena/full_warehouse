@@ -6,7 +6,6 @@ import { ICustomer } from '../../../shared/model/customer.model';
 })
 export class AssureFormStepService {
   assure: WritableSignal<ICustomer> = signal<ICustomer>(null);
-
   isEdition: WritableSignal<boolean> = signal<boolean>(false);
 
   constructor() {}

@@ -13,13 +13,14 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
 import { CustomerService } from '../customer.service';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-complementaire-step',
   standalone: true,
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   imports: [
     ReactiveFormsModule,
     DropdownModule,
@@ -29,6 +30,7 @@ import { ErrorService } from '../../../shared/error.service';
     AutoCompleteModule,
     ToastModule,
     CardModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './complementaire-step.component.html',
   styles: ``,
@@ -51,6 +53,7 @@ export class ComplementaireStepComponent implements OnInit {
   customerService = inject(CustomerService);
   messageService = inject(MessageService);
   errorService = inject(ErrorService);
+  confirmationService = inject(ConfirmationService);
 
   constructor(private fb: UntypedFormBuilder) {}
 
@@ -89,7 +92,7 @@ export class ComplementaireStepComponent implements OnInit {
     this.validSize = tiersPayants.length < 3;
   }
 
-  convertFormAsFormArray(): FormArray<any> {
+  convertFormAsFormArray(): FormArray {
     return this.editForm.get('tiersPayants') as FormArray;
   }
 
@@ -171,7 +174,6 @@ export class ComplementaireStepComponent implements OnInit {
   removeTiersPayant(index: number): void {
     const tiersPayants = this.convertFormAsFormArray();
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
-    console.log('tiersPayant', tiersPayant);
     if (tiersPayant.id) {
       this.customerService.deleteTiersPayant(tiersPayant.id).subscribe({
         next: () => {
@@ -191,6 +193,18 @@ export class ComplementaireStepComponent implements OnInit {
       severity: 'error',
       summary: 'Erreur',
       detail: this.errorService.getErrorMessage(error),
+    });
+  }
+
+  confirmRemove(index: number): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment ce complémentaire ?',
+      header: 'Suppression',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.removeTiersPayant(index);
+      },
+      key: 'deletecomplementaire',
     });
   }
 }

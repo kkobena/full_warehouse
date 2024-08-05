@@ -10,30 +10,33 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AvoirServiceImpl implements AvoirService {
-  private final AvoirRepository avoirRepository;
 
-  public AvoirServiceImpl(AvoirRepository avoirRepository) {
-    this.avoirRepository = avoirRepository;
-  }
+    private final AvoirRepository avoirRepository;
 
-  @Override
-  public void save(Sales sales) {
-    this.avoirRepository.save(build(sales));
-  }
+    public AvoirServiceImpl(AvoirRepository avoirRepository) {
+        this.avoirRepository = avoirRepository;
+    }
 
-  private Avoir build(Sales sales) {
-    Avoir avoir = new Avoir();
-    avoir.setUser(sales.getUser());
-    sales.getSalesLines().forEach(salesLine -> buildLigneAvoir(salesLine, avoir));
-    sales.setAvoir(avoir);
-    return avoir;
-  }
+    @Override
+    public void save(Sales sales) {
+        this.avoirRepository.save(build(sales));
+    }
 
-  private void buildLigneAvoir(SalesLine salesLine, Avoir avoir) {
-    LigneAvoir ligneAvoir = new LigneAvoir();
-    ligneAvoir.setAvoir(avoir);
-    ligneAvoir.setQuantite(salesLine.getQuantityAvoir());
-    ligneAvoir.setProduit(salesLine.getProduit());
-    avoir.getLigneAvoirs().add(ligneAvoir);
-  }
+    private Avoir build(Sales sales) {
+        Avoir avoir = new Avoir();
+        avoir.setCalendar(sales.getCalendar());
+        avoir.setUser(sales.getUser());
+        sales.getSalesLines().forEach(salesLine -> buildLigneAvoir(salesLine, avoir));
+        sales.setAvoir(avoir);
+
+        return avoir;
+    }
+
+    private void buildLigneAvoir(SalesLine salesLine, Avoir avoir) {
+        LigneAvoir ligneAvoir = new LigneAvoir();
+        ligneAvoir.setAvoir(avoir);
+        ligneAvoir.setQuantite(salesLine.getQuantityAvoir());
+        ligneAvoir.setProduit(salesLine.getProduit());
+        avoir.getLigneAvoirs().add(ligneAvoir);
+    }
 }

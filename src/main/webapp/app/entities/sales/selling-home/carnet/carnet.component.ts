@@ -5,8 +5,5 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './carnet.component.html',
-  styleUrl: './carnet.component.scss'
 })
-export class CarnetComponent {
-
-}
+export class CarnetComponent {}

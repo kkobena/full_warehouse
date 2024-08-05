@@ -1,0 +1,76 @@
+<p-toast position="center"></p-toast>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+    </div>
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="categorie" id="categorie" name="categorie"
+             readonly type="hidden" />
+    </div>
+    <div class="mb-2 row">
+      <label class="col-sm-5 col-md-5 col-form-label" for="tiersPayant">Sélectionnez</label>
+      <div class="col-sm-7 col-md-7">
+        <select #tiersPayant (change)="onSelect(tiersPayant)" class="form-select"
+                formControlName="tiersPayant"
+                id="tiersPayant" name="tiersPayant">
+          <option [value]="null" selected>Sélectionnez</option>
+          @for (tp of getTiersPayants(); track tp.id) {
+            <option value="{{tp.id}}">{{ tp.tiersPayantFullName }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="mb-1 row">
+      <label class="col-sm-5 col-md-5 col-form-label" for="numBon">Bon</label>
+      <div class="col-sm-7 col-md-7">
+        <input #numBon class="form-control" formControlName="numBon" id="numBon"
+               name="numBon" pKeyFilter="alphanum"
+               type="text">
+      </div>
+    </div>
+    <div class="mb-1 row">
+      <label class="col-sm-5 col-md-5 col-form-label" for="tiersPayantFullName">Complémentaire
+        sélectionné</label>
+      <div class="col-sm-7 col-md-7">
+        <input [readonly]="true" class="form-control-plaintext" disabled
+               formControlName="tiersPayantFullName" id="tiersPayantFullName"
+               name="tiersPayantFullName" type="text">
+      </div>
+    </div>
+    <div class="mb-1 row">
+      <label class="col-sm-5 col-md-5 col-form-label" for="taux">Taux</label>
+      <div class="col-sm-7 col-md-7">
+        <input [readonly]="true" class="form-control-plaintext" disabled formControlName="taux"
+               id="taux"
+               name="taux"
+               type="text">
+      </div>
+    </div>
+    <div class="mb-1 row">
+      <label class="col-sm-5 col-md-5 col-form-label" for="num">Matricule</label>
+      <div class="col-sm-7 col-md-7">
+        <input [readonly]="true" class="form-control-plaintext" disabled formControlName="num"
+               id="num"
+               name="num"
+               type="text">
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="cancel()" class="btn btn-secondary btn-sm" data-dismiss="modal" type="button">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+    </button>
+
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary btn-sm"
+            id="save-entity"
+            type="submit">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span>Ajouter</span>
+    </button>
+  </div>
+</form>
+

@@ -8,6 +8,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -40,8 +41,7 @@ export class VoSalesService {
   }
 
   save(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/save', copy, { observe: 'response' });
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/save', sales, { observe: 'response' });
   }
 
   print(id: number): Observable<Blob> {
@@ -91,7 +91,11 @@ export class VoSalesService {
   }
 
   deleteItem(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/delete-item/${id}`, { observe: 'response' });
+    return this.http.delete(`${this.resourceUrl}/delete-item/assurance/${id}`, { observe: 'response' });
+  }
+
+  removeThirdPartySaleLineToSales(id: number, saleId: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId}`, { observe: 'response' });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
@@ -117,14 +121,26 @@ export class VoSalesService {
     return this.http.put(this.resourceUrl + '/assurance/customer', keyValue, { observe: 'response' });
   }
 
-  protected convertDateFromClient(sales: ISales): ISales {
+  updateTransformedSale(sales: ISales): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/assurance/transform/add-customer', sales, { observe: 'response' });
+  }
+
+  changeCustomer(keyValue: KeyValue): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/assurance/change/customer', keyValue, { observe: 'response' });
+  }
+
+  addComplementaireSales(id: number, clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<{}>> {
+    return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${id}`, clientTiersPayant, { observe: 'response' });
+  }
+
+  private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
       updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
     });
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
@@ -132,7 +148,7 @@ export class VoSalesService {
     return res;
   }
 
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((sales: ISales) => {
         sales.createdAt = sales.createdAt ? moment(sales.createdAt) : undefined;
@@ -142,7 +158,7 @@ export class VoSalesService {
     return res;
   }
 
-  protected convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
+  private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
       updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
@@ -150,7 +166,7 @@ export class VoSalesService {
     return copy;
   }
 
-  protected convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
+  private convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;

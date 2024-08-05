@@ -12,7 +12,6 @@ import { CustomerService } from './customer.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig } from 'primeng/api';
 import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FormAssuredCustomerComponent } from './form-assured-customer/form-assured-customer.component';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -69,12 +68,11 @@ export class CustomerComponent implements OnInit {
   statutSelected = 'ENABLE';
   search = '';
   totalItems = 0;
-  loading!: boolean;
-  eventSubscriber?: Subscription;
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
   predicate!: string;
   ascending!: boolean;
+  loading!: boolean;
   ngbPaginationPage = 1;
   splitbuttons: MenuItem[];
   ref!: DynamicDialogRef;
@@ -214,20 +212,6 @@ export class CustomerComponent implements OnInit {
       result.push('id');
     }
     return result;
-  }
-
-  addAssureCustomerOld(): void {
-    this.ref = this.dialogService.open(FormAssuredCustomerComponent, {
-      data: { entity: null },
-      header: 'FORMULAIRE DE CREATION DE CLIENT ',
-      width: '85%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
   }
 
   addAssureCustomer(): void {

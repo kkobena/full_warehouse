@@ -52,6 +52,20 @@ public class BadRequestAlertException extends ErrorResponseException {
         this.entityName = null;
     }
 
+    public BadRequestAlertException(HttpStatusCode status, String defaultMessage, Object payload) {
+        super(
+            status,
+            ProblemDetailWithCauseBuilder.instance()
+                .withStatus(status.value())
+                .withProperty("message", defaultMessage)
+                .withProperty("payload", payload)
+                .build(),
+            null
+        );
+        this.errorKey = null;
+        this.entityName = null;
+    }
+
     public BadRequestAlertException(String defaultMessage, String errorKey) {
         super(
             HttpStatus.BAD_REQUEST,

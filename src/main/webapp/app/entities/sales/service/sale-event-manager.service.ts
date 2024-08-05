@@ -16,11 +16,11 @@ export class SaleEvent<T> {
   providedIn: 'root',
 })
 export class SaleEventManager {
-  observable: Observable<SaleEvent<unknown> | string>;
-  observer?: Observer<SaleEvent<unknown> | string>;
+  observable: Observable<SaleEvent<any>>;
+  observer?: Observer<SaleEvent<any>>;
 
   constructor() {
-    this.observable = new Observable((observer: Observer<SaleEvent<unknown> | string>) => {
+    this.observable = new Observable((observer: Observer<SaleEvent<any>>) => {
       this.observer = observer;
     }).pipe(share());
   }
@@ -28,7 +28,7 @@ export class SaleEventManager {
   /**
    * Method to broadcast the event to observer
    */
-  broadcast(event: SaleEvent<unknown> | string): void {
+  broadcast(event: SaleEvent<any>): void {
     if (this.observer) {
       this.observer.next(event);
     }
@@ -39,13 +39,13 @@ export class SaleEventManager {
    * @param eventNames  Single event name or array of event names to what subscribe
    * @param callback    Callback to run when the event occurs
    */
-  subscribe(eventNames: string | string[], callback: (event: SaleEvent<unknown> | string) => void): Subscription {
+  subscribe(eventNames: string | string[], callback: (event: SaleEvent<any>) => void): Subscription {
     if (typeof eventNames === 'string') {
       eventNames = [eventNames];
     }
     return this.observable
       .pipe(
-        filter((event: SaleEvent<unknown> | string) => {
+        filter((event: SaleEvent<any>) => {
           for (const eventName of eventNames) {
             if ((typeof event === 'string' && event === eventName) || (typeof event !== 'string' && event.name === eventName)) {
               return true;

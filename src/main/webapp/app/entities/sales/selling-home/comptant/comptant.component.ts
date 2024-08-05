@@ -26,7 +26,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
-import { IPayment, Payment } from '../../../../shared/model/payment.model';
+import { IPayment } from '../../../../shared/model/payment.model';
 import { IRemise } from '../../../../shared/model/remise.model';
 import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
@@ -124,7 +124,6 @@ export class ComptantComponent {
   protected isSaving = false;
   protected displayErrorEntryAmountModal = false;
   protected payments: IPayment[] = [];
-  protected modeReglementSelected: IPaymentMode[] = [];
   protected ref: DynamicDialogRef;
   protected remises: IRemise[] = [];
   protected remise?: IRemise | null;
@@ -137,9 +136,6 @@ export class ComptantComponent {
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
       this.isDiffere = this.sale?.differe;
-    });
-    effect(() => {
-      this.modeReglementSelected = this.selectModeReglementService.modeReglements();
     });
   }
 
@@ -157,10 +153,10 @@ export class ComptantComponent {
       header: 'Vente différé',
       icon: 'pi pi-info-circle',
       accept: () => {
-        if (!this.sale.customerId) {
+        if (!this.currentSaleService.currentSale().customerId) {
           this.openUninsuredCustomer(true);
         } else {
-          this.sale.differe = true;
+          this.currentSaleService.currentSale().differe = true;
           this.isDiffere = true;
           this.finalyseSale();
         }
@@ -197,11 +193,11 @@ export class ComptantComponent {
 
   finalyseSale(putsOnStandby: boolean = false): void {
     const entryAmount = this.getEntryAmount();
-    this.sale.payments = this.buildPayment(entryAmount);
-    this.sale.type = 'VNO';
-    this.sale.avoir = this.baseSaleService.isAvoir();
+    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
+    this.currentSaleService.currentSale().type = 'VNO';
+    this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();
     this.computExtraInfo();
-    if (this.sale.avoir && !this.sale.customerId) {
+    if (this.currentSaleService.currentSale().avoir && !this.currentSaleService.currentSale().customerId) {
       this.onOpenCustomer(putsOnStandby);
     } else {
       if (this.isPresale || putsOnStandby) {
@@ -246,10 +242,10 @@ export class ComptantComponent {
   save(): void {
     this.isSaving = true;
     // this.sale.differe = this.isDiffere;
-    const restToPay = this.sale.amountToBePaid - this.getEntryAmount();
+    const restToPay = this.currentSaleService.currentSale().amountToBePaid - this.getEntryAmount();
 
     //   this.sale.montantRendu = this.monnaie;
-    this.sale.montantVerse = this.getCashAmount();
+    this.currentSaleService.currentSale().montantVerse = this.getCashAmount();
     if (restToPay > 0 && !this.isValidDiffere()) {
       this.differeConfirmDialog();
     } else {
@@ -259,16 +255,17 @@ export class ComptantComponent {
 
   saveCashSale(): void {
     const entryAmount = this.getEntryAmount();
-    const restToPay = this.sale.amountToBePaid - entryAmount;
+    const currtSale = this.currentSaleService.currentSale();
+    const restToPay = currtSale.amountToBePaid - entryAmount;
     if (restToPay <= 0) {
-      this.sale.payrollAmount = this.sale.amountToBePaid;
-      this.sale.restToPay = 0;
+      currtSale.payrollAmount = currtSale.amountToBePaid;
+      currtSale.restToPay = 0;
     } else {
-      this.sale.payrollAmount = entryAmount;
-      this.sale.restToPay = restToPay;
+      currtSale.payrollAmount = entryAmount;
+      currtSale.restToPay = restToPay;
     }
-    this.sale.montantRendu = this.sale.montantVerse - this.sale.amountToBePaid;
-    this.subscribeToFinalyseResponse(this.salesService.saveCash(this.sale));
+    currtSale.montantRendu = currtSale.montantVerse - currtSale.amountToBePaid;
+    this.subscribeToFinalyseResponse(this.salesService.saveCash(currtSale));
   }
 
   canceldisplayErrorEntryAmountModal(): void {
@@ -276,7 +273,7 @@ export class ComptantComponent {
   }
 
   putCurrentCashSaleOnHold(): void {
-    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnStandBy(this.sale));
+    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnStandBy(this.currentSaleService.currentSale()));
   }
 
   createComptant(salesLine: ISalesLine): void {
@@ -298,13 +295,6 @@ export class ComptantComponent {
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
-  }
-
-  buildPayment(entryAmount: number): IPayment[] {
-    return this.selectModeReglementService
-      .modeReglements()
-      .filter((m: IPaymentMode) => m.amount)
-      .map((mode: IPaymentMode) => this.buildModePayment(mode, entryAmount));
   }
 
   confirmDeleteItem(item: ISalesLine): void {
@@ -348,21 +338,22 @@ export class ComptantComponent {
   }
 
   getEntryAmount(): number {
-    return this.modeReglementComponent().getInputSum();
+    return this.modeReglementComponent().getInputSum() || 0;
   }
 
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     const modes = this.selectModeReglementService.modeReglements();
-    if (modes.length === 2) {
+    if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
       const amount = this.getEntryAmount();
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
-        this.sale.amountToBePaid - paymentModeControl.paymentMode.amount;
+        this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
       this.amountComputingComponent().computeMonnaie(amount);
     } else {
-      this.amountComputingComponent().computeMonnaie(Number(paymentModeControl.control.target.value));
+      const inputAmount = Number(paymentModeControl.control.target.value);
+      this.amountComputingComponent().computeMonnaie(inputAmount);
+      this.modeReglementComponent().manageShowAddButton(inputAmount);
     }
-    this.modeReglementComponent().showAddModePaymentButton(paymentModeControl.paymentMode);
   }
 
   openUninsuredCustomer(isVenteDefferee: boolean, putsOnStandby: boolean = false): void {
@@ -372,12 +363,14 @@ export class ComptantComponent {
       closeOnEscape: false,
     });
     this.ref.onDestroy.subscribe(() => {
-      if (isVenteDefferee) {
-        this.sale.differe = true;
-        this.isDiffere = true;
+      if (isVenteDefferee && this.selectedCustomerService.selectedCustomerSignal()) {
+        this.currentSaleService.currentSale().differe = isVenteDefferee;
+        this.isDiffere = isVenteDefferee;
         this.modeReglementComponent().commentaireInputGetFocus();
       } else {
-        this.finalyseSale(putsOnStandby);
+        if (!isVenteDefferee) {
+          this.finalyseSale(putsOnStandby);
+        }
       }
     });
   }
@@ -498,17 +491,6 @@ export class ComptantComponent {
       next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
       error: (err: any) => this.onSaveSaveError(err, this.sale),
     });
-  }
-
-  private buildModePayment(mode: IPaymentMode, entryAmount: number): Payment {
-    const amount = this.sale.amountToBePaid - (entryAmount - mode.amount);
-    return {
-      ...new Payment(),
-      paidAmount: amount,
-      netAmount: amount,
-      paymentMode: mode,
-      montantVerse: mode.amount,
-    };
   }
 
   private removeItem(id: number): void {

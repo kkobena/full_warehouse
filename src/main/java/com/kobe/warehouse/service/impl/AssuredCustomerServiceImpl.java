@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -31,17 +34,20 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final CustomerDataService customerDataService;
+    private final ThirdPartySaleRepository thirdPartySaleRepository;
 
     public AssuredCustomerServiceImpl(
         AssuredCustomerRepository assuredCustomerRepository,
         ClientTiersPayantRepository clientTiersPayantRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        CustomerDataService customerDataService
+        CustomerDataService customerDataService,
+        ThirdPartySaleRepository thirdPartySaleRepository
     ) {
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.customerDataService = customerDataService;
+        this.thirdPartySaleRepository = thirdPartySaleRepository;
     }
 
     @Override
@@ -154,25 +160,14 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
     @Override
     public void deleteCustomerById(Long id) throws GenericError {
-        try {} catch (Exception e) {
-            log.debug("{}", e);
-            throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
-        }
-        this.delete(id);
-        /* try {
+        try {
             AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(id);
-            List<AssuredCustomer> ayantDroits = assuredCustomerRepository.findAllByAssurePrincipalId(
-                id);
-            ayantDroits.forEach(
-                ayantDroit -> assuredCustomerRepository.deleteById(ayantDroit.getId()));
+            List<AssuredCustomer> ayantDroits = assuredCustomerRepository.findAllByAssurePrincipalId(id);
+            ayantDroits.forEach(ayantDroit -> assuredCustomerRepository.deleteById(ayantDroit.getId()));
             assuredCustomerRepository.delete(assuredCustomer);
         } catch (Exception e) {
-            log.debug("{}", e);
-            throw new GenericError(
-                "deleteCustomer",
-                "Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ",
-                "deleteCustomer");
-        }*/
+            throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
+        }
     }
 
     @Override
@@ -203,8 +198,8 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public List<AssuredCustomerDTO> fetch(String query, String typeTiersPayant) {
-        return customerDataService.loadAllAsuredCustomers(query, typeTiersPayant);
+    public Page<AssuredCustomerDTO> fetch(String query, String typeTiersPayant, Pageable pageable) {
+        return customerDataService.loadAllAsuredCustomers(query, typeTiersPayant, pageable);
     }
 
     private void canModifyTiersPayant(Long id) throws GenericError {

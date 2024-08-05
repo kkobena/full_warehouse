@@ -210,16 +210,16 @@
             </tbody>
 
         </table>
-        <div class="totaux" th:if="${isLastPage}" th:insert="receipt/totaux">
+        <div class="totaux" th:if="${isLastPage}" th:insert="~{receipt/totaux}">
 
         </div>
-        <div class="row" th:if="${isLastPage}" th:insert="receipt/barcodeLayout">
+        <div class="row" th:if="${isLastPage}" th:insert="~{receipt/barcodeLayout}">
 
         </div>
 
 
     </main>
-    <footer th:if="${isLastPage}" th:insert="receipt/footer">
+    <footer th:if="${isLastPage}" th:insert="~{receipt/footer}">
 
     </footer>
 </div>

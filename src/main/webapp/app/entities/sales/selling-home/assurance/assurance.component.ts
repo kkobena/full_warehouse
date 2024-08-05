@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, ElementRef, inject, Input, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, viewChild } from '@angular/core';
 import { ButtonDirective, ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -45,10 +45,12 @@ import { TagModule } from 'primeng/tag';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ProductTableComponent } from '../product-table/product-table.component';
+import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 
 @Component({
   selector: 'jhi-assurance',
   standalone: true,
+  providers: [ConfirmationService, DialogService],
   imports: [
     ButtonDirective,
     ConfirmDialogModule,
@@ -80,25 +82,20 @@ import { ProductTableComponent } from '../product-table/product-table.component'
     InputSwitchModule,
     OverlayPanelModule,
     ProductTableComponent,
-    AmountComputingComponent,
     ModeReglementComponent,
   ],
   templateUrl: './assurance.component.html',
-  styleUrl: './assurance.component.scss',
 })
 export class AssuranceComponent implements AfterViewInit {
   commonDialog = false;
   @Input('isPresale') isPresale = false;
   readonly appendTo = 'body';
-  //  @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
-  // @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
-  //@Output('responseEvent') responseEvent = new EventEmitter<FinalyseSale>();
   readonly CASH = 'CASH';
   // commonDialogModalBtn = viewChild<ElementRef>('commonDialogModalBtn');
   differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
-  amountComputingComponent = viewChild(AmountComputingComponent);
   modeReglementComponent = viewChild(ModeReglementComponent);
+  amountComputingComponent = viewChild(AmountComputingComponent);
   //forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   selectedCustomerService = inject(SelectedCustomerService);
   typePrescriptionService = inject(TypePrescriptionService);
@@ -117,26 +114,20 @@ export class AssuranceComponent implements AfterViewInit {
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);
   protected entryAmount?: number | null = null;
-  // addModePaymentConfirmDialogBtn = viewChild<ElementRef>('addModePaymentConfirmDialogBtn');
   protected isSaving = false;
-  protected displayErrorEntryAmountModal = false;
   protected payments: IPayment[] = [];
-  protected modeReglementSelected: IPaymentMode[] = [];
   protected ref: DynamicDialogRef;
   protected remises: IRemise[] = [];
   protected remise?: IRemise | null;
-  protected isDiffere: boolean = false;
 
   protected event: any;
 
   constructor() {
-    effect(() => {
-      //  this.sale = this.currentSaleService.currentSale();
-      this.isDiffere = this.currentSaleService.currentSale()?.differe;
-    });
-    effect(() => {
-      this.modeReglementSelected = this.selectModeReglementService.modeReglements();
-    });
+    this.currentSaleService.setTypeVo('ASSURANCE');
+  }
+
+  manageAmountDiv(): void {
+    this.modeReglementComponent().manageAmountDiv();
   }
 
   onHideHideDialog() {
@@ -148,55 +139,100 @@ export class AssuranceComponent implements AfterViewInit {
   }
 
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
-    this.baseSaleService.manageCashPaymentMode(paymentModeControl);
+    const modes = this.selectModeReglementService.modeReglements();
+    if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
+      const amount = this.getEntryAmount();
+      modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
+        this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
+
+      this.amountComputingComponent()?.computeMonnaie(amount);
+    } else {
+      const inputAmount = Number(paymentModeControl.control.target.value);
+      this.amountComputingComponent()?.computeMonnaie(inputAmount);
+      this.modeReglementComponent().manageShowAddButton(inputAmount);
+    }
   }
 
   finalyseSale(putsOnStandby: boolean = false): void {
-    const sale = this.currentSaleService.currentSale();
-    const entryAmount = this.baseSaleService.getEntryAmount();
-    sale.payments = this.baseSaleService.buildPayment(entryAmount);
-    sale.type = 'VNO';
-    sale.avoir = this.baseSaleService.isAvoir();
-    this.baseSaleService.computExtraInfo();
-    if (sale.avoir && !sale.customerId) {
+    const entryAmount = this.getEntryAmount();
+    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
+    this.currentSaleService.currentSale().type = 'VO';
+    this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();
+    this.computExtraInfo();
+    if (this.isPresale || putsOnStandby) {
+      this.putCurrentSaleOnHold();
     } else {
-      if (this.isPresale || putsOnStandby) {
-        this.putCurrentSaleOnHold();
-      } else {
-        this.saveSale();
-      }
+      this.saveSale();
     }
   }
 
   putCurrentSaleOnStandBy(): void {
-    this.finalyseSale(true);
+    this.baseSaleService.onStandby();
+    //  this.finalyseSale(true);
   }
 
   onKeyDown(event: any): void {
-    this.save();
+    this.onCompleteSale();
+  }
+
+  onCompleteSale(): void {
+    this.baseSaleService.onCompleteSale();
   }
 
   isValidDiffere(): boolean {
     return this.currentSaleService.currentSale().differe /*&& !this.sale.customerId*/;
   }
 
-  save(): void {
-    const sale = this.currentSaleService.currentSale();
-    this.isSaving = true;
-    // this.sale.differe = this.isDiffere;
-    const restToPay = sale.amountToBePaid - this.baseSaleService.getEntryAmount();
+  onLoadPrevente(): void {
+    this.modeReglementComponent()?.buildPreventeReglementInput();
+  }
 
-    //   this.sale.montantRendu = this.monnaie;
-    sale.montantVerse = this.baseSaleService.getCashAmount();
-    if (restToPay > 0 && !this.isValidDiffere()) {
+  getEntryAmount(): number {
+    return this.modeReglementComponent()?.getInputSum() || 0;
+  }
+
+  computExtraInfo(): void {
+    this.currentSaleService.currentSale().commentaire = this.modeReglementComponent()?.commentaire || null;
+  }
+
+  save(): void {
+    this.isSaving = true;
+    if (this.currentSaleService.currentSale()?.amountToBePaid > 0) {
+      const entryAmount = this.getEntryAmount();
+      const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
+      this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
+      if (restToPay > 0 && !this.isValidDiffere()) {
+        this.differeConfirmDialog();
+      } else {
+        this.finalyseSale();
+      }
     } else {
+      this.currentSaleService.currentSale().montantVerse = 0;
       this.finalyseSale();
     }
   }
 
+  differeConfirmDialog(): void {
+    this.confirmationService.confirm({
+      message: 'Voullez-vous regler le reste en différé ?',
+      header: 'Vente différé',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.currentSaleService.currentSale().differe = true;
+        this.finalyseSale();
+      },
+      reject: () => {},
+      key: 'differeConfirmDialog',
+    });
+
+    setTimeout(() => {
+      this.differeConfirmDialogBtn().nativeElement.focus();
+    }, 10);
+  }
+
   saveSale(): void {
     const sale = this.currentSaleService.currentSale();
-    const entryAmount = this.baseSaleService.getEntryAmount();
+    const entryAmount = this.getEntryAmount();
     const restToPay = sale.amountToBePaid - entryAmount;
     if (restToPay <= 0) {
       sale.payrollAmount = sale.amountToBePaid;
@@ -209,16 +245,12 @@ export class AssuranceComponent implements AfterViewInit {
     this.subscribeToFinalyseResponse(this.salesService.save(sale));
   }
 
-  canceldisplayErrorEntryAmountModal(): void {
-    this.displayErrorEntryAmountModal = false;
-  }
-
   putCurrentSaleOnHold(): void {
     this.subscribeToPutOnHoldResponse(this.salesService.putCurrentOnStandBy(this.currentSaleService.currentSale()));
   }
 
-  create(salesLine: ISalesLine): void {
-    this.subscribeToCreateSaleResponse(this.salesService.create(this.createSale(salesLine)));
+  create(salesLine: ISalesLine, tiersPayants: IClientTiersPayant[]): void {
+    this.subscribeToCreateSaleResponse(this.salesService.create(this.createSale(salesLine, tiersPayants)));
   }
 
   onAddProduit(salesLine: ISalesLine): void {
@@ -269,27 +301,7 @@ export class AssuranceComponent implements AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.baseSaleService.setAmountComputingComponent(this.amountComputingComponent());
-    this.baseSaleService.setModeReglementComponent(this.modeReglementComponent());
-  }
-
-  updateQtyRequested(salesLine: ISalesLine): void {
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => {
-        if (sale) {
-          this.subscribeToSaveResponse(this.salesService.find(sale.id));
-        }
-        // this.check = true;
-      },
-      error: error => {
-        //this.check = false;
-        this.subscribeToSaveResponse(this.salesService.find(sale.id));
-        this.baseSaleService.onStockError(salesLine, error);
-      },
-    });
-  }
+  ngAfterViewInit(): void {}
 
   printInvoice(): void {
     this.salesService.print(this.currentSaleService.currentSale()?.id).subscribe(blod => {
@@ -346,9 +358,8 @@ export class AssuranceComponent implements AfterViewInit {
     });
   }
 
-  private createSale(salesLine: ISalesLine): ISales {
+  private createSale(salesLine: ISalesLine, tiersPayants: IClientTiersPayant[]): ISales {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
-
     return {
       ...new Sales(),
       salesLines: [salesLine],
@@ -359,6 +370,7 @@ export class AssuranceComponent implements AfterViewInit {
       sellerId: this.userVendeurService.vendeur()?.id,
       type: 'VO',
       categorie: 'VO',
+      tiersPayants,
     };
   }
 

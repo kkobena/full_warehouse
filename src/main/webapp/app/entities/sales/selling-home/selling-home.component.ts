@@ -394,7 +394,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         summary: 'Alerte',
         detail: 'Veuillez saisir le numéro de bon pour tous les tiers payants',
       });
-      //this.openInfoDialog('Veuillez saisir le numéro de bon pour tous les tiers payants', 'alert alert-danger');
     } else {
       this.assuranceComponent().save();
     }

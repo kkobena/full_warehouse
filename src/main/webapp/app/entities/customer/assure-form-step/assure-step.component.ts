@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonDirective } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
@@ -18,6 +18,7 @@ import { HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
+import { CommonService } from './common.service';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -52,6 +53,10 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     { label: 'Non', value: false },
     { label: 'Oui', value: true },
   ];
+  fb = inject(UntypedFormBuilder);
+  commonService = inject(CommonService);
+  tiersPayantService = inject(TiersPayantService);
+  assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
   editForm = this.fb.group({
     id: [],
@@ -71,11 +76,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     plafondAbsolu: [],
   });
 
-  constructor(
-    private fb: UntypedFormBuilder,
-    private tiersPayantService: TiersPayantService,
-    private assureFormStepService: AssureFormStepService,
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {
     const entity = this.assureFormStepService.assure();
@@ -96,18 +97,22 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
 
   loadTiersPayants(search?: string): void {
     const query: string = search || '';
+
     this.tiersPayantService
       .query({
         page: 0,
         size: 10,
-        type: 'ASSURANCE',
+        type: this.commonService.categorie(),
+        //  type: 'ASSURANCE',
         search: query,
       })
       .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body!));
   }
 
   onSelectTiersPayant(event: any): void {
-    this.tiersPayant = event;
+    this.tiersPayant = event.value;
+    this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
+    console.log(this.commonService.categorieTiersPayant());
   }
 
   createFromForm(): ICustomer {

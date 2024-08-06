@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
@@ -202,7 +203,7 @@ public interface AssuredCustomerService {
 
     AssuredCustomerDTO mappAyantDroitEntityToDto(AssuredCustomer assuredCustomer);
 
-    Page<AssuredCustomerDTO> fetch(String query, String typeTiersPayant, Pageable pageable);
+    Page<AssuredCustomerDTO> fetch(String query, TiersPayantCategorie typeTiersPayant, Pageable pageable);
 
     void deleteCustomerById(Long id) throws GenericError;
 

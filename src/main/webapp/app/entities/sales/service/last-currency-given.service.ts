@@ -16,4 +16,8 @@ export class LastCurrencyGivenService {
   setGivenCurrentSale(amount: number): void {
     this.givenCurrency.set(amount);
   }
+
+  resetGivenCurrency(): void {
+    this.givenCurrency.set(0);
+  }
 }

@@ -11,9 +11,13 @@
                       iconPos="right" [disabled]="isSaving" [loading]="isSaving"
                       label="Enregister"
                       styleClass="p-button-success mx-1" />
-            <p-button (onClick)="onGoAyantDroit(nextCallback)" icon="pi pi-arrow-right"
-                      iconPos="right"
-                      label="Suivant" />
+            @if (!commonService.categorieTiersPayant() || commonService.categorieTiersPayant()
+            === 'ASSURANCE') {
+              <p-button (onClick)="onGoAyantDroit(nextCallback)" icon="pi pi-arrow-right"
+                        iconPos="right"
+                        label="Suivant" />
+            }
+
           }
 
         </div>

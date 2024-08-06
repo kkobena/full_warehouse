@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, EventEmitter, inject, Input, Output, viewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -97,7 +97,6 @@ export class ComptantComponent {
   @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
   @Output('responseEvent') responseEvent = new EventEmitter<FinalyseSale>();
   readonly CASH = 'CASH';
-  // commonDialogModalBtn = viewChild<ElementRef>('commonDialogModalBtn');
   differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
   amountComputingComponent = viewChild(AmountComputingComponent);
@@ -122,29 +121,17 @@ export class ComptantComponent {
   baseSaleService = inject(BaseSaleService);
   // addModePaymentConfirmDialogBtn = viewChild<ElementRef>('addModePaymentConfirmDialogBtn');
   protected isSaving = false;
-  protected displayErrorEntryAmountModal = false;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
   protected remises: IRemise[] = [];
   protected remise?: IRemise | null;
-  protected isDiffere: boolean = false;
-  protected sale?: ISales | null = null;
   protected event: any;
   protected entryAmount?: number | null = null;
 
-  constructor() {
-    effect(() => {
-      this.sale = this.currentSaleService.currentSale();
-      this.isDiffere = this.sale?.differe;
-    });
-  }
+  constructor() {}
 
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
-  }
-
-  onHidedisplayErrorEntryAmountModal(event: Event): void {
-    // this.montantCashInput?.nativeElement.focus();
   }
 
   differeConfirmDialog(): void {
@@ -157,7 +144,7 @@ export class ComptantComponent {
           this.openUninsuredCustomer(true);
         } else {
           this.currentSaleService.currentSale().differe = true;
-          this.isDiffere = true;
+          // this.isDiffere = true;
           this.finalyseSale();
         }
       },
@@ -188,7 +175,7 @@ export class ComptantComponent {
   }
 
   computExtraInfo(): void {
-    this.sale.commentaire = this.modeReglementComponent().commentaire;
+    this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire;
   }
 
   finalyseSale(putsOnStandby: boolean = false): void {
@@ -236,7 +223,7 @@ export class ComptantComponent {
   }
 
   isValidDiffere(): boolean {
-    return this.sale.differe /*&& !this.sale.customerId*/;
+    return this.currentSaleService.currentSale().differe /*&& !this.sale.customerId*/;
   }
 
   save(): void {
@@ -266,10 +253,6 @@ export class ComptantComponent {
     }
     currtSale.montantRendu = currtSale.montantVerse - currtSale.amountToBePaid;
     this.subscribeToFinalyseResponse(this.salesService.saveCash(currtSale));
-  }
-
-  canceldisplayErrorEntryAmountModal(): void {
-    this.displayErrorEntryAmountModal = false;
   }
 
   putCurrentCashSaleOnHold(): void {
@@ -313,9 +296,10 @@ export class ComptantComponent {
   }
 
   updateItemQtySold(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
     this.salesService.updateItemQtySold(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, this.sale),
+      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
+      error: (err: any) => this.onSaveSaveError(err, sale),
     });
   }
 
@@ -324,7 +308,7 @@ export class ComptantComponent {
   }
 
   printInvoice(): void {
-    this.salesService.print(this.sale?.id).subscribe(blod => {
+    this.salesService.print(this.currentSaleService.currentSale()?.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -333,7 +317,7 @@ export class ComptantComponent {
   subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body.saleId)),
-      error: err => this.onSaveSaveError(err, this.sale),
+      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale()),
     });
   }
 
@@ -365,7 +349,7 @@ export class ComptantComponent {
     this.ref.onDestroy.subscribe(() => {
       if (isVenteDefferee && this.selectedCustomerService.selectedCustomerSignal()) {
         this.currentSaleService.currentSale().differe = isVenteDefferee;
-        this.isDiffere = isVenteDefferee;
+        // this.isDiffere = isVenteDefferee;
         this.modeReglementComponent().commentaireInputGetFocus();
       } else {
         if (!isVenteDefferee) {
@@ -376,7 +360,7 @@ export class ComptantComponent {
   }
 
   onLoadPrevente(): void {
-    this.modeReglementComponent().buildPreventeReglementInput();
+    this.modeReglementComponent()?.buildPreventeReglementInput();
   }
 
   print(sale: ISales | null): void {
@@ -385,21 +369,6 @@ export class ComptantComponent {
 
   printSale(saleId: number): void {
     this.salesService.printReceipt(saleId).subscribe();
-  }
-
-  updateQtyRequested(salesLine: ISalesLine): void {
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => {
-        if (sale) {
-          this.subscribeToSaveResponse(this.salesService.find(sale.id));
-        }
-      },
-      error: error => {
-        this.subscribeToSaveResponse(this.salesService.find(sale.id));
-        this.baseSaleService.onStockError(salesLine, error);
-      },
-    });
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
@@ -452,7 +421,7 @@ export class ComptantComponent {
   protected subscribeToCreateSaleComptantResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-      error: error => this.onSaveSaveError(error, this.sale),
+      error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
     });
   }
 
@@ -480,30 +449,33 @@ export class ComptantComponent {
     };
   }
 
-  private onSaveSaveError(err: any, sale?: ISales): void {
+  private onSaveSaveError(err: any, sale?: ISales, payload: any = null): void {
     this.isSaving = false;
-    this.saveResponse.emit({ success: false, error: err });
+    this.saveResponse.emit({ success: false, error: err, payload });
     this.currentSaleService.setCurrentSale(sale);
   }
 
   private processItemPrice(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
     this.salesService.updateItemPrice(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, this.sale),
+      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
+      error: (err: any) => this.onSaveSaveError(err, sale),
     });
   }
 
   private removeItem(id: number): void {
+    const sale = this.currentSaleService.currentSale();
     this.salesService.deleteItem(id).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, this.sale),
+      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
+      error: (err: any) => this.onSaveSaveError(err, sale),
     });
   }
 
   private processQtyRequested(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
     this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(this.sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, this.sale),
+      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
+      error: (err: any) => this.onSaveSaveError(err, sale, salesLine),
     });
   }
 }

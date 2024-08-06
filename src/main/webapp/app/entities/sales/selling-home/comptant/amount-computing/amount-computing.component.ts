@@ -25,5 +25,6 @@ export class AmountComputingComponent {
     const thatentryAmount = amount || this.entryAmount;
     const thatMonnaie = thatentryAmount - this.currentSaleService.currentSale()?.amountToBePaid;
     this.monnaie = thatMonnaie > 0 ? thatMonnaie : 0;
+    this.lastCurrencyGivenService.setGivenCurrentSale(this.monnaie);
   }
 }

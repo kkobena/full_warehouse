@@ -69,10 +69,15 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       () => {
         const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
         if (!this.currentSaleService.isEdit()) {
-          this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
-          this.ayantDroit = assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
-          if (!this.ayantDroit) {
-            this.ayantDroit = assuredCustomer;
+          if (this.currentSaleService.typeVo() === 'ASSURANCE') {
+            this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
+            this.ayantDroit =
+              assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
+            if (!this.ayantDroit) {
+              this.ayantDroit = assuredCustomer;
+            }
+          } else if (this.currentSaleService.typeVo() === 'CARNET') {
+            this.selectedTiersPayants.set([assuredCustomer?.tiersPayants[0]]);
           }
         }
       },
@@ -113,7 +118,9 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     const currSale = this.currentSaleService.currentSale();
     if (currSale) {
       this.selectedTiersPayants.set(currSale.tiersPayants || []);
-      this.ayantDroit = currSale.ayantDroit || currSale.customer;
+      if (this.currentSaleService.typeVo()) {
+        this.ayantDroit = currSale.ayantDroit || currSale.customer;
+      }
     }
   }
 
@@ -125,7 +132,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           // search: '2201268',
           // search: '1807874',
           size: 2,
-          typeTiersPayant: 'ASSURANCE',
+          typeTiersPayant: this.currentSaleService.typeVo(),
         })
         .subscribe({
           next: (res: HttpResponse<ICustomer[]>) => {
@@ -184,21 +191,6 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         this.bonInputFocusOnAddTiersPayant(null);
       }
     });
-    /*this.ref = this.dialogService.open(TiersPayantCustomerListComponent, {
-      data: { tiersPayants: this.selectedTiersPayants(), assure: currentCustomer },
-      header: 'AJOUTER UN TIERS PAYANT COMPLEMENTAIRE',
-      width: '70%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: IClientTiersPayant) => {
-      if (resp) {
-        if (this.currentSaleService.currentSale()) {
-          this.baseSaleService.onCompleteSale();
-        }
-        this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
-        this.bonInputFocusOnAddTiersPayant(null);
-      }
-    });*/
   }
 
   removeTiersPayant(tiersPayant: IClientTiersPayant): void {
@@ -220,7 +212,10 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   editAssuredCustomer(): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: this.selectedCustomerService.selectedCustomerSignal() },
+      data: {
+        entity: this.selectedCustomerService.selectedCustomerSignal(),
+        typeVente: this.currentSaleService.typeVo(),
+      },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '80%',
     });
@@ -233,7 +228,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   addAssuredCustomer(): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: null },
+      data: { entity: null, typeVente: this.currentSaleService.typeVo() },
       header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
       width: '80%',
     });

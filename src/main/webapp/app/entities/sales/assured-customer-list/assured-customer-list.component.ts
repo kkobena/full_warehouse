@@ -48,11 +48,7 @@ export class AssuredCustomerListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    //  this.customers = this.config.data.customers;
     this.searchString = this.config.data.searchString;
-    /*  if (this.searchString && this.searchString != '') {
-        this.loadPage();
-      }*/
   }
 
   onDbleClick(customer: ICustomer): void {

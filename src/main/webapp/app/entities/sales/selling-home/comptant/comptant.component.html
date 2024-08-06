@@ -4,23 +4,6 @@
 </ngx-spinner>
 
 
-<p-dialog (onHide)="onHidedisplayErrorEntryAmountModal($event)"
-          [(visible)]="displayErrorEntryAmountModal"
-          [draggable]="false" [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true"
-          [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Le montant  saisi n'est pas correct</strong></span>
-  <ng-template pTemplate="footer">
-    <button #errorEntryAmountBtn (click)="canceldisplayErrorEntryAmountModal()"
-            class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">Fermer
-    </button>
-  </ng-template>
-</p-dialog>
-
-
 <p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  appendTo="body"
                  key="addModePaymentConfirmDialog">
@@ -102,7 +85,7 @@
 
     </div>
   </div>
-  <jhi-mode-reglement [isDiffere]="isDiffere"
+  <jhi-mode-reglement [isDiffere]="currentSaleService.currentSale()?.differe"
                       (paymentModeControlEvent)="manageCashPaymentMode($event)"
                       (onSaveEvent)="onKeyDown($event)"></jhi-mode-reglement>
 }

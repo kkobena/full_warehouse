@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -254,8 +255,8 @@ public class CustomerDataService {
         return customerRepository.findById(id).map(this::mapFromEntity);
     }
 
-    public Page<AssuredCustomerDTO> loadAllAsuredCustomers(String search, String typeTiersPayant, Pageable pageable) {
-        long count = count(search, typeTiersPayant);
+    public Page<AssuredCustomerDTO> loadAllAsuredCustomers(String search, TiersPayantCategorie tiersPayantCategorie, Pageable pageable) {
+        long count = count(search, tiersPayantCategorie);
         if (count == 0) {
             return new PageImpl<>(Collections.emptyList(), pageable, count);
         }
@@ -264,7 +265,7 @@ public class CustomerDataService {
         CriteriaQuery<Customer> cq = cb.createQuery(Customer.class);
         Root<Customer> root = cq.from(Customer.class);
         Root<AssuredCustomer> assuredCustomerRoot = cb.treat(root, AssuredCustomer.class);
-        predicatsAssuredCustomer(search, typeTiersPayant, predicates, cb, assuredCustomerRoot);
+        predicatsAssuredCustomer(search, tiersPayantCategorie, predicates, cb, assuredCustomerRoot);
         cq
             .select(root)
             .distinct(true)
@@ -279,12 +280,19 @@ public class CustomerDataService {
             q.setMaxResults(pageable.getPageSize());
         }
         List<Customer> assuredCustomers = q.getResultList();
+        if (Objects.nonNull(tiersPayantCategorie)) {
+            return new PageImpl<>(
+                assuredCustomers.stream().map(e -> mapAssuredFromEntity(e, tiersPayantCategorie)).collect(Collectors.toList()),
+                pageable,
+                count
+            );
+        }
         return new PageImpl<>(assuredCustomers.stream().map(this::mapAssuredFromEntity).collect(Collectors.toList()), pageable, count);
     }
 
     private void predicatsAssuredCustomer(
         String search,
-        String typeTiersPayant,
+        TiersPayantCategorie typeTiersPayant,
         List<Predicate> predicates,
         CriteriaBuilder cb,
         Root<AssuredCustomer> root
@@ -308,13 +316,8 @@ public class CustomerDataService {
                 )
             );
         }
-        if (StringUtils.hasLength(typeTiersPayant)) {
-            predicates.add(
-                cb.equal(
-                    tiersPayantSetJoin.get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie),
-                    TiersPayantCategorie.valueOf(typeTiersPayant)
-                )
-            );
+        if (typeTiersPayant != null) {
+            predicates.add(cb.equal(tiersPayantSetJoin.get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie), typeTiersPayant));
         }
     }
 
@@ -336,7 +339,7 @@ public class CustomerDataService {
             .collect(Collectors.toList());
     }
 
-    private long count(String search, String typeTiersPayant) {
+    private long count(String search, TiersPayantCategorie typeTiersPayant) {
         List<Predicate> predicates = new ArrayList<>();
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -347,5 +350,19 @@ public class CustomerDataService {
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = entityManager.createQuery(cq);
         return q.getSingleResult();
+    }
+
+    public AssuredCustomerDTO mapAssuredFromEntity(Customer customer, TiersPayantCategorie tiersPayantCategorie) {
+        List<ClientTiersPayantDTO> clientTiersPayantDTOS = clientTiersPayantRepository
+            .findAllByAssuredCustomerIdAndTiersPayantCategorie(customer.getId(), tiersPayantCategorie)
+            .stream()
+            .map(ClientTiersPayantDTO::new)
+            .toList();
+        List<AssuredCustomerDTO> ayantDroits = assuredCustomerRepository
+            .findAllByAssurePrincipalId(customer.getId())
+            .stream()
+            .map(assuredCustomer -> new AssuredCustomerDTO(assuredCustomer, Collections.emptyList(), Collections.emptyList()))
+            .toList();
+        return new AssuredCustomerDTO((AssuredCustomer) customer, clientTiersPayantDTOS, ayantDroits);
     }
 }

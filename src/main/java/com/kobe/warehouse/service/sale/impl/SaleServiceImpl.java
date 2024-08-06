@@ -231,6 +231,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount(), 0);
+        computeSaleCmu(c, saleLine, null);
         processDiscountCashSale(c, saleLine, null);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmount(c, saleLine, null);
@@ -240,6 +241,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine, SalesLine oldSaleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount(), oldSaleLine.getSalesAmount());
+        computeSaleCmu(c, saleLine, oldSaleLine);
         processDiscountCashSale(c, saleLine, oldSaleLine);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmount(c, saleLine, oldSaleLine);
@@ -417,6 +419,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         copy.setDiscountAmountUg(copy.getDiscountAmountUg() * (-1));
         copy.setDiscountAmountHorsUg(copy.getDiscountAmountHorsUg() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
+        copy.setCmuAmount(copy.getCmuAmount() * (-1));
         copy.setUser(sales.getUser());
         copy.setLastUserEdit(storageService.getUser());
         copy.setPayments(Collections.emptySet());

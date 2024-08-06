@@ -3,7 +3,7 @@ import { CurrentSaleService } from './current-sale.service';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { SelectModeReglementService } from './select-mode-reglement.service';
 import { SaleEventManager } from './sale-event-manager.service';
-import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { VoSalesService } from './vo-sales.service';
 import { ConfigurationService } from '../../../shared/configuration.service';
@@ -36,6 +36,29 @@ export class BaseSaleService {
     /* if (this.maxModePayementNumber() === null) {
        this.getMaxModePaymentNumber();
      }*/
+  }
+
+  createSale(
+    salesLine: ISalesLine,
+    tiersPayants: IClientTiersPayant[],
+    typePrescription: string,
+    cassierId: number,
+    sellerId: number,
+    customerId: number,
+    natureVente: string,
+  ): ISales {
+    return {
+      ...new Sales(),
+      salesLines: [salesLine],
+      customerId,
+      natureVente,
+      typePrescription,
+      cassierId,
+      sellerId,
+      type: 'VO',
+      categorie: 'VO',
+      tiersPayants,
+    };
   }
 
   isAvoir(): boolean {

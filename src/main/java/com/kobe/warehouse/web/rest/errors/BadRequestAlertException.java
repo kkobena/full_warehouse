@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.errors;
 
+import java.io.Serial;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.ErrorResponseException;
@@ -8,6 +9,7 @@ import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCau
 
 public class BadRequestAlertException extends ErrorResponseException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final String entityName;
@@ -93,6 +95,21 @@ public class BadRequestAlertException extends ErrorResponseException {
         );
         this.entityName = null;
         this.errorKey = null;
+    }
+
+    public BadRequestAlertException(HttpStatusCode status, String defaultMessage, String errorKey, Object payload) {
+        super(
+            status,
+            ProblemDetailWithCauseBuilder.instance()
+                .withStatus(status.value())
+                .withProperty("message", defaultMessage)
+                .withProperty("payload", payload)
+                .withProperty("errorKey", errorKey)
+                .build(),
+            null
+        );
+        this.errorKey = null;
+        this.entityName = null;
     }
 
     public String getEntityName() {

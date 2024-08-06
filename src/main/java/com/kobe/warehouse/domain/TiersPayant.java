@@ -15,6 +15,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import org.hibernate.type.SqlTypes;
 )
 public class TiersPayant implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

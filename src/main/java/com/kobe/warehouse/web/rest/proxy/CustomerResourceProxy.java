@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.ImportationCustomer;
@@ -153,7 +154,7 @@ public class CustomerResourceProxy {
     @GetMapping("/customers/assured")
     public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
         @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "typeTiersPayant", required = false) String typeTiersPayant,
+        @RequestParam(value = "typeTiersPayant", required = false) TiersPayantCategorie typeTiersPayant,
         Pageable pageable
     ) {
         Page<AssuredCustomerDTO> page = assuredCustomerService.fetch(search, typeTiersPayant, pageable);

@@ -18,6 +18,7 @@ import { ErrorService } from '../../../shared/error.service';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { CustomerService } from '../customer.service';
+import { CommonService } from './common.service';
 
 @Component({
   selector: 'jhi-assure-form-step',
@@ -45,6 +46,7 @@ export class AssureFormStepComponent implements OnInit {
   items: MenuItem[];
   entity?: ICustomer;
   active: number | undefined = 0;
+  commonService = inject(CommonService);
   assureFormStepService = inject(AssureFormStepService);
   messageService = inject(MessageService);
   errorService = inject(ErrorService);
@@ -58,6 +60,10 @@ export class AssureFormStepComponent implements OnInit {
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
+    const typeVente = this.config.data.typeVente;
+    this.commonService.categorieTiersPayant.set(typeVente);
+    this.commonService.categorie.set(typeVente);
+
     if (this.entity) {
       this.assureFormStepService.setEdition(true);
       this.assureFormStepService.setAssure(this.entity);

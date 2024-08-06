@@ -4,10 +4,10 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
@@ -34,20 +34,17 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final CustomerDataService customerDataService;
-    private final ThirdPartySaleRepository thirdPartySaleRepository;
 
     public AssuredCustomerServiceImpl(
         AssuredCustomerRepository assuredCustomerRepository,
         ClientTiersPayantRepository clientTiersPayantRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        CustomerDataService customerDataService,
-        ThirdPartySaleRepository thirdPartySaleRepository
+        CustomerDataService customerDataService
     ) {
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.customerDataService = customerDataService;
-        this.thirdPartySaleRepository = thirdPartySaleRepository;
     }
 
     @Override
@@ -198,7 +195,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public Page<AssuredCustomerDTO> fetch(String query, String typeTiersPayant, Pageable pageable) {
+    public Page<AssuredCustomerDTO> fetch(String query, TiersPayantCategorie typeTiersPayant, Pageable pageable) {
         return customerDataService.loadAllAsuredCustomers(query, typeTiersPayant, pageable);
     }
 

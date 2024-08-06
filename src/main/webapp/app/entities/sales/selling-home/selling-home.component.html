@@ -65,6 +65,14 @@
               </jhi-assurance>
             </ng-template>
           </ng-container>
+          <ng-container ngbNavItem="carnet">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Carnet</a>
+            <ng-template ngbNavContent>
+              <jhi-carnet [isPresale]="isPresale">
+              </jhi-carnet>
+
+            </ng-template>
+          </ng-container>
         </div>
 
       </p-card>
@@ -97,7 +105,7 @@
             </div>
 
           </div>
-          @if (active === 'comptant' && sale) {
+          @if (active === 'comptant' && currentSaleService.currentSale()) {
             <div [ngClass]="getToolBarCustomerCssClass()">
               <jhi-customer-overlay-panel
                 (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
@@ -106,7 +114,7 @@
 
 
           <div [ngClass]="getToolBarActionCssClass()">
-            @if (sale == null && !isPresale) {
+            @if (currentSaleService.currentSale() == null && !isPresale) {
               <p-button (click)="openPindingSide()" icon="pi pi-search" label="Ventes en attente"
                         styleClass="p-button-info p-button-sm"></p-button>
 
@@ -124,7 +132,7 @@
       <ng-template pTemplate="content">
         <div class="sale-body">
 
-          @if (active === 'assurance') {
+          @if (active === 'assurance' || active === 'carnet') {
             <jhi-assurance-data></jhi-assurance-data>
           }
 
@@ -250,3 +258,13 @@
 
 </p-confirmDialog>
 
+<p-confirmDialog #venteSansBon key="venteSansBon">
+  <p-footer>
+    <button (click)="venteSansBon.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="venteSansBon.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>

@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOptions } from 'app/shared/util/request-util';
 import { IResponseDto } from 'app/shared/util/response-dto';
 import { ITiersPayant } from '../../shared/model/tierspayant.model';
 
@@ -29,7 +29,7 @@ export class TiersPayantService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<ITiersPayant[]>(this.resourceUrl, {
       params: options,
       observe: 'response',

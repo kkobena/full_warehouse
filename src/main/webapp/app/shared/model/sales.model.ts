@@ -115,6 +115,7 @@ export class StockError {
 export class SaveResponse {
   success: boolean;
   error?: any;
+  payload?: any;
 
   constructor(success: boolean, error?: any) {
     this.success = success;

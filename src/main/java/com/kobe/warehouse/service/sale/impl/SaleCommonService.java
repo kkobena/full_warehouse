@@ -66,6 +66,14 @@ public class SaleCommonService {
         c.setSalesAmount((c.getSalesAmount() - oldSalesAmount) + amount);
     }
 
+    public void computeSaleCmu(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
+        if (oldSaleLine != null) {
+            c.setCmuAmount((c.getCmuAmount() - computeCmuAmount(oldSaleLine)) + computeCmuAmount(saleLine));
+        } else {
+            c.setCmuAmount(c.getCmuAmount() + computeCmuAmount(saleLine));
+        }
+    }
+
     public void computeSaleLazyAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
         if (oldSaleLine != null) {
             c.setCostAmount(
@@ -104,7 +112,7 @@ public class SaleCommonService {
                 c.setHtAmountUg(c.getHtAmountUg() + htc);
                 c.setMontantttcUg(c.getMontantttcUg() + htc);
             } else {
-                Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
                 int htAmont = (int) Math.ceil(htc / valeurTva);
                 int montantTva = htc - htAmont;
                 c.setMontantTvaUg(c.getMontantTvaUg() + montantTva);
@@ -123,7 +131,7 @@ public class SaleCommonService {
                 c.setHtAmountUg((c.getHtAmountUg() - htcOld) + htc);
                 c.setMontantttcUg((c.getMontantttcUg() - htcOld) + htc);
             } else {
-                Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
                 int htAmont = (int) Math.ceil(htc / valeurTva);
                 int montantTva = htc - htAmont;
                 int htAmontOld = (int) Math.ceil(htcOld / valeurTva);
@@ -161,7 +169,7 @@ public class SaleCommonService {
                 c.setHtAmount((c.getHtAmount() - oldSaleLine.getSalesAmount()) + saleLine.getSalesAmount());
                 saleLine.setHtAmount(saleLine.getSalesAmount());
             } else {
-                Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
                 int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
                 int montantTva = saleLine.getSalesAmount() - htAmont;
                 int htAmontOld = (int) Math.ceil(oldSaleLine.getSalesAmount() / valeurTva);
@@ -183,6 +191,7 @@ public class SaleCommonService {
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
+        c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
@@ -199,7 +208,7 @@ public class SaleCommonService {
             c.setHtAmountUg(c.getHtAmountUg() - htc);
             c.setMontantttcUg(c.getMontantttcUg() - htc);
         } else {
-            Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+            double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
             int htAmont = (int) Math.ceil(htc / valeurTva);
             int montantTva = htc - htAmont;
             c.setMontantTvaUg(c.getMontantTvaUg() - montantTva);
@@ -215,7 +224,7 @@ public class SaleCommonService {
         if (saleLine.getTaxValue().compareTo(0) == 0) {
             c.setHtAmount(c.getHtAmount() - saleLine.getSalesAmount());
         } else {
-            Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
+            double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
             int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
             int montantTva = saleLine.getSalesAmount() - htAmont;
             c.setTaxAmount(c.getTaxAmount() - montantTva);
@@ -234,7 +243,7 @@ public class SaleCommonService {
     }
 
     public String buildTvaData(Set<SalesLine> salesLines) {
-        if (salesLines != null && salesLines.size() > 0) {
+        if (salesLines != null && !salesLines.isEmpty()) {
             JSONArray array = new JSONArray();
             salesLines
                 .stream()
@@ -255,7 +264,7 @@ public class SaleCommonService {
                         array.put(json);
                     } catch (JSONException e) {}
                 });
-            if (array.length() > 0) {
+            if (!array.isEmpty()) {
                 return array.toString();
             }
         }
@@ -352,5 +361,12 @@ public class SaleCommonService {
         if (dto.isAvoir()) {
             this.avoirService.save(c);
         }
+    }
+
+    public int computeCmuAmount(SalesLine salesLine) {
+        if (salesLine.getCmuAmount() > 0) {
+            return salesLine.getCmuAmount() * salesLine.getQuantityRequested();
+        }
+        return salesLine.getRegularUnitPrice() * salesLine.getQuantityRequested();
     }
 }

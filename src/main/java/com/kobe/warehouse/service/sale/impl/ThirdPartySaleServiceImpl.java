@@ -135,6 +135,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
         thirdPartySales.getSalesLines().add(saleLine);
         computeSaleEagerAmount(thirdPartySales, saleLine.getSalesAmount(), 0);
+        computeSaleCmu(thirdPartySales, saleLine, null);
         processDiscount(thirdPartySales, saleLine, null);
         String message = computeAmounts(dto.getTiersPayants(), thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, saleLine, null);
@@ -605,6 +606,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
         computeSaleEagerAmount(thirdPartySales, salesLine.getSalesAmount(), oldsalesline != null ? oldsalesline.getSalesAmount() : 0);
+        computeSaleCmu(thirdPartySales, salesLine, oldsalesline);
         processDiscount(thirdPartySales, salesLine, oldsalesline);
         var message = reComputeAmounts(thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
@@ -613,6 +615,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c, SalesLine saleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount() * (-1), 0);
+        c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
         processDiscountSaleOnRemovingItem(c, saleLine);
         processDiscountWhenRemovingItem(c, saleLine);
         reComputeAmounts(c);

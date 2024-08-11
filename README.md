@@ -259,3 +259,36 @@ border: 3px solid lightblue;
 
 
 https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-codes/
+1. Pouvoir une vente au comptant 
+2. Faire une vente à crédit
+**Parametre d'impression ou pas du ticket (0=pas de ticket , 1=ticket systematique)
+** Faire le point sur le CA réalisé(par type de vente, periode)
+
+3. Passer des commandes (exportation csv)
+4. Faire une entrée en stock  
+	*saisie manuelle produit par produit
+	*(importation csv/excel)
+	
+	*faire le point sur les produits et BL saisis
+	
+5. suivi mouvement article
+
+6. Retour à la pharmacie principale
+
+7. Retour fournisseur dans le cas d'une saisie grossiste
+
+8. Ajustement de stock avec motif d'ajustement
+
+10. inventaire depot 
+	
+	*saisie manuelle
+	*inventaire avec le mobile 
+	
+11.Facturation 
+
+	*Point des ventes à credit saisie
+	*Edition facture des ventes à credit saisies
+	
+12. Saisie de mouvement de caisse
+
+13. Saisie des produits périmés

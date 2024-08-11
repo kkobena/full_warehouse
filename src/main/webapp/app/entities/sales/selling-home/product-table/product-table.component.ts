@@ -47,7 +47,7 @@ export class ProductTableComponent {
     private modalService: NgbModal,
     private confirmationService: ConfirmationService,
   ) {
-    // this.canModifiePrice= this.hasAuthorityService.hasAuthorities('ROLE_MODIFIER_PRIX');
+    // this.canModifiePrice= this.hasAuthorityService.hasAuthorities('PR_MODIFIER_PRIX');
     this.canModifiePrice = true;
     effect(() => {
       this.sale = this.currentSaleService.currentSale();

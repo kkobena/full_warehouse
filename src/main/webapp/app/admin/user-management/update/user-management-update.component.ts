@@ -25,7 +25,7 @@ const newUser: IUser = {
 export default class UserManagementUpdateComponent implements OnInit {
   languages = LANGUAGES;
   authorities = signal<string[]>([]);
-  isSaving = signal(false);
+  isSaving = false;
 
   editForm = new FormGroup({
     id: new FormControl(userTemplate.id),
@@ -38,15 +38,21 @@ export default class UserManagementUpdateComponent implements OnInit {
         Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
       ],
     }),
-    firstName: new FormControl(userTemplate.firstName, { validators: [Validators.maxLength(50)] }),
-    lastName: new FormControl(userTemplate.lastName, { validators: [Validators.maxLength(50)] }),
-    email: new FormControl(userTemplate.email, {
+    firstName: new FormControl(userTemplate.firstName, {
       nonNullable: true,
+      validators: [Validators.maxLength(50), Validators.required],
+    }),
+    lastName: new FormControl(userTemplate.lastName, {
+      nonNullable: true,
+      validators: [Validators.maxLength(100), Validators.required],
+    }),
+    email: new FormControl(userTemplate.email, {
       validators: [Validators.minLength(5), Validators.maxLength(254), Validators.email],
     }),
-    activated: new FormControl(userTemplate.activated, { nonNullable: true }),
-
-    authorities: new FormControl(userTemplate.authorities, { nonNullable: true }),
+    authorities: new FormControl(userTemplate.authorities, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   private userService = inject(UserManagementService);
@@ -68,7 +74,7 @@ export default class UserManagementUpdateComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving.set(true);
+    this.isSaving = true;
     const user = this.editForm.getRawValue();
     if (user.id !== null) {
       this.userService.update(user).subscribe({
@@ -84,11 +90,11 @@ export default class UserManagementUpdateComponent implements OnInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving.set(false);
+    this.isSaving = false;
     this.previousState();
   }
 
   private onSaveError(): void {
-    this.isSaving.set(false);
+    this.isSaving = false;
   }
 }

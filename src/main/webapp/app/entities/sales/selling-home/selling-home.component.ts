@@ -205,7 +205,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
   ) {
-    this.canForceStock = this.hasAuthorityService.hasAuthorities('FORCE_STOCK');
+    this.canForceStock = this.hasAuthorityService.hasAuthorities('PR_FORCE_STOCK');
     this.onCompleteSale = this.saleEventManager.subscribe('completeSale', (response: SaleEvent<unknown>) => {
       if (this.isAssurance() || this.isCartnet()) {
         const content = response.content;

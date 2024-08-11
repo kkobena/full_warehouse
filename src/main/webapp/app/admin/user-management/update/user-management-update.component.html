@@ -42,7 +42,24 @@
             </div>
           }
         </div>
+        <div class="mb-3">
+          <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
+          <input class="form-control" formControlName="firstName" id="field_firstName"
+                 name="firstName"
+                 type="text" />
 
+          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+            || editForm.get('firstName')!.touched)) {
+            <div>
+              @if (editForm.get('firstName')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength"
+                       [translateValues]="{ max: '50' }"
+                >Ce champ doit faire moins de 50 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
 
         <div class="mb-3">
           <label class="form-label" for="field_lastName"
@@ -62,41 +79,6 @@
             </div>
           }
         </div>
-
-
-        <div class="mb-3">
-          <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
-          <input class="form-control" formControlName="firstName" id="field_firstName" name="firstName"
-                 type="text" />
-
-          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
-            || editForm.get('firstName')!.touched)) {
-            <div>
-              @if (editForm.get('firstName')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength"
-                       [translateValues]="{ max: '50' }"
-                >Ce champ doit faire moins de 50 caractères.</small
-                >
-              }
-            </div>
-          }
-        </div>
-
-
-        <div class="form-check">
-          <label class="form-check-label" for="activated">
-            <input
-              [attr.disabled]="editForm.value.id === undefined ? 'disabled' : null"
-              class="form-check-input"
-              formControlName="activated"
-              id="activated"
-              name="activated"
-              type="checkbox"
-            />
-            <span jhiTranslate="userManagement.activated">Activé</span>
-          </label>
-        </div>
-
 
         <div class="mb-3">
           <label class="form-label" for="field_authority" jhiTranslate="userManagement.profiles">Droits</label>

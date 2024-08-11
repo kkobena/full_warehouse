@@ -190,7 +190,6 @@ entity detail page css
       float: left;
       overflow: hidden;
       clear: left;
-      text-align: right;
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 0.5em 0;
@@ -1700,4 +1699,14 @@ menu  de la vente
 .tf-column {
   text-align: left;
   font-weight: 900;
+}
+
+.jh-entity-details {
+  dt {
+    text-align: left;
+  }
+
+  dd {
+    text-align: right;
+  }
 }

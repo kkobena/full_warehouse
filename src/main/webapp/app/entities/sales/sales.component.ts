@@ -93,6 +93,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   totalItems = 0;
   loading!: boolean;
   canEdit = false;
+  canCancel = false;
   page = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   sales: ISales[] = [];
@@ -144,7 +145,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.isLargeScreen = false;
     }
     // this.typeVenteSelected = 'TOUT';
-    this.canEdit = this.hasAuthorityService.hasAuthorities('EDIT_SALES');
+    this.canEdit = this.hasAuthorityService.hasAuthorities('PR_MODIFICATION_VENTE');
+    this.canCancel = this.hasAuthorityService.hasAuthorities('PR_ANNULATION_VENTE');
 
     this.loadAllUsers();
     const lastPram = this.saleToolBarService.toolBarParam();

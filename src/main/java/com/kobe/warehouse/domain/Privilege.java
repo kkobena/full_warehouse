@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
@@ -13,8 +12,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(
-    name = "privilege",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"menu_id", "authority_name"})})
+    name = "privilege")
 public class Privilege implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -29,19 +27,6 @@ public class Privilege implements Serializable {
   @ManyToOne(optional = false)
   @NotNull
   private Menu menu;
-
-  @ManyToOne(optional = false)
-  @NotNull
-  private Authority authority;
-
-  public @NotNull Authority getAuthority() {
-    return authority;
-  }
-
-  public Privilege setAuthority(@NotNull Authority authority) {
-    this.authority = authority;
-    return this;
-  }
 
   public @NotNull @Size(max = 100) String getName() {
     return name;

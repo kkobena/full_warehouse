@@ -654,6 +654,10 @@
             <artifactId>mariadb-java-client</artifactId>
             <groupId>org.mariadb.jdbc</groupId>
         </dependency>
+        <!--<dependency>
+            <artifactId>flyway-mysql</artifactId>
+            <groupId>org.flywaydb</groupId>
+        </dependency>-->
         <dependency>
             <artifactId>jdbc</artifactId>
             <groupId>org.testcontainers</groupId>

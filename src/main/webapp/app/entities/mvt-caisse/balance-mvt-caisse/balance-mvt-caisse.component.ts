@@ -20,6 +20,8 @@ import { HttpResponse } from '@angular/common/http';
 import { MvtCaisseParams } from '../mvt-caisse-util';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
+import { ToastModule } from 'primeng/toast';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'jhi-balance-mvt-caisse',
@@ -39,6 +41,7 @@ import { DividerModule } from 'primeng/divider';
     SplitButtonModule,
     RadioButtonModule,
     DividerModule,
+    ToastModule,
   ],
   templateUrl: './balance-mvt-caisse.component.html',
 })
@@ -82,12 +85,28 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
     this.updateParam();
   }
 
-  protected onPrint(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Impression en cours...',
-    });
+  onPrint(): void {
+    this.balanceMvtCaisseService
+      .exportToPdf({
+        ...this.buildParams(),
+      })
+      .subscribe({
+        next(blod) {
+          saveAs(blod);
+        },
+        error: () => {
+          this.loading = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Une erreur est survenue',
+          });
+        },
+        complete: () => {
+          this.loading = false;
+        },
+      });
+    this.updateParam();
   }
 
   private setParam(): void {

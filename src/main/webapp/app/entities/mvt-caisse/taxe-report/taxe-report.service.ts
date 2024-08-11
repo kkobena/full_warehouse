@@ -21,4 +21,9 @@ export class TaxeReportService {
       observe: 'response',
     });
   }
+
+  exportToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
+  }
 }

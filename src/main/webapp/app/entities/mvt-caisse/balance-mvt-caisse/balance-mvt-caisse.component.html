@@ -31,7 +31,8 @@
                   tooltipPosition="top"
         ></p-button>&nbsp;
 
-        <p-button (click)="onPrint()" icon="pi pi-print" label="Imprimer" pTooltip="Imprimer"
+        <p-button (click)="onPrint()" [loading]="loading" icon="pi pi-print" label="Imprimer"
+                  pTooltip="Imprimer"
                   severity="warning"
                   tooltipPosition="top"
         />
@@ -126,7 +127,7 @@
 
       }
       <div class="row col-md-12 col-12">
-        <div class="col-md-6 col-6">
+        <div class="col-md-4 col-4">
           <div class="card ">
             <div class="card-header text-bg-success">Information sur la vente</div>
             <div class="card-body mvt-balance-card">
@@ -179,9 +180,8 @@
           </div>
 
         </div>
-        <div class="col-md-6 col-6">
-          @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
-
+        @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
+          <div class="col-md-4 col-4">
             <div class="card ">
               <div class="card-header text-bg-warning">Montant ventes par modes règlement</div>
               <div class="card-body mvt-balance-card">
@@ -198,11 +198,11 @@
 
               </div>
             </div>
-            <p-divider></p-divider>
-          }
 
-
-          @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
+          </div>
+        }
+        @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
+          <div class="col-md-4 col-4">
             <div class="card ">
               <div class="card-header text-bg-primary">Information sur les mouvements de caisse
               </div>
@@ -234,10 +234,9 @@
             </div>
 
 
-          }
+          </div>
+        }
 
-
-        </div>
       </div>
 
     } @else {
@@ -248,3 +247,4 @@
 
   </div>
 </div>
+<p-toast position="center"></p-toast>

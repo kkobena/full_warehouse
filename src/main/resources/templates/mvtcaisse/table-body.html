@@ -1,0 +1,38 @@
+<table class="main-table">
+  <thead>
+  <tr>
+
+    <th class="text-left">Type</th>
+    <th class="text-left">Référence</th>
+    <th class="text-left">Date</th>
+    <th class="text-right">Montant</th>
+    <th class="text-center">Mode règlement</th>
+    <th class="text-left">Client</th>
+    <th class="text-left">Opérateur</th>
+
+
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+    <td class="text-left"
+        th:text="${itm.transactionType}"></td>
+    <td class="text-left" th:text="${itm.reference}"></td>
+    <td class="text-left" th:text="${itm.date}"></td>
+    <td class="unit" th:if="${itm.montant ge 1000}"
+        th:text="${#numbers.formatInteger(itm.montant,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.montant lt 1000}" th:text="${itm.montant}"></td>
+    <td class="text-center" th:text="${itm.paymentModeLibelle}"></td>
+    <td class="text-left" th:text="${itm.organisme}"></td>
+    <td class="text-left" th:text="${itm.userFullName}"></td>
+
+
+  </tr>
+
+  </tbody>
+
+</table>
+<section th:if="${isLastPage}" th:replace="~{mvtcaisse/table-footer}">
+
+
+</section>

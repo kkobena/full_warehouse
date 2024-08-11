@@ -1517,10 +1517,6 @@ menu  de la vente
   }
 }
 
-.tf-column {
-  text-align: left;
-  font-weight: 900;
-}
 
 .mvt-balance-card {
   .list-group {
@@ -1679,4 +1675,29 @@ menu  de la vente
 
 .p-dialog .p-dialog-content {
   padding: 0.8rem;
+}
+
+.sales-detail {
+  .col-md-3, .col-md-2, .col-md-5 {
+    padding: 3px;
+
+  }
+
+  .card {
+
+    padding: 0;
+
+    .card-body {
+      padding: 3px;
+
+      .badge {
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+.tf-column {
+  text-align: left;
+  font-weight: 900;
 }

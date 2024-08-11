@@ -205,8 +205,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
   ) {
-    // this. canForceStock=this.hasAuthorityService.hasAuthorities('FORCE_STOCK');
-    this.canForceStock = true;
+    this.canForceStock = this.hasAuthorityService.hasAuthorities('FORCE_STOCK');
     this.onCompleteSale = this.saleEventManager.subscribe('completeSale', (response: SaleEvent<unknown>) => {
       if (this.isAssurance() || this.isCartnet()) {
         const content = response.content;
@@ -270,8 +269,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   onRemoveCustomer(): void {
     if (this.isComptant()) {
       this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {});
-    } else {
-      console.log('remove customer');
     }
   }
 
@@ -289,8 +286,20 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLoadPrevente(sales: ISales, toEdit: boolean = true): void {
-    console.log(sales);
     if (sales.statut === SalesStatut.CLOSED) {
+      // modification vente cloturee
+      //1 annuler la vente originale
+      // gerer ordonnance de la vente vo
+      //Afficher
+      //Avoir
+      // suggestion auto
+      //moidfier info client vo
+      //modifier date vo
+      // suggestion d'une vente
+      //annulerVenteAnterieur
+      //vente vo à exclure
+      //annulerVenteAnterieur
+      // notification
       this.router.navigate(['/sales', false, 'new']);
     } else {
       this.currentSaleService.setCurrentSale(sales);
@@ -304,7 +313,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.active = 'assurance';
         }
       }
-      this.selectedCustomerService.setCustomer(sales.customer);
+
+      //   this.selectedCustomerService.setCustomer(sales.customer);
       this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
       this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
       this.typePrescriptionService.setTypePrescription(this.typePrescription);
@@ -326,13 +336,18 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         code: 'CONSEIL',
         name: 'Conseil',
       },
-      { code: 'DEPOT', name: 'Dépôt' },
+      /// { code: 'DEPOT', name: 'Dépôt' },
     ];
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault() || this.typePrescriptions[0];
 
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {
-        this.onLoadPrevente(sales);
+        if (sales.customer) {
+          this.customerService
+            .find(sales.customer.id)
+            .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+        }
+        this.onLoadPrevente(sales, true);
       }
       this.loadProduits();
     });
@@ -768,6 +783,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.salesService.find(res.body).subscribe({
             next: res => {
               this.currentSaleService.setVoFromCashSale(true);
+              if (res.body.customer) {
+                this.customerService
+                  .find(res.body.customer.id)
+                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+              }
               this.onLoadPrevente(res.body, false);
             },
           });
@@ -790,6 +810,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.salesService.find(res.body).subscribe({
             next: res => {
               this.currentSaleService.setVoFromCashSale(true);
+              if (res.body.customer) {
+                this.customerService
+                  .find(res.body.customer.id)
+                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+              }
               this.onLoadPrevente(res.body, false);
             },
           });

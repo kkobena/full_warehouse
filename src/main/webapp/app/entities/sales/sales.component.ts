@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
@@ -9,7 +9,7 @@ import moment from 'moment';
 import { IUser, User } from '../../core/user/user.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { HOURS, ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +25,8 @@ import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { VoSalesService } from './service/vo-sales.service';
+import { HasAuthorityService } from './service/has-authority.service';
+import { SaleToolBarService } from './service/sale-tool-bar.service';
 
 @Component({
   selector: 'jhi-sales',
@@ -85,7 +87,7 @@ import { VoSalesService } from './service/vo-sales.service';
     SplitButtonModule,
   ],
 })
-export class SalesComponent implements OnInit {
+export class SalesComponent implements OnInit, AfterViewInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   totalItems = 0;
@@ -96,7 +98,7 @@ export class SalesComponent implements OnInit {
   sales: ISales[] = [];
   selectedEl?: ISales;
   users: IUser[] = [];
-  user?: IUser | null;
+  selectedUserId: number | null;
   search = '';
   global = true;
   showBtnDele: boolean;
@@ -105,57 +107,12 @@ export class SalesComponent implements OnInit {
   isLargeScreen = true;
   fromHour = '01:00';
   toHour = '23:59';
-  hous = [
-    '01:00',
-    '01:30',
-    '02:00',
-    '02:30',
-    '03:00',
-    '04:00',
-    '04:30',
-    '05:00',
-    '05:30',
-    '06:00',
-    '06:30',
-    '07:30',
-    '07:30',
-    '08:00',
-    '08:30',
-    '09:00',
-    '09:30',
-    '10:00',
-    '10:30',
-    '11:00',
-    '11:30',
-    '12:00',
-    '12:30',
-    '13:00',
-    '13:30',
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30',
-    '16:00',
-    '16:30',
-    '17:00',
-    '17:30',
-    '18:00',
-    '18:30',
-    '19:00',
-    '19:30',
-    '20:00',
-    '20:30',
-    '21:00',
-    '21:30',
-    '22:00',
-    '22:30',
-    '23:00',
-    '23:59',
-    '00:00',
-    '00:30',
-  ];
+  hous = HOURS;
   splitbuttons: MenuItem[];
   primngtranslate: Subscription;
+  hasAuthorityService = inject(HasAuthorityService);
+  saleToolBarService = inject(SaleToolBarService);
+  userControl = viewChild<ElementRef>('userControl');
 
   constructor(
     protected assuranceSalesService: VoSalesService,
@@ -186,22 +143,34 @@ export class SalesComponent implements OnInit {
     if (width < 1800) {
       this.isLargeScreen = false;
     }
-    this.typeVenteSelected = 'TOUT';
+    // this.typeVenteSelected = 'TOUT';
+    this.canEdit = this.hasAuthorityService.hasAuthorities('EDIT_SALES');
+
     this.loadAllUsers();
+    const lastPram = this.saleToolBarService.toolBarParam();
+    if (lastPram) {
+      this.typeVenteSelected = lastPram.typeVente || 'TOUT';
+      this.search = lastPram.search;
+      this.global = lastPram.global;
+      this.fromDate = lastPram.fromDate || new Date();
+      this.toDate = lastPram.toDate || new Date();
+      this.fromHour = lastPram.fromHour || '01:00';
+      this.toHour = lastPram.toHour || '23:59';
+      this.selectedUserId = lastPram.selectedUserId || null;
+    }
     this.loadPage();
   }
 
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
-      this.users.push({ id: null, fullName: 'TOUT' });
       if (res.body) {
-        this.users.push(...res.body);
+        this.users = res.body;
       }
-      this.user = { id: null, fullName: 'TOUT' };
     });
   }
 
-  onSelectUser(): void {
+  onSelectUser(evt: any): void {
+    this.selectedUserId = evt.value;
     this.loadPage();
   }
 
@@ -223,12 +192,13 @@ export class SalesComponent implements OnInit {
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
-        userId: this.user?.id,
+        userId: this.selectedUserId,
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
       });
+    this.updateParam();
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -246,7 +216,7 @@ export class SalesComponent implements OnInit {
           fromHour: this.fromHour,
           toHour: this.toHour,
           global: this.global,
-          userId: this.user ? this.user.id : null,
+          userId: this.selectedUserId,
         })
         .subscribe({
           next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
@@ -294,6 +264,14 @@ export class SalesComponent implements OnInit {
     }
   }
 
+  suggerer(sales: ISales): void {
+    console.log(sales);
+  }
+
+  ngAfterViewInit(): void {
+    this.userControl().nativeElement.value = this.selectedUserId;
+  }
+
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
@@ -308,7 +286,7 @@ export class SalesComponent implements OnInit {
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
-        userId: this.user ? this.user.id : null,
+        userId: this.selectedUserId,
       },
     });
     this.sales = data || [];
@@ -317,5 +295,18 @@ export class SalesComponent implements OnInit {
 
   protected onError(): void {
     this.loading = false;
+  }
+
+  private updateParam(): void {
+    this.saleToolBarService.updateToolBarParam({
+      typeVente: this.typeVenteSelected,
+      search: this.search,
+      global: this.global,
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      fromHour: this.fromHour,
+      toHour: this.toHour,
+      selectedUserId: this.selectedUserId,
+    });
   }
 }

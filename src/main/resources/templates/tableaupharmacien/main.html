@@ -1,0 +1,19 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <title>Tableau du pharmacien</title>
+  <style th:replace="~{common/landscape}"></style>
+</head>
+<body>
+<header th:replace="~{common/commonheader}">
+</header>
+<div class="invoice">
+
+  <main>
+    <table th:replace="~{tableaupharmacien/table-body}">
+    </table>
+  </main>
+</div>
+</body>
+
+</html>

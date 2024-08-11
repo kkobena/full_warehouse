@@ -9,6 +9,7 @@ export interface IThirdPartySaleLine {
   customerFullName?: string;
   invoiceStatut?: string;
   numBon?: string;
+  num?: string;
   tiersPayantFullName?: string;
 }
 
@@ -24,6 +25,6 @@ export class ThirdPartySaleLine implements IThirdPartySaleLine {
     public customerFullName?: string,
     public invoiceStatut?: string,
     public numBon?: string,
-    public tiersPayantFullName?: string
+    public tiersPayantFullName?: string,
   ) {}
 }

@@ -62,7 +62,8 @@
                   tooltipPosition="top"
         ></p-button>&nbsp;
 
-        <p-button (click)="onPrint()" icon="pi pi-print" label="Imprimer" pTooltip="Imprimer"
+        <p-button (click)="onPrint()" [loading]="loading" icon="pi pi-print" label="Imprimer"
+                  pTooltip="Imprimer"
                   severity="warning"
                   tooltipPosition="top"
         />&nbsp;
@@ -86,7 +87,7 @@
             @if (groupBy === 'codeTva') {
               <thead>
               <tr>
-                <th>Taux</th>
+                <th>Code tva</th>
                 <th>Total HT</th>
                 <th>Total TVA</th>
                 <th>Total TTC</th>
@@ -95,7 +96,7 @@
               <tbody>
                 @for (taxe of taxeReportWrapper.taxes; track $index) {
                   <tr>
-                    <td>{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.codeTva }}</td>
                     <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
                     <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
                     <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
@@ -104,7 +105,7 @@
               </tbody>
               <tfoot>
               <tr>
-                <td>Total</td>
+                <td class="tf-column">Total</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
@@ -113,7 +114,7 @@
               <thead>
               <tr>
                 <th>Date</th>
-                <th>Taux</th>
+                <th>Code tva</th>
                 <th>Total HT</th>
                 <th>Total TVA</th>
                 <th>Total TTC</th>
@@ -123,7 +124,7 @@
                 @for (taxe of taxeReportWrapper.taxes; track $index) {
                   <tr>
                     <td>{{ taxe.mvtDate | date : 'dd/MM/yyyy' }}</td>
-                    <td>{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.codeTva }}</td>
                     <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
                     <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
                     <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
@@ -132,7 +133,7 @@
               </tbody>
               <tfoot>
               <tr>
-                <td colspan="2">Total</td>
+                <td class="tf-column" colspan="2">Total</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
                 <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
@@ -166,3 +167,4 @@
     }
   </div>
 </div>
+<p-toast position="center"></p-toast>

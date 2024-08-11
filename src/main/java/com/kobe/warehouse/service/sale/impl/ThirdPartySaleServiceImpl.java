@@ -900,4 +900,40 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         }
         return clientTiersPayantDTOs;
     }
+
+    @Override
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
+        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
+        User user = storageService.getUser();
+        ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
+        this.editSale(p, dto);
+        Ticket ticket = ticketService.buildTicket(p, dto, user, buildTvaData(p.getSalesLines()));
+        paymentService.buildPaymentFromFromPaymentDTO(p, dto, ticket, user);
+        p.setTvaEmbeded(ticket.getTva());
+        List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
+        if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
+            throw new ThirdPartySalesTiersPayantException();
+        }
+        thirdPartySaleLines.forEach(thirdPartySaleLine -> {
+            for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
+                ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+                if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
+                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId())) {
+                        throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
+                    }
+                    thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
+                    thirdPartySaleLineRepository.save(thirdPartySaleLine);
+                }
+            }
+            updateClientTiersPayantAccount(thirdPartySaleLine);
+            updateTiersPayantAccount(thirdPartySaleLine);
+        });
+        new ArrayList<>(p.getThirdPartySaleLines())
+            .stream()
+            .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
+            .ifPresent(o -> p.setNumBon(o.getNumBon()));
+        thirdPartySaleRepository.save(p);
+        return new FinalyseSaleDTO(p.getId(), true);
+    }
 }

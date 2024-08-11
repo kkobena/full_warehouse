@@ -18,16 +18,17 @@ import { TaxeWrapper } from './taxe-report.model';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { DialogService } from 'primeng/dynamicdialog';
 import { ChartModule } from 'primeng/chart';
 import { DoughnutChart } from '../../../shared/model/doughnut-chart.model';
 import { CardModule } from 'primeng/card';
 import { MvtParamServiceService } from '../mvt-param-service.service';
+import { saveAs } from 'file-saver';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'jhi-taxe-report',
   standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService],
+  providers: [MessageService, ConfirmationService],
   imports: [
     Button,
     CalendarModule,
@@ -43,6 +44,7 @@ import { MvtParamServiceService } from '../mvt-param-service.service';
     SelectButtonModule,
     ChartModule,
     CardModule,
+    ToastModule,
   ],
   templateUrl: './taxe-report.component.html',
 })
@@ -131,12 +133,28 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     this.onSearch();
   }
 
-  protected onPrint(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Impression en cours...',
-    });
+  onPrint(): void {
+    this.taxeReportService
+      .exportToPdf({
+        ...this.buildParams(),
+      })
+      .subscribe({
+        next(blod) {
+          saveAs(blod);
+        },
+        error: () => {
+          this.loading = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Une erreur est survenue',
+          });
+        },
+        complete: () => {
+          this.loading = false;
+        },
+      });
+    this.updateParam();
   }
 
   private onSuccess(data: TaxeWrapper | null): void {

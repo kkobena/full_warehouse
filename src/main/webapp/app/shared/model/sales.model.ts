@@ -40,6 +40,7 @@ export interface ISales {
   montantRendu?: number;
   restToPay?: number;
   payrollAmount?: number;
+  marge?: number;
   differe?: boolean;
   caisseEndNum?: string;
   caisseNum?: string;

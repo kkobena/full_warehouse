@@ -1,0 +1,27 @@
+/*<link rel="stylesheet" th:href="@{/css/styles.css}" />*/
+
+@page {
+  size: A4 portrait;
+  @bottom-center {
+
+    content: [(${footer})] ;
+    border-top: 0.5px solid #3989c6;
+    text-align: center;
+    white-space: pre-wrap;
+    font-size: 8px;
+    font-style: italic;
+    padding-top: 2px;
+    margin-bottom: 10mm;
+    vertical-align: top;
+
+
+  }
+  @top-left {
+    content: element(header);
+
+  }
+
+  margin-top: 35mm;
+  margin-right: 15px;
+  margin-left: 15px;
+}

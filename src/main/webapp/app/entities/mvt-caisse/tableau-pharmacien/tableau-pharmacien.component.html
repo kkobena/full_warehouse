@@ -130,19 +130,76 @@
                   <td
                     class="amount-td-column">{{ tableauPharmacien.montantAvoirFournisseur | number }}
                   </td>
-                  <td class="amount-td-column">{{ tableauPharmacien.montantAchat | number }}</td>
+                  <td
+                    class="amount-td-column">{{ tableauPharmacien.montantBonAchat | number }}
+                  </td>
                   <td class="amount-td-column">{{ tableauPharmacien.ratioVenteAchat | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.ratioAchatVente | number }}</td>
                 </tr>
               }
             </tbody>
+            <tfoot>
+            <tr>
+              <td class="tf-column">Total</td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteComptant | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteCredit | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteRemise | number }}
+              </td>
+              <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteNet | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.numberCount | number }}
+              </td>
+              @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
+                <td class="amount-td-column">{{
+                    getTotalFournisseurAmount(fournisseur,
+                      tableauPharmacienWrapper.tableauPharmaciens) | number
+                  }}
+                </td>
+              }
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.montantAvoirFournisseur | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.montantAchatNet | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.ratioVenteAchat | number }}
+              </td>
+              <td
+                class="amount-td-column">{{ tableauPharmacienWrapper.ratioAchatVente | number }}
+              </td>
+            </tfoot>
           </table>
 
         </div>
       } @else {
-        <div class="col-12 card flex justify-content-center">
+        <div class="card">
+          <div class="card-body">
+            <p-chart [data]="verticalBarChart?.data" [options]="verticalBarChart?.options"
+                     [responsive]="true"
+                     type="bar"
+            ></p-chart>
+          </div>
 
         </div>
+        @if (showGrossisteChart) {
+          <div class="card" style="margin-top:3px;">
+            <div class="card-body">
+              <p-chart [data]="grossiste?.data" [options]="grossiste?.options"
+                       [responsive]="true"
+                       type="bar"
+              ></p-chart>
+            </div>
+
+          </div>
+        }
+
       }
 
 

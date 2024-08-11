@@ -1,8 +1,9 @@
 <div class="row">
-  <div class="col-2 col-md-2 col-sm-2 sale-menu">
+  <div class="col-1 col-md-2 col-sm-2 sale-menu">
 
     <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+      <div #nav="ngbNav" (navChange)="onNavChange($event)" [(activeId)]="active"
+           class="nav flex-column nav-pills " ngbNav
            orientation="vertical">
         <ng-container ngbNavItem="ventes-terminees">
           <a class="flex-sm-fill nav-link " ngbNavLink>Journal des ventes</a>
@@ -29,7 +30,7 @@
 
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row sale-container">
+  <div class="col-11 col-md-10 col-sm-10 row sale-container">
 
 
     <div [ngbNavOutlet]="nav">

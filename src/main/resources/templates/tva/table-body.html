@@ -1,0 +1,61 @@
+<table class="main-table">
+  <thead>
+  <tr>
+    <th class="text-left" th:if="${tvaGroupDate}">Date</th>
+    <th class="text-right">Code tva</th>
+    <th class="text-right">Total HT</th>
+    <th class="text-right">Total TVA</th>
+    <th class="text-right">Total TTC</th>
+
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+    <td class="text-left" th:if="${tvaGroupDate}"
+        th:text=" ${#temporals.format(itm.mvtDate, 'dd-MM-yyyy')}"></td>
+    <td class="unit" th:text="${itm.codeTva}"></td>
+
+    <td class="unit" th:if="${itm.montantHt ge 1000}"
+        th:text="${#numbers.formatInteger(itm.montantHt,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.montantHt lt 1000}" th:text="${itm.montantHt}"></td>
+
+
+    <td class="unit" th:if="${itm.montantTaxe ge 1000}"
+        th:text="${#numbers.formatInteger(itm.montantTaxe,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.montantTaxe lt 1000}" th:text="${itm.montantTaxe}"></td>
+
+    <td class="unit" th:if="${itm.montantTtc ge 1000}"
+        th:text="${#numbers.formatInteger(itm.montantTtc,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${itm.montantTtc lt 1000}" th:text="${itm.montantTtc}"></td>
+
+
+  </tr>
+
+  </tbody>
+  <tfoot>
+  <tr>
+    <td colspan="2" th:if="${tvaGroupDate}">Total</td>
+    <td colspan="1" th:unless="${tvaGroupDate}">Total</td>
+
+    <td class="unit" th:if="${reportSummary.montantHt ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantHt,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${reportSummary.montantHt lt 1000}"
+        th:text="${reportSummary.montantHt}"></td>
+
+    <td class="unit" th:if="${reportSummary.montantTaxe ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantTaxe,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${reportSummary.montantTaxe lt 1000}"
+        th:text="${reportSummary.montantTaxe}"></td>
+
+    <td class="unit" th:if="${reportSummary.montantTtc ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"></td>
+    <td class="unit" th:if="${reportSummary.montantTtc lt 1000}"
+        th:text="${reportSummary.montantTtc}"></td>
+  </tr>
+  </tfoot>
+
+</table>
+
+
+
+

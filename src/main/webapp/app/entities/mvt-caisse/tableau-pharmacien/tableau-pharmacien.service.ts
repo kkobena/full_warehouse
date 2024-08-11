@@ -22,6 +22,14 @@ export class TableauPharmacienService {
     });
   }
 
+  exportToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/tableau-pharmacien/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
   fetchGroupGrossisteToDisplay(req?: any): Observable<HttpResponse<IGroupeFournisseur[]>> {
     const options = createRequestOptions(req);
     return this.http.get<IGroupeFournisseur[]>(this.resourceUrl + 'top-groupe-fournisseurs', {

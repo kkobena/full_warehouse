@@ -4,7 +4,7 @@ public class SaleAlreadyCloseException extends BadRequestAlertException {
 
     private static final long serialVersionUID = 1L;
 
-    public SaleAlreadyCloseException(long venteId) {
-        super(String.format("Vente [%s] déjà cloturée", venteId + ""), "saleAlreadyClosed");
+    public SaleAlreadyCloseException() {
+        super("Cette Vente est déjà cloturée", "saleAlreadyClosed");
     }
 }

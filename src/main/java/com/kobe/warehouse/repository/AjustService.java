@@ -9,9 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface AjustService {
-  Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord, Pageable pageable);
+    Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord, Pageable pageable);
 
-  Resource exportToPdf(Long id) throws IOException;
+    Resource exportToPdf(Long id) throws IOException;
 
-  Optional<AjustDTO> getOneById(Long id);
+    Optional<AjustDTO> getOneById(Long id);
 }

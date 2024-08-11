@@ -1,207 +1,250 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TableauPharmacienDTO {
-  private LocalDate mvtDate;
-  private long montantComptant;
-  private long montantTtc;
-  private long montantCredit;
-  private long montantRemise;
-  private long montantNet;
-  private long montantAchat;
-  private long montantAchatNet;
-  private long montantTaxe;
-  private int nombreVente;
-  private long montantAvoir;
-  private long montantHt;
-  private long amountToBePaid;
-  private long amountToBeTakenIntoAccount;
-  private long montantNetUg;
-  private long montantTtcUg;
-  private long montantHtUg;
-  private long partAssure;
-  private Map<Long, AchatDTO> groupAchats;
-  private long montantAvoirFournisseur;
 
-  public long getAmountToBeTakenIntoAccount() {
-    return amountToBeTakenIntoAccount;
-  }
+    private LocalDate mvtDate;
+    private long montantComptant;
+    private long montantTtc;
+    private long montantCredit;
+    private long montantRemise;
+    private long montantNet;
+    private long montantAchat;
+    private long montantAchatNet;
+    private long montantTaxe;
+    private int nombreVente;
+    private long montantAvoir;
+    private long montantHt;
+    private long amountToBePaid;
+    private long amountToBeTakenIntoAccount;
+    private long montantNetUg;
+    private long montantTtcUg;
+    private long montantHtUg;
+    private long partAssure;
+    private List<FournisseurAchat> groupAchats = new ArrayList<>();
+    private long montantAvoirFournisseur;
+    private long montantBonAchat;
+    private float ratioAchatVente;
+    private float ratioVenteAchat;
+    private Map<Long, Long> achatFournisseus = new HashMap<>();
 
-  public TableauPharmacienDTO setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
-    this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
-    return this;
-  }
+    public Map<Long, Long> getAchatFournisseus() {
+        return achatFournisseus;
+    }
 
-  public long getAmountToBePaid() {
-    return amountToBePaid;
-  }
+    public void setAchatFournisseus(Map<Long, Long> achatFournisseus) {
+        this.achatFournisseus = achatFournisseus;
+    }
 
-  public TableauPharmacienDTO setAmountToBePaid(long amountToBePaid) {
-    this.amountToBePaid = amountToBePaid;
-    return this;
-  }
+    public long getAmountToBeTakenIntoAccount() {
+        return amountToBeTakenIntoAccount;
+    }
 
-  public LocalDate getMvtDate() {
-    return mvtDate;
-  }
+    public TableauPharmacienDTO setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMvtDate(LocalDate mvtDate) {
-    this.mvtDate = mvtDate;
-    return this;
-  }
+    public float getRatioAchatVente() {
+        return ratioAchatVente;
+    }
 
-  public long getMontantNetUg() {
-    return montantNetUg;
-  }
+    public TableauPharmacienDTO setRatioAchatVente(float ratioAchatVente) {
+        this.ratioAchatVente = ratioAchatVente;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantNetUg(long montantNetUg) {
-    this.montantNetUg = montantNetUg;
-    return this;
-  }
+    public float getRatioVenteAchat() {
+        return ratioVenteAchat;
+    }
 
-  public long getMontantTtcUg() {
-    return montantTtcUg;
-  }
+    public TableauPharmacienDTO setRatioVenteAchat(float ratioVenteAchat) {
+        this.ratioVenteAchat = ratioVenteAchat;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantTtcUg(long montantTtcUg) {
-    this.montantTtcUg = montantTtcUg;
-    return this;
-  }
+    public long getAmountToBePaid() {
+        return amountToBePaid;
+    }
 
-  public long getMontantHtUg() {
-    return montantHtUg;
-  }
+    public TableauPharmacienDTO setAmountToBePaid(long amountToBePaid) {
+        this.amountToBePaid = amountToBePaid;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantHtUg(long montantHtUg) {
-    this.montantHtUg = montantHtUg;
-    return this;
-  }
+    public LocalDate getMvtDate() {
+        return mvtDate;
+    }
 
-  public long getPartAssure() {
-    return partAssure;
-  }
+    public TableauPharmacienDTO setMvtDate(LocalDate mvtDate) {
+        this.mvtDate = mvtDate;
+        return this;
+    }
 
-  public TableauPharmacienDTO setPartAssure(long partAssure) {
-    this.partAssure = partAssure;
-    return this;
-  }
+    public long getMontantNetUg() {
+        return montantNetUg;
+    }
 
-  public long getMontantHt() {
-    return montantHt;
-  }
+    public TableauPharmacienDTO setMontantNetUg(long montantNetUg) {
+        this.montantNetUg = montantNetUg;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantHt(long montantHt) {
-    this.montantHt = montantHt;
-    return this;
-  }
+    public long getMontantTtcUg() {
+        return montantTtcUg;
+    }
 
-  public long getMontantComptant() {
-    return montantComptant;
-  }
+    public TableauPharmacienDTO setMontantTtcUg(long montantTtcUg) {
+        this.montantTtcUg = montantTtcUg;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantComptant(long montantComptant) {
-    this.montantComptant = montantComptant;
-    return this;
-  }
+    public long getMontantHtUg() {
+        return montantHtUg;
+    }
 
-  public long getMontantTtc() {
-    return montantTtc;
-  }
+    public TableauPharmacienDTO setMontantHtUg(long montantHtUg) {
+        this.montantHtUg = montantHtUg;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantTtc(long montantTtc) {
-    this.montantTtc = montantTtc;
-    return this;
-  }
+    public long getPartAssure() {
+        return partAssure;
+    }
 
-  public long getMontantCredit() {
-    return montantCredit;
-  }
+    public TableauPharmacienDTO setPartAssure(long partAssure) {
+        this.partAssure = partAssure;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantCredit(long montantCredit) {
-    this.montantCredit = montantCredit;
-    return this;
-  }
+    public long getMontantHt() {
+        return montantHt;
+    }
 
-  public long getMontantRemise() {
-    return montantRemise;
-  }
+    public TableauPharmacienDTO setMontantHt(long montantHt) {
+        this.montantHt = montantHt;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantRemise(long montantRemise) {
-    this.montantRemise = montantRemise;
-    return this;
-  }
+    public long getMontantComptant() {
+        return montantComptant;
+    }
 
-  public long getMontantNet() {
-    return montantNet;
-  }
+    public TableauPharmacienDTO setMontantComptant(long montantComptant) {
+        this.montantComptant = montantComptant;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantNet(long montantNet) {
-    this.montantNet = montantNet;
-    return this;
-  }
+    public long getMontantTtc() {
+        return montantTtc;
+    }
 
-  public long getMontantAchat() {
-    return montantAchat;
-  }
+    public TableauPharmacienDTO setMontantTtc(long montantTtc) {
+        this.montantTtc = montantTtc;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantAchat(long montantAchat) {
-    this.montantAchat = montantAchat;
-    return this;
-  }
+    public long getMontantCredit() {
+        return montantCredit;
+    }
 
-  public long getMontantAchatNet() {
-    return montantAchatNet;
-  }
+    public TableauPharmacienDTO setMontantCredit(long montantCredit) {
+        this.montantCredit = montantCredit;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantAchatNet(long montantAchatNet) {
-    this.montantAchatNet = montantAchatNet;
-    return this;
-  }
+    public long getMontantRemise() {
+        return montantRemise;
+    }
 
-  public long getMontantTaxe() {
-    return montantTaxe;
-  }
+    public TableauPharmacienDTO setMontantRemise(long montantRemise) {
+        this.montantRemise = montantRemise;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantTaxe(long montantTaxe) {
-    this.montantTaxe = montantTaxe;
-    return this;
-  }
+    public long getMontantNet() {
+        return montantNet;
+    }
 
-  public int getNombreVente() {
-    return nombreVente;
-  }
+    public TableauPharmacienDTO setMontantNet(long montantNet) {
+        this.montantNet = montantNet;
+        return this;
+    }
 
-  public TableauPharmacienDTO setNombreVente(int nombreVente) {
-    this.nombreVente = nombreVente;
-    return this;
-  }
+    public long getMontantAchat() {
+        return montantAchat;
+    }
 
-  public long getMontantAvoir() {
-    return montantAvoir;
-  }
+    public TableauPharmacienDTO setMontantAchat(long montantAchat) {
+        this.montantAchat = montantAchat;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantAvoir(long montantAvoir) {
-    this.montantAvoir = montantAvoir;
-    return this;
-  }
+    public long getMontantAchatNet() {
+        return montantAchatNet;
+    }
 
-  public Map<Long, AchatDTO> getGroupAchats() {
-    return groupAchats;
-  }
+    public TableauPharmacienDTO setMontantAchatNet(long montantAchatNet) {
+        this.montantAchatNet = montantAchatNet;
+        return this;
+    }
 
-  public TableauPharmacienDTO setGroupAchats(Map<Long, AchatDTO> groupAchats) {
-    this.groupAchats = groupAchats;
-    return this;
-  }
+    public long getMontantTaxe() {
+        return montantTaxe;
+    }
 
-  public long getMontantAvoirFournisseur() {
-    return montantAvoirFournisseur;
-  }
+    public TableauPharmacienDTO setMontantTaxe(long montantTaxe) {
+        this.montantTaxe = montantTaxe;
+        return this;
+    }
 
-  public TableauPharmacienDTO setMontantAvoirFournisseur(long montantAvoirFournisseur) {
-    this.montantAvoirFournisseur = montantAvoirFournisseur;
-    return this;
-  }
+    public int getNombreVente() {
+        return nombreVente;
+    }
+
+    public TableauPharmacienDTO setNombreVente(int nombreVente) {
+        this.nombreVente = nombreVente;
+        return this;
+    }
+
+    public long getMontantAvoir() {
+        return montantAvoir;
+    }
+
+    public TableauPharmacienDTO setMontantAvoir(long montantAvoir) {
+        this.montantAvoir = montantAvoir;
+        return this;
+    }
+
+    public List<FournisseurAchat> getGroupAchats() {
+        return groupAchats;
+    }
+
+    public TableauPharmacienDTO setGroupAchats(List<FournisseurAchat> groupAchats) {
+        this.groupAchats = groupAchats;
+        return this;
+    }
+
+    public long getMontantAvoirFournisseur() {
+        return montantAvoirFournisseur;
+    }
+
+    public TableauPharmacienDTO setMontantAvoirFournisseur(long montantAvoirFournisseur) {
+        this.montantAvoirFournisseur = montantAvoirFournisseur;
+        return this;
+    }
+
+    public long getMontantBonAchat() {
+        return montantBonAchat;
+    }
+
+    public TableauPharmacienDTO setMontantBonAchat(long montantBonAchat) {
+        this.montantBonAchat = montantBonAchat;
+        return this;
+    }
 }

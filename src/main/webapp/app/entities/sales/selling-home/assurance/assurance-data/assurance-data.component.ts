@@ -171,7 +171,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.searchInput().nativeElement.focus();
+    this.searchInput()?.nativeElement.focus();
   }
 
   addComplementaire(): void {

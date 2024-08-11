@@ -49,6 +49,11 @@ export class MvtCaisseServiceService {
     });
   }
 
+  exportToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
+  }
+
   findAllMvtsTypes(): Observable<HttpResponse<Pair[]>> {
     return this.http.get<Pair[]>(this.resourceUrl + '/types', { observe: 'response' });
   }

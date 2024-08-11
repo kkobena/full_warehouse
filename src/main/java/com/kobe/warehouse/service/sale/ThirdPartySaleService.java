@@ -77,4 +77,7 @@ public interface ThirdPartySaleService {
     void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
     void changeCustomer(KeyValue keyValue) throws GenericError, PlafondVenteException;
+
+    FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
+        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 }

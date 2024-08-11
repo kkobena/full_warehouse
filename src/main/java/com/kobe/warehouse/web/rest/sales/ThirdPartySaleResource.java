@@ -206,4 +206,16 @@ public class ThirdPartySaleResource {
         saleService.changeCustomer(keyValue);
         return ResponseEntity.accepted().build();
     }
+
+    @PutMapping("/sales/assurance/save/completed-sale")
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    public ResponseEntity<FinalyseSaleDTO> editSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
+        if (thirdPartySaleDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        FinalyseSaleDTO result = saleService.editSale(thirdPartySaleDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, thirdPartySaleDTO.getId().toString()))
+            .body(result);
+    }
 }

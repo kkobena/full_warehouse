@@ -66,7 +66,6 @@ export class PreventeModalComponent implements OnInit {
 
   onSelectUser(): void {
     this.user = this.userSeller;
-
     this.loadPreventes();
   }
 

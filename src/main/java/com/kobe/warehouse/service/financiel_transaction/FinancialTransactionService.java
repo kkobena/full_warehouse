@@ -7,29 +7,30 @@ import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface FinancialTransactionService {
-  default List<Pair> getTypes() {
-    return Stream.of(TypeFinancialTransaction.values())
-        .map(type -> new Pair(type.name(), type.getValue()))
-        .toList();
-  }
+    default List<Pair> getTypes() {
+        return Stream.of(TypeFinancialTransaction.values()).map(type -> new Pair(type.name(), type.getValue())).toList();
+    }
 
-  void create(FinancialTransactionDTO financialTransactionDTO);
+    void create(FinancialTransactionDTO financialTransactionDTO);
 
-  Page<FinancialTransactionDTO> findAll(
-      FinancielTransactionFilterDTO financielTransactionFilter, Pageable pageable);
+    Page<FinancialTransactionDTO> findAll(FinancielTransactionFilterDTO financielTransactionFilter, Pageable pageable);
 
-  Page<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter, Pageable pageable);
+    Page<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter, Pageable pageable);
 
-  List<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter);
+    List<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter);
 
-  MvtCaisseWrapper getMvtCaisseSum(TransactionFilterDTO transactionFilter);
+    MvtCaisseWrapper getMvtCaisseSum(TransactionFilterDTO transactionFilter);
 
-  Optional<FinancialTransactionDTO> findById(Long id);
+    Optional<FinancialTransactionDTO> findById(Long id);
+
+    Resource exportToPdf(TransactionFilterDTO transactionFilter) throws IOException;
 }

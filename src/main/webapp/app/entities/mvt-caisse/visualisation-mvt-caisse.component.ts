@@ -31,6 +31,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { Tuple } from '../../shared/model/tuple.model';
 import { MvtParamServiceService } from './mvt-param-service.service';
+import { saveAs } from 'file-saver';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
@@ -51,6 +53,7 @@ import { MvtParamServiceService } from './mvt-param-service.service';
     ButtonGroupModule,
     DividerModule,
     CardModule,
+    ToastModule,
   ],
   templateUrl: './visualisation-mvt-caisse.component.html',
 })
@@ -60,6 +63,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected mvtCaisseSum: MvtCaisseWrapper | null = null;
   protected totalItems = 0;
   protected loading!: boolean;
+  protected btnLoading = false;
   protected page = 0;
   protected predicate!: string;
   protected ascending!: boolean;
@@ -94,6 +98,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private primeNGConfig = inject(PrimeNGConfig);
   private translate = inject(TranslateService);
   private mvtParamServiceService = inject(MvtParamServiceService);
+  private messageService = inject(MessageService);
 
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
@@ -117,6 +122,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   }
 
   onSearch(): void {
+    this.btnLoading = true;
     this.loadPage();
     this.loadSum();
     this.updateParam();
@@ -133,6 +139,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
+        complete: () => {
+          this.btnLoading = false;
+        },
       });
   }
 
@@ -165,9 +174,30 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
 
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
+    this.btnLoading = false;
   }
 
-  protected onPrint(): void {}
+  protected onPrint(): void {
+    this.btnLoading = true;
+    this.updateParam();
+    this.mvtCaisseService.exportToPdf(this.buildParams()).subscribe({
+      next: blod => {
+        this.btnLoading = false;
+        saveAs(blod);
+      },
+      error: () => {
+        this.btnLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Une erreur est survenue',
+        });
+      },
+      complete: () => {
+        this.btnLoading = false;
+      },
+    });
+  }
 
   protected addNew(): void {
     this.ref = this.dialogService.open(FormTransactionComponent, {
@@ -210,6 +240,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private loadSum(): void {
     this.mvtCaisseService.findAllMvtsSum(this.buildParams()).subscribe((res: HttpResponse<MvtCaisseWrapper>) => {
       this.mvtCaisseSum = res.body || null;
+      this.loading = false;
     });
   }
 

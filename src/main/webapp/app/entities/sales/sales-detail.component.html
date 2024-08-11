@@ -1,66 +1,235 @@
-<div class="row justify-content-center">
-    <div class="col-8">
-        <div *ngIf="sales">
-            <h2><span jhiTranslate="warehouseApp.sales.detail.title">Sales</span> {{ sales.id }}</h2>
+<div class="d-flex justify-content-end">
+  <p-button (onClick)="previousState()" icon="pi pi-arrow-left" label="Retour" />
+</div>
+<div class="row sales-detail">
+  <div [ngClass]="classInfoSale">
+    <div class="card">
+      <div class="card-header text-bg-success">
+        Infos vente
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Date
+            <span
+              class="badge text-bg-secondary rounded-pill">{{ sales.updatedAt | date:'dd/MM/yy HH:mm' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Référence
+            <span class="badge text-bg-secondary rounded-pill">{{ sales.numberTransaction }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Opérateur
+            <span class="badge text-bg-secondary rounded-pill">{{ sales.cassier.abbrName }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Montant Ttc
+            <span
+              class="badge text-bg-secondary rounded-pill">{{ sales.salesAmount | number }}</span>
+          </li>
+          @if (sales.taxAmount > 0) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Montant Tva
+              <span
+                class="badge text-bg-secondary rounded-pill">{{ sales.taxAmount | number }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Montant Ht
+              <span class="badge text-bg-secondary rounded-pill">{{
+                  sales.salesAmount - sales.taxAmount | number
+                }}</span>
+            </li>
+          }
+          @if (sales.discountAmount > 0) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Remise
+              <span class="badge text-bg-secondary rounded-pill">{{
+                  sales.discountAmount | number
+                }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Montant net
+              <span class="badge text-bg-secondary rounded-pill">{{
+                  sales.netAmount | number
+                }}</span>
+            </li>
+          }
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Montant payé
+            <span class="badge text-bg-secondary rounded-pill">
+            {{
+                sales.amountToBePaid | number
+              }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Marge
+            <span class="badge text-bg-secondary rounded-pill">
+            {{
+                sales.marge | number
+              }}</span>
+          </li>
+          @if (sales.restToPay > 0) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Reste payé
+              <span class="badge text-bg-secondary rounded-pill">{{
+                  sales.restToPay | number
+                }}</span>
+            </li>
+          }
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Total produit
+            <span class="badge text-bg-secondary rounded-pill">{{
+                sales.salesLines.length | number
+              }}</span>
+          </li>
+        </ul>
+      </div>
 
-            <hr>
-
-            <jhi-alert-error></jhi-alert-error>
-
-            <dl class="row-md jh-entity-details">
-                <dt><span jhiTranslate="warehouseApp.sales.discountAmount">Discount Amount</span></dt>
-                <dd>
-                    <span>{{ sales.discountAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.salesAmount">Sales Amount</span></dt>
-                <dd>
-                    <span>{{ sales.salesAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.grossAmount">Gross Amount</span></dt>
-                <dd>
-                    <span>{{ sales.grossAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.netAmount">Net Amount</span></dt>
-                <dd>
-                    <span>{{ sales.netAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.taxAmount">Tax Amount</span></dt>
-                <dd>
-                    <span>{{ sales.taxAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.costAmount">Cost Amount</span></dt>
-                <dd>
-                    <span>{{ sales.costAmount }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.statut">Statut</span></dt>
-                <dd>
-                    <span jhiTranslate="{{ 'warehouseApp.SalesStatut.' + sales.statut }}">{{ sales.statut }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.createdAt">Created At</span></dt>
-                <dd>
-                    <span>{{ sales.createdAt }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.updatedAt">Updated At</span></dt>
-                <dd>
-                    <span>{{ sales.updatedAt }}</span>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.customer">Customer</span></dt>
-                <dd>
-                    <div *ngIf="sales.customer">
-                        <a [routerLink]="['/customer', sales.customer?.id, 'view']">{{ sales.customer?.id }}</a>
-                    </div>
-                </dd>
-                <dt><span jhiTranslate="warehouseApp.sales.dateDimension">Date Dimension</span></dt>
-
-            </dl>
-
-            <button type="submit" (click)="previousState()" class="btn btn-info">
-                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
-            </button>
-
-            <button type="button" [routerLink]="['/sales', sales.id, 'edit']" class="btn btn-primary">
-                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
-            </button>
-        </div>
     </div>
+
+
+  </div>
+  @if (sales.customer) {
+    <div [ngClass]="classCustomer">
+      <div class="card">
+        <div class="card-header text-bg-info">
+          Client
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Nom
+              <span
+                class="badge text-bg-secondary rounded-pill">{{ sales.customer.firstName }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Prénom
+              <span
+                class="badge text-bg-secondary rounded-pill">{{ sales.customer.lastName }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Date de naissance
+              <span
+                class="badge text-bg-secondary rounded-pill">{{ sales.customer.datNaiss | date:'dd/MM/yy' }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Téléphone
+              <span
+                class="badge text-bg-secondary rounded-pill">{{ sales.customer.phone }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      @if (sales.ayantDroit && sales.customer?.id !== sales.ayantDroit?.id) {
+        <div class="card">
+          <div class="card-header">
+            Ayant droit
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Nom
+                <span
+                  class="badge text-bg-secondary rounded-pill">{{ sales.ayantDroit.firstName }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Prénom
+                <span
+                  class="badge text-bg-secondary rounded-pill">{{ sales.ayantDroit.lastName }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Date de naissance
+                <span
+                  class="badge text-bg-secondary rounded-pill">{{ sales.ayantDroit.datNaiss | date:'dd/MM/yy' }}</span>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+  @if (sales.thirdPartySaleLines?.length > 0) {
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header text-bg-secondary">
+          Infos tiers-paynat
+        </div>
+        <div class="card-body">
+          <table class="table table-hover table-sm table-responsive table-bordered">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Tiers-payant</th>
+              <th>Matricule</th>
+              <th>Bon</th>
+              <th>Taux</th>
+              <th>Montant</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (tp of sales.thirdPartySaleLines; track tp.id; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ tp.tiersPayantFullName }}</td>
+                  <td>{{ tp.num }}</td>
+                  <td>{{ tp.numBon }}</td>
+                  <td class="text-right amount-column">{{ tp.taux }}</td>
+                  <td class="text-right amount-column">{{ tp.montant | number }}</td>
+                </tr>
+              }
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+
+  <div [ngClass]="classInfoProduit">
+    <div class="card">
+      <div class="card-header text-bg-warning">
+        Produits
+      </div>
+      <div class="card-body">
+        <table class="table table-responsive table-hover table-sm  table-bordered">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Code</th>
+            <th>Libellé</th>
+            <th>Quantité</th>
+            <th>Quantité servie</th>
+            <th>Quantité avoir</th>
+            <th>Prix unitaire</th>
+            <th>Montant</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (line of sales.salesLines; track line.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ line.code }}</td>
+                <td>{{ line.produitLibelle }}</td>
+                <td class="text-right amount-column">{{ line.quantityRequested | number }}</td>
+                <td class="text-right amount-column">{{ line.quantitySold | number }}</td>
+                <td class="text-right amount-column">{{
+                    line.quantityRequested - line.quantitySold | number
+                  }}
+                </td>
+                <td class="text-right amount-column">{{ line.regularUnitPrice | number }}</td>
+                <td class="text-right amount-column">{{ line.salesAmount | number }}</td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </div>
 </div>

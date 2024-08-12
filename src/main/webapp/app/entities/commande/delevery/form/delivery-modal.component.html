@@ -2,32 +2,34 @@
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
              size="medium"
              type="timer"></ngx-spinner>
+@if (commande) {
+  <p-card header="  Information sur la commande [{{commande.orderRefernce}}]"
+          styleClass="form-delivery">
 
-<p-card *ngIf="commande" header="  Information sur la commande [{{commande?.orderRefernce}}]"
-        styleClass="form-delivery">
+    <ng-template pTemplate="content">
+      <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span style="margin-right: 5px;">Référence</span>
+          <span class="text-primary">{{ commande.orderRefernce }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span style="margin-right: 5px;">Grossiste</span>
+          <span class="text-primary">{{ commande.fournisseur?.libelle }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Valeur Achat
+          <span class="text-primary">{{ commande.grossAmount | number }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Valeur Vente
+          <span class="text-primary">{{ commande.orderAmount | number }}</span>
+        </li>
+      </ul>
 
-  <ng-template pTemplate="content">
-    <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span style="margin-right: 5px;">Référence</span>
-        <span class="text-primary">{{commande?.orderRefernce}}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span style="margin-right: 5px;">Grossiste</span>
-        <span class="text-primary">{{commande?.fournisseur?.libelle}}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Valeur Achat
-        <span class="text-primary">{{commande?.grossAmount | number}}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Valeur Vente
-        <span class="text-primary">{{commande?.orderAmount | number}}</span>
-      </li>
-    </ul>
+    </ng-template>
+  </p-card>
+}
 
-  </ng-template>
-</p-card>
 <p-card header="Infromation bon de livraison" styleClass="form-delivery">
 
   <form [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -42,16 +44,19 @@
             [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
             dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
           ></p-calendar>
+          @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty
+            || editForm.get('receiptDate')!.touched)) {
+            <div>
+              @if (editForm.get('receiptDate')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
+              }
 
-          <div
-            *ngIf="editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)">
-            <small *ngIf="editForm.get('receiptDate')?.errors?.required"
-                   class="form-text text-danger"
-                   style="color: red;">
-              Ce champ est obligatoire.
-            </small>
 
-          </div>
+            </div>
+          }
+
         </div>
       </div>
 
@@ -61,15 +66,19 @@
 
         <input autocomplete="off" class="form-control"
                formControlName="receiptRefernce" name="receiptRefernce" pInputText type="text" />
-        <div
-          *ngIf="editForm.get('receiptRefernce')!.invalid && (editForm.get('receiptRefernce')!.dirty || editForm.get('receiptRefernce')!.touched)">
-          <small *ngIf="editForm.get('receiptRefernce')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
+        @if (editForm.get('receiptRefernce')!.invalid && (editForm.get('receiptRefernce')!.dirty
+          || editForm.get('receiptRefernce')!.touched)) {
+          <div>
+            @if (editForm.get('receiptRefernce')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
 
-        </div>
+
+          </div>
+        }
+
       </div>
       <div class="form-row">
 
@@ -81,15 +90,21 @@
                  class="form-control" formControlName="receiptAmount" name="receiptAmount"
                  pInputText
                  type="text" />
-          <div
-            *ngIf="editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)">
-            <small *ngIf="editForm.get('receiptAmount')?.errors?.required"
-                   class="form-text text-danger"
-                   style="color: red;">
-              Ce champ est obligatoire.
-            </small>
+          @if (editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty
+            || editForm.get('receiptAmount')!.touched)) {
+            <div>
+              @if (editForm.get('receiptAmount')?.errors?.required) {
+                <small
+                  class="form-text text-danger"
+                  style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
+              }
 
-          </div>
+
+            </div>
+          }
+
         </div>
 
         <div class="p-field col-md-6">
@@ -99,26 +114,32 @@
           <input [pKeyFilter]="'int'" autocomplete="off"
                  class="form-control" formControlName="taxAmount" name="taxAmount" pInputText
                  type="text" />
-          <div
-            *ngIf="editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)">
-            <small *ngIf="editForm.get('taxAmount')?.errors?.required"
-                   class="form-text text-danger"
-                   style="color: red;">
-              Ce champ est obligatoire.
-            </small>
+          @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty
+            || editForm.get('taxAmount')!.touched)) {
+            <div>
+              @if (editForm.get('taxAmount')?.errors?.required) {
+                <small
+                  class="form-text text-danger"
+                  style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
+              }
 
-          </div>
+
+            </div>
+          }
+
         </div>
 
       </div>
 
-      <div class="p-field p-col" hidden="true">
-        <label class="col-auto col-form-label">Séquence Bon</label>
+      <!--  <div class="p-field p-col" hidden="true">
+          <label class="col-auto col-form-label">Séquence Bon</label>
 
-        <input autocomplete="off" class="form-control"
-               formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
+          <input autocomplete="off" class="form-control"
+                 formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
 
-      </div>
+        </div>-->
     </div>
 
 

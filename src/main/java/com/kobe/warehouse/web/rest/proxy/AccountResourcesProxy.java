@@ -14,77 +14,75 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 public class AccountResourcesProxy {
-  private final UserRepository userRepository;
-  private final UserService userService;
 
-  public AccountResourcesProxy(UserRepository userRepository, UserService userService) {
-    this.userRepository = userRepository;
-    this.userService = userService;
-  }
+    private final UserRepository userRepository;
+    private final UserService userService;
 
-  private static boolean isPasswordLengthInvalid(String password) {
-    return (StringUtils.isEmpty(password)
-        || password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH
-        || password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH);
-  }
+    public AccountResourcesProxy(UserRepository userRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
 
-  protected AdminUserDTO getAccount() {
-    return userService
-        .getUserConnectedWithAuthorities()
-        .orElseThrow(() -> new AccountResourceException("User could not be found"));
-  }
+    private static boolean isPasswordLengthInvalid(String password) {
+        return (
+            StringUtils.isEmpty(password) ||
+            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
+            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
+        );
+    }
 
-  protected void saveAccount(AdminUserDTO userDTO) {
-    String userLogin =
-        SecurityUtils.getCurrentUserLogin()
+    protected AdminUserDTO getAccount() {
+        return userService.getUserConnectedWithAuthorities().orElseThrow(() -> new AccountResourceException("User could not be found"));
+    }
+
+    protected void saveAccount(AdminUserDTO userDTO) {
+        String userLogin = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
-    Optional<User> existingUser =
-        org.springframework.util.StringUtils.hasText(userDTO.getEmail())
+        Optional<User> existingUser = org.springframework.util.StringUtils.hasText(userDTO.getEmail())
             ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
             : Optional.empty();
-    if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-      throw new EmailAlreadyUsedException();
+        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
+            throw new EmailAlreadyUsedException();
+        }
+        Optional<User> user = userRepository.findOneByLogin(userLogin);
+        if (user.isEmpty()) {
+            throw new AccountResourceException("User could not be found");
+        }
+        userService.updateUser(
+            userDTO.getFirstName(),
+            userDTO.getLastName(),
+            userDTO.getEmail(),
+            userDTO.getLangKey(),
+            userDTO.getImageUrl()
+        );
     }
-    Optional<User> user = userRepository.findOneByLogin(userLogin);
-    if (!user.isPresent()) {
-      throw new AccountResourceException("User could not be found");
+
+    protected void changePassword(PasswordChangeDTO passwordChangeDto) {
+        if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
+            throw new InvalidPasswordException();
+        }
+        userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
     }
-    userService.updateUser(
-        userDTO.getFirstName(),
-        userDTO.getLastName(),
-        userDTO.getEmail(),
-        userDTO.getLangKey(),
-        userDTO.getImageUrl());
-  }
 
-  protected void changePassword(PasswordChangeDTO passwordChangeDto) {
-    if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
-      throw new InvalidPasswordException();
+    protected void requestPasswordReset(String mail) {
+        userService.requestPasswordReset(mail);
     }
-    userService.changePassword(
-        passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
-  }
 
-  protected void requestPasswordReset(String mail) {
-    userService.requestPasswordReset(mail);
-  }
+    protected void finishPasswordReset(KeyAndPasswordVM keyAndPassword) {
+        if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
+            throw new InvalidPasswordException();
+        }
+        Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-  protected void finishPasswordReset(KeyAndPasswordVM keyAndPassword) {
-    if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
-      throw new InvalidPasswordException();
+        if (!user.isPresent()) {
+            throw new AccountResourceException("No user was found for this reset key");
+        }
     }
-    Optional<User> user =
-        userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-    if (!user.isPresent()) {
-      throw new AccountResourceException("No user was found for this reset key");
+    private static class AccountResourceException extends RuntimeException {
+
+        private AccountResourceException(String message) {
+            super(message);
+        }
     }
-  }
-
-  private static class AccountResourceException extends RuntimeException {
-
-    private AccountResourceException(String message) {
-      super(message);
-    }
-  }
 }

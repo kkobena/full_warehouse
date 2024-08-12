@@ -69,8 +69,6 @@
     "packaging": "jar"
   },
   "dependencies": {
-    "@ag-grid-community/angular": "^32.0.1",
-    "@ag-grid-community/core": "^32.0.1",
     "@angular/animations": "18.0.4",
     "@angular/cdk": "^18.0.4",
     "@angular/common": "18.0.4",
@@ -89,7 +87,6 @@
     "@ngx-translate/core": "15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@popperjs/core": "2.11.8",
-    "ag-grid-community": "32.0.1",
     "bootstrap": "5.3.3",
     "bootswatch": "5.3.3",
     "chart.js": "^4.4.3",
@@ -106,6 +103,12 @@
     "zone.js": "0.14.7"
   },
   "devDependencies": {
+    "@ag-grid-community/angular": "^32.1.0",
+    "@ag-grid-community/core": "^32.1.0",
+    "@ag-grid-community/styles": "^32.1.0",
+    "@ag-grid-community/client-side-row-model": "^32.1.0",
+    "@ag-grid-community/infinite-row-model": "^32.1.0",
+    "@ag-grid-community/csv-export": "^32.1.0",
     "@angular-builders/custom-webpack": "18.0.0",
     "@angular-builders/jest": "18.0.0",
     "@angular-devkit/build-angular": "18.0.6",

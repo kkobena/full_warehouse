@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 @Component({
   selector: 'jhi-btn-remove',

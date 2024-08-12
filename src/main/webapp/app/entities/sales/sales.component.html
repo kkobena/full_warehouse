@@ -191,11 +191,14 @@
                     icon="pi pi-send"
                     pButton pRipple
                     pTooltip="Suggérer"></button>
-            <button (click)="confirmRemove(sale)"
-                    class="p-button-rounded p-button-danger p-button-sm ml-2  btn-sm"
-                    icon="pi pi-trash"
-                    pButton pRipple
-                    pTooltip="Annuler"></button>
+            @if (canCancel) {
+              <button (click)="confirmRemove(sale)"
+                      class="p-button-rounded p-button-danger p-button-sm ml-2  btn-sm"
+                      icon="pi pi-trash"
+                      pButton pRipple
+                      pTooltip="Annuler"></button>
+            }
+
           </div>
         </td>
       </tr>

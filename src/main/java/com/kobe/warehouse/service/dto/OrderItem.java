@@ -1,22 +1,32 @@
 package com.kobe.warehouse.service.dto;
 
 public class OrderItem {
-  private String produitCip;
-  private String produitEan;
-  private String produitLibelle;
-  private int quantityRequested;
-  private int quantityReceived;
-  private String referenceBonLivraison;
-  private String dateBonLivraison;
-  private Double montant;
-  private int ug;
-  private double prixUn;
-  private int prixAchat;
-  private Double tva;
-  private int ligne;
-  private String facture;
 
-    public OrderItem() {
+    private String produitCip;
+    private String produitEan;
+    private String produitLibelle;
+    private int quantityRequested;
+    private int quantityReceived;
+    private String referenceBonLivraison;
+    private String dateBonLivraison;
+    private Double montant;
+    private int ug;
+    private double prixUn;
+    private int prixAchat;
+    private Double tva;
+    private int ligne;
+    private String facture;
+    private String etablissement;
+
+    public OrderItem() {}
+
+    public String getEtablissement() {
+        return etablissement;
+    }
+
+    public OrderItem setEtablissement(String etablissement) {
+        this.etablissement = etablissement;
+        return this;
     }
 
     public String getProduitCip() {

@@ -1,7 +1,8 @@
 import { Component, OnChanges, SimpleChanges } from '@angular/core';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
+
 import { IStoreInventoryLine } from '../../../shared/model/store-inventory-line.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
 @Component({
   selector: 'jhi-inventory-status',

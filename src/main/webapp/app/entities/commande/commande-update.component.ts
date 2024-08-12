@@ -1,7 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
@@ -12,7 +12,7 @@ import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
 import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
-import { ConfirmationService, MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { saveAs } from 'file-saver';
@@ -36,6 +36,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { ToastModule } from 'primeng/toast';
+import { CommandCommonService } from './command-common.service';
 
 @Component({
   standalone: true,
@@ -74,7 +76,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     `,
   ],
   templateUrl: './commande-update.component.html',
-  providers: [ConfirmationService, DialogService],
+  providers: [ConfirmationService, DialogService, MessageService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -94,9 +96,10 @@ import { NgSelectModule } from '@ng-select/ng-select';
     DialogModule,
     ToolbarModule,
     TooltipModule,
+    ToastModule,
   ],
 })
-export class CommandeUpdateComponent implements OnInit {
+export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   isSaving = false;
   produits: IProduit[] = [];
 
@@ -108,18 +111,17 @@ export class CommandeUpdateComponent implements OnInit {
   selectedProvider?: number | null = null;
   fournisseurs: IFournisseur[] = [];
   quantiteSaisie = 1;
-  @ViewChild('quantityBox')
-  quantityBox?: ElementRef;
-  @ViewChild('produitbox')
-  produitbox?: any;
-  @ViewChild('fournisseurBox')
-  fournisseurBox?: any;
+  quantityBox = viewChild.required<ElementRef>('quantityBox');
   filtres: any[] = [];
   selectedFilter = 'ALL';
   fournisseurDisabled = false;
   selectedEl: IOrderLine[];
   commandebuttons: MenuItem[];
   fileDialog = false;
+  fournisseurBox = viewChild.required<any>('fournisseurBox');
+  produitbox = viewChild.required<any>('produitbox');
+  commandCommonService = inject(CommandCommonService);
+  route = inject(Router);
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly APPEND_TO = APPEND_TO;
@@ -133,6 +135,7 @@ export class CommandeUpdateComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private errorService: ErrorService,
     private spinner: NgxSpinnerService,
+    private messageService: MessageService,
   ) {
     this.selectedEl = [];
     this.filtres = [
@@ -157,6 +160,11 @@ export class CommandeUpdateComponent implements OnInit {
     ];
   }
 
+  onEditProduit(produitId: number): void {
+    this.commandCommonService.updateCommand(this.commande);
+    this.route.navigate(['produit', produitId, 'edit']);
+  }
+
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ commande }) => {
       if (commande.id) {
@@ -164,9 +172,16 @@ export class CommandeUpdateComponent implements OnInit {
         this.orderLines = commande.orderLines;
         this.fournisseurDisabled = true;
         this.selectedProvider = this.commande.fournisseurId;
+        //   this.commandCommonService.updateCommand(commande);
+      } else if (this.commandCommonService.currentCommand()?.id) {
+        this.commande = this.commandCommonService.currentCommand();
+        this.orderLines = this.commande.orderLines;
+        this.fournisseurDisabled = true;
+        this.selectedProvider = this.commande.fournisseurId;
       }
     });
     this.loadFournisseurs();
+    console.log('retour------ 0000', this.commande);
   }
 
   filtreFournisseur(event: any): void {
@@ -179,24 +194,32 @@ export class CommandeUpdateComponent implements OnInit {
 
   onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
-    if (qytMvt <= 0) {return;}
+    if (qytMvt <= 0) {
+      return;
+    }
     this.onAddOrderLine(qytMvt);
   }
 
   onQuantity(): void {
-    const qytMvt = Number(this.quantityBox.nativeElement.value);
-    if (qytMvt <= 0) {return;}
+    const qytMvt = Number(this.quantityBox().nativeElement.value);
+    if (qytMvt <= 0) {
+      return;
+    }
     this.onAddOrderLine(qytMvt);
   }
 
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
-      if (this.commande.id !== undefined) {
-        this.subscribeToSaveOrderLineResponse(
-          this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
-        );
+      if (this.selectedProvider) {
+        if (this.commande?.id !== undefined) {
+          this.subscribeToSaveOrderLineResponse(
+            this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
+          );
+        } else {
+          this.subscribeToSaveOrderLineResponse(this.commandeService.create(this.createCommande(this.produitSelected, qytMvt)));
+        }
       } else {
-        this.subscribeToSaveOrderLineResponse(this.commandeService.create(this.createCommande(this.produitSelected, qytMvt)));
+        this.openInfoDialog('Veuillez selectionner un fournisseur', 'error', 'Erreur');
       }
     }
   }
@@ -283,7 +306,7 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   exportCSV(): void {
-    this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(this.commande?.id).subscribe(blod => saveAs(blod));
   }
 
   searchFn(event: any): void {
@@ -291,13 +314,9 @@ export class CommandeUpdateComponent implements OnInit {
     this.loadProduits();
   }
 
-  produitComponentSearch(term: string, item: IProduit): boolean {
-    return !!item;
-  }
-
   onSelect(): void {
     setTimeout(() => {
-      const el = this.quantityBox.nativeElement;
+      const el = this.quantityBox().nativeElement;
       el.focus();
       el.select();
     }, 50);
@@ -309,8 +328,8 @@ export class CommandeUpdateComponent implements OnInit {
 
   focusPrdoduitBox(): void {
     setTimeout(() => {
-      this.produitbox.inputEL.nativeElement.focus();
-      this.produitbox.inputEL.nativeElement.select();
+      this.produitbox().inputEL.nativeElement.focus();
+      this.produitbox().inputEL.nativeElement.select();
     }, 50);
   }
 
@@ -407,7 +426,7 @@ export class CommandeUpdateComponent implements OnInit {
     formData.append('commande', file, file.name);
 
     this.showsPinner('commandeEnCourspinner');
-    this.commandeService.importerReponseCommande(this.commande.id, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commande?.id, formData).subscribe({
       next: res => {
         this.hidePinner('commandeEnCourspinner');
         this.refreshCommande();
@@ -440,13 +459,22 @@ export class CommandeUpdateComponent implements OnInit {
     this.fournisseurDisabled = false;
     this.selectedFilter = 'ALL';
     setTimeout(() => {
-      //  this.fournisseurBox.focus();
-      this.fournisseurBox.inputEL.nativeElement.focus();
-    }, 100);
+      this.fournisseurBox()?.inputEL?.nativeElement.focus();
+    }, 50);
+  }
+
+  ngAfterViewInit(): void {
+    if (this.commande && this.commande.id) {
+      this.focusPrdoduitBox();
+    } else {
+      setTimeout(() => {
+        this.fournisseurBox()?.inputEL?.nativeElement?.focus();
+      }, 100);
+    }
   }
 
   protected refreshCommande(): void {
-    this.commandeService.find(this.commande.id).subscribe(res => {
+    this.commandeService.find(this.commande?.id).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande.orderLines;
       this.focusPrdoduitBox();
@@ -454,8 +482,8 @@ export class CommandeUpdateComponent implements OnInit {
   }
 
   protected updateProduitQtyBox(): void {
-    if (this.quantityBox) {
-      this.quantityBox.nativeElement.value = 1;
+    if (this.quantityBox()) {
+      this.quantityBox().nativeElement.value = 1;
     }
     this.produitSelected = null;
     this.focusPrdoduitBox();
@@ -472,7 +500,7 @@ export class CommandeUpdateComponent implements OnInit {
     if (commande) {
       this.commandeService.find(commande.id).subscribe(res => {
         this.commande = res.body;
-        this.orderLines = this.commande.orderLines;
+        this.orderLines = this.commande?.orderLines;
         this.updateProduitQtyBox();
       });
     }
@@ -484,13 +512,13 @@ export class CommandeUpdateComponent implements OnInit {
 
   protected onCommonError(error: any): void {
     if (error.error && error.error.status === 500) {
-      this.openInfoDialog('Erreur applicative', 'alert alert-danger');
+      this.openInfoDialog('Erreur applicative', 'error', 'Erreur');
     } else {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
         next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+          this.openInfoDialog(translatedErrorMessage, 'error', 'Erreur');
         },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'error', 'Erreur'),
       });
     }
   }
@@ -508,13 +536,14 @@ export class CommandeUpdateComponent implements OnInit {
     });
   }
 
-  private openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
+  private openInfoDialog(message: string, severity: string, summary: string): void {
+    // const modalRef = this.modalService.open(AlertInfoComponent, {
+    //   backdrop: 'static',
+    //   centered: true,
+    // });
+    // modalRef.componentInstance.message = message;
+    // modalRef.componentInstance.infoClass = infoClass;
+    this.messageService.add({ severity, summary, detail: message });
   }
 
   private createOrderLine(produit: IProduit, quantityRequested: number): IOrderLine {
@@ -523,7 +552,7 @@ export class CommandeUpdateComponent implements OnInit {
       produitId: produit.id,
       totalQuantity: produit.totalQuantity,
       commande:
-        this.commande.id !== undefined
+        this.commande?.id !== undefined
           ? this.commande
           : {
               ...new Commande(),

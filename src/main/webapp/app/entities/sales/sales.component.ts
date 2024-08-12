@@ -27,6 +27,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { VoSalesService } from './service/vo-sales.service';
 import { HasAuthorityService } from './service/has-authority.service';
 import { SaleToolBarService } from './service/sale-tool-bar.service';
+import { Authority } from '../../shared/constants/authority.constants';
 
 @Component({
   selector: 'jhi-sales',
@@ -144,9 +145,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
     if (width < 1800) {
       this.isLargeScreen = false;
     }
-    // this.typeVenteSelected = 'TOUT';
-    this.canEdit = this.hasAuthorityService.hasAuthorities('PR_MODIFICATION_VENTE');
-    this.canCancel = this.hasAuthorityService.hasAuthorities('PR_ANNULATION_VENTE');
+
+    this.canEdit = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
+    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
 
     this.loadAllUsers();
     const lastPram = this.saleToolBarService.toolBarParam();

@@ -11,6 +11,7 @@ import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
@@ -24,6 +25,7 @@ import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,23 +63,54 @@ public class CommandServiceImpl implements CommandService {
     private final OrderLineService orderLineService;
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
+    private final WarehouseCalendarService warehouseCalendarService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
         StorageService storageService,
         OrderLineService orderLineService,
         ReferenceService referenceService,
-        ExportationCsvService exportationCsvService
+        ExportationCsvService exportationCsvService,
+        WarehouseCalendarService warehouseCalendarService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
         this.orderLineService = orderLineService;
         this.referenceService = referenceService;
         this.exportationCsvService = exportationCsvService;
+        this.warehouseCalendarService = warehouseCalendarService;
+    }
+
+    static void addModelLaborexLigneExistant(
+        List<OrderItem> items,
+        CSVRecord record,
+        String codeProduit,
+        int quantityReceived,
+        int quantityUg,
+        int orderUnitPrice,
+        int orderCostAmount
+    ) {
+        items.add(
+            new OrderItem()
+                .setEtablissement(record.get(0))
+                .setFacture(record.get(1))
+                .setLigne(Integer.parseInt(record.get(2)))
+                .setProduitCip(codeProduit)
+                .setProduitLibelle(record.get(4))
+                .setQuantityRequested(Integer.parseInt(record.get(5)))
+                .setQuantityReceived(quantityReceived)
+                .setMontant((double) orderCostAmount)
+                .setPrixAchat(orderCostAmount)
+                .setPrixUn(orderUnitPrice)
+                .setReferenceBonLivraison(record.get(10))
+                .setUg(quantityUg)
+                .setTva(Double.parseDouble(record.get(11)))
+        );
     }
 
     @Override
     public Commande createNewCommande(Commande commande) {
+        commande.setCalendar(warehouseCalendarService.initCalendar());
         return commandeRepository.saveAndFlush(commande);
     }
 
@@ -86,8 +119,7 @@ public class CommandServiceImpl implements CommandService {
         return createNewCommande(buildCommandeFromCommandeDTO(commande));
     }
 
-    @Override
-    public Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
+    private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
         User user = storageService.getUser();
         Commande commande = new Commande();
         commande.setCreatedAt(LocalDateTime.now());
@@ -97,7 +129,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setLastUserEdit(user);
         commande.setMagasin(user.getMagasin());
         commande.setOrderRefernce(referenceService.buildNumCommande());
-        OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().get(0));
+        OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
         commande.setGrossAmount(orderLine.getGrossAmount());
         commande.setOrderAmount(orderLine.getOrderAmount());
@@ -148,7 +180,7 @@ public class CommandServiceImpl implements CommandService {
             .findOneById(orderLineDTO.getId())
             .ifPresentOrElse(
                 orderLine -> orderLineService.updateOrderLineQuantityReceived(orderLine, orderLineDTO.getQuantityReceived()),
-                () -> new NullPointerException()
+                NullPointerException::new
             );
     }
 
@@ -158,7 +190,7 @@ public class CommandServiceImpl implements CommandService {
             .findOneById(orderLineDTO.getId())
             .ifPresentOrElse(
                 orderLine -> orderLineService.updateOrderLineQuantityUG(orderLineDTO.getId(), orderLineDTO.getUgQuantity()),
-                () -> new NullPointerException()
+                NullPointerException::new
             );
     }
 
@@ -214,15 +246,14 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void deleteOrderLinesByIds(Long commandeId, List<Long> ids) {
         Commande commande = commandeRepository.getReferenceById(commandeId);
-        ids.forEach(orderLineId -> {
+        ids.forEach(orderLineId ->
             orderLineService
                 .findOneById(orderLineId)
                 .ifPresent(orderLine -> {
                     commande.removeOrderLine(orderLine);
                     updateCommandeAmount(commande, orderLine.getGrossAmount() * (-1), orderLine.getOrderAmount() * (-1));
                     orderLineService.deleteOrderLine(orderLine);
-                });
-        });
+                }));
         commandeRepository.save(commande);
     }
 
@@ -239,31 +270,28 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void fusionner(List<Long> ids) {
         Collections.sort(ids);
-        final Long firstCommandeId = ids.get(0);
+        final Long firstCommandeId = ids.getFirst();
         Commande commande = commandeRepository.getReferenceById(firstCommandeId);
         List<Commande> commandesToDelete = new ArrayList<>();
         List<Long> longs = ids.subList(1, ids.size());
-        longs
-            .stream()
-            .forEach(aLong -> {
-                Commande commandeSecond = commandeRepository.getReferenceById(aLong);
-                commandeSecond
-                    .getOrderLines()
-                    .forEach(orderLine -> {
-                        findOrderLineInSetOrderLine(commande.getOrderLines(), orderLine).ifPresentOrElse(
-                            orderLine1 -> {
-                                orderLineService.updateOrderLine(orderLine1, orderLine.getQuantityRequested());
-                                orderLineService.save(orderLine1);
-                            },
-                            () -> {
-                                commande.addOrderLine(orderLine);
-                                orderLineService.save(orderLine);
-                                updateCommande(commande, orderLine);
-                            }
-                        );
-                    });
-                commandesToDelete.add(commandeSecond);
-            });
+        longs.forEach(aLong -> {
+            Commande commandeSecond = commandeRepository.getReferenceById(aLong);
+            commandeSecond
+                .getOrderLines()
+                .forEach(orderLine ->
+                    findOrderLineInSetOrderLine(commande.getOrderLines(), orderLine).ifPresentOrElse(
+                        orderLine1 -> {
+                            orderLineService.updateOrderLine(orderLine1, orderLine.getQuantityRequested());
+                            orderLineService.save(orderLine1);
+                        },
+                        () -> {
+                            commande.addOrderLine(orderLine);
+                            orderLineService.save(orderLine);
+                            updateCommande(commande, orderLine);
+                        }
+                    ));
+            commandesToDelete.add(commandeSecond);
+        });
         commande.setLastUserEdit(storageService.getUser());
         commande.setUpdatedAt(LocalDateTime.now());
         commandeRepository.save(commande);
@@ -278,6 +306,7 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
+        assert fileName != null;
         String extension = fileName.substring(fileName.indexOf(".") + 1);
         if (extension.equalsIgnoreCase(CSV)) {
             return verificationCommandeCsv(multipartFile, commandeRepository.getReferenceById(commandeId));
@@ -289,17 +318,14 @@ public class CommandServiceImpl implements CommandService {
     public CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile) {
         String extension = FileUtil.getFileExtension(multipartFile.getOriginalFilename());
         Commande commande = buildCommande(fournisseurId);
-        switch (extension) {
-            case CSV:
-                return uploadCSVFormat(commande, commandeModel, multipartFile);
-            case TXT:
-                return uploadTXTFormat(commande, multipartFile);
-            default:
-                throw new GenericError(
-                    String.format("Le modèle ===> %s d'importation de commande n'est pas pris en charche", commandeModel.name()),
-                    "modelimportation"
-                );
-        }
+        return switch (extension) {
+            case CSV -> uploadCSVFormat(commande, commandeModel, multipartFile);
+            case TXT -> uploadTXTFormat(commande, multipartFile);
+            default -> throw new GenericError(
+                String.format("Le modèle ===> %s d'importation de commande n'est pas pris en charche", commandeModel.name()),
+                "modelimportation"
+            );
+        };
     }
 
     public void createRuptureFile(String commandeReference, CommandeModel commandeModel, List<OrderItem> items) {
@@ -330,26 +356,15 @@ public class CommandServiceImpl implements CommandService {
         CommandeResponseDTO commandeResponseDTO;
         List<OrderItem> items = new ArrayList<>();
         Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
-        Long fournisseurId = commande.getFournisseur().getId();
-        switch (commandeModel) {
-            case LABOREX:
-                commandeResponseDTO = uploadLaborexCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-                break;
-            case COPHARMED:
-                commandeResponseDTO = uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-                break;
-            case DPCI:
-                commandeResponseDTO = uploadDPCICSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-                break;
-            case TEDIS:
-                commandeResponseDTO = uploadTEDISCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-                break;
-            default:
-                throw new GenericError(
-                    String.format("Le modèle ===> %s d'importation de commande n'est pas pris en charche", commandeModel.name()),
-                    "modelimportation"
-                );
-        }
+        long fournisseurId = commande.getFournisseur().getId();
+        commandeResponseDTO = switch (commandeModel) {
+            case LABOREX -> uploadLaborexCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case COPHARMED -> uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case DPCI -> uploadDPCICSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case TEDIS -> uploadTEDISCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case CIP_QTE -> uploadCipQteFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+        };
         createRuptureFile(commande.getOrderRefernce(), commandeModel, commandeResponseDTO.getItems());
         return commandeResponseDTO;
     }
@@ -357,7 +372,7 @@ public class CommandServiceImpl implements CommandService {
     private CommandeResponseDTO uploadTXTFormat(Commande commande, MultipartFile multipartFile) {
         List<OrderItem> items = new ArrayList<>();
         Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
-        Long fournisseurId = commande.getFournisseur().getId();
+        long fournisseurId = commande.getFournisseur().getId();
         int totalItemCount = 0;
         int succesCount = 0;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
@@ -377,27 +392,16 @@ public class CommandServiceImpl implements CommandService {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
 
                     int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
-                    findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
-                        orderLine -> {
-                            int oldQty = orderLine.getQuantityReceived();
-                            int oldTaxAmount = orderLine.getTaxAmount();
-                            updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, oldTaxAmount, 0);
-                        },
-                        () ->
-                            createInRecord(
-                                longOrderLineMap,
-                                commande,
-                                fournisseurProduit,
-                                quantityReceived,
-                                quantityReceived,
-                                orderCostAmount,
-                                orderUnitPrice,
-                                0,
-                                currentStock,
-                                0
-                            )
+                    succesCount = getSuccesCount(
+                        commande,
+                        longOrderLineMap,
+                        succesCount,
+                        quantityReceived,
+                        orderCostAmount,
+                        orderUnitPrice,
+                        fournisseurProduit,
+                        currentStock
                     );
-                    succesCount++;
                 } else {
                     items.add(
                         new OrderItem()
@@ -405,15 +409,49 @@ public class CommandServiceImpl implements CommandService {
                             .setProduitEan(codeProduit)
                             .setQuantityRequested(quantityReceived)
                             .setQuantityReceived(quantityReceived)
-                            .setMontant(Double.valueOf(orderUnitPrice))
+                            .setMontant((double) orderUnitPrice)
                     );
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage());
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
+    }
+
+    private int getSuccesCount(
+        Commande commande,
+        Map<Long, OrderLine> longOrderLineMap,
+        int succesCount,
+        int quantityReceived,
+        int orderCostAmount,
+        int orderUnitPrice,
+        FournisseurProduit fournisseurProduit,
+        int currentStock
+    ) {
+        findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
+            orderLine -> {
+                int oldQty = orderLine.getQuantityReceived();
+                int oldTaxAmount = orderLine.getTaxAmount();
+                updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, oldTaxAmount, 0);
+            },
+            () ->
+                createInRecord(
+                    longOrderLineMap,
+                    commande,
+                    fournisseurProduit,
+                    quantityReceived,
+                    quantityReceived,
+                    orderCostAmount,
+                    orderUnitPrice,
+                    0,
+                    currentStock,
+                    0
+                )
+        );
+        succesCount++;
+        return succesCount;
     }
 
     private CommandeResponseDTO uploadLaborexCSVFormat(
@@ -421,20 +459,30 @@ public class CommandServiceImpl implements CommandService {
         MultipartFile multipartFile,
         List<OrderItem> items,
         Map<Long, OrderLine> longOrderLineMap,
-        Long fournisseurId
+        long fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (CSVParser parser = new CSVParser(new InputStreamReader(multipartFile.getInputStream()), CSVFormat.EXCEL.withDelimiter(';'))) {
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
             for (CSVRecord record : parser) {
                 if (totalItemCount > 0) {
-                    String codeProduit = record.get(2);
-
-                    int quantityReceived = Integer.parseInt(record.get(5));
-                    int orderCostAmount = (int) Double.parseDouble(record.get(6));
-                    int orderUnitPrice = (int) Double.parseDouble(record.get(7));
-                    int taxAmount = (int) Double.parseDouble(record.get(9));
+                    // String codeProduit = record.get(2);
+                    String codeProduit = record.get(3);
+                    // String lgFamilleId, int qty, int intPafDetail, int pu, int ug
+                    //int quantityReceived = Integer.parseInt(record.get(5));
+                    int quantityReceived = Integer.parseInt(record.get(7));
+                    // int orderCostAmount = (int) Double.parseDouble(record.get(6));
+                    int orderCostAmount = (int) Double.parseDouble(record.get(8));
+                    //  int orderUnitPrice = (int) Double.parseDouble(record.get(7));
+                    int orderUnitPrice = (int) Double.parseDouble(record.get(9));
+                    int taxAmount = (int) Double.parseDouble(record.get(11));
+                    int quantityUg = Integer.parseInt(record.get(6));
                     Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                         codeProduit,
                         fournisseurId
@@ -447,7 +495,7 @@ public class CommandServiceImpl implements CommandService {
                             orderLine -> {
                                 int oldQty = orderLine.getQuantityReceived();
                                 int oldTaxAmount = orderLine.getTaxAmount();
-                                updateInRecord(commande, orderLine, quantityReceived, taxAmount, oldQty, oldTaxAmount, 0);
+                                updateInRecord(commande, orderLine, quantityReceived, taxAmount, oldQty, oldTaxAmount, quantityUg);
                             },
                             () ->
                                 createInRecord(
@@ -458,32 +506,28 @@ public class CommandServiceImpl implements CommandService {
                                     quantityReceived,
                                     orderCostAmount,
                                     orderUnitPrice,
-                                    0,
+                                    quantityUg,
                                     currentStock,
                                     taxAmount
                                 )
                         );
                         succesCount++;
                     } else {
-                        items.add(
-                            new OrderItem()
-                                .setFacture(record.get(0))
-                                .setLigne(Integer.parseInt(record.get(1)))
-                                .setProduitCip(codeProduit)
-                                .setProduitLibelle(record.get(3))
-                                .setQuantityRequested(quantityReceived)
-                                .setQuantityReceived(quantityReceived)
-                                .setMontant(Double.parseDouble(record.get(6)))
-                                .setPrixUn(Double.parseDouble(record.get(7)))
-                                .setReferenceBonLivraison(record.get(8))
-                                .setTva(Double.parseDouble(record.get(9)))
+                        addModelLaborexLigneExistant(
+                            items,
+                            record,
+                            codeProduit,
+                            quantityReceived,
+                            quantityUg,
+                            orderUnitPrice,
+                            orderCostAmount
                         );
                     }
                 }
                 totalItemCount++;
             }
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         if (items.isEmpty()) {
             commande.setOrderStatus(OrderStatut.PASSED);
@@ -497,12 +541,17 @@ public class CommandServiceImpl implements CommandService {
         MultipartFile multipartFile,
         List<OrderItem> items,
         Map<Long, OrderLine> longOrderLineMap,
-        Long fournisseurId
+        long fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (CSVParser parser = new CSVParser(new InputStreamReader(multipartFile.getInputStream()), CSVFormat.EXCEL.withDelimiter(';'))) {
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
             for (CSVRecord record : parser) {
                 if (totalItemCount > 0) {
                     String codeProduit = record.get(4);
@@ -559,7 +608,7 @@ public class CommandServiceImpl implements CommandService {
                 totalItemCount++;
             }
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         if (items.isEmpty()) {
             commande.setOrderStatus(OrderStatut.PASSED);
@@ -573,17 +622,23 @@ public class CommandServiceImpl implements CommandService {
         MultipartFile multipartFile,
         List<OrderItem> items,
         Map<Long, OrderLine> longOrderLineMap,
-        Long fournisseurId
+        long fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (CSVParser parser = new CSVParser(new InputStreamReader(multipartFile.getInputStream()), CSVFormat.EXCEL.withDelimiter(';'))) {
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
             for (CSVRecord record : parser) {
-                String codeProduit = record.get(0);
+                String codeProduit = record.get(1);
                 totalItemCount++;
-                int quantityReceived = Integer.parseInt(record.get(3));
-                int orderCostAmount = Integer.parseInt(record.get(4));
+                int quantityReceived = new BigDecimal(record.get(3)).intValue();
+                int orderCostAmount = new BigDecimal(record.get(2)).intValue();
+                int orderUnitPrice = new BigDecimal(record.get(5)).intValue();
 
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
@@ -591,43 +646,32 @@ public class CommandServiceImpl implements CommandService {
                 );
                 if (fournisseurProduitOptional.isPresent()) {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
-                    int orderUnitPrice = fournisseurProduit.getPrixUni();
+                    orderUnitPrice = orderUnitPrice == 0 ? fournisseurProduit.getPrixUni() : orderUnitPrice;
                     int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
-                    findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
-                        orderLine -> {
-                            int oldQty = orderLine.getQuantityReceived();
-                            int oldTaxAmount = orderLine.getTaxAmount();
-                            updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, oldTaxAmount, 0);
-                        },
-                        () ->
-                            createInRecord(
-                                longOrderLineMap,
-                                commande,
-                                fournisseurProduit,
-                                quantityReceived,
-                                quantityReceived,
-                                orderCostAmount,
-                                orderUnitPrice,
-                                0,
-                                currentStock,
-                                0
-                            )
+                    succesCount = getSuccesCount(
+                        commande,
+                        longOrderLineMap,
+                        succesCount,
+                        quantityReceived,
+                        orderCostAmount,
+                        orderUnitPrice,
+                        fournisseurProduit,
+                        currentStock
                     );
-                    succesCount++;
                 } else {
                     items.add(
                         new OrderItem()
-                            .setDateBonLivraison(record.get(0))
+                            .setLigne(Integer.parseInt(record.get(0)))
                             .setProduitCip(codeProduit)
                             .setProduitEan(codeProduit)
-                            .setQuantityRequested(Integer.parseInt(record.get(3)))
+                            .setPrixUn(orderUnitPrice)
                             .setQuantityReceived(quantityReceived)
-                            .setMontant(Double.parseDouble(record.get(4)))
+                            .setPrixAchat(orderCostAmount)
                     );
                 }
             }
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         if (items.isEmpty()) {
             commande.setOrderStatus(OrderStatut.PASSED);
@@ -641,12 +685,17 @@ public class CommandServiceImpl implements CommandService {
         MultipartFile multipartFile,
         List<OrderItem> items,
         Map<Long, OrderLine> longOrderLineMap,
-        Long fournisseurId
+        long fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (CSVParser parser = new CSVParser(new InputStreamReader(multipartFile.getInputStream()), CSVFormat.EXCEL.withDelimiter(';'))) {
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
             for (CSVRecord record : parser) {
                 String codeProduit = record.get(2);
                 totalItemCount++;
@@ -654,7 +703,7 @@ public class CommandServiceImpl implements CommandService {
                 int orderCostAmount = (int) Double.parseDouble(record.get(3));
                 int orderUnitPrice = (int) Double.parseDouble(record.get(4));
                 int quantityRequested = Integer.parseInt(record.get(7));
-                double taxAmount = Double.valueOf(record.get(5));
+                double taxAmount = Double.parseDouble(record.get(5));
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -686,7 +735,7 @@ public class CommandServiceImpl implements CommandService {
                 } else {
                     items.add(
                         new OrderItem()
-                            .setDateBonLivraison(record.get(8))
+                            .setReferenceBonLivraison(record.get(8))
                             .setTva(taxAmount)
                             .setLigne(Integer.parseInt(record.get(0)))
                             .setProduitCip(codeProduit)
@@ -699,7 +748,7 @@ public class CommandServiceImpl implements CommandService {
                 }
             }
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         if (items.isEmpty()) {
             commande.setOrderStatus(OrderStatut.PASSED);
@@ -839,7 +888,12 @@ public class CommandServiceImpl implements CommandService {
         List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
         List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
         VerificationResponseCommandeDTO verificationResponseCommandeDTO = new VerificationResponseCommandeDTO();
-        try (CSVParser parser = new CSVParser(new InputStreamReader(multipartFile.getInputStream()), CSVFormat.EXCEL.withDelimiter(';'))) {
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
             for (CSVRecord record : parser) {
                 String code = record.get(0);
                 int quantityReceived = Integer.parseInt(record.get(3));
@@ -847,7 +901,7 @@ public class CommandServiceImpl implements CommandService {
             }
             updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         verificationResponseCommandeDTO.setItems(items);
         verificationResponseCommandeDTO.setExtraItems(extraItems);
@@ -917,7 +971,7 @@ public class CommandServiceImpl implements CommandService {
                         case NUMERIC:
                             try {
                                 code = String.valueOf(codeCell.getNumericCellValue());
-                            } catch (Exception e) {}
+                            } catch (Exception ignored) {}
                             break;
                         default:
                             break;
@@ -928,7 +982,7 @@ public class CommandServiceImpl implements CommandService {
             }
             updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
         } catch (IOException e) {
-            log.debug("{}", e);
+            log.debug("{0}", e);
         }
         verificationResponseCommandeDTO.setItems(items);
         verificationResponseCommandeDTO.setExtraItems(extraItems);
@@ -999,6 +1053,7 @@ public class CommandServiceImpl implements CommandService {
             (oldQuantityReceived * orderLine.getOrderUnitPrice())
         );
         commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
+        commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
     }
 
     private void updateOrderLineFromRecord(OrderLine orderLine, int quantityReceived, int quantityUg, int taxAmount) {
@@ -1008,5 +1063,157 @@ public class CommandServiceImpl implements CommandService {
         orderLine.setOrderAmount(orderLine.getRegularUnitPrice() * orderLine.getQuantityReceived());
         orderLine.setGrossAmount(orderLine.getCostAmount() * orderLine.getQuantityReceived());
         orderLine.setTaxAmount(orderLine.getTaxAmount() + taxAmount);
+    }
+
+    private CommandeResponseDTO uploadCipQteFormat(
+        Commande commande,
+        MultipartFile multipartFile,
+        List<OrderItem> items,
+        Map<Long, OrderLine> longOrderLineMap,
+        long fournisseurId
+    ) {
+        int totalItemCount = 0;
+        int succesCount = 0;
+        int isFirstLigne;
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
+            for (CSVRecord record : parser) {
+                isFirstLigne = skipFirstLigne(record, totalItemCount);
+                if (isFirstLigne < 0) {
+                    continue;
+                }
+                String codeProduit = record.get(0);
+                int quantityReceived = Integer.parseInt(record.get(1));
+                Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
+                    codeProduit,
+                    fournisseurId
+                );
+                if (fournisseurProduitOptional.isPresent()) {
+                    FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
+                    int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+
+                    findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
+                        orderLine -> {
+                            int oldQty = orderLine.getQuantityReceived();
+                            updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, 0, 0);
+                        },
+                        () ->
+                            createInRecord(
+                                longOrderLineMap,
+                                commande,
+                                fournisseurProduit,
+                                quantityReceived,
+                                quantityReceived,
+                                fournisseurProduit.getPrixAchat(),
+                                fournisseurProduit.getPrixUni(),
+                                0,
+                                currentStock,
+                                0
+                            )
+                    );
+                    succesCount++;
+                } else {
+                    items.add(new OrderItem().setProduitCip(codeProduit).setQuantityReceived(quantityReceived));
+                }
+
+                totalItemCount++;
+            }
+        } catch (IOException e) {
+            log.debug("{0}", e);
+        }
+        if (items.isEmpty()) {
+            commande.setOrderStatus(OrderStatut.PASSED);
+        }
+        commandeRepository.save(commande);
+        return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
+    }
+
+    private int skipFirstLigne(CSVRecord cSVRecord, int index) {
+        if (index < 1) {
+            try {
+                return Integer.parseInt(cSVRecord.get(1));
+            } catch (Exception e) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    private CommandeResponseDTO uploadCipQtePrixAchatFormat(
+        Commande commande,
+        MultipartFile multipartFile,
+        List<OrderItem> items,
+        Map<Long, OrderLine> longOrderLineMap,
+        long fournisseurId
+    ) {
+        int totalItemCount = 0;
+        int succesCount = 0;
+        int isFirstLigne;
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
+            for (CSVRecord record : parser) {
+                isFirstLigne = skipFirstLigne(record, totalItemCount);
+                if (isFirstLigne < 0) {
+                    continue;
+                }
+                String codeProduit = record.get(0);
+                int quantityReceived = Integer.parseInt(record.get(3));
+                int prixAchat = Integer.parseInt(record.get(4));
+                Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
+                    codeProduit,
+                    fournisseurId
+                );
+                if (fournisseurProduitOptional.isPresent()) {
+                    FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
+                    int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
+
+                    findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
+                        orderLine -> {
+                            int oldQty = orderLine.getQuantityReceived();
+                            updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, 0, 0);
+                        },
+                        () ->
+                            createInRecord(
+                                longOrderLineMap,
+                                commande,
+                                fournisseurProduit,
+                                quantityReceived,
+                                quantityReceived,
+                                prixAchat,
+                                fournisseurProduit.getPrixUni(),
+                                0,
+                                currentStock,
+                                0
+                            )
+                    );
+                    succesCount++;
+                } else {
+                    items.add(
+                        new OrderItem()
+                            .setQuantityRequested(Integer.parseInt(record.get(1)))
+                            .setPrixAchat(prixAchat)
+                            .setProduitCip(codeProduit)
+                            .setQuantityReceived(quantityReceived)
+                    );
+                }
+
+                totalItemCount++;
+            }
+        } catch (IOException e) {
+            log.debug("{0}", e);
+        }
+        if (items.isEmpty()) {
+            commande.setOrderStatus(OrderStatut.PASSED);
+        }
+        commandeRepository.save(commande);
+        return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
     }
 }

@@ -32,11 +32,9 @@ public class ExportationCsvService {
 
     private final Logger log = LoggerFactory.getLogger(ExportationCsvService.class);
     private final Path fileStorageLocation;
-    private final FileStorageProperties fileStorageProperties;
 
     public ExportationCsvService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageProperties = fileStorageProperties;
-        this.fileStorageLocation = Paths.get(this.fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -69,7 +67,7 @@ public class ExportationCsvService {
                             orderLine.getQuantityRequested()
                         );
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Error writing data to the csv printer", e);
                     }
                 });
 
@@ -90,14 +88,14 @@ public class ExportationCsvService {
                 .getAbsolutePath();
         try (
             final FileWriter writer = new FileWriter(filename);
-            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.withDelimiter(';'))
+            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').build())
         ) {
             switch (commandeModel) {
                 case LABOREX -> printLaborexFormatCsv(printer, items);
                 case DPCI -> printDPCIFormatCsv(printer, items);
                 case TEDIS -> printTEDISFormatCsv(printer, items);
                 case COPHARMED -> printCOPHARMEDFormatCsv(printer, items);
-                default -> throw new RuntimeException("Ce format n'est pas encore pris en compte");
+                case CIP_QTE_PA -> throw new RuntimeException("Ce format n'est pas encore pris en compte");
             }
             printer.flush();
         } catch (final IOException e) {

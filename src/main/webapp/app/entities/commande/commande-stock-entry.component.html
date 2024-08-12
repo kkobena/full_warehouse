@@ -16,31 +16,33 @@
   <div class="row">
     <div class="col-sm-2">
 
-      <div *ngIf="commande" class="card">
-        <div class="card-header">
-          Information sur la commande
+      @if (commande) {
+        <div class="card">
+          <div class="card-header">
+            Information sur la commande
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span style="margin-right: 5px;">Référence</span>
+                <span class="text-primary">{{ commande?.orderRefernce }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span style="margin-right: 5px;">Grossiste</span>
+                <span class="text-primary">{{ commande?.fournisseur?.libelle }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Valeur Achat
+                <span class="text-primary">{{ commande?.grossAmount | number }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Valeur Vente
+                <span class="text-primary">{{ commande?.orderAmount | number }}</span>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="card-body">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span style="margin-right: 5px;">Référence</span>
-              <span class="text-primary">{{ commande?.orderRefernce }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span style="margin-right: 5px;">Grossiste</span>
-              <span class="text-primary">{{ commande?.fournisseur?.libelle }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Valeur Achat
-              <span class="text-primary">{{ commande?.grossAmount | number }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Valeur Vente
-              <span class="text-primary">{{ commande?.orderAmount | number }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
+      }
 
 
       <div class="card">
@@ -111,32 +113,34 @@
           </div>
         </div>
       </div>
-      <div class="card-body ag-theme-alpine"
-           style="width: 100%; height: 100%;">
-        <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
-                         (gridReady)="onGridReady($event)"
-                         *ngIf="delivery"
-                         [animateRows]="true"
-                         [cacheQuickFilter]="true"
-                         [columnDefs]="columnDefs"
-                         [components]="frameworkComponents"
-                         [context]="context"
-                         [defaultColDef]="defaultColDef"
-                         [domLayout]="'normal'"
-                         [enterNavigatesVerticallyAfterEdit]="true"
-                         [enterNavigatesVertically]="true"
-                         [paginationAutoPageSize]="true"
-                         [pagination]="false"
-                         [quickFilterText]="search"
-                         [readOnlyEdit]="false"
-                         [rowData]="receiptItems"
-                         [singleClickEdit]="true"
-                         [stopEditingWhenCellsLoseFocus]="false"
+      @if (delivery) {
+        <div class="card-body ag-theme-alpine"
+             style="width: 100%; height: 100%;">
+          <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
+                           (gridReady)="onGridReady($event)"
+                           [animateRows]="true"
+                           [cacheQuickFilter]="true"
+                           [columnDefs]="columnDefs"
+                           [components]="frameworkComponents"
+                           [context]="context"
+                           [defaultColDef]="defaultColDef"
+                           [domLayout]="'normal'"
+                           [enterNavigatesVerticallyAfterEdit]="true"
+                           [enterNavigatesVertically]="true"
+                           [paginationAutoPageSize]="true"
+                           [pagination]="false"
+                           [quickFilterText]="search"
+                           [readOnlyEdit]="false"
+                           [rowData]="receiptItems"
+                           [singleClickEdit]="true"
+                           [stopEditingWhenCellsLoseFocus]="false"
 
-                         style="width: 100%; height: 100%;">
-        </ag-grid-angular>
+                           style="width: 100%; height: 100%;">
+          </ag-grid-angular>
 
-      </div>
+        </div>
+      }
+
     </div>
   </div>
 

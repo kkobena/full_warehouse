@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from 'app/shared/model/commande.model';
@@ -30,7 +30,8 @@ import { CardModule } from 'primeng/card';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
-import { PanelModule } from "primeng/panel";
+import { PanelModule } from 'primeng/panel';
+import { CommandCommonService } from './command-common.service';
 
 @Component({
   standalone: true,
@@ -81,6 +82,7 @@ export class CommandeComponent {
   typeSuggessions: any[] = [];
   fileDialog = false;
   ref!: DynamicDialogRef;
+  commandCommonService = inject(CommandCommonService);
   protected searchCommande = '';
   protected active = 'REQUESTED';
   protected search = '';
@@ -117,6 +119,11 @@ export class CommandeComponent {
 
         break;
     }
+  }
+
+  onCreatNewCommande(): void {
+    this.commandCommonService.updateCommand(null);
+    this.router.navigate(['/commande/new']);
   }
 
   fusionner(): void {

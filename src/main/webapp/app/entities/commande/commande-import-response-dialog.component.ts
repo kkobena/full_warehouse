@@ -25,9 +25,12 @@ export class CommandeImportResponseDialogComponent {
   }
 
   onClickLink(): void {
-    this.commandeService.getRuptureCsv(this.responseCommande.reference).subscribe(
-      blod => saveAs(blod),
-      () => (this.hiddenInfo = false),
-    );
+    this.commandeService.getRuptureCsv(this.responseCommande.reference).subscribe({
+      next: blod => {
+        saveAs(new Blob([blod], { type: 'text/csv' }), `${this.responseCommande.reference}.csv`);
+        // blod => saveAs(blod),
+        this.hiddenInfo = false;
+      },
+    });
   }
 }

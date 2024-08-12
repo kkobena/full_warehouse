@@ -55,25 +55,16 @@ export class ProduitUpdateComponent implements OnInit {
   isDeconditionnable = false;
   isDatePeremptionChecked = false;
   etiquettes: ITypeEtiquette[] = [];
-
   formeProduits: IFormProduit[] = [];
-
   familleProduits: IFamilleProduit[] = [];
-
   laboratoires: ILaboratoire[] = [];
-
   gammes: IGammeProduit[] = [];
-
   tvas: ITva[] = [];
-
   fournisseurs: IFournisseur[] = [];
-
   rayons: IRayon[] = [];
   remisesProduits: IRemise[] = [];
-
   editForm = this.fb.group({
     id: [],
-
     tvaId: [null, [Validators.required]],
     familleId: [null, [Validators.required]],
     codeCip: [null, [Validators.required]],

@@ -4,5 +4,7 @@ public enum CommandeModel {
     LABOREX,
     DPCI,
     TEDIS,
-    COPHARMED
+    COPHARMED,
+    CIP_QTE_PA,
+    CIP_QTE,
 }

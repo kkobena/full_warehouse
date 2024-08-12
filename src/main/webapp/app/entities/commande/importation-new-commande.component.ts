@@ -46,6 +46,8 @@ export class ImportationNewCommandeComponent implements OnInit {
       { label: 'COPHARMED', value: 'COPHARMED' },
       { label: 'DPCI', value: 'DPCI' },
       { label: 'TEDIS', value: 'TEDIS' },
+      { label: 'Cip  quantité', value: 'CIP_QTE' },
+      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' },
     ];
   }
 

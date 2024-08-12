@@ -113,7 +113,7 @@
 
 
 
-   <button [routerLink]="['/commande/new']"
+   <button (click)="onCreatNewCommande()"
            class="p-button-raised   p-button-success " pButton
            pRipple type="button">
                     <i class="pi pi-plus"></i>
@@ -121,21 +121,26 @@
                Nouvelle commande
             </span>
                 </button>
-                      <button (click)="fusionner()"
-                              *ngIf="active==='REQUESTED' && selectionLength>1"
-                              class="p-button-raised p-button-warning"
-                              pButton
-                              pRipple type="button">
+                   @if (active === 'REQUESTED' && selectionLength > 1) {
+                     <button (click)="fusionner()"
+                             class="p-button-raised p-button-warning"
+                             pButton
+                             pRipple type="button">
                     <fa-icon icon="copy"></fa-icon>&nbsp;<span
-                        jhiTranslate="entity.action.fusionner">Fusionner</span>
+                       jhiTranslate="entity.action.fusionner">Fusionner</span>
                 </button>
-                    <button *ngIf="selectionLength>0" class="p-button-raised p-button-danger"
-                            pButton
-                            pRipple type="button">
+
+                   }
+                   @if (selectionLength > 0) {
+                     <button class="p-button-raised p-button-danger"
+                             pButton
+                             pRipple type="button">
                     <fa-icon icon="times"></fa-icon>&nbsp;<span
-                      (click)="confirmDeleteSelectedRows()"
-                      jhiTranslate="entity.action.delete">Supprimer</span>
+                       (click)="confirmDeleteSelectedRows()"
+                       jhiTranslate="entity.action.delete">Supprimer</span>
                 </button>
+                   }
+
                  </span>
           </div>
         </p-toolbar>

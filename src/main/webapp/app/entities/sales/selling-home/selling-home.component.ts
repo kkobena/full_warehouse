@@ -75,6 +75,7 @@ import { ToastModule } from 'primeng/toast';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { BaseSaleService } from '../service/base-sale.service';
 import { CarnetComponent } from './carnet/carnet.component';
+import { Authority } from '../../../shared/constants/authority.constants';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -180,7 +181,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected isPresale = false;
   protected commonDialog = false;
   protected showStock = true;
-  protected canUpdatePu = true;
   protected printTicket = true;
   protected active = 'comptant';
   private readonly saleEventManager = inject(SaleEventManager);
@@ -205,7 +205,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public translate: TranslateService,
     public primeNGConfig: PrimeNGConfig,
   ) {
-    this.canForceStock = this.hasAuthorityService.hasAuthorities('PR_FORCE_STOCK');
+    this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
     this.onCompleteSale = this.saleEventManager.subscribe('completeSale', (response: SaleEvent<unknown>) => {
       if (this.isAssurance() || this.isCartnet()) {
         const content = response.content;

@@ -14,6 +14,7 @@ import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { BaseSaleService } from '../../service/base-sale.service';
+import { Authority } from '../../../../shared/constants/authority.constants';
 
 @Component({
   selector: 'jhi-product-table',
@@ -47,8 +48,7 @@ export class ProductTableComponent {
     private modalService: NgbModal,
     private confirmationService: ConfirmationService,
   ) {
-    // this.canModifiePrice= this.hasAuthorityService.hasAuthorities('PR_MODIFIER_PRIX');
-    this.canModifiePrice = true;
+    this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
     });

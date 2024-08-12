@@ -9,10 +9,9 @@ import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { AgGridAngular, AgGridModule } from '@ag-grid-community/angular';
+import { AgGridAngular } from '@ag-grid-community/angular';
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ConfigurationService } from '../../shared/configuration.service';
-import { GridApi, GridReadyEvent } from 'ag-grid-community';
 import { checkIfRomToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { Params } from '../../shared/model/enumerations/params.model';
@@ -32,6 +31,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { InputTextModule } from 'primeng/inputtext';
+import { GridApi, GridReadyEvent } from '@ag-grid-community/core';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -41,7 +41,7 @@ import { InputTextModule } from 'primeng/inputtext';
   providers: [ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
-    AgGridModule,
+    // AgGridModule,
     FormsModule,
     NgSelectModule,
     ButtonModule,
@@ -49,6 +49,7 @@ import { InputTextModule } from 'primeng/inputtext';
     NgxSpinnerModule,
     ConfirmDialogModule,
     InputTextModule,
+    AgGridAngular,
   ],
 })
 export class CommandeStockEntryComponent implements OnInit {

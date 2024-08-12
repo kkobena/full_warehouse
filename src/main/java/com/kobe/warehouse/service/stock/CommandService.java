@@ -10,43 +10,39 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CommandService {
-  Commande createNewCommande(Commande commande);
+    Commande createNewCommande(Commande commande);
 
-  Commande createNewCommandeFromCommandeDTO(CommandeDTO commande);
+    Commande createNewCommandeFromCommandeDTO(CommandeDTO commande);
 
-  Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO);
+    Commande createOrUpdateOrderLine(OrderLineDTO orderLineDTO);
 
-  Commande createOrUpdateOrderLine(OrderLineDTO orderLineDTO);
+    Commande updateQuantityRequested(OrderLineDTO orderLineDTO);
 
-  Commande updateQuantityRequested(OrderLineDTO orderLineDTO);
+    void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO);
 
-  void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO);
+    void updateOrderLineQuantityUg(OrderLineDTO orderLineDTO);
 
-  void updateOrderLineQuantityUg(OrderLineDTO orderLineDTO);
+    Commande updateOrderCostAmount(OrderLineDTO orderLineDTO);
 
-  Commande updateOrderCostAmount(OrderLineDTO orderLineDTO);
+    Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO);
 
-  Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO);
+    void deleteOrderLineById(Long orderLineId);
 
-  void deleteOrderLineById(Long orderLineId);
+    void deleteById(Long id);
 
-  void deleteById(Long id);
+    void rollback(Long id);
 
-  void rollback(Long id);
+    void updateCodeCip(OrderLineDTO orderLineDTO);
 
-  void updateCodeCip(OrderLineDTO orderLineDTO);
+    void deleteOrderLinesByIds(Long commandeId, List<Long> ids);
 
-  void deleteOrderLinesByIds(Long commandeId, List<Long> ids);
+    void closeCommandeEnCours(Long commandeId);
 
-  void closeCommandeEnCours(Long commandeId);
+    void fusionner(List<Long> ids);
 
-  void fusionner(List<Long> ids);
+    void deleteAll(List<Long> ids);
 
-  void deleteAll(List<Long> ids);
+    VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile);
 
-  VerificationResponseCommandeDTO importerReponseCommande(
-      Long commandeId, MultipartFile multipartFile);
-
-  CommandeResponseDTO uploadNewCommande(
-      Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
+    CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 }

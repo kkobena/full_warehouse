@@ -69,6 +69,13 @@
     "packaging": "jar"
   },
   "dependencies": {
+    "@ag-grid-community/angular": "^32.1.0",
+    "@ag-grid-community/client-side-row-model": "^32.1.0",
+    "@ag-grid-community/core": "^32.1.0",
+    "@ag-grid-community/csv-export": "^32.1.0",
+    "@ag-grid-community/infinite-row-model": "^32.1.0",
+    "@ag-grid-community/styles": "^32.1.0",
+    "@ag-grid-devtools/cli": "^32.0.5",
     "@angular/animations": "18.0.4",
     "@angular/cdk": "^18.0.4",
     "@angular/common": "18.0.4",
@@ -103,12 +110,6 @@
     "zone.js": "0.14.7"
   },
   "devDependencies": {
-    "@ag-grid-community/angular": "^32.1.0",
-    "@ag-grid-community/core": "^32.1.0",
-    "@ag-grid-community/styles": "^32.1.0",
-    "@ag-grid-community/client-side-row-model": "^32.1.0",
-    "@ag-grid-community/infinite-row-model": "^32.1.0",
-    "@ag-grid-community/csv-export": "^32.1.0",
     "@angular-builders/custom-webpack": "18.0.0",
     "@angular-builders/jest": "18.0.0",
     "@angular-devkit/build-angular": "18.0.6",

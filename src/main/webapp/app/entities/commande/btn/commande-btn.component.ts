@@ -1,33 +1,25 @@
 import { Component } from '@angular/core';
-import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, FontAwesomeModule, NgbTooltipModule],
   selector: 'jhi-commande-btn',
   template: `
     <div class="btn-group btn-group-sm" role="group">
-      <button
-        *ngIf="showEditBtn"
-        (click)="onEditLigneInfo()"
-        class="p-button-success p-ripple p-button-rounded"
-        icon="pi pi-pencil"
-        pButton
-        pTooltip="Modifier le produit"
-      ></button>
-
-      <button
-        *ngIf="showLotBtn"
-        (click)="onAddLot()"
-        class="p-button-info p-ripple p-button-rounded"
-        icon="pi pi-plus"
-        pButton
-        pTooltip="Gérer le lot"
-      ></button>
+      @if (showEditBtn) {
+        <button (click)="onEditLigneInfo()" class="btn-sm btn btn-success" [ngbTooltip]="showEditBtnTpl">
+          <i class="pi pi-pencil"></i>
+        </button>
+      }
+      @if (showLotBtn) {
+        <button (click)="onAddLot()" class="btn-sm btn btn-primary" placement="top" [ngbTooltip]="showLotBtnTpl">
+          <i class="pi pi-plus-circle"></i>
+        </button>
+      }
     </div>
   `,
 })
@@ -35,6 +27,8 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
   showLotBtn = false;
   showEditBtn = false;
+  showEditBtnTpl = 'Modifier le produit';
+  showLotBtnTpl = 'Gérer le lot';
 
   refresh(): boolean {
     return false;

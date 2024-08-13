@@ -46,7 +46,6 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { TypePrescriptionService } from '../../service/type-prescription.service';
 import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
-import { saveAs } from 'file-saver';
 import { BaseSaleService } from '../../service/base-sale.service';
 
 @Component({
@@ -364,7 +363,10 @@ export class ComptantComponent {
   }
 
   print(sale: ISales | null): void {
-    this.salesService.print(sale.id).subscribe(blod => saveAs(blod));
+    this.salesService.print(sale.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 
   printSale(saleId: number): void {

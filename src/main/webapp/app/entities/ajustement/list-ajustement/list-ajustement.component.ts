@@ -1,6 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AjustementStatut } from '../../../shared/model/enumerations/ajustement-statut.model';
-import { IUser } from '../../../core/user/user.model';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { IAjustement } from '../../../shared/model/ajustement.model';
 import { ITEMS_PER_PAGE } from '../../../config/pagination.constants';
@@ -11,23 +10,20 @@ import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import moment from 'moment';
 import { IDelivery } from '../../../shared/model/delevery.model';
-import { saveAs } from 'file-saver';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { Ripple } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   standalone: true,
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, Ripple, TooltipModule],
 })
 export class ListAjustementComponent implements OnInit {
-  @Input() search: string;
-  @Input() fromDate: Date;
-  @Input() toDate: Date;
-  @Input() user?: IUser | null;
   protected ajustementStatut: AjustementStatut = AjustementStatut.CLOSED;
   protected rowData: IAjust[] = [];
   protected totalItems = 0;
@@ -67,7 +63,10 @@ export class ListAjustementComponent implements OnInit {
     this.ajustementService.exportToPdf(delivery.id).subscribe({
       next: blod => {
         this.spinner.hide();
-        saveAs(blod);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+        //  saveAs(new Blob([blod], { type: 'pdf' }), `${delivery.id}.pdf`);
+        //   saveAs(blod);
       },
       error: () => this.spinner.hide(),
     });
@@ -90,13 +89,15 @@ export class ListAjustementComponent implements OnInit {
   }
 
   private buildQuery(page?: number): any {
+    const params = this.ajustementService.toolbarParam();
     const pageToLoad: number = page || this.page || 1;
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-      userId: this.user.id,
+      fromDate: params.fromDate ? moment(params.fromDate).format('yyyy-MM-DD') : null,
+      toDate: params.toDate ? moment(params.toDate).format('yyyy-MM-DD') : null,
+      userId: params.userId,
+      serach: params.search,
       statut: this.ajustementStatut,
     };
   }

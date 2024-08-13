@@ -22,7 +22,6 @@ import { ChartModule } from 'primeng/chart';
 import { DoughnutChart } from '../../../shared/model/doughnut-chart.model';
 import { CardModule } from 'primeng/card';
 import { MvtParamServiceService } from '../mvt-param-service.service';
-import { saveAs } from 'file-saver';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
@@ -140,7 +139,8 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next(blod) {
-          saveAs(blod);
+          const blobUrl = URL.createObjectURL(blod);
+          window.open(blobUrl);
         },
         error: () => {
           this.loading = false;

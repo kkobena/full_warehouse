@@ -12,11 +12,8 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { StoreInventoryService } from '../store-inventory.service';
 import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
-import { saveAs } from 'file-saver';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -60,8 +57,10 @@ export class CloturesComponent implements OnInit {
   exportPdf(storeInventory: IStoreInventory): void {
     this.spinner.show();
     this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blod => {
-      const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      saveAs(blod, 'inventaire_' + fileName);
+      // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+      // saveAs(blod, 'inventaire_' + fileName);
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
       this.spinner.hide();
     });
   }

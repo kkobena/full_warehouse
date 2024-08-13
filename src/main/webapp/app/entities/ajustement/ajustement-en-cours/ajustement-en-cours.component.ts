@@ -1,8 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AjustementStatut } from '../../../shared/model/enumerations/ajustement-statut.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IAjust } from '../../../shared/model/ajust.model';
-import { IUser } from '../../../core/user/user.model';
 import { IAjustement } from '../../../shared/model/ajustement.model';
 import { UserService } from '../../../core/user/user.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,19 +15,17 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { Ripple } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   standalone: true,
   selector: 'jhi-ajustement-en-cours',
   templateUrl: './ajustement-en-cours.component.html',
-  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule],
+  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {
-  @Input() search: string;
-  @Input() fromDate: Date;
-  @Input() toDate: Date;
-  @Input() user?: IUser | null;
   protected ajustementStatut: AjustementStatut = AjustementStatut.PENDING;
   protected rowData: IAjust[] = [];
   protected totalItems = 0;
@@ -101,13 +98,15 @@ export class AjustementEnCoursComponent implements OnInit {
   }
 
   private buildQuery(page?: number): any {
+    const params = this.ajustementService.toolbarParam();
     const pageToLoad: number = page || this.page || 1;
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-      userId: this.user.id,
+      search: params.search,
+      fromDate: params.fromDate ? moment(params.fromDate).format('yyyy-MM-DD') : null,
+      toDate: params.toDate ? moment(params.toDate).format('yyyy-MM-DD') : null,
+      userId: params.userId,
       statut: this.ajustementStatut,
     };
   }

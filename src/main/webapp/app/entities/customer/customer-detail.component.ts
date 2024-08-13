@@ -8,7 +8,6 @@ import { HttpResponse } from '@angular/common/http';
 import { MagasinService } from '../magasin/magasin.service';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { SalesService } from '../sales/sales.service';
-import { saveAs } from 'file-saver';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
@@ -208,7 +207,10 @@ export class CustomerDetailComponent implements OnInit {
 
   print(): void {
     if (this.saleSelected !== null && this.saleSelected !== undefined) {
-      this.salesService.print(this.saleSelected.id).subscribe(blod => saveAs(blod));
+      this.salesService.print(this.saleSelected.id).subscribe(blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      });
     }
   }
 

@@ -110,7 +110,10 @@ export class CommandePassesComponent implements OnInit {
   }
 
   exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToPdf(commande.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 
   orderLineTableColor(orderLine: IOrderLine): string {

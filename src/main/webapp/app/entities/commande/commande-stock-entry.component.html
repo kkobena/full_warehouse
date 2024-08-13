@@ -53,19 +53,20 @@
           <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Référence bon</span>
-              <span class="text-primary">{{ delivery?.receiptRefernce }}</span>
+              <span class="text-primary fw-bold">{{ delivery?.receiptRefernce }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px;">Date Bon</span>
-              <span class="text-primary">{{ delivery?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+              <span
+                class="text-primary fw-bold">{{ delivery?.receiptDate | date: 'dd/MM/yyyy' }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Montant TTC
-              <span class="text-primary">{{ delivery?.receiptAmount | number }}</span>
+              <span class="text-primary fw-bold">{{ delivery?.receiptAmount | number }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Taxe
-              <span class="text-primary">{{ delivery?.taxAmount | number }}</span>
+              <span class="text-primary fw-bold">{{ delivery?.taxAmount | number }}</span>
             </li>
           </ul>
         </div>
@@ -114,10 +115,10 @@
         </div>
       </div>
       @if (delivery) {
-        <div class="card-body ag-theme-alpine"
-             style="width: 100%; height: 100%;">
+        <div style="width: 100%; height: 100%;">
           <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
                            (gridReady)="onGridReady($event)"
+                           [rowHeight]="rowHeight"
                            [animateRows]="true"
                            [cacheQuickFilter]="true"
                            [columnDefs]="columnDefs"
@@ -134,7 +135,8 @@
                            [rowData]="receiptItems"
                            [singleClickEdit]="true"
                            [stopEditingWhenCellsLoseFocus]="false"
-
+                           [rowModelType]="rowModelType"
+                           [class]="themeClass"
                            style="width: 100%; height: 100%;">
           </ag-grid-angular>
 

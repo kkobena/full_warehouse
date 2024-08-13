@@ -6,7 +6,6 @@ import { Router, RouterModule } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { saveAs } from 'file-saver';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -80,7 +79,8 @@ export class BonEnCoursComponent implements OnInit {
     this.entityService.exportToPdf(delivery.id).subscribe({
       next: blod => {
         this.spinner.hide();
-        saveAs(blod);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
       },
       error: () => this.spinner.hide(),
     });

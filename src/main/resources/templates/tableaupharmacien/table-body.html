@@ -24,8 +24,8 @@
   <tbody>
   <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
     <td class="text-left" th:if="${tableauGroupMonth}"
-        th:text=" ${#temporals.format(itm.mvtDate, 'dd-MM')}"></td>
-    <td class="text-left" th:text=" ${#temporals.format(itm.mvtDate, 'dd-MM-yyyy')}"
+        th:text=" ${#temporals.format(itm.mvtDate, 'dd/MM')}"></td>
+    <td class="text-left" th:text=" ${#temporals.format(itm.mvtDate, 'dd/MM/yyyy')}"
         th:unless="${tableauGroupMonth}"></td>
 
     <td class="unit" th:if="${itm.montantComptant ge 1000}"

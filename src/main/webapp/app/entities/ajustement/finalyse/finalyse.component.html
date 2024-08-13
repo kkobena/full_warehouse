@@ -4,17 +4,23 @@
     <div class="p-field p-col">
       <label class="col-auto col-form-label">Commentaire<span
         style="font-weight: 900;color: red;">*</span></label>
-      <textarea
-        formControlName="commentaire" name="commentaire" pInputTextarea
+      <textarea #commentaire
+                formControlName="commentaire" name="commentaire" pInputTextarea
       ></textarea>
-      <div
-        *ngIf="editForm.get('commentaire')!.invalid && (editForm.get('commentaire')!.dirty || editForm.get('commentaire')!.touched)">
-        <small *ngIf="editForm.get('commentaire')?.errors?.required" class="form-text text-danger"
-               style="color: red;">
-          Ce champ est obligatoire.
-        </small>
+      @if (editForm.get('commentaire')!.invalid && (editForm.get('commentaire')!.dirty
+        || editForm.get('commentaire')!.touched)) {
+        <div>
+          @if (editForm.get('commentaire')?.errors?.required) {
+            <small class="form-text text-danger"
+                   style="color: red;">
+              Ce champ est obligatoire.
+            </small>
+          }
 
-      </div>
+
+        </div>
+      }
+
     </div>
   </div>
   <div class="mt-2" style="float: right;">

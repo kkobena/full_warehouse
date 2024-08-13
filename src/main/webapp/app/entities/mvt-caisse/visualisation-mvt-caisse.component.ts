@@ -31,7 +31,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { Tuple } from '../../shared/model/tuple.model';
 import { MvtParamServiceService } from './mvt-param-service.service';
-import { saveAs } from 'file-saver';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
@@ -183,7 +182,8 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     this.mvtCaisseService.exportToPdf(this.buildParams()).subscribe({
       next: blod => {
         this.btnLoading = false;
-        saveAs(blod);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
       },
       error: () => {
         this.btnLoading = false;

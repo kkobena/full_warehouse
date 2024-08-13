@@ -11,7 +11,6 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ProduitAuditingParam, ProduitAuditingState } from '../../../shared/model/produit-record.model';
 import { HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
-import { saveAs } from 'file-saver';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 
@@ -30,7 +29,6 @@ import { ProduitAuditingParamService } from '../transaction/produit-auditing-par
     NgxSpinnerModule,
   ],
   templateUrl: './auditing.component.html',
-  styleUrl: './auditing.component.scss',
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
@@ -53,7 +51,10 @@ export class AuditingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.load(this.produitAuditingParamService.produitAuditingParam);
+    const param = this.produitAuditingParamService.produitAuditingParam;
+    if (param && param.produitId) {
+      this.load(param);
+    }
   }
 
   load(produitAuditingParam: ProduitAuditingParam): void {
@@ -70,7 +71,9 @@ export class AuditingComponent implements OnInit {
     this.produitStatService.exportToPdf(produitAuditingParam).subscribe({
       next: blod => {
         const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-        saveAs(blod, 'suivi_mvt_article_' + fileName);
+        //saveAs(blod, 'suivi_mvt_article_' + fileName);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
         this.spinner.hide();
       },
       error: () => this.spinner.hide(),

@@ -284,7 +284,10 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   exportPdf(): void {
-    this.commandeService.exportToPdf(this.commande.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToPdf(this.commande.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 
   onCloseCurrentCommande(): void {

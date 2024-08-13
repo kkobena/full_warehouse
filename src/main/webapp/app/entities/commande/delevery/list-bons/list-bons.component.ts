@@ -8,7 +8,6 @@ import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { LazyLoadEvent } from 'primeng/api';
 import { EtiquetteComponent } from '../etiquette/etiquette.component';
-import { saveAs } from 'file-saver';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -107,7 +106,8 @@ export class ListBonsComponent implements OnInit {
     this.entityService.exportToPdf(delivery.id).subscribe({
       next: blod => {
         this.spinner.hide();
-        saveAs(blod);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
       },
       error: () => this.spinner.hide(),
     });

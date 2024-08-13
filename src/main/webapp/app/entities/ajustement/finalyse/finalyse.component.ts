@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { AjustementService } from '../ajustement.service';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -11,15 +11,18 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { Ripple } from 'primeng/ripple';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
   standalone: true,
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
   providers: [MessageService],
-  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule],
+  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, Ripple, InputTextareaModule],
 })
 export class FinalyseComponent implements OnInit {
+  commentaire = viewChild.required<ElementRef>('commentaire');
   protected isSaving = false;
   protected entity?: IAjust;
   protected editForm = this.fb.group({
@@ -40,6 +43,7 @@ export class FinalyseComponent implements OnInit {
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
+    this.commentaire().nativeElement.focus();
   }
 
   save(): void {

@@ -9,8 +9,6 @@ import { IRayon } from '../../shared/model/rayon.model';
 import { Storage } from '../storage/storage.model';
 import { APPEND_TO, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH } from '../../shared/constants/pagination.constants';
 import { RayonService } from '../rayon/rayon.service';
-import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-util';
-import { saveAs } from 'file-saver';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { StoreInventoryService } from './store-inventory.service';
 import { ITEMS_PER_PAGE } from '../../config/pagination.constants';
@@ -133,8 +131,10 @@ export class StoreInventoryDetailComponent implements OnInit {
 
     this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe({
       next: blod => {
-        const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-        saveAs(blod, 'inventaire_' + fileName);
+        //   const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+        //   saveAs(blod, 'inventaire_' + fileName);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
         this.spinner.hide();
       },
       error: () => this.spinner.hide(),

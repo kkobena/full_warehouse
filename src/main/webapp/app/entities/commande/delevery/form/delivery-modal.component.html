@@ -10,19 +10,19 @@
       <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span style="margin-right: 5px;">Référence</span>
-          <span class="text-primary">{{ commande.orderRefernce }}</span>
+          <span class="text-primary fw-bold">{{ commande.orderRefernce }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span style="margin-right: 5px;">Grossiste</span>
-          <span class="text-primary">{{ commande.fournisseur?.libelle }}</span>
+          <span class="text-primary fw-bold">{{ commande.fournisseur?.libelle }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Valeur Achat
-          <span class="text-primary">{{ commande.grossAmount | number }}</span>
+          <span class="text-primary fw-bold">{{ commande.grossAmount | number }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Valeur Vente
-          <span class="text-primary">{{ commande.orderAmount | number }}</span>
+          <span class="text-primary fw-bold">{{ commande.orderAmount | number }}</span>
         </li>
       </ul>
 

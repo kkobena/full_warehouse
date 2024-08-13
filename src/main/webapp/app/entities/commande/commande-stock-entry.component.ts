@@ -1,16 +1,14 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from './commande.service';
 import { ProduitService } from '../produit/produit.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from '../../shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { Observable } from 'rxjs';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { AgGridAngular } from '@ag-grid-community/angular';
-import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { checkIfRomToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -21,7 +19,6 @@ import { DeliveryService } from './delevery/delivery.service';
 import { IDelivery } from '../../shared/model/delevery.model';
 import { IDeliveryItem } from '../../shared/model/delivery-item';
 import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
-import { ReceiptStatusComponent } from './status/receipt-status.component';
 import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
 import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -31,7 +28,11 @@ import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { InputTextModule } from 'primeng/inputtext';
-import { GridApi, GridReadyEvent } from '@ag-grid-community/core';
+
+import { CommandeBtnComponent } from './btn/commande-btn.component';
+import { ReceiptStatusComponent } from './status/receipt-status.component';
+import { GridApi, GridReadyEvent, RowModelType } from 'ag-grid-community';
+import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -41,7 +42,7 @@ import { GridApi, GridReadyEvent } from '@ag-grid-community/core';
   providers: [ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
-    // AgGridModule,
+    NgbTooltipModule,
     FormsModule,
     NgSelectModule,
     ButtonModule,
@@ -57,13 +58,14 @@ export class CommandeStockEntryComponent implements OnInit {
   delivery?: IDelivery | null = null;
   orderLines: IOrderLine[] = [];
   receiptItems: IDeliveryItem[] = [];
-
+  rowHeight = 30;
   selectedFilter = 'ALL';
   filtres: any[] = [];
   search?: string;
   isSaving = false;
   columnDefs: any[];
-  @ViewChild('orderLineGrid') productGrid!: AgGridAngular;
+  // @ViewChild('orderLineGrid') productGrid!: AgGridAngular;
+  // productGrid = viewChild('orderLineGrid');
   defaultColDef: any;
   frameworkComponents: any;
   context: any;
@@ -71,8 +73,9 @@ export class CommandeStockEntryComponent implements OnInit {
   disableActionBtn = false;
   showEditBtn = true;
   ref?: DynamicDialogRef;
-
-  private gridApi!: GridApi;
+  rowModelType: RowModelType = 'clientSide';
+  protected themeClass: string = 'ag-theme-quartz';
+  private gridApi!: GridApi<IDeliveryItem>;
 
   constructor(
     protected commandeService: CommandeService,
@@ -105,7 +108,7 @@ export class CommandeStockEntryComponent implements OnInit {
         field: 'fournisseurProduitCip',
         sortable: true,
         // cellStyle: this.cellStyle,
-        filter: 'agTextColumnFilter',
+        // filter: 'agTextColumnFilter',
         flex: 0.4,
       },
       {
@@ -201,7 +204,7 @@ export class CommandeStockEntryComponent implements OnInit {
         flex: 0.3,
         type: ['rightAligned', 'numericColumn'],
         valueGetter: this.setGap,
-        //    cellStyle: this.cellClass,
+        cellStyle: this.cellClass,
       },
       {
         field: 'Status',
@@ -276,7 +279,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   cellClass(params: any): any {
     const deliveryItem = params.data as IDeliveryItem;
-    if (deliveryItem.quantityReceived) {
+    if (deliveryItem.quantityReceived !== deliveryItem.quantityRequested) {
       const ecart = Math.abs(Number(deliveryItem.quantityRequested) - Number(deliveryItem.quantityReceived));
       if (ecart > 0) {
         if (Number(deliveryItem.quantityRequested) < Number(deliveryItem.quantityReceived)) {
@@ -357,7 +360,9 @@ export class CommandeStockEntryComponent implements OnInit {
 
   setGap(params: any): number {
     const deliveryItem = params.data as IDeliveryItem;
-    if (deliveryItem.quantityReceived) {
+    console.log('deliveryItem', deliveryItem);
+    if (deliveryItem.quantityReceived !== deliveryItem.quantityRequested) {
+      console.error('deliveryItem.quantityReceived', deliveryItem.quantityReceived);
       return deliveryItem.quantityRequested - deliveryItem.quantityReceived;
     }
     return 0;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,12 +16,17 @@ type EntityArrayResponseType = HttpResponse<IDelivery[]>;
 
 @Injectable({ providedIn: 'root' })
 export class DeliveryService {
+  deliveryPreviousActiveNav: WritableSignal<string> = signal<string>('pending');
   public resourceUrl = SERVER_API_URL + 'api/commandes/data/entree-stock';
   public resourceUrl2 = SERVER_API_URL + 'api/commandes/entree-stock/create';
   public resourceFinalyse = SERVER_API_URL + 'api/commandes/entree-stock/finalize';
   public resourceUrlTransac = SERVER_API_URL + 'api/commandes/entree-stock';
 
   constructor(protected http: HttpClient) {}
+
+  updateCommandPreviousActiveNav(nav: string): void {
+    this.deliveryPreviousActiveNav.set(nav);
+  }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http

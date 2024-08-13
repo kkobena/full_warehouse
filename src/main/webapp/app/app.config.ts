@@ -50,6 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, ...routerFeatures),
     importProvidersFrom(BrowserModule),
     importProvidersFrom(BrowserAnimationsModule),
+    // importProvidersFrom(ModuleRegistry.registerModules([ClientSideRowModelModule])),
     // Set this to true to enable service worker (PWA)
     importProvidersFrom(ServiceWorkerModule.register('ngsw-worker.js', { enabled: false })),
     importProvidersFrom(TranslationModule),

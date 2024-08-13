@@ -916,6 +916,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onNavChange(evt: NgbNavChangeEvent): void {
     const currentSale = this.currentSaleService.currentSale();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (currentSale) {
       evt.preventDefault();
       const message = this.getMessateOnNavChange(evt);

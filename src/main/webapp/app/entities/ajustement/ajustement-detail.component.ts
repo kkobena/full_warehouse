@@ -168,7 +168,7 @@ export class AjustementDetailComponent implements OnInit {
       if (!this.motifSelected) {
         this.showWarningMessage();
       } else {
-        if (this.ajustement.id !== undefined) {
+        if (this.ajustement?.id) {
           this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
         } else {
           this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
@@ -354,8 +354,8 @@ export class AjustementDetailComponent implements OnInit {
       ...new Ajustement(),
       produitId: produit.id,
       qtyMvt: quantity,
-      ajustId: this.ajustement.id,
-      motifAjustementId: this.motifSelected.id,
+      ajustId: this.ajustement?.id,
+      motifAjustementId: this.motifSelected?.id,
     };
   }
 

@@ -1,9 +1,9 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
 import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../delivery.service';
@@ -21,6 +21,7 @@ import { ToastModule } from 'primeng/toast';
 import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-form-delivery',
@@ -48,7 +49,6 @@ import { InputTextModule } from 'primeng/inputtext';
 export class DeliveryModalComponent implements OnInit {
   isSaving = false;
   entity?: IDelivery;
-
   commande: ICommande;
   maxDate = new Date();
   minDate = new Date();
@@ -71,6 +71,7 @@ export class DeliveryModalComponent implements OnInit {
     }),
     sequenceBon: new FormControl<string | null>(null, {}),
   });
+  protected primngtranslate: Subscription;
 
   constructor(
     protected entityService: DeliveryService,
@@ -79,7 +80,14 @@ export class DeliveryModalComponent implements OnInit {
     private fb: FormBuilder,
     private messageService: MessageService,
     private spinner: NgxSpinnerService,
-  ) {}
+    public primeNGConfig: PrimeNGConfig,
+    public translate: TranslateService,
+  ) {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+  }
 
   ngOnInit(): void {
     this.maxDate = new Date();

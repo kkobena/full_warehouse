@@ -15,14 +15,20 @@
                formControlName="numLot" name="numLot" pInputText
                type="text"
         />
-        <div
-          *ngIf="editForm.get('numLot')!.invalid && (editForm.get('numLot')!.dirty || editForm.get('numLot')!.touched)">
-          <small *ngIf="editForm.get('numLot')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
+        @if (editForm.get('numLot')!.invalid && (editForm.get('numLot')!.dirty || editForm.get(
+          'numLot')!.touched)) {
+          <div>
+            @if (editForm.get('numLot')?.errors?.required) {
+              <small class="form-text text-danger"
+                     style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
 
-        </div>
+
+          </div>
+        }
+
       </div>
     </div>
     <div class="p-fluid p-formgrid p-grid">
@@ -32,25 +38,35 @@
         <input (blur)="onValidateQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
                class="form-control" formControlName="quantityReceived"
                name="quantityReceived" pInputText type="text" />
-        <div
-          *ngIf="editForm.get('quantityReceived')!.invalid && (editForm.get('quantityReceived')!.dirty || editForm.get('quantityReceived')!.touched)">
-          <small *ngIf="editForm.get('quantityReceived')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
+        @if (editForm.get('quantityReceived')!.invalid && (editForm.get('quantityReceived')!.dirty
+          || editForm.get('quantityReceived')!.touched)) {
+          <div>
+            @if (editForm.get('quantityReceived')?.errors?.required) {
+              <small
+                class="form-text text-danger"
+                style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
 
-        </div>
+
+          </div>
+        }
+
       </div>
     </div>
     <div class="p-fluid p-formgrid p-grid">
-      <div *ngIf="showUgControl" class="p-field p-col">
-        <label class="col-auto col-form-label">Quantité UG</label>
-        <input (blur)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
-               class="form-control" formControlName="ugQuantityReceived"
-               name="ugQuantityReceived" pInputText type="text" />
+      @if (showUgControl) {
+        <div class="p-field p-col">
+          <label class="col-auto col-form-label">Quantité UG</label>
+          <input (blur)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
+                 class="form-control" formControlName="ugQuantityReceived"
+                 name="ugQuantityReceived" pInputText type="text" />
 
-      </div>
+        </div>
+
+      }
+
 
 
       <div class="p-field p-col">
@@ -60,15 +76,20 @@
                     appendTo="body" dateFormat="dd/mm/yy" formControlName="expiryDate"
                     name="expiryDate"
         ></p-calendar>
-        <div
-          *ngIf="editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty || editForm.get('expiryDate')!.touched)">
-          <small *ngIf="editForm.get('expiryDate')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
+        @if (editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty
+          || editForm.get('expiryDate')!.touched)) {
+          <div>
+            @if (editForm.get('expiryDate')?.errors?.required) {
+              <small
+                class="form-text text-danger"
+                style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
 
-        </div>
+
+          </div>
+        }
       </div>
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Date de fabrication</label>

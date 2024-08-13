@@ -73,7 +73,10 @@ export class CommandeRecusComponent implements OnInit {
   }
 
   exportPdf(delivery: IDelivery): void {
-    this.entityService.exportToPdf(delivery.id).subscribe(blod => saveAs(blod));
+    this.entityService.exportToPdf(delivery.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 
   loadPage(page?: number): void {

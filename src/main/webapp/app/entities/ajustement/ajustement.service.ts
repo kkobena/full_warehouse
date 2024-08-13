@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -15,6 +15,12 @@ type EntityArrayResponseType = HttpResponse<IAjustement[]>;
 @Injectable({ providedIn: 'root' })
 export class AjustementService {
   public resourceUrl = SERVER_API_URL + 'api/ajustements';
+  toolbarParam: WritableSignal<any> = signal<any>({
+    fromDate: new Date(),
+    toDate: new Date(),
+    search: null,
+    userId: null,
+  });
 
   constructor(protected http: HttpClient) {}
 
@@ -78,6 +84,10 @@ export class AjustementService {
 
   exportToPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/pdf/${id}`, { responseType: 'blob' });
+  }
+
+  updateToolbarParam(param: {}): void {
+    this.toolbarParam.set(param);
   }
 
   protected convertDateFromClient(ajustement: IAjustement): IAjustement {

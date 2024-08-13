@@ -36,7 +36,8 @@
     <div class="col-2 col-md-2 col-sm-2">
 
       <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+        <div #nav="ngbNav" (navChange)="onNavChange($event)" [(activeId)]="active"
+             class="nav flex-column nav-pills " ngbNav
              orientation="vertical">
           <ng-container ngbNavItem="REQUESTED">
             <a class="flex-sm-fill nav-link " ngbNavLink>Commande en cours</a>

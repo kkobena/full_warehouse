@@ -9,7 +9,7 @@ import { InventoryTransactionService } from './inventory-transaction.service';
 import moment from 'moment';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { AgGridModule } from '@ag-grid-community/angular';
+import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
   selector: 'jhi-inventory-transaction',
@@ -31,7 +31,7 @@ import { AgGridModule } from '@ag-grid-community/angular';
   ],
   templateUrl: './inventory-transaction.component.html',
   standalone: true,
-  imports: [WarehouseCommonModule, AgGridModule],
+  imports: [WarehouseCommonModule, AgGridAngular],
 })
 export class InventoryTransactionComponent implements OnInit {
   totalItems = 0;

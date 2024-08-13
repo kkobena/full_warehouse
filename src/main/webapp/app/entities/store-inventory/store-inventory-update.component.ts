@@ -17,10 +17,8 @@ import { IStoreInventoryLine } from '../../shared/model/store-inventory-line.mod
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { AgGridAngular, AgGridModule } from '@ag-grid-community/angular';
-import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS, formatNumberToString } from '../../shared/util/warehouse-util';
+import { formatNumberToString } from '../../shared/util/warehouse-util';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { saveAs } from 'file-saver';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
@@ -31,7 +29,8 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { GridApi, GridReadyEvent } from '@ag-grid-community/core';
+import { AgGridAngular } from 'ag-grid-angular';
+import { GridApi, GridReadyEvent } from 'ag-grid-community';
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -51,7 +50,6 @@ import { GridApi, GridReadyEvent } from '@ag-grid-community/core';
     RippleModule,
     ToastModule,
     ConfirmDialogModule,
-    AgGridModule,
     AgGridAngular,
   ],
 })
@@ -285,8 +283,10 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.spinner.show();
 
     this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe(blod => {
-      const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      saveAs(blod, 'inventaire_' + fileName);
+      // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+      // saveAs(blod, 'inventaire_' + fileName);
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
       this.spinner.hide();
     });
   }
@@ -312,7 +312,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.loadPage();
   }
 
-  protected onClear() {
+  protected onClear(): void {
     this.selectedRayon = null;
     this.onSearch();
   }

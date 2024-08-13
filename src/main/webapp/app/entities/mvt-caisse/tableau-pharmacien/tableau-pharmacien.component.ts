@@ -23,7 +23,6 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { MvtCaisseParams } from '../mvt-caisse-util';
-import { saveAs } from 'file-saver';
 import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
 
 @Component({
@@ -179,7 +178,8 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.tableauPharmacienService.exportToPdf(this.buildParams()).subscribe({
       next: blod => {
         this.loading = false;
-        saveAs(blod);
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
       },
       error: () => {
         this.loading = false;

@@ -1,6 +1,6 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
 import { ProduitService } from '../produit/produit.service';
@@ -71,7 +71,7 @@ import { CommandCommonService } from './command-common.service';
     `,
   ],
 })
-export class CommandeComponent {
+export class CommandeComponent implements OnInit {
   commandes: ICommande[] = [];
   commandeSelected?: ICommande;
   selectedRowIndex?: number;
@@ -83,16 +83,13 @@ export class CommandeComponent {
   fileDialog = false;
   ref!: DynamicDialogRef;
   commandCommonService = inject(CommandCommonService);
+  commandeEnCoursComponent = viewChild(CommandeEnCoursComponent);
+  commandePasses = viewChild(CommandePassesComponent);
+  commandeRecues = viewChild(CommandeRecusComponent);
   protected searchCommande = '';
   protected active = 'REQUESTED';
   protected search = '';
   protected selectionLength: number = 0;
-  @ViewChild(CommandeEnCoursComponent)
-  private commandeEnCoursComponent: CommandeEnCoursComponent;
-  @ViewChild(CommandePassesComponent)
-  private commandePasses: CommandePassesComponent;
-  @ViewChild(CommandeRecusComponent)
-  private commandeRecues: CommandeRecusComponent;
 
   constructor(
     protected commandeService: CommandeService,
@@ -106,29 +103,38 @@ export class CommandeComponent {
     private dialogService: DialogService,
   ) {}
 
+  ngOnInit(): void {
+    this.active = this.commandCommonService.commandPreviousActiveNav();
+  }
+
+  onNavChange(evt: NgbNavChangeEvent): void {
+    this.active = evt.nextId;
+    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
+  }
+
   onSearch(): void {
     switch (this.active) {
       case 'REQUESTED':
-        this.commandeEnCoursComponent.onSearch();
+        this.commandeEnCoursComponent().onSearch();
         break;
       case 'PASSED':
-        this.commandePasses.onSearch();
+        this.commandePasses().onSearch();
         break;
       case 'RECEIVED':
-        this.commandeRecues.onSearch();
-
+        this.commandeRecues().onSearch();
         break;
     }
   }
 
   onCreatNewCommande(): void {
     this.commandCommonService.updateCommand(null);
+    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
     this.router.navigate(['/commande/new']);
   }
 
   fusionner(): void {
     if (this.active === 'REQUESTED') {
-      this.commandeEnCoursComponent.fusionner();
+      this.commandeEnCoursComponent().fusionner();
     }
   }
 
@@ -205,7 +211,7 @@ export class CommandeComponent {
       icon: 'pi pi-info-circle',
       accept: () => {
         if (this.active === 'REQUESTED') {
-          this.commandeEnCoursComponent.removeAll();
+          this.commandeEnCoursComponent().removeAll();
         }
       },
       key: 'deleteCommande',
@@ -219,7 +225,7 @@ export class CommandeComponent {
       icon: 'pi pi-info-circle',
       accept: () => {
         if (this.active === 'PASSED') {
-          this.commandePasses.rollbackAll();
+          this.commandePasses().rollbackAll();
         }
       },
       key: 'deleteCommande',
@@ -227,6 +233,7 @@ export class CommandeComponent {
   }
 
   gotoEntreeStockComponent(delivery: IDelivery): void {
+    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
     this.router.navigate(['/commande', delivery.id, 'stock-entry']);
   }
 
@@ -244,7 +251,7 @@ export class CommandeComponent {
         next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger'),
       });
     }
   }

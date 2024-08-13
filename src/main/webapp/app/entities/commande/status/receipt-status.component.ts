@@ -2,14 +2,14 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
 import { CommonModule } from '@angular/common';
-import { ICellRendererAngularComp } from '@ag-grid-community/angular';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
   standalone: true,
   imports: [CommonModule],
   selector: 'jhi-receipt-status-btn',
   template: `
-    <div class="progress" style="width: 100%;text-align:center;">
+    <div class="progress" style="width: 100%;text-align:center;height: 8px;">
       <div [ngClass]="getStatus()" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
   `,

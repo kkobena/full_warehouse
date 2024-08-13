@@ -22,7 +22,6 @@ import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales } from '../../../../shared/model/sales.model';
 import { Observable } from 'rxjs';
-import { saveAs } from 'file-saver';
 import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { ButtonDirective, ButtonModule } from 'primeng/button';
@@ -335,7 +334,10 @@ export class BaseSaleComponent {
   }
 
   print(sale: ISales | null): void {
-    this.salesService.print(sale.id).subscribe(blod => saveAs(blod));
+    this.salesService.print(sale.id).subscribe(blod => {
+      const blobUrl = URL.createObjectURL(blod);
+      window.open(blobUrl);
+    });
   }
 
   printSale(saleId: number): void {

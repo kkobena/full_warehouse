@@ -1,9 +1,9 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
 import { LotService } from './lot.service';
 import { BLOCK_SPACE, DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
@@ -16,6 +16,7 @@ import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
@@ -37,6 +38,7 @@ import { InputTextModule } from 'primeng/inputtext';
   ],
 })
 export class FormLotComponent implements OnInit {
+  primngtranslate: Subscription;
   isSaving = false;
   entity?: ILot;
   deliveryItem?: IDeliveryItem;
@@ -72,7 +74,14 @@ export class FormLotComponent implements OnInit {
     public config: DynamicDialogConfig,
     private fb: FormBuilder,
     private messageService: MessageService,
-  ) {}
+    public primeNGConfig: PrimeNGConfig,
+    public translate: TranslateService,
+  ) {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+  }
 
   ngOnInit(): void {
     this.maxDate = new Date();
@@ -206,7 +215,9 @@ export class FormLotComponent implements OnInit {
     if (this.entity && ugQuantity) {
       return ugQuantity - (this.getLotUgQuantity() - this.entity.ugQuantityReceived);
     }
-    if (ugQuantity) {return ugQuantity - this.getLotUgQuantity();}
+    if (ugQuantity) {
+      return ugQuantity - this.getLotUgQuantity();
+    }
     return 0;
   }
 

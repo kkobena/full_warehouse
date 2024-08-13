@@ -21,7 +21,6 @@ import { MvtCaisseParams } from '../mvt-caisse-util';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
-import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'jhi-balance-mvt-caisse',
@@ -92,7 +91,8 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next(blod) {
-          saveAs(blod);
+          const blobUrl = URL.createObjectURL(blod);
+          window.open(blobUrl);
         },
         error: () => {
           this.loading = false;

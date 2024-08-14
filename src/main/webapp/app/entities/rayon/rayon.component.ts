@@ -23,6 +23,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
+import { MagasinService } from '../magasin/magasin.service';
 
 @Component({
   selector: 'jhi-rayon',
@@ -64,6 +65,7 @@ export class RayonComponent implements OnInit {
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page = 0;
+  ngbPaginationPage = 1;
   customUpload = true;
   selectedEl: IRayon[];
   multipleSite = false;
@@ -75,6 +77,7 @@ export class RayonComponent implements OnInit {
     protected modalService: ConfirmationService,
     private dialogService: DialogService,
     private messageService: MessageService,
+    private magasinService: MagasinService,
   ) {
     this.magasins = [];
     this.selectedEl = [];
@@ -105,12 +108,13 @@ export class RayonComponent implements OnInit {
   }
 
   loadPage(page?: number, search?: string): void {
-    const pageToLoad: number = page || this.page;
+    // const pageToLoad: number = page || this.page;
+    const pageToLoad: number = page || this.page || 1;
     const query: string = search || '';
     this.loading = true;
     this.entityService
       .query({
-        page: pageToLoad,
+        page: pageToLoad - 1,
         size: ITEMS_PER_PAGE,
         search: query,
       })
@@ -121,7 +125,7 @@ export class RayonComponent implements OnInit {
   }
 
   lazyLoading(event: LazyLoadEvent): void {
-    if (event.first && event.rows) {
+    if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
       this.entityService
@@ -129,7 +133,7 @@ export class RayonComponent implements OnInit {
           page: this.page,
           size: event.rows,
           search: '',
-          magasinId: this.magasin.id,
+          magasinId: this.magasin?.id,
         })
         .subscribe({
           next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
@@ -201,7 +205,7 @@ export class RayonComponent implements OnInit {
   }
 
   onCloneChange(event: any): void {
-    if (this.clone.id === this.magasin.id) {
+    if (this.clone.id === this.magasin?.id) {
       this.clone = undefined;
       this.messageService.add({
         severity: 'error',
@@ -244,18 +248,13 @@ export class RayonComponent implements OnInit {
   protected onSuccess(data: IRayon[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/rayon'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        magasinId: this.magasin.id,
-      },
-    });
+    this.ngbPaginationPage = this.page;
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(): void {
+    this.ngbPaginationPage = this.page ?? 1;
     this.loading = false;
   }
 

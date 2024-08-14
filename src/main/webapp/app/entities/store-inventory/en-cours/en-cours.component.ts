@@ -171,7 +171,7 @@ export class EnCoursComponent implements OnInit {
         next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger'),
       });
     }
   }

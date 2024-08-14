@@ -84,8 +84,8 @@ public class StorageService {
     }
 
     public User getUserFormImport() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
-        return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).get());
+        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+        return user.orElse(userRepository.findOneByLogin(Constants.SYSTEM).get());
     }
 
     public Magasin getImportationMagasin() {

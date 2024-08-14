@@ -27,9 +27,9 @@
   </p-footer>
 </p-dialog>
 
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '500px'}"
-          header="Message" showEffect="fade">
+          header="Message">
 
   <div class="ui-g form-group">
     <p>Le nombre de lignes insérées <span
@@ -54,9 +54,12 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button (click)="clonerRayon()" *ngIf="clone" icon="pi pi-check" label="Cloner les rayons"
-            pButton
-            type="button"></button>
+    @if (clone) {
+      <button (click)="clonerRayon()" icon="pi pi-check" label="Cloner les rayons"
+              pButton
+              type="button"></button>
+    }
+
     <button (click)="dialogueClone=false" class="p-button-danger" icon="pi pi-times" label="Annuler"
             pButton
             type="button"></button>
@@ -70,14 +73,17 @@
   </h3>
 
   <p-toolbar>
-    <div *ngIf="multipleSite" class="p-toolbar-group-left p-md-4">
-      <p-dropdown (onChange)="onChange($event)" [(ngModel)]="magasin" [filter]="false"
-                  [options]="magasins"
-                  [style]="{'width':'100%'}" appendTo="body"
-                  class="p-autocomplete"
-                  optionLabel="nomCourt" placeholder="Séléctionner un stockage "></p-dropdown>
+    @if (multipleSite) {
+      <div class="p-toolbar-group-left p-md-4">
+        <p-dropdown (onChange)="onChange($event)" [(ngModel)]="magasin" [filter]="false"
+                    [options]="magasins"
+                    [style]="{'width':'100%'}" appendTo="body"
+                    class="p-autocomplete"
+                    optionLabel="nomCourt" placeholder="Séléctionner un stockage "></p-dropdown>
 
-    </div>
+      </div>
+    }
+
     <div class="p-toolbar-group-left">
                <span class="p-input-icon-left" style="width: 100%;">
                     <i class="pi pi-search"></i>
@@ -93,13 +99,19 @@
       <button (click)="addNewEntity()" class="p-button-raised  p-button-success mr-2"
               icon="pi pi-check" iconPos="left" label="Nouveau" pButton
               pRipple type="button"></button>
-      <button (click)="cloner()" *ngIf="selectedEl!.length>0"
-              class="p-button-raised  p-button-infos" icon="pi pi-copy" iconPos="left"
-              label="Cloner"
-              pButton pRipple type="button"></button>
+      <!--  @if (selectedEl!.length > 0) {
+          <button h (click)="cloner()"
+                  class="p-button-raised  p-button-infos" icon="pi pi-copy" iconPos="left"
+                  label="Cloner"
+                  pButton pRipple type="button"></button>
+        }
+  -->
     </div>
   </p-toolbar>
-  <p-table #dt [(selection)]="selectedEl" [paginator]="true" [rows]="itemsPerPage"
+  <p-table #dt (onLazyLoad)="lazyLoading($event)" [(selection)]="selectedEl" [lazy]="true"
+           [paginator]="true"
+           [rowsPerPageOptions]="[10,15,20,30,50]"
+           [rows]="itemsPerPage"
            [totalRecords]="totalItems"
            [value]="entites"
            dataKey="id" styleClass="ui-table-cars">
@@ -107,9 +119,9 @@
       <tr>
         <th scope="col" style="width: 15%;"><span>Code</span></th>
         <th scope="col" style="width: 55%;"><span>Libellé</span></th>
-        <th style="width: 3rem">
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-        </th>
+        <!-- <th style="width: 3rem">
+           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+         </th>-->
         <th scope="col" style="text-align:center;">Actions</th>
       </tr>
 
@@ -118,21 +130,21 @@
       <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
         <td>{{ elRow.code }}</td>
         <td>{{ elRow.libelle }}</td>
-        <td>
+        <!--<td>
           <p-tableCheckbox [value]="elRow"></p-tableCheckbox>
-        </td>
+        </td>-->
         <td style="text-align: center;">
           <button (click)="onEdit(elRow)"
                   class="btn btn-primary btn-sm" type="submit">
             <fa-icon icon="pencil-alt"></fa-icon>
             <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
           </button>
-          <button (click)="onBasculer(elRow)"
+          <!--<button (click)="onBasculer(elRow)"
                   class="btn btn-warning btn-sm" type="submit"><i
             class="pi pi-reply"></i>
 
             <span class="d-none d-md-inline" jhiTranslate="entity.action.basculer">Basculer</span>
-          </button>
+          </button>-->
           <button (click)="delete(elRow)"
                   class="btn btn-danger btn-sm" type="submit">
             <fa-icon icon="times"></fa-icon>

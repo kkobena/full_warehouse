@@ -31,9 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class RayonServiceImpl implements RayonService {
+
     private final Logger log = LoggerFactory.getLogger(RayonServiceImpl.class);
     private final RayonRepository rayonRepository;
-   private final StorageService storageService;
+    private final StorageService storageService;
     private final CustomizedRayonService customizedRayonService;
 
     public RayonServiceImpl(RayonRepository rayonRepository, StorageService storageService, CustomizedRayonService customizedRayonService) {
@@ -75,7 +76,7 @@ public class RayonServiceImpl implements RayonService {
         if (storageId == null || storageId == 0) {
             storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         }
-        log.debug("====================================>> storageId {}",storageId);
+
         return customizedRayonService.listRayonsByStorageId(storageId, query, pageable);
     }
 
@@ -105,29 +106,30 @@ public class RayonServiceImpl implements RayonService {
 
     @Override
     public ResponseDTO importation(InputStream inputStream, Long storageId) {
-        final Long storageId2=(storageId == null || storageId == 0)?storageService.getDefaultConnectedUserMainStorage().getId():storageId;
+        final Long storageId2 = (storageId == null || storageId == 0)
+            ? storageService.getDefaultConnectedUserMainStorage().getId()
+            : storageId;
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').setSkipHeaderRecord(true).build().parse(br);
             records.forEach(record -> {
                 Rayon rayon = new Rayon();
                 rayon.setLibelle(record.get(0).trim());
                 rayon.setCode(record.get(1).trim());
                 try {
-                    boolean exclude = Boolean.valueOf(Integer.valueOf(record.get(2)) == 0);
+                    boolean exclude = Integer.parseInt(record.get(2)) == 0;
                     rayon.setExclude(exclude);
                 } catch (Exception e) {
-                    log.debug("importation",e);
+                    log.error("importation", e);
                 }
                 rayon.setCreatedAt(LocalDateTime.now());
                 rayon.setUpdatedAt(LocalDateTime.now());
                 rayon.setStorage(customizedRayonService.fromId(storageId2));
                 rayonRepository.save(rayon);
                 count.incrementAndGet();
-
             });
         } catch (IOException e) {
-            log.debug("importation : {}", e);
+            log.error("importation : {}", e);
         }
 
         return new ResponseDTO().size(count.get());
@@ -137,7 +139,7 @@ public class RayonServiceImpl implements RayonService {
     public ResponseDTO cloner(List<RayonDTO> rayonIds, Long storageId) {
         int count = 0;
 
-        Storage storage=storageService.getOne(storageId);
+        Storage storage = storageService.getOne(storageId);
         for (RayonDTO rayonDTO : rayonIds) {
             Rayon rayon = customizedRayonService.buildRayonFromRayonDTO(rayonDTO);
             rayon.setStorage(storage);
@@ -146,6 +148,4 @@ public class RayonServiceImpl implements RayonService {
         }
         return new ResponseDTO().size(count);
     }
-
-
 }

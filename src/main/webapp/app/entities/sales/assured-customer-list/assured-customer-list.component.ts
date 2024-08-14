@@ -106,7 +106,7 @@ export class AssuredCustomerListComponent implements OnInit {
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
-    console.log('totalItems', this.totalItems);
+
     this.page = page;
     this.customers = data || [];
     this.ngbPaginationPage = this.page;

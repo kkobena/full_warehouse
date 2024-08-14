@@ -5,14 +5,6 @@ import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -23,6 +15,13 @@ import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Repository
 @Transactional
@@ -48,11 +47,11 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
             Root<Rayon> root = cq.from(Rayon.class);
             cq.select(root);
             List<Predicate> predicates = produitPredicate(cb, root, storageId, query);
-            cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+            cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<Rayon> q = em.createQuery(cq);
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
-            list = q.getResultList().stream().map(o -> buildRayonDTOFromRayon(o)).collect(Collectors.toList());
+            list = q.getResultList().stream().map(this::buildRayonDTOFromRayon).collect(Collectors.toList());
         }
         return new PageImpl<>(list, pageable, total);
     }
@@ -63,7 +62,7 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
         Root<Rayon> root = cq.from(Rayon.class);
         cq.select(cb.count(root));
         List<Predicate> predicates = produitPredicate(cb, root, storageId, query);
-        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = em.createQuery(cq);
         Long v = q.getSingleResult();
         return v != null ? v : 0;
@@ -72,7 +71,7 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
     private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Rayon> root, Long storageId, String query) {
         List<Predicate> predicates = new ArrayList<>();
 
-        if (!StringUtils.isEmpty(query)) {
+        if (StringUtils.hasLength(query)) {
             String search = query.toUpperCase() + "%";
             predicates.add(cb.or(cb.like(cb.upper(root.get(Rayon_.libelle)), search), cb.like(cb.upper(root.get(Rayon_.code)), search)));
         }

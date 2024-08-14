@@ -25,9 +25,7 @@
 
 </p-confirmDialog>
 <p-table
-
   [paginator]="true"
-
   [rowsPerPageOptions]="[5,10,15,20,30,50]"
   [rows]="itemsPerPage" [showCurrentPageReport]="false"
   [totalRecords]="totalItems"
@@ -47,9 +45,9 @@
   </ng-template>
   <ng-template let-storeInventory pTemplate="body">
     <tr>
-      <td>{{storeInventory.storage?.name}}</td>
-      <td>{{storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-      <td>{{storeInventory.abbrName}}</td>
+      <td>{{ storeInventory.storage?.name }}</td>
+      <td>{{ storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ storeInventory.abbrName }}</td>
       <td class="text-right">
         <div class="btn-group">
 

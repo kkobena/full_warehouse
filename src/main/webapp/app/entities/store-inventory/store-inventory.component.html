@@ -25,19 +25,23 @@
       <p-toolbar>
         <div class="p-toolbar-group-left" style="width:70%;">
           <div class="row" style="width: 100%;">
-            <div *ngIf="showUserCombo" class="col-md-6 row">
-              <div class="col-md-3">Opérateurs</div>
-              <div class="col-md-9">
-                <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
-                            [showClear]="true" [style]="{width: '100%'}"
-                            optionLabel="fullName"></p-dropdown>
+            @if (showUserCombo) {
+              <div class="col-md-6 row">
+                <div class="col-md-3">Opérateurs</div>
+                <div class="col-md-9">
+                  <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                              [showClear]="true" [style]="{width: '100%'}"
+                              optionLabel="fullName"></p-dropdown>
+                </div>
               </div>
-            </div>
+            }
             <div class="col-md-10 row">
               <div class="col-md-2">Types</div>
               <div class="col-md-10">
-                <p-multiSelect [(ngModel)]="inventoryCategories" [filter]="false"
-                               [options]="categories" [showClear]="true" [style]="{width: '100%'}"
+                <p-multiSelect [(ngModel)]="inventoryCategories"
+                               [filter]="false"
+                               [options]="categories"
+                               [showClear]="true" [showToggleAll]="false" [style]="{width: '100%'}"
                                optionLabel="label" placeholder="Filter par type"></p-multiSelect>
               </div>
             </div>

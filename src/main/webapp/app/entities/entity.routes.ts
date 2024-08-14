@@ -139,6 +139,11 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.mvtCaisse.home.title' },
     loadChildren: () => import('./mvt-caisse/mvt-caisse.route'),
   },
+  {
+    path: 'parametre',
+    data: { pageTitle: 'Paramètres' },
+    loadChildren: () => import('./parametre/app.route'),
+  },
 ];
 
 export default routes;

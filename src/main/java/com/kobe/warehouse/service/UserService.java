@@ -326,8 +326,7 @@ public class UserService {
     }
 
     public User getUser() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(login -> userRepository.findOneByLogin(login));
-        return user.orElseGet(null);
+        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
     }
 
     @Transactional(readOnly = true)

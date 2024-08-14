@@ -38,8 +38,7 @@ public class GroupeTiersPayantService {
     public GroupeTiersPayant create(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent()) {
-            throw new GenericError("Il existe dejà  un groupe avec le même nom",
-                "groupeTiersPayantExistant");
+            throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
         }
         GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
@@ -53,8 +52,7 @@ public class GroupeTiersPayantService {
         GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent() && groupeTiersPayantOptional.get().getId() != tiersPayant.getId()) {
-            throw new GenericError("Il existe dejà  un groupe avec le même nom",
-                "groupeTiersPayantExistant");
+            throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
         }
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
         tiersPayant.setName(groupeTiersPayant.getName());
@@ -65,7 +63,7 @@ public class GroupeTiersPayantService {
 
     @Transactional(readOnly = true)
     public List<GroupeTiersPayant> list(String search) {
-        if (StringUtils.isEmpty(search)) {
+        if (!StringUtils.hasLength(search)) {
             return groupeTiersPayantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
         }
         return groupeTiersPayantRepository.findAll(
@@ -77,8 +75,7 @@ public class GroupeTiersPayantService {
     public void delete(Long id) throws GenericError {
         List<TiersPayant> tiersPayants = tiersPayantRepository.findAllByGroupeTiersPayantId(id);
         if (!tiersPayants.isEmpty()) {
-            throw new GenericError("Il  y'a des tierspants associés à ce groupe",
-                "groupeTiersPayantAssocies");
+            throw new GenericError("Il  y'a des tierspants associés à ce groupe", "groupeTiersPayantAssocies");
         }
         groupeTiersPayantRepository.deleteById(id);
     }

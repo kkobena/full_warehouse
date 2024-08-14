@@ -321,6 +321,19 @@
                   <span jhiTranslate="global.menu.motifAjustement">Motif ajustement</span>
                 </a>
               </li>
+
+              <li *jhiHasAnyAuthority="['parametre','referentiel','ROLE_ADMIN']">
+                <a
+                  (click)="collapseNavbar()"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="dropdown-item"
+                  routerLink="/parametre"
+                  routerLinkActive="active"
+                >
+                  <i class="pi pi-cog"></i>
+                  <span>Paramétrage</span>
+                </a>
+              </li>
             </ul>
           </li>
           <li

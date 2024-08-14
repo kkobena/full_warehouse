@@ -3,6 +3,7 @@ export interface IConfiguration {
   value?: string;
   otherValue?: string;
   description?: string;
+  valueType?: string;
 }
 
 export class Configuration implements IConfiguration {

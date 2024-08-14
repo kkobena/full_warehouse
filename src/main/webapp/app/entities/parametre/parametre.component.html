@@ -1,0 +1,160 @@
+<div class="d-flex justify-content-center">
+  <div class="col-10">
+
+    <p-panel header="Paramètres de configuaration">
+      @if (apps.length > 0) {
+        <div [style]="{width:'100%'}">
+          <input pInputText type="text" (keyup.enter)="loadAll()" [(ngModel)]="search"
+                 [style]="{width:'350px'}">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Nom</th>
+              <th>description
+              </th>
+              <th>Valeur
+              </th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (app of apps; track app.name) {
+                <tr>
+                  <td>{{ app.name }}</td>
+                  <td>{{ app.description }}</td>
+                  @if (app.valueType === 'BOOLEAN') {
+                    <td>
+                      @if (app.value == 0) {
+                        <button class="btn btn-danger btn-sm" (click)="setActive(app, true)"
+                                jhiTranslate="userManagement.deactivated">
+                          Désactivé
+                        </button>
+                      } @else {
+                        <button
+                          class="btn btn-success btn-sm"
+                          (click)="setActive(app, false)"
+                          jhiTranslate="userManagement.activated"
+                        >
+                          Activé
+                        </button>
+                      }
+                    </td>
+                  } @else {
+                    <td>{{ app.value }}</td>
+                  }
+                  <td>
+
+                    <button (click)="onEdit(app)" class="btn btn-primary btn-sm">
+                      éditer
+                    </button>
+
+                  </td>
+
+
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+
+      }
+    </p-panel>
+  </div>
+</div>
+<!-- formulaire  d edition-->
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <p-dialog
+    [(visible)]="displayDialog"
+    [focusOnShow]="false"
+    [header]="entity?.name"
+    [modal]="true"
+    [style]="{width: '40%'}"
+  >
+
+    <div [hidden]="!editForm.get('name')!.value" class="form-group">
+
+      <input class="form-control" formControlName="name" id="name" name="name" readonly
+             type="hidden" />
+    </div>
+    <jhi-alert-error></jhi-alert-error>
+
+    <div class="p-fluid p-formgrid p-grid">
+
+      <label for="field_libelle">Description</label>
+      <div class="p-field p-col" style="margin-bottom:10px">
+                <textarea class="form-control" formControlName="description" id="field_libelle"
+                          name="description"
+                          pInputTextarea style="width: 100%;">
+            </textarea>
+      </div>
+      @if (editForm.get('description')!.invalid && (editForm.get('description')!.dirty
+        || editForm.get('description')!.touched)) {
+        <div>
+          @if (editForm.get('description')?.errors?.required) {
+            <small class="form-text text-danger"
+                   style="color: red;">
+              Ce champ est obligatoire.
+            </small>
+          }
+        </div>
+      }
+
+    </div>
+    <div class="p-fluid p-formgrid p-grid">
+
+
+      <div class="p-field p-col" style="margin-bottom:10px">
+        @if (entity?.valueType === 'BOOLEAN') {
+          <label for="field_value">Actif</label>
+
+
+          <p-checkbox
+            formControlName="value"
+            [binary]="true"
+            inputId="binary" />
+
+        } @else if (entity?.valueType === 'NUMBER') {
+          <label for="field_value">Valeur</label>
+          <input class="form-control" type="number" formControlName="value" id="field_value"
+                 name="value"
+          />
+        } @else {
+          <label for="field_value">Valeur</label>
+          <input class="form-control" type="text" formControlName="value" id="field_value"
+                 name="value"
+                 style="width: 100%;" />
+        }
+
+      </div>
+      @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get(
+        'value')!.touched)) {
+        <div>
+          @if (editForm.get('value')?.errors?.required) {
+            <small class="form-text text-danger"
+                   style="color: red;">
+              Ce champ est obligatoire.
+            </small>
+          }
+
+
+        </div>
+      }
+
+
+    </div>
+    <p-footer>
+
+      <button [disabled]="editForm.invalid || isSaving"
+              class="p-button-success p-mr-2 p-button-raised"
+              icon="pi pi-check" label="Enregistrer" pButton pRipple
+              type="submit"></button>
+      <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
+              label="Annuler"
+              pButton pRipple type="button"></button>
+
+    </p-footer>
+  </p-dialog>
+</form>

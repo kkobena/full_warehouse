@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 
 import { createRequestOption } from './util/request-util';
 import { SessionStorageService } from 'ngx-webstorage';
+import { ISales } from './model/sales.model';
+import { map } from 'rxjs/operators';
 
 type EntityResponseType = HttpResponse<IConfiguration>;
 type EntityArrayResponseType = HttpResponse<IConfiguration[]>;
@@ -44,12 +46,18 @@ export class ConfigurationService {
 
   getParamByKey(key: string): IConfiguration | null {
     const param = this.sessionStorageService.retrieve(key) as IConfiguration | null;
-    if (param) {return param;}
+    if (param) {
+      return param;
+    }
     this.find(key).subscribe(res => this.storeParamByKey(key, res.body));
     return this.sessionStorageService.retrieve(key) as IConfiguration | null;
   }
 
   clearParam(key: string): void {
     this.sessionStorageService.clear(key);
+  }
+
+  update(app: IConfiguration): Observable<HttpResponse<{}>> {
+    return this.http.put(`${this.resourceUrl}`, app, { observe: 'response' });
   }
 }

@@ -150,20 +150,28 @@ export class InventoryFormComponent implements OnInit {
   }
 
   private createFromForm(): IStoreInventory {
+    const inventoryCategory = this.editForm.get(['inventoryCategory'])!.value.name;
+    if (inventoryCategory === 'MAGASIN') {
+      return {
+        ...new StoreInventory(),
+        id: this.editForm.get(['id'])!.value,
+        inventoryCategory: inventoryCategory,
+      };
+    }
     return {
       ...new StoreInventory(),
       id: this.editForm.get(['id'])!.value,
-      storage: this.editForm.get(['storage']).value?.id,
-      rayon: this.editForm.get(['rayon']).value?.id,
-      inventoryCategory: this.editForm.get(['inventoryCategory'])!.value?.name,
+      storage: this.editForm.get(['storage'])?.value?.id,
+      rayon: this.editForm.get(['rayon'])!.value?.id,
+      inventoryCategory: inventoryCategory,
     };
   }
 
   private updateForm(entity: IStoreInventory): void {
     this.editForm.patchValue({
       id: entity.id,
-      storage: entity.storage.id,
-      rayon: entity.rayon.id,
+      storage: entity.storage?.id,
+      rayon: entity.rayon?.id,
       inventoryCategory: entity.inventoryCategory.name,
     });
   }
@@ -179,6 +187,7 @@ export class InventoryFormComponent implements OnInit {
       this.rayonService
         .query({
           storageId,
+          size: 9999,
         })
         .subscribe((res: HttpResponse<IRayon[]>) => {
           this.rayons = res.body || [];

@@ -26,3 +26,9 @@ VALUES ('ROLE_ADMIN', 'PR_MODIFICATION_VENTE');
 INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
 VALUES ('ROLE_ADMIN', 'PR_ANNULATION_VENTE');
 
+
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_VOIR_STOCK_INVENTAIRE', 'Privège affichage du stock des produits inventoriés', 3);
+
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_VOIR_STOCK_INVENTAIRE');

@@ -67,7 +67,8 @@ public class ImportationProduitService {
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final ImportationRepository importationRepository;
 
-    public ImportationProduitService(TransactionTemplate transactionTemplate,
+    public ImportationProduitService(
+        TransactionTemplate transactionTemplate,
         FamilleProduitRepository familleProduitRepository,
         RayonRepository rayonRepository,
         TypeEtiquetteRepository typeEtiquetteRepository,
@@ -104,13 +105,9 @@ public class ImportationProduitService {
     public void updateStocFromJSON(InputStream input, User user) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Storage storage = storageService.getDefaultMagasinMainStorage();
-        if (storage == null) {
-            storage = storageService.getDefaultMagasinMainStorage();
-        }
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {
-        });
+        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {});
         int totalSize = list.size();
         log.info("size===>> {}", list.size());
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
@@ -124,61 +121,54 @@ public class ImportationProduitService {
             } catch (Exception e) {
                 log.debug("updateStocFromJSON ===>> {}", e);
             }
-
         }
         updateImportation(errorSize.get(), size.get());
     }
 
-    void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize,
-        AtomicInteger size) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    StockProduit stockProduit = buidStockProduit(p, storage);
-                    Produit produit = buildProduit(p);
-                    produit.setRayonProduits(
-                        Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
-                    produit = produitRepository.save(produit);
-                    stockProduit.setProduit(produit);
-                    stockProduitRepository.save(stockProduit);
-                    for (FournisseurProduitDTO d : p.getFournisseurProduits()) {
-                        FournisseurProduit fournisseurProduit = buildFournisseurProduit(d);
-                        fournisseurProduit.setProduit(produit);
-                        produit.addFournisseurProduit(fournisseurProduit);
-                        fournisseurProduitRepository.save(fournisseurProduit);
-                    }
-                    if (!p.getProduits().isEmpty()) {
-                        ProduitDTO detail = p.getProduits().stream().findFirst().get();
-                        Produit produitDetail = buildDeatilProduit(detail, produit);
-                        produitDetail.setRayonProduits(Set.of(
-                            fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(
-                                produitDetail)));
-                        StockProduit stockProduitDetail = buidStockProduit(detail, storage);
-                        produitDetail = produitRepository.save(produitDetail);
-                        stockProduitDetail.setProduit(produitDetail);
-                        stockProduitRepository.save(stockProduitDetail);
+    void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize, AtomicInteger size) {
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        StockProduit stockProduit = buidStockProduit(p, storage);
+                        Produit produit = buildProduit(p);
+                        produit.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
+                        produit = produitRepository.save(produit);
+                        stockProduit.setProduit(produit);
+                        stockProduitRepository.save(stockProduit);
+                        for (FournisseurProduitDTO d : p.getFournisseurProduits()) {
+                            FournisseurProduit fournisseurProduit = buildFournisseurProduit(d);
+                            fournisseurProduit.setProduit(produit);
+                            produit.addFournisseurProduit(fournisseurProduit);
+                            fournisseurProduitRepository.save(fournisseurProduit);
+                        }
+                        if (!p.getProduits().isEmpty()) {
+                            ProduitDTO detail = p.getProduits().stream().findFirst().get();
+                            Produit produitDetail = buildDeatilProduit(detail, produit);
+                            produitDetail.setRayonProduits(
+                                Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produitDetail))
+                            );
+                            StockProduit stockProduitDetail = buidStockProduit(detail, storage);
+                            produitDetail = produitRepository.save(produitDetail);
+                            stockProduitDetail.setProduit(produitDetail);
+                            stockProduitRepository.save(stockProduitDetail);
 
-                        for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
-                            FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(
-                                d);
-                            fournisseurProduitDetail.setProduit(produitDetail);
-                            fournisseurProduitRepository.save(fournisseurProduitDetail);
+                            for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
+                                FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(d);
+                                fournisseurProduitDetail.setProduit(produitDetail);
+                                fournisseurProduitRepository.save(fournisseurProduitDetail);
+                            }
                         }
 
+                        size.incrementAndGet();
+                    } catch (Exception e) {
+                        log.debug("processImportation ===>> {}", e);
+                        errorSize.incrementAndGet();
                     }
-
-                    size.incrementAndGet();
-                } catch (Exception e) {
-                    log.debug("processImportation ===>> {}", e);
-                    errorSize.incrementAndGet();
                 }
-
-
             }
-        });
-
-
+        );
     }
 
     private Produit buildDeatilProduit(ProduitDTO produitDTO, Produit parent) {
@@ -201,10 +191,7 @@ public class ImportationProduitService {
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
         if (ObjectUtils.isNotEmpty(produitDTO.getTauxRemise())) {
-            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise())
-                .ifPresent(r -> {
-                    produit.setRemise(r);
-                });
+            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise()).ifPresent(produit::setRemise);
         }
         produit.setTva(parent.getTva());
         produit.setLaboratoire(parent.getLaboratoire());
@@ -216,15 +203,11 @@ public class ImportationProduitService {
     }
 
     private RayonProduit fromRayonLibelle(String libelle, Storage storage) {
-        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle,
-            storage.getId());
+        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle, storage.getId());
         Rayon rayon;
-        if (optionalRayon.isEmpty()) {
-            rayon = rayonRepository.findFirstByLibelleAndStorageId(
-                EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get();
-        } else {
-            rayon = optionalRayon.get();
-        }
+        rayon = optionalRayon.orElseGet(
+            () -> rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get()
+        );
         return new RayonProduit().setRayon(rayon);
     }
 
@@ -247,68 +230,43 @@ public class ImportationProduitService {
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
         if (ObjectUtils.isNotEmpty(produitDTO.getTauxRemise())) {
-            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise())
-                .ifPresent(r -> {
-                    produit.setRemise(r);
-                });
+            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise()).ifPresent(produit::setRemise);
         }
         if (ObjectUtils.isNotEmpty(produitDTO.getTvaTaux())) {
-            tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux())
-                .ifPresent(t -> {
-                    produit.setTva(t);
-                });
+            tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux()).ifPresent(produit::setTva);
         }
         if (StringUtils.isNotEmpty(produitDTO.getLaboratoireLibelle())) {
-            laboratoireRepository.findFirstByLibelleEquals(produitDTO.getLaboratoireLibelle())
-                .ifPresent(l -> {
-                    produit.setLaboratoire(l);
-                });
+            laboratoireRepository.findFirstByLibelleEquals(produitDTO.getLaboratoireLibelle()).ifPresent(produit::setLaboratoire);
         }
         if (StringUtils.isNotEmpty(produitDTO.getFamilleLibelle())) {
-            familleProduitRepository.findFirstByLibelleEquals(produitDTO.getFamilleLibelle())
-                .ifPresent(f -> {
-                    produit.setFamille(f);
-                });
+            familleProduitRepository.findFirstByLibelleEquals(produitDTO.getFamilleLibelle()).ifPresent(produit::setFamille);
         }
         if (StringUtils.isNotEmpty(produitDTO.getGammeLibelle())) {
-            gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle())
-                .ifPresent(d -> {
-                    produit.setGamme(d);
-                });
+            gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle()).ifPresent(produit::setGamme);
         }
         if (StringUtils.isNotEmpty(produitDTO.getTypeEtiquetteLibelle())) {
-            typeEtiquetteRepository.findFirstByLibelleEquals(produitDTO.getTypeEtiquetteLibelle())
-                .ifPresent(t -> {
-                    produit.setTypeEtyquette(t);
-                });
+            typeEtiquetteRepository.findFirstByLibelleEquals(produitDTO.getTypeEtiquetteLibelle()).ifPresent(produit::setTypeEtyquette);
         }
         if (StringUtils.isNotEmpty(produitDTO.getFormeLibelle())) {
-            formProduitRepository.findFirstByLibelleEquals(produitDTO.getFormeLibelle())
-                .ifPresent(f ->
-                    produit.setForme(f)
-                );
-
+            formProduitRepository.findFirstByLibelleEquals(produitDTO.getFormeLibelle()).ifPresent(produit::setForme);
         }
 
         return produit;
-
     }
 
     private StockProduit buidStockProduit(ProduitDTO p, Storage storage) {
         return new StockProduit()
             .qtyStock(p.getTotalQuantity())
-            .qtyUG(p.getQtyUG()).
-            qtyVirtual(p.getTotalQuantity())
+            .qtyUG(p.getQtyUG())
+            .qtyVirtual(p.getTotalQuantity())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .setStorage(storage);
     }
 
-
     private FournisseurProduit buildFournisseurProduit(FournisseurProduitDTO p) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
-        fournisseurProduit.setFournisseur(
-            fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).get());
+        fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).get());
         fournisseurProduit.setPrixUni(p.getPrixUni());
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setPrincipal(p.isPrincipal());
@@ -328,42 +286,44 @@ public class ImportationProduitService {
     }
 
     private void saveImportation(Importation importation) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    importationRepository.save(importation);
-                } catch (Exception e) {
-                    log.debug("saveImportation ===>> {}", e);
-
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        importationRepository.save(importation);
+                    } catch (Exception e) {
+                        log.debug("saveImportation ===>> {}", e);
+                    }
                 }
             }
-        });
+        );
     }
 
-
     private void updateImportation(final int errorSize, final int size) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
-                        ImportationType.STOCK_PRODUIT);
-                    if (importation != null) {
-                        importation.setUpdated(LocalDateTime.now());
-                        importation.setSize(size);
-                        importation.setErrorSize(errorSize);
-                        importation.setImportationStatus(
-                            errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS
-                                : ImportationStatus.COMPLETED);
-                        importationRepository.save(importation);
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
+                            ImportationType.STOCK_PRODUIT
+                        );
+                        if (importation != null) {
+                            importation.setUpdated(LocalDateTime.now());
+                            importation.setSize(size);
+                            importation.setErrorSize(errorSize);
+                            importation.setImportationStatus(
+                                errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED
+                            );
+                            importationRepository.save(importation);
+                        }
+                    } catch (Exception e) {
+                        log.debug("saveImportation ===>> {}", e);
                     }
-                } catch (Exception e) {
-                    log.debug("saveImportation ===>> {}", e);
-
                 }
             }
-        });
+        );
     }
 
     public Importation current(ImportationType importationType) {

@@ -11,47 +11,52 @@
         <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Emplacement</span>
-            <span class="text-primary">{{ storeInventory?.storage?.name }}</span>
+            <span class="text-primary fw-bold">{{ storeInventory?.storage?.name }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Date</span>
-            <span class="text-primary">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
           <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
               class="list-group-item d-flex justify-content-between align-items-center">
             Rayon
-            <span class="text-primary">{{ storeInventory?.rayon?.libelle }}</span>
+            <span class="text-primary fw-bold">{{ storeInventory?.rayon?.libelle }}</span>
           </li>
 
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Avant
-            <span class="text-primary">{{ storeInventory.inventoryValueCostBegin | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Après
-            <span class="text-primary">{{ storeInventory.inventoryValueCostAfter | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Avent
-            <span class="text-primary">{{ storeInventory.inventoryAmountBegin | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryAmountBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Après
-            <span class="text-primary">{{ storeInventory.inventoryAmountAfter | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryAmountAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Ecart Achat
-            <span class="text-primary">{{ storeInventory.gapCost | number }}</span>
+            <span class="text-primary fw-bold">{{ storeInventory.gapCost | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Ecart Vente
-            <span class="text-primary">{{ storeInventory.gapAmount | number }}</span>
+            <span class="text-primary fw-bold">{{ storeInventory.gapAmount | number }}</span>
           </li>
 
         </ul>

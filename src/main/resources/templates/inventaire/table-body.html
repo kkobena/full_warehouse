@@ -1,76 +1,141 @@
 <table class="main-table">
   <thead>
   <tr>
+    <th class="text-left" style="width:12%;">Code</th>
+    <th class="text-left" style="width:45%;">Libéllé</th>
+    <th class="text-right" style="width:11%;">Prix.A</th>
+    <th class="text-right" style="width:11%;">Prix.U</th>
+    <th class="text-right" style="width:9%;">STOCK.INIT</th>
+    <th class="text-right" style="width:6%;">Qté</th>
+    <th class="text-right" style="width:6%;">Ecart</th>
 
-    <th class="text-left" style="width:12%;">CODE</th>
-    <th class="text-left" style="width:38%;">DESCRIPTION</th>
-    <th class="text-right" style="width:8%;">PRIX.A</th>
-    <th class="text-right" style="width:8%;">PRIX.U</th>
-    <th class="text-right" style="width:6%;">STOCK.INIT</th>
-    <th class="text-right" style="width:6%;">QTE</th>
-    <th class="text-right" style="width:6%;">ECART</th>
   </tr>
   </thead>
-  <tbody>
-  <tr th:if="${isStartStorage}">
-    <td colspan="7"></td>
-  </tr>
-  <tr th:if="${isStartRayon}">
-    <td colspan="7"></td>
-  </tr>
-  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
-    <td class="text-left" th:if="${#strings.isEmpty(itm.produitEan)}"
-        th:text="${itm.produitCip}"></td>
-    <td class="text-left" th:if="${!#strings.isEmpty(itm.produitEan)}"
-        th:text="${itm.produitEan}"></td>
-    <td class="text-left" th:text="${itm.produitLibelle}"></td>
+  <tbody class="group-table-tbody">
+  <tr class="group-table-tr" th:each="group: ${items}">
+    <td class="group-table-td" colspan="7">
+      <table class="group-table">
+
+        <tbody>
+        <tr>
+          <td class="text-center group-td-title" colspan="7"
+              th:text="${group.rayonDisplayName}"></td>
+        </tr>
+        <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${group.items}">
+          <td class="text-left" style="width:12%;" th:if="${#strings.isEmpty(itm.produitEan)}"
+              th:text="${itm.produitCip}"></td>
+          <td class="text-left" style="width:12%;" th:if="${!#strings.isEmpty(itm.produitEan)}"
+              th:text="${itm.produitEan}"></td>
+
+          <td class="text-left" style="width:45%;" th:text="${itm.produitLibelle}"></td>
 
 
-    <td class="unit" th:if="${itm.prixAchat ge 1000}"
-        th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.prixAchat lt 1000}" th:text="${itm.prixAchat}"></td>
+          <td class="unit" style="width:11%;" th:if="${itm.prixAchat ge 1000}"
+              th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
+          <td class="unit" style="width:11%;" th:if="${itm.prixAchat lt 1000}"
+              th:text="${itm.prixAchat}"></td>
 
-    <td class="qty" th:if="${itm.prixUni ge 1000}"
-        th:text="${#numbers.formatInteger(itm.prixUni,3,'WHITESPACE')}"></td>
-    <td class="qty" th:if="${itm.prixUni lt 1000}"
-        th:text="${itm.prixUni}"></td>
+          <td class="qty" style="width:11%;" th:if="${itm.prixUni ge 1000}"
+              th:text="${#numbers.formatInteger(itm.prixUni,3,'WHITESPACE')}"></td>
+          <td class="qty" style="width:11%;" th:if="${itm.prixUni lt 1000}"
+              th:text="${itm.prixUni}"></td>
 
-    <td class="qty" th:if="${itm.quantityInit ge 1000}"
-        th:text="${#numbers.formatInteger(itm.quantityInit,3,'WHITESPACE')}"></td>
-    <td class="qty" th:if="${itm.quantityInit lt 1000}"
-        th:text="${itm.quantityInit}"></td>
+          <td class="qty" style="width:9%;" th:if="${itm.quantityInit ge 1000}"
+              th:text="${#numbers.formatInteger(itm.quantityInit,3,'WHITESPACE')}"></td>
+          <td class="qty" style="width:9%;" th:if="${itm.quantityInit lt 1000}"
+              th:text="${itm.quantityInit}"></td>
 
 
-    <td class="qty" th:if="${itm.quantityOnHand ge 1000}"
-        th:text="${#numbers.formatInteger(itm.quantityOnHand,3,'WHITESPACE')}"></td>
-    <td class="qty" th:if="${itm.quantityOnHand lt 1000}"
-        th:text="${itm.quantityOnHand}"></td>
+          <td class="qty" style="width:6%;" th:if="${itm.quantityOnHand ge 1000}"
+              th:text="${#numbers.formatInteger(itm.quantityOnHand,3,'WHITESPACE')}"></td>
+          <td class="qty" style="width:6%;" th:if="${itm.quantityOnHand lt 1000}"
+              th:text="${itm.quantityOnHand}"></td>
 
-    <td class="qty" th:if="${itm.gap ge 1000}"
-        th:text="${#numbers.formatInteger(itm.gap,3,'WHITESPACE')}"></td>
-    <td class="qty" th:if="${itm.gap lt 1000}"
-        th:text="${itm.gap}"></td>
+          <td class="qty" style="width:6%;" th:if="${itm.gap ge 1000}"
+              th:text="${#numbers.formatInteger(itm.gap,3,'WHITESPACE')}"></td>
+          <td class="qty" style="width:6%;" th:if="${itm.gap lt 1000}"
+              th:text="${itm.gap}"></td>
+        </tr>
+        </tbody>
+        <tfoot class="group-summary" th:if="${entity.statut eq 'CLOSED'}">
+        <tr>
+          <td class="text-left" colspan="2" rowspan="4"
+              th:text="'Total '+${group.rayonDisplayName}"></td>
+          <td class="text-center" th:text="${achatAvant.libelle}"
+              th:with="achatAvant=${group.achatAvant}"></td>
+          <td class="text-center" th:text="${venteAvant.libelle}"
+              th:with="venteAvant=${group.venteAvant}"></td>
+          <td class="text-right" colspan="3" th:text="${achatEcart.libelle}"
+              th:with="achatEcart=${group.achatEcart}"></td>
+        </tr>
+        <tr>
+          <th:block th:with="achatAvant=${group.achatAvant}">
+            <td class="unit" th:if="${achatAvant.value ge 1000}"
+                th:text="${#numbers.formatInteger(achatAvant.value,3,'WHITESPACE')}"></td>
+            <td class="unit" th:if="${achatAvant.value lt 1000}"
+                th:text="${achatAvant.value}"></td>
 
-  </tr>
+          </th:block>
 
-  <tr th:if="${isEndRayon}">
-    <td colspan="7"></td>
-  </tr>
-  <tr th:if="${isEndStorage}">
-    <td colspan="7"></td>
-  </tr>
+          <th:block th:with="venteAvant=${group.venteAvant}">
+            <td class="unit" th:if="${venteAvant.value ge 1000}"
+                th:text="${#numbers.formatInteger(venteAvant.value,3,'WHITESPACE')}"></td>
+            <td class="unit" th:if="${venteAvant.value lt 1000}"
+                th:text="${venteAvant.value}"></td>
 
-  </tbody>
-  <tfoot th:if="${isLastPage}">
-  <tr>
-    <td style="text-align: left;"></td>
-    <td colspan="5" style="text-align: left;"><span>NOMBRE DE PRODUITS <span class="total item-size"
-                                                                             th:text="${'( '+ item_size}+' )'"></span></span>
+          </th:block>
+          <th:block th:with="achatEcart=${group.achatEcart}">
+            <td class="unit" colspan="3" th:if="${achatEcart.value ge 1000}"
+                th:text="${#numbers.formatInteger(achatEcart.value,3,'WHITESPACE')}"></td>
+            <td class="unit" colspan="3" th:if="${achatEcart.value lt 1000}"
+                th:text="${achatEcart.value}"></td>
+
+          </th:block>
+
+        </tr>
+        <tr>
+
+          <td class="text-center" th:text="${achatApres.libelle}"
+              th:with="achatApres=${group.achatApres}"></td>
+          <td class="text-center" th:text="${venteApres.libelle}"
+              th:with="venteApres=${group.venteApres}"></td>
+          <td class="text-right" colspan="3" th:text="${venteEcart.libelle}"
+              th:with="venteEcart=${group.venteEcart}"></td>
+        </tr>
+        <tr>
+          <th:block th:with="achatApres=${group.achatApres}">
+            <td class="unit" th:if="${achatApres.value ge 1000}"
+                th:text="${#numbers.formatInteger(achatApres.value,3,'WHITESPACE')}"></td>
+            <td class="unit" th:if="${achatApres.value lt 1000}"
+                th:text="${achatApres.value}"></td>
+
+          </th:block>
+
+          <th:block th:with="venteApres=${group.venteApres}">
+            <td class="unit" th:if="${venteApres.value ge 1000}"
+                th:text="${#numbers.formatInteger(venteApres.value,3,'WHITESPACE')}"></td>
+            <td class="unit" th:if="${venteApres.value lt 1000}"
+                th:text="${venteApres.value}"></td>
+
+          </th:block>
+          <th:block th:with="venteEcart=${group.venteEcart}">
+            <td class="unit" colspan="3" th:if="${venteEcart.value ge 1000}"
+                th:text="${#numbers.formatInteger(venteEcart.value,3,'WHITESPACE')}"></td>
+            <td class="unit" colspan="3" th:if="${venteEcart.value lt 1000}"
+                th:text="${venteEcart.value}"></td>
+
+          </th:block>
+
+
+        </tr>
+
+        </tfoot>
+      </table>
+
     </td>
   </tr>
-  </tfoot>
+  </tbody>
+
 </table>
-<section th:if="${isLastPage}" th:replace="~{inventaire/table-footer}">
-
-
-</section>
+<table th:if="${entity.statut eq 'CLOSED'}" th:replace="~{inventaire/table-footer}">
+</table>

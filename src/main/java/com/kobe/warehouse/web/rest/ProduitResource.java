@@ -70,7 +70,6 @@ public class ProduitResource extends ProduitResourceProxy {
      * @param produitDTO the produit to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
      * produit, or with status {@code 400 (Bad Request)} if the produit has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/produits")
     public ResponseEntity<Void> createProduit(@Valid @RequestBody ProduitDTO produitDTO) {

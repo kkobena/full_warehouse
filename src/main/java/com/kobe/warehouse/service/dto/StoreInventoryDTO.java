@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,200 +11,202 @@ import java.util.List;
 import java.util.Objects;
 
 public class StoreInventoryDTO implements Serializable {
-  private static final long serialVersionUID = 1L;
-  private Long id;
-  private long inventoryValueCostBegin;
-  private long inventoryAmountBegin;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private long inventoryValueCostAfter;
-  private long inventoryAmountAfter;
-  private List<StoreInventoryLineDTO> storeInventoryLines = new ArrayList<>();
-  private String userFullName;
-  private String abbrName;
-  private String statut;
-  private InventoryType inventoryType;
-  private CategoryInventory inventoryCategory;
-  private StorageDTO storage;
-  private RayonDTO rayon;
-  private int gapCost;
-  private int gapAmount;
 
-  public StoreInventoryDTO() {}
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  public StoreInventoryDTO(StoreInventory storeInventory) {
-    this.id = storeInventory.getId();
-    this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
-    this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
-    this.createdAt = storeInventory.getCreatedAt();
-    this.updatedAt = storeInventory.getUpdatedAt();
-    this.inventoryValueCostAfter = storeInventory.getInventoryValueCostAfter();
-    this.inventoryAmountAfter = storeInventory.getInventoryAmountAfter();
-    User user = storeInventory.getUser();
-    this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
-    this.statut = storeInventory.getStatut().name();
-    this.inventoryType = storeInventory.getInventoryType();
-    this.inventoryCategory = new CategoryInventory(storeInventory.getInventoryCategory());
-    if (Objects.nonNull(storeInventory.getStorage())) {
-      this.storage = new StorageDTO(storeInventory.getStorage());
+    private Long id;
+    private long inventoryValueCostBegin;
+    private long inventoryAmountBegin;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private long inventoryValueCostAfter;
+    private long inventoryAmountAfter;
+    private List<StoreInventoryLineDTO> storeInventoryLines = new ArrayList<>();
+    private String userFullName;
+    private String abbrName;
+    private String statut;
+    private InventoryType inventoryType;
+    private CategoryInventory inventoryCategory;
+    private StorageDTO storage;
+    private RayonDTO rayon;
+    private int gapCost;
+    private int gapAmount;
+
+    public StoreInventoryDTO() {}
+
+    public StoreInventoryDTO(StoreInventory storeInventory) {
+        this.id = storeInventory.getId();
+        this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
+        this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
+        this.createdAt = storeInventory.getCreatedAt();
+        this.updatedAt = storeInventory.getUpdatedAt();
+        this.inventoryValueCostAfter = storeInventory.getInventoryValueCostAfter();
+        this.inventoryAmountAfter = storeInventory.getInventoryAmountAfter();
+        User user = storeInventory.getUser();
+        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        this.statut = storeInventory.getStatut().name();
+        this.inventoryType = storeInventory.getInventoryType();
+        this.inventoryCategory = new CategoryInventory(storeInventory.getInventoryCategory());
+        if (Objects.nonNull(storeInventory.getStorage())) {
+            this.storage = new StorageDTO(storeInventory.getStorage());
+        }
+        if (Objects.nonNull(storeInventory.getRayon())) {
+            this.rayon = new RayonDTO(storeInventory.getRayon());
+        }
+        if (Objects.nonNull(storeInventory.getGapCost())) {
+            this.gapCost = storeInventory.getGapCost();
+        }
+        if (Objects.nonNull(storeInventory.getGapAmount())) {
+            this.gapAmount = storeInventory.getGapAmount();
+        }
     }
-    if (Objects.nonNull(storeInventory.getRayon())) {
-      this.rayon = new RayonDTO(storeInventory.getRayon());
+
+    public StoreInventoryDTO(StoreInventory storeInventory, List<StoreInventoryLineDTO> storeInventoryLines) {
+        this(storeInventory);
+        this.storeInventoryLines = storeInventoryLines;
     }
-    if (Objects.nonNull(storeInventory.getGapCost())) {
-      this.gapCost = storeInventory.getGapCost();
+
+    public Long getId() {
+        return id;
     }
-    if (Objects.nonNull(storeInventory.getGapAmount())) {
-      this.gapAmount = storeInventory.getGapAmount();
+
+    public void setId(Long id) {
+        this.id = id;
     }
-  }
 
-  public StoreInventoryDTO(
-      StoreInventory storeInventory, List<StoreInventoryLineDTO> storeInventoryLines) {
-    this(storeInventory);
-    this.storeInventoryLines = storeInventoryLines;
-  }
+    public long getInventoryValueCostBegin() {
+        return inventoryValueCostBegin;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public void setInventoryValueCostBegin(long inventoryValueCostBegin) {
+        this.inventoryValueCostBegin = inventoryValueCostBegin;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public long getInventoryAmountBegin() {
+        return inventoryAmountBegin;
+    }
 
-  public long getInventoryValueCostBegin() {
-    return inventoryValueCostBegin;
-  }
+    public void setInventoryAmountBegin(long inventoryAmountBegin) {
+        this.inventoryAmountBegin = inventoryAmountBegin;
+    }
 
-  public void setInventoryValueCostBegin(long inventoryValueCostBegin) {
-    this.inventoryValueCostBegin = inventoryValueCostBegin;
-  }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-  public long getInventoryAmountBegin() {
-    return inventoryAmountBegin;
-  }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public void setInventoryAmountBegin(long inventoryAmountBegin) {
-    this.inventoryAmountBegin = inventoryAmountBegin;
-  }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
+    public long getInventoryValueCostAfter() {
+        return inventoryValueCostAfter;
+    }
 
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public void setInventoryValueCostAfter(long inventoryValueCostAfter) {
+        this.inventoryValueCostAfter = inventoryValueCostAfter;
+    }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public long getInventoryAmountAfter() {
+        return inventoryAmountAfter;
+    }
 
-  public long getInventoryValueCostAfter() {
-    return inventoryValueCostAfter;
-  }
+    public void setInventoryAmountAfter(long inventoryAmountAfter) {
+        this.inventoryAmountAfter = inventoryAmountAfter;
+    }
 
-  public void setInventoryValueCostAfter(long inventoryValueCostAfter) {
-    this.inventoryValueCostAfter = inventoryValueCostAfter;
-  }
+    public List<StoreInventoryLineDTO> getStoreInventoryLines() {
+        return storeInventoryLines;
+    }
 
-  public long getInventoryAmountAfter() {
-    return inventoryAmountAfter;
-  }
+    public void setStoreInventoryLines(List<StoreInventoryLineDTO> storeInventoryLines) {
+        this.storeInventoryLines = storeInventoryLines;
+    }
 
-  public void setInventoryAmountAfter(long inventoryAmountAfter) {
-    this.inventoryAmountAfter = inventoryAmountAfter;
-  }
+    public String getUserFullName() {
+        return userFullName;
+    }
 
-  public List<StoreInventoryLineDTO> getStoreInventoryLines() {
-    return storeInventoryLines;
-  }
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+    }
 
-  public void setStoreInventoryLines(List<StoreInventoryLineDTO> storeInventoryLines) {
-    this.storeInventoryLines = storeInventoryLines;
-  }
+    public String getAbbrName() {
+        return abbrName;
+    }
 
-  public String getUserFullName() {
-    return userFullName;
-  }
+    public StoreInventoryDTO setAbbrName(String abbrName) {
+        this.abbrName = abbrName;
+        return this;
+    }
 
-  public void setUserFullName(String userFullName) {
-    this.userFullName = userFullName;
-  }
+    public String getStatut() {
+        return statut;
+    }
 
-  public String getAbbrName() {
-    return abbrName;
-  }
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
 
-  public StoreInventoryDTO setAbbrName(String abbrName) {
-    this.abbrName = abbrName;
-    return this;
-  }
+    public InventoryType getInventoryType() {
+        return inventoryType;
+    }
 
-  public String getStatut() {
-    return statut;
-  }
+    public StoreInventoryDTO setInventoryType(InventoryType inventoryType) {
+        this.inventoryType = inventoryType;
+        return this;
+    }
 
-  public void setStatut(String statut) {
-    this.statut = statut;
-  }
+    public CategoryInventory getInventoryCategory() {
+        return inventoryCategory;
+    }
 
-  public InventoryType getInventoryType() {
-    return inventoryType;
-  }
+    public StoreInventoryDTO setInventoryCategory(CategoryInventory inventoryCategory) {
+        this.inventoryCategory = inventoryCategory;
+        return this;
+    }
 
-  public StoreInventoryDTO setInventoryType(InventoryType inventoryType) {
-    this.inventoryType = inventoryType;
-    return this;
-  }
+    public StorageDTO getStorage() {
+        return storage;
+    }
 
-  public CategoryInventory getInventoryCategory() {
-    return inventoryCategory;
-  }
+    public StoreInventoryDTO setStorage(StorageDTO storage) {
+        this.storage = storage;
+        return this;
+    }
 
-  public StoreInventoryDTO setInventoryCategory(CategoryInventory inventoryCategory) {
-    this.inventoryCategory = inventoryCategory;
-    return this;
-  }
+    public RayonDTO getRayon() {
+        return rayon;
+    }
 
-  public StorageDTO getStorage() {
-    return storage;
-  }
+    public StoreInventoryDTO setRayon(RayonDTO rayon) {
+        this.rayon = rayon;
+        return this;
+    }
 
-  public StoreInventoryDTO setStorage(StorageDTO storage) {
-    this.storage = storage;
-    return this;
-  }
+    public int getGapCost() {
+        return gapCost;
+    }
 
-  public RayonDTO getRayon() {
-    return rayon;
-  }
+    public StoreInventoryDTO setGapCost(int gapCost) {
+        this.gapCost = gapCost;
+        return this;
+    }
 
-  public StoreInventoryDTO setRayon(RayonDTO rayon) {
-    this.rayon = rayon;
-    return this;
-  }
+    public int getGapAmount() {
+        return gapAmount;
+    }
 
-  public int getGapCost() {
-    return gapCost;
-  }
-
-  public StoreInventoryDTO setGapCost(int gapCost) {
-    this.gapCost = gapCost;
-    return this;
-  }
-
-  public int getGapAmount() {
-    return gapAmount;
-  }
-
-  public StoreInventoryDTO setGapAmount(int gapAmount) {
-    this.gapAmount = gapAmount;
-    return this;
-  }
+    public StoreInventoryDTO setGapAmount(int gapAmount) {
+        this.gapAmount = gapAmount;
+        return this;
+    }
 }

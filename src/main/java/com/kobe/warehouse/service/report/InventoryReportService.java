@@ -1,76 +1,85 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.config.FileStorageProperties;
-import com.kobe.warehouse.repository.MagasinRepository;
-import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.service.dto.InventoryExportSummary;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.InventoryExportWrapper;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
-import com.kobe.warehouse.service.dto.enumeration.InventoryExportSummaryEnum;
-import com.kobe.warehouse.service.report.jasper.JasperReportService;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
-public class InventoryReportService extends JasperReportService {
+public class InventoryReportService extends CommonService {
 
-  public InventoryReportService(
-      FileStorageProperties fileStorageProperties,
-      MagasinRepository magasinRepository,
-      UserRepository userRepository) {
-    super(fileStorageProperties, magasinRepository, userRepository);
-  }
+    private final SpringTemplateEngine templateEngine;
+    private final StorageService storageService;
 
-  public Resource printToPdf(List<StoreInventoryGroupExport> datas) throws MalformedURLException {
+    private final Map<String, Object> variablesMap = new HashMap<>();
 
-    buildSummaries(datas);
-    return this.printToPdf("warehouse_inventaire", datas, null);
-  }
+    private String templateFile;
 
-  private void updateSummary(
-      InventoryExportSummary inventoryExportSummary, InventoryExportSummary exportSummary) {
-    inventoryExportSummary.setValue(inventoryExportSummary.getValue() + exportSummary.getValue());
-  }
-
-  private void buildSummaries(List<StoreInventoryGroupExport> datas) {
-    InventoryExportSummary achatAvant = new InventoryExportSummary();
-    achatAvant.setName(InventoryExportSummaryEnum.ACHAT_AVANT);
-    InventoryExportSummary achatApres = new InventoryExportSummary();
-    achatApres.setName(InventoryExportSummaryEnum.ACHAT_APRES);
-
-    InventoryExportSummary venteAvant = new InventoryExportSummary();
-    venteAvant.setName(InventoryExportSummaryEnum.VENTE_AVANT);
-    InventoryExportSummary venteApres = new InventoryExportSummary();
-    venteApres.setName(InventoryExportSummaryEnum.VENTE_APRES);
-
-    InventoryExportSummary achatEcart = new InventoryExportSummary();
-    achatEcart.setName(InventoryExportSummaryEnum.ACHAT_ECART);
-    InventoryExportSummary venteEcart = new InventoryExportSummary();
-    venteEcart.setName(InventoryExportSummaryEnum.VENTE_ECART);
-    for (StoreInventoryGroupExport export : datas) {
-
-      List<InventoryExportSummary> totaux =
-          Stream.of(export.getTotaux(), export.getTotauxEcart(), export.getTotauxVente())
-              .flatMap(List::stream)
-              .toList();
-
-      for (InventoryExportSummary exportSummary : totaux) {
-
-        switch (exportSummary.getName()) {
-          case ACHAT_AVANT -> updateSummary(achatAvant, exportSummary);
-          case ACHAT_APRES -> updateSummary(achatApres, exportSummary);
-          case ACHAT_ECART -> updateSummary(achatEcart, exportSummary);
-          case VENTE_APRES -> updateSummary(venteApres, exportSummary);
-          case VENTE_AVANT -> updateSummary(venteAvant, exportSummary);
-          case VENTE_ECART -> updateSummary(venteEcart, exportSummary);
-        }
-      }
+    public InventoryReportService(
+        FileStorageProperties fileStorageProperties,
+        SpringTemplateEngine templateEngine,
+        StorageService storageService
+    ) {
+        super(fileStorageProperties);
+        this.templateEngine = templateEngine;
+        this.storageService = storageService;
     }
-    List<InventoryExportSummary> inventoryExportSummaries =
-        List.of(achatAvant, achatApres, venteAvant, venteApres, achatEcart, venteEcart);
 
-    this.addParametter("SUMMARIES", inventoryExportSummaries);
-  }
+    public Resource printToPdf(InventoryExportWrapper wrapper) throws MalformedURLException {
+        return this.getResource(print(wrapper));
+    }
+
+    public String print(InventoryExportWrapper wrapper) {
+        var inventory = wrapper.getStoreInventory();
+        Magasin magasin = storageService.getUser().getMagasin();
+        List<StoreInventoryGroupExport> groupExports = wrapper.getInventoryGroups();
+        this.templateFile = Constant.INVENTAIRE_TEMPLATE_FILE;
+        getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.ENTITY, inventory);
+        getParameters().put(Constant.ITEMS, groupExports);
+        getParameters().put(Constant.REPORT_SUMMARY, wrapper.getInventoryExportSummaries());
+        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
+        getParameters().put(Constant.REPORT_TITLE, "Inventaire du " + inventory.getCreatedAt().format(Constant.DATE_FORMATTER));
+        return super.printOneReceiptPage();
+    }
+
+    @Override
+    protected List<?> getItems() {
+        return List.of();
+    }
+
+    @Override
+    protected int getMaxiRowCount() {
+        return 0;
+    }
+
+    @Override
+    protected String getGenerateFileName() {
+        return "inventaire";
+    }
+
+    @Override
+    protected String getTemplateAsHtml() {
+        return templateEngine.process(templateFile, super.getContextVariables());
+    }
+
+    @Override
+    protected String getTemplateAsHtml(Context context) {
+        this.getParameters().forEach(context::setVariable);
+        return templateEngine.process(templateFile, context);
+    }
+
+    @Override
+    protected Map<String, Object> getParameters() {
+        return this.variablesMap;
+    }
 }

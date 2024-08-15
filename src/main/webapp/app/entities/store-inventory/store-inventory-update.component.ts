@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -31,6 +31,9 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridApi, GridReadyEvent } from 'ag-grid-community';
+import { InputTextModule } from 'primeng/inputtext';
+import { Authority } from '../../shared/constants/authority.constants';
+import { HasAuthorityService } from '../sales/service/has-authority.service';
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -51,10 +54,12 @@ import { GridApi, GridReadyEvent } from 'ag-grid-community';
     ToastModule,
     ConfirmDialogModule,
     AgGridAngular,
+    InputTextModule,
   ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   @ViewChild('itemsGrid') productGrid!: AgGridAngular;
+  hasAuthorityService = inject(HasAuthorityService);
   protected isSaving = false;
   protected defaultColDef: any;
   protected context: any;
@@ -78,15 +83,13 @@ export class StoreInventoryUpdateComponent implements OnInit {
     { name: 'GAP_POSITIF', label: 'Ecart positif' },
     { name: 'GAP_NEGATIF', label: 'Ecart négatif' },
   ];
-
   protected selectedfiltres: any | null;
   protected page = 0;
   protected loading!: boolean;
-  protected itemsPerPage = 10;
+  protected itemsPerPage = 20;
   protected gridApi!: GridApi;
   protected search?: string;
   protected ngbPaginationPage = 1;
-  protected showStock: boolean = true;
   protected readonly showFilterCombox: boolean = true;
 
   constructor(
@@ -134,7 +137,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         },*/
       {
         headerName: 'Stock',
-        hide: !this.showStock,
+        hide: !this.hasAuthorityService.hasAuthorities(Authority.PR_VOIR_STOCK_INVENTAIRE),
         field: 'quantityInit',
         type: ['rightAligned', 'numericColumn'],
         valueFormatter: formatNumberToString,
@@ -250,7 +253,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 10,
+        size: 999,
         search,
         storageId,
       })
@@ -380,10 +383,10 @@ export class StoreInventoryUpdateComponent implements OnInit {
     return {
       exportGroupBy: GROUPING_BY[0].name,
       filterRecord: {
-        storeInventoryId: this.storeInventory.id,
+        storeInventoryId: this.storeInventory?.id,
         search: this.searchValue,
-        storageId: this.selectedStorage.id,
-        rayonId: this.selectedRayon.id,
+        storageId: this.selectedStorage?.id,
+        rayonId: this.selectedRayon?.id,
         selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
       },
     };
@@ -417,10 +420,10 @@ export class StoreInventoryUpdateComponent implements OnInit {
 
   private buildQuery(): any {
     return {
-      storeInventoryId: this.storeInventory.id,
+      storeInventoryId: this.storeInventory?.id,
       search: this.searchValue,
-      storageId: this.selectedStorage.id,
-      rayonId: this.selectedRayon.id,
+      storageId: this.selectedStorage?.id,
+      rayonId: this.selectedRayon?.id,
       selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
     };
   }

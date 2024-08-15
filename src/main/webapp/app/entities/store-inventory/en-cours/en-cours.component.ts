@@ -190,8 +190,8 @@ export class EnCoursComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user.id,
-      inventoryCategories: this.inventoryCategories.map(e => e.name),
+      userId: this.user?.id,
+      inventoryCategories: this.inventoryCategories?.map(e => e.name),
       statuts: this.statuts,
     };
   }

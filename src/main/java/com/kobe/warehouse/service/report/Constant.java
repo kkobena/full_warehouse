@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.report;
 
+import java.time.format.DateTimeFormatter;
+
 public final class Constant {
 
     public static final String IS_LAST_PAGE = "isLastPage";
@@ -40,6 +42,8 @@ public final class Constant {
     public static final String TABLEAU_PHARMACIEN_GROUP_FOURNISSEUR = "groupeFournisseur";
     public static final String TABLEAU_PHARMACIEN_GROUP_MONTH = "tableauGroupMonth";
     public static final String COLSPAN = "colspan";
+    public static final String DATE_FORMATTER_PATTERN = "dd/MM/yyyy";
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER_PATTERN);
     public static final String SUIVI_ARTICLE_TEMPLATE_FILE = "suiviarticle/main";
 
     private Constant() {}

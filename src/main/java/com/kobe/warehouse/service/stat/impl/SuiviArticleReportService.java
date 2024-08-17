@@ -43,10 +43,8 @@ public class SuiviArticleReportService extends CommonService {
         int itemSize = items.size();
         templateFile = Constant.SUIVI_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
-
         getParameters().put(Constant.REPORT_TITLE, title);
         getParameters().put(Constant.ITEM_SIZE, itemSize);
-
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
         getParameters().put(Constant.ITEMS, items);
         return super.printOneReceiptPage();

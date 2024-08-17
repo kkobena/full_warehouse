@@ -30,10 +30,9 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
-import com.kobe.warehouse.service.report.ReportService;
+import com.kobe.warehouse.service.report.SaleInvoiceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -43,17 +42,18 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import java.net.MalformedURLException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -66,7 +66,7 @@ public class SaleDataService {
 
     private final EntityManager em;
     private final UserRepository userRepository;
-    private final ReportService reportService;
+    private final SaleInvoiceService saleInvoiceService;
     private final SalesRepository salesRepository;
     private final SalesLineRepository salesLineRepository;
     private final PaymentRepository paymentRepository;
@@ -76,7 +76,7 @@ public class SaleDataService {
     public SaleDataService(
         EntityManager em,
         UserRepository userRepository,
-        ReportService reportService,
+        SaleInvoiceService saleInvoiceService,
         SalesRepository salesRepository,
         SalesLineRepository salesLineRepository,
         PaymentRepository paymentRepository,
@@ -85,7 +85,7 @@ public class SaleDataService {
     ) {
         this.em = em;
         this.userRepository = userRepository;
-        this.reportService = reportService;
+        this.saleInvoiceService = saleInvoiceService;
         this.salesRepository = salesRepository;
         this.salesLineRepository = salesLineRepository;
         this.paymentRepository = paymentRepository;
@@ -139,7 +139,7 @@ public class SaleDataService {
         predicates(query, fromDate, toDate, predicates, cb, root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getResultList().stream().map(e -> new SaleDTO(e)).collect(Collectors.toList());
+        return q.getResultList().stream().map(SaleDTO::new).collect(Collectors.toList());
     }
 
     public SaleDTO findOne(Long id) {
@@ -246,17 +246,8 @@ public class SaleDataService {
     }
 
     @Transactional(readOnly = true)
-    public String printInvoice(Long saleId) {
-        Optional<Sales> ptSale = salesRepository.findOneWithEagerSalesLines(saleId);
-        Sales sales = ptSale.get();
-        Map<String, Object> parameters = reportService.buildMagasinInfo();
-        // reportService.buildCustomerInfo(parameters, sales.getCustomer());
-        reportService.buildSaleInfo(parameters, sales);
-        return reportService.buildReportToPDF(
-            parameters,
-            "warehouse_facture",
-            sales.getSalesLines().stream().map(SaleLineDTO::new).toList()
-        );
+    public Resource printInvoice(Long saleId) throws MalformedURLException {
+        return this.saleInvoiceService.printInvoice(this.findOne(saleId));
     }
 
     private User getUser() {

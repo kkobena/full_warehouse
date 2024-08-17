@@ -7,8 +7,6 @@ import com.kobe.warehouse.service.report.SaleReceiptService;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,22 +72,8 @@ public class SalesDataResource {
 
     @GetMapping("/sales/print/invoice/{id}")
     public ResponseEntity<Resource> printInvoice(@PathVariable Long id, HttpServletRequest request) throws IOException {
-        String gereratefilePath = saleDataService.printInvoice(id);
-        Path filePath = Paths.get(gereratefilePath);
-        Resource resource = new UrlResource(filePath.toUri());
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            log.info("Could not determine file type.");
-        }
-        if (contentType == null) {
-            contentType = "application/pdf";
-        }
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(contentType))
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-            .body(resource);
+        Resource resource = saleDataService.printInvoice(id);
+        return Utils.printPDF(resource, request);
     }
 
     @GetMapping("/sales/prevente")
@@ -140,29 +122,6 @@ public class SalesDataResource {
         String gereratefilePath = saleReceiptService.printCashReceipt(id);
         return Utils.printPDF(gereratefilePath, request);
     }
-
-    /*  @GetMapping("/sales/print/invoice/{id}")
-  public ResponseEntity<Resource> printCashReceipt(
-      @PathVariable Long id, HttpServletRequest request) throws IOException {
-    String gereratefilePath = saleReceiptService.printCashReceipt(143l);
-    Path filePath = Paths.get(gereratefilePath);
-    Resource resource = new UrlResource(filePath.toUri());
-    String contentType = null;
-    try {
-      contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-    } catch (IOException ex) {
-      log.info("Could not determine file type.");
-    }
-    if (contentType == null) {
-      contentType = "application/pdf";
-    }
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(contentType))
-        .header(
-            HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + resource.getFilename() + "\"")
-        .body(resource);
-  }*/
 
     @GetMapping("/sales/print/receipt/{id}")
     public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {

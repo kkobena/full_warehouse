@@ -24,7 +24,6 @@ public final class Constant {
     public static final String DEVISE_CONSTANT = "CFA";
     public static final int COMMANDE_PAGE_SIZE = 55;
     public static final int PAGE_SIZE = 73;
-
     public static final String PAGE_COUNT = "page_count";
     public static final String ITEMS = "items";
     public static final String ENTITY = "entity";
@@ -45,6 +44,9 @@ public final class Constant {
     public static final String DATE_FORMATTER_PATTERN = "dd/MM/yyyy";
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER_PATTERN);
     public static final String SUIVI_ARTICLE_TEMPLATE_FILE = "suiviarticle/main";
+    public static final String ETIQUETES_TEMPLATE_FILE = "etiquetes/main";
+    public static final String ETIQUETES_BEGIN = "begin";
+    public static final String INVOICE_TEMPLATE_FILE = "facture/saleInvoice";
 
     private Constant() {}
 }

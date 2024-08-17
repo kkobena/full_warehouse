@@ -100,13 +100,11 @@ export class ComptantComponent {
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
   amountComputingComponent = viewChild(AmountComputingComponent);
   modeReglementComponent = viewChild(ModeReglementComponent);
-  //forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   selectedCustomerService = inject(SelectedCustomerService);
   typePrescriptionService = inject(TypePrescriptionService);
   userCaissierService = inject(UserCaissierService);
   userVendeurService = inject(UserVendeurService);
   selectModeReglementService = inject(SelectModeReglementService);
-  // protected displayErrorModal = false;
   salesService = inject(SalesService);
   currentSaleService = inject(CurrentSaleService);
   customerService = inject(CustomerService);
@@ -118,7 +116,6 @@ export class ComptantComponent {
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);
-  // addModePaymentConfirmDialogBtn = viewChild<ElementRef>('addModePaymentConfirmDialogBtn');
   protected isSaving = false;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
@@ -143,7 +140,6 @@ export class ComptantComponent {
           this.openUninsuredCustomer(true);
         } else {
           this.currentSaleService.currentSale().differe = true;
-          // this.isDiffere = true;
           this.finalyseSale();
         }
       },
@@ -227,10 +223,7 @@ export class ComptantComponent {
 
   save(): void {
     this.isSaving = true;
-    // this.sale.differe = this.isDiffere;
     const restToPay = this.currentSaleService.currentSale().amountToBePaid - this.getEntryAmount();
-
-    //   this.sale.montantRendu = this.monnaie;
     this.currentSaleService.currentSale().montantVerse = this.getCashAmount();
     if (restToPay > 0 && !this.isValidDiffere()) {
       this.differeConfirmDialog();
@@ -307,10 +300,12 @@ export class ComptantComponent {
   }
 
   printInvoice(): void {
-    this.salesService.print(this.currentSaleService.currentSale()?.id).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
-    });
+    if (this.selectedCustomerService.selectedCustomerSignal()) {
+      this.salesService.printInvoice(this.currentSaleService.currentSale()?.id).subscribe(blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      });
+    }
   }
 
   subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
@@ -348,7 +343,6 @@ export class ComptantComponent {
     this.ref.onDestroy.subscribe(() => {
       if (isVenteDefferee && this.selectedCustomerService.selectedCustomerSignal()) {
         this.currentSaleService.currentSale().differe = isVenteDefferee;
-        // this.isDiffere = isVenteDefferee;
         this.modeReglementComponent().commentaireInputGetFocus();
       } else {
         if (!isVenteDefferee) {
@@ -390,8 +384,6 @@ export class ComptantComponent {
   protected onSaveError(err: any): void {
     this.isSaving = false;
     this.saveResponse.emit({ success: false, error: err });
-    /*const message = 'Une erreur est survenue';
-    this.openInfoDialog(message, 'alert alert-danger');*/
   }
 
   protected onFinalyseError(err: any): void {

@@ -234,6 +234,14 @@ export class ModeReglementComponent implements OnInit {
     this.currentSaleService.setVenteSansBon(evt.checked);
   }
 
+  onPrintInvoiceChange(evt: any): void {
+    this.currentSaleService.updatePrintInvoice(evt.checked);
+  }
+
+  onPrintReceiptChange(evt: any): void {
+    this.currentSaleService.updatePrintReceipt(evt.checked);
+  }
+
   buildPayment(entryAmount: number): IPayment[] {
     const payments: IPayment[] = [];
     this.selectModeReglementService.modeReglements().forEach((mode: IPaymentMode) => {

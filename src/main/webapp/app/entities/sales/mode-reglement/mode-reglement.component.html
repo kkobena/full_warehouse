@@ -19,13 +19,13 @@
           <span>
   <label>Imprimer le ticket de caisse ?</label>
           <p-inputSwitch inputId="printTicket"
-                         [(ngModel)]="printTicket">
+                         (onChange)="onPrintReceiptChange($event)">
           </p-inputSwitch>
 </span>
           <span>
      <label>Imprimer la facture?</label>
-          <p-inputSwitch inputId="printInvoice"
-                         [(ngModel)]="printInvoice">
+          <p-inputSwitch (onChange)="onPrintInvoiceChange($event)" inputId="printInvoice"
+          >
           </p-inputSwitch>
  </span>
 

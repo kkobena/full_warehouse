@@ -11,6 +11,8 @@ export class CurrentSaleService {
   voFromCashSale: WritableSignal<boolean> = signal<boolean>(false);
   isVenteSansBon: WritableSignal<boolean> = signal<boolean>(false);
   typeVo: WritableSignal<string> = signal<string>(null);
+  printInvoice: WritableSignal<boolean> = signal<boolean>(false);
+  printReceipt: WritableSignal<boolean> = signal<boolean>(true);
 
   constructor() {}
 
@@ -38,6 +40,14 @@ export class CurrentSaleService {
     this.typeVo.set(typeVo);
   }
 
+  updatePrintInvoice(printInvoice: boolean): void {
+    this.printInvoice.set(printInvoice);
+  }
+
+  updatePrintReceipt(printReceipt: boolean): void {
+    this.printReceipt.set(printReceipt);
+  }
+
   reset(): void {
     this.currentSale.set(null);
     this.plafondIsReached.set(false);
@@ -45,5 +55,7 @@ export class CurrentSaleService {
     this.voFromCashSale.set(false);
     this.isVenteSansBon.set(false);
     this.typeVo.set(null);
+    this.printInvoice.set(false);
+    this.printReceipt.set(true);
   }
 }

@@ -152,7 +152,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   voSalesService = inject(VoSalesService);
   baseSaleService = inject(BaseSaleService);
   protected check = true; // mis pour le focus produit et dialogue button
-  protected printInvoice = false;
   protected naturesVentes: INatureVente[] = [];
   protected naturesVente: INatureVente | null = null;
   protected users: IUser[];
@@ -854,7 +853,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.printTicket) {
           this.printSale(finalyseSale.saleId);
         }
-        if (this.printInvoice) {
+        if (this.currentSaleService.printInvoice()) {
           this.onPrintInvoice();
         }
       }
@@ -992,7 +991,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: error => {
         this.check = false;
-        // this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().id));
         this.onStockError(salesLine, error);
       },
     });
@@ -1028,7 +1026,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: error => {
         this.check = false;
-        // this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id));
         this.onStockError(salesLine, error);
       },
     });

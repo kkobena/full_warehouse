@@ -327,7 +327,7 @@ export class BaseSaleComponent {
   }
 
   printInvoice(): void {
-    this.salesService.print(this.currentSaleService.currentSale()?.id).subscribe(blod => {
+    this.salesService.printInvoice(this.currentSaleService.currentSale()?.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });

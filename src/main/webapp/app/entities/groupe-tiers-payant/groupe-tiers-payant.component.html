@@ -9,8 +9,7 @@
 
 </p-confirmDialog>
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [responsive]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier" showEffect="fade">
+          [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="ui-g form-group">
     <p-fileUpload (uploadHandler)="onUpload($event)" [customUpload]="true"
                   accept=".txt,.csv,.xls,.xlsx"
@@ -27,13 +26,12 @@
 
   </p-footer>
 </p-dialog>
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [responsive]="true"
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '500px'}"
           header="Message">
   <div class="ui-g form-group">
     <p>Le nombre de lignes insérées <span
-      style="font-weight: 900; margin-left: 10px;"> {{ responsedto?.size }}
-      /{{ responsedto?.totalSize }}</span>
+      style="font-weight: 900; margin-left: 10px;"> {{ responsedto?.size }}</span>
     </p>
   </div>
 </p-dialog>
@@ -62,41 +60,45 @@
     </div>
   </p-toolbar>
 
-  <div *ngIf="entites?.length === 0" class="alert alert-warning mt-2" id="no-result">
-    <span>Aucune donnée trouvée</span>
-  </div>
-  <p-table *ngIf="entites && entites.length > 0" [paginator]="true" [rows]="10"
-           [value]="entites" styleClass="mt-2">
-    <ng-template pTemplate="header">
-      <tr>
-        <th scope="col"><span>Libellé</span></th>
-        <th scope="col"><span>Adresse</span></th>
-        <th scope="col"><span>Téléphone</span></th>
-        <th scope="col"><span>Téléphone fixe</span></th>
-        <th scope="col"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-columns="columns" let-groupeTiersPayant pTemplate="body">
-      <tr [pSelectableRow]="selectedEl">
-        <td>{{ groupeTiersPayant.name }}</td>
-        <td>{{ groupeTiersPayant.adresse }}</td>
-        <td>{{ groupeTiersPayant.telephone }}</td>
-        <td>{{ groupeTiersPayant.telephoneFixe }}</td>
 
-        <td style="text-align: center;">
-          <button (click)="editGroupeTiersPayant(groupeTiersPayant)"
-                  class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil" pButton
-                  pRipple
-                  pTooltip="Supprimer"
-                  type="button"></button>
-          <button (click)="onConfirmDelete(groupeTiersPayant)"
-                  class="p-button-rounded p-button-warning" icon="pi pi-trash" pButton
-                  pRipple
-                  type="button"></button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  @if (entites && entites.length > 0) {
+    <p-table [paginator]="true" [rows]="10"
+             [value]="entites" styleClass="mt-2">
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col"><span>Libellé</span></th>
+          <th scope="col"><span>Adresse</span></th>
+          <th scope="col"><span>Téléphone</span></th>
+          <th scope="col"><span>Téléphone fixe</span></th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-columns="columns" let-groupeTiersPayant pTemplate="body">
+        <tr [pSelectableRow]="selectedEl">
+          <td>{{ groupeTiersPayant.name }}</td>
+          <td>{{ groupeTiersPayant.adresse }}</td>
+          <td>{{ groupeTiersPayant.telephone }}</td>
+          <td>{{ groupeTiersPayant.telephoneFixe }}</td>
+
+          <td style="text-align: center;">
+            <button (click)="editGroupeTiersPayant(groupeTiersPayant)"
+                    class="p-button-rounded p-button-success p-mr-2" icon="pi pi-pencil" pButton
+                    pRipple
+                    pTooltip="Supprimer"
+                    type="button"></button>
+            <button (click)="onConfirmDelete(groupeTiersPayant)"
+                    class="p-button-rounded p-button-warning" icon="pi pi-trash" pButton
+                    pRipple
+                    type="button"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="alert alert-warning mt-2" id="no-result">
+      <span>Aucune donnée trouvée</span>
+    </div>
+  }
 
 
 </div>

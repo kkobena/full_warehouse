@@ -158,8 +158,7 @@ public class RayonResource {
     }
 
     @PostMapping("/rayons/importcsv")
-    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file)
-        throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file) throws IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), null);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }

@@ -1,20 +1,19 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
 import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Fournisseur.
@@ -23,32 +22,43 @@ import java.io.Serializable;
 @Table(name = "fournisseur")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Fournisseur implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
+
     @Column(name = "num_faxe")
     private String numFaxe;
+
     @Column(name = "addresse_postal")
     private String addressePostal;
+
     @Column(name = "phone")
     private String phone;
+
     @Column(name = "mobile")
     private String mobile;
+
     @Column(name = "site")
     private String site;
+
     @NotNull
     @Size(max = 70)
     @Column(name = "code")
     private String code;
+
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)
     private GroupeFournisseur groupeFournisseur;
+
     @Column(name = "identifiant_repartiteur")
     private String identifiantRepartiteur;
 
@@ -168,6 +178,7 @@ public class Fournisseur implements Serializable {
         this.groupeFournisseur = groupeFournisseur;
         return this;
     }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -186,7 +197,6 @@ public class Fournisseur implements Serializable {
         return 31;
     }
 
-
     public String getIdentifiantRepartiteur() {
         return identifiantRepartiteur;
     }
@@ -197,15 +207,32 @@ public class Fournisseur implements Serializable {
 
     @Override
     public String toString() {
-        return "Fournisseur{" +
-            "id=" + getId() +
-            ", libelle='" + getLibelle() + "'" +
-            ", numFaxe='" + getNumFaxe() + "'" +
-            ", addressePostal='" + getAddressePostal() + "'" +
-            ", phone='" + getPhone() + "'" +
-            ", mobile='" + getMobile() + "'" +
-            ", site='" + getSite() + "'" +
-            ", code='" + getCode() + "'" +
-            "}";
+        return (
+            "Fournisseur{" +
+            "id=" +
+            getId() +
+            ", libelle='" +
+            getLibelle() +
+            "'" +
+            ", numFaxe='" +
+            getNumFaxe() +
+            "'" +
+            ", addressePostal='" +
+            getAddressePostal() +
+            "'" +
+            ", phone='" +
+            getPhone() +
+            "'" +
+            ", mobile='" +
+            getMobile() +
+            "'" +
+            ", site='" +
+            getSite() +
+            "'" +
+            ", code='" +
+            getCode() +
+            "'" +
+            "}"
+        );
     }
 }

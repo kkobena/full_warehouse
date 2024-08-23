@@ -7,8 +7,7 @@ import { CashRegister, CashRegisterStatut } from '../model/cash-register.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
-import { SortDirective } from '../../../shared/sort/sort.directive';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { SortDirective } from '../../../shared/sort';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -30,7 +29,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ButtonModule,
     RouterModule,
     SortDirective,
-    InfiniteScrollModule,
     CardModule,
     TableModule,
     ReactiveFormsModule,
@@ -163,6 +161,8 @@ export class UserCashRegisterComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-text ',
+      rejectLabel: 'Non',
+      acceptLabel: 'Oui',
       message: 'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?',
       accept: () => {
         this.entityService.closeCashRegister(cashRegister.id).subscribe({

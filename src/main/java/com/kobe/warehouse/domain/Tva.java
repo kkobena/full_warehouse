@@ -6,10 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,19 +18,20 @@ import java.util.Set;
  * A Tva.
  */
 @Entity
-@Table(name = "tva", uniqueConstraints = {@UniqueConstraint(columnNames = {"taux"})})
+@Table(name = "tva", uniqueConstraints = { @UniqueConstraint(columnNames = { "taux" }) })
 public class Tva implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @Column(name = "taux", nullable = false, unique = true)
     private Integer taux = 0;
+
     @OneToMany(mappedBy = "tva")
     private Set<Produit> produits = new HashSet<>();
 
@@ -67,6 +68,7 @@ public class Tva implements Serializable {
         this.produits = produits;
         return this;
     }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override

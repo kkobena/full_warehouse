@@ -6,9 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -16,162 +16,167 @@ import java.util.Objects;
 @Entity
 @Table(name = "repartition_stock_produit")
 public class RepartitionStockProduit implements Serializable {
-  private static final long serialVersionUID = 1L;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  StockProduit stockProduitSource;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  StockProduit stockProduitDestination;
+    @ManyToOne(optional = false)
+    @NotNull
+    StockProduit stockProduitSource;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-  @SequenceGenerator(name = "sequenceGenerator")
-  private Long id;
+    @ManyToOne(optional = false)
+    @NotNull
+    StockProduit stockProduitDestination;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private Produit produit;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @ManyToOne(optional = false)
-  private User user;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Produit produit;
 
-  @NotNull
-  @Column(name = "created_at", nullable = false)
-  private LocalDateTime created = LocalDateTime.now();
+    @NotNull
+    @ManyToOne(optional = false)
+    private User user;
 
-  @NotNull
-  @Column(name = "qty_mvt", nullable = false)
-  private Integer qtyMvt;
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime created = LocalDateTime.now();
 
-  @NotNull
-  @Column(name = "source_init_stock", nullable = false)
-  private Integer sourceInitStock;
+    @NotNull
+    @Column(name = "qty_mvt", nullable = false)
+    private Integer qtyMvt;
 
-  @NotNull
-  @Column(name = "source_final_stock", nullable = false)
-  private Integer sourceFinalStock;
+    @NotNull
+    @Column(name = "source_init_stock", nullable = false)
+    private Integer sourceInitStock;
 
-  @NotNull
-  @Column(name = "dest_init_stock", nullable = false)
-  private Integer destInitStock;
+    @NotNull
+    @Column(name = "source_final_stock", nullable = false)
+    private Integer sourceFinalStock;
 
-  @NotNull
-  @Column(name = "dest_final_stock", nullable = false)
-  private Integer destFinalStock;
+    @NotNull
+    @Column(name = "dest_init_stock", nullable = false)
+    private Integer destInitStock;
 
-  public @NotNull StockProduit getStockProduitSource() {
-    return stockProduitSource;
-  }
+    @NotNull
+    @Column(name = "dest_final_stock", nullable = false)
+    private Integer destFinalStock;
 
-  public RepartitionStockProduit setStockProduitSource(StockProduit stockProduitSource) {
-    this.stockProduitSource = stockProduitSource;
-    return this;
-  }
+    public @NotNull StockProduit getStockProduitSource() {
+        return stockProduitSource;
+    }
 
-  public @NotNull StockProduit getStockProduitDestination() {
-    return stockProduitDestination;
-  }
+    public RepartitionStockProduit setStockProduitSource(StockProduit stockProduitSource) {
+        this.stockProduitSource = stockProduitSource;
+        return this;
+    }
 
-  public RepartitionStockProduit setStockProduitDestination(StockProduit stockProduitDestination) {
-    this.stockProduitDestination = stockProduitDestination;
-    return this;
-  }
+    public @NotNull StockProduit getStockProduitDestination() {
+        return stockProduitDestination;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public RepartitionStockProduit setStockProduitDestination(StockProduit stockProduitDestination) {
+        this.stockProduitDestination = stockProduitDestination;
+        return this;
+    }
 
-  public RepartitionStockProduit setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public @NotNull Produit getProduit() {
-    return produit;
-  }
+    public RepartitionStockProduit setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public RepartitionStockProduit setProduit(Produit produit) {
-    this.produit = produit;
-    return this;
-  }
+    public @NotNull Produit getProduit() {
+        return produit;
+    }
 
-  public @NotNull User getUser() {
-    return user;
-  }
+    public RepartitionStockProduit setProduit(Produit produit) {
+        this.produit = produit;
+        return this;
+    }
 
-  public RepartitionStockProduit setUser(User user) {
-    this.user = user;
-    return this;
-  }
+    public @NotNull User getUser() {
+        return user;
+    }
 
-  public @NotNull LocalDateTime getCreated() {
-    return created;
-  }
+    public RepartitionStockProduit setUser(User user) {
+        this.user = user;
+        return this;
+    }
 
-  public RepartitionStockProduit setCreated(LocalDateTime created) {
-    this.created = created;
-    return this;
-  }
+    public @NotNull LocalDateTime getCreated() {
+        return created;
+    }
 
-  public @NotNull Integer getQtyMvt() {
-    return qtyMvt;
-  }
+    public RepartitionStockProduit setCreated(LocalDateTime created) {
+        this.created = created;
+        return this;
+    }
 
-  public RepartitionStockProduit setQtyMvt(Integer qtyMvt) {
-    this.qtyMvt = qtyMvt;
-    return this;
-  }
+    public @NotNull Integer getQtyMvt() {
+        return qtyMvt;
+    }
 
-  public @NotNull Integer getSourceInitStock() {
-    return sourceInitStock;
-  }
+    public RepartitionStockProduit setQtyMvt(Integer qtyMvt) {
+        this.qtyMvt = qtyMvt;
+        return this;
+    }
 
-  public RepartitionStockProduit setSourceInitStock(Integer sourceInitStock) {
-    this.sourceInitStock = sourceInitStock;
-    return this;
-  }
+    public @NotNull Integer getSourceInitStock() {
+        return sourceInitStock;
+    }
 
-  public @NotNull Integer getSourceFinalStock() {
-    return sourceFinalStock;
-  }
+    public RepartitionStockProduit setSourceInitStock(Integer sourceInitStock) {
+        this.sourceInitStock = sourceInitStock;
+        return this;
+    }
 
-  public RepartitionStockProduit setSourceFinalStock(Integer sourceFinalStock) {
-    this.sourceFinalStock = sourceFinalStock;
-    return this;
-  }
+    public @NotNull Integer getSourceFinalStock() {
+        return sourceFinalStock;
+    }
 
-  public @NotNull Integer getDestInitStock() {
-    return destInitStock;
-  }
+    public RepartitionStockProduit setSourceFinalStock(Integer sourceFinalStock) {
+        this.sourceFinalStock = sourceFinalStock;
+        return this;
+    }
 
-  public RepartitionStockProduit setDestInitStock(Integer destInitStock) {
-    this.destInitStock = destInitStock;
-    return this;
-  }
+    public @NotNull Integer getDestInitStock() {
+        return destInitStock;
+    }
 
-  public @NotNull Integer getDestFinalStock() {
-    return destFinalStock;
-  }
+    public RepartitionStockProduit setDestInitStock(Integer destInitStock) {
+        this.destInitStock = destInitStock;
+        return this;
+    }
 
-  public RepartitionStockProduit setDestFinalStock(Integer destFinalStock) {
-    this.destFinalStock = destFinalStock;
-    return this;
-  }
+    public @NotNull Integer getDestFinalStock() {
+        return destFinalStock;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    RepartitionStockProduit that = (RepartitionStockProduit) o;
-    return id.equals(that.id);
-  }
+    public RepartitionStockProduit setDestFinalStock(Integer destFinalStock) {
+        this.destFinalStock = destFinalStock;
+        return this;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RepartitionStockProduit that = (RepartitionStockProduit) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

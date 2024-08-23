@@ -133,7 +133,7 @@ public class ImportationProduitService {
                     try {
                         StockProduit stockProduit = buidStockProduit(p, storage);
                         Produit produit = buildProduit(p);
-                        produit.setRayonProduits(Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produit)));
+                        produit.setRayonProduits(Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produit)));
                         produit = produitRepository.save(produit);
                         stockProduit.setProduit(produit);
                         stockProduitRepository.save(stockProduit);
@@ -144,23 +144,19 @@ public class ImportationProduitService {
                             fournisseurProduitRepository.save(fournisseurProduit);
                         }
                         if (!p.getProduits().isEmpty()) {
-                            ProduitDTO detail = p.getProduits().stream().findFirst().get();
+                            ProduitDTO detail = p.getProduits().getFirst();
                             Produit produitDetail = buildDeatilProduit(detail, produit);
-                            produitDetail.setRayonProduits(
-                                Set.of(fromRayonLibelle(p.getRayonLibelle(), storage).setProduit(produitDetail))
-                            );
+                            produitDetail.setRayonProduits(Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produitDetail)));
                             StockProduit stockProduitDetail = buidStockProduit(detail, storage);
                             produitDetail = produitRepository.save(produitDetail);
                             stockProduitDetail.setProduit(produitDetail);
                             stockProduitRepository.save(stockProduitDetail);
-
                             for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
                                 FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(d);
                                 fournisseurProduitDetail.setProduit(produitDetail);
                                 fournisseurProduitRepository.save(fournisseurProduitDetail);
                             }
                         }
-
                         size.incrementAndGet();
                     } catch (Exception e) {
                         log.debug("processImportation ===>> {}", e);
@@ -202,13 +198,14 @@ public class ImportationProduitService {
         return produit;
     }
 
-    private RayonProduit fromRayonLibelle(String libelle, Storage storage) {
-        Optional<Rayon> optionalRayon = rayonRepository.findFirstByLibelleAndStorageId(libelle, storage.getId());
-        Rayon rayon;
-        rayon = optionalRayon.orElseGet(
-            () -> rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).get()
-        );
-        return new RayonProduit().setRayon(rayon);
+    private RayonProduit fromRayonCode(String code, Storage storage) {
+        Optional<Rayon> optionalRayon = rayonRepository.findFirstByCodeAndStorageId(code, storage.getId());
+        return new RayonProduit()
+            .setRayon(
+                optionalRayon.orElse(
+                    rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).orElse(null)
+                )
+            );
     }
 
     private Produit buildProduit(ProduitDTO produitDTO) {
@@ -229,6 +226,7 @@ public class ImportationProduitService {
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
+        produit.setCmuAmount(produitDTO.getCmuAmount());
         if (ObjectUtils.isNotEmpty(produitDTO.getTauxRemise())) {
             remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise()).ifPresent(produit::setRemise);
         }
@@ -266,7 +264,7 @@ public class ImportationProduitService {
 
     private FournisseurProduit buildFournisseurProduit(FournisseurProduitDTO p) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
-        fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).get());
+        fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).orElse(null));
         fournisseurProduit.setPrixUni(p.getPrixUni());
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setPrincipal(p.isPrincipal());

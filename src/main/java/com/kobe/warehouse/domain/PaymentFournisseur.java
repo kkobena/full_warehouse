@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -20,10 +21,10 @@ import java.time.LocalDateTime;
 @Table(name = "payment_fournisseur")
 public class PaymentFournisseur implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
-  // jhipster-needle-entity-add-field - JHipster will add fields here
-  @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -54,6 +55,7 @@ public class PaymentFournisseur implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
     private PaymentMode paymentMode;
+
     @ManyToOne(optional = false)
     @NotNull
     private WarehouseCalendar calendar;
@@ -85,7 +87,7 @@ public class PaymentFournisseur implements Serializable {
         return netAmount;
     }
 
-  public void setNetAmount(Integer netAmount) {
+    public void setNetAmount(Integer netAmount) {
         this.netAmount = netAmount;
     }
 
@@ -93,7 +95,7 @@ public class PaymentFournisseur implements Serializable {
         return paidAmount;
     }
 
-  public void setPaidAmount(Integer paidAmount) {
+    public void setPaidAmount(Integer paidAmount) {
         this.paidAmount = paidAmount;
     }
 
@@ -101,7 +103,7 @@ public class PaymentFournisseur implements Serializable {
         return restToPay;
     }
 
-  public void setRestToPay(Integer restToPay) {
+    public void setRestToPay(Integer restToPay) {
         this.restToPay = restToPay;
     }
 
@@ -117,7 +119,7 @@ public class PaymentFournisseur implements Serializable {
         return updatedAt;
     }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -125,7 +127,7 @@ public class PaymentFournisseur implements Serializable {
         return deliveryReceipt;
     }
 
-  public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
+    public PaymentFournisseur setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
         this.deliveryReceipt = deliveryReceipt;
         return this;
     }
@@ -134,7 +136,7 @@ public class PaymentFournisseur implements Serializable {
         return paymentMode;
     }
 
-  public void setPaymentMode(PaymentMode paymentMode) {
+    public void setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
     }
 

@@ -1,18 +1,16 @@
 package com.kobe.warehouse.domain;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
-
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A TypeEtiquette.
@@ -21,11 +19,14 @@ import java.io.Serializable;
 @Table(name = "type_etiquette")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TypeEtiquette implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
@@ -63,5 +64,4 @@ public class TypeEtiquette implements Serializable {
     public int hashCode() {
         return 31;
     }
-
 }

@@ -140,6 +140,8 @@ export class TicketingComponent implements OnInit, AfterViewInit {
         icon: 'pi pi-exclamation-triangle',
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-text ',
+        rejectLabel: 'Non',
+        acceptLabel: 'Oui',
         accept: () => {
           this.doTicketing();
         },

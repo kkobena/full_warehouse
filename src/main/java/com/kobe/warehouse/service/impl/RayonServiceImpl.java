@@ -110,9 +110,15 @@ public class RayonServiceImpl implements RayonService {
             ? storageService.getDefaultConnectedUserMainStorage().getId()
             : storageId;
         AtomicInteger count = new AtomicInteger(0);
+        var now = LocalDateTime.now();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').setSkipHeaderRecord(true).build().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
             records.forEach(record -> {
+                var index = count.get();
+                if (index == 0) {
+                    count.incrementAndGet();
+                    return;
+                }
                 Rayon rayon = new Rayon();
                 rayon.setLibelle(record.get(0).trim());
                 rayon.setCode(record.get(1).trim());
@@ -122,14 +128,14 @@ public class RayonServiceImpl implements RayonService {
                 } catch (Exception e) {
                     log.error("importation", e);
                 }
-                rayon.setCreatedAt(LocalDateTime.now());
-                rayon.setUpdatedAt(LocalDateTime.now());
+                rayon.setCreatedAt(now);
+                rayon.setUpdatedAt(now);
                 rayon.setStorage(customizedRayonService.fromId(storageId2));
                 rayonRepository.save(rayon);
                 count.incrementAndGet();
             });
         } catch (IOException e) {
-            log.error("importation : {}", e);
+            log.error("importation : {0}", e);
         }
 
         return new ResponseDTO().size(count.get());

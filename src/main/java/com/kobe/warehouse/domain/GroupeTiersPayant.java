@@ -5,34 +5,37 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "groupe_tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})
-
-})
+@Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
 public class GroupeTiersPayant implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "name", nullable = false, length = 100)
     @NotNull
     private String name;
+
     @Column(name = "adresse", length = 200)
     private String adresse;
+
     @Column(name = "telephone", length = 15)
     private String telephone;
+
     @Column(name = "telephone_fixe", length = 15)
     private String telephoneFixe;
 
-    public GroupeTiersPayant() {
-    }
+    public GroupeTiersPayant() {}
 
     public Long getId() {
         return id;

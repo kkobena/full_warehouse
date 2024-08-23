@@ -3,7 +3,16 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,198 +26,199 @@ import org.hibernate.type.SqlTypes;
 @Table(
     name = "client_tiers_payant",
     uniqueConstraints = {
-      @UniqueConstraint(columnNames = {"tiers_payant_id", "assured_customer_id"}),
-      @UniqueConstraint(columnNames = {"tiers_payant_id", "num"})
-    })
+        @UniqueConstraint(columnNames = { "tiers_payant_id", "assured_customer_id" }),
+        @UniqueConstraint(columnNames = { "tiers_payant_id", "num" }),
+    }
+)
 public class ClientTiersPayant implements Serializable {
 
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-  @SequenceGenerator(name = "sequenceGenerator")
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @ManyToOne(optional = false)
-  private TiersPayant tiersPayant;
+    @NotNull
+    @ManyToOne(optional = false)
+    private TiersPayant tiersPayant;
 
-  @NotNull
-  @ManyToOne(optional = false)
-  private AssuredCustomer assuredCustomer;
+    @NotNull
+    @ManyToOne(optional = false)
+    private AssuredCustomer assuredCustomer;
 
-  @Column(name = "num", nullable = false, length = 100)
-  @NotNull
-  private String num;
+    @Column(name = "num", nullable = false, length = 100)
+    @NotNull
+    private String num;
 
-  @Column(name = "plafond_conso")
-  private Long plafondConso;
+    @Column(name = "plafond_conso")
+    private Long plafondConso;
 
-  @Column(name = "plafond_journalier")
-  private Long plafondJournalier;
+    @Column(name = "plafond_journalier")
+    private Long plafondJournalier;
 
-  @Column(name = "created", nullable = false)
-  private LocalDateTime created;
+    @Column(name = "created", nullable = false)
+    private LocalDateTime created;
 
-  @Column(name = "updated", nullable = false)
-  private LocalDateTime updated = LocalDateTime.now();
+    @Column(name = "updated", nullable = false)
+    private LocalDateTime updated = LocalDateTime.now();
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "priorite", nullable = false)
-  private PrioriteTiersPayant priorite = PrioriteTiersPayant.T0;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "priorite", nullable = false)
+    private PrioriteTiersPayant priorite = PrioriteTiersPayant.T0;
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "statut", nullable = false)
-  private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 
-  @NotNull
-  @Column(name = "taux", nullable = false)
-  private Integer taux;
+    @NotNull
+    @Column(name = "taux", nullable = false)
+    private Integer taux;
 
-  @Column(name = "conso_mensuelle")
-  private Long consoMensuelle;
+    @Column(name = "conso_mensuelle")
+    private Long consoMensuelle;
 
-  private transient double tauxValue;
+    private transient double tauxValue;
 
-  @Column(name = "plafond_absolu")
-  private Boolean plafondAbsolu = false;
+    @Column(name = "plafond_absolu")
+    private Boolean plafondAbsolu = false;
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "json", name = "consommation_json")
-  private Set<Consommation> consommations = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "consommation_json")
+    private Set<Consommation> consommations = new HashSet<>();
 
-  public ClientTiersPayant() {}
+    public ClientTiersPayant() {}
 
-  public Long getId() {
-    return id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public ClientTiersPayant setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public ClientTiersPayant setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public @NotNull TiersPayant getTiersPayant() {
-    return tiersPayant;
-  }
+    public @NotNull TiersPayant getTiersPayant() {
+        return tiersPayant;
+    }
 
-  public ClientTiersPayant setTiersPayant(TiersPayant tiersPayant) {
-    this.tiersPayant = tiersPayant;
-    return this;
-  }
+    public ClientTiersPayant setTiersPayant(TiersPayant tiersPayant) {
+        this.tiersPayant = tiersPayant;
+        return this;
+    }
 
-  public @NotNull AssuredCustomer getAssuredCustomer() {
-    return assuredCustomer;
-  }
+    public @NotNull AssuredCustomer getAssuredCustomer() {
+        return assuredCustomer;
+    }
 
-  public ClientTiersPayant setAssuredCustomer(AssuredCustomer assuredCustomer) {
-    this.assuredCustomer = assuredCustomer;
-    return this;
-  }
+    public ClientTiersPayant setAssuredCustomer(AssuredCustomer assuredCustomer) {
+        this.assuredCustomer = assuredCustomer;
+        return this;
+    }
 
-  public @NotNull String getNum() {
-    return num;
-  }
+    public @NotNull String getNum() {
+        return num;
+    }
 
-  public ClientTiersPayant setNum(String num) {
-    this.num = num;
-    return this;
-  }
+    public ClientTiersPayant setNum(String num) {
+        this.num = num;
+        return this;
+    }
 
-  public Long getPlafondConso() {
-    return plafondConso;
-  }
+    public Long getPlafondConso() {
+        return plafondConso;
+    }
 
-  public ClientTiersPayant setPlafondConso(Long plafondConso) {
-    this.plafondConso = plafondConso;
-    return this;
-  }
+    public ClientTiersPayant setPlafondConso(Long plafondConso) {
+        this.plafondConso = plafondConso;
+        return this;
+    }
 
-  public Long getPlafondJournalier() {
-    return plafondJournalier;
-  }
+    public Long getPlafondJournalier() {
+        return plafondJournalier;
+    }
 
-  public ClientTiersPayant setPlafondJournalier(Long plafondJournalier) {
-    this.plafondJournalier = plafondJournalier;
-    return this;
-  }
+    public ClientTiersPayant setPlafondJournalier(Long plafondJournalier) {
+        this.plafondJournalier = plafondJournalier;
+        return this;
+    }
 
-  public LocalDateTime getCreated() {
-    return created;
-  }
+    public LocalDateTime getCreated() {
+        return created;
+    }
 
-  public ClientTiersPayant setCreated(LocalDateTime created) {
-    this.created = created;
-    return this;
-  }
+    public ClientTiersPayant setCreated(LocalDateTime created) {
+        this.created = created;
+        return this;
+    }
 
-  public LocalDateTime getUpdated() {
-    return updated;
-  }
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
 
-  public ClientTiersPayant setUpdated(LocalDateTime updated) {
-    this.updated = updated;
-    return this;
-  }
+    public ClientTiersPayant setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+        return this;
+    }
 
-  public @NotNull PrioriteTiersPayant getPriorite() {
-    return priorite;
-  }
+    public @NotNull PrioriteTiersPayant getPriorite() {
+        return priorite;
+    }
 
-  public ClientTiersPayant setPriorite(PrioriteTiersPayant priorite) {
-    this.priorite = priorite;
-    return this;
-  }
+    public ClientTiersPayant setPriorite(PrioriteTiersPayant priorite) {
+        this.priorite = priorite;
+        return this;
+    }
 
-  public @NotNull TiersPayantStatut getStatut() {
-    return statut;
-  }
+    public @NotNull TiersPayantStatut getStatut() {
+        return statut;
+    }
 
-  public ClientTiersPayant setStatut(TiersPayantStatut statut) {
-    this.statut = statut;
-    return this;
-  }
+    public ClientTiersPayant setStatut(TiersPayantStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-  public @NotNull Integer getTaux() {
-    return taux;
-  }
+    public @NotNull Integer getTaux() {
+        return taux;
+    }
 
-  public ClientTiersPayant setTaux(Integer taux) {
-    this.taux = taux;
-    return this;
-  }
+    public ClientTiersPayant setTaux(Integer taux) {
+        this.taux = taux;
+        return this;
+    }
 
-  public Long getConsoMensuelle() {
-    return consoMensuelle;
-  }
+    public Long getConsoMensuelle() {
+        return consoMensuelle;
+    }
 
-  public ClientTiersPayant setConsoMensuelle(Long consoMensuelle) {
-    this.consoMensuelle = consoMensuelle;
-    return this;
-  }
+    public ClientTiersPayant setConsoMensuelle(Long consoMensuelle) {
+        this.consoMensuelle = consoMensuelle;
+        return this;
+    }
 
-  public Boolean getPlafondAbsolu() {
-    return plafondAbsolu;
-  }
+    public Boolean getPlafondAbsolu() {
+        return plafondAbsolu;
+    }
 
-  public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
-    this.plafondAbsolu = plafondAbsolu;
-    return this;
-  }
+    public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
+        this.plafondAbsolu = plafondAbsolu;
+        return this;
+    }
 
-  public Set<Consommation> getConsommations() {
-    return consommations;
-  }
+    public Set<Consommation> getConsommations() {
+        return consommations;
+    }
 
-  public ClientTiersPayant setConsommations(Set<Consommation> consommations) {
-    this.consommations = consommations;
-    return this;
-  }
+    public ClientTiersPayant setConsommations(Set<Consommation> consommations) {
+        this.consommations = consommations;
+        return this;
+    }
 
-  public double getTauxValue() {
-    tauxValue = Double.valueOf(taux) / 100;
-    return tauxValue;
-  }
+    public double getTauxValue() {
+        tauxValue = Double.valueOf(taux) / 100;
+        return tauxValue;
+    }
 }

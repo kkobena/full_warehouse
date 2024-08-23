@@ -1,79 +1,89 @@
 package com.kobe.warehouse.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 
-/** A Categorie. */
+/**
+ * A Categorie.
+ */
 @Entity
 @Table(name = "categorie")
 public class Categorie implements Serializable {
-  private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @Column(name = "code")
-  private String code;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @Column(name = "libelle", nullable = false, unique = true)
-  private String libelle;
+    @Column(name = "code")
+    private String code;
 
-  public String getCode() {
-    return code;
-  }
+    @NotNull
+    @Column(name = "libelle", nullable = false, unique = true)
+    private String libelle;
 
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getLibelle() {
-    return libelle;
-  }
-
-  public void setLibelle(String libelle) {
-    this.libelle = libelle;
-  }
-
-  public Categorie libelle(String libelle) {
-    this.libelle = libelle;
-    return this;
-  }
-
-  public Categorie id(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    public String getCode() {
+        return code;
     }
-    if (!(o instanceof Categorie)) {
-      return false;
+
+    public void setCode(String code) {
+        this.code = code;
     }
-    return id != null && id.equals(((Categorie) o).id);
-  }
 
-  @Override
-  public int hashCode() {
-    return 31;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  // prettier-ignore
-  @Override
-  public String toString() {
-    return "Categorie{" + "id=" + getId() + ", libelle='" + getLibelle() + "'" + "}";
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLibelle() {
+        return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
+    public Categorie libelle(String libelle) {
+        this.libelle = libelle;
+        return this;
+    }
+
+    public Categorie id(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Categorie)) {
+            return false;
+        }
+        return id != null && id.equals(((Categorie) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
+    // prettier-ignore
+    @Override
+    public String toString() {
+        return "Categorie{" + "id=" + getId() + ", libelle='" + getLibelle() + "'" + "}";
+    }
 }

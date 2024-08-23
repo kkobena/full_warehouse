@@ -1,37 +1,38 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "rayon_produit", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "rayon_id"})
-})
+@Table(name = "rayon_produit", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "rayon_id" }) })
 public class RayonProduit implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "rayonProduits", allowSetters = true)
     private Produit produit;
+
     @ManyToOne(optional = false)
     @NotNull
     private Rayon rayon;
 
-    public RayonProduit() {
-    }
+    public RayonProduit() {}
 
     public Long getId() {
         return id;

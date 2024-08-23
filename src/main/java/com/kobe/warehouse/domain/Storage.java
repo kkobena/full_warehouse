@@ -2,26 +2,41 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.StorageType;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "storage")
-@JsonIgnoreProperties(value = {"magasin"})
+@JsonIgnoreProperties(value = { "magasin" })
 public class Storage implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "storage_type", nullable = false)
     private StorageType storageType;
+
     @NotNull
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
     @ManyToOne(optional = false)
     @NotNull
     private Magasin magasin;
@@ -65,8 +80,12 @@ public class Storage implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Storage storage = (Storage) o;
         return id.equals(storage.id);
     }
@@ -78,11 +97,7 @@ public class Storage implements Serializable {
 
     @Override
     public String toString() {
-      String sb = "Storage{" + "id=" + id
-          + ", storageType=" + storageType
-          + ", name='" + name + '\''
-          + ", magasin=" + magasin
-          + '}';
+        String sb = "Storage{" + "id=" + id + ", storageType=" + storageType + ", name='" + name + '\'' + ", magasin=" + magasin + '}';
         return sb;
     }
 }

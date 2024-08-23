@@ -165,7 +165,7 @@ WHERE r.str_STATUT='enable' AND r.str_LIBELLEE <> 'Default';
 
 SELECT g.str_LIBELLE as name,g.str_ADRESSE as adresse,g.str_TELEPHONE as telephone FROM
 t_groupe_tierspayant g;
-
+SELECT f.libelle AS libelle FROM  groupefournisseur f ORDER BY  f.id;
 const interval = setInterval(() => {
 this.entityService.findImortation().subscribe(
 res => {
@@ -292,3 +292,46 @@ https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-cod
 12. Saisie de mouvement de caisse
 
 13. Saisie des produits périmés
+
+# REQUETE POUR EXPORTER LES tierspayants EN CSV
+
+SELECT p.lg_TIERS_PAYANT_ID id, p.str_NAME  as name,p.str_FULLNAME as fullName,p.str_CODE_ORGANISME as codeOrganisme
+,p.int_NBREBONS as nbreBordereaux,p.is_cmus as isCmus,p.str_TELEPHONE as telephoneFixe,
+ p.str_MOBILE as telephone,p.str_ADRESSE as adresse,p.dbl_REMISE_FORFETAIRE as remiseForfaitaire,gp.str_LIBELLE  asgroupeTiersPayantName,
+ tp.str_LIBELLE_TYPE_TIERS_PAYANT as typeTiersPayantName,p.str_CODE_REGROUPEMENT as codeRegroupement,p.to_be_exclude as toBeExclude,
+ p.dbl_PLAFOND_CREDIT as plafondCredit,mf.str_VALUE as modelFactureName,
+ p.account  as account,p.b_IsAbsolute plafondCreditIsAbsolute
+,p.int_MONTANTFAC as montantMaxParFcture,
+ p.is_depot as isdepot,p.grouping_by_taux as groupingByTaux,p.db_CONSOMMATION_MENSUELLE as consommationMensuelle,
+ p.bool_IsACCOUNT as isAccount
+FROM  t_tiers_payant p  left join t_groupe_tierspayant gp ON  p.lg_GROUPE_ID=gp.lg_GROUPE_ID
+left join t_type_tiers_payant tp on p.lg_TYPE_TIERS_PAYANT_ID = tp.lg_TYPE_TIERS_PAYANT_ID
+left join t_model_facture mf on p.lg_MODEL_FACTURE_ID = mf.lg_MODEL_FACTURE_ID
+WHERE p.str_STATUT='enable' ;
+
+
+    # REQUETE POUR EXPORTER LES CLIENTS EN CSV
+
+select c.lg_CLIENT_ID as id, c.str_FIRST_NAME as firstName,c.str_LAST_NAME as lastName,
+c.str_SEXE  as sexe,c.dt_NAISSANCE  asdatNaiss,c.lg_TYPE_CLIENT_ID as typeClientId,c.str_ADRESSE as phone,
+c.str_NUMERO_SECURITE_SOCIAL as numSecu
+from t_client c where str_STATUT='enable' ;
+
+# REQUETE POUR EXPORTER LES AYANDROIT EN CSV
+
+SELECT a.lg_AYANTS_DROITS_ID as id,  a.lg_CLIENT_ID as idClient,
+       a.str_FIRST_NAME as firstName,a.str_LAST_NAME as lastName,
+       a.str_SEXE  as sexe,a.dt_NAISSANCE  asdatNaiss
+       FROM t_ayant_droit a WHERE str_STATUT='enable'  AND a.lg_AYANTS_DROITS_ID <> a.lg_CLIENT_ID;
+
+# REQUETE POUR EXPORTER LES compte client EN CSV
+SELECT cp.lg_COMPTE_CLIENT_TIERS_PAYANT_ID as id, cl.lg_CLIENT_ID as clientId,tp.lg_TIERS_PAYANT_ID as tiersPayantId,cp.str_NUMERO_SECURITE_SOCIAL as numSecu
+,cp.b_IS_RO as ro,cp.int_PRIORITY as priority,cp.int_POURCENTAGE as taux,cp.db_PLAFOND_ENCOURS as plafondEncours,
+ cp.dbl_PLAFOND as plafond,cp.dbl_QUOTA_CONSO_VENTE as planfondVente,cp.b_IsAbsolute as plafondIsAbsolute
+FROM t_compte_client_tiers_payant cp join t_compte_client c on cp.lg_COMPTE_CLIENT_ID = c.lg_COMPTE_CLIENT_ID
+         JOIN  t_tiers_payant tp on cp.lg_TIERS_PAYANT_ID = tp.lg_TIERS_PAYANT_ID
+       JOIN t_client cl on c.lg_CLIENT_ID = cl.lg_CLIENT_ID
+         WHERE cp.str_STATUT='enable' ;
+         
+  # export requete to csv       
+mysql -u username -p -e "SELECT * FROM your_table;" -B > output.csv

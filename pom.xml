@@ -421,6 +421,12 @@
         <!--            <groupId>com.fasterxml.jackson.module</groupId>-->
         <!--        </dependency>-->
         <dependency>
+            <artifactId>liquibase-core</artifactId>
+            <groupId>org.liquibase</groupId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
             <groupId>com.fasterxml.jackson.module</groupId>
             <version>2.17.0</version>
@@ -626,6 +632,7 @@
         <dependency>
             <artifactId>hibernate-core</artifactId>
             <groupId>org.hibernate.orm</groupId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>hibernate-jpamodelgen</artifactId>
@@ -940,7 +947,7 @@
         <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <java.version>21</java.version>
+        <java.version>22</java.version>
         <jhipster-framework.version>8.5.0</jhipster-framework.version>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <jib-maven-plugin.image>eclipse-temurin:21-jre-focal</jib-maven-plugin.image>

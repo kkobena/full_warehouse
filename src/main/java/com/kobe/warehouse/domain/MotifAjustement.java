@@ -9,25 +9,26 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "motif_ajustement", uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle"})})
+@Table(name = "motif_ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle" }) })
 public class MotifAjustement implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long id;
+
     @NotBlank
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
-    public MotifAjustement() {
-
-    }
+    public MotifAjustement() {}
 
     public Long getId() {
         return id;

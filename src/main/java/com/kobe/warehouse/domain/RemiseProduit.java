@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +13,9 @@ import java.util.Set;
 @Entity
 public class RemiseProduit extends Remise implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
+
     @OneToMany(mappedBy = "remise")
     private Set<Produit> produits = new HashSet<>();
 
@@ -28,6 +31,4 @@ public class RemiseProduit extends Remise implements Serializable {
         this.produits = produits;
         return this;
     }
-
-
 }

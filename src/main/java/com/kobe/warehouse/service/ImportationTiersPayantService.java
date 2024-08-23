@@ -28,14 +28,21 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class ImportationTiersPayantService implements TiersPayantMapper {
+
     private final Logger log = LoggerFactory.getLogger(ImportationTiersPayantService.class);
-   private final StorageService storageService;
+    private final StorageService storageService;
     private final GroupeTiersPayantService groupeTiersPayantService;
     private final TiersPayantRepository tiersPayantRepository;
     private final ImportationRepository importationRepository;
     private final TransactionTemplate transactionTemplate;
 
-    public ImportationTiersPayantService(StorageService storageService, GroupeTiersPayantService groupeTiersPayantService, TiersPayantRepository tiersPayantRepository, ImportationRepository importationRepository, TransactionTemplate transactionTemplate) {
+    public ImportationTiersPayantService(
+        StorageService storageService,
+        GroupeTiersPayantService groupeTiersPayantService,
+        TiersPayantRepository tiersPayantRepository,
+        ImportationRepository importationRepository,
+        TransactionTemplate transactionTemplate
+    ) {
         this.storageService = storageService;
         this.groupeTiersPayantService = groupeTiersPayantService;
         this.tiersPayantRepository = tiersPayantRepository;
@@ -43,14 +50,13 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public ResponseDTO  updateStocFromJSON(InputStream input) throws IOException {
-        ResponseDTO response=new ResponseDTO();
+    public ResponseDTO updateStocFromJSON(InputStream input) throws IOException {
+        ResponseDTO response = new ResponseDTO();
         ObjectMapper mapper = new ObjectMapper();
-       User user=this.storageService.getUserFormImport();
+        User user = this.storageService.getUserFormImport();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<TiersPayantDto> list = mapper.readValue(input, new TypeReference<>() {
-        });
+        List<TiersPayantDto> list = mapper.readValue(input, new TypeReference<>() {});
         int totalSize = list.size();
         response.setTotalSize(totalSize);
         log.info("size===>> {}", list.size());
@@ -60,61 +66,68 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
         saveImportation(importation);
         for (TiersPayantDto p : list) {
             try {
-                processImportation(p,  errorSize, size,user);
+                processImportation(p, errorSize, size, user);
                 updateImportation(errorSize.get(), size.get());
             } catch (Exception e) {
-                log.debug("updateStocFromJSON ===>> {}", e);
+                log.error("updateStocFromJSON ===>> {0}", e);
             }
-
         }
         response.setSize(size.get());
         updateImportation(errorSize.get(), size.get());
         return response;
     }
-    private void updateImportation(final int errorSize, final int size) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(ImportationType.TIERS_PAYANT);
-                    if (importation != null) {
-                        importation.setUpdated(LocalDateTime.now());
-                        importation.setSize(size);
-                        importation.setErrorSize(errorSize);
-                        importation.setImportationStatus(errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
-                        importationRepository.save(importation);
-                    }
-                } catch (Exception e) {
-                    log.debug("saveImportation ===>> {}", e);
 
+    private void updateImportation(final int errorSize, final int size) {
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
+                            ImportationType.TIERS_PAYANT
+                        );
+                        if (importation != null) {
+                            importation.setUpdated(LocalDateTime.now());
+                            importation.setSize(size);
+                            importation.setErrorSize(errorSize);
+                            importation.setImportationStatus(
+                                errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED
+                            );
+                            importationRepository.save(importation);
+                        }
+                    } catch (Exception e) {
+                        log.error("saveImportation ===>> {0}", e);
+                    }
                 }
             }
-        });
-
-
+        );
     }
+
     public Importation current(ImportationType importationType) {
         return importationRepository.findFirstByImportationTypeOrderByCreatedDesc(importationType);
     }
-  private   void processImportation(final TiersPayantDto p,  AtomicInteger errorSize, AtomicInteger size,User user) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    TiersPayant tiersPayant = entityFromDto(p);
-                    tiersPayant.setUpdatedBy(user);
-                    GroupeTiersPayant groupeTiersPayant=groupeTiersPayantService.getOneByName(p.getGroupeTiersPayantName()).orElse(null);
-                    tiersPayant.setGroupeTiersPayant(groupeTiersPayant);
-                    tiersPayantRepository.save(tiersPayant);
-                    size.incrementAndGet();
-                }catch (Exception e){
-                    log.debug("processImportation ===>> {}", e);
-                    errorSize.incrementAndGet();
+
+    private void processImportation(final TiersPayantDto p, AtomicInteger errorSize, AtomicInteger size, User user) {
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        TiersPayant tiersPayant = entityFromDto(p);
+                        tiersPayant.setUpdatedBy(user);
+                        GroupeTiersPayant groupeTiersPayant = groupeTiersPayantService
+                            .getOneByName(p.getGroupeTiersPayantName())
+                            .orElse(null);
+                        tiersPayant.setGroupeTiersPayant(groupeTiersPayant);
+                        tiersPayantRepository.save(tiersPayant);
+                        size.incrementAndGet();
+                    } catch (Exception e) {
+                        log.error("processImportation ===>> {0}", e);
+                        errorSize.incrementAndGet();
+                    }
                 }
-
-
             }
-        });
+        );
     }
 
     private Importation importation(User user) {
@@ -127,16 +140,17 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     }
 
     private void saveImportation(Importation importation) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    importationRepository.save(importation);
-                } catch (Exception e) {
-                    log.debug("saveImportation ===>> {}", e);
-
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        importationRepository.save(importation);
+                    } catch (Exception e) {
+                        log.error("saveImportation ===>> {0}", e);
+                    }
                 }
             }
-        });
+        );
     }
 }

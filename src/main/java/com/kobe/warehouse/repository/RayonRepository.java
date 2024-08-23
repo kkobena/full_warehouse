@@ -1,13 +1,11 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Rayon;
-import com.kobe.warehouse.domain.TypeEtiquette;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface RayonRepository extends JpaRepository<Rayon, Long> {
@@ -15,6 +13,7 @@ public interface RayonRepository extends JpaRepository<Rayon, Long> {
 
     Optional<Rayon> findFirstByLibelleEquals(String libelle);
 
-    Optional<Rayon> findFirstByLibelleAndStorageId(String libelle,Long storageId);
+    Optional<Rayon> findFirstByLibelleAndStorageId(String libelle, Long storageId);
 
+    Optional<Rayon> findFirstByCodeAndStorageId(String code, Long storageId);
 }

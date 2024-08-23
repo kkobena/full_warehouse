@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.repository.CategorieRepository;
@@ -36,10 +35,9 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     private final FamilleProduitRepository familleProduitRepository;
     private final CategorieRepository categorieRepository;
 
-    public FamilleProduitServiceImpl(FamilleProduitRepository familleProduitRepository,
-                                     CategorieRepository categorieRepository) {
+    public FamilleProduitServiceImpl(FamilleProduitRepository familleProduitRepository, CategorieRepository categorieRepository) {
         this.familleProduitRepository = familleProduitRepository;
-        this.categorieRepository=categorieRepository;
+        this.categorieRepository = categorieRepository;
     }
 
     /**
@@ -65,12 +63,9 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<FamilleProduitDTO> findAll(String search,Pageable pageable) {
-
-        return   familleProduitRepository.findAllByCodeOrLibelleContainingAllIgnoreCase(search,search,pageable)
-            .map(FamilleProduitDTO::new);
+    public Page<FamilleProduitDTO> findAll(String search, Pageable pageable) {
+        return familleProduitRepository.findAllByCodeOrLibelleContainingAllIgnoreCase(search, search, pageable).map(FamilleProduitDTO::new);
     }
-
 
     /**
      * Get one familleProduit by id.
@@ -82,8 +77,7 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     @Transactional(readOnly = true)
     public Optional<FamilleProduitDTO> findOne(Long id) {
         log.debug("Request to get FamilleProduit : {}", id);
-        return familleProduitRepository.findById(id)
-            .map(FamilleProduitDTO::new);
+        return familleProduitRepository.findById(id).map(FamilleProduitDTO::new);
     }
 
     /**
@@ -98,35 +92,29 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
         familleProduitRepository.deleteById(id);
     }
 
-	@Override
-	public ResponseDTO importation(InputStream inputStream) {
+    @Override
+    public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger(0);
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
-			records.forEach(record -> {
-				FamilleProduit familleProduit = new FamilleProduit();
-				familleProduit.setCode(record.get(1));
-				familleProduit.setLibelle(record.get(0));
-				if (!StringUtils.isEmpty(record.get(2))) {
-					Optional<Categorie> op = categorieRepository.findOneByLibelle(record.get(2));
-					if (op.isPresent()) {
-						familleProduit.setCategorie(op.get());
-
-                    }
-
-				}
-
-				familleProduitRepository.save(familleProduit);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').setSkipHeaderRecord(true).build().parse(br);
+            records.forEach(record -> {
+                FamilleProduit familleProduit = new FamilleProduit();
+                familleProduit.setCode(record.get(1));
+                familleProduit.setLibelle(record.get(0));
+                if (!StringUtils.isEmpty(record.get(2))) {
+                    Optional<Categorie> op = categorieRepository.findOneByLibelle(record.get(2));
+                    op.ifPresent(familleProduit::setCategorie);
+                }
+                familleProduitRepository.save(familleProduit);
                 count.incrementAndGet();
-			});
-		} catch (IOException e) {
-			log.debug("importation : {}", e);
-		}
+            });
+        } catch (IOException e) {
+            log.debug("importation : {}", e);
+        }
         return new ResponseDTO().size(count.get());
+    }
 
-	}
-
-	private  Categorie fromId(Long categorieId){
-        return  new Categorie().id(categorieId);
+    private Categorie fromId(Long categorieId) {
+        return new Categorie().id(categorieId);
     }
 }

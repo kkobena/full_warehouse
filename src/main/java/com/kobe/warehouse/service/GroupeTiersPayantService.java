@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
@@ -51,7 +52,7 @@ public class GroupeTiersPayantService {
     public GroupeTiersPayant update(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
-        if (groupeTiersPayantOptional.isPresent() && groupeTiersPayantOptional.get().getId() != tiersPayant.getId()) {
+        if (groupeTiersPayantOptional.isPresent() && !Objects.equals(groupeTiersPayantOptional.get().getId(), tiersPayant.getId())) {
             throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
         }
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
@@ -83,8 +84,13 @@ public class GroupeTiersPayantService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
             records.forEach(record -> {
+                var index = count.get();
+                if (index == 0) {
+                    count.incrementAndGet();
+                    return;
+                }
                 GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
                 tiersPayant.setName(record.get(0));
                 tiersPayant.setAdresse(record.get(1));
@@ -93,7 +99,7 @@ public class GroupeTiersPayantService {
                 count.incrementAndGet();
             });
         } catch (IOException e) {
-            log.debug("importation : {}", e);
+            log.debug("importation : {0}", e);
         }
 
         return new ResponseDTO().size(count.get());

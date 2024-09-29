@@ -214,7 +214,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: {
         entity: this.selectedCustomerService.selectedCustomerSignal(),
-        typeVente: this.currentSaleService.typeVo(),
+        typeAssure: this.currentSaleService.typeVo(),
       },
       header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
       width: '80%',
@@ -228,7 +228,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   addAssuredCustomer(): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: null, typeVente: this.currentSaleService.typeVo() },
+      data: { entity: null, typeAssure: this.currentSaleService.typeVo() },
       header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
       width: '80%',
     });

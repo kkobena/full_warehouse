@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonDirective } from 'primeng/button';
@@ -16,6 +16,9 @@ import { CardModule } from 'primeng/card';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ICustomer } from '../../../shared/model/customer.model';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'jhi-complementaire-step',
@@ -35,7 +38,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   templateUrl: './complementaire-step.component.html',
   styles: ``,
 })
-export class ComplementaireStepComponent implements OnInit {
+export class ComplementaireStepComponent {
   catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
@@ -54,6 +57,8 @@ export class ComplementaireStepComponent implements OnInit {
   messageService = inject(MessageService);
   errorService = inject(ErrorService);
   confirmationService = inject(ConfirmationService);
+  dialogService = inject(DialogService);
+  ref!: DynamicDialogRef;
 
   constructor(private fb: UntypedFormBuilder) {}
 
@@ -61,12 +66,9 @@ export class ComplementaireStepComponent implements OnInit {
     return this.editForm.get('tiersPayants') as FormArray;
   }
 
-  ngOnInit(): void {
-    const currentAssure = this.assureFormStepService.assure();
-    if (currentAssure?.tiersPayants?.length > 0) {
-      this.buildTiersPayant(currentAssure.tiersPayants);
-    } else {
-      this.addTiersPayant();
+  initForm(current: ICustomer): void {
+    if (current?.tiersPayants?.length > 0) {
+      this.buildTiersPayant(current.tiersPayants);
     }
   }
 
@@ -96,8 +98,26 @@ export class ComplementaireStepComponent implements OnInit {
     return this.editForm.get('tiersPayants') as FormArray;
   }
 
-  onSelectTiersPayant(event: any): void {
-    this.tiersPayant = event;
+  onSelectTiersPayant(event: any, index: number): void {
+    if (event.value?.id === null) {
+      this.addTiersPayantAssurance(index);
+    } else {
+      this.tiersPayant = event.value;
+    }
+  }
+
+  addTiersPayantAssurance(index: number): void {
+    this.ref = this.dialogService.open(FormTiersPayantComponent, {
+      data: { entity: null, type: this.assureFormStepService.typeAssure() },
+      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+      width: '80%',
+    });
+    this.ref.onClose.subscribe((tiersPayant: ITiersPayant) => {
+      if (tiersPayant) {
+        this.tiersPayants.push(tiersPayant);
+        this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: tiersPayant });
+      }
+    });
   }
 
   searchTiersPayant(event: any): void {
@@ -113,7 +133,12 @@ export class ComplementaireStepComponent implements OnInit {
         type: 'ASSURANCE',
         search: query,
       })
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body!));
+      .subscribe((res: HttpResponse<ITiersPayant[]>) => {
+        this.tiersPayants = res.body!;
+        if (this.tiersPayants.length === 0) {
+          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+        }
+      });
   }
 
   createFromForm(): IClientTiersPayant[] {
@@ -142,7 +167,6 @@ export class ComplementaireStepComponent implements OnInit {
           this.fb.group({
             id: tp.id,
             num: tp.num,
-            //  tiersPayantId: complementiare,
             tiersPayant: complementiare,
             plafondConso: tp.plafondConso,
             plafondJournalier: tp.plafondJournalier,
@@ -152,23 +176,6 @@ export class ComplementaireStepComponent implements OnInit {
           }),
         );
       });
-  }
-
-  goBack(): void {
-    const customer = this.assureFormStepService.assure();
-    if (this.editForm.get(['tiersPayants']).valid) {
-      customer.tiersPayants = this.createFromForm();
-
-      this.assureFormStepService.setAssure(customer);
-    }
-  }
-
-  saveFormState(): void {
-    const customer = this.assureFormStepService.assure();
-    if (this.editForm.get(['tiersPayants']).valid) {
-      customer.tiersPayants = this.createFromForm();
-      this.assureFormStepService.setAssure(customer);
-    }
   }
 
   removeTiersPayant(index: number): void {

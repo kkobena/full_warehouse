@@ -36,6 +36,7 @@ export interface ICustomer {
   tiersPayants?: IClientTiersPayant[];
   tiersPayantId?: number;
   tiersPayant?: ITiersPayant;
+  typeTiersPayant?: string;
 }
 
 export class Customer implements ICustomer {

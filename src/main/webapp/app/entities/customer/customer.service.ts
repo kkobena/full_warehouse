@@ -118,11 +118,11 @@ export class CustomerService {
   }
 
   addTiersPayant(clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<ICustomer>> {
-    return this.http.post<ICustomer>(`${this.resourceUrl}/uninsured/tiers-payants`, clientTiersPayant, { observe: 'response' });
+    return this.http.post<ICustomer>(`${this.resourceUrl}/assured/tiers-payants`, clientTiersPayant, { observe: 'response' });
   }
 
   updateTiersPayant(clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<ICustomer>> {
-    return this.http.put<ICustomer>(`${this.resourceUrl}/uninsured/tiers-payants`, clientTiersPayant, { observe: 'response' });
+    return this.http.put<ICustomer>(`${this.resourceUrl}/assured/tiers-payants`, clientTiersPayant, { observe: 'response' });
   }
 
   queryVente(req?: any): Observable<EntityArrayResponseType> {

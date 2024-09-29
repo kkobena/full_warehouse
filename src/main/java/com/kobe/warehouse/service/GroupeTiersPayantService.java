@@ -1,11 +1,13 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.repository.GroupeTiersPayantRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.service.dto.ResponseDTO;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +39,8 @@ public class GroupeTiersPayantService {
     }
 
     public GroupeTiersPayant create(GroupeTiersPayant groupeTiersPayant) throws GenericError {
+        validatePhoneNumber(groupeTiersPayant.getTelephone());
+        validatePhoneNumber(groupeTiersPayant.getTelephoneFixe());
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent()) {
             throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
@@ -46,10 +50,19 @@ public class GroupeTiersPayantService {
         tiersPayant.setName(groupeTiersPayant.getName());
         tiersPayant.setTelephone(groupeTiersPayant.getTelephone());
         tiersPayant.setTelephoneFixe(groupeTiersPayant.getTelephoneFixe());
+        tiersPayant.setOrdreTrisFacture(groupeTiersPayant.getOrdreTrisFacture());
         return groupeTiersPayantRepository.save(tiersPayant);
     }
 
+    private void validatePhoneNumber(String phoneNumber) {
+        if (StringUtils.hasText(phoneNumber) && !Util.isValidPhoneNumber(phoneNumber)) {
+            throw new InvalidPhoneNumberException();
+        }
+    }
+
     public GroupeTiersPayant update(GroupeTiersPayant groupeTiersPayant) throws GenericError {
+        validatePhoneNumber(groupeTiersPayant.getTelephone());
+        validatePhoneNumber(groupeTiersPayant.getTelephoneFixe());
         GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
         Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent() && !Objects.equals(groupeTiersPayantOptional.get().getId(), tiersPayant.getId())) {
@@ -59,6 +72,7 @@ public class GroupeTiersPayantService {
         tiersPayant.setName(groupeTiersPayant.getName());
         tiersPayant.setTelephone(groupeTiersPayant.getTelephone());
         tiersPayant.setTelephoneFixe(groupeTiersPayant.getTelephoneFixe());
+        tiersPayant.setOrdreTrisFacture(groupeTiersPayant.getOrdreTrisFacture());
         return groupeTiersPayantRepository.save(tiersPayant);
     }
 

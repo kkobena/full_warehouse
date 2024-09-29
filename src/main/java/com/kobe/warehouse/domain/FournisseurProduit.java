@@ -11,11 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.annotations.Cache;
@@ -48,22 +46,12 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     private String codeCip;
 
     @NotNull
-    @Min(value = 1)
     @Column(name = "prix_achat", nullable = false)
     private Integer prixAchat;
 
     @NotNull
-    @Min(value = 1)
     @Column(name = "prix_uni", nullable = false)
     private Integer prixUni;
-
-    @NotNull
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @NotNull
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 
     @NotNull
     @Column(name = "principal", nullable = false, columnDefinition = "boolean default false")
@@ -99,7 +87,7 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
         this.codeCip = codeCip;
     }
 
-    public @NotNull @Min(value = 1) Integer getPrixAchat() {
+    public @NotNull Integer getPrixAchat() {
         return prixAchat;
     }
 
@@ -107,28 +95,12 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
         this.prixAchat = prixAchat;
     }
 
-    public @NotNull @Min(value = 1) Integer getPrixUni() {
+    public @NotNull Integer getPrixUni() {
         return prixUni;
     }
 
     public void setPrixUni(Integer prixUni) {
         this.prixUni = prixUni;
-    }
-
-    public @NotNull LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public @NotNull LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public @NotNull Boolean getPrincipal() {
@@ -179,16 +151,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
         return this;
     }
 
-    public FournisseurProduit createdAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
-    }
-
-    public FournisseurProduit updatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
-
     public Boolean isPrincipal() {
         return principal;
     }
@@ -233,10 +195,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
             ", prixUni=" +
             getPrixUni() +
             ", createdAt='" +
-            getCreatedAt() +
-            "'" +
-            ", updatedAt='" +
-            getUpdatedAt() +
             "'" +
             ", principal='" +
             isPrincipal() +

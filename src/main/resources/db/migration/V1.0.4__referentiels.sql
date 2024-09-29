@@ -32,3 +32,7 @@ VALUES ('PR_VOIR_STOCK_INVENTAIRE', 'Privège affichage du stock des produits in
 
 INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
 VALUES ('ROLE_ADMIN', 'PR_VOIR_STOCK_INVENTAIRE');
+INSERT INTO tableau(code, valeur)
+VALUES ('A', 0);
+INSERT INTO tableau(code, valeur)
+VALUES ('C', 0);

@@ -1,89 +1,122 @@
 package com.kobe.warehouse.service.dto;
 
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.List;
 
 public class DeliveryReceiptItemLiteDTO {
 
-  @NotNull private Long id;
-  private Integer quantityUG;
-  private Integer quantityReceived;
+    @NotNull
+    private Long id;
 
-  private Integer quantityRequested;
-  private Integer quantityReturned;
-  private List<LotDTO> lots;
-  private Integer quantityReceivedTmp;
-  private Integer orderUnitPrice;
+    private Integer quantityUG;
+    private Integer quantityReceived;
 
-  public @NotNull Long getId() {
-    return id;
-  }
+    private Integer quantityRequested;
+    private Integer quantityReturned;
+    private List<LotDTO> lots;
+    private Integer quantityReceivedTmp;
+    private Integer orderUnitPrice;
+    private Integer tva;
+    private LocalDate datePeremption;
+    private LocalDate datePeremptionTmp;
 
-  public DeliveryReceiptItemLiteDTO setId(@NotNull Long id) {
-    this.id = id;
-    return this;
-  }
+    public LocalDate getDatePeremptionTmp() {
+        return datePeremptionTmp;
+    }
 
-  public Integer getQuantityUG() {
-    return quantityUG;
-  }
+    public DeliveryReceiptItemLiteDTO setDatePeremptionTmp(LocalDate datePeremptionTmp) {
+        this.datePeremptionTmp = datePeremptionTmp;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setQuantityUG(Integer quantityUG) {
-    this.quantityUG = quantityUG;
-    return this;
-  }
+    public @NotNull Long getId() {
+        return id;
+    }
 
-  public Integer getQuantityReceived() {
-    return quantityReceived;
-  }
+    public DeliveryReceiptItemLiteDTO setId(@NotNull Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setQuantityReceived(Integer quantityReceived) {
-    this.quantityReceived = quantityReceived;
-    return this;
-  }
+    public Integer getQuantityUG() {
+        return quantityUG;
+    }
 
-  public Integer getQuantityRequested() {
-    return quantityRequested;
-  }
+    public DeliveryReceiptItemLiteDTO setQuantityUG(Integer quantityUG) {
+        this.quantityUG = quantityUG;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setQuantityRequested(Integer quantityRequested) {
-    this.quantityRequested = quantityRequested;
-    return this;
-  }
+    public Integer getQuantityReceived() {
+        return quantityReceived;
+    }
 
-  public Integer getQuantityReturned() {
-    return quantityReturned;
-  }
+    public DeliveryReceiptItemLiteDTO setQuantityReceived(Integer quantityReceived) {
+        this.quantityReceived = quantityReceived;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setQuantityReturned(Integer quantityReturned) {
-    this.quantityReturned = quantityReturned;
-    return this;
-  }
+    public Integer getQuantityRequested() {
+        return quantityRequested;
+    }
 
-  public List<LotDTO> getLots() {
-    return lots;
-  }
+    public DeliveryReceiptItemLiteDTO setQuantityRequested(Integer quantityRequested) {
+        this.quantityRequested = quantityRequested;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setLots(List<LotDTO> lots) {
-    this.lots = lots;
-    return this;
-  }
+    public Integer getQuantityReturned() {
+        return quantityReturned;
+    }
 
-  public Integer getQuantityReceivedTmp() {
-    return quantityReceivedTmp;
-  }
+    public DeliveryReceiptItemLiteDTO setQuantityReturned(Integer quantityReturned) {
+        this.quantityReturned = quantityReturned;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setQuantityReceivedTmp(Integer quantityReceivedTmp) {
-    this.quantityReceivedTmp = quantityReceivedTmp;
-    return this;
-  }
+    public List<LotDTO> getLots() {
+        return lots;
+    }
 
-  public Integer getOrderUnitPrice() {
-    return orderUnitPrice;
-  }
+    public DeliveryReceiptItemLiteDTO setLots(List<LotDTO> lots) {
+        this.lots = lots;
+        return this;
+    }
 
-  public DeliveryReceiptItemLiteDTO setOrderUnitPrice(Integer orderUnitPrice) {
-    this.orderUnitPrice = orderUnitPrice;
-    return this;
-  }
+    public Integer getQuantityReceivedTmp() {
+        return quantityReceivedTmp;
+    }
+
+    public DeliveryReceiptItemLiteDTO setQuantityReceivedTmp(Integer quantityReceivedTmp) {
+        this.quantityReceivedTmp = quantityReceivedTmp;
+        return this;
+    }
+
+    public LocalDate getDatePeremption() {
+        return datePeremption;
+    }
+
+    public DeliveryReceiptItemLiteDTO setDatePeremption(LocalDate datePeremption) {
+        this.datePeremption = datePeremption;
+        return this;
+    }
+
+    public Integer getTva() {
+        return tva;
+    }
+
+    public DeliveryReceiptItemLiteDTO setTva(Integer tva) {
+        this.tva = tva;
+        return this;
+    }
+
+    public Integer getOrderUnitPrice() {
+        return orderUnitPrice;
+    }
+
+    public DeliveryReceiptItemLiteDTO setOrderUnitPrice(Integer orderUnitPrice) {
+        this.orderUnitPrice = orderUnitPrice;
+        return this;
+    }
 }

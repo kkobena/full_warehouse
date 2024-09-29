@@ -9,10 +9,10 @@ public enum PaymentGroup {
     MOBILE("Mobile"),
     CB("Carte bancaire"),
     CHEQUE("Chèque"),
-    VIREMENT("Virement");
+    VIREMENT("Virement"),
+    CAUTION("Caution");
 
     private final String value;
-
 
     PaymentGroup(String value) {
         this.value = value;

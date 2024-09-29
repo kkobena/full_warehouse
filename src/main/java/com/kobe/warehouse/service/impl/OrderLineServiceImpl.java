@@ -14,7 +14,7 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ProductStateService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -242,8 +242,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         if (fournisseurProduitOptional.isEmpty()) {
             return Optional.empty();
         }
-        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeId(fournisseurProduitOptional.get()
-            .getId(), commandeId);
+        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeId(fournisseurProduitOptional.get().getId(), commandeId);
     }
 
     @Override

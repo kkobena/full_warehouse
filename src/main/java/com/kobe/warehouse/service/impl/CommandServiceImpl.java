@@ -19,9 +19,10 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.CommandService;
+import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.utils.FileUtil;
-import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
@@ -64,6 +66,7 @@ public class CommandServiceImpl implements CommandService {
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
     private final WarehouseCalendarService warehouseCalendarService;
+    private final ImportationEchoueService importationEchoueService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -71,7 +74,8 @@ public class CommandServiceImpl implements CommandService {
         OrderLineService orderLineService,
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
-        WarehouseCalendarService warehouseCalendarService
+        WarehouseCalendarService warehouseCalendarService,
+        ImportationEchoueService importationEchoueService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -79,6 +83,7 @@ public class CommandServiceImpl implements CommandService {
         this.referenceService = referenceService;
         this.exportationCsvService = exportationCsvService;
         this.warehouseCalendarService = warehouseCalendarService;
+        this.importationEchoueService = importationEchoueService;
     }
 
     static void addModelLaborexLigneExistant(
@@ -318,14 +323,24 @@ public class CommandServiceImpl implements CommandService {
     public CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile) {
         String extension = FileUtil.getFileExtension(multipartFile.getOriginalFilename());
         Commande commande = buildCommande(fournisseurId);
-        return switch (extension) {
-            case CSV -> uploadCSVFormat(commande, commandeModel, multipartFile);
-            case TXT -> uploadTXTFormat(commande, multipartFile);
-            default -> throw new GenericError(
-                String.format("Le modèle ===> %s d'importation de commande n'est pas pris en charche", commandeModel.name()),
-                "modelimportation"
-            );
-        };
+        CommandeResponseDTO commandeResponse =
+            switch (extension) {
+                case CSV -> uploadCSVFormat(commande, commandeModel, multipartFile);
+                case TXT -> uploadTXTFormat(commande, multipartFile);
+                default -> throw new GenericError(
+                    String.format("Le modèle ===> %s d'importation de commande n'est pas pris en charche", commandeModel.name()),
+                    "modelimportation"
+                );
+            };
+        saveLignesBonEchouees(commandeResponse, commande.getId());
+        return commandeResponse;
+    }
+
+    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long commandeId) {
+        if (Objects.isNull(commandeResponse) || commandeResponse.getItems().isEmpty()) {
+            return;
+        }
+        this.importationEchoueService.save(commandeId, true, commandeResponse.getItems());
     }
 
     public void createRuptureFile(String commandeReference, CommandeModel commandeModel, List<OrderItem> items) {
@@ -336,6 +351,7 @@ public class CommandServiceImpl implements CommandService {
 
     private Commande buildCommande(Long fournisseurId) {
         Commande commande = new Commande();
+        commande.setCalendar(warehouseCalendarService.initCalendar());
         commande.setTaxAmount(0);
         commande.setNetAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -390,7 +406,6 @@ public class CommandServiceImpl implements CommandService {
                 );
                 if (fournisseurProduitOptional.isPresent()) {
                     FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
-
                     int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                     succesCount = getSuccesCount(
                         commande,

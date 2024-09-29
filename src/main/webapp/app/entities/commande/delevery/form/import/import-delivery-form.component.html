@@ -11,14 +11,20 @@
                     [style]="{width: '100%'}" formControlName="fournisseur"
                     optionLabel="libelle" placeholder="Séléctionner un fournisseur ">
         </p-dropdown>
-        <div
-          *ngIf="editForm.get('fournisseur')!.invalid && (editForm.get('fournisseur')!.dirty || editForm.get('fournisseur')!.touched)">
-          <small *ngIf="editForm.get('fournisseur')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
+        @if (editForm.get('fournisseur')!.invalid && (editForm.get('fournisseur')!.dirty
+          || editForm.get('fournisseur')!.touched)) {
+          <div>
+            @if (editForm.get('fournisseur')?.errors?.required) {
+              <small
+                class="form-text text-danger"
+                style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
+
       </div>
     </div>
     <div class="form-row">
@@ -30,14 +36,19 @@
                     formControlName="model" optionLabel="label"
                     placeholder="Séléctionner un model de fichier">
         </p-dropdown>
-        <div
-          *ngIf="editForm.get('model')!.invalid && (editForm.get('model')!.dirty || editForm.get('model')!.touched)">
-          <small *ngIf="editForm.get('model')?.errors?.required"
-                 class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
+        @if (editForm.get('model')!.invalid && (editForm.get('model')!.dirty || editForm.get(
+          'model')!.touched)) {
+          <div>
+            @if (editForm.get('model')?.errors?.required) {
+              <small
+                class="form-text text-danger"
+                style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
       </div>
     </div>
     <div class="form-row">
@@ -47,9 +58,12 @@
                       [showCancelButton]="true" accept=".csv,.txt"
                       chooseLabel="Importer un fichier">
           <ng-template pTemplate="content">
-            <span *ngIf="file">
+            @if (file) {
+              <span>
               {{ file.name }} - {{ file.size }} bytes
             </span>
+            }
+
           </ng-template>
         </p-fileUpload>
       </div>
@@ -66,15 +80,20 @@
                 [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
                 dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
               ></p-calendar>
-              <div
-                *ngIf="editForm.get('deliveryReceipt').get('receiptDate')!.invalid && (editForm.get('deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get('receiptDate')!.touched)">
-                <small *ngIf="editForm.get('deliveryReceipt').get('receiptDate')?.errors?.required"
-                       class="form-text text-danger"
-                       style="color: red;">
-                  Ce champ est obligatoire.
-                </small>
+              @if (editForm.get('deliveryReceipt').get('receiptDate')!.invalid && (editForm.get(
+                'deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get(
+                'receiptDate')!.touched)) {
+                <div>
+                  @if (editForm.get('deliveryReceipt').get('receiptDate')?.errors?.required) {
+                    <small
+                      class="form-text text-danger"
+                      style="color: red;">
+                      Ce champ est obligatoire.
+                    </small>
+                  }
+                </div>
+              }
 
-              </div>
             </div>
             <div class="p-field col-md-6">
               <label class="col-auto col-form-label">Référence Bon<span
@@ -82,16 +101,21 @@
               <input autocomplete="off" class="form-control"
                      formControlName="receiptRefernce" name="receiptRefernce" pInputText
                      type="text" />
-              <div
-                *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')!.invalid && (editForm.get('deliveryReceipt').get('receiptRefernce')!.dirty || editForm.get('deliveryReceipt').get('receiptRefernce')!.touched)">
-                <small
-                  *ngIf="editForm.get('deliveryReceipt').get('receiptRefernce')?.errors?.required"
-                  class="form-text text-danger"
-                  style="color: red;">
-                  Ce champ est obligatoire.
-                </small>
+              @if (editForm.get('deliveryReceipt').get('receiptRefernce')!.invalid && (editForm.get(
+                'deliveryReceipt').get('receiptRefernce')!.dirty || editForm.get(
+                'deliveryReceipt').get('receiptRefernce')!.touched)) {
+                <div>
+                  @if (editForm.get('deliveryReceipt').get('receiptRefernce')?.errors?.required) {
+                    <small
+                      class="form-text text-danger"
+                      style="color: red;">
+                      Ce champ est obligatoire.
+                    </small>
+                  }
 
-              </div>
+                </div>
+              }
+
             </div>
           </div>
         </div>
@@ -104,15 +128,21 @@
                    class="form-control" formControlName="receiptAmount" name="receiptAmount"
                    pInputText
                    type="text" />
-            <div
-              *ngIf="editForm.get('deliveryReceipt').get('receiptAmount')!.invalid && (editForm.get('deliveryReceipt').get('receiptAmount')!.dirty || editForm.get('deliveryReceipt').get('receiptAmount')!.touched)">
-              <small *ngIf="editForm.get('deliveryReceipt').get('receiptAmount')?.errors?.required"
-                     class="form-text text-danger"
-                     style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+            @if (editForm.get('deliveryReceipt').get('receiptAmount')!.invalid && (editForm.get(
+              'deliveryReceipt').get('receiptAmount')!.dirty || editForm.get('deliveryReceipt').get(
+              'receiptAmount')!.touched)) {
+              <div>
+                @if (editForm.get('deliveryReceipt').get('receiptAmount')?.errors?.required) {
+                  <small
+                    class="form-text text-danger"
+                    style="color: red;">
+                    Ce champ est obligatoire.
+                  </small>
+                }
 
-            </div>
+              </div>
+            }
+
           </div>
           <div class="p-field col-md-6">
             <label class="col-auto col-form-label">Montant Taxe<span
@@ -120,24 +150,25 @@
             <input [pKeyFilter]="'int'" autocomplete="off"
                    class="form-control" formControlName="taxAmount" name="taxAmount" pInputText
                    type="text" />
-            <div
-              *ngIf="editForm.get('deliveryReceipt').get('taxAmount')!.invalid && (editForm.get('deliveryReceipt').get('taxAmount')!.dirty || editForm.get('deliveryReceipt').get('taxAmount')!.touched)">
-              <small *ngIf="editForm.get('deliveryReceipt').get('taxAmount')?.errors?.required"
-                     class="form-text text-danger"
-                     style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+            @if (editForm.get('deliveryReceipt').get('taxAmount')!.invalid && (editForm.get(
+              'deliveryReceipt').get('taxAmount')!.dirty || editForm.get('deliveryReceipt').get(
+              'taxAmount')!.touched)) {
+              <div>
+                @if (editForm.get('deliveryReceipt').get('taxAmount')?.errors?.required) {
+                  <small
+                    class="form-text text-danger"
+                    style="color: red;">
+                    Ce champ est obligatoire.
+                  </small>
+                }
 
-            </div>
+              </div>
+            }
+
           </div>
 
         </div>
 
-        <div class="p-field p-col" hidden="true">
-          <label class="col-auto col-form-label">Séquence Bon</label>
-          <input autocomplete="off" class="form-control"
-                 formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
-        </div>
       </div>
     </div>
   </form>

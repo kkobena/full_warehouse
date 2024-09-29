@@ -144,13 +144,13 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   orderLineTableColor(orderLine: IOrderLine): string {
-    if (orderLine) {
-      if (orderLine.costAmount !== orderLine.orderCostAmount) {
-        return 'table-danger';
-      } else if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
-        return 'table-warning';
-      }
-    }
+    /* if (orderLine) {
+       if (orderLine.costAmount !== orderLine.orderCostAmount) {
+         return 'table-danger';
+       } else if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
+         return 'table-danger';
+       }
+     }*/
     return '';
   }
 

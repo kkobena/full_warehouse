@@ -77,17 +77,6 @@ public class Customer implements Serializable {
     @Column(name = "type_assure", nullable = false, length = 15)
     private TypeAssure typeAssure;
 
-    @Column(name = "unique_id", length = 70)
-    private String uniqueId;
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
     public Long getId() {
         return id;
     }

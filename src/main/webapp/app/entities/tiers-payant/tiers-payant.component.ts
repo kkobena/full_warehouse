@@ -86,19 +86,6 @@ export class TiersPayantComponent implements OnInit {
     protected router: Router,
     private spinner: NgxSpinnerService,
   ) {
-    this.splitbuttons = [
-      {
-        label: 'Fiche à partir csv',
-        icon: 'pi pi-file-excel',
-      },
-      {
-        label: 'Fiche à partir json',
-        icon: 'pi pi-file-o',
-        command: () => {
-          this.jsonDialog = true;
-        },
-      },
-    ];
     this.tiersPayantSplitbuttons = [
       {
         label: 'ASSURANCE',
@@ -107,6 +94,10 @@ export class TiersPayantComponent implements OnInit {
       {
         label: 'CARNET',
         command: () => this.addCarnet(),
+      },
+      {
+        label: 'DEPOT',
+        command: () => this.addDepot(),
       },
     ];
   }
@@ -160,10 +151,10 @@ export class TiersPayantComponent implements OnInit {
           type: this.typeSelected,
           search: this.search,
         })
-        .subscribe(
-          (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          () => this.onError(),
-        );
+        .subscribe({
+          next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page, false),
+          error: () => this.onError(),
+        });
     }
   }
 
@@ -182,6 +173,17 @@ export class TiersPayantComponent implements OnInit {
     this.ref = this.dialogService.open(FormTiersPayantComponent, {
       data: { entity: null, type: 'CARNET' },
       header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
+      width: '80%',
+    });
+    this.ref.onClose.subscribe(() => {
+      this.loadPage();
+    });
+  }
+
+  addDepot(): void {
+    this.ref = this.dialogService.open(FormTiersPayantComponent, {
+      data: { entity: null, type: 'DEPOT' },
+      header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
       width: '80%',
     });
     this.ref.onClose.subscribe(() => {
@@ -236,21 +238,11 @@ export class TiersPayantComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
-    }
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: this.errorService.getErrorMessage(error),
+    });
   }
 
   protected onImportError(): void {

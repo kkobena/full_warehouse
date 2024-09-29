@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -110,7 +109,6 @@ public class RayonServiceImpl implements RayonService {
             ? storageService.getDefaultConnectedUserMainStorage().getId()
             : storageId;
         AtomicInteger count = new AtomicInteger(0);
-        var now = LocalDateTime.now();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
             records.forEach(record -> {
@@ -128,8 +126,6 @@ public class RayonServiceImpl implements RayonService {
                 } catch (Exception e) {
                     log.error("importation", e);
                 }
-                rayon.setCreatedAt(now);
-                rayon.setUpdatedAt(now);
                 rayon.setStorage(customizedRayonService.fromId(storageId2));
                 rayonRepository.save(rayon);
                 count.incrementAndGet();

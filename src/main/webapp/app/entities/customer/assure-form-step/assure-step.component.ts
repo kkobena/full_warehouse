@@ -19,6 +19,10 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
 import { CommonService } from './common.service';
+import { ComplementaireStepComponent } from './complementaire-step.component';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -37,13 +41,14 @@ import { CommonService } from './common.service';
     SelectButtonModule,
     TranslateDirective,
     CardModule,
+    ComplementaireStepComponent,
   ],
   templateUrl: './assure-step.component.html',
   styles: ``,
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;
-
+  ref!: DynamicDialogRef;
   isSaving = false;
   isValid = true;
   minLength = 3;
@@ -55,9 +60,11 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   ];
   fb = inject(UntypedFormBuilder);
   commonService = inject(CommonService);
+  dialogService = inject(DialogService);
   tiersPayantService = inject(TiersPayantService);
   assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
+  complementaireStepComponent = viewChild(ComplementaireStepComponent);
   editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required]],
@@ -88,6 +95,10 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.firstName().nativeElement.focus();
+      const entity = this.assureFormStepService.assure();
+      if (this.complementaireStepComponent()) {
+        this.complementaireStepComponent().initForm(entity);
+      }
     }, 30);
   }
 
@@ -103,16 +114,23 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
         page: 0,
         size: 10,
         type: this.commonService.categorie(),
-        //  type: 'ASSURANCE',
         search: query,
       })
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body!));
+      .subscribe((res: HttpResponse<ITiersPayant[]>) => {
+        this.tiersPayants = res.body!;
+        if (this.tiersPayants.length === 0) {
+          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+        }
+      });
   }
 
   onSelectTiersPayant(event: any): void {
-    this.tiersPayant = event.value;
-    this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
-    console.log(this.commonService.categorieTiersPayant());
+    if (event.value?.id === null) {
+      this.addTiersPayantAssurance();
+    } else {
+      this.tiersPayant = event.value;
+      this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
+    }
   }
 
   createFromForm(): ICustomer {
@@ -133,7 +151,22 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       plafondAbsolu: this.editForm.get(['plafondAbsolu'])!.value,
       taux: this.editForm.get(['taux'])!.value,
       tiersPayant: this.editForm.get(['tiersPayantId'])!.value,
+      tiersPayants: this.buildComplementaires(),
     };
+  }
+
+  addTiersPayantAssurance(): void {
+    this.ref = this.dialogService.open(FormTiersPayantComponent, {
+      data: { entity: null, type: this.assureFormStepService.typeAssure() },
+      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+      width: '80%',
+    });
+    this.ref.onClose.subscribe((tiersPayant: ITiersPayant) => {
+      if (tiersPayant) {
+        this.tiersPayants.push(tiersPayant);
+        this.editForm.patchValue({ tiersPayantId: tiersPayant });
+      }
+    });
   }
 
   protected updateForm(customer: ICustomer): void {
@@ -152,5 +185,12 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       plafondAbsolu: customer.plafondAbsolu,
       taux: customer.taux,
     });
+  }
+
+  private buildComplementaires(): IClientTiersPayant[] {
+    if (this.complementaireStepComponent()) {
+      return this.complementaireStepComponent().createFromForm();
+    }
+    return [];
   }
 }

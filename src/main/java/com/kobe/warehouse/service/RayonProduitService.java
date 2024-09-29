@@ -8,7 +8,7 @@ import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -33,14 +33,12 @@ public class RayonProduitService {
         Rayon rayon = rayonRepository.getReferenceById(dto.getRayonId());
         long error = rayonProduitRepository.countRayonProduitByProduitIdAndRayonId(dto.getProduitId(), dto.getRayonId());
         if (error > 0) {
-            throw new GenericError("Le produit est déjà rattaché à ce rayon dans ce stockage",
-                "duplicateProduitRayon");
+            throw new GenericError("Le produit est déjà rattaché à ce rayon dans ce stockage", "duplicateProduitRayon");
         }
 
         error = rayonProduitRepository.countRayonProduitByProduitIdAndStockageId(dto.getProduitId(), rayon.getStorage().getId());
         if (error > 0) {
-            throw new GenericError("Le produit est déjà rattaché à un autre rayon dans ce stockage",
-                "duplicateProduitStockage");
+            throw new GenericError("Le produit est déjà rattaché à un autre rayon dans ce stockage", "duplicateProduitStockage");
         }
         RayonProduit rayonProduit = new RayonProduit();
         rayonProduit.setProduit(new Produit().id(dto.getProduitId()));

@@ -74,7 +74,7 @@ export class CustomerComponent implements OnInit {
   ascending!: boolean;
   loading!: boolean;
   ngbPaginationPage = 1;
-  splitbuttons: MenuItem[];
+  newCustomerbuttons: MenuItem[];
   ref!: DynamicDialogRef;
   primngtranslate: Subscription;
   displayTiersPayantAction = true;
@@ -97,11 +97,27 @@ export class CustomerComponent implements OnInit {
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
-    this.splitbuttons = [
+
+    this.newCustomerbuttons = [
       {
-        label: 'Importer à partir json',
-        icon: 'pi pi-file-pdf',
-        command: () => (this.jsonDialog = true),
+        label: 'Assuré',
+        icon: 'pi pi-user-plus',
+        command: () => this.addAssureCustomer('ASSURANCE'),
+      },
+      {
+        label: 'Carnet',
+        icon: 'pi pi-user-plus',
+        command: () => this.addAssureCustomer('CARNET'),
+      },
+      {
+        label: 'Dépôt',
+        icon: 'pi pi-user-plus',
+        command: () => this.addAssureCustomer('DEPOT'),
+      },
+      {
+        label: 'Standard',
+        icon: 'pi pi-user-plus',
+        command: () => this.addUninsuredCustomer(),
       },
     ];
   }
@@ -214,9 +230,9 @@ export class CustomerComponent implements OnInit {
     return result;
   }
 
-  addAssureCustomer(): void {
+  addAssureCustomer(typeAssure: string): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: null },
+      data: { entity: null, typeAssure },
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
@@ -414,6 +430,6 @@ export class CustomerComponent implements OnInit {
   }
 
   protected displayTiersPayantAddBtn(customer: ICustomer): boolean {
-    return customer.tiersPayants && customer.tiersPayants.length < 4;
+    return customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants && customer.tiersPayants.length < 4;
   }
 }

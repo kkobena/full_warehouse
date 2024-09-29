@@ -12,7 +12,7 @@ import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
-import com.kobe.warehouse.web.rest.errors.InventoryException;
+import com.kobe.warehouse.service.errors.InventoryException;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Objects;

@@ -1,6 +1,7 @@
 export interface IMagasin {
   id?: number;
   name?: string;
+  fullName?: string;
   phone?: string;
   address?: string;
   note?: string;
@@ -16,7 +17,7 @@ export class Magasin implements IMagasin {
     public address?: string,
     public note?: string,
     public registre?: string,
-    public welcomeMessage?: string
+    public welcomeMessage?: string,
   ) {}
 }
 

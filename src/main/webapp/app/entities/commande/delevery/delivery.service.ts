@@ -96,29 +96,59 @@ export class DeliveryService {
   }
 
   updateQuantityReceived(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-quantity-received', deliveryItem, {
-      observe: 'response',
-    });
+    return this.http.put<IDeliveryItem>(
+      this.resourceUrlTransac + '/update-order-line-quantity-received',
+      this.resetdatePeremption(deliveryItem),
+      {
+        observe: 'response',
+      },
+    );
   }
 
   updateQuantityUG(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-quantity-ug', deliveryItem, {
+    return this.http.put<IDeliveryItem>(
+      this.resourceUrlTransac + '/update-order-line-quantity-ug',
+      this.resetdatePeremption(deliveryItem),
+      {
+        observe: 'response',
+      },
+    );
+  }
+
+  updateCip(deliveryItem: IDeliveryItem): Observable<HttpResponse<{}>> {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '//update-provisional-cip', this.resetdatePeremption(deliveryItem), {
       observe: 'response',
     });
   }
 
-  updateCip(deliveryItem: IDeliveryItem): Observable<HttpResponse<{}>> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '//update-provisional-cip', deliveryItem, { observe: 'response' });
-  }
-
   updateOrderUnitPriceOnStockEntry(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-unit-price', deliveryItem, {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-unit-price', this.resetdatePeremption(deliveryItem), {
       observe: 'response',
     });
   }
 
   updateOrderCostAmount(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-cost-amount', deliveryItem, {
+    return this.http.put<IDeliveryItem>(
+      this.resourceUrlTransac + '/update-order-line-cost-amount',
+      this.resetdatePeremption(deliveryItem),
+      {
+        observe: 'response',
+      },
+    );
+  }
+
+  updateDatePeremption(deliveryItem: IDeliveryItem): Observable<{}> {
+    return this.http.put<IDeliveryItem>(
+      this.resourceUrlTransac + '/update-order-line-date-peremption',
+      this.resetdatePeremption(deliveryItem),
+      {
+        observe: 'response',
+      },
+    );
+  }
+
+  updateTva(deliveryItem: IDeliveryItem): Observable<{}> {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-tva', this.resetdatePeremption(deliveryItem), {
       observe: 'response',
     });
   }
@@ -150,5 +180,10 @@ export class DeliveryService {
       });
     }
     return res;
+  }
+
+  private resetdatePeremption(deliveryItem: IDeliveryItem): IDeliveryItem {
+    deliveryItem.datePeremption = null;
+    return deliveryItem;
   }
 }

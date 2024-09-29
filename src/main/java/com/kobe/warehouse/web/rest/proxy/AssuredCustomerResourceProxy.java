@@ -3,7 +3,7 @@ package com.kobe.warehouse.web.rest.proxy;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,141 +20,111 @@ import tech.jhipster.web.util.HeaderUtil;
 
 public class AssuredCustomerResourceProxy {
 
-  private static final String ENTITY_NAME = "customer";
-  private final Logger log = LoggerFactory.getLogger(AssuredCustomerResourceProxy.class);
-  private final AssuredCustomerService assuredCustomerService;
+    private static final String ENTITY_NAME = "customer";
+    private final Logger log = LoggerFactory.getLogger(AssuredCustomerResourceProxy.class);
+    private final AssuredCustomerService assuredCustomerService;
 
-  @Value("${jhipster.clientApp.name}")
-  private String applicationName;
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
-  public AssuredCustomerResourceProxy(AssuredCustomerService assuredCustomerService) {
-    this.assuredCustomerService = assuredCustomerService;
-  }
-
-  @PostMapping("/customers/assured")
-  public ResponseEntity<AssuredCustomerDTO> createCustomer(
-      @Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
-    log.debug("REST request to save Customer : {}", customer);
-    if (customer.getId() != null) {
-      throw new BadRequestAlertException(
-          "A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+    public AssuredCustomerResourceProxy(AssuredCustomerService assuredCustomerService) {
+        this.assuredCustomerService = assuredCustomerService;
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappEntityToDto(assuredCustomerService.createFromDto(customer));
-    return ResponseEntity.created(new URI("/api/customers/assured/" + result.getId()))
-        .headers(
-            HeaderUtil.createEntityCreationAlert(
-                applicationName, true, ENTITY_NAME, result.getId().toString()))
-        .body(result);
-  }
 
-  @PutMapping("/customers/assured")
-  public ResponseEntity<AssuredCustomerDTO> updateCustomer(
-      @Valid @RequestBody AssuredCustomerDTO customer) {
-    log.debug("REST request to update Customer : {}", customer);
-    if (customer.getId() == null) {
-      throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+    @PostMapping("/customers/assured")
+    public ResponseEntity<AssuredCustomerDTO> createCustomer(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
+        log.debug("REST request to save Customer : {}", customer);
+        if (customer.getId() != null) {
+            throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.createFromDto(customer));
+        return ResponseEntity.created(new URI("/api/customers/assured/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappEntityToDto(assuredCustomerService.updateFromDto(customer));
-    return ResponseEntity.ok()
-        .headers(
-            HeaderUtil.createEntityUpdateAlert(
-                applicationName, true, ENTITY_NAME, customer.getId().toString()))
-        .body(result);
-  }
 
-  @PostMapping("/customers/ayant-droit")
-  public ResponseEntity<AssuredCustomerDTO> createAyantDroit(
-      @Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
-    log.debug("REST request to save Customer : {}", customer);
-    if (customer.getId() != null) {
-      throw new BadRequestAlertException(
-          "A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+    @PutMapping("/customers/assured")
+    public ResponseEntity<AssuredCustomerDTO> updateCustomer(@Valid @RequestBody AssuredCustomerDTO customer) {
+        log.debug("REST request to update Customer : {}", customer);
+        if (customer.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.updateFromDto(customer));
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
+            .body(result);
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappAyantDroitEntityToDto(
-            assuredCustomerService.createAyantDroitFromDto(customer));
-    return ResponseEntity.created(new URI("/api/customers/ayant-droit/" + result.getId()))
-        .headers(
-            HeaderUtil.createEntityCreationAlert(
-                applicationName, true, ENTITY_NAME, result.getId().toString()))
-        .body(result);
-  }
 
-  @PutMapping("/customers/ayant-droit")
-  public ResponseEntity<AssuredCustomerDTO> updateAyantDroit(
-      @Valid @RequestBody AssuredCustomerDTO customer) {
-    log.debug("REST request to update Customer : {}", customer);
-    if (customer.getId() == null) {
-      throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+    @PostMapping("/customers/ayant-droit")
+    public ResponseEntity<AssuredCustomerDTO> createAyantDroit(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
+        log.debug("REST request to save Customer : {}", customer);
+        if (customer.getId() != null) {
+            throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
+            assuredCustomerService.createAyantDroitFromDto(customer)
+        );
+        return ResponseEntity.created(new URI("/api/customers/ayant-droit/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappAyantDroitEntityToDto(
-            assuredCustomerService.updateAyantDroitFromDto(customer));
-    return ResponseEntity.ok()
-        .headers(
-            HeaderUtil.createEntityUpdateAlert(
-                applicationName, true, ENTITY_NAME, customer.getId().toString()))
-        .body(result);
-  }
 
-  @DeleteMapping("/customers/assured/{id}")
-  public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-    log.debug("REST request to delete Customer : {}", id);
-    assuredCustomerService.deleteCustomerById(id);
-    return ResponseEntity.noContent()
-        .headers(
-            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-        .build();
-  }
-
-  @PostMapping("/customers/uninsured/tiers-payants")
-  public ResponseEntity<AssuredCustomerDTO> addTiersPayant(
-      @Valid @RequestBody ClientTiersPayantDTO clientTiersPayant) throws URISyntaxException {
-    log.info("REST request to save clientTiersPayant : {}", clientTiersPayant);
-    if (clientTiersPayant.getId() != null) {
-      throw new BadRequestAlertException(
-          "A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+    @PutMapping("/customers/ayant-droit")
+    public ResponseEntity<AssuredCustomerDTO> updateAyantDroit(@Valid @RequestBody AssuredCustomerDTO customer) {
+        log.debug("REST request to update Customer : {}", customer);
+        if (customer.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
+            assuredCustomerService.updateAyantDroitFromDto(customer)
+        );
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
+            .body(result);
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappEntityToDto(
-            assuredCustomerService.addTiersPayant(clientTiersPayant));
 
-    return ResponseEntity.created(
-            new URI("/api/customers/uninsured/tiers-payants/" + result.getId()))
-        .headers(
-            HeaderUtil.createEntityCreationAlert(
-                applicationName, true, ENTITY_NAME, result.getId().toString()))
-        .body(result);
-  }
-
-  @PutMapping("/customers/uninsured/tiers-payants")
-  public ResponseEntity<AssuredCustomerDTO> updateTiersPayant(
-      @Valid @RequestBody ClientTiersPayantDTO clientTiersPayant) {
-
-    log.info("REST request to update clientTiersPayant : {}", clientTiersPayant);
-    if (clientTiersPayant.getId() == null) {
-      throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+    @DeleteMapping("/customers/assured/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        log.debug("REST request to delete Customer : {}", id);
+        assuredCustomerService.deleteCustomerById(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
-    AssuredCustomerDTO result =
-        assuredCustomerService.mappEntityToDto(
-            assuredCustomerService.updateTiersPayant(clientTiersPayant));
 
-    return ResponseEntity.ok()
-        .headers(
-            HeaderUtil.createEntityUpdateAlert(
-                applicationName, true, ENTITY_NAME, clientTiersPayant.getId().toString()))
-        .body(result);
-  }
+    @PostMapping("/customers/assured/tiers-payants")
+    public ResponseEntity<AssuredCustomerDTO> addTiersPayant(@Valid @RequestBody ClientTiersPayantDTO clientTiersPayant)
+        throws URISyntaxException {
+        log.info("REST request to save clientTiersPayant : {}", clientTiersPayant);
+        if (clientTiersPayant.getId() != null) {
+            throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.addTiersPayant(clientTiersPayant));
 
-  @DeleteMapping("/customers/assured/tiers-payants/{id}")
-  public ResponseEntity<Void> deleteTiersPayant(@PathVariable Long id) {
-    log.debug("REST request to delete deleteTiersPayant : {}", id);
-    assuredCustomerService.deleteTiersPayant(id);
-    return ResponseEntity.noContent()
-        .headers(
-            HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-        .build();
-  }
+        return ResponseEntity.created(new URI("/api/customers/assured/tiers-payants/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @PutMapping("/customers/assured/tiers-payants")
+    public ResponseEntity<AssuredCustomerDTO> updateTiersPayant(@Valid @RequestBody ClientTiersPayantDTO clientTiersPayant) {
+        log.info("REST request to update clientTiersPayant : {}", clientTiersPayant);
+        if (clientTiersPayant.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.updateTiersPayant(clientTiersPayant));
+
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, clientTiersPayant.getId().toString()))
+            .body(result);
+    }
+
+    @DeleteMapping("/customers/assured/tiers-payants/{id}")
+    public ResponseEntity<Void> deleteTiersPayant(@PathVariable Long id) {
+        log.debug("REST request to delete deleteTiersPayant : {}", id);
+        assuredCustomerService.deleteTiersPayant(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
+    }
 }

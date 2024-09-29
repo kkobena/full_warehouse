@@ -68,7 +68,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
         List<ClientTiersPayantDTO> clientTiersPayantDTOS = new ArrayList<>();
         List<ThirdPartySaleLineDTO> thirdPartySaleLineDTOS = new ArrayList<>();
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
-            if (thirdPartySaleLine.getClientTiersPayant().getPriorite() == PrioriteTiersPayant.T0) {
+            if (thirdPartySaleLine.getClientTiersPayant().getPriorite() == PrioriteTiersPayant.R0) {
                 this.numBon = thirdPartySaleLine.getNumBon();
             }
 

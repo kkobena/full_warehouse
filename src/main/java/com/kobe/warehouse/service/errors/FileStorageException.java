@@ -1,6 +1,7 @@
-package com.kobe.warehouse.web.rest.errors;
+package com.kobe.warehouse.service.errors;
 
 public class FileStorageException extends RuntimeException {
+
     public FileStorageException(String message) {
         super(message);
     }

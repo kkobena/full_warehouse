@@ -1,10 +1,11 @@
 package com.kobe.warehouse.domain.enumeration;
 
 public enum PrioriteTiersPayant {
-    T0(0),
-    T1(1),
-    T2(2),
-    T3(3);
+    R0(0),
+    R1(1),
+    R2(2),
+    R3(3);
+
     private final int value;
 
     PrioriteTiersPayant(int value) {

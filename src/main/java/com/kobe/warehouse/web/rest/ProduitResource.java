@@ -7,7 +7,7 @@ import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
 import jakarta.validation.Valid;
 import java.net.URISyntaxException;

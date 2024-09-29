@@ -11,7 +11,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_name">Libellé</label>
-        <input autocomplete="off" class="form-control" formControlName="name" id="field_name" name="name"
+        <input autocomplete="off" class="form-control" formControlName="name" id="field_name"
+               name="name"
                pInputText type="text" />
         @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
           'name')!.touched)) {
@@ -28,12 +29,28 @@
 
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label" for="ordreTrisFacture">Ordre de tris des factures</label>
+        <p-dropdown [filter]="false" [options]="ordreTrisFacture"
+                    appendTo="body"
+                    formControlName="ordreTrisFacture"
+                    id="ordreTrisFacture"
+                    name="ordreTrisFacture" optionLabel="value"
+                    optionValue="key"
+                    placeholder="Sélectionner un ordre"
+        >
+        </p-dropdown>
+
+      </div>
+    </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label"
                for="field_adresse">Adresse</label>
-        <input autocomplete="off" class="form-control" formControlName="adresse" id="field_adresse" name="v"
+        <input autocomplete="off" class="form-control" formControlName="adresse" id="field_adresse"
+               name="v"
                pInputText type="text" />
       </div>
     </div>
@@ -41,7 +58,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_telephone">Téléphone</label>
-        <input autocomplete="off" class="form-control" formControlName="telephone" id="field_telephone" name="telephone"
+        <input autocomplete="off" class="form-control" formControlName="telephone"
+               id="field_telephone" name="telephone"
                pInputText
                pKeyFilter="int" type="text" />
       </div>
@@ -50,7 +68,8 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_telephoneFixe">Téléphone fixe</label>
-        <input autocomplete="off" class="form-control" formControlName="telephoneFixe" id="field_telephoneFixe" name="telephoneFixe"
+        <input autocomplete="off" class="form-control" formControlName="telephoneFixe"
+               id="field_telephoneFixe" name="telephoneFixe"
                pInputText
                pKeyFilter="int" type="text" />
       </div>
@@ -63,7 +82,8 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
             type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
     </button>

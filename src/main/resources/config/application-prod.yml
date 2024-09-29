@@ -24,12 +24,6 @@ management:
     metrics:
       export:
         enabled: false
-
-
-
-
-
-
 spring:
   devtools:
     restart:

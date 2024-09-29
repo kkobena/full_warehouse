@@ -10,9 +10,11 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -23,15 +25,15 @@ public interface AssuredCustomerService {
         AssuredCustomer assuredCustomer = new AssuredCustomer();
         assuredCustomer.setDatNaiss(dto.getDatNaiss());
         assuredCustomer.setSexe(dto.getSexe());
-        assuredCustomer.setFirstName(dto.getFirstName());
-        assuredCustomer.setLastName(dto.getLastName());
+        assuredCustomer.setFirstName(dto.getFirstName().trim());
+        assuredCustomer.setLastName(dto.getLastName().trim());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
         assuredCustomer.setCreatedAt(LocalDateTime.now());
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
-        assuredCustomer.setNumAyantDroit(dto.getNumAyantDroit());
+        assuredCustomer.setNumAyantDroit(Objects.nonNull(dto.getNumAyantDroit()) ? dto.getNumAyantDroit().trim() : null);
         assuredCustomer.setCode(RandomStringUtils.randomNumeric(6));
         ClientTiersPayant o = getClientTiersPayantFromDto(dto);
         o.setAssuredCustomer(assuredCustomer);
@@ -54,10 +56,10 @@ public interface AssuredCustomerService {
         o.setCreated(LocalDateTime.now());
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
-        o.setNum(dto.getNum());
+        o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setPlafondConso(dto.getPlafondConso());
         o.setPlafondJournalier(dto.getPlafondJournalier());
-        o.setPriorite(PrioriteTiersPayant.T0);
+        o.setPriorite(PrioriteTiersPayant.R0);
         o.setTaux(dto.getTaux());
         o.setPlafondAbsolu(dto.getPlafondAbsolu());
         o.setStatut(TiersPayantStatut.ACTIF);
@@ -67,7 +69,7 @@ public interface AssuredCustomerService {
     default ClientTiersPayant getClientTiersPayantFromDto(AssuredCustomerDTO dto, ClientTiersPayant o) {
         o.setUpdated(LocalDateTime.now());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
-        o.setNum(dto.getNum());
+        o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setPlafondConso(dto.getPlafondConso());
         o.setPlafondJournalier(dto.getPlafondJournalier());
         o.setTaux(dto.getTaux());
@@ -81,7 +83,7 @@ public interface AssuredCustomerService {
         o.setCreated(LocalDateTime.now());
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
-        o.setNum(dto.getNum());
+        o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setPlafondConso(dto.getPlafondConso());
         o.setPlafondJournalier(dto.getPlafondJournalier());
         o.setPriorite(dto.getPriorite());
@@ -103,8 +105,8 @@ public interface AssuredCustomerService {
     default AssuredCustomer fromDto(AssuredCustomerDTO dto, AssuredCustomer assuredCustomer) {
         assuredCustomer.setDatNaiss(dto.getDatNaiss());
         assuredCustomer.setSexe(dto.getSexe());
-        assuredCustomer.setFirstName(dto.getFirstName());
-        assuredCustomer.setLastName(dto.getLastName());
+        assuredCustomer.setFirstName(dto.getFirstName().trim());
+        assuredCustomer.setLastName(dto.getLastName().trim());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
         assuredCustomer.setUpdatedAt(LocalDateTime.now());
@@ -112,9 +114,9 @@ public interface AssuredCustomerService {
         return assuredCustomer;
     }
 
-    AssuredCustomer createFromDto(AssuredCustomerDTO dto);
+    AssuredCustomer createFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 
-    AssuredCustomer updateFromDto(AssuredCustomerDTO dto);
+    AssuredCustomer updateFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 
     void delete(Long id);
 
@@ -177,8 +179,8 @@ public interface AssuredCustomerService {
         AssuredCustomer assuredCustomer = new AssuredCustomer();
         assuredCustomer.setDatNaiss(dto.getDatNaiss());
         assuredCustomer.setSexe(dto.getSexe());
-        assuredCustomer.setFirstName(dto.getFirstName());
-        assuredCustomer.setLastName(dto.getLastName());
+        assuredCustomer.setFirstName(dto.getFirstName().trim());
+        assuredCustomer.setLastName(dto.getLastName().trim());
         assuredCustomer.setEmail(dto.getEmail());
         assuredCustomer.setPhone(dto.getPhone());
         assuredCustomer.setCreatedAt(LocalDateTime.now());

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from './commande.service';
@@ -33,6 +33,10 @@ import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ReceiptStatusComponent } from './status/receipt-status.component';
 import { GridApi, GridReadyEvent, RowModelType } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
+import dayjs from 'dayjs';
+import { TvaService } from '../tva/tva.service';
+import { HttpResponse } from '@angular/common/http';
+import { ITva } from '../../shared/model/tva.model';
 
 @Component({
   selector: 'jhi-commande-stock-entry',
@@ -64,8 +68,6 @@ export class CommandeStockEntryComponent implements OnInit {
   search?: string;
   isSaving = false;
   columnDefs: any[];
-  // @ViewChild('orderLineGrid') productGrid!: AgGridAngular;
-  // productGrid = viewChild('orderLineGrid');
   defaultColDef: any;
   frameworkComponents: any;
   context: any;
@@ -73,170 +75,29 @@ export class CommandeStockEntryComponent implements OnInit {
   disableActionBtn = false;
   showEditBtn = true;
   ref?: DynamicDialogRef;
+  tvaService = inject(TvaService);
+  commandeService = inject(CommandeService);
+  service = inject(DeliveryService);
+  produitService = inject(ProduitService);
+  activatedRoute = inject(ActivatedRoute);
+  modalService = inject(NgbModal);
+  confirmationService = inject(ConfirmationService);
+  configurationService = inject(ConfigurationService);
+  router = inject(Router);
+  dialogService = inject(DialogService);
+  spinner = inject(NgxSpinnerService);
   rowModelType: RowModelType = 'clientSide';
   protected themeClass: string = 'ag-theme-quartz';
   private gridApi!: GridApi<IDeliveryItem>;
+  private tvas: number[] = [];
 
-  constructor(
-    protected commandeService: CommandeService,
-    protected service: DeliveryService,
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected modalService: NgbModal,
-    private confirmationService: ConfirmationService,
-    protected configurationService: ConfigurationService,
-    private spinner: NgxSpinnerService,
-    protected router: Router,
-    private dialogService: DialogService,
-  ) {
+  constructor() {
     this.filtres = [
       { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
       { label: 'Prix de vente différent', value: 'PU_NOT_EQUAL' },
       { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
       { label: 'Tous', value: 'ALL' },
     ];
-    this.columnDefs = [
-      {
-        headerName: '#',
-        flex: 0.2,
-        //   cellStyle: this.cellStyle,
-        valueGetter: (params: any) => params.node.rowIndex + 1,
-      },
-
-      {
-        headerName: 'Code cip',
-        field: 'fournisseurProduitCip',
-        sortable: true,
-        // cellStyle: this.cellStyle,
-        // filter: 'agTextColumnFilter',
-        flex: 0.4,
-      },
-      {
-        headerName: 'Libellé',
-        field: 'fournisseurProduitLibelle',
-        sortable: true,
-        //  filter: 'agTextColumnFilter',
-        flex: 1,
-        //  cellStyle: this.cellStyle,
-        //  valueGetter: 'data.firstName',
-        // editable: (params) => params.data.year == 2012
-      },
-      {
-        headerName: 'Stock',
-        field: 'initStock',
-        type: ['rightAligned', 'numericColumn'],
-        valueFormatter: formatNumberToString,
-        //  cellStyle: this.cellStyle,
-        flex: 0.3,
-      },
-      {
-        headerName: 'PA.M',
-        field: 'costAmount',
-
-        type: ['rightAligned', 'numericColumn'],
-        editable: false,
-        sortable: true,
-        flex: 0.3,
-        valueFormatter: formatNumberToString,
-        //  cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'PA',
-        field: 'orderCostAmount',
-        type: ['rightAligned', 'numericColumn'],
-        editable: false,
-        sortable: true,
-        flex: 0.3,
-        valueFormatter: formatNumberToString,
-        // cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'PU.M',
-        field: 'regularUnitPrice',
-        type: ['rightAligned', 'numericColumn'],
-        editable: false,
-        sortable: false,
-        flex: 0.3,
-        valueFormatter: formatNumberToString,
-        // cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'PU',
-        field: 'orderUnitPrice',
-        type: ['rightAligned', 'numericColumn'],
-        editable: true,
-        sortable: true,
-        flex: 0.4,
-        valueFormatter: formatNumberToString,
-        // cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'Qté cmd',
-        field: 'quantityRequested',
-        type: ['rightAligned', 'numericColumn'],
-        editable: false,
-        sortable: true,
-        flex: 0.3,
-        valueFormatter: formatNumberToString,
-        //  cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'Qté livrée',
-        flex: 0.4,
-        field: 'quantityReceivedTmp',
-        editable: true,
-        sortable: true,
-        type: ['rightAligned', 'numericColumn'],
-        //  cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'Qté Ug',
-        flex: 0.4,
-        field: 'ugQuantity',
-        editable: true,
-        sortable: true,
-        type: ['rightAligned', 'numericColumn'],
-        //   cellStyle: this.cellStyle,
-      },
-      {
-        headerName: 'Ecart',
-        sortable: true,
-        flex: 0.3,
-        type: ['rightAligned', 'numericColumn'],
-        valueGetter: this.setGap,
-        cellStyle: this.cellClass,
-      },
-      {
-        field: 'Status',
-        cellRenderer: 'statusCellRenderer',
-        flex: 0.2,
-        hide: false,
-        suppressToolPanel: false,
-        cellStyle: this.statusCellStyle,
-      },
-      {
-        field: ' ',
-        cellRenderer: 'btnCellRenderer',
-        flex: 0.3,
-        hide: false,
-        suppressToolPanel: false,
-        cellStyle: this.btnCellStyle,
-      },
-    ];
-    this.defaultColDef = {
-      // flex: 1,
-      // cellClass: 'align-right',
-      enableCellChangeFlash: true,
-      //   resizable: true,
-      /* valueFormatter: function (params) {
-         return formatNumber(params.value);
-       },*/
-    };
-    this.frameworkComponents = {
-      btnCellRenderer: CommandeBtnComponent,
-      statusCellRenderer: ReceiptStatusComponent,
-    };
-    this.context = { componentParent: this };
   }
 
   ngOnInit(): void {
@@ -252,6 +113,148 @@ export class CommandeStockEntryComponent implements OnInit {
     });
 
     this.findParamAddLot();
+    this.tvaService.query().subscribe({
+      next: (res: HttpResponse<ITva[]>) => {
+        this.tvas = res.body.map(tva => tva.taux);
+      },
+      complete: () => {
+        this.columnDefs = [
+          {
+            headerName: '#',
+            flex: 0.2,
+            valueGetter: (params: any) => params.node.rowIndex + 1,
+          },
+
+          {
+            // editable: (params) => params.data.year == 2012
+            headerName: 'Code cip',
+            field: 'fournisseurProduitCip',
+            sortable: true,
+            flex: 0.3,
+          },
+          {
+            headerName: 'Libellé',
+            field: 'fournisseurProduitLibelle',
+            sortable: true,
+            flex: 0.8,
+            //  valueGetter: 'data.firstName',
+          },
+          /*  {
+             headerName: 'Stock',
+             field: 'initStock',
+             type: ['rightAligned', 'numericColumn'],
+             valueFormatter: formatNumberToString,
+             //  cellStyle: this.cellStyle,
+             flex: 0.3,
+           }, */
+          {
+            headerName: 'PA.M',
+            field: 'costAmount',
+            type: ['rightAligned', 'numericColumn'],
+            editable: false,
+            sortable: true,
+            flex: 0.3,
+            valueFormatter: formatNumberToString,
+          },
+          {
+            headerName: 'PA',
+            field: 'orderCostAmount',
+            type: ['rightAligned', 'numericColumn'],
+            editable: false,
+            sortable: true,
+            flex: 0.3,
+            valueFormatter: formatNumberToString,
+          },
+          {
+            headerName: 'PU.M',
+            field: 'regularUnitPrice',
+            type: ['rightAligned', 'numericColumn'],
+            editable: false,
+            sortable: false,
+            flex: 0.3,
+            valueFormatter: formatNumberToString,
+          },
+          {
+            headerName: 'PU',
+            field: 'orderUnitPrice',
+            type: ['rightAligned', 'numericColumn'],
+            editable: true,
+            sortable: true,
+            flex: 0.4,
+            valueFormatter: formatNumberToString,
+          },
+
+          {
+            headerName: 'Qté livrée',
+            flex: 0.4,
+            field: 'quantityReceivedTmp',
+            editable: true,
+            sortable: true,
+            type: ['rightAligned', 'numericColumn'],
+          },
+          {
+            headerName: 'Qté Ug',
+            flex: 0.3,
+            field: 'ugQuantity',
+            editable: true,
+            sortable: true,
+            type: ['rightAligned', 'numericColumn'],
+          },
+          {
+            headerName: 'Tva',
+            cellEditor: 'agSelectCellEditor',
+            field: 'tva',
+            type: ['rightAligned'],
+            editable: true,
+            sortable: false,
+            flex: 0.3,
+            cellEditorParams: {
+              min: 0,
+              values: this.tvas,
+            },
+          },
+          /*  {
+              headerName: 'Date péremption',
+              field: 'datePeremption',
+              cellRenderer: (data: any) => {
+                return data.value ? dayjs(data.value).format('MM/DD/YYYY') : '';
+              },
+              editable: true,
+              sortable: false,
+              flex: 0.5,
+              cellEditor: 'agDateStringCellEditor',
+              cellEditorParams: {
+                min: DATE_FORMAT_ISO_DATE(new Date()),
+              },
+            },*/
+
+          /*  {
+             field: 'Status',
+             cellRenderer: 'statusCellRenderer',
+             flex: 0.2,
+             hide: false,
+             suppressToolPanel: false,
+             cellStyle: this.statusCellStyle,
+           }, */
+          {
+            field: ' ',
+            cellRenderer: 'btnCellRenderer',
+            flex: 0.3,
+            hide: false,
+            suppressToolPanel: false,
+            cellStyle: this.btnCellStyle,
+          },
+        ];
+      },
+    });
+    this.defaultColDef = {
+      enableCellChangeFlash: true,
+    };
+    this.frameworkComponents = {
+      btnCellRenderer: CommandeBtnComponent,
+      statusCellRenderer: ReceiptStatusComponent,
+    };
+    this.context = { componentParent: this };
   }
 
   onSearch(event: any): void {
@@ -360,7 +363,6 @@ export class CommandeStockEntryComponent implements OnInit {
 
   setGap(params: any): number {
     const deliveryItem = params.data as IDeliveryItem;
-    console.log('deliveryItem', deliveryItem);
     if (deliveryItem.quantityReceived !== deliveryItem.quantityRequested) {
       console.error('deliveryItem.quantityReceived', deliveryItem.quantityReceived);
       return deliveryItem.quantityRequested - deliveryItem.quantityReceived;
@@ -417,7 +419,13 @@ export class CommandeStockEntryComponent implements OnInit {
         this.onUpdateOrderCostAmount(params);
         break;
       case 'fournisseurProduitCip':
-        this.onUpdateCip(params.data);
+        this.onUpdateCip(params);
+        break;
+      case 'tva':
+        this.onTvaUpdate(params);
+        break;
+      case 'datePeremption':
+        this.onDatePeremptionUpdate(params);
         break;
       default:
         break;
@@ -434,9 +442,12 @@ export class CommandeStockEntryComponent implements OnInit {
     this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 
+  /*
+   utiliser le component pour ajouter un lot
+   */
   onAddLot(deliveryItem: IDeliveryItem): void {
     const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
-    if (quantityReceived > 1) {
+    if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
       this.ref = this.dialogService.open(ListLotComponent, {
         data: { deliveryItem },
         width: '60%',
@@ -486,7 +497,7 @@ export class CommandeStockEntryComponent implements OnInit {
   onUpdatequantityUG(params: any): void {
     const deliveryItem = params.data as IDeliveryItem;
     const newQuantityUG = Number(deliveryItem.ugQuantity);
-    if (newQuantityUG > 0) {
+    if (newQuantityUG > -1) {
       deliveryItem.quantityUG = newQuantityUG;
       deliveryItem.ugQuantity = newQuantityUG;
       this.subscribeOnEditCellResponse(this.service.updateQuantityUG(deliveryItem));
@@ -501,6 +512,28 @@ export class CommandeStockEntryComponent implements OnInit {
     if (newQuantityReceived >= 0) {
       deliveryItem.quantityReceived = newQuantityReceived;
       this.subscribeOnEditCellResponse(this.service.updateQuantityReceived(deliveryItem));
+    } else {
+      this.reloadDelivery();
+    }
+  }
+
+  onTvaUpdate(params: any): void {
+    const deliveryItem = params.data as IDeliveryItem;
+    const newTva = Number(deliveryItem.tva);
+    if (newTva >= 0) {
+      deliveryItem.tva = newTva;
+      this.subscribeOnEditCellResponse(this.service.updateTva(deliveryItem));
+    } else {
+      this.reloadDelivery();
+    }
+  }
+
+  onDatePeremptionUpdate(params: any): void {
+    const deliveryItem = params.data as IDeliveryItem;
+    const newDatePeremption = dayjs(deliveryItem.datePeremption);
+    if (newDatePeremption.isValid()) {
+      deliveryItem.datePeremptionTmp = newDatePeremption.format('YYYY-MM-DD');
+      this.subscribeOnEditCellResponse(this.service.updateDatePeremption(deliveryItem));
     } else {
       this.reloadDelivery();
     }
@@ -544,7 +577,6 @@ export class CommandeStockEntryComponent implements OnInit {
   }
 
   confirmPrintTicket(delivery: IDelivery): void {
-    console.log('confirmPrintTicket', delivery);
     this.confirmationService.confirm({
       message: ' Voullez-vous imprimer les étiquettes ?',
       header: 'IMPRESSION',

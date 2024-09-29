@@ -113,6 +113,10 @@ public class Produit implements Serializable {
     @Column(name = "item_regular_unit_price", nullable = false)
     private Integer itemRegularUnitPrice = 0;
 
+    @Min(value = 0)
+    @Column(name = "prix_reference")
+    private Integer PrixRererence;
+
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
     private Integer prixMnp = 0;
@@ -157,8 +161,9 @@ public class Produit implements Serializable {
     @Column(name = "code_ean")
     private String codeEan;
 
+    @NotNull
     @NotAudited
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "produits", allowSetters = true)
     private FamilleProduit famille;
 
@@ -171,6 +176,10 @@ public class Produit implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "produits", allowSetters = true)
     private TypeEtiquette typeEtyquette;
+
+    @NotAudited
+    @ManyToOne
+    private Dci dci;
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)
@@ -215,6 +224,47 @@ public class Produit implements Serializable {
     private Integer cmuAmount = 0;
 
     /*
+    seuil minimun en point de vente pour declencher un reassort
+     */
+    @Min(value = 0)
+    @Column(name = "seuil_reassort")
+    private Integer seuilReassort;
+
+    /*
+    seuil minimun du detail en point de vente pour declencher un deconditionnement
+     */
+    @Min(value = 0)
+    @Column(name = "seuil_decond")
+    private Integer seuilDeconditionnement;
+
+    @Column(name = "remisable", columnDefinition = "boolean default true")
+    private Boolean remisable = Boolean.TRUE;
+
+    public @Min(value = 0) Integer getSeuilReassort() {
+        return seuilReassort;
+    }
+
+    public void setSeuilReassort(@Min(value = 0) Integer seuilReassort) {
+        this.seuilReassort = seuilReassort;
+    }
+
+    public @Min(value = 0) Integer getSeuilDeconditionnement() {
+        return seuilDeconditionnement;
+    }
+
+    public void setSeuilDeconditionnement(@Min(value = 0) Integer seuilDeconditionnement) {
+        this.seuilDeconditionnement = seuilDeconditionnement;
+    }
+
+    public Boolean getRemisable() {
+        return remisable;
+    }
+
+    public void setRemisable(Boolean remisable) {
+        this.remisable = remisable;
+    }
+
+    /*
     public List<ParcoursProduit> getParcoursProduits() {
     return parcoursProduits;
   }
@@ -223,6 +273,22 @@ public class Produit implements Serializable {
     this.parcoursProduits = parcoursProduits;
     return this;
   }*/
+
+    public @Min(value = 0) Integer getPrixRererence() {
+        return PrixRererence;
+    }
+
+    public void setPrixRererence(@Min(value = 0) Integer prixRererence) {
+        PrixRererence = prixRererence;
+    }
+
+    public Dci getDci() {
+        return dci;
+    }
+
+    public void setDci(Dci dci) {
+        this.dci = dci;
+    }
 
     public Long getId() {
         return id;

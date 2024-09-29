@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -15,7 +15,7 @@ import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { PanelModule } from "primeng/panel";
+import { PanelModule } from 'primeng/panel';
 
 @Component({
   standalone: true,
@@ -37,7 +37,7 @@ import { PanelModule } from "primeng/panel";
     PanelModule,
   ],
 })
-export class DeliveryComponent implements OnInit {
+export class DeliveryComponent {
   search = '';
   ref?: DynamicDialogRef;
   protected active = 'pending';
@@ -51,8 +51,6 @@ export class DeliveryComponent implements OnInit {
     protected entityService: DeliveryService,
     private dialogService: DialogService,
   ) {}
-
-  ngOnInit(): void {}
 
   onSearch(): void {
     if (this.active === 'pending') {
@@ -69,7 +67,8 @@ export class DeliveryComponent implements OnInit {
     });
     this.ref.onClose.subscribe((response: ICommandeResponse) => {
       if (response) {
-        this.gotoEntreeStockComponent(response.entity.id);
+        this.onSearch();
+        //  this.gotoEntreeStockComponent(response.entity.id);
       }
     });
   }

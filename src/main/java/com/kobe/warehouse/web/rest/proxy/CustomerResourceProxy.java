@@ -13,7 +13,7 @@ import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -79,7 +79,6 @@ public class CustomerResourceProxy {
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "type", defaultValue = "TOUT") String type
     ) {
-        log.debug("REST request to get a page of Customers");
         Page<CustomerDTO> page = customerDataService.fetchAllCustomers(type, search, status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());

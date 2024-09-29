@@ -2,7 +2,7 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.repository.CategorieRepository;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.net.URI;
@@ -43,6 +43,7 @@ public class CategorieResource {
     private static final String ENTITY_NAME = "categorie";
     private final Logger log = LoggerFactory.getLogger(CategorieResource.class);
     private final CategorieRepository categorieRepository;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 

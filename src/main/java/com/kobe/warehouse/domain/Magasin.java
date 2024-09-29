@@ -230,7 +230,14 @@ public class Magasin implements Serializable {
         this.numComptable = numComptable;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+    public String getRegistreImposition() {
+        return registreImposition;
+    }
+
+    public Magasin setRegistreImposition(String registreImposition) {
+        this.registreImposition = registreImposition;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.dto.ReportPeriode;
-import com.kobe.warehouse.web.rest.errors.FileStorageException;
+import com.kobe.warehouse.service.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
 import java.io.FileOutputStream;
 import java.io.IOException;

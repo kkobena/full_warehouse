@@ -14,4 +14,6 @@ public interface ClientTiersPayantRepository extends JpaRepository<ClientTiersPa
     List<ClientTiersPayant> findAllByAssuredCustomerIdAndTiersPayantCategorie(Long customerId, TiersPayantCategorie categorie);
 
     List<ClientTiersPayant> findAllByIdIn(Set<Long> ids);
+
+    List<ClientTiersPayant> findAllByTiersPayantId(Long tiersPayantId);
 }

@@ -2,17 +2,20 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MagasinDTO implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private final Logger LOG = LoggerFactory.getLogger(MagasinDTO.class);
     private Long id;
+
     @NotNull
     private String name;
+
     private String phone;
     private String address;
     private String note;
@@ -22,9 +25,9 @@ public class MagasinDTO implements Serializable {
     private Storage primaryStorage;
     private Storage pointOfSale;
     private String welcomeMessage;
+    private String fullName;
 
-    public MagasinDTO() {
-    }
+    public MagasinDTO() {}
 
     public MagasinDTO(Magasin magasin) {
         id = magasin.getId();
@@ -39,6 +42,7 @@ public class MagasinDTO implements Serializable {
         primaryStorage = magasin.getPrimaryStorage();
         pointOfSale = magasin.getPointOfSale();
         welcomeMessage = magasin.getWelcomeMessage();
+        fullName = magasin.getFullName();
     }
 
     public Long getId() {
@@ -128,5 +132,13 @@ public class MagasinDTO implements Serializable {
     public MagasinDTO setWelcomeMessage(String welcomeMessage) {
         this.welcomeMessage = welcomeMessage;
         return this;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

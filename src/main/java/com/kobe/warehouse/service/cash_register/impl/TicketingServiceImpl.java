@@ -8,7 +8,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.TicketingService;
 import com.kobe.warehouse.service.cash_register.dto.TicketingDTO;
-import com.kobe.warehouse.web.rest.errors.CashRegisterException;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
@@ -17,74 +17,78 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class TicketingServiceImpl implements TicketingService {
-  private final CashRegisterService cashRegisterService;
-  private final StorageService storageService;
-  private final TicketingRepository ticketingRepository;
 
-  public TicketingServiceImpl(
-      CashRegisterService cashRegisterService,
-      StorageService storageService,
-      TicketingRepository ticketingRepository) {
-    this.cashRegisterService = cashRegisterService;
-    this.storageService = storageService;
-    this.ticketingRepository = ticketingRepository;
-  }
+    private final CashRegisterService cashRegisterService;
+    private final StorageService storageService;
+    private final TicketingRepository ticketingRepository;
 
-  @Override
-  public void doTicketing(TicketingDTO ticketingDto) {
-    CashRegister cashRegister;
-    if (Objects.isNull(ticketingDto.cashRegisterId())) {
-      cashRegister =
-          this.cashRegisterService
-              .getOpiningCashRegisterByUser(this.storageService.getUser())
-              .orElseThrow();
-    } else {
-      cashRegister = this.cashRegisterService.getCashRegisterById(ticketingDto.cashRegisterId());
-      if (cashRegister.getStatut() == CashRegisterStatut.CLOSED) throw new CashRegisterException();
+    public TicketingServiceImpl(
+        CashRegisterService cashRegisterService,
+        StorageService storageService,
+        TicketingRepository ticketingRepository) {
+        this.cashRegisterService = cashRegisterService;
+        this.storageService = storageService;
+        this.ticketingRepository = ticketingRepository;
     }
-    Ticketing ticketing = buildTicketing(ticketingDto, cashRegister);
 
-    cashRegister.setFinalAmount(ticketing.getTotalAmount());
-    cashRegister.setEndTime(LocalDateTime.now());
-    cashRegister.setUpdated(cashRegister.getEndTime());
-    cashRegister.setStatut(CashRegisterStatut.CLOSED);
-    this.cashRegisterService.buildCashRegisterItems(cashRegister);
-    this.cashRegisterService.save(cashRegister);
-    this.ticketingRepository.save(ticketing);
-  }
+    @Override
+    public void doTicketing(TicketingDTO ticketingDto) {
+        CashRegister cashRegister;
+        if (Objects.isNull(ticketingDto.cashRegisterId())) {
+            cashRegister =
+                this.cashRegisterService
+                    .getOpiningCashRegisterByUser(this.storageService.getUser())
+                    .orElseThrow();
+        } else {
+            cashRegister = this.cashRegisterService.getCashRegisterById(
+                ticketingDto.cashRegisterId());
+            if (cashRegister.getStatut() == CashRegisterStatut.CLOSED) {
+                throw new CashRegisterException();
+            }
+        }
+        Ticketing ticketing = buildTicketing(ticketingDto, cashRegister);
 
-  private Ticketing buildTicketing(TicketingDTO ticketingDto, CashRegister cashRegister) {
-    return new Ticketing()
-        .setCashRegister(cashRegister)
-        .setNumberOf10Thousand(ticketingDto.numberOf10Thousand())
-        .setNumberOf5Thousand(ticketingDto.numberOf5Thousand())
-        .setNumberOf2Thousand(ticketingDto.numberOf2Thousand())
-        .setNumberOf1Thousand(ticketingDto.numberOf1Thousand())
-        .setNumberOf500Hundred(ticketingDto.numberOf500Hundred())
-        .setNumberOf200Hundred(ticketingDto.numberOf200Hundred())
-        .setNumberOf100Hundred(ticketingDto.numberOf100Hundred())
-        .setNumberOf50(ticketingDto.numberOf50())
-        .setNumberOf25(ticketingDto.numberOf25())
-        .setNumberOf10(ticketingDto.numberOf10())
-        .setNumberOf5(ticketingDto.numberOf5())
-        .setNumberOf1(ticketingDto.numberOf1())
-        .setOtherAmount(ticketingDto.otherAmount())
-        .setTotalAmount(computeCashAmount(ticketingDto));
-  }
+        cashRegister.setFinalAmount(ticketing.getTotalAmount());
+        cashRegister.setEndTime(LocalDateTime.now());
+        cashRegister.setUpdated(cashRegister.getEndTime());
+        cashRegister.setStatut(CashRegisterStatut.CLOSED);
+        this.cashRegisterService.buildCashRegisterItems(cashRegister);
+        this.cashRegisterService.save(cashRegister);
+        this.ticketingRepository.save(ticketing);
+    }
 
-  private long computeCashAmount(TicketingDTO ticketingDto) {
-    return ticketingDto.otherAmount()
-        + ticketingDto.numberOf1()
-        + (ticketingDto.numberOf25() * 25L)
-        + (ticketingDto.numberOf5() * 5L)
-        + (ticketingDto.numberOf10() * 10L)
-        + (ticketingDto.numberOf50() * 50L)
-        + (ticketingDto.numberOf100Hundred() * 100L)
-        + (ticketingDto.numberOf200Hundred() * 200L)
-        + (ticketingDto.numberOf500Hundred() * 500L)
-        + (ticketingDto.numberOf1Thousand() * 1000L)
-        + (ticketingDto.numberOf2Thousand() * 2000L)
-        + (ticketingDto.numberOf5Thousand() * 5000L)
-        + (ticketingDto.numberOf10Thousand() * 10000L);
-  }
+    private Ticketing buildTicketing(TicketingDTO ticketingDto, CashRegister cashRegister) {
+        return new Ticketing()
+            .setCashRegister(cashRegister)
+            .setNumberOf10Thousand(ticketingDto.numberOf10Thousand())
+            .setNumberOf5Thousand(ticketingDto.numberOf5Thousand())
+            .setNumberOf2Thousand(ticketingDto.numberOf2Thousand())
+            .setNumberOf1Thousand(ticketingDto.numberOf1Thousand())
+            .setNumberOf500Hundred(ticketingDto.numberOf500Hundred())
+            .setNumberOf200Hundred(ticketingDto.numberOf200Hundred())
+            .setNumberOf100Hundred(ticketingDto.numberOf100Hundred())
+            .setNumberOf50(ticketingDto.numberOf50())
+            .setNumberOf25(ticketingDto.numberOf25())
+            .setNumberOf10(ticketingDto.numberOf10())
+            .setNumberOf5(ticketingDto.numberOf5())
+            .setNumberOf1(ticketingDto.numberOf1())
+            .setOtherAmount(ticketingDto.otherAmount())
+            .setTotalAmount(computeCashAmount(ticketingDto));
+    }
+
+    private long computeCashAmount(TicketingDTO ticketingDto) {
+        return ticketingDto.otherAmount()
+            + ticketingDto.numberOf1()
+            + (ticketingDto.numberOf25() * 25L)
+            + (ticketingDto.numberOf5() * 5L)
+            + (ticketingDto.numberOf10() * 10L)
+            + (ticketingDto.numberOf50() * 50L)
+            + (ticketingDto.numberOf100Hundred() * 100L)
+            + (ticketingDto.numberOf200Hundred() * 200L)
+            + (ticketingDto.numberOf500Hundred() * 500L)
+            + (ticketingDto.numberOf1Thousand() * 1000L)
+            + (ticketingDto.numberOf2Thousand() * 2000L)
+            + (ticketingDto.numberOf5Thousand() * 5000L)
+            + (ticketingDto.numberOf10Thousand() * 10000L);
+    }
 }

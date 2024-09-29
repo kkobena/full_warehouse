@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +38,10 @@ public class GroupeTiersPayant implements Serializable {
     @Column(name = "telephone_fixe", length = 15)
     private String telephoneFixe;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ordre_tris_facture")
+    private OrdreTrisFacture ordreTrisFacture;
+
     public GroupeTiersPayant() {}
 
     public Long getId() {
@@ -61,6 +68,15 @@ public class GroupeTiersPayant implements Serializable {
 
     public GroupeTiersPayant setAdresse(String adresse) {
         this.adresse = adresse;
+        return this;
+    }
+
+    public OrdreTrisFacture getOrdreTrisFacture() {
+        return ordreTrisFacture;
+    }
+
+    public GroupeTiersPayant setOrdreTrisFacture(OrdreTrisFacture ordreTrisFacture) {
+        this.ordreTrisFacture = ordreTrisFacture;
         return this;
     }
 

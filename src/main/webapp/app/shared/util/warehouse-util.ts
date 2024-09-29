@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
+import { DD_MM_YYYY, DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
@@ -32,6 +32,7 @@ export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
 
 export const BLOCK_SPACE: RegExp = /[^\s]/;
 export const DATE_FORMAT_DD_MM_YYYY_HH_MM_SS = (): string => dayjs().format(DD_MM_YYYY_HH_MM_SS);
+export const DATE_FORMAT_DD_MM_YYYY = (): string => dayjs().format(DD_MM_YYYY);
 
 export const checkIfRomToBeUpdated = (deliveryItem: IDeliveryItem): boolean =>
   deliveryItem.regularUnitPrice !== deliveryItem.orderUnitPrice || deliveryItem.orderCostAmount !== deliveryItem.costAmount;
@@ -47,4 +48,13 @@ export const FORMAT_ISO_DATE_TO_STRING_FR = (date: string): string | null => {
     return `${dateArray[2]}/${dateArray[1]}/${dateArray[0]}`;
   }
   return null;
+};
+export const FORMAT_DD_MM_YYYY = (date: Date): string | null => {
+  if (date) {
+    console.log(date);
+    const d = dayjs(date).format(DD_MM_YYYY);
+    console.log(d);
+    return d;
+  }
+  return '';
 };

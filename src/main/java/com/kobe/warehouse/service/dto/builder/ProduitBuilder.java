@@ -37,274 +37,257 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 public final class ProduitBuilder {
-  private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
-  private ProduitBuilder() {}
+    private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
-  public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
-    Produit produit = new Produit();
-    produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
-    produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
-    produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
-    produit.setTypeProduit(TypeProduit.PACKAGE);
-    produit.setCreatedAt(LocalDateTime.now());
-    produit.setUpdatedAt(produit.getCreatedAt());
-    produit.setCmuAmount(produitDTO.getCmuAmount());
-    produit.setCostAmount(produitDTO.getCostAmount());
-    if (produitDTO.getDeconditionnable()) {
-      produit.setItemCostAmount(produitDTO.getItemCostAmount());
-      produit.setItemQty(produitDTO.getItemQty());
-      produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-    } else {
-      produit.setItemCostAmount(produitDTO.getCostAmount());
-      produit.setItemQty(1);
-      produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
+    private ProduitBuilder() {}
+
+    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
+        Produit produit = new Produit();
+        produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
+        produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
+        produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
+        produit.setTypeProduit(TypeProduit.PACKAGE);
+        produit.setCreatedAt(LocalDateTime.now());
+        produit.setUpdatedAt(produit.getCreatedAt());
+        produit.setCmuAmount(produitDTO.getCmuAmount());
+        produit.setCostAmount(produitDTO.getCostAmount());
+        if (produitDTO.getDeconditionnable()) {
+            produit.setItemCostAmount(produitDTO.getItemCostAmount());
+            produit.setItemQty(produitDTO.getItemQty());
+            produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
+        } else {
+            produit.setItemCostAmount(produitDTO.getCostAmount());
+            produit.setItemQty(1);
+            produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        }
+        produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCheckExpiryDate(produitDTO.getDateperemption());
+        produit.setDeconditionnable(produitDTO.getDeconditionnable());
+        produit.setQtyAppro(produitDTO.getQtyAppro());
+        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
+        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
+            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
+        }
+
+        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
+        produit.setTva(tvaFromId(produitDTO.getTvaId()));
+        produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
+        produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
+        produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
+        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
+        produit.setForme(formProduitFromId(produitDTO.getFormeId()));
+        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
+        produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+
+        return produit;
     }
-    produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-    produit.setCodeEan(produitDTO.getCodeEan());
-    produit.setCheckExpiryDate(produitDTO.getDateperemption());
-    produit.setDeconditionnable(produitDTO.getDeconditionnable());
-    produit.setQtyAppro(produitDTO.getQtyAppro());
-    produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-    if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
-      produit.setPerimeAt(
-          LocalDate.parse(
-              produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
+
+    public static Produit fromDTO(ProduitDTO produitDTO, StockProduit stockProduit, List<FournisseurProduit> fournisseurProduit) {
+        Produit produit = new Produit();
+        produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
+        produit.setNetUnitPrice(0);
+        if (produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
+            produit.setParent(fromId(produitDTO.getProduitId()));
+        }
+        produit.setTypeProduit(produitDTO.getTypeProduit());
+        produit.setCreatedAt(LocalDateTime.now());
+        produit.setUpdatedAt(produit.getCreatedAt());
+        produit.setCostAmount(produitDTO.getCostAmount());
+        produit.setItemCostAmount(produitDTO.getItemCostAmount());
+        produit.setItemQty(produitDTO.getItemQty());
+        produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
+        produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCheckExpiryDate(produitDTO.getDateperemption());
+        produit.setDeconditionnable(produitDTO.getDeconditionnable());
+        produit.setQtyAppro(produitDTO.getQtyAppro());
+        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
+        produit.setPerimeAt(produitDTO.getPerimeAt());
+        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
+        produit.setTva(tvaFromId(produitDTO.getTvaId()));
+        produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
+        produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
+        produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
+        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
+        produit.setForme(formProduitFromId(produitDTO.getFormeId()));
+        produit.addStockProduit(stockProduit);
+        produit.setCmuAmount(produitDTO.getCmuAmount());
+        fournisseurProduit.forEach(produit::addFournisseurProduit);
+        return produit;
     }
 
-    produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
-    produit.setTva(tvaFromId(produitDTO.getTvaId()));
-    produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
-    produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-    produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
-    produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
-    produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-    produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
-    produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
-
-    return produit;
-  }
-
-  public static Produit fromDTO(
-      ProduitDTO produitDTO,
-      StockProduit stockProduit,
-      List<FournisseurProduit> fournisseurProduit) {
-    Produit produit = new Produit();
-    produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
-    produit.setNetUnitPrice(0);
-    if (produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
-      produit.setParent(fromId(produitDTO.getProduitId()));
+    public static Produit fromId(Long produitId) {
+        if (produitId == null) {
+            return null;
+        }
+        Produit produit = new Produit();
+        produit.setId(produitId);
+        return produit;
     }
-    produit.setTypeProduit(produitDTO.getTypeProduit());
-    produit.setCreatedAt(LocalDateTime.now());
-    produit.setUpdatedAt(produit.getCreatedAt());
-    produit.setCostAmount(produitDTO.getCostAmount());
-    produit.setItemCostAmount(produitDTO.getItemCostAmount());
-    produit.setItemQty(produitDTO.getItemQty());
-    produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-    produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-    produit.setCodeEan(produitDTO.getCodeEan());
-    produit.setCheckExpiryDate(produitDTO.getDateperemption());
-    produit.setDeconditionnable(produitDTO.getDeconditionnable());
-    produit.setQtyAppro(produitDTO.getQtyAppro());
-    produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-    produit.setPerimeAt(produitDTO.getPerimeAt());
-    produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
-    produit.setTva(tvaFromId(produitDTO.getTvaId()));
-    produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
-    produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-    produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
-    produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
-    produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-    produit.addStockProduit(stockProduit);
-    produit.setCmuAmount(produitDTO.getCmuAmount());
-    fournisseurProduit.forEach(produit::addFournisseurProduit);
-    return produit;
-  }
 
-  public static Produit fromId(Long produitId) {
-    if (produitId == null) {
-      return null;
+    private static ProduitDTO laboratoire(ProduitDTO produitDTO, Produit produit) {
+        Laboratoire laboratoire = produit.getLaboratoire();
+        if (laboratoire != null) {
+            produitDTO.laboratoireId(laboratoire.getId()).laboratoireLibelle(laboratoire.getLibelle());
+        }
+        return produitDTO;
     }
-    Produit produit = new Produit();
-    produit.setId(produitId);
-    return produit;
-  }
 
-  private static ProduitDTO laboratoire(ProduitDTO produitDTO, Produit produit) {
-    Laboratoire laboratoire = produit.getLaboratoire();
-    if (laboratoire != null) {
-      produitDTO.laboratoireId(laboratoire.getId()).laboratoireLibelle(laboratoire.getLibelle());
+    private static ProduitDTO formProduit(ProduitDTO produitDTO, Produit produit) {
+        FormProduit formProduit = produit.getForme();
+        if (formProduit != null) {
+            produitDTO.formeId(formProduit.getId()).formeLibelle(formProduit.getLibelle());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  private static ProduitDTO formProduit(ProduitDTO produitDTO, Produit produit) {
-    FormProduit formProduit = produit.getForme();
-    if (formProduit != null) {
-      produitDTO.formeId(formProduit.getId()).formeLibelle(formProduit.getLibelle());
+    private static ProduitDTO TypeEtiquette(ProduitDTO produitDTO, Produit produit) {
+        TypeEtiquette typeEtiquette = produit.getTypeEtyquette();
+        if (typeEtiquette != null) {
+            produitDTO.typeEtiquetteId(typeEtiquette.getId()).typeEtiquetteLibelle(typeEtiquette.getLibelle());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  private static ProduitDTO TypeEtiquette(ProduitDTO produitDTO, Produit produit) {
-    TypeEtiquette typeEtiquette = produit.getTypeEtyquette();
-    if (typeEtiquette != null) {
-      produitDTO
-          .typeEtiquetteId(typeEtiquette.getId())
-          .typeEtiquetteLibelle(typeEtiquette.getLibelle());
+    private static ProduitDTO familleProduit(ProduitDTO produitDTO, Produit produit) {
+        FamilleProduit familleProduit = produit.getFamille();
+        if (familleProduit != null) {
+            produitDTO.familleId(familleProduit.getId()).familleLibelle(familleProduit.getLibelle());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  private static ProduitDTO familleProduit(ProduitDTO produitDTO, Produit produit) {
-    FamilleProduit familleProduit = produit.getFamille();
-    if (familleProduit != null) {
-      produitDTO.familleId(familleProduit.getId()).familleLibelle(familleProduit.getLibelle());
+    private static ProduitDTO gammeProduit(ProduitDTO produitDTO, Produit produit) {
+        GammeProduit gammeProduit = produit.getGamme();
+        if (gammeProduit != null) {
+            produitDTO.gammeId(gammeProduit.getId()).gammeLibelle(gammeProduit.getLibelle());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  private static ProduitDTO gammeProduit(ProduitDTO produitDTO, Produit produit) {
-    GammeProduit gammeProduit = produit.getGamme();
-    if (gammeProduit != null) {
-      produitDTO.gammeId(gammeProduit.getId()).gammeLibelle(gammeProduit.getLibelle());
+    public static ProduitDTO tva(ProduitDTO produitDTO, Produit produit) {
+        Tva tva = produit.getTva();
+        if (tva != null) {
+            produitDTO.tvaId(tva.getId()).tvaTaux(tva.getTaux());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO tva(ProduitDTO produitDTO, Produit produit) {
-    Tva tva = produit.getTva();
-    if (tva != null) {
-      produitDTO.tvaId(tva.getId()).tvaTaux(tva.getTaux());
+    public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
+        produitDTO.setStockProduits(
+            produit
+                .getStockProduits()
+                .stream()
+                .filter(s -> s.getStorage().getMagasin().getId().equals(magasinId))
+                .map(StockProduitDTO::new)
+                .collect(Collectors.toSet())
+        );
+        produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().collect(Collectors.summingInt(StockProduitDTO::getQtyStock)));
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
-    produitDTO.setStockProduits(
-        produit.getStockProduits().stream()
-            .filter(s -> s.getStorage().getMagasin().getId().equals(magasinId))
-            .map(StockProduitDTO::new)
-            .collect(Collectors.toSet()));
-    produitDTO.setTotalQuantity(
-        produitDTO.getStockProduits().stream()
-            .collect(Collectors.summingInt(StockProduitDTO::getQtyStock)));
-    return produitDTO;
-  }
-
-  public static ProduitDTO stockProduit(
-      ProduitDTO produitDTO, StockProduit stockProduitPointOfSale) {
-    if (stockProduitPointOfSale != null) {
-      produitDTO
-          .setStockProduit(new StockProduitDTO(stockProduitPointOfSale))
-          .setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+    public static ProduitDTO stockProduit(ProduitDTO produitDTO, StockProduit stockProduitPointOfSale) {
+        if (stockProduitPointOfSale != null) {
+            produitDTO
+                .setStockProduit(new StockProduitDTO(stockProduitPointOfSale))
+                .setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit) {
-    produitDTO.setStockProduits(
-        produit.getStockProduits().stream().map(StockProduitDTO::new).collect(Collectors.toSet()));
-    StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
-    if (stockProduitPointOfSale != null) {
-      produitDTO.setStockProduit(new StockProduitDTO(stockProduitPointOfSale));
-      produitDTO.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+    public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit) {
+        produitDTO.setStockProduits(produit.getStockProduits().stream().map(StockProduitDTO::new).collect(Collectors.toSet()));
+        StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
+        if (stockProduitPointOfSale != null) {
+            produitDTO.setStockProduit(new StockProduitDTO(stockProduitPointOfSale));
+            produitDTO.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
-    Set<RayonProduit> rayonProduits = produit.getRayonProduits();
-    if (!CollectionUtils.isEmpty(rayonProduits)) {
-      produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
+    public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
+        Set<RayonProduit> rayonProduits = produit.getRayonProduits();
+        if (!CollectionUtils.isEmpty(rayonProduits)) {
+            produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
 
-      Optional<RayonProduitDTO> rayon =
-          produitDTO.getRayonProduits().stream()
-              .filter(
-                  r ->
-                      (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
-                          && r.getMagasinId().equals(magasinId)))
-              .findFirst();
-      if (rayon.isPresent()) {
-        RayonProduitDTO rayonProduitDTO = rayon.get();
-        produitDTO
-            .setRayonId(rayonProduitDTO.getRayonId())
-            .setRayonLibelle(rayonProduitDTO.getLibelleRayon());
-      }
+            Optional<RayonProduitDTO> rayon = produitDTO
+                .getRayonProduits()
+                .stream()
+                .filter(r -> (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue()) && r.getMagasinId().equals(magasinId)))
+                .findFirst();
+            if (rayon.isPresent()) {
+                RayonProduitDTO rayonProduitDTO = rayon.get();
+                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon());
+            }
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO dailyStocks(ProduitDTO produitDTO, Produit produit) {
-    if (!CollectionUtils.isEmpty(produit.getDailyStocks())) {
-      produitDTO.dailyStocks(
-          produit.getDailyStocks().stream()
-              .sorted(Comparator.comparing(DailyStock::getStockDay, Comparator.reverseOrder()))
-              .toList());
+    public static ProduitDTO dailyStocks(ProduitDTO produitDTO, Produit produit) {
+        if (!CollectionUtils.isEmpty(produit.getDailyStocks())) {
+            produitDTO.dailyStocks(
+                produit.getDailyStocks().stream().sorted(Comparator.comparing(DailyStock::getStockDay, Comparator.reverseOrder())).toList()
+            );
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  public static ProduitDTO remiseProduit(ProduitDTO produitDTO, Produit produit) {
-    RemiseProduit remiseProduit = produit.getRemise();
-    if (remiseProduit != null) {
-      produitDTO.setRemiseId(remiseProduit.getId());
-      produitDTO.setTauxRemise(remiseProduit.getRemiseValue());
+    public static ProduitDTO remiseProduit(ProduitDTO produitDTO, Produit produit) {
+        RemiseProduit remiseProduit = produit.getRemise();
+        if (remiseProduit != null) {
+            produitDTO.setRemiseId(remiseProduit.getId());
+            produitDTO.setTauxRemise(remiseProduit.getRemiseValue());
+        }
+        return produitDTO;
     }
-    return produitDTO;
-  }
 
-  private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
-    FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
-    if (Objects.nonNull(fournisseurProduit)) {
-      produitDTO
-          .setCodeCip(fournisseurProduit.getCodeCip())
-          .setFournisseurId(fournisseurProduit.getFournisseurId())
-          .setCostAmount(fournisseurProduit.getPrixAchat())
-          .setRegularUnitPrice(fournisseurProduit.getPrixUni());
+    private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
+        FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
+        if (Objects.nonNull(fournisseurProduit)) {
+            produitDTO
+                .setCodeCip(fournisseurProduit.getCodeCip())
+                .setFournisseurId(fournisseurProduit.getFournisseurId())
+                .setCostAmount(fournisseurProduit.getPrixAchat())
+                .setRegularUnitPrice(fournisseurProduit.getPrixUni());
+        }
     }
-  }
 
-  public static ProduitDTO buildFromProduit(
-      Produit produit, Magasin magasin, StockProduit stockProduitPointOfSale) {
-    ProduitDTO produitDTO = partialFromProduit(produit);
-    setFournisseurPrincipal(produitDTO, produit);
-    laboratoire(produitDTO, produit);
-    formProduit(produitDTO, produit);
-    TypeEtiquette(produitDTO, produit);
-    familleProduit(produitDTO, produit);
-    gammeProduit(produitDTO, produit);
-    tva(produitDTO, produit);
-    stockProduits(produitDTO, produit, magasin.getId());
-    stockProduit(produitDTO, stockProduitPointOfSale);
-    rayonProduits(produitDTO, produit, magasin.getId());
-    dailyStocks(produitDTO, produit);
-    remiseProduit(produitDTO, produit);
-    produits(produitDTO, produit);
-    fournisseurProduits(produitDTO, produit);
-    produitDTO.setTableau(
-        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
-    return produitDTO;
-  }
+    public static ProduitDTO buildFromProduit(Produit produit, Magasin magasin, StockProduit stockProduitPointOfSale) {
+        ProduitDTO produitDTO = partialFromProduit(produit);
+        setFournisseurPrincipal(produitDTO, produit);
+        laboratoire(produitDTO, produit);
+        formProduit(produitDTO, produit);
+        TypeEtiquette(produitDTO, produit);
+        familleProduit(produitDTO, produit);
+        gammeProduit(produitDTO, produit);
+        tva(produitDTO, produit);
+        stockProduits(produitDTO, produit, magasin.getId());
+        stockProduit(produitDTO, stockProduitPointOfSale);
+        rayonProduits(produitDTO, produit, magasin.getId());
+        dailyStocks(produitDTO, produit);
+        remiseProduit(produitDTO, produit);
+        produits(produitDTO, produit);
+        fournisseurProduits(produitDTO, produit);
+        produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+        return produitDTO;
+    }
 
-  public static ProduitDTO produits(ProduitDTO produitDTO, Produit produit) {
-    return produitDTO.setProduits(
-        produit.getProduits().stream().map(ProduitBuilder::fromProduit).toList());
-  }
+    public static ProduitDTO produits(ProduitDTO produitDTO, Produit produit) {
+        return produitDTO.setProduits(produit.getProduits().stream().map(ProduitBuilder::fromProduit).toList());
+    }
 
-  public static ProduitDTO fournisseurProduits(ProduitDTO produitDTO, Produit produit) {
-    produitDTO.setFournisseurProduits(
-        produit.getFournisseurProduits().stream()
-            .map(FournisseurProduitDTO::new)
-            .collect(Collectors.toSet()));
-    return produitDTO;
-  }
+    public static ProduitDTO fournisseurProduits(ProduitDTO produitDTO, Produit produit) {
+        produitDTO.setFournisseurProduits(
+            produit.getFournisseurProduits().stream().map(FournisseurProduitDTO::new).collect(Collectors.toSet())
+        );
+        return produitDTO;
+    }
 
-  public static ProduitDTO partialFromProduit(Produit produit) {
-    Produit parent = produit.getParent();
-    ProduitDTO produitDTO =
-        new ProduitDTO()
+    public static ProduitDTO partialFromProduit(Produit produit) {
+        Produit parent = produit.getParent();
+        ProduitDTO produitDTO = new ProduitDTO()
             .setId(produit.getId())
             .setLibelle(produit.getLibelle())
             .cmuAmount(produit.getCmuAmount())
@@ -321,373 +304,368 @@ public final class ProduitBuilder {
             .setProduitId(Objects.nonNull(parent) ? parent.getId() : null)
             .setTypeProduit(produit.getTypeProduit())
             .setProduitLibelle(Objects.nonNull(parent) ? parent.getLibelle() : null);
-    produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
-    produitDTO.setDateperemption(produit.getCheckExpiryDate());
-    produitDTO.setChiffre(produit.getChiffre());
-    produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEan());
-    if (produit.getPerimeAt() != null) {
-      produitDTO.expirationDate(
-          produit.getPerimeAt().format(DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
+        produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
+        produitDTO.setDateperemption(produit.getCheckExpiryDate());
+        produitDTO.setChiffre(produit.getChiffre());
+        produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEan());
+        if (produit.getPerimeAt() != null) {
+            produitDTO.expirationDate(produit.getPerimeAt().format(DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
+        }
+        produitDTO.setStatus(produit.getStatus().ordinal());
+        produitDTO.displayStatut(produit.getStatus().name());
+
+        return produitDTO;
     }
-    produitDTO.setStatus(produit.getStatus().ordinal());
-    produitDTO.displayStatut(produit.getStatus().name());
 
-    return produitDTO;
-  }
+    public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit) {
+        Set<RayonProduit> rayonProduits = produit.getRayonProduits();
+        if (!CollectionUtils.isEmpty(rayonProduits)) {
+            produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
 
-  public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit) {
-    Set<RayonProduit> rayonProduits = produit.getRayonProduits();
-    if (!CollectionUtils.isEmpty(rayonProduits)) {
-      produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
-
-      Optional<RayonProduit> rayon =
-          produit.getRayonProduits().stream()
-              .filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL)
-              .findFirst();
-
-      if (rayon.isPresent()) {
-        Rayon rayonProduitDTO = rayon.get().getRayon();
-        produitDTO
-            .setRayonId(rayonProduitDTO.getId())
-            .setRayonLibelle(rayonProduitDTO.getLibelle());
-      }
-    }
-    return produitDTO;
-  }
-
-  public static ProduitDTO fromProduit(Produit produit) {
-    ProduitDTO produitDTO = partialFromProduit(produit);
-    setFournisseurPrincipal(produitDTO, produit);
-    fournisseurProduits(produitDTO, produit);
-    laboratoire(produitDTO, produit);
-    formProduit(produitDTO, produit);
-    TypeEtiquette(produitDTO, produit);
-    familleProduit(produitDTO, produit);
-    gammeProduit(produitDTO, produit);
-    tva(produitDTO, produit);
-    stockProduits(produitDTO, produit);
-    rayonProduits(produitDTO, produit);
-    dailyStocks(produitDTO, produit);
-    remiseProduit(produitDTO, produit);
-    produits(produitDTO, produit);
-    produitDTO.setStatus(produit.getStatus().ordinal());
-    produitDTO.setDisplayField(
-        String.format(
-            "%s %s %d",
-            produitDTO.getCodeCip(), produitDTO.getLibelle(), produitDTO.getRegularUnitPrice()));
-
-    return produitDTO;
-  }
-
-  public static ProduitDTO lite(Produit produit) {
-    ProduitDTO dto = new ProduitDTO();
-    dto.setId(produit.getId());
-    dto.setLibelle(produit.getLibelle());
-    dto.setTypeProduit(produit.getTypeProduit());
-    dto.setRegularUnitPrice(produit.getRegularUnitPrice());
-    dto.setNetUnitPrice(produit.getNetUnitPrice());
-    StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
-    if (stockProduitPointOfSale != null) {
-      dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
-      dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
-      try {
-        Rayon rayon =
-            produit.getRayonProduits().stream()
+            Optional<RayonProduit> rayon = produit
+                .getRayonProduits()
+                .stream()
                 .filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL)
-                .findFirst()
-                .get()
-                .getRayon();
-        dto.setRayonId(rayon.getId());
-        dto.setRayonLibelle(rayon.getLibelle());
-      } catch (Exception e) {
+                .findFirst();
 
-      }
-    }
-    dto.setCodeEan(produit.getCodeEan());
-    RemiseProduit remiseProduit = produit.getRemise();
-    if (remiseProduit != null) {
-      dto.setRemiseId(remiseProduit.getId());
-      dto.setTauxRemise(remiseProduit.getRemiseValue());
-    }
-    FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
-    if (fournisseurProduitPrincipal != null) {
-      dto.setCodeCip(fournisseurProduitPrincipal.getCodeCip());
+            if (rayon.isPresent()) {
+                Rayon rayonProduitDTO = rayon.get().getRayon();
+                produitDTO.setRayonId(rayonProduitDTO.getId()).setRayonLibelle(rayonProduitDTO.getLibelle());
+            }
+        }
+        return produitDTO;
     }
 
-    return dto;
-  }
+    public static ProduitDTO fromProduit(Produit produit) {
+        ProduitDTO produitDTO = partialFromProduit(produit);
+        setFournisseurPrincipal(produitDTO, produit);
+        fournisseurProduits(produitDTO, produit);
+        laboratoire(produitDTO, produit);
+        formProduit(produitDTO, produit);
+        TypeEtiquette(produitDTO, produit);
+        familleProduit(produitDTO, produit);
+        gammeProduit(produitDTO, produit);
+        tva(produitDTO, produit);
+        stockProduits(produitDTO, produit);
+        rayonProduits(produitDTO, produit);
+        dailyStocks(produitDTO, produit);
+        remiseProduit(produitDTO, produit);
+        produits(produitDTO, produit);
+        produitDTO.setStatus(produit.getStatus().ordinal());
+        produitDTO.setDisplayField(
+            String.format("%s %s %d", produitDTO.getCodeCip(), produitDTO.getLibelle(), produitDTO.getRegularUnitPrice())
+        );
 
-  public static RemiseProduit resmiseProduitFromId(Long id) {
-    if (id == null) {
-      return null;
+        return produitDTO;
     }
-    RemiseProduit remiseProduit = new RemiseProduit();
-    remiseProduit.setId(id);
-    return remiseProduit;
-  }
 
-  public static Tva tvaFromId(Long tvaId) {
-    if (tvaId == null) {
-      return null;
+    public static ProduitDTO lite(Produit produit) {
+        ProduitDTO dto = new ProduitDTO();
+        dto.setId(produit.getId());
+        dto.setLibelle(produit.getLibelle());
+        dto.setTypeProduit(produit.getTypeProduit());
+        dto.setRegularUnitPrice(produit.getRegularUnitPrice());
+        dto.setNetUnitPrice(produit.getNetUnitPrice());
+        StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
+        if (stockProduitPointOfSale != null) {
+            dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+            dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
+            try {
+                Rayon rayon = produit
+                    .getRayonProduits()
+                    .stream()
+                    .filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL)
+                    .findFirst()
+                    .get()
+                    .getRayon();
+                dto.setRayonId(rayon.getId());
+                dto.setRayonLibelle(rayon.getLibelle());
+            } catch (Exception e) {}
+        }
+        dto.setCodeEan(produit.getCodeEan());
+        RemiseProduit remiseProduit = produit.getRemise();
+        if (remiseProduit != null) {
+            dto.setRemiseId(remiseProduit.getId());
+            dto.setTauxRemise(remiseProduit.getRemiseValue());
+        }
+        FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
+        if (fournisseurProduitPrincipal != null) {
+            dto.setCodeCip(fournisseurProduitPrincipal.getCodeCip());
+        }
+
+        return dto;
     }
-    Tva tva = new Tva();
-    tva.setId(tvaId);
-    return tva;
-  }
 
-  public static Laboratoire laboratoireFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static RemiseProduit resmiseProduitFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        RemiseProduit remiseProduit = new RemiseProduit();
+        remiseProduit.setId(id);
+        return remiseProduit;
     }
-    Laboratoire entity = new Laboratoire();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static TypeEtiquette typeEtiquetteFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static Tva tvaFromId(Long tvaId) {
+        if (tvaId == null) {
+            return null;
+        }
+        Tva tva = new Tva();
+        tva.setId(tvaId);
+        return tva;
     }
-    TypeEtiquette entity = new TypeEtiquette();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static FormProduit formProduitFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static Laboratoire laboratoireFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Laboratoire entity = new Laboratoire();
+        entity.setId(id);
+        return entity;
     }
-    FormProduit entity = new FormProduit();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static Fournisseur fournisseurFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static TypeEtiquette typeEtiquetteFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        TypeEtiquette entity = new TypeEtiquette();
+        entity.setId(id);
+        return entity;
     }
-    Fournisseur entity = new Fournisseur();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static FamilleProduit familleProduitFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static FormProduit formProduitFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        FormProduit entity = new FormProduit();
+        entity.setId(id);
+        return entity;
     }
-    FamilleProduit entity = new FamilleProduit();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static GammeProduit gammeFromId(Long id) {
-    if (id == null) {
-      return null;
+    public static Fournisseur fournisseurFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Fournisseur entity = new Fournisseur();
+        entity.setId(id);
+        return entity;
     }
-    GammeProduit entity = new GammeProduit();
-    entity.setId(id);
-    return entity;
-  }
 
-  public static StockProduit stockProduitFromProduitDTO(Storage storage) {
-    StockProduit stockProduit = new StockProduit();
-    stockProduit.setQtyStock(0);
-    stockProduit.setQtyVirtual(0);
-    stockProduit.setCreatedAt(LocalDateTime.now());
-    stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
-    stockProduit.setQtyUG(0);
-    stockProduit.setStorage(storage);
-    return stockProduit;
-  }
-
-  public static FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto) {
-    FournisseurProduit fournisseurProduit = new FournisseurProduit();
-    fournisseurProduit.setCreatedAt(LocalDateTime.now());
-    fournisseurProduit.setUpdatedAt(fournisseurProduit.getCreatedAt());
-    fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-    fournisseurProduit.setCodeCip(dto.getCodeCip());
-    fournisseurProduit.setPrincipal(true);
-    fournisseurProduit.setPrixAchat(dto.getCostAmount());
-    fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
-    return fournisseurProduit;
-  }
-
-  public static FournisseurProduitDTO fromPrincipal(Produit produit) {
-    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-    return Optional.ofNullable(fournisseurProduit).map(FournisseurProduitDTO::new).orElse(null);
-  }
-
-  public static Produit buildProduitFromProduitDTO(ProduitDTO produitDTO, Produit produit) {
-    produit.setUpdatedAt(LocalDateTime.now());
-    produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
-    produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
-    produit.setCostAmount(produitDTO.getCostAmount());
-    produit.setCmuAmount(produitDTO.getCmuAmount());
-    if (produitDTO.getDeconditionnable()) {
-      produit.setItemCostAmount(produitDTO.getItemCostAmount());
-      produit.setItemQty(produitDTO.getItemQty());
-      produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-    } else {
-      produit.setItemCostAmount(produitDTO.getCostAmount());
-      produit.setItemQty(1);
-      produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
+    public static FamilleProduit familleProduitFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        FamilleProduit entity = new FamilleProduit();
+        entity.setId(id);
+        return entity;
     }
-    produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-    produit.setCodeEan(produitDTO.getCodeEan());
-    produit.setCheckExpiryDate(produitDTO.getDateperemption());
-    produit.setDeconditionnable(produitDTO.getDeconditionnable());
-    produit.setQtyAppro(produitDTO.getQtyAppro());
-    produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-    if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
-      produit.setPerimeAt(
-          LocalDate.parse(
-              produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+    public static GammeProduit gammeFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        GammeProduit entity = new GammeProduit();
+        entity.setId(id);
+        return entity;
     }
-    produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
-    produit.setTva(tvaFromId(produitDTO.getTvaId()));
-    produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
-    produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-    produit.setGamme(gammeFromId(produitDTO.getGammeId()));
-    produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
-    produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-    produit.addFournisseurProduit(fournisseurProduitProduit(produit, produitDTO));
-    return produit;
-  }
 
-  public static FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
-    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-    fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-    fournisseurProduit.setUpdatedAt(LocalDateTime.now());
-    fournisseurProduit.setCodeCip(dto.getCodeCip());
-    fournisseurProduit.setPrixAchat(dto.getCostAmount());
-    fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
-    fournisseurProduit.setProduit(produit);
-    return fournisseurProduit;
-  }
-
-  public static ProduitDTO fromProduitWithRequiredParentRelation(Produit produit) {
-    ProduitDTO produitDTO = partialFromProduit(produit);
-    TypeEtiquette(produitDTO, produit);
-    tva(produitDTO, produit);
-    rayonProduits(produitDTO, produit);
-    produitDTO.setStatus(produit.getStatus().ordinal());
-    produitDTO.setTableau(
-        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
-    produitDTO.setFournisseurProduit(
-        Optional.ofNullable(produit.getFournisseurProduitPrincipal())
-            .map(FournisseurProduitDTO::new)
-            .orElse(null));
-    produitDTO.setDisplayField(buildDisplayName(produitDTO));
-    setUnitPrice(produitDTO);
-    return produitDTO;
-  }
-
-  public static String buildDisplayName(ProduitDTO produitDTO) {
-    FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
-    TableauDTO tableau = produitDTO.getTableau();
-    if (Objects.nonNull(fournisseurProduitDTO)) {
-      return String.format(
-          "%s %s %s ",
-          produitDTO.getLibelle(),
-          fournisseurProduitDTO.getCodeCip(),
-          NumberUtil.formatToString(
-              Optional.ofNullable(tableau)
-                  .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
-                  .orElse(fournisseurProduitDTO.getPrixUni())));
+    public static StockProduit stockProduitFromProduitDTO(Storage storage) {
+        StockProduit stockProduit = new StockProduit();
+        stockProduit.setQtyStock(0);
+        stockProduit.setQtyVirtual(0);
+        stockProduit.setCreatedAt(LocalDateTime.now());
+        stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
+        stockProduit.setQtyUG(0);
+        stockProduit.setStorage(storage);
+        return stockProduit;
     }
-    return String.format(
-        "%s %s %s ",
-        produitDTO.getLibelle(),
-        produitDTO.getCodeEan(),
-        NumberUtil.formatToString(
-            Optional.ofNullable(tableau)
-                .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
-                .orElse(produitDTO.getRegularUnitPrice())));
-  }
 
-  public static void setUnitPrice(ProduitDTO produitDTO) {
-    FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
-    TableauDTO tableau = produitDTO.getTableau();
-    if (Objects.nonNull(fournisseurProduitDTO)) {
-      produitDTO.setUnitPrice(
-          Optional.ofNullable(tableau)
-              .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
-              .orElse(fournisseurProduitDTO.getPrixUni()));
-    } else {
-      produitDTO.setUnitPrice(
-          Optional.ofNullable(tableau)
-              .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
-              .orElse(produitDTO.getRegularUnitPrice()));
+    public static FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto) {
+        FournisseurProduit fournisseurProduit = new FournisseurProduit();
+        fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
+        fournisseurProduit.setCodeCip(dto.getCodeCip());
+        fournisseurProduit.setPrincipal(true);
+        fournisseurProduit.setPrixAchat(dto.getCostAmount());
+        fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
+        return fournisseurProduit;
     }
-  }
 
-  public static ProduitDTO fromEntity(Produit produit) {
-    ProduitDTO produitDTO = partialFromProduit(produit);
-    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-    TypeEtiquette(produitDTO, produit);
-    tva(produitDTO, produit);
-    rayonProduits(produitDTO, produit);
-    produitDTO.setStatus(produit.getStatus().ordinal());
-    produitDTO.setTableau(
-        Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
-    produitDTO.setDisplayField(buildDisplayName(produitDTO, fournisseurProduit));
-    setUnitPrice(produitDTO, fournisseurProduit);
-    return produitDTO;
-  }
-
-  public static String buildDisplayName(
-      ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-
-    TableauDTO tableau = produitDTO.getTableau();
-    if (Objects.nonNull(fournisseurProduit)) {
-      return String.format(
-          "%s %s %s ",
-          produitDTO.getLibelle(),
-          fournisseurProduit.getCodeCip(),
-          NumberUtil.formatToString(
-              Optional.ofNullable(tableau)
-                  .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
-                  .orElse(fournisseurProduit.getPrixUni())));
+    public static FournisseurProduitDTO fromPrincipal(Produit produit) {
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        return Optional.ofNullable(fournisseurProduit).map(FournisseurProduitDTO::new).orElse(null);
     }
-    return String.format(
-        "%s %s %s ",
-        produitDTO.getLibelle(),
-        produitDTO.getCodeEan(),
-        NumberUtil.formatToString(
-            Optional.ofNullable(tableau)
-                .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
-                .orElse(produitDTO.getRegularUnitPrice())));
-  }
 
-  public static void setUnitPrice(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-
-    TableauDTO tableau = produitDTO.getTableau();
-    if (Objects.nonNull(fournisseurProduit)) {
-      produitDTO.setUnitPrice(
-          Optional.ofNullable(tableau)
-              .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
-              .orElse(fournisseurProduit.getPrixUni()));
-    } else {
-      produitDTO.setUnitPrice(
-          Optional.ofNullable(tableau)
-              .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
-              .orElse(produitDTO.getRegularUnitPrice()));
+    public static Produit buildProduitFromProduitDTO(ProduitDTO produitDTO, Produit produit) {
+        produit.setUpdatedAt(LocalDateTime.now());
+        produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
+        produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
+        produit.setCostAmount(produitDTO.getCostAmount());
+        produit.setCmuAmount(produitDTO.getCmuAmount());
+        if (produitDTO.getDeconditionnable()) {
+            produit.setItemCostAmount(produitDTO.getItemCostAmount());
+            produit.setItemQty(produitDTO.getItemQty());
+            produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
+        } else {
+            produit.setItemCostAmount(produitDTO.getCostAmount());
+            produit.setItemQty(1);
+            produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        }
+        produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCheckExpiryDate(produitDTO.getDateperemption());
+        produit.setDeconditionnable(produitDTO.getDeconditionnable());
+        produit.setQtyAppro(produitDTO.getQtyAppro());
+        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
+        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
+            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        }
+        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
+        produit.setTva(tvaFromId(produitDTO.getTvaId()));
+        produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
+        produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
+        produit.setGamme(gammeFromId(produitDTO.getGammeId()));
+        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
+        produit.setForme(formProduitFromId(produitDTO.getFormeId()));
+        produit.addFournisseurProduit(fournisseurProduitProduit(produit, produitDTO));
+        return produit;
     }
-  }
 
-  public static ProduitDTO fromProductLiteList(
-      Produit produit, StockProduit stockProduitPointOfSale, Magasin magasin) {
-    ProduitDTO produitDTO = partialFromProduit(produit);
-    rayonProduits(produitDTO, produit);
-    produitDTO.setStatus(produit.getStatus().ordinal());
-    stockProduits(produitDTO, produit, magasin.getId());
-    stockProduit(produitDTO, stockProduitPointOfSale);
-    produitDTO.setFournisseurProduit(
-        Optional.ofNullable(produit.getFournisseurProduitPrincipal())
-            .map(FournisseurProduitDTO::new)
-            .orElse(null));
-    //  produitDTO.setDisplayField(buildDisplayName(produitDTO));
-    setUnitPrice(produitDTO);
-    return produitDTO;
-  }
+    public static FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
+        fournisseurProduit.setCodeCip(dto.getCodeCip());
+        fournisseurProduit.setPrixAchat(dto.getCostAmount());
+        fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
+        fournisseurProduit.setProduit(produit);
+        return fournisseurProduit;
+    }
+
+    public static ProduitDTO fromProduitWithRequiredParentRelation(Produit produit) {
+        ProduitDTO produitDTO = partialFromProduit(produit);
+        TypeEtiquette(produitDTO, produit);
+        tva(produitDTO, produit);
+        rayonProduits(produitDTO, produit);
+        produitDTO.setStatus(produit.getStatus().ordinal());
+        produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+        produitDTO.setFournisseurProduit(
+            Optional.ofNullable(produit.getFournisseurProduitPrincipal()).map(FournisseurProduitDTO::new).orElse(null)
+        );
+        produitDTO.setDisplayField(buildDisplayName(produitDTO));
+        setUnitPrice(produitDTO);
+        return produitDTO;
+    }
+
+    public static String buildDisplayName(ProduitDTO produitDTO) {
+        FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
+        TableauDTO tableau = produitDTO.getTableau();
+        if (Objects.nonNull(fournisseurProduitDTO)) {
+            return String.format(
+                "%s %s %s ",
+                produitDTO.getLibelle(),
+                fournisseurProduitDTO.getCodeCip(),
+                NumberUtil.formatToString(
+                    Optional.ofNullable(tableau)
+                        .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
+                        .orElse(fournisseurProduitDTO.getPrixUni())
+                )
+            );
+        }
+        return String.format(
+            "%s %s %s ",
+            produitDTO.getLibelle(),
+            produitDTO.getCodeEan(),
+            NumberUtil.formatToString(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                    .orElse(produitDTO.getRegularUnitPrice())
+            )
+        );
+    }
+
+    public static void setUnitPrice(ProduitDTO produitDTO) {
+        FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
+        TableauDTO tableau = produitDTO.getTableau();
+        if (Objects.nonNull(fournisseurProduitDTO)) {
+            produitDTO.setUnitPrice(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
+                    .orElse(fournisseurProduitDTO.getPrixUni())
+            );
+        } else {
+            produitDTO.setUnitPrice(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                    .orElse(produitDTO.getRegularUnitPrice())
+            );
+        }
+    }
+
+    public static ProduitDTO fromEntity(Produit produit) {
+        ProduitDTO produitDTO = partialFromProduit(produit);
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        TypeEtiquette(produitDTO, produit);
+        tva(produitDTO, produit);
+        rayonProduits(produitDTO, produit);
+        produitDTO.setStatus(produit.getStatus().ordinal());
+        produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+        produitDTO.setDisplayField(buildDisplayName(produitDTO, fournisseurProduit));
+        setUnitPrice(produitDTO, fournisseurProduit);
+        return produitDTO;
+    }
+
+    public static String buildDisplayName(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
+        TableauDTO tableau = produitDTO.getTableau();
+        if (Objects.nonNull(fournisseurProduit)) {
+            return String.format(
+                "%s %s %s ",
+                produitDTO.getLibelle(),
+                fournisseurProduit.getCodeCip(),
+                NumberUtil.formatToString(
+                    Optional.ofNullable(tableau)
+                        .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
+                        .orElse(fournisseurProduit.getPrixUni())
+                )
+            );
+        }
+        return String.format(
+            "%s %s %s ",
+            produitDTO.getLibelle(),
+            produitDTO.getCodeEan(),
+            NumberUtil.formatToString(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                    .orElse(produitDTO.getRegularUnitPrice())
+            )
+        );
+    }
+
+    public static void setUnitPrice(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
+        TableauDTO tableau = produitDTO.getTableau();
+        if (Objects.nonNull(fournisseurProduit)) {
+            produitDTO.setUnitPrice(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
+                    .orElse(fournisseurProduit.getPrixUni())
+            );
+        } else {
+            produitDTO.setUnitPrice(
+                Optional.ofNullable(tableau)
+                    .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
+                    .orElse(produitDTO.getRegularUnitPrice())
+            );
+        }
+    }
+
+    public static ProduitDTO fromProductLiteList(Produit produit, StockProduit stockProduitPointOfSale, Magasin magasin) {
+        ProduitDTO produitDTO = partialFromProduit(produit);
+        rayonProduits(produitDTO, produit);
+        produitDTO.setStatus(produit.getStatus().ordinal());
+        stockProduits(produitDTO, produit, magasin.getId());
+        stockProduit(produitDTO, stockProduitPointOfSale);
+        produitDTO.setFournisseurProduit(
+            Optional.ofNullable(produit.getFournisseurProduitPrincipal()).map(FournisseurProduitDTO::new).orElse(null)
+        );
+        //  produitDTO.setDisplayField(buildDisplayName(produitDTO));
+        setUnitPrice(produitDTO);
+        return produitDTO;
+    }
 }

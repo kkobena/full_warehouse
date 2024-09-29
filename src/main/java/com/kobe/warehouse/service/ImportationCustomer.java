@@ -154,7 +154,6 @@ public class ImportationCustomer {
         uninsuredCustomer.setStatus(Status.ENABLE);
         uninsuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
         uninsuredCustomer.setCode(dto.getCode());
-        uninsuredCustomer.setUniqueId(dto.getUniqueId());
         return uninsuredCustomer;
     }
 
@@ -172,7 +171,7 @@ public class ImportationCustomer {
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
         assuredCustomer.setNumAyantDroit(dto.getNumAyantDroit());
         assuredCustomer.setCode(dto.getCode());
-        assuredCustomer.setUniqueId(dto.getUniqueId());
+
         return assuredCustomer;
     }
 

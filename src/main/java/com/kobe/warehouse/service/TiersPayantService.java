@@ -1,8 +1,10 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.service.dto.TiersPayantMapper;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
+import java.util.List;
 
 public interface TiersPayantService extends TiersPayantMapper {
     TiersPayantDto createFromDto(TiersPayantDto dto) throws GenericError;
@@ -13,5 +15,7 @@ public interface TiersPayantService extends TiersPayantMapper {
 
     void delete(Long id) throws GenericError;
 
+    List<Pair> getModelFacture();
 
+    List<Pair> getOrdreTrisFacture();
 }

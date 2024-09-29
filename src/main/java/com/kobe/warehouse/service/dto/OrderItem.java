@@ -17,6 +17,7 @@ public class OrderItem {
     private int ligne;
     private String facture;
     private String etablissement;
+    private String datePeremption;
 
     public OrderItem() {}
 
@@ -108,6 +109,14 @@ public class OrderItem {
     public OrderItem setUg(int ug) {
         this.ug = ug;
         return this;
+    }
+
+    public String getDatePeremption() {
+        return datePeremption;
+    }
+
+    public void setDatePeremption(String datePeremption) {
+        this.datePeremption = datePeremption;
     }
 
     public double getPrixUn() {

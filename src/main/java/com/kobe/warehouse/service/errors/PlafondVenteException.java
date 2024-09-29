@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.errors;
+package com.kobe.warehouse.service.errors;
 
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import org.springframework.http.HttpStatus;

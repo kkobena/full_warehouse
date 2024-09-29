@@ -81,20 +81,12 @@
             <span class="p-buttonset">
         <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
                   styleClass="p-button-info"></p-button>
-        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-                       label="Importer" styleClass="p-button-raised p-button-help"
-        ></p-splitButton>
-        <p-button (click)="addAssureCustomer()"
-                  icon="pi pi-user-plus"
-                  label="Nouveau client assuré" styleClass="p-button-raised   p-button-danger "
-        >
-        </p-button>
-                  <p-button (click)="addUninsuredCustomer()"
-                            icon="pi pi-user-plus"
-                            label="Nouveau client standard"
-                            styleClass="p-button-raised   p-button-secondary "
-                  >
-        </p-button>
+
+               <p-splitButton [model]="newCustomerbuttons" icon="pi pi-user-plus"
+                              label="Nouveau client" styleClass="p-button-raised p-button-secondary"
+               ></p-splitButton>
+
+
             </span>
     </div>
   </p-toolbar>
@@ -163,11 +155,14 @@
                   <fa-icon icon="pencil-alt"></fa-icon>
 
                 </button>
-                <button (click)="addAyantDroit(customer)"
-                        class="btn btn-success btn-sm" data-placement="left"
-                        pTooltip="Ajouter un ayant droit" type="button">
-                  <fa-icon icon="users"></fa-icon>
-                </button>
+                @if (customer.typeTiersPayant === 'ASSURANCE') {
+                  <button (click)="addAyantDroit(customer)"
+                          class="btn btn-success btn-sm" data-placement="left"
+                          pTooltip="Ajouter un ayant droit" type="button">
+                    <fa-icon icon="users"></fa-icon>
+                  </button>
+                }
+
               }
 
               <!--   <button *ngIf="customer.categorie==='ASSURE'" type="button"
@@ -246,57 +241,57 @@
                 </div>
 
                 <div class="row col-md-7">
+                  @if (customer.typeTiersPayant === 'ASSURANCE') {
+                    <div class="card col-12 mb-2">
+                      <div class="card-header bg-primary text-white">AYANTS DROITS</div>
+                      <div class="card-body">
+                        <table class="table table-striped">
+                          <thead>
+                          <tr>
+                            <th style="width:40%;">Nom et prenom(s)</th>
+                            <th style="width: 20%;">N° Sécu</th>
+                            <th style="width:17%;">Date de naissance</th>
+                            <th style="width:8%;">Sexe</th>
+                            <th style="width:15%; text-align:right;">
+                              <button (click)="addAyantDroit(customer)"
+                                      class="p-button-rounded p-button-primary" icon="pi pi-plus"
+                                      pButton
+                                      pTooltip="Ajouter un ayant droit"></button>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                            @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
+                              <tr>
+                                <td>{{ ayantDroit?.fullName }}</td>
+                                <td>{{ ayantDroit?.numAyantDroit }}</td>
+                                <td>{{ ayantDroit?.datNaiss |date:'dd/MM/yyyy' }}</td>
+                                <td>{{ ayantDroit?.sexe }}</td>
+                                <td class="text-right">
+                                  <div class="btn-group">
+                                    <button (click)="editAyantDroit(customer,ayantDroit)"
+                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"
+                                            icon="pi pi-pencil"
+                                            pButton
+                                            pRipple
+                                            pTooltip="Editer"></button>
+                                    <button (click)="confirmRemoveAyantDroit(ayantDroit)"
+                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
+                                            icon="pi pi-trash"
+                                            pButton
+                                            pRipple
+                                            pTooltip="Supprimer"></button>
+                                  </div>
+                                </td>
+                              </tr>
+                            }
 
-                  <div class="card col-12 mb-2">
-                    <div class="card-header bg-primary text-white">AYANTS DROITS</div>
-                    <div class="card-body">
-                      <table class="table table-striped">
-                        <thead>
-                        <tr>
-                          <th style="width:40%;">Nom et prenom(s)</th>
-                          <th style="width: 20%;">N° Sécu</th>
-                          <th style="width:17%;">Date de naissance</th>
-                          <th style="width:8%;">Sexe</th>
-                          <th style="width:15%; text-align:right;">
-                            <button (click)="addAyantDroit(customer)"
-                                    class="p-button-rounded p-button-primary" icon="pi pi-plus"
-                                    pButton
-                                    pTooltip="Ajouter un ayant droit"></button>
-                          </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                          @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
-                            <tr>
-                              <td>{{ ayantDroit?.fullName }}</td>
-                              <td>{{ ayantDroit?.numAyantDroit }}</td>
-                              <td>{{ ayantDroit?.datNaiss |date:'dd/MM/yyyy' }}</td>
-                              <td>{{ ayantDroit?.sexe }}</td>
-                              <td class="text-right">
-                                <div class="btn-group">
-                                  <button (click)="editAyantDroit(customer,ayantDroit)"
-                                          class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"
-                                          icon="pi pi-pencil"
-                                          pButton
-                                          pRipple
-                                          pTooltip="Editer"></button>
-                                  <button (click)="confirmRemoveAyantDroit(ayantDroit)"
-                                          class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
-                                          icon="pi pi-trash"
-                                          pButton
-                                          pRipple
-                                          pTooltip="Supprimer"></button>
-                                </div>
-                              </td>
-                            </tr>
-                          }
 
-
-                        </tbody>
-                      </table>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-
+                  }
 
                   <div class="card col-12">
                     <div class="card-header bg-primary text-white">TIERS-PAYANTS</div>
@@ -341,12 +336,16 @@
                                       icon="pi pi-pencil" pButton
                                       pRipple
                                       pTooltip="Editer les infos du tierspayant"></button>
-                                    <button
-                                      class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
-                                      icon="pi pi-trash" pButton
-                                      pRipple
-                                      pTooltip="Supprimer"
-                                      (click)="onRemoveTiersPayant(tierspayant)"></button>
+                                    @if (customer.typeTiersPayant === 'ASSURANCE'
+                                    && customer.tiersPayants.length > 1) {
+                                      <button
+                                        class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
+                                        icon="pi pi-trash" pButton
+                                        pRipple
+                                        pTooltip="Supprimer"
+                                        (click)="onRemoveTiersPayant(tierspayant)"></button>
+                                    }
+
                                   </div>
                                 </td>
                               }

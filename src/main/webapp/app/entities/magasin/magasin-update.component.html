@@ -12,33 +12,64 @@
           </div>
 
           <div class="form-group">
+            <label class="form-control-label" for="field_fullName"
+                   jhiTranslate="warehouseApp.magasin.name">Raison sociale</label>
+            <input class="form-control" formControlName="fullName" id="field_fullName"
+                   name="fullName"
+                   type="text" />
+            @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty
+              || editForm.get('fullName')!.touched)) {
+              <div>
+                @if (editForm.get('fullName')?.errors?.required) {
+                  <small
+                    class="form-text text-danger"
+                    jhiTranslate="entity.validation.required">
+                    This field is required.
+                  </small>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
             <label class="form-control-label" for="field_name"
-                   jhiTranslate="warehouseApp.magasin.name">Name</label>
+            >Nom abrégé</label>
             <input class="form-control" formControlName="name" id="field_name" name="name"
                    type="text" />
-            <div
-              *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
-              <small *ngIf="editForm.get('name')?.errors?.required"
-                     class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
-            </div>
+            @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
+              'name')!.touched)) {
+              <div>
+                @if (editForm.get('name')?.errors?.required) {
+                  <small
+                    class="form-text text-danger"
+                    jhiTranslate="entity.validation.required">
+                    This field is required.
+                  </small>
+                }
+              </div>
+            }
           </div>
+
 
           <div class="form-group">
             <label class="form-control-label" for="field_phone"
                    jhiTranslate="warehouseApp.magasin.phone">Phone</label>
             <input class="form-control" formControlName="phone" id="field_phone" name="phone"
                    type="text" />
-            <div
-              *ngIf="editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)">
-              <small *ngIf="editForm.get('phone')?.errors?.required"
-                     class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
-            </div>
+            @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get(
+              'phone')!.touched)) {
+              <div>
+                @if (editForm.get('phone')?.errors?.required) {
+                  <small
+                    class="form-text text-danger"
+                    jhiTranslate="entity.validation.required">
+                    This field is required.
+                  </small>
+
+                }
+
+              </div>
+            }
           </div>
 
           <div class="form-group">

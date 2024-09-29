@@ -269,8 +269,6 @@ public class ImportationProduitService {
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setPrincipal(p.isPrincipal());
         fournisseurProduit.setCodeCip(p.getCodeCip());
-        fournisseurProduit.setCreatedAt(LocalDateTime.now());
-        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         return fournisseurProduit;
     }
 

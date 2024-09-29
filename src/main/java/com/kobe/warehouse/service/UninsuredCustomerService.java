@@ -1,14 +1,17 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
-import com.kobe.warehouse.web.rest.errors.CustomerAlreadyExistException;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.CustomerAlreadyExistException;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,6 +36,9 @@ public class UninsuredCustomerService {
         if (uninsuredCustomerOptional.isPresent()) {
             throw new CustomerAlreadyExistException();
         }
+        if (org.springframework.util.StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
+            throw new InvalidPhoneNumberException();
+        }
         var uninsuredCustomer = new UninsuredCustomer();
         uninsuredCustomer.setCreatedAt(LocalDateTime.now());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());
@@ -48,8 +54,11 @@ public class UninsuredCustomerService {
 
     public UninsuredCustomerDTO update(UninsuredCustomerDTO dto) throws CustomerAlreadyExistException {
         Optional<UninsuredCustomer> uninsuredCustomerOptional = findOne(dto);
-        if (uninsuredCustomerOptional.isPresent() && uninsuredCustomerOptional.get().getId() != dto.getId()) {
+        if (uninsuredCustomerOptional.isPresent() && !Objects.equals(uninsuredCustomerOptional.get().getId(), dto.getId())) {
             throw new CustomerAlreadyExistException();
+        }
+        if (org.springframework.util.StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
+            throw new InvalidPhoneNumberException();
         }
         var uninsuredCustomer = uninsuredCustomerRepository.getReferenceById(dto.getId());
         uninsuredCustomer.setUpdatedAt(uninsuredCustomer.getUpdatedAt());

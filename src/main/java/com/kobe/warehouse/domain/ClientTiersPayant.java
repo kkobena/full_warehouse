@@ -66,7 +66,7 @@ public class ClientTiersPayant implements Serializable {
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "priorite", nullable = false)
-    private PrioriteTiersPayant priorite = PrioriteTiersPayant.T0;
+    private PrioriteTiersPayant priorite = PrioriteTiersPayant.R0;
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)

@@ -1,6 +1,7 @@
 <p-confirmDialog #comfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="comfirmDialog">
   <p-footer>
-    <button (click)="comfirmDialog.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
+    <button (click)="comfirmDialog.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
             type="button"></button>
     <button (click)="comfirmDialog.accept()" icon="pi pi-check" label="Oui" pButton
             type="button"></button>
@@ -16,20 +17,25 @@
     </p-fileUpload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times" label="Annuler"
+    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
+            label="Annuler"
             pButton
             pRipple type="button"></button>
   </p-footer>
 </p-dialog>
 <div>
-  <div *ngIf="responseDialog" class="mb-2">
+  @if (responseDialog) {
+    <div class="mb-2">
         <span
           [ngClass]="(responsedto?.size===responsedto?.totalSize)?'text-success fw-bold':'text-danger fw-bold'">{{ jsonFileUploadStatutProgress }}</span>
-    <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
-  </div>
+      <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
+    </div>
+  }
 
 
-  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation"
+
+  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+               name="importation"
                size="medium"
                type="timer">
   </ngx-spinner>
@@ -43,7 +49,7 @@
       <div class="row">
         <div class="col">
           <p-dropdown (onChange)="onSearch()" [(ngModel)]="typeSelected" [filter]="false"
-                      [options]="type"
+                      [options]="type" [style]="{width: '180px'}"
                       styleClass="dropdown-width">
           </p-dropdown>
         </div>
@@ -52,7 +58,8 @@
         <div class="col">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                                <input (keyup.enter)="onSearch()" [(ngModel)]="search"
+                                       [style]="{width: '350px'}" pInputText
                                        placeholder="Taper pour rechercher"
                                        type="text">
                             </span>
@@ -65,95 +72,106 @@
              <span class="p-buttonset">
             <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
                       styleClass="p-button-info"></p-button>
-            <p-splitButton [model]="splitbuttons" icon="pi pi-upload" label="Importation"
-                           styleClass="p-button-raised p-button-help"></p-splitButton>
+            <p-button icon="pi pi-upload" label="Importation"
+                      styleClass="p-button-raised p-button-help"></p-button>
 
 
             <p-splitButton [model]="tiersPayantSplitbuttons"
                            icon="pi pi-user-plus"
-                           label="Nouveau tiers-payant" styleClass="p-button-raised   p-button-success "
+                           label="Nouveau tiers-payant"
+                           styleClass="p-button-raised   p-button-success "
             >
             </p-splitButton> </span>
     </div>
   </p-toolbar>
-  <div *ngIf="tiersPayants?.length === 0" class="alert alert-warning mt-2">
-    <span>Aucune donnée trouvée</span>
-  </div>
-  <p-table (onLazyLoad)="lazyLoading($event)" *ngIf="tiersPayants && tiersPayants.length > 0" [lazy]="true"
-           [loading]="loading"
-           [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
-           [rows]="itemsPerPage"
-           [showCurrentPageReport]="true"
-           [totalRecords]="totalItems"
-           [value]="tiersPayants" currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-           dataKey="id"
-           dataKey="id"
-           selectionMode="single"
-           styleClass="p-datatable-gridlines mt-2"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th style="width:3%"></th>
-        <th style="width:9%">Type</th>
-        <th style="width:7%">Code</th>
-        <th style="width:15%">Nom abrégé</th>
-        <th style="width:20%">Nom longue</th>
-        <th style="width:10%">Téléphone</th>
-        <th style="width:8%">Plafond</th>
-        <th style="width:7%">Encours</th>
-        <th style="width:7%">Nbre Clients</th>
-        <th style="width:14%"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-expanded="expanded" let-tiersPayant pTemplate="body">
-      <tr>
-        <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="tiersPayant" class="p-button-text p-button-rounded p-button-plain" pButton
-                  pRipple
-                  type="button"></button>
-        </td>
-        <td>{{ tiersPayant.categorie }}</td>
-        <td>{{ tiersPayant.codeOrganisme }}</td>
-        <td>{{ tiersPayant.name }}</td>
-        <td>{{ tiersPayant.fullName }}</td>
-        <td>{{ tiersPayant.telephone }}</td>
-        <td class="text-right">{{ tiersPayant.plafondConso |number }}</td>
-        <td class="text-right">{{ tiersPayant.encours |number }}</td>
-        <td class="text-right">{{ tiersPayant.customers?.length  |number }}</td>
 
-        <td class="text-right">
-          <div class="btn-group">
-            <button [routerLink]="['/tiers-payant', tiersPayant.id, 'view']" class="btn btn-info btn-sm"
-                    pTooltip="Voir détails" type="submit">
-              <fa-icon icon="eye"></fa-icon>
+  @if (tiersPayants && tiersPayants.length > 0) {
+    <p-table (onLazyLoad)="lazyLoading($event)" [lazy]="true"
+             [loading]="loading"
+             [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
+             [rows]="itemsPerPage"
+             [showCurrentPageReport]="true"
+             [totalRecords]="totalItems"
+             [value]="tiersPayants"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+             dataKey="id"
+             selectionMode="single"
+             styleClass="p-datatable-gridlines mt-2"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:3%"></th>
+          <th style="width:9%">Type</th>
+          <th style="width:7%">Code</th>
+          <th style="width:15%">Nom abrégé</th>
+          <th style="width:20%">Nom longue</th>
+          <th style="width:10%">Téléphone</th>
+          <th style="width:8%">Plafond</th>
+          <th style="width:7%">Encours</th>
+          <th style="width:7%">Nbre Clients</th>
+          <th style="width:14%"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-expanded="expanded" let-tiersPayant pTemplate="body">
+        <tr>
+          <td>
+            <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [pRowToggler]="tiersPayant"
+                    class="p-button-text p-button-rounded p-button-plain" pButton
+                    pRipple
+                    type="button"></button>
+          </td>
+          <td>{{ tiersPayant.categorie }}</td>
+          <td>{{ tiersPayant.codeOrganisme }}</td>
+          <td>{{ tiersPayant.name }}</td>
+          <td>{{ tiersPayant.fullName }}</td>
+          <td>{{ tiersPayant.telephone }}</td>
+          <td class="text-right">{{ tiersPayant.plafondConso |number }}</td>
+          <td class="text-right">{{ tiersPayant.encours |number }}</td>
+          <td class="text-right">{{ tiersPayant.customers?.length  |number }}</td>
 
-            </button>
+          <td class="text-right">
+            <div class="btn-group">
+              <button [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
+                      class="btn btn-info btn-sm"
+                      pTooltip="Voir détails" type="submit">
+                <fa-icon icon="eye"></fa-icon>
+
+              </button>
 
 
-            <button (click)="editTiersPayant(tiersPayant)" class="btn btn-primary btn-sm"
-                    data-placement="left" pTooltip="Editer" type="button"
-            >
-              <fa-icon icon="pencil-alt"></fa-icon>
-            </button>
+              <button (click)="editTiersPayant(tiersPayant)" class="btn btn-primary btn-sm"
+                      data-placement="left" pTooltip="Editer" type="button"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+              </button>
 
-            <button (click)="confirmRemove(tiersPayant)" class="btn btn-danger btn-sm" pTooltip="Supprimer"
-                    type="button">
-              <fa-icon icon="times"></fa-icon>
-            </button>
-            <button (click)="confirmDesactivation(tiersPayant)" class="btn btn-warning btn-sm" pTooltip="Désativer"
-                    type="button">
-              <fa-icon icon="lock"></fa-icon>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template let-tiersPayant pTemplate="rowexpansion">
-      <tr>
+              <button (click)="confirmRemove(tiersPayant)" class="btn btn-danger btn-sm"
+                      pTooltip="Supprimer"
+                      type="button">
+                <fa-icon icon="times"></fa-icon>
+              </button>
+              <button (click)="confirmDesactivation(tiersPayant)" class="btn btn-warning btn-sm"
+                      pTooltip="Désativer"
+                      type="button">
+                <fa-icon icon="lock"></fa-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template let-tiersPayant pTemplate="rowexpansion">
+        <tr>
 
-      </tr>
-    </ng-template>
+        </tr>
+      </ng-template>
 
-  </p-table>
+    </p-table>
+  } @else {
+    <div class="alert alert-warning mt-2">
+      <span>Aucune donnée trouvée</span>
+    </div>
+  }
+
 
 </div>

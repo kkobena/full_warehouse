@@ -199,7 +199,12 @@
 
 
     </form>
+    @if ((assureFormStepService.typeAssure() === 'ASSURANCE'
+      || assureFormStepService.assure()?.typeTiersPayant === 'ASSURANCE') && editForm.valid) {
+      <jhi-complementaire-step></jhi-complementaire-step>
+    }
 
   </ng-template>
+
 
 </p-card>

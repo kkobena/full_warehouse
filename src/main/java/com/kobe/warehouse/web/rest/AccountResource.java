@@ -9,9 +9,9 @@ import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
-import com.kobe.warehouse.web.rest.errors.EmailAlreadyUsedException;
-import com.kobe.warehouse.web.rest.errors.InvalidPasswordException;
-import com.kobe.warehouse.web.rest.errors.LoginAlreadyUsedException;
+import com.kobe.warehouse.service.errors.EmailAlreadyUsedException;
+import com.kobe.warehouse.service.errors.InvalidPasswordException;
+import com.kobe.warehouse.service.errors.LoginAlreadyUsedException;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
@@ -165,9 +165,8 @@ public class AccountResource extends AccountResourcesProxy {
      * {@code DELETE /account/sessions?series={series}} : invalidate an existing session.
      *
      * <p>- You can only delete your own sessions, not any other user's session - If you delete one
-     * of
-     * your existing sessions, and that you are currently logged in on that session, you will still
-     * be able to use that session, until you quit your browser: it does not work in real time
+     * of your existing sessions, and that you are currently logged in on that session, you will
+     * still be able to use that session, until you quit your browser: it does not work in real time
      * (there is no API for that), it only removes the "remember me" cookie - This is also true if
      * you invalidate your current session: you will still be able to use it until you close your
      * browser or that the session times out. But automatic login (the "remember me" cookie) will

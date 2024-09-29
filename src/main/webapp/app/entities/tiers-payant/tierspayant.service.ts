@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IResponseDto } from 'app/shared/util/response-dto';
-import { ITiersPayant } from '../../shared/model/tierspayant.model';
+import { ITiersPayant, ModelFacture, OrdreTrisFacture } from '../../shared/model/tierspayant.model';
 
 type EntityResponseType = HttpResponse<ITiersPayant>;
 type EntityArrayResponseType = HttpResponse<ITiersPayant[]>;
@@ -50,5 +50,17 @@ export class TiersPayantService {
 
   desable(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/desable/${id}`, { observe: 'response' });
+  }
+
+  getModelFacture(): Observable<HttpResponse<ModelFacture[]>> {
+    return this.http.get<ModelFacture[]>(this.resourceUrl + '/models-facture', {
+      observe: 'response',
+    });
+  }
+
+  getOrdreTrisFacture(): Observable<HttpResponse<OrdreTrisFacture[]>> {
+    return this.http.get<OrdreTrisFacture[]>(this.resourceUrl + '/order-tris-facture', {
+      observe: 'response',
+    });
   }
 }

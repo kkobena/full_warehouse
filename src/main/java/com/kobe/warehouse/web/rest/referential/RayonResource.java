@@ -3,7 +3,7 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;

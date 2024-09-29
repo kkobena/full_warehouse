@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.errors;
+package com.kobe.warehouse.service.errors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.ErrorResponseException;
@@ -15,7 +15,7 @@ public class InvalidPasswordException extends ErrorResponseException {
             ProblemDetailWithCauseBuilder.instance()
                 .withStatus(HttpStatus.BAD_REQUEST.value())
                 .withType(ErrorConstants.INVALID_PASSWORD_TYPE)
-                .withTitle("Incorrect password")
+                .withTitle("Le mot de passe n'est pas correct")
                 .build(),
             null
         );

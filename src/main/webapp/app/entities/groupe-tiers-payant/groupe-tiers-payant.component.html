@@ -67,6 +67,7 @@
       <ng-template pTemplate="header">
         <tr>
           <th scope="col"><span>Libellé</span></th>
+          <th scope="col"><span>Ordre de tris</span></th>
           <th scope="col"><span>Adresse</span></th>
           <th scope="col"><span>Téléphone</span></th>
           <th scope="col"><span>Téléphone fixe</span></th>
@@ -76,6 +77,7 @@
       <ng-template let-columns="columns" let-groupeTiersPayant pTemplate="body">
         <tr [pSelectableRow]="selectedEl">
           <td>{{ groupeTiersPayant.name }}</td>
+          <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
           <td>{{ groupeTiersPayant.adresse }}</td>
           <td>{{ groupeTiersPayant.telephone }}</td>
           <td>{{ groupeTiersPayant.telephoneFixe }}</td>

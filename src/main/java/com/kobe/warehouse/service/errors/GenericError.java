@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.errors;
+package com.kobe.warehouse.service.errors;
 
 public class GenericError extends BadRequestAlertException {
 

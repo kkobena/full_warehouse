@@ -2,7 +2,7 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.service.RayonProduitService;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
-import com.kobe.warehouse.web.rest.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

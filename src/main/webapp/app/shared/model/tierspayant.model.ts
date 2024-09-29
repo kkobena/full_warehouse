@@ -10,8 +10,12 @@ export interface ITiersPayant {
   montantMaxParFcture?: number;
   codeOrganisme?: string;
   codeRegroupement?: string;
+  modelFacture?: string;
+  ordreTrisFacture?: string;
   consoMensuelle?: number;
   plafondAbsolu?: boolean;
+  useReferencedPrice?: boolean;
+  cmu?: boolean;
   adresse?: string;
   telephone?: string;
   telephoneFixe?: string;
@@ -58,6 +62,16 @@ export class TiersPayant implements ITiersPayant {
     public groupeTiersPayantName?: string,
     public groupeTiersPayantId?: number,
     public encours?: number,
-    public customers?: ICustomer[]
+    public customers?: ICustomer[],
   ) {}
+}
+
+export class ModelFacture {
+  key?: string;
+  value?: string;
+}
+
+export class OrdreTrisFacture {
+  key?: string;
+  value?: string;
 }

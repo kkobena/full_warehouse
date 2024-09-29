@@ -842,7 +842,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       if (saveResponse.error.error?.errorKey === 'stock' || saveResponse.error.error?.errorKey === 'stockChInsufisant') {
         this.onStockError(saveResponse.payload as ISalesLine, saveResponse.error);
       } else {
-        this.onCommonError(saveResponse.error);
+        this.onCommonError(saveResponse);
       }
     }
   }
@@ -859,7 +859,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.resetAll();
     } else {
-      this.onCommonError(finalyseSale.error);
+      this.onCommonError(finalyseSale);
     }
   }
 
@@ -1074,17 +1074,17 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onCommonError(error: any): void {
-    if (error.status === 412) {
+    if (error.error.status === 412) {
       this.updateProduitQtyBox();
       if (!this.currentSaleService.plafondIsReached()) {
         this.currentSaleService.setPlafondIsReached(true);
-        this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
+        this.openInfoDialog(this.errorService.getErrorMessage(error.error), 'alert alert-danger');
       }
       if (this.currentSaleService.voFromCashSale()) {
         this.currentSaleService.setVoFromCashSale(false);
       }
     } else {
-      this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
+      this.openInfoDialog(this.errorService.getErrorMessage(error.error), 'alert alert-danger');
     }
   }
 

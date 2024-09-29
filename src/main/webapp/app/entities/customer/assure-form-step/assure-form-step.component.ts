@@ -13,7 +13,6 @@ import { Button } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { AssureStepComponent } from './assure-step.component';
 import { AyantDroitStepComponent } from './ayant-droit-step.component';
-import { ComplementaireStepComponent } from './complementaire-step.component';
 import { ErrorService } from '../../../shared/error.service';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
@@ -34,14 +33,12 @@ import { CommonService } from './common.service';
     ToastModule,
     AssureStepComponent,
     AyantDroitStepComponent,
-    ComplementaireStepComponent,
   ],
   templateUrl: './assure-form-step.component.html',
   providers: [MessageService],
 })
 export class AssureFormStepComponent implements OnInit {
   ayantDroitStepComponent = viewChild(AyantDroitStepComponent);
-  complementaireStepComponent = viewChild(ComplementaireStepComponent);
   assureStepComponent = viewChild(AssureStepComponent);
   items: MenuItem[];
   entity?: ICustomer;
@@ -52,6 +49,7 @@ export class AssureFormStepComponent implements OnInit {
   errorService = inject(ErrorService);
   customerService = inject(CustomerService);
   isSaving = false;
+  typeAssure: string | undefined;
 
   constructor(
     public ref: DynamicDialogRef,
@@ -60,13 +58,16 @@ export class AssureFormStepComponent implements OnInit {
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
-    const typeVente = this.config.data.typeVente;
-    this.commonService.categorieTiersPayant.set(typeVente);
-    this.commonService.categorie.set(typeVente);
 
+    this.typeAssure = this.config.data.typeAssure;
+    this.commonService.categorieTiersPayant.set(this.typeAssure);
+    this.commonService.categorie.set(this.typeAssure);
+    this.assureFormStepService.setTypeAssure(this.typeAssure);
+    this.assureFormStepService.setAssure(this.entity);
     if (this.entity) {
       this.assureFormStepService.setEdition(true);
-      this.assureFormStepService.setAssure(this.entity);
+    } else {
+      this.assureFormStepService.setEdition(false);
     }
   }
 
@@ -79,14 +80,6 @@ export class AssureFormStepComponent implements OnInit {
         this.ayantDroitStepComponent().saveFormState();
       }
     }
-    if (this.complementaireStepComponent()) {
-      this.complementaireStepComponent().saveFormState();
-    }
-  }
-
-  onGoBackFromComplementaire(prevCallback: any): void {
-    this.complementaireStepComponent().goBack();
-    prevCallback.emit();
   }
 
   onGoBackFromAyantDroit(prevCallback: any): void {
@@ -101,7 +94,7 @@ export class AssureFormStepComponent implements OnInit {
     this.assureFormStepService.setAssure({
       ...this.assureStepComponent().createFromForm(),
       ayantDroits: ayantDroits,
-      tiersPayants: complementaires,
+      // tiersPayants: complementaires,
     });
   }
 
@@ -121,11 +114,6 @@ export class AssureFormStepComponent implements OnInit {
       summary: 'Erreur',
       detail: this.errorService.getErrorMessage(error),
     });
-  }
-
-  onGoComplementaire(nextCallback: any): void {
-    this.ayantDroitStepComponent().onNext();
-    nextCallback.emit();
   }
 
   save(): void {

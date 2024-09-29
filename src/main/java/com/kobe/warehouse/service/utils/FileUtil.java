@@ -7,11 +7,10 @@ public final class FileUtil {
     public static final String CSV = "csv";
     public static final String TXT = "txt";
 
-    private FileUtil() {
-    }
+    private FileUtil() {}
 
     public static String getFileExtension(String fileName) {
         Objects.requireNonNull(fileName, "File name is required");
-        return fileName.substring(fileName.indexOf(".") + 1).toLowerCase();
+        return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
     }
 }

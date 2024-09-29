@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
@@ -12,7 +13,8 @@ import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.web.rest.errors.GenericError;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -48,7 +51,10 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public AssuredCustomer createFromDto(AssuredCustomerDTO dto) {
+    public AssuredCustomer createFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException {
+        if (StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
+            throw new InvalidPhoneNumberException();
+        }
         AssuredCustomer assuredCustomer = fromDto(dto);
         ayantDroitsFromDto(dto.getAyantDroits(), assuredCustomer);
         clientTiersPayantFromDto(dto.getTiersPayants(), assuredCustomer);
@@ -56,17 +62,20 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public AssuredCustomer updateFromDto(AssuredCustomerDTO dto) {
+    public AssuredCustomer updateFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException {
+        if (StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
+            throw new InvalidPhoneNumberException();
+        }
         AssuredCustomer assuredCustomer = fromDto(dto, assuredCustomerRepository.getReferenceById(dto.getId()));
         List<ClientTiersPayant> clientTiersPayants = clientTiersPayantRepository.findAllByAssuredCustomerId(assuredCustomer.getId());
         clientTiersPayants
             .stream()
-            .filter(e -> e.getPriorite() == PrioriteTiersPayant.T0)
+            .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
             .findFirst()
             .ifPresent(t0 -> this.clientTiersPayantRepository.save(getClientTiersPayantFromDto(dto, t0)));
         List<ClientTiersPayant> complementaires = clientTiersPayants
             .stream()
-            .filter(e -> e.getPriorite() != PrioriteTiersPayant.T0)
+            .filter(e -> e.getPriorite() != PrioriteTiersPayant.R0)
             .toList();
         if (dto.getTiersPayants() != null) {
             dto
@@ -134,7 +143,6 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public AssuredCustomerDTO mappEntityToDto(AssuredCustomer assuredCustomer) {
         List<ClientTiersPayantDTO> clientTiersPayantDTOS = clientTiersPayantRepository
             .findAllByAssuredCustomerId(assuredCustomer.getId())
@@ -172,8 +180,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
         ClientTiersPayant clientTiersPayant = getClientTiersPayantFromDto(dto);
         clientTiersPayant.setAssuredCustomer(assuredCustomer);
-        assuredCustomer.getClientTiersPayants().add(clientTiersPayant);
-        assuredCustomer = assuredCustomerRepository.save(assuredCustomer);
+        assuredCustomer.getClientTiersPayants().add(clientTiersPayantRepository.save(clientTiersPayant));
         return assuredCustomer;
     }
 

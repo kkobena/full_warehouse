@@ -335,3 +335,4 @@ FROM t_compte_client_tiers_payant cp join t_compte_client c on cp.lg_COMPTE_CLIE
          
   # export requete to csv       
 mysql -u username -p -e "SELECT * FROM your_table;" -B > output.csv
+npm install libphonenumber-js --save

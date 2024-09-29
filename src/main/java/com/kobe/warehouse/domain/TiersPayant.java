@@ -13,7 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -36,12 +38,14 @@ public class TiersPayant implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @NotEmpty
+    @Column(name = "name", nullable = false, length = 150)
     @NotNull
     private String name;
 
+    @NotEmpty
     @NotNull
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false, length = 200)
     private String fullName;
 
     @Column(name = "nbre_bons_max_sur_fact")
@@ -50,9 +54,11 @@ public class TiersPayant implements Serializable {
     @Column(name = "montant_max_sur_fact")
     private Long montantMaxParFcture;
 
+    @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "code_organisme", length = 100)
     private String codeOrganisme;
 
+    @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "code_regroupement", length = 100)
     private String codeRegroupement;
 
@@ -105,8 +111,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated = LocalDateTime.now();
 
-    @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne
     private User updatedBy;
 
     @JdbcTypeCode(SqlTypes.JSON)
@@ -116,9 +121,22 @@ public class TiersPayant implements Serializable {
     @Column(name = "is_cmu", nullable = false)
     private Boolean cmu = Boolean.FALSE;
 
-    private Boolean exclude = Boolean.FALSE;
+    @Column(name = "use_referenced_rrice")
+    private Boolean useReferencedPrice = Boolean.FALSE;
+
+    @Column(name = "model_facture", length = 20)
+    private String modelFacture;
 
     public TiersPayant() {}
+
+    public String getModelFacture() {
+        return modelFacture;
+    }
+
+    public TiersPayant setModelFacture(String modelFacture) {
+        this.modelFacture = modelFacture;
+        return this;
+    }
 
     public Boolean getCmu() {
         return cmu;
@@ -126,6 +144,15 @@ public class TiersPayant implements Serializable {
 
     public TiersPayant setCmu(Boolean cmu) {
         this.cmu = cmu;
+        return this;
+    }
+
+    public Boolean getUseReferencedPrice() {
+        return useReferencedPrice;
+    }
+
+    public TiersPayant setUseReferencedPrice(Boolean useReferencedPrice) {
+        this.useReferencedPrice = useReferencedPrice;
         return this;
     }
 
@@ -144,15 +171,6 @@ public class TiersPayant implements Serializable {
 
     public TiersPayant setName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public Boolean getExclude() {
-        return exclude;
-    }
-
-    public TiersPayant setExclude(Boolean exclude) {
-        this.exclude = exclude;
         return this;
     }
 
@@ -336,7 +354,7 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public @NotNull User getUpdatedBy() {
+    public User getUpdatedBy() {
         return updatedBy;
     }
 

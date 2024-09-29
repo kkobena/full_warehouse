@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.ProductState;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
@@ -20,6 +21,7 @@ import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
+import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.repository.WarehouseSequenceRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
@@ -35,11 +37,12 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import com.kobe.warehouse.web.rest.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -87,6 +90,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final OrderLineService orderLineService;
     private final ProductStateService productStateService;
     private final WarehouseCalendarService warehouseCalendarService;
+    private final ImportationEchoueService importationEchoueService;
+    private final TvaRepository tvaRepository;
     private final Predicate<OrderLine> isNotEntreeStockIsAuthorize = orderLine -> {
         if (Objects.nonNull(orderLine.getReceiptDate()) && Objects.nonNull(orderLine.getQuantityReceived())) {
             return (
@@ -136,7 +141,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         FournisseurRepository fournisseurRepository,
         OrderLineService orderLineService,
         ProductStateService productStateService,
-        WarehouseCalendarService warehouseCalendarService
+        WarehouseCalendarService warehouseCalendarService,
+        ImportationEchoueService importationEchoueService,
+        TvaRepository tvaRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -152,6 +159,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.orderLineService = orderLineService;
         this.productStateService = productStateService;
         this.warehouseCalendarService = warehouseCalendarService;
+        this.importationEchoueService = importationEchoueService;
+        this.tvaRepository = tvaRepository;
     }
 
     private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
@@ -292,23 +301,30 @@ public class StockEntryServiceImpl implements StockEntryService {
         String extension = FileUtil.getFileExtension(multipartFile.getOriginalFilename());
 
         DeliveryReceipt deliveryReceipt = importNewBon(uploadDeleiveryReceipt);
-        return switch (extension) {
-            case FileUtil.CSV -> uploadCSVFormat(deliveryReceipt, uploadDeleiveryReceipt.getModel(), multipartFile);
-            case FileUtil.TXT -> uploadTXTFormat(deliveryReceipt, multipartFile);
-            default -> throw new GenericError(
-                String.format(
-                    "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
-                    uploadDeleiveryReceipt.getModel().name()
-                ),
-                "modelimportation"
-            );
-        };
+        CommandeResponseDTO commandeResponse =
+            switch (extension) {
+                case FileUtil.CSV -> uploadCSVFormat(deliveryReceipt, uploadDeleiveryReceipt.getModel(), multipartFile);
+                case FileUtil.TXT -> uploadTXTFormat(deliveryReceipt, multipartFile);
+                default -> throw new GenericError(
+                    String.format(
+                        "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
+                        uploadDeleiveryReceipt.getModel().name()
+                    ),
+                    "modelimportation"
+                );
+            };
+        saveLignesBonEchouees(commandeResponse, deliveryReceipt.getId());
+        return commandeResponse;
     }
 
     @Override
     public void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = this.deliveryReceiptItemRepository.getReferenceById(deliveryReceiptItem.getId());
+        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
         receiptItem.setUgQuantity(deliveryReceiptItem.getQuantityUG());
+        updateItem(receiptItem);
+    }
+
+    private void updateItem(DeliveryReceiptItem receiptItem) {
         receiptItem.setUpdated(true);
         receiptItem.setUpdatedDate(LocalDateTime.now());
         this.deliveryReceiptItemRepository.save(receiptItem);
@@ -316,20 +332,34 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = this.deliveryReceiptItemRepository.getReferenceById(deliveryReceiptItem.getId());
+        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
         receiptItem.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
-        receiptItem.setUpdated(true);
-        receiptItem.setUpdatedDate(LocalDateTime.now());
-        this.deliveryReceiptItemRepository.save(receiptItem);
+        updateItem(receiptItem);
+    }
+
+    private DeliveryReceiptItem getDeliveryReceiptItem(Long id) {
+        return this.deliveryReceiptItemRepository.getReferenceById(id);
     }
 
     @Override
     public void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = this.deliveryReceiptItemRepository.getReferenceById(deliveryReceiptItem.getId());
+        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
         receiptItem.setOrderUnitPrice(deliveryReceiptItem.getOrderUnitPrice());
-        receiptItem.setUpdated(true);
-        receiptItem.setUpdatedDate(LocalDateTime.now());
-        this.deliveryReceiptItemRepository.save(receiptItem);
+        updateItem(receiptItem);
+    }
+
+    @Override
+    public void updateTva(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
+        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
+        receiptItem.setTva(deliveryReceiptItem.getTva());
+        updateItem(receiptItem);
+    }
+
+    @Override
+    public void updateDatePeremption(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
+        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
+        receiptItem.setDatePeremption(deliveryReceiptItem.getDatePeremptionTmp());
+        updateItem(receiptItem);
     }
 
     private DeliveryReceiptItem addItem(OrderLine orderLine, DeliveryReceipt deliveryReceipt) {
@@ -393,7 +423,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
         Produit produit = fournisseurProduit.getProduit();
         int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
         fournisseurProduit.setPrixUni(deliveryReceiptItem.getOrderUnitPrice() + montantAdditionel);
         return fournisseurProduitService.update(fournisseurProduit);
@@ -430,6 +459,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private DeliveryReceipt importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
         DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
+        deliveryReceipt.setCalendar(warehouseCalendarService.initCalendar());
         deliveryReceipt.setType(TypeDeliveryReceipt.DIRECT);
         deliveryReceipt.setCreatedDate(LocalDateTime.now());
         deliveryReceipt.setCreatedUser(storageService.getUser());
@@ -470,7 +500,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (longOrderLineMap.containsKey(fourniseurProduitId)) {
             return Optional.of(longOrderLineMap.get(fourniseurProduitId));
         }
-
         return Optional.empty();
     }
 
@@ -602,6 +631,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     );
                     if (fournisseurProduitOptional.isPresent()) {
                         FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
+                        Tva tva = fournisseurProduit.getProduit().getTva();
                         int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
 
                         findInMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
@@ -1083,6 +1113,13 @@ public class StockEntryServiceImpl implements StockEntryService {
         return commandeResponseDTO.setEntity(fromEntity(this.deliveryReceiptRepository.save(deliveryReceipt)));
     }
 
+    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long deliveryReceiptId) {
+        if (Objects.isNull(commandeResponse) || commandeResponse.getItems().isEmpty()) {
+            return;
+        }
+        this.importationEchoueService.save(deliveryReceiptId, false, commandeResponse.getItems());
+    }
+
     private void finalyseSaisieStock(Commande commande, DeliveryReceiptLiteDTO deliveryReceiptLite) {
         Set<OrderLine> orderLineSet = commande.getOrderLines();
         DeliveryReceipt deliveryReceipt = this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
@@ -1140,17 +1177,28 @@ public class StockEntryServiceImpl implements StockEntryService {
         receiptItem.setDiscountAmount(0);
         receiptItem.setRegularUnitPrice(fournisseurProduit.getPrixUni());
         receiptItem.setOrderUnitPrice(receiptItem.getOrderUnitPrice());
-
         receiptItem.setNetAmount(0);
         receiptItem.setTaxAmount(0);
         receiptItem.setQuantityReturned(0);
+        updateTvaFromLivraison(receiptItem, fournisseurProduit);
 
         deliveryReceiptItemRepository.saveAndFlush(receiptItem);
     }
 
+    private void updateTvaFromLivraison(DeliveryReceiptItem deliveryReceiptItem, FournisseurProduit fournisseurProduit) {
+        Produit produit = fournisseurProduit.getProduit();
+        if (deliveryReceiptItem.getTva() != null) {
+            this.tvaRepository.findFirstByTauxEquals(deliveryReceiptItem.getTva()).ifPresentOrElse(produit::setTva, () -> {
+                    Tva tva = new Tva();
+                    tva.setTaux(deliveryReceiptItem.getTva());
+                    produit.setTva(tvaRepository.save(tva));
+                });
+            produitService.update(produit);
+        }
+    }
+
     private void updateFournisseurProduit(DeliveryReceiptItem deliveryReceiptItem, FournisseurProduit fournisseurProduit, Produit produit) {
         int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-        fournisseurProduit.setUpdatedAt(LocalDateTime.now());
         if (deliveryReceiptItem.getOrderCostAmount().compareTo(fournisseurProduit.getPrixAchat()) != 0) {
             fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
         }

@@ -14,6 +14,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
@@ -35,6 +37,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
   entity?: IGroupeTiersPayant;
+  ordreTrisFacture: OrdreTrisFacture[] = [];
   isSaving = false;
   isValid = true;
   editForm = this.fb.group({
@@ -43,6 +46,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     adresse: [],
     telephone: [],
     telephoneFixe: [],
+    ordreTrisFacture: [],
   });
 
   constructor(
@@ -52,6 +56,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     public config: DynamicDialogConfig,
     protected groupeTiersPayantService: GroupeTiersPayantService,
     private messageService: MessageService,
+    private tiersPayantService: TiersPayantService,
   ) {}
 
   ngOnInit(): void {
@@ -59,6 +64,13 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
+    this.loadOrdreTrisFacture();
+  }
+
+  loadOrdreTrisFacture(): void {
+    this.tiersPayantService.getOrdreTrisFacture().subscribe(res => {
+      this.ordreTrisFacture = res.body || [];
+    });
   }
 
   updateForm(groupeTiersPayant: IGroupeTiersPayant): void {
@@ -68,6 +80,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
       adresse: groupeTiersPayant.adresse,
       telephone: groupeTiersPayant.telephone,
       telephoneFixe: groupeTiersPayant.telephoneFixe,
+      ordreTrisFacture: groupeTiersPayant.ordreTrisFacture,
     });
   }
 
@@ -93,6 +106,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
       adresse: this.editForm.get(['adresse'])!.value,
       telephone: this.editForm.get(['telephone'])!.value,
       telephoneFixe: this.editForm.get(['telephoneFixe'])!.value,
+      ordreTrisFacture: this.editForm.get(['ordreTrisFacture'])!.value,
     };
   }
 
@@ -110,20 +124,10 @@ export class FormGroupeTiersPayantComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
-    }
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: this.errorService.getErrorMessage(error),
+    });
   }
 }

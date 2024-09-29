@@ -2,27 +2,18 @@ import { ILot } from './lot.model';
 
 export interface IDeliveryItem {
   id?: number;
-
   quantityReceived?: number;
   initStock?: number;
-
   quantityRequested?: number;
-
   quantityReturned?: number;
   discountAmount?: number;
-
   netAmount?: number;
   taxAmount?: number;
-
   orderUnitPrice?: number;
   regularUnitPrice?: number;
-
   orderCostAmount?: number;
-
   effectifGrossIncome?: number;
-
   effectifOrderAmount?: number;
-
   ugQuantity?: number;
   quantityUG?: number;
   afterStock?: number;
@@ -36,6 +27,9 @@ export interface IDeliveryItem {
   costAmount?: number;
   quantityReceivedTmp?: number;
   provisionalCode?: boolean;
+  tva?: number;
+  datePeremption?: Date;
+  datePeremptionTmp?: string;
 }
 
 export class DeliveryItem implements IDeliveryItem {
@@ -64,6 +58,6 @@ export class DeliveryItem implements IDeliveryItem {
     public updated?: boolean,
     public costAmount?: number,
     public quantityReceivedTmp?: number,
-    public provisionalCode?: boolean
+    public provisionalCode?: boolean,
   ) {}
 }

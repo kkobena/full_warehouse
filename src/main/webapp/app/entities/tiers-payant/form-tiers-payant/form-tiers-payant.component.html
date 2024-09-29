@@ -3,143 +3,188 @@
   <div class="modal-body">
 
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden"/>
-
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
         <label class="form-control-label"
-               for="field_libelle">Nom abrégé </label> <span style="font-weight: 900;color: red;">*</span>
-        <input autocomplete="off" class="form-control" formControlName="name" id="field_libelle"
-               name="name" type="text"/>
-        <div
-          *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
-          <small *ngIf="editForm.get('name')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+               for="field_libelle">Nom abrégé </label> <span
+        style="font-weight: 900;color: red;">*</span>
+        <input #name autocomplete="off" class="form-control" formControlName="name"
+               id="field_libelle"
+               name="name" type="text" />
+        @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
+          'name')!.touched)) {
+          <div>
+            @if (editForm.get('name')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+
+          </div>
+        }
+
       </div>
       <div class="form-group col-md-5">
         <label class="form-control-label"
                for="field_fullName">Nom long <span style="font-weight: 900;color: red;">*</span>
         </label>
-        <input autocomplete="off" class="form-control" formControlName="fullName" id="field_fullName"
+        <input autocomplete="off" class="form-control" formControlName="fullName"
+               id="field_fullName"
                name="fullName"
-               pInputText type="text"/>
-        <div
-          *ngIf="editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)">
-          <small *ngIf="editForm.get('fullName')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
+               pInputText type="text" />
+        @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get(
+          'fullName')!.touched)) {
+          <div>
+            @if (editForm.get('fullName')?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+          </div>
+        }
 
-        </div>
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label"
                for="codeOrganisme">Code organisme
         </label>
-        <input autocomplete="off" class="form-control" formControlName="codeOrganisme" id="codeOrganisme"
+        <input autocomplete="off" class="form-control" formControlName="codeOrganisme"
+               id="codeOrganisme"
                name="codeOrganisme"
-               pInputText type="text"/>
+               pInputText type="text" />
       </div>
 
     </div>
     <div class="form-row">
-
-      <div class="form-group col-md-4">
-        <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
-        <ng-select [(ngModel)]="selectedGroupe" [items]="groupeTiersPayants" bindLabel="name"
-                   formControlName="groupeTiersPayantId" id="groupeTiersPayantId" name="groupeTiersPayantId"
-                   placeholder="Sélectionner un groupe"
-                   styleClass="form-control">
-        </ng-select>
-      </div>
 
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="telephone">Téléphone
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="telephone" id="telephone" name="telephone"
-               pInputText
-               pKeyFilter="int" type="text"/>
+        <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
+        <p-dropdown [filter]="false"
+                    [options]="groupeTiersPayants"
+                    appendTo="body"
+                    formControlName="groupeTiersPayantId"
+                    id="groupeTiersPayantId"
+                    name="groupeTiersPayantId" optionLabel="name"
+                    optionValue="id"
+                    placeholder="Sélectionner un groupe"
+        >
+        </p-dropdown>
       </div>
-      <div class="form-group col-md-5">
-        <label class="form-control-label" for="adresse">Adresse</label>
-        <input autocomplete="off" class="form-control" formControlName="adresse" id="adresse" name="adresse"
-               pInputText
-               pKeyFilter="int" type="text"/>
-      </div>
-
-    </div>
-    <div class="form-row">
 
       <div class="form-group col-md-3">
         <label class="form-control-label"
                for="codeRegroupement">Code regroupement
         </label>
-        <input autocomplete="off" class="form-control" formControlName="codeRegroupement" id="codeRegroupement"
+        <input autocomplete="off" class="form-control" formControlName="codeRegroupement"
+               id="codeRegroupement"
                name="codeRegroupement"
-               pInputText type="text"/>
+               pInputText type="text" />
       </div>
+
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="codeRegroupement">E-mail
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="email" id="email"
-               name="email"
-               pInputText type="email"/>
-      </div>
-      <div class="form-group col-md-3">
-        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
-        <input autocomplete="off" class="form-control" formControlName="nbreBordereaux" id="nbreBordereaux" name="nbreBordereaux"
+        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par
+          facture</label>
+        <input autocomplete="off" class="form-control" formControlName="nbreBordereaux"
+               id="nbreBordereaux" name="nbreBordereaux"
                pInputText
-               pKeyFilter="int" type="text"/>
+               pKeyFilter="int" type="text" />
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label" for="montantMaxParFcture">Montant maxi par facture</label>
-        <input autocomplete="off" class="form-control" formControlName="montantMaxParFcture" id="montantMaxParFcture" name="montantMaxParFcture"
+        <input autocomplete="off" class="form-control" formControlName="montantMaxParFcture"
+               id="montantMaxParFcture" name="montantMaxParFcture"
                pInputText
-               pKeyFilter="int" type="text"/>
+               pKeyFilter="int" type="text" />
       </div>
-
     </div>
     <div class="form-row">
-
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-3">
         <label class="form-control-label"
                for="remiseForfaitaire">Remise forfaitaire
         </label>
-        <input autocomplete="off" class="form-control" formControlName="remiseForfaitaire" id="remiseForfaitaire"
+        <input autocomplete="off" class="form-control" formControlName="remiseForfaitaire"
+               id="remiseForfaitaire"
                name="remiseForfaitaire"
-               pInputText pKeyFilter="int" type="text"/>
+               pInputText pKeyFilter="int" type="text" />
       </div>
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-3">
         <label class="form-control-label"
-               for="codeRegroupement">Plafond consommation
+               for="plafondConso">Plafond consommation
         </label>
-        <input autocomplete="off" class="form-control" formControlName="plafondConso" id="plafondConso"
+        <input autocomplete="off" class="form-control" formControlName="plafondConso"
+               id="plafondConso"
                name="plafondConso"
-               pInputText pKeyFilter="int" type="plafondConso"/>
+               pInputText pKeyFilter="int" type="text" />
       </div>
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-3">
         <label class="form-control-label">Le plofond est-il absolu ?</label>
-        <p-inputSwitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-inputSwitch>
+        <p-inputSwitch class="form-control" formControlName="plafondAbsolu"
+                       inputId="plafondAbsolu"></p-inputSwitch>
       </div>
 
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="groupeTiersPayantId">Modèle de facture</label>
+        <p-dropdown [filter]="false"
+                    [options]="modelFacture"
+                    appendTo="body"
+                    formControlName="modelFacture"
+                    id="modelFacture"
+                    name="modelFacture" optionLabel="value"
+                    optionValue="key"
+                    placeholder="Sélectionner un groupe"
+        >
+        </p-dropdown>
 
+      </div>
+    </div>
+    <div class="form-row">
+      @if (categorie === 'ASSURANCE') {
+        <div class="form-group col-md-3">
+          <label class="form-control-label">Utlise les prix CMU ?</label>
+          <p-inputSwitch (onChange)="onCmuChange($event)" class="form-control" formControlName="cmu"
+                         inputId="cmu"></p-inputSwitch>
+        </div>
+        <div class="form-group col-md-3">
+          <label class="form-control-label">Utlise les prix de référence ?</label>
+          <p-inputSwitch (onChange)="onReferencedPriceChange($event)" class="form-control"
+                         formControlName="useReferencedPrice" inputId="useReferencedPrice"
+                         name="useReferencedPrice"></p-inputSwitch>
+        </div>
+      }
+
+      @if (categorie !== 'DEPOT') {
+        <div class="form-group col-md-3">
+          <label class="form-control-label">Exclure du CA</label>
+          <p-inputSwitch class="form-control" formControlName="toBeExclude"
+                         inputId="toBeExclude"
+                         name="toBeExclude"></p-inputSwitch>
+        </div>
+      }
+
+      <div class="form-group col-md-3">
+        <label class="form-control-label"
+               for="telephone">Téléphone
+        </label>
+        <input autocomplete="off" class="form-control" formControlName="telephone" id="telephone"
+               name="telephone"
+               pInputText
+               pKeyFilter="int" type="text" />
+      </div>
     </div>
 
-  </div>
 
+  </div>
 
   <div class="modal-footer">
     <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
-
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary" id="save-entity"
+    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
+            id="save-entity"
             type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
     </button>

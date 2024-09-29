@@ -44,10 +44,11 @@
         <td>{{ customer.lastName }}</td>
         <td>{{ customer.num }}</td>
         <td>
-          <ol>
+          <ol class="list-group list-group-numbered">
             @for (tiersPayant of customer.tiersPayants; track tiersPayant.id) {
-              <li>
-                {{ tiersPayant.tiersPayantFullName }}
+              <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">{{ tiersPayant.tiersPayantFullName }}</div>
+                <span class="badge text-bg-primary rounded-pill">{{ tiersPayant.taux }}</span>
               </li>
             }
 

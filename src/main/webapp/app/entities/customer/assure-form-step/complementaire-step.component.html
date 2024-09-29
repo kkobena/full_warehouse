@@ -1,4 +1,4 @@
-<p-card>
+<p-card styleClass="complementaires-form">
   <ng-template pTemplate="title">
     <div class="d-flex justify-content-between">
       <span>Formulaire complémentaires</span>
@@ -34,7 +34,7 @@
                     <label class="form-control-label">Tiers-payant<span
                       style="font-weight: 900;color: red;">*</span></label>
                     <p-autoComplete (completeMethod)="searchTiersPayant($event)"
-                                    (onSelect)="onSelectTiersPayant($event)"
+                                    (onSelect)="onSelectTiersPayant($event,i)"
                                     [forceSelection]="true"
                                     [inputStyle]="{'width':'100%'}"
                                     [minLength]="minLength" [style]="{'width':'100%'}"

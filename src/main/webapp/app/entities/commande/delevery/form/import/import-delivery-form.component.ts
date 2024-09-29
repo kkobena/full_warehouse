@@ -81,7 +81,6 @@ export class ImportDeliveryFormComponent implements OnInit {
         validators: [Validators.required, Validators.min(0)],
         nonNullable: true,
       }),
-      sequenceBon: new FormControl<string | null>(null, {}),
     }),
   });
 
@@ -168,7 +167,6 @@ export class ImportDeliveryFormComponent implements OnInit {
       deliveryReceipt: {
         receiptRefernce: deliveryReceiptCtl.get('receiptRefernce')!.value,
         receiptFullDate: this.buildDate(deliveryReceiptCtl.get('receiptDate')!.value),
-        sequenceBon: deliveryReceiptCtl.get('sequenceBon')!.value,
         receiptAmount: deliveryReceiptCtl.get('receiptAmount')!.value,
         taxAmount: deliveryReceiptCtl.get('taxAmount')!.value,
       },

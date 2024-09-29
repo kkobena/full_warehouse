@@ -11,7 +11,6 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -34,12 +33,6 @@ public class Rayon implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @NotNull
     @Column(name = "code", nullable = false)
@@ -67,22 +60,6 @@ public class Rayon implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public @NotNull String getCode() {
@@ -115,16 +92,6 @@ public class Rayon implements Serializable {
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
-    }
-
-    public Rayon createdAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
-    }
-
-    public Rayon updatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
     }
 
     public Rayon code(String code) {
@@ -160,9 +127,6 @@ public class Rayon implements Serializable {
             "id=" +
             id +
             ", createdAt=" +
-            createdAt +
-            ", updatedAt=" +
-            updatedAt +
             ", code='" +
             code +
             '\'' +

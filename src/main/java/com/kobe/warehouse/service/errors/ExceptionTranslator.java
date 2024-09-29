@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.errors;
+package com.kobe.warehouse.service.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
@@ -91,8 +91,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             return (ProblemDetailWithCause) new InvalidPasswordException().getBody();
         }
 
-        if (ex instanceof ErrorResponseException exp
-            && exp.getBody() instanceof ProblemDetailWithCause problemDetailWithCause) {
+        if (ex instanceof ErrorResponseException exp && exp.getBody() instanceof ProblemDetailWithCause problemDetailWithCause) {
             return problemDetailWithCause;
         }
         return ProblemDetailWithCauseBuilder.instance().withStatus(toStatus(ex).value()).build();
@@ -123,8 +122,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         if (problemProperties == null || !problemProperties.containsKey(MESSAGE_KEY)) {
             problem.setProperty(
                 MESSAGE_KEY,
-                getMappedMessageKey(err) != null ? getMappedMessageKey(err)
-                    : "error.http." + problem.getStatus()
+                getMappedMessageKey(err) != null ? getMappedMessageKey(err) : "error.http." + problem.getStatus()
             );
         }
 
@@ -134,7 +132,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
         if (
             (err instanceof MethodArgumentNotValidException fieldException) &&
-                (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))
+            (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))
         ) {
             problem.setProperty(FIELD_ERRORS_KEY, getFieldErrors(fieldException));
         }
@@ -181,8 +179,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         }
 
         return Optional.ofNullable(getMappedStatus(throwable)).orElse(
-            Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value)
-                .orElse(HttpStatus.INTERNAL_SERVER_ERROR)
+            Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value).orElse(HttpStatus.INTERNAL_SERVER_ERROR)
         );
     }
 
@@ -258,7 +255,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private HttpHeaders buildHeaders(Throwable err) {
         return err instanceof BadRequestAlertException badRequestAlertException
             ? HeaderUtil.createFailureAlert(
-            applicationName,
+                applicationName,
                 true,
                 null,
                 badRequestAlertException.getErrorKey(),

@@ -389,8 +389,7 @@ export class ComptantComponent {
   protected onFinalyseError(err: any): void {
     this.isSaving = false;
     this.responseEvent.emit({ error: err, success: false });
-    const message = 'Une erreur est survenue';
-    this.openInfoDialog(message, 'alert alert-danger');
+    // this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
   }
 
   protected onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {

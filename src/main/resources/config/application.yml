@@ -45,7 +45,7 @@ management:
         readiness:
           include: readinessState,db
     jhimetrics:
-      enabled: true
+      enabled: false
   info:
     git:
       mode: full
@@ -57,27 +57,27 @@ management:
   prometheus:
     metrics:
       export:
-        enabled: true
+        enabled: false
         step: 60
   observations:
     key-values:
       application: ${spring.application.name}
   metrics:
     enable:
-      http: true
-      jvm: true
-      logback: true
-      process: true
-      system: true
+      http: false
+      jvm: false
+      logback: false
+      process: false
+      system: false
     distribution:
       percentiles-histogram:
-        all: true
+        all: false
       percentiles:
         all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
     data:
       repository:
         autotime:
-          enabled: true
+          enabled: false
 
 spring:
   application:
@@ -150,7 +150,7 @@ server:
         http-only: true
 
 springdoc:
-  show-actuator: true
+  show-actuator: false
 
 # Properties to be exposed on the /info management endpoint
 info:

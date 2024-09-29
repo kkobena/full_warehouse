@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { ITiersPayant, TiersPayant } from 'app/shared/model/tierspayant.model';
+import { ITiersPayant, ModelFacture, TiersPayant } from 'app/shared/model/tierspayant.model';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ICustomer } from 'app/shared/model/customer.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,6 +17,9 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputSwitchChangeEvent } from 'primeng/inputswitch/inputswitch.interface';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
@@ -36,15 +38,18 @@ import { ToastModule } from 'primeng/toast';
     InputSwitchModule,
     KeyFilterModule,
     ToastModule,
+    AutoCompleteModule,
+    DropdownModule,
   ],
 })
-export class FormTiersPayantComponent implements OnInit {
+export class FormTiersPayantComponent implements OnInit, AfterViewInit {
+  name = viewChild.required<ElementRef>('name');
   entity?: ITiersPayant;
-  type?: string | null = null;
+  categorie?: string | null = null;
   isSaving = false;
   isValid = true;
-  selectedGroupe!: IGroupeTiersPayant | null;
   groupeTiersPayants: IGroupeTiersPayant[] = [];
+  modelFacture: ModelFacture[] = [];
   editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
@@ -53,13 +58,16 @@ export class FormTiersPayantComponent implements OnInit {
     codeOrganisme: [],
     codeRegroupement: [],
     telephone: [],
-    adresse: [],
     montantMaxParFcture: [],
     nbreBordereaux: [1],
     email: [],
     remiseForfaitaire: [],
     plafondConso: [],
     plafondAbsolu: [],
+    cmu: [],
+    useReferencedPrice: [],
+    modelFacture: [],
+    toBeExclude: [],
   });
 
   constructor(
@@ -74,20 +82,31 @@ export class FormTiersPayantComponent implements OnInit {
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
-    this.type = this.config.data.type;
+    this.categorie = this.config.data.type;
     if (this.entity) {
       this.updateForm(this.entity);
     }
+    this.loadModelFacture();
     this.populate().then(r => {
       this.groupeTiersPayants = r;
-      if (this.entity) {
-        this.selectedGroupe = this.entity.groupeTiersPayant || null;
-      }
     });
+    this.displayDisplayCmu();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.name().nativeElement.focus();
+    }, 30);
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {
     return await this.groupeTiersPayantService.queryPromise({ search: '' });
+  }
+
+  loadModelFacture(): void {
+    this.tiersPayantService.getModelFacture().subscribe(res => {
+      this.modelFacture = res.body || [];
+    });
   }
 
   cancel(): void {
@@ -104,35 +123,47 @@ export class FormTiersPayantComponent implements OnInit {
     }
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
-      res => this.onSaveSuccess(res.body),
-      error => this.onSaveError(error),
-    );
+  onCmuChange(event: InputSwitchChangeEvent): void {
+    if (event.checked) {
+      if (this.editForm.get('useReferencedPrice')?.value) {
+        this.editForm.get('useReferencedPrice')?.setValue(false);
+      }
+      this.editForm.get('useReferencedPrice')?.disable();
+    } else {
+      this.editForm.get('useReferencedPrice')?.enable();
+    }
   }
 
-  protected onSaveSuccess(customer: ICustomer | null): void {
+  onReferencedPriceChange(event: InputSwitchChangeEvent): void {
+    if (event.checked) {
+      if (this.editForm.get('cmu')?.value) {
+        this.editForm.get('cmu')?.setValue(false);
+      }
+      this.editForm.get('cmu')?.disable();
+    } else {
+      this.editForm.get('cmu')?.enable();
+    }
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ITiersPayant>>): void {
+    result.subscribe({
+      next: (res: HttpResponse<ITiersPayant>) => this.onSaveSuccess(res.body),
+      error: (res: any) => this.onSaveError(res),
+    });
+  }
+
+  protected onSaveSuccess(tiersPayant: ITiersPayant | null): void {
     this.isSaving = false;
-    this.ref.close(customer);
+    this.ref.close(tiersPayant);
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
-    }
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: this.errorService.getErrorMessage(error),
+    });
   }
 
   private updateForm(tiersPayant: ITiersPayant): void {
@@ -140,11 +171,10 @@ export class FormTiersPayantComponent implements OnInit {
       id: tiersPayant.id,
       name: tiersPayant.name,
       fullName: tiersPayant.fullName,
-      groupeTiersPayantId: tiersPayant.groupeTiersPayant,
+      groupeTiersPayantId: tiersPayant.groupeTiersPayant?.id,
       codeOrganisme: tiersPayant.codeOrganisme,
       codeRegroupement: tiersPayant.codeRegroupement,
       telephone: tiersPayant.telephone,
-      adresse: tiersPayant.adresse,
       montantMaxParFcture: tiersPayant.montantMaxParFcture,
       nbreBordereaux: tiersPayant.nbreBordereaux,
       email: tiersPayant.email,
@@ -152,6 +182,11 @@ export class FormTiersPayantComponent implements OnInit {
       plafondConso: tiersPayant.plafondConso,
       plafondAbsolu: tiersPayant.plafondAbsolu,
       categorie: tiersPayant.categorie,
+      useReferencedPrice: tiersPayant.useReferencedPrice,
+      cmu: tiersPayant.cmu,
+      modelFacture: tiersPayant.modelFacture,
+      ordreTrisFacture: tiersPayant.ordreTrisFacture,
+      toBeExclude: tiersPayant.toBeExclude,
     });
   }
 
@@ -161,18 +196,30 @@ export class FormTiersPayantComponent implements OnInit {
       id: this.editForm.get(['id'])!.value,
       name: this.editForm.get(['name'])!.value,
       fullName: this.editForm.get(['fullName'])!.value,
-      adresse: this.editForm.get(['adresse'])!.value,
       nbreBordereaux: this.editForm.get(['nbreBordereaux'])!.value,
       remiseForfaitaire: this.editForm.get(['remiseForfaitaire'])!.value,
       email: this.editForm.get(['email'])!.value,
-      categorie: this.type,
+      categorie: this.categorie,
       plafondAbsolu: this.editForm.get(['plafondAbsolu'])!.value,
       plafondConso: this.editForm.get(['plafondConso'])!.value,
       montantMaxParFcture: this.editForm.get(['montantMaxParFcture'])!.value,
       codeOrganisme: this.editForm.get(['codeOrganisme'])!.value,
       codeRegroupement: this.editForm.get(['codeRegroupement'])!.value,
       telephone: this.editForm.get(['telephone'])!.value,
-      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId'])!.value.id,
+      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId'])!.value,
+      useReferencedPrice: this.editForm.get(['useReferencedPrice'])!.value,
+      cmu: this.editForm.get(['cmu'])!.value,
+      modelFacture: this.editForm.get(['modelFacture'])!.value,
+      toBeExclude: this.editForm.get(['toBeExclude'])!.value,
     };
+  }
+
+  private displayDisplayCmu(): void {
+    if (this.editForm.get('useReferencedPrice')?.value) {
+      this.editForm.get('cmu')?.disable();
+    }
+    if (this.editForm.get('cmu')?.value) {
+      this.editForm.get('useReferencedPrice')?.disable();
+    }
   }
 }

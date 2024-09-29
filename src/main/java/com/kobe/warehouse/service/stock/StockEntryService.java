@@ -8,20 +8,21 @@ import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface StockEntryService {
+    void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
-  void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite);
+    DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
-  DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
+    DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
-  DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
+    CommandeResponseDTO importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt, MultipartFile multipartFile) throws IOException;
 
-  CommandeResponseDTO importNewBon(
-      UploadDeleiveryReceiptDTO uploadDeleiveryReceipt, MultipartFile multipartFile)
-      throws IOException;
+    void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 
-  void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+    void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 
-  void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+    void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 
-  void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+    void updateTva(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+
+    void updateDatePeremption(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 }

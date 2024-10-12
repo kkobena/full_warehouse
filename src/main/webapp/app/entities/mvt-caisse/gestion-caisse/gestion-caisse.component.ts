@@ -10,7 +10,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IUser } from '../../../core/user/user.model';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CashRegister, CashRegisterStatut, MvtCaisse } from '../../cash-register/model/cash-register.model';
 import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -20,7 +19,6 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../../core/user/user.service';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -29,7 +27,7 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'jhi-gestion-caisse',
   standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+  providers: [MessageService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     Button,
@@ -63,11 +61,9 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   protected selectedUser: IUser | null = null;
   protected users: IUser[];
   protected datas: CashRegister[];
-  protected ref!: DynamicDialogRef;
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
-  private dialogService = inject(DialogService);
   private primeNGConfig = inject(PrimeNGConfig);
   private translate = inject(TranslateService);
   private userService = inject(UserService);

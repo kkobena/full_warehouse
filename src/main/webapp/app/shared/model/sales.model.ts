@@ -6,6 +6,7 @@ import { Payment } from './payment.model';
 import { IUser } from '../../core/user/user.model';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 import { IThirdPartySaleLine } from 'app/shared/model/third-party-sale-line';
+import { IRemise } from './remise.model';
 
 export interface ISales {
   id?: number;
@@ -51,6 +52,7 @@ export interface ISales {
   sansBon?: boolean;
   commentaire?: string;
   avoir?: boolean;
+  remise?: IRemise;
 }
 
 export class Sales implements ISales {

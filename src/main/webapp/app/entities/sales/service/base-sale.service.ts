@@ -159,7 +159,8 @@ export class BaseSaleService {
   onFinalyseError(err: any): void {
     this.saleEventManager.broadcast({
       name: 'responseEvent',
-      content: new SaveResponse(false, err),
+      // content: new SaveResponse(false, err),
+      content: new FinalyseSale(false, err),
     });
   }
 

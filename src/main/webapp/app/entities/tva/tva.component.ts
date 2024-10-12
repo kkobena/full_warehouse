@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { TvaService } from './tva.service';
@@ -35,9 +35,8 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     KeyFilterModule,
   ],
 })
-export class TvaComponent implements OnInit, OnDestroy {
+export class TvaComponent implements OnInit {
   tvas?: ITva[];
-  eventSubscriber?: Subscription;
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page = 0;
@@ -96,8 +95,6 @@ export class TvaComponent implements OnInit, OnDestroy {
       this.loadPage();
     });
   }
-
-  ngOnDestroy(): void {}
 
   trackId(index: number, item: ITva): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion

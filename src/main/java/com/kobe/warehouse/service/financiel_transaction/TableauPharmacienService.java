@@ -15,7 +15,7 @@ public interface TableauPharmacienService extends MvtCommonService {
                COUNT(s.id) as numberCount,SUM(s.discount_amount) as montantDiscount,
                SUM(s.sales_amount) as montantTtc,SUM(p.paid_amount) as montantPaye, SUM(s.ht_amount) as montantHt,
                SUM(s.net_amount) as  montantNet,SUM(s.tax_amount) as montantTaxe,
-               SUM(s.cost_amount) as montantAchat, SUM(s.marge) as montantMarge,SUM(s.rest_to_pay) as montantDiffere,SUM(s.amount_to_be_paid) as amountToBePaid,SUM(s.amount_to_be_taken_into_account) as amountToBeTakenIntoAccount,
+               SUM(s.cost_amount) as montantAchat,SUM(s.rest_to_pay) as montantDiffere,SUM(s.amount_to_be_paid) as amountToBePaid,SUM(s.amount_to_be_taken_into_account) as amountToBeTakenIntoAccount,
                SUM(s.montant_net_ug) as montantNetUg,SUM(s.montant_ttc_ug) as montantTtcUg, SUM(s.montant_tva_ug) as montantHtUg,SUM(s.part_tiers_payant) AS partTiersPayant ,SUM(s.part_assure) AS partAssure
         FROM sales s LEFT JOIN  payment p  ON p.sales_id=s.id
 

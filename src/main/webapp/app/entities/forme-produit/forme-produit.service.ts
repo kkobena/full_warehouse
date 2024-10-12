@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpResponse, HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { IFormProduit } from '../../shared/model/form-produit.model';
@@ -8,6 +8,7 @@ import { createRequestOption } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<IFormProduit>;
 type EntityArrayResponseType = HttpResponse<IFormProduit[]>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,16 +31,13 @@ export class FormeProduitService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http.get<IFormProduit[]>(this.resourceUrl, { params: options, observe: 'response' });
+    return this.http.get<IFormProduit[]>(this.resourceUrl, {
+      params: options,
+      observe: 'response',
+    });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-  async queryPromise(req?: any): Promise<IFormProduit[]> {
-    const options = createRequestOption(req);
-    return await this.http
-      .get<IFormProduit[]>(this.resourceUrl, { params: options })
-      .toPromise();
   }
 }

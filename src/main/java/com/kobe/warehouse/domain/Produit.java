@@ -144,10 +144,6 @@ public class Produit implements Serializable {
     @NotNull
     private Tva tva;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
-    private RemiseProduit remise;
-
     @NotAudited
     @ManyToOne
     @JsonIgnoreProperties(value = "produits", allowSetters = true)
@@ -450,14 +446,6 @@ public class Produit implements Serializable {
 
     public void setTva(Tva tva) {
         this.tva = tva;
-    }
-
-    public RemiseProduit getRemise() {
-        return remise;
-    }
-
-    public void setRemise(RemiseProduit remise) {
-        this.remise = remise;
     }
 
     public Laboratoire getLaboratoire() {

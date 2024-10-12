@@ -1,18 +1,17 @@
+<div class="compagnie-name text-center">
+  <h4>
 
-    <div class="compagnie-name text-center">
-        <h1>
-
-            <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
-        </h1>
-    </div>
-    <div class="col company-details text-center">
-        <div th:if="${magasin.address ne null}">
-            <span th:text="${magasin.address}"></span>
-        </div>
-        <div th:if="${magasin.phone ne null}">
-            <span th:text="${'TEL :'+magasin.phone}"></span>
-        </div>
-    </div>
+    <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
+  </h4>
+</div>
+<div class="col company-details text-center">
+  <div th:if="${magasin.address ne null}">
+    <span th:text="${magasin.address}"></span>
+  </div>
+  <div th:if="${magasin.phone ne null}">
+    <span th:text="${'TEL :'+magasin.phone}"></span>
+  </div>
+</div>
 
 
 

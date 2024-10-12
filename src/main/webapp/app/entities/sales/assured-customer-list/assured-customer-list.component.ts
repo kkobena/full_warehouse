@@ -40,11 +40,12 @@ export class AssuredCustomerListComponent implements OnInit {
   totalItems = 0;
   currentSaleService = inject(CurrentSaleService);
   customerService = inject(CustomerService);
+  dialogService = inject(DialogService);
   loading!: boolean;
 
   constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
+    private ref: DynamicDialogRef,
+    private config: DynamicDialogConfig,
   ) {}
 
   ngOnInit(): void {
@@ -63,13 +64,20 @@ export class AssuredCustomerListComponent implements OnInit {
     this.ref.close();
   }
 
-  loadCustomers(): void {
-    this.customerService
-      .queryAssuredCustomer({
-        search: this.searchString,
-      })
-      .subscribe(res => (this.customers = res.body!));
-  }
+  /*  addAssureCustomer(): void {
+
+     this.ref = this.dialogService.open(AssureFormStepComponent, {
+       data: { entity: null, typeAssure: this.currentSaleService.typeVo() },
+       header: 'FORMULAIRE DE CREATION DE CLIENT ',
+       width: '85%',
+       closeOnEscape: false,
+       //  modal: true,
+       //  focusOnShow: false,
+     });
+     this.ref.onClose.subscribe((customer: ICustomer) => {
+       this.ref.close(customer);
+     });
+   } */
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page || 1;

@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
@@ -105,7 +106,6 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/update-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/assurance" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -115,7 +115,6 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/update-item/price/assurance")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemRegularPrice(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/price/assurance" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -125,7 +124,6 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/update-item/quantity-sold/assurance")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemQuantitySold(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-sold/assurance" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -135,7 +133,6 @@ public class ThirdPartySaleResource {
     @DeleteMapping("/sales/delete-item/assurance/{id}")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSaleLineById(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -144,7 +141,6 @@ public class ThirdPartySaleResource {
 
     @DeleteMapping("/sales/prevente/assurance/{id}")
     public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSalePrevente(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -153,7 +149,6 @@ public class ThirdPartySaleResource {
 
     @DeleteMapping("/sales/cancel/assurance/{id}")
     public ResponseEntity<Void> cancelSale(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.cancelSale(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -217,5 +212,21 @@ public class ThirdPartySaleResource {
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, thirdPartySaleDTO.getId().toString()))
             .body(result);
+    }
+
+    @PostMapping("/sales/assurance/authorize-action")
+    public ResponseEntity<Void> authorizeAction(
+        @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
+        HttpServletRequest request
+    ) {
+        utilisationCleSecurite.setCaisse(request.getRemoteHost());
+        saleService.authorizeAction(utilisationCleSecurite);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/sales/assurance/add-remise")
+    public ResponseEntity<Void> addRemise(@Valid @RequestBody KeyValue keyValue) {
+        saleService.processDiscount(keyValue);
+        return ResponseEntity.accepted().build();
     }
 }

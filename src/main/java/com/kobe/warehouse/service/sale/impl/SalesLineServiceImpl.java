@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.sale.impl;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -114,19 +115,23 @@ public class SalesLineServiceImpl implements SalesLineService {
         }
     }
 
-    @Override
-    public void processProductDiscount(RemiseProduit remiseProduit, SalesLine salesLine) {
-        if (remiseProduit == null) {
-            salesLine.setNetAmount(salesLine.getSalesAmount());
-        } else if (
+    public void processProductDiscount(SalesLine salesLine) {
+        Remise remise = salesLine.getSales().getRemise();
+        if (Objects.isNull(remise)) {
+            salesLine.setNetAmount(0);
+            return;
+        }
+        RemiseProduit remiseProduit = (RemiseProduit) remise;
+        if (
+            salesLine.getProduit().getRemisable() &&
             remiseProduit.isEnable() &&
             remiseProduit.getEnd().isAfter(LocalDate.now()) &&
             (remiseProduit.getBegin().isBefore(LocalDate.now()) || remiseProduit.getBegin().isEqual(LocalDate.now()))
         ) {
             int discount = (int) Math.ceil(salesLine.getSalesAmount() * remiseProduit.getTauxRemise());
             salesLine.setDiscountAmount(discount);
-            salesLine.setNetAmount(salesLine.getSalesAmount() - discount);
-            salesLine.setDiscountAmountHorsUg(discount);
+            salesLine.setNetAmount(salesLine.getSalesAmount() - salesLine.getDiscountAmount());
+            salesLine.setDiscountAmountHorsUg(salesLine.getDiscountAmount());
             if (salesLine.getQuantityUg() > 0) {
                 int discountHUg = (int) Math.ceil(
                     ((salesLine.getQuantityRequested() - salesLine.getQuantityUg()) * salesLine.getRegularUnitPrice()) *
@@ -203,7 +208,7 @@ public class SalesLineServiceImpl implements SalesLineService {
             salesLine.setCmuAmount(produit.getCmuAmount());
         }
         processUg(salesLine, dto, stockageId);
-        processProductDiscount(produit.getRemise(), salesLine);
+        // processProductDiscount(salesLine);
         return salesLine;
     }
 
@@ -217,7 +222,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantityRequested(salesLine.getQuantityRequested() + dto.getQuantityRequested());
         processUg(salesLine, dto, stockageId);
-        processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
+        // processProductDiscount(salesLine);
     }
 
     @Override
@@ -243,7 +248,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setRegularUnitPrice(saleLineDTO.getRegularUnitPrice());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
-        processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
+        //processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
 
@@ -273,13 +278,13 @@ public class SalesLineServiceImpl implements SalesLineService {
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
             String desc = String.format(
                 "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s",
-                fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",
+                fournisseurProduitPrincipal.getCodeCip(),
                 p.getLibelle(),
-                fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null,
+                fournisseurProduitPrincipal.getPrixUni(),
                 salesLine.getRegularUnitPrice(),
                 salesLine.getSales().getNumberTransaction()
             );
-            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString(), p);
+            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
         }
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
@@ -317,9 +322,9 @@ public class SalesLineServiceImpl implements SalesLineService {
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
             String desc = String.format(
                 "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s",
-                fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",
+                fournisseurProduitPrincipal.getCodeCip(),
                 p.getLibelle(),
-                fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getPrixUni() : null,
+                fournisseurProduitPrincipal.getPrixUni(),
                 salesLine.getRegularUnitPrice(),
                 salesLine.getSales().getNumberTransaction()
             );
@@ -375,7 +380,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setQuantityAvoir(salesLine.getQuantityRequested() - salesLine.getQuantitySold());
         processUg(salesLine, saleLineDTO, storageId);
-        processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
+        //processProductDiscount(salesLine);
     }
 
     @Override
@@ -396,7 +401,7 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
-        processProductDiscount(salesLine.getProduit().getRemise(), salesLine);
+        //    processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
 }

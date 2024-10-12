@@ -23,7 +23,6 @@ import com.kobe.warehouse.repository.ImportationRepository;
 import com.kobe.warehouse.repository.LaboratoireRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
-import com.kobe.warehouse.repository.RemiseProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.repository.TypeEtiquetteRepository;
@@ -59,7 +58,6 @@ public class ImportationProduitService {
     private final GammeProduitRepository gammeProduitRepository;
     private final LaboratoireRepository laboratoireRepository;
     private final FormProduitRepository formProduitRepository;
-    private final RemiseProduitRepository remiseProduitRepository;
     private final StorageService storageService;
     private final ProduitRepository produitRepository;
     private final TransactionTemplate transactionTemplate;
@@ -77,7 +75,6 @@ public class ImportationProduitService {
         GammeProduitRepository gammeProduitRepository,
         LaboratoireRepository laboratoireRepository,
         FormProduitRepository formProduitRepository,
-        RemiseProduitRepository remiseProduitRepository,
         ProduitRepository produitRepository,
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
@@ -92,7 +89,6 @@ public class ImportationProduitService {
         this.gammeProduitRepository = gammeProduitRepository;
         this.laboratoireRepository = laboratoireRepository;
         this.formProduitRepository = formProduitRepository;
-        this.remiseProduitRepository = remiseProduitRepository;
         this.produitRepository = produitRepository;
         this.transactionTemplate = transactionTemplate;
         this.stockProduitRepository = stockProduitRepository;
@@ -186,9 +182,6 @@ public class ImportationProduitService {
         produit.setQtyAppro(0);
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
-        if (ObjectUtils.isNotEmpty(produitDTO.getTauxRemise())) {
-            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise()).ifPresent(produit::setRemise);
-        }
         produit.setTva(parent.getTva());
         produit.setLaboratoire(parent.getLaboratoire());
         produit.setFamille(parent.getFamille());
@@ -227,9 +220,6 @@ public class ImportationProduitService {
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
         produit.setCmuAmount(produitDTO.getCmuAmount());
-        if (ObjectUtils.isNotEmpty(produitDTO.getTauxRemise())) {
-            remiseProduitRepository.findFirstByRemiseValueEquals(produitDTO.getTauxRemise()).ifPresent(produit::setRemise);
-        }
         if (ObjectUtils.isNotEmpty(produitDTO.getTvaTaux())) {
             tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux()).ifPresent(produit::setTva);
         }

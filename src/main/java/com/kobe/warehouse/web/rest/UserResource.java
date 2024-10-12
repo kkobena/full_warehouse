@@ -4,7 +4,6 @@ import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.AuthoritiesConstants;
-import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -86,15 +85,16 @@ public class UserResource {
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
     private final UserService userService;
     private final UserRepository userRepository;
-    private final MailService mailService;
+
+    //  private final MailService mailService;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+    public UserResource(UserService userService, UserRepository userRepository/*, MailService mailService*/) {
         this.userService = userService;
         this.userRepository = userRepository;
-        this.mailService = mailService;
+        // this.mailService = mailService;
     }
 
     /**
@@ -124,7 +124,7 @@ public class UserResource {
             throw new EmailAlreadyUsedException();
         } else {
             User newUser = userService.createUser(userDTO);
-            mailService.sendCreationEmail(newUser);
+            //   mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI("/api/admin/users/" + newUser.getLogin()))
                 .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newUser.getLogin()))
                 .body(newUser);
@@ -156,10 +156,8 @@ public class UserResource {
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }
-        Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
-
         return ResponseUtil.wrapOrNotFound(
-            updatedUser,
+            userService.updateUser(userDTO),
             HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin())
         );
     }

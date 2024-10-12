@@ -9,11 +9,13 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
+import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
@@ -23,10 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface ThirdPartySaleService {
-    void processDiscount(ThirdPartySales thirdPartySales, SalesLine saleLine, SalesLine oldSaleLine);
-
-    void processDiscountWhenRemovingItem(ThirdPartySales thirdPartySales, SalesLine saleLine);
-
     ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
     List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
@@ -80,4 +78,8 @@ public interface ThirdPartySaleService {
 
     FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+
+    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
+
+    void processDiscount(KeyValue keyValue);
 }

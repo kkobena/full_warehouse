@@ -227,6 +227,11 @@ public class AuthorityServiceImpl implements AuthorityService {
         return privilleges;
     }
 
+    @Override
+    public boolean hasAuthority(String authorityName, String privillegeName) {
+        return authorityPrivilegeRepository.existsByPrivilegeNameAndAuthorityName(privillegeName, authorityName);
+    }
+
     private AuthorityDTO buildAutorityDTO(Authority authority) {
         return new AuthorityDTO(
             authority.getName(),

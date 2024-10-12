@@ -42,4 +42,6 @@ public interface CashRegisterService {
     default TypeVente getTypeVenteFromLibelle(String type) {
         return Stream.of(TypeVente.values()).filter(typeVente -> typeVente.getValue().equals(type)).findFirst().orElseThrow();
     }
+
+    int getCanceledAmount(CashRegister cashRegister);
 }

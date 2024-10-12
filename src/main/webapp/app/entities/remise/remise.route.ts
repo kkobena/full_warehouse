@@ -7,7 +7,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { IRemise, Remise } from '../../shared/model/remise.model';
 import { RemiseService } from './remise.service';
 import { RemiseComponent } from './remise.component';
-import { ProduitRemiseComponent } from './produit-remise/produit-remise.component';
 
 export const RemiseResolve = (route: ActivatedRouteSnapshot): Observable<null | IRemise> => {
   const id = route.params['id'];
@@ -34,17 +33,6 @@ const remiseRoute: Routes = [
     data: {
       authorities: [Authority.ADMIN, Authority.REFERENTIEL],
       defaultSort: 'id,asc',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/associe',
-    component: ProduitRemiseComponent,
-    resolve: {
-      remise: RemiseResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.REFERENTIEL],
     },
     canActivate: [UserRouteAccessService],
   },

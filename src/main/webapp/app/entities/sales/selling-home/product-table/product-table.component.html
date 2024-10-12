@@ -7,14 +7,54 @@
            dataKey="id"
            selectionMode="single">
     <ng-template pTemplate="caption">
-      <span class="mr-lg-5">Produits</span>
-
-      <span class="p-input-icon-left">
+      <div class="d-flex produit-vente-table-tb">
+        <div class="p-2">Produits</div>
+        <div class="p-2">
+              <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
     <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
-           placeholder="Taper pour filter"
+           [style]="{'width': '300px'}"
+           placeholder="Taper pour filter les produits"
            type="text">
 </span>
+
+        </div>
+        <div class="p-2">@if (currentSaleService.currentSale()?.remise) {
+          <ngb-alert [type]="typeAlert" [dismissible]="false">
+            <b> Remise appliquée:
+              <span
+                class="taux-remise"> {{ currentSaleService.currentSale()?.remise?.remiseValue }}%
+            </span></b>
+          </ngb-alert>
+        }
+
+        </div>
+
+
+        <div class="ms-auto p-2">
+          @if (!currentSaleService.currentSale()?.remise) {
+            <p-button [raised]="true" icon="pi pi-cart-plus" severity="help"
+                      (click)="onAddRemise()"
+                      label="Ajouter une remise" />
+          } @else {
+
+            <p-splitButton
+              raised
+              label="Actions sur la remise"
+              [model]="actionsButtons"
+              severity="warning" />
+
+            <!-- <p-button [raised]="true" icon="pi pi-cart-plus" severity="help"
+                       (click)="onRemiseChange()"
+                       label="Modifier une remise" />
+             <p-button [raised]="true" icon="pi pi-cart-plus" severity="danger"
+                       (click)="onRemoveRemise()"
+                       label="Supprimer la remise" />-->
+          }
+
+        </div>
+      </div>
+
 
     </ng-template>
     <ng-template pTemplate="header">

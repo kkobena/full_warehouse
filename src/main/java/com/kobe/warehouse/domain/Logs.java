@@ -61,9 +61,6 @@ public class Logs implements Serializable {
     @Column(name = "new_object")
     private String newObject;
 
-    @ManyToOne
-    private Produit produit;
-
     public Long getId() {
         return id;
     }
@@ -133,15 +130,6 @@ public class Logs implements Serializable {
 
     public Logs setNewObject(String newObject) {
         this.newObject = newObject;
-        return this;
-    }
-
-    public Produit getProduit() {
-        return produit;
-    }
-
-    public Logs setProduit(Produit produit) {
-        this.produit = produit;
         return this;
     }
 }

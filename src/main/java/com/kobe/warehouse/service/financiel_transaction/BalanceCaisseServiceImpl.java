@@ -80,7 +80,6 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             balanceCaisseDTO.setModePaiement(tuple.get("modePaiement", String.class));
             balanceCaisseDTO.setLibelleModePaiement(tuple.get("libelleModePaiement", String.class));
             balanceCaisseDTO.setMontantAchat(tuple.get("montantAchat", BigDecimal.class).longValue());
-            balanceCaisseDTO.setMontantMarge(tuple.get("montantMarge", BigDecimal.class).longValue());
             balanceCaisseDTO.setMontantDiffere(tuple.get("montantDiffere", BigDecimal.class).longValue());
             balanceCaisseDTO.setAmountToBePaid(tuple.get("amountToBePaid", BigDecimal.class).longValue());
             balanceCaisseDTO.setAmountToBeTakenIntoAccount(tuple.get("amountToBeTakenIntoAccount", BigDecimal.class).longValue());

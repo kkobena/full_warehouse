@@ -129,7 +129,7 @@ public class DeconditionService {
                     deconditionDTO.getQtyMvt(),
                     stockProduit.getQtyStock()
                 );
-                logsService.create(TransactionType.DECONDTION_OUT, desc, deconditionParent.getId().toString(), parent);
+                logsService.create(TransactionType.DECONDTION_OUT, desc, deconditionParent.getId().toString());
             }
             FournisseurProduit fournisseurProduitPrincipaldetail = detail.getFournisseurProduitPrincipal();
             if (fournisseurProduitPrincipal != null) {
@@ -141,7 +141,7 @@ public class DeconditionService {
                     stockDetailFinal,
                     stockDetail.getQtyStock()
                 );
-                logsService.create(TransactionType.DECONDTION_IN, desc, decondition.getId().toString(), detail);
+                logsService.create(TransactionType.DECONDTION_IN, desc, decondition.getId().toString());
             }
         } else {
             throw new StockException();

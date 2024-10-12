@@ -44,7 +44,11 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { TagModule } from 'primeng/tag';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { ProductTableComponent } from '../product-table/product-table.component';
+import { ProductTableComponent, RemiseSignal } from '../product-table/product-table.component';
+import { Authority } from '../../../../shared/constants/authority.constants';
+import { HasAuthorityService } from '../../service/has-authority.service';
+import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
+import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-dialog.component';
 
 @Component({
   templateUrl: './base-sale.component.html',
@@ -113,6 +117,7 @@ import { ProductTableComponent } from '../product-table/product-table.component'
     OverlayPanelModule,
     ProductTableComponent,
     ModeReglementComponent,
+    FormActionAutorisationComponent,
   ],
 })
 export class BaseSaleComponent {
@@ -135,6 +140,7 @@ export class BaseSaleComponent {
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);
+  hasAuthorityService = inject(HasAuthorityService);
   @Input('isPresale') isPresale = false;
   appendTo = 'body';
   CASH = 'CASH';
@@ -144,6 +150,11 @@ export class BaseSaleComponent {
   protected remises: IRemise[] = [];
   protected remise?: IRemise | null;
   protected isSaving = false;
+  private canRemoveItem: boolean;
+
+  constructor() {
+    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
+  }
 
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
@@ -286,19 +297,34 @@ export class BaseSaleComponent {
     this.removeItem(salesLine.id);
   }
 
+  openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
+    const modalRef = this.modalService.open(FormActionAutorisationComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.entity = this.currentSaleService.currentSale();
+    modalRef.componentInstance.privilege = privilege;
+    modalRef.closed.subscribe(reason => {
+      if (reason === true) {
+        this.removeLine(entityToProccess);
+      }
+    });
+  }
+
   confirmDeleteItem(item: ISalesLine): void {
     if (item) {
-      this.removeLine(item);
+      if (this.canRemoveItem) {
+        this.removeLine(item);
+      } else {
+        this.openActionAutorisationDialog(Authority.PR_SUPPRIME_PRODUIT_VENTE, item);
+      }
     } else {
       this.baseSaleService.setInputBoxFocus('produitBox');
-      //  this.check = true;s
     }
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): void {
-    if (salesLine) {
-      this.processQtyRequested(salesLine);
-    }
+    this.processQtyRequested(salesLine);
   }
 
   updateItemQtySold(salesLine: ISalesLine): void {
@@ -342,6 +368,43 @@ export class BaseSaleComponent {
 
   printSale(saleId: number): void {
     this.salesService.printReceipt(saleId).subscribe();
+  }
+
+  openRemiseDialog(remiseSignal: RemiseSignal): void {
+    switch (remiseSignal) {
+      case 'update':
+      case 'add':
+        const modalRef = this.modalService.open(RemiseListDialogComponent, {
+          backdrop: 'static',
+          fullscreen: 'md',
+          size: 'lg',
+          centered: true,
+          animation: true,
+        });
+        modalRef.closed.subscribe((remise: IRemise) => {
+          if (remise) {
+            this.salesService
+              .addRemise({
+                key: this.currentSaleService.currentSale().id,
+                value: remise.id,
+              })
+              .subscribe({
+                next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
+                error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+              });
+          }
+        });
+
+        break;
+      case 'remove':
+        this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
+          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
+          error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {

@@ -22,62 +22,61 @@
     </div>
   </p-toolbar>
 
-  <div *ngIf="entites?.length === 0" class="alert alert-warning" id="no-result">
-    <span>Aucune donnée trouvée</span>
-  </div>
-  <p-table (onLazyLoad)="lazyLoading()" *ngIf="entites && entites.length > 0"
-           [lazy]="true" [loading]="loading" [paginator]="false" [value]="entites"
-           dataKey="id" style="margin-top:5px;" styleClass="ui-table-cars">
-    <ng-template pTemplate="header">
-      <tr>
-        <th scope="col" style="width:30px;">#</th>
-        <th scope="col">Type</th>
-        <th scope="col"><span>Libellé</span></th>
-        <th scope="col"><span>Taux</span></th>
-        <th scope="col"><span>Date debut</span></th>
-        <th scope="col"><span>Date fin</span></th>
-        <th scope="col">Activation/Désactivation</th>
-        <th scope="col"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
-      <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-        <td>{{ rowIndex + 1 }}</td>
-        @if (elRow.type === 'remiseProduit' || elRow.type === 'Remise produit') {
-          <td>Remise produit</td>
-        } @else {
-          <td>Remise client</td>
-        }
-        <td>{{ elRow.valeur }}</td>
-        <td style="text-align: right;">{{ elRow.remiseValue }}</td>
-        <td style="text-align: center;">{{ elRow.begin | date : 'dd/MM/yyyy' }}</td>
-        <td style="text-align: center;">{{ elRow.end | date : 'dd/MM/yyyy' }}</td>
-        <td style="text-align: center;">
-          <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
-        </td>
 
-        <td style="text-align: right;">
 
-          <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-1"
-                  icon="pi pi-pencil" pButton pRipple
-                  pTooltip="Editer"
-                  type="submit"></button>
+  @if (entites && entites.length > 0) {
+    <p-table (onLazyLoad)="lazyLoading()"
+             [lazy]="true" [loading]="loading" [paginator]="false" [value]="entites"
+             dataKey="id" style="margin-top:5px;" styleClass="ui-table-cars">
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col" style="width:30px;">#</th>
+          <th scope="col">Type</th>
+          <th scope="col"><span>Libellé</span></th>
+          <th scope="col"><span>Taux</span></th>
+          <th scope="col"><span>Date debut</span></th>
+          <th scope="col"><span>Date fin</span></th>
+          <th scope="col">Activation/Désactivation</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
+        <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+          <td>{{ rowIndex + 1 }}</td>
           @if (elRow.type === 'remiseProduit' || elRow.type === 'Remise produit') {
-            <button [routerLink]=" ['/remises', elRow.id, 'associe']"
-                    class="p-button-rounded p-button-help p-mr-1" icon="pi pi-box" pButton
-                    pRipple
-                    pTooltip="Associer des produits"
-                    type="button"></button>
+            <td>Remise produit</td>
+          } @else {
+            <td>Remise client</td>
           }
+          <td>{{ elRow.valeur }}</td>
+          <td style="text-align: right;">{{ elRow.remiseValue }}</td>
+          <td style="text-align: center;">{{ elRow.begin | date : 'dd/MM/yyyy' }}</td>
+          <td style="text-align: center;">{{ elRow.end | date : 'dd/MM/yyyy' }}</td>
+          <td style="text-align: center;">
+            <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+          </td>
 
-          <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
-                  icon="pi pi-trash" pButton pRipple
-                  pTooltip="Supprimer" type="button"></button>
-        </td>
-      </tr>
-    </ng-template>
+          <td style="text-align: right;">
 
-  </p-table>
+            <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-1"
+                    icon="pi pi-pencil" pButton pRipple
+                    pTooltip="Editer"
+                    type="submit"></button>
+            <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
+                    icon="pi pi-trash" pButton pRipple
+                    pTooltip="Supprimer" type="button"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  } @else {
+    <div class="alert alert-warning" id="no-result">
+      <span>Aucune donnée trouvée</span>
+    </div>
+  }
+
+
 </div>
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -101,13 +100,20 @@
           >
           </p-dropdown>
         </div>
-        <div
-          *ngIf="editForm.get('type')!.invalid && (editForm.get('type')!.dirty || editForm.get('type')!.touched)">
-          <small *ngIf="editForm.get('type')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
+        @if (editForm.get('type')!.invalid && (editForm.get('type')!.dirty || editForm.get(
+          'type')!.touched)) {
+          <div>
+            @if (editForm.get('type')?.errors?.required) {
+              <small class="form-text text-danger"
+                     style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
+
+
       </div>
       <div class="ui-g form-group">
         <label for="remiseValue">Taux</label>
@@ -115,15 +121,22 @@
 
           <input autocomplete="off" formControlName="remiseValue" id="remiseValue"
                  name="remiseValue" pInputText
-                 pKeyFilter="int" style="width: 100%;" styleClass="form-control" type="text">
+                 pKeyFilter="int" pStyleClass="form-control" style="width: 100%;" type="text">
         </div>
-        <div
-          *ngIf="editForm.get('remiseValue')!.invalid && (editForm.get('remiseValue')!.dirty || editForm.get('remiseValue')!.touched)">
-          <small *ngIf="editForm.get('remiseValue')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
+        @if (editForm.get('remiseValue')!.invalid && (editForm.get('remiseValue')!.dirty
+          || editForm.get('remiseValue')!.touched)) {
+          <div>
+            @if (editForm.get('remiseValue')?.errors?.required) {
+              <small class="form-text text-danger"
+                     style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
+
+
       </div>
 
       <div class="ui-g form-group">
@@ -131,7 +144,7 @@
         <div class="ui-g-12">
 
           <input autocomplete="off" formControlName="valeur" id="valeur" name="valeur" pInputText
-                 style="width: 100%;" styleClass="form-control" type="text">
+                 pStyleClass="form-control" style="width: 100%;" type="text">
         </div>
         <div
           *ngIf="editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)">
@@ -141,51 +154,6 @@
           </small>
         </div>
       </div>
-      <div class="ui-g form-group">
-        <label for="begin">Date debut</label>
-        <div class="ui-g-12">
-          <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
-                      appendTo="body"
-                      dateFormat="dd/mm/yy" formControlName="begin"
-                      id="begin" name="begin"
-
-          >
-
-          </p-calendar>
-
-        </div>
-        <div
-          *ngIf="editForm.get('begin')!.invalid && (editForm.get('begin')!.dirty || editForm.get('begin')!.touched)">
-          <small *ngIf="editForm.get('begin')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
-      </div>
-
-      <div class="ui-g form-group">
-        <label for="end">Date fin</label>
-        <div class="ui-g-12">
-          <p-calendar [selectOtherMonths]="true" [showButtonBar]="true" [style]="{'width':'100%'}"
-                      appendTo="body"
-                      dateFormat="dd/mm/yy"
-                      formControlName="end"
-                      id="end"
-                      name="end"
-          >
-
-          </p-calendar>
-
-        </div>
-        <div
-          *ngIf="editForm.get('end')!.invalid && (editForm.get('end')!.dirty || editForm.get('end')!.touched)">
-          <small *ngIf="editForm.get('end')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-        </div>
-      </div>
-
 
     </ng-template>
     <p-footer>

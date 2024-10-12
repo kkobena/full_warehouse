@@ -1,0 +1,139 @@
+<p-toast position="center"></p-toast>
+<div class="mvt-caisse">
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <div class="input-group">
+        <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '200px'}"
+                    dateFormat="dd/mm/yy"
+                    inputId="dateDebut"
+                    placeholder="Date début"
+                    selectOtherMonths="true" showIcon="true"></p-calendar>&nbsp;
+        <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                    [style]="{width: '200px',margingRight: '10px'}" dateFormat="dd/mm/yy"
+                    inputId="dateFin"
+                    placeholder="Date fin"
+                    selectOtherMonths="true"
+                    showIcon="true"></p-calendar>&nbsp;
+        <p-dropdown (onChange)="onSearch()" [(ngModel)]="selectedUser"
+                    [options]="users"
+                    optionLabel="abbrName"
+                    placeholder="Opérateur"
+        ></p-dropdown>
+      </div>
+    </div>
+    <div class="p-toolbar-group-end">
+      <div class="input-group">
+        <p-button (click)="onSearch()"
+                  [loading]="btnLoading"
+                  icon="pi pi-search"
+                  label="Rechercher"
+                  pTooltip="Rechercher"
+                  severity="info"
+                  tooltipPosition="top"
+        ></p-button>&nbsp;
+        <p-button (click)="onPrint()" [loading]="btnLoading"
+                  icon="pi pi-print" label="Imprimer"
+                  pTooltip="Imprimer"
+                  severity="warning"
+                  tooltipPosition="top"
+        />
+
+      </div>
+
+    </div>
+  </p-toolbar>
+  <div class=" mvt-caisse-data-section">
+    @if (datas && datas.length > 0) {
+      <div>
+        <p-table
+          [lazy]="true"
+          [loading]="loading" [paginator]="true"
+          [rowsPerPageOptions]="[5,10,15,20,30,50]"
+          [rows]="itemsPerPage" [showCurrentPageReport]="false"
+          [totalRecords]="totalItems"
+          [value]="datas"
+          dataKey="id"
+          selectionMode="multiple"
+          styleClass="p-datatable-striped mt-2"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Caissier</th>
+              <th>Fond de caisse</th>
+              <th>Recette</th>
+              <th>Total caisse</th>
+              <th>Montant mobile</th>
+              <th>Billetage</th>
+              <th>Ecart</th>
+              <th>Total annulation</th>
+              <th>Etat de la caisse</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template let-mvtCaisse pTemplate="body">
+            <tr>
+              <td>
+                {{ mvtCaisse.user?.abbrName }}
+              </td>
+              <td class="text-right amount-column">
+                {{ mvtCaisse.cashFund | number }}
+              </td>
+              <td class="text-right amount-column">{{ mvtCaisse.cashAmount  | number }}</td>
+              <td class="text-right amount-column">{{ mvtCaisse.estimateAmount  | number }}</td>
+              <td class="text-right amount-column">{{ mvtCaisse.mobileAmount  | number }}</td>
+              <td
+                class="text-right amount-column">{{ mvtCaisse.ticketing?.totalAmount  | number }}
+              </td>
+              @if (mvtCaisse.gap > 0) {
+                <td class="text-right text-success amount-column">{{ mvtCaisse.gap |number }}
+                </td>
+              } @else if (mvtCaisse.gap === 0) {
+                <td class="text-right amount-column">{{ mvtCaisse.gap |number }}</td>
+              } @else {
+                <td class="text-right text-danger amount-column">{{ mvtCaisse.gap |number }}</td>
+              }
+              <td
+                class="text-right text-danger amount-column">{{ mvtCaisse.canceledAmount  | number }}
+              </td>
+              <td class="text-center">
+                @if (mvtCaisse.statut === OPEN) {
+
+                  <p-tag icon="pi pi-lock-open" severity="warning" value="Ouvert" />
+                } @else if (mvtCaisse.statut === CLOSED) {
+                  <p-tag icon="pi pi-lock" severity="success" value="Fermé" />
+
+                } @else if (mvtCaisse.statut === VALIDATED) {
+                  <p-tag icon="pi pi-check" severity="secondary" value="Validé" />
+
+                }
+              </td>
+              <td class="text-right">
+                <div class="btn-group">
+                  @if (mvtCaisse.statut !== OPEN) {
+                    <p-button
+                      [rounded]="true" severity="success"
+                      icon="pi pi-thumbs-up-fill"
+                      pTooltip="Valider">
+                    </p-button>
+                    <p-button
+                      [rounded]="true" severity="secondary"
+                      icon="pi pi-print"
+                      pTooltip="Imprimer">
+                    </p-button>
+                  }
+
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+        </p-table>
+      </div>
+    } @else {
+      <div class="alert alert-warning" role="alert">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
+  </div>
+</div>

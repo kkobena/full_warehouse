@@ -18,6 +18,11 @@ export class CashRegister {
   user?: IUser;
   updatedUser?: IUser;
   cashFund?: number;
+  canceledAmount?: number;
+  cashAmount?: number;
+  gap?: number;
+  mobileAmount?: number;
+  estimateAmount?: number;
 }
 
 export class CashRegisterItem {
@@ -35,7 +40,7 @@ export class CashFund {
 export const enum CashRegisterStatut {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
-  VALIDETED = 'VALIDETED',
+  VALIDATED = 'VALIDATED',
   PENDING = 'PENDING',
 }
 

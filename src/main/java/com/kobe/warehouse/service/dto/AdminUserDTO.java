@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.User;
@@ -59,6 +60,11 @@ public class AdminUserDTO implements Serializable {
     private String fullName;
     private String abbrName;
 
+    @JsonIgnore
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = Constants.NUMERIC_PATTERN)
+    private String actionAuthorityKey;
+
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -97,6 +103,15 @@ public class AdminUserDTO implements Serializable {
         this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
         this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
         this.authorities = SecurityUtils.mergeAuthorities(authorities0);
+    }
+
+    public @Size(min = 6, max = 6) String getActionAuthorityKey() {
+        return actionAuthorityKey;
+    }
+
+    public AdminUserDTO setActionAuthorityKey(@Size(min = 6, max = 6) String actionAuthorityKey) {
+        this.actionAuthorityKey = actionAuthorityKey;
+        return this;
     }
 
     public Long getId() {

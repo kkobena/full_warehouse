@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { CashRegisterService } from '../cash-register.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -43,8 +43,16 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   providers: [ConfirmationService, MessageService],
   templateUrl: './user-cash-register.component.html',
 })
-export class UserCashRegisterComponent implements OnInit {
-  @ViewChild('cashFundAmountInput') cashFundAmountInput: ElementRef;
+export class UserCashRegisterComponent implements OnInit, AfterViewInit {
+  cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
+  fb = inject(FormBuilder);
+  entityService = inject(CashRegisterService);
+  activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
+  messageService = inject(MessageService);
+  configService = inject(ConfigurationService);
+  modalService = inject(ConfirmationService);
+
   protected overtureCaisseAuto: boolean = false;
   protected isSaving = false;
   protected openCaisse: boolean = false;
@@ -53,26 +61,24 @@ export class UserCashRegisterComponent implements OnInit {
   protected selectedCashRegister: CashRegister | null = null;
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(0), Validators.max(100000)],
+      validators: [Validators.required, Validators.min(0), Validators.max(1000000)],
       nonNullable: true,
     }),
   });
 
   protected readonly left = left;
   protected readonly OPEN = CashRegisterStatut.OPEN;
-  protected readonly VALIDETED = CashRegisterStatut.VALIDETED;
+  protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly PENDING = CashRegisterStatut.PENDING;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
 
-  constructor(
-    protected entityService: CashRegisterService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private messageService: MessageService,
-    private configService: ConfigurationService,
-    protected modalService: ConfirmationService,
-    private fb: FormBuilder,
-  ) {}
+  constructor() {}
+
+  ngAfterViewInit(): void {
+    if (this.openCaisse || this.cashRegisters.length === 0) {
+      this.setCashFundControlFocus();
+    }
+  }
 
   ngOnInit(): void {
     this.configService.find('APP_CASH_FUND').subscribe(res => {
@@ -147,12 +153,7 @@ export class UserCashRegisterComponent implements OnInit {
 
   protected onOpenCashRegister(): void {
     this.openCaisse = true;
-
-    setTimeout(() => {
-      this.cashFundAmountInput.nativeElement.focus();
-      this.editForm.get(['cashFundAmount'])!.setValue(this.cashFundAmount);
-      this.cashFundAmountInput.nativeElement.select();
-    }, 50);
+    this.setCashFundControlFocus();
   }
 
   protected closeCashRegister(cashRegister: CashRegister): void {
@@ -184,5 +185,13 @@ export class UserCashRegisterComponent implements OnInit {
         });
       },
     });
+  }
+
+  private setCashFundControlFocus(): void {
+    setTimeout(() => {
+      this.cashFundAmountInput().nativeElement.focus();
+      this.editForm.get(['cashFundAmount'])!.setValue(this.cashFundAmount);
+      this.cashFundAmountInput().nativeElement.select();
+    }, 50);
   }
 }

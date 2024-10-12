@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.service.dto.RemiseDTO;
+import com.kobe.warehouse.service.dto.TypeRemise;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.remise.RemiseService;
 import java.net.URISyntaxException;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -25,8 +28,11 @@ public class RemiseResourceProxy {
         this.remiseService = remiseService;
     }
 
-    public ResponseEntity<List<RemiseDTO>> getAll() {
-        return ResponseEntity.ok().body(this.remiseService.findAll());
+    @GetMapping("/remises")
+    public ResponseEntity<List<RemiseDTO>> getAll(
+        @RequestParam(required = false, name = "typeRemise", defaultValue = "ALL") TypeRemise typeRemise
+    ) {
+        return ResponseEntity.ok().body(this.remiseService.findAll(typeRemise));
     }
 
     public ResponseEntity<RemiseDTO> create(RemiseDTO remiseDTO) throws URISyntaxException {
@@ -56,16 +62,6 @@ public class RemiseResourceProxy {
 
         this.remiseService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    public ResponseEntity<Void> associer(Long id, List<Long> produitIds) {
-        this.remiseService.associer(id, produitIds);
-        return ResponseEntity.ok().build();
-    }
-
-    public ResponseEntity<Void> dissocier(List<Long> produitIds) {
-        this.remiseService.dissocier(produitIds);
-        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<RemiseDTO> changeStatus(RemiseDTO remiseDTO) throws URISyntaxException {

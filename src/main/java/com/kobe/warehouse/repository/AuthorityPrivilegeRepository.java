@@ -19,4 +19,6 @@ public interface AuthorityPrivilegeRepository extends JpaRepository<AuthorityPri
     List<AuthorityPrivilege> findAllAuthorityPrivilegeByAuthorityName(String authorityName);
 
     Optional<AuthorityPrivilege> findOneByPrivilegeNameAndAuthorityName(String privilegeName, String authorityName);
+
+    boolean existsByPrivilegeNameAndAuthorityName(String privilegeName, String authorityName);
 }

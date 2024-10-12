@@ -3,6 +3,9 @@ package com.kobe.warehouse.service.sale.impl;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -18,6 +21,7 @@ import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.RemiseRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
@@ -26,6 +30,7 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
+import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
@@ -34,11 +39,13 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
+import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
@@ -82,6 +89,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final PaymentService paymentService;
     private final TicketService ticketService;
     private final CashSaleRepository cashSaleRepository;
+    private final UtilisationCleSecuriteService utilisationCleSecuriteService;
+    private final RemiseRepository remiseRepository;
 
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
 
@@ -101,7 +110,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         CashRegisterService cashRegisterService,
         AvoirService avoirService,
         PosteRepository posteRepository,
-        CashSaleRepository cashSaleRepository
+        CashSaleRepository cashSaleRepository,
+        UtilisationCleSecuriteService utilisationCleSecuriteService,
+        RemiseRepository remiseRepository
     ) {
         super(
             referenceService,
@@ -123,6 +134,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.paymentService = paymentService;
         this.cashSaleRepository = cashSaleRepository;
+        this.utilisationCleSecuriteService = utilisationCleSecuriteService;
+        this.remiseRepository = remiseRepository;
     }
 
     @Override
@@ -136,7 +149,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySales.getSalesLines().add(saleLine);
         computeSaleEagerAmount(thirdPartySales, saleLine.getSalesAmount(), 0);
         computeSaleCmu(thirdPartySales, saleLine, null);
-        processDiscount(thirdPartySales, saleLine, null);
+        applRemiseToSale(thirdPartySales);
         String message = computeAmounts(dto.getTiersPayants(), thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, saleLine, null);
         thirdPartySales.setOrigineVente(OrigineVente.DIRECT);
@@ -265,35 +278,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     private ClientTiersPayant getOneId(Long id) {
         return clientTiersPayantRepository.getReferenceById(id);
-    }
-
-    @Override
-    public void processDiscount(ThirdPartySales thirdPartySales, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (oldSaleLine != null) {
-            thirdPartySales.setDiscountAmount(
-                (thirdPartySales.getDiscountAmount() - oldSaleLine.getDiscountAmount()) + saleLine.getDiscountAmount()
-            );
-            thirdPartySales.setDiscountAmountUg(
-                (thirdPartySales.getDiscountAmountUg() - oldSaleLine.getDiscountAmountUg()) + saleLine.getDiscountAmountUg()
-            );
-            thirdPartySales.setDiscountAmountHorsUg(
-                (thirdPartySales.getDiscountAmountHorsUg() - saleLine.getDiscountAmountHorsUg()) + saleLine.getDiscountAmountHorsUg()
-            );
-            thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
-        } else {
-            thirdPartySales.setDiscountAmount(thirdPartySales.getDiscountAmount() + saleLine.getDiscountAmount());
-            thirdPartySales.setDiscountAmountUg(thirdPartySales.getDiscountAmountUg() + saleLine.getDiscountAmountUg());
-            thirdPartySales.setDiscountAmountHorsUg(thirdPartySales.getDiscountAmountHorsUg() + saleLine.getDiscountAmountHorsUg());
-            thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
-        }
-    }
-
-    @Override
-    public void processDiscountWhenRemovingItem(ThirdPartySales thirdPartySales, SalesLine saleLine) {
-        thirdPartySales.setDiscountAmount(thirdPartySales.getDiscountAmount() - saleLine.getDiscountAmount());
-        thirdPartySales.setDiscountAmountUg(thirdPartySales.getDiscountAmountUg() - saleLine.getDiscountAmountUg());
-        thirdPartySales.setDiscountAmountHorsUg(thirdPartySales.getDiscountAmountHorsUg() - saleLine.getDiscountAmountHorsUg());
-        thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
     }
 
     @Override
@@ -506,6 +490,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleLine.setSale(thirdPartySales);
         thirdPartySaleLineRepository.save(thirdPartySaleLine);
         thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+        applRemiseToSale(thirdPartySales);
         var message = reComputeAmounts(thirdPartySales);
         var tp = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         if (StringUtils.hasLength(message)) {
@@ -607,7 +592,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
         computeSaleEagerAmount(thirdPartySales, salesLine.getSalesAmount(), oldsalesline != null ? oldsalesline.getSalesAmount() : 0);
         computeSaleCmu(thirdPartySales, salesLine, oldsalesline);
-        processDiscount(thirdPartySales, salesLine, oldsalesline);
+        applRemiseToSale(thirdPartySales);
         var message = reComputeAmounts(thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
         return message;
@@ -616,8 +601,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c, SalesLine saleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount() * (-1), 0);
         c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
-        processDiscountSaleOnRemovingItem(c, saleLine);
-        processDiscountWhenRemovingItem(c, saleLine);
+        applRemiseToSale(c);
         reComputeAmounts(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
         computeUgTvaAmountOnRemovingItem(c, saleLine);
@@ -935,5 +919,50 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .ifPresent(o -> p.setNumBon(o.getNumBon()));
         thirdPartySaleRepository.save(p);
         return new FinalyseSaleDTO(p.getId(), true);
+    }
+
+    @Override
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
+        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
+    }
+
+    @Override
+    public void processDiscount(KeyValue keyValue) {
+        ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(keyValue.key());
+        remiseRepository.findById(keyValue.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
+    }
+
+    private void processDiscount(ThirdPartySales thirdPartySales, Remise remise) {
+        if (thirdPartySales.getRemise() != null) {
+            this.removeRemise(thirdPartySales);
+        }
+        if (remise instanceof RemiseClient remiseClient) {
+            this.applyRemiseClient(thirdPartySales, remiseClient);
+        } else {
+            if (thirdPartySales.getNatureVente() == NatureVente.CARNET) {
+                this.applyRemiseProduit(thirdPartySales, (RemiseProduit) remise);
+            } else {
+                throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
+            }
+        }
+        reComputeAmounts(thirdPartySales);
+        this.thirdPartySaleRepository.save(thirdPartySales);
+    }
+
+    private void applRemiseToSale(ThirdPartySales thirdPartySales) {
+        Remise remise = thirdPartySales.getRemise();
+        if (remise == null) {
+            return;
+        }
+        if (remise instanceof RemiseProduit && thirdPartySales.getNatureVente() == NatureVente.ASSURANCE) {
+            throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
+        }
+        this.proccessDiscount(thirdPartySales);
+    }
+
+    private void computePartAssure(ThirdPartySales thirdPartySales) {
+        if (Objects.nonNull(thirdPartySales.getPartAssure()) && thirdPartySales.getPartAssure().compareTo(0) != 0) {
+            thirdPartySales.setPartAssure(thirdPartySales.getPartAssure() - thirdPartySales.getDiscountAmount());
+        }
     }
 }

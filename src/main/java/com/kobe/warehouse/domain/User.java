@@ -109,13 +109,18 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     private Set<Authority> authorities = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<PersistentToken> persistentTokens = new HashSet<>();
+
+    @Pattern(regexp = Constants.NUMERIC_PATTERN)
+    @Column(name = "action_authority_key")
+    @JsonIgnore
+    private String actionAuthorityKey;
 
     @Override
     public Long getId() {
@@ -250,6 +255,15 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         this.persistentTokens = persistentTokens;
     }
 
+    public String getActionAuthorityKey() {
+        return actionAuthorityKey;
+    }
+
+    public User setActionAuthorityKey(String actionAuthorityKey) {
+        this.actionAuthorityKey = actionAuthorityKey;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -263,8 +277,6 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Override
     public int hashCode() {
-        // see
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 

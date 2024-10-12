@@ -7,17 +7,16 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.AuthorityRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.UserDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -95,56 +94,6 @@ public class UserService {
             });
     }
 
-    public User registerUser(AdminUserDTO userDTO, String password) {
-        userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new UsernameAlreadyUsedException();
-                }
-            });
-        userRepository
-            .findOneByEmailIgnoreCase(userDTO.getEmail())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new EmailAlreadyUsedException();
-                }
-            });
-        User newUser = new User();
-        String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(userDTO.getLogin().toLowerCase());
-        // new user gets initially a generated password
-        newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            newUser.setEmail(userDTO.getEmail().toLowerCase());
-        }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
-        // new user is not active
-        newUser.setActivated(true);
-        // new user gets registration key
-        //  newUser.setActivationKey(RandomUtil.generateActivationKey());
-        Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        newUser.setAuthorities(authorities);
-        userRepository.save(newUser);
-        log.debug("Created Information for User: {}", newUser);
-        return newUser;
-    }
-
-    private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
-        userRepository.delete(existingUser);
-        userRepository.flush();
-        return true;
-    }
-
     public User createUser(AdminUserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
@@ -159,6 +108,7 @@ public class UserService {
         user.setLangKey(Constants.DEFAULT_LANGUAGE);
         String encryptedPassword = passwordEncoder.encode(userDTO.getLogin().toLowerCase());
         user.setPassword(encryptedPassword);
+        user.setActionAuthorityKey(DigestUtils.sha256Hex(userDTO.getActionAuthorityKey()));
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(LocalDateTime.now());
         user.setActivated(true);
@@ -171,6 +121,9 @@ public class UserService {
                 .map(Optional::get)
                 .collect(Collectors.toSet());
             user.setAuthorities(authorities);
+        }
+        if (StringUtils.hasText(userDTO.getActionAuthorityKey())) {
+            user.setActionAuthorityKey(passwordEncoder.encode(userDTO.getActionAuthorityKey()));
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
@@ -207,8 +160,7 @@ public class UserService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
-                log.debug("Changed Information for User: {}", user);
-                return user;
+                return userRepository.save(user);
             })
             .map(AdminUserDTO::new);
     }
@@ -344,5 +296,10 @@ public class UserService {
                             .collect(Collectors.toSet())
                     )
             );
+    }
+
+    public Optional<User> getUserByPwdOrSecurityKey(String input) {
+        var endoded = DigestUtils.sha256Hex(input);
+        return userRepository.findOneByActionAuthorityKey(endoded);
     }
 }

@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.CashSale;

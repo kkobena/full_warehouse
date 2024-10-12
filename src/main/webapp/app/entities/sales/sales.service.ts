@@ -9,6 +9,7 @@ import { createRequestOption, createRequestOptions } from 'app/shared/util/reque
 import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
+import { UtilisationCleSecurite } from '../action-autorisation/utilisation-cle-securite.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -24,6 +25,10 @@ export class SalesService {
     return this.http
       .post<ISales>(`${this.resourceUrl}/comptant`, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
+  authorizeAction(utilisationCleSecurite: UtilisationCleSecurite): Observable<HttpResponse<{}>> {
+    return this.http.post(this.resourceUrl + '/comptant/authorize-action', utilisationCleSecurite, { observe: 'response' });
   }
 
   updateComptant(sales: ISales): Observable<EntityResponseType> {
@@ -113,26 +118,8 @@ export class SalesService {
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
 
-  addItemAssurance(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    const copy = this.convertItemDateFromClient(salesLine);
-    return this.http
-      .post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, copy, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
-  }
-
-  updateItemAssurance(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/assurance`, salesLine, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
-  }
-
   deleteItem(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/delete-item/${id}`, { observe: 'response' });
-  }
-
-  putCurrentCashSaleOnHold(sales: ISales): Observable<HttpResponse<IResponseDto>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
   }
 
   putCurrentCashSaleOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
@@ -177,6 +164,14 @@ export class SalesService {
       params: options,
       observe: 'response',
     });
+  }
+
+  removeRemiseFromCashSale(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${id}`, { observe: 'response' });
+  }
+
+  addRemise(key: KeyValue): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
 
   protected convertDateFromClient(sales: ISales): ISales {

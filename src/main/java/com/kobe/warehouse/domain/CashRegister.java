@@ -42,6 +42,9 @@ public class CashRegister implements Serializable {
     @Column(name = "final_amount")
     private Long finalAmount;
 
+    @Column(name = "cancele_amount")
+    private Integer canceledAmount;
+
     @NotNull
     @Column(name = "begin_time")
     private LocalDateTime beginTime;
@@ -90,6 +93,15 @@ public class CashRegister implements Serializable {
 
     public CashRegister setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public Integer getCanceledAmount() {
+        return canceledAmount;
+    }
+
+    public CashRegister setCanceledAmount(Integer canceledAmount) {
+        this.canceledAmount = canceledAmount;
         return this;
     }
 

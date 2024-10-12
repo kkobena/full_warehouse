@@ -19,7 +19,6 @@ import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.Rayon_;
-import com.kobe.warehouse.domain.RemiseProduit_;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
@@ -57,6 +56,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
@@ -547,19 +547,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 )
             );
         }
-
-        if (produitCriteria.getRemiseId() != null) {
-            predicates.add(cb.equal(root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseId()));
+        if (Objects.nonNull(produitCriteria.getRemisable())) {
+            predicates.add(cb.equal(root.get(Produit_.remisable), produitCriteria.getRemisable()));
         }
-        if (produitCriteria.getRemiseNot() != null) {
-            predicates.add(
-                cb.or(
-                    cb.isNull(root.get(Produit_.remise).get(RemiseProduit_.id)),
-                    cb.notEqual(root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseNot())
-                )
-            );
-        }
-
         return predicates;
     }
 
@@ -674,17 +664,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
             );
         }
 
-        if (produitCriteria.getRemiseId() != null) {
-            predicates.add(cb.equal(root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseId()));
+        if (Objects.nonNull(produitCriteria.getRemisable())) {
+            predicates.add(cb.equal(root.get(Produit_.remisable), produitCriteria.getRemisable()));
         }
-        if (produitCriteria.getRemiseNot() != null) {
-            predicates.add(
-                cb.or(
-                    cb.isNull(root.get(Produit_.remise).get(RemiseProduit_.id)),
-                    cb.notEqual(root.get(Produit_.remise).get(RemiseProduit_.id), produitCriteria.getRemiseNot())
-                )
-            );
-        }
+
         return predicates;
     }
 }

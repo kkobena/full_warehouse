@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,8 +20,8 @@ import { IRemise, Remise, RemiseType } from '../../shared/model/remise.model';
 import { RemiseService } from './remise.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
-import moment from 'moment';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { StyleClassModule } from 'primeng/styleclass';
 
 @Component({
   selector: 'jhi-remise',
@@ -45,11 +45,12 @@ import { InputSwitchModule } from 'primeng/inputswitch';
     DropdownModule,
     CalendarModule,
     InputSwitchModule,
+    StyleClassModule,
   ],
   templateUrl: './remise.component.html',
   styleUrl: './remise.component.scss',
 })
-export class RemiseComponent {
+export class RemiseComponent implements OnInit {
   fileDialog?: boolean;
   responsedto!: IResponseDto;
   responseDialog?: boolean;
@@ -75,14 +76,14 @@ export class RemiseComponent {
       validators: [Validators.min(0), Validators.required],
       nonNullable: true,
     }),
-    begin: new FormControl<Date | null>(null, {
+    /* begin: new FormControl<Date | null>(null, {
       validators: [Validators.min(0), Validators.required],
       nonNullable: true,
     }),
     end: new FormControl<Date | null>(null, {
       validators: [Validators.min(0), Validators.required],
       nonNullable: true,
-    }),
+    }), */
   });
 
   constructor(
@@ -93,10 +94,6 @@ export class RemiseComponent {
     protected modalService: ConfirmationService,
     private fb: FormBuilder,
   ) {}
-
-  ngOnInit(): void {
-    this.loadPage();
-  }
 
   loadPage(): void {
     this.loading = true;
@@ -129,8 +126,8 @@ export class RemiseComponent {
       valeur: entity.valeur,
       remiseValue: entity.remiseValue,
       type: this.getRemiseTypeFromString(entity.type),
-      begin: entity.begin ? new Date(entity.begin) : null,
-      end: entity.end ? new Date(entity.end) : null,
+      // begin: entity.begin ? new Date(entity.begin) : null,
+      // end: entity.end ? new Date(entity.end) : null,
     });
   }
 
@@ -166,12 +163,12 @@ export class RemiseComponent {
     }
   }
 
-  confirmDelete(id: number): void {
-    this.confirmDialog(id);
+  ngOnInit(): void {
+    this.loadPage();
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
+  confirmDelete(id: number): void {
+    this.confirmDialog(id);
   }
 
   protected onStatusChange(entity: IRemise): void {
@@ -179,7 +176,7 @@ export class RemiseComponent {
   }
 
   protected onSuccess(data: IRemise[] | null): void {
-    this.router.navigate(['/remises']);
+    //    this.router.navigate(['/remises']);
     this.entites = data || [];
     this.loading = false;
   }
@@ -218,8 +215,8 @@ export class RemiseComponent {
       remiseValue: this.editForm.get(['remiseValue'])!.value,
       valeur: this.editForm.get(['valeur'])!.value,
       type: this.getRemiseType(this.editForm.get(['type'])!.value),
-      end: moment(this.editForm.get(['end'])!.value).format('yyyy-MM-DD'),
-      begin: moment(this.editForm.get(['begin'])!.value).format('yyyy-MM-DD'),
+      // end: moment(this.editForm.get(['end'])!.value).format('yyyy-MM-DD'),
+      // begin: moment(this.editForm.get(['begin'])!.value).format('yyyy-MM-DD'),
     };
   }
 

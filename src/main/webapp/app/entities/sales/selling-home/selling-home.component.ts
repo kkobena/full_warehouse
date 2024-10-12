@@ -181,6 +181,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected commonDialog = false;
   protected showStock = true;
   protected printTicket = true;
+  protected canApplyDiscount = true;
   protected active = 'comptant';
   private readonly saleEventManager = inject(SaleEventManager);
 
@@ -205,6 +206,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public primeNGConfig: PrimeNGConfig,
   ) {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
+    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
     this.onCompleteSale = this.saleEventManager.subscribe('completeSale', (response: SaleEvent<unknown>) => {
       if (this.isAssurance() || this.isCartnet()) {
         const content = response.content;

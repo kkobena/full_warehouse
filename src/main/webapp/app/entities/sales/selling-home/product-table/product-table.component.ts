@@ -7,14 +7,18 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { AlertInfoComponent } from '../../../../shared/alert/alert-info.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { BaseSaleService } from '../../service/base-sale.service';
 import { Authority } from '../../../../shared/constants/authority.constants';
+import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-dialog.component';
+import { SplitButtonModule } from 'primeng/splitbutton';
+
+export type RemiseSignal = 'add' | 'remove' | 'update';
 
 @Component({
   selector: 'jhi-product-table',
@@ -28,6 +32,9 @@ import { Authority } from '../../../../shared/constants/authority.constants';
     TooltipModule,
     AlertInfoComponent,
     ConfirmDialogModule,
+    RemiseListDialogComponent,
+    SplitButtonModule,
+    NgbAlertModule,
   ],
   templateUrl: './product-table.component.html',
   styleUrls: ['./product-table.component.scss'],
@@ -38,32 +45,48 @@ export class ProductTableComponent {
   @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
   @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
+  @Output() addRemiseEvent = new EventEmitter<RemiseSignal>();
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   hasAuthorityService = inject(HasAuthorityService);
   canModifiePrice: boolean;
-  private baseSaleService = inject(BaseSaleService);
+  baseSaleService = inject(BaseSaleService);
+  currentSaleService = inject(CurrentSaleService);
+  confirmationService = inject(ConfirmationService);
+  modalService = inject(NgbModal);
+  protected typeAlert = 'success';
+  protected actionsButtons: MenuItem[];
+  private canRemoveItem: boolean;
 
-  constructor(
-    private currentSaleService: CurrentSaleService,
-    private modalService: NgbModal,
-    private confirmationService: ConfirmationService,
-  ) {
+  constructor() {
     this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
+    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
+    this.actionsButtons = [
+      {
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.onRemiseChange(),
+      },
+      {
+        label: 'Supprimer',
+        icon: 'pi pi-trash',
+        command: () => this.onRemoveRemise(),
+      },
+    ];
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
     });
   }
 
   totalQtyProduit(): number {
-    return this.sale?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
   }
 
   totalQtyServi(): number {
-    return this.sale?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 
   totalTtc(): number {
-    return this.sale?.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
+    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
   }
 
   updateItemQtySold(salesLine: ISalesLine, event: any): void {
@@ -112,16 +135,32 @@ export class ProductTableComponent {
   }
 
   onDeleteItem(item: ISalesLine): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer  ce produit ?',
-      header: 'RUPPRESSION DE PRODUIT ',
-      icon: 'pi pi-info-circle',
-      accept: () => this.deleteItemEvent.emit(item),
-      reject: () => {
-        this.deleteItemEvent.emit(null);
-      },
-      key: 'deleteItem',
-    });
+    if (this.canRemoveItem) {
+      this.confirmationService.confirm({
+        message: ' Voullez-vous supprimer  ce produit ?',
+        header: 'RUPPRESSION DE PRODUIT ',
+        icon: 'pi pi-info-circle',
+        accept: () => this.deleteItemEvent.emit(item),
+        reject: () => {
+          this.deleteItemEvent.emit(null);
+        },
+        key: 'deleteItem',
+      });
+    } else {
+      this.deleteItemEvent.emit(item);
+    }
+  }
+
+  onRemiseChange(): void {
+    this.addRemiseEvent.emit('update');
+  }
+
+  onAddRemise(): void {
+    this.addRemiseEvent.emit('add');
+  }
+
+  onRemoveRemise(): void {
+    this.addRemiseEvent.emit('remove');
   }
 
   private onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {

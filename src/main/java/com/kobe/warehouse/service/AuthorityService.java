@@ -6,17 +6,19 @@ import com.kobe.warehouse.service.dto.PrivillegesWrapperDTO;
 import java.util.List;
 
 public interface AuthorityService {
-  void save(AuthorityDTO authority);
+    void save(AuthorityDTO authority);
 
-  void setPrivilleges(AuthorityDTO authority);
+    void setPrivilleges(AuthorityDTO authority);
 
-  void delete(String name);
+    void delete(String name);
 
-  List<AuthorityDTO> fetch(String search);
+    List<AuthorityDTO> fetch(String search);
 
-  AuthorityDTO fetchOne(String name);
+    AuthorityDTO fetchOne(String name);
 
-  PrivillegesWrapperDTO fetchPrivillegesByRole(String roleName);
+    PrivillegesWrapperDTO fetchPrivillegesByRole(String roleName);
 
-  List<PrivillegesDTO> fetchPrivilleges(String search);
+    List<PrivillegesDTO> fetchPrivilleges(String search);
+
+    boolean hasAuthority(String authorityName, String privillegeName);
 }

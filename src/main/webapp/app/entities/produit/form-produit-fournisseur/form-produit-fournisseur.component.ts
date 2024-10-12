@@ -68,7 +68,7 @@ export class FormProduitFournisseurComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
-    const produitFournisseur = this.createFromForm();
+    const produitFournisseur = this.createFrom();
     if (produitFournisseur.id !== undefined && produitFournisseur.id) {
       this.subscribeToSaveResponse(this.produitService.updateProduitFournisseur(produitFournisseur));
     } else {
@@ -98,9 +98,13 @@ export class FormProduitFournisseurComponent implements OnInit {
   }
 
   hasPrincipal(): boolean {
-    if (this.isEmpty()) {return false;}
+    if (this.isEmpty()) {
+      return false;
+    }
     const principal = this.produit.fournisseurProduits.some(e => e.principal);
-    if (principal) {return principal;}
+    if (principal) {
+      return principal;
+    }
     return false;
   }
 
@@ -185,7 +189,7 @@ export class FormProduitFournisseurComponent implements OnInit {
     }
   }
 
-  protected createFromForm(): IFournisseurProduit {
+  protected createFrom(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
       id: this.editForm.get(['id'])!.value,

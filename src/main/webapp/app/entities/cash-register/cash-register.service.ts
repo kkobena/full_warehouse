@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CashRegister } from './model/cash-register.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { Observable } from 'rxjs';
-import { createRequestOption } from '../../shared/util/request-util';
+import { createRequestOption, createRequestOptions } from '../../shared/util/request-util';
 import { Ticketing } from './model/ticketing.model';
 
 type EntityResponseType = HttpResponse<CashRegister>;
@@ -22,7 +22,7 @@ export class CashRegisterService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<CashRegister[]>(this.resourceUrl, {
       params: options,
       observe: 'response',
@@ -45,6 +45,11 @@ export class CashRegisterService {
       params: options,
       observe: 'response',
     });
+  }
+
+  exportToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
   }
 
   closeCashRegister(cashRegisterId: number): Observable<HttpResponse<{}>> {

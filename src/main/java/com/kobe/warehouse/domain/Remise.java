@@ -61,7 +61,7 @@ public class Remise implements Serializable {
     @NotNull
     @Column(name = "end", nullable = false)
     @FutureOrPresent
-    private LocalDate end = LocalDate.now().plusDays(25);
+    private LocalDate end = LocalDate.now().plusDays(10);
 
     @Transient
     private float tauxRemise;

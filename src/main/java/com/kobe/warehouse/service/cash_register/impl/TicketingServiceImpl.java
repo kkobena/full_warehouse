@@ -25,7 +25,8 @@ public class TicketingServiceImpl implements TicketingService {
     public TicketingServiceImpl(
         CashRegisterService cashRegisterService,
         StorageService storageService,
-        TicketingRepository ticketingRepository) {
+        TicketingRepository ticketingRepository
+    ) {
         this.cashRegisterService = cashRegisterService;
         this.storageService = storageService;
         this.ticketingRepository = ticketingRepository;
@@ -35,19 +36,15 @@ public class TicketingServiceImpl implements TicketingService {
     public void doTicketing(TicketingDTO ticketingDto) {
         CashRegister cashRegister;
         if (Objects.isNull(ticketingDto.cashRegisterId())) {
-            cashRegister =
-                this.cashRegisterService
-                    .getOpiningCashRegisterByUser(this.storageService.getUser())
-                    .orElseThrow();
+            cashRegister = this.cashRegisterService.getOpiningCashRegisterByUser(this.storageService.getUser()).orElseThrow();
         } else {
-            cashRegister = this.cashRegisterService.getCashRegisterById(
-                ticketingDto.cashRegisterId());
+            cashRegister = this.cashRegisterService.getCashRegisterById(ticketingDto.cashRegisterId());
             if (cashRegister.getStatut() == CashRegisterStatut.CLOSED) {
                 throw new CashRegisterException();
             }
         }
         Ticketing ticketing = buildTicketing(ticketingDto, cashRegister);
-
+        cashRegister.setCanceledAmount(this.cashRegisterService.getCanceledAmount(cashRegister));
         cashRegister.setFinalAmount(ticketing.getTotalAmount());
         cashRegister.setEndTime(LocalDateTime.now());
         cashRegister.setUpdated(cashRegister.getEndTime());
@@ -77,18 +74,20 @@ public class TicketingServiceImpl implements TicketingService {
     }
 
     private long computeCashAmount(TicketingDTO ticketingDto) {
-        return ticketingDto.otherAmount()
-            + ticketingDto.numberOf1()
-            + (ticketingDto.numberOf25() * 25L)
-            + (ticketingDto.numberOf5() * 5L)
-            + (ticketingDto.numberOf10() * 10L)
-            + (ticketingDto.numberOf50() * 50L)
-            + (ticketingDto.numberOf100Hundred() * 100L)
-            + (ticketingDto.numberOf200Hundred() * 200L)
-            + (ticketingDto.numberOf500Hundred() * 500L)
-            + (ticketingDto.numberOf1Thousand() * 1000L)
-            + (ticketingDto.numberOf2Thousand() * 2000L)
-            + (ticketingDto.numberOf5Thousand() * 5000L)
-            + (ticketingDto.numberOf10Thousand() * 10000L);
+        return (
+            ticketingDto.otherAmount() +
+            ticketingDto.numberOf1() +
+            (ticketingDto.numberOf25() * 25L) +
+            (ticketingDto.numberOf5() * 5L) +
+            (ticketingDto.numberOf10() * 10L) +
+            (ticketingDto.numberOf50() * 50L) +
+            (ticketingDto.numberOf100Hundred() * 100L) +
+            (ticketingDto.numberOf200Hundred() * 200L) +
+            (ticketingDto.numberOf500Hundred() * 500L) +
+            (ticketingDto.numberOf1Thousand() * 1000L) +
+            (ticketingDto.numberOf2Thousand() * 2000L) +
+            (ticketingDto.numberOf5Thousand() * 5000L) +
+            (ticketingDto.numberOf10Thousand() * 10000L)
+        );
     }
 }

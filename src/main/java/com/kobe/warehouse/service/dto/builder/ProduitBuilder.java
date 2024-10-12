@@ -70,8 +70,6 @@ public final class ProduitBuilder {
         if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
         }
-
-        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
@@ -105,7 +103,6 @@ public final class ProduitBuilder {
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
-        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
@@ -234,15 +231,6 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO remiseProduit(ProduitDTO produitDTO, Produit produit) {
-        RemiseProduit remiseProduit = produit.getRemise();
-        if (remiseProduit != null) {
-            produitDTO.setRemiseId(remiseProduit.getId());
-            produitDTO.setTauxRemise(remiseProduit.getRemiseValue());
-        }
-        return produitDTO;
-    }
-
     private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
         FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
         if (Objects.nonNull(fournisseurProduit)) {
@@ -267,7 +255,6 @@ public final class ProduitBuilder {
         stockProduit(produitDTO, stockProduitPointOfSale);
         rayonProduits(produitDTO, produit, magasin.getId());
         dailyStocks(produitDTO, produit);
-        remiseProduit(produitDTO, produit);
         produits(produitDTO, produit);
         fournisseurProduits(produitDTO, produit);
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
@@ -349,7 +336,6 @@ public final class ProduitBuilder {
         stockProduits(produitDTO, produit);
         rayonProduits(produitDTO, produit);
         dailyStocks(produitDTO, produit);
-        remiseProduit(produitDTO, produit);
         produits(produitDTO, produit);
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.setDisplayField(
@@ -383,11 +369,6 @@ public final class ProduitBuilder {
             } catch (Exception e) {}
         }
         dto.setCodeEan(produit.getCodeEan());
-        RemiseProduit remiseProduit = produit.getRemise();
-        if (remiseProduit != null) {
-            dto.setRemiseId(remiseProduit.getId());
-            dto.setTauxRemise(remiseProduit.getRemiseValue());
-        }
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null) {
             dto.setCodeCip(fournisseurProduitPrincipal.getCodeCip());
@@ -518,7 +499,6 @@ public final class ProduitBuilder {
         if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
-        produit.setRemise(resmiseProduitFromId(produitDTO.getRemiseId()));
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));

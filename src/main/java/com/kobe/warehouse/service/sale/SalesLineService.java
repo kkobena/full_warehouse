@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.sale;
 
-import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.User;
@@ -34,8 +33,6 @@ public interface SalesLineService {
 
     void processUg(SalesLine salesLine, SaleLineDTO dto, Long stockageId);
 
-    void processProductDiscount(RemiseProduit remiseProduit, SalesLine salesLine);
-
     void deleteSaleLine(SalesLine salesLine);
 
     Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId);
@@ -49,4 +46,6 @@ public interface SalesLineService {
     void createInventory(Set<SalesLine> salesLines, User user, Long storageId);
 
     void save(Set<SalesLine> salesLines, User user, Long storageId);
+
+    void processProductDiscount(SalesLine salesLine);
 }

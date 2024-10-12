@@ -1,7 +1,9 @@
 package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.User;
@@ -29,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class SaleCommonService {
@@ -64,6 +67,7 @@ public class SaleCommonService {
 
     public void computeSaleEagerAmount(Sales c, int amount, int oldSalesAmount) {
         c.setSalesAmount((c.getSalesAmount() - oldSalesAmount) + amount);
+        c.setNetAmount(c.getSalesAmount());
     }
 
     public void computeSaleCmu(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
@@ -85,20 +89,19 @@ public class SaleCommonService {
         }
     }
 
-    public void processDiscountCashSale(CashSale c, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (oldSaleLine != null) {
-            c.setDiscountAmount((c.getDiscountAmount() - oldSaleLine.getDiscountAmount()) + saleLine.getDiscountAmount());
-            c.setDiscountAmountUg((c.getDiscountAmountUg() - oldSaleLine.getDiscountAmountUg()) + saleLine.getDiscountAmountUg());
-            c.setDiscountAmountHorsUg(
-                (c.getDiscountAmountHorsUg() - saleLine.getDiscountAmountHorsUg()) + saleLine.getDiscountAmountHorsUg()
-            );
-            c.setNetAmount(c.getSalesAmount() - c.getDiscountAmount());
-        } else {
-            c.setDiscountAmount(c.getDiscountAmount() + saleLine.getDiscountAmount());
-            c.setDiscountAmountUg(c.getDiscountAmountUg() + saleLine.getDiscountAmountUg());
-            c.setDiscountAmountHorsUg(c.getDiscountAmountHorsUg() + saleLine.getDiscountAmountHorsUg());
-            c.setNetAmount(c.getSalesAmount() - c.getDiscountAmount());
+    public void processDiscountCashSale(Sales c) {
+        int discountAmount = 0;
+        int discountAmountUg = 0;
+        int discountAmountHorsUg = 0;
+        for (SalesLine saleLine : c.getSalesLines()) {
+            discountAmount += saleLine.getDiscountAmount();
+            discountAmountUg += saleLine.getDiscountAmountUg();
+            discountAmountHorsUg += saleLine.getDiscountAmountHorsUg();
         }
+        c.setDiscountAmount(discountAmount);
+        c.setDiscountAmountUg(discountAmountUg);
+        c.setDiscountAmountHorsUg(discountAmountHorsUg);
+        c.setNetAmount(c.getSalesAmount() - discountAmount);
     }
 
     public void computeUgTvaAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
@@ -182,13 +185,6 @@ public class SaleCommonService {
         }
     }
 
-    public void processDiscountSaleOnRemovingItem(Sales c, SalesLine saleLine) {
-        c.setDiscountAmount(c.getDiscountAmount() - saleLine.getDiscountAmount());
-        c.setDiscountAmountUg(c.getDiscountAmountUg() - saleLine.getDiscountAmountUg());
-        c.setDiscountAmountHorsUg(c.getDiscountAmountHorsUg() - saleLine.getDiscountAmountHorsUg());
-        c.setNetAmount(c.getSalesAmount() - c.getDiscountAmount());
-    }
-
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
         c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
@@ -262,7 +258,7 @@ public class SaleCommonService {
                         json.put("tva", k);
                         json.put("amount", totalTva);
                         array.put(json);
-                    } catch (JSONException e) {}
+                    } catch (JSONException _) {}
                 });
             if (!array.isEmpty()) {
                 return array.toString();
@@ -322,9 +318,13 @@ public class SaleCommonService {
     }
 
     public void save(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {
+        if (CollectionUtils.isEmpty(c.getSalesLines())) {
+            return;
+        }
         if (c.getStatut() == SalesStatut.CLOSED) {
             throw new SaleAlreadyCloseException();
         }
+
         User user = storageService.getUser();
         c.setUser(user);
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
@@ -371,9 +371,6 @@ public class SaleCommonService {
     }
 
     public void editSale(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {
-        /*  if (c.getStatut() == SalesStatut.CLOSED )) {
-            throw new SaleAlreadyCloseException();
-        }*/
         User user = storageService.getUser();
         c.setUser(user);
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
@@ -409,6 +406,75 @@ public class SaleCommonService {
         this.buildReference(c);
         if (dto.isAvoir()) {
             this.avoirService.save(c);
+        }
+    }
+
+    public void arrondirMontantCaisse(Sales sales) {
+        sales.setAmountToBePaid(roundedAmount(sales.getNetAmount()));
+    }
+
+    public void removeRemise(Sales sales) {
+        sales.setRemise(null);
+        sales.setDiscountAmount(0);
+        sales.setNetAmount(sales.getSalesAmount());
+        sales.setDiscountAmountUg(0);
+        sales.setDiscountAmountHorsUg(0);
+        sales
+            .getSalesLines()
+            .forEach(salesLine -> {
+                salesLine.setDiscountAmount(0);
+                salesLine.setDiscountAmountUg(0);
+                salesLine.setDiscountAmountHorsUg(0);
+                this.salesLineService.saveSalesLine(salesLine);
+            });
+    }
+
+    public void applyRemiseProduit(Sales sales, RemiseProduit remiseProduit) {
+        if (remiseProduit != null) {
+            sales.setRemise(remiseProduit);
+            this.computeRemiseProduit(sales);
+        }
+    }
+
+    public void applyRemiseClient(Sales sales, RemiseClient remiseClient) {
+        if (remiseClient != null) {
+            sales.setRemise(remiseClient);
+            computeRemisableAmount(sales);
+        }
+    }
+
+    private void computeRemiseProduit(Sales sales) {
+        sales
+            .getSalesLines()
+            .forEach(salesLine -> {
+                salesLineService.processProductDiscount(salesLine);
+                this.processDiscountCashSale(sales);
+            });
+    }
+
+    private void computeRemisableAmount(Sales sales) {
+        int totalAmount = sales
+            .getSalesLines()
+            .stream()
+            .filter(e -> e.getProduit().getRemisable())
+            .mapToInt(SalesLine::getSalesAmount)
+            .sum();
+        if (totalAmount == 0) {
+            return;
+        }
+        int discount = (int) Math.ceil(totalAmount * sales.getRemise().getTauxRemise());
+        sales.setDiscountAmount(discount);
+        sales.setNetAmount(sales.getSalesAmount() - discount);
+    }
+
+    public void proccessDiscount(Sales sales) {
+        Remise remise = sales.getRemise();
+        if (remise != null) {
+            if (remise instanceof RemiseProduit) {
+                this.computeRemiseProduit(sales);
+            } else {
+                this.computeRemisableAmount(sales);
+            }
         }
     }
 }

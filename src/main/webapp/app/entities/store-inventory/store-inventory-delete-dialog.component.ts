@@ -23,8 +23,8 @@ export class StoreInventoryDeleteDialogComponent {
     this.activeModal.dismiss();
   }
 
-  confirmDelete(id: number): void {
-    this.storeInventoryService.delete(id).subscribe(() => {
+  confirmDelete(): void {
+    this.storeInventoryService.delete(this.storeInventory?.id).subscribe(() => {
       this.activeModal.close();
     });
   }

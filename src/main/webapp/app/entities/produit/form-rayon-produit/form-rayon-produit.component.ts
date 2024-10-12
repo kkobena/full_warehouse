@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
@@ -8,8 +8,6 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
   standalone: true,
   imports: [WarehouseCommonModule],
 })
-export class FormRayonProduitComponent implements OnInit {
+export class FormRayonProduitComponent {
   constructor() {}
-
-  ngOnInit(): void {}
 }

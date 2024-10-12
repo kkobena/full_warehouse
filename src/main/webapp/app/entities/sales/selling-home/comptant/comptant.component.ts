@@ -24,7 +24,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
-import { ProductTableComponent } from '../product-table/product-table.component';
+import { ProductTableComponent, RemiseSignal } from '../product-table/product-table.component';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { IPayment } from '../../../../shared/model/payment.model';
 import { IRemise } from '../../../../shared/model/remise.model';
@@ -37,7 +37,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../../shared/error.service';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
-import { AlertInfoComponent } from '../../../../shared/alert/alert-info.component';
 import { AmountComputingComponent } from './amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { CurrentSaleService } from '../../service/current-sale.service';
@@ -47,6 +46,10 @@ import { TypePrescriptionService } from '../../service/type-prescription.service
 import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
 import { BaseSaleService } from '../../service/base-sale.service';
+import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
+import { Authority } from '../../../../shared/constants/authority.constants';
+import { HasAuthorityService } from '../../service/has-authority.service';
+import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-dialog.component';
 
 @Component({
   selector: 'jhi-comptant',
@@ -86,6 +89,7 @@ import { BaseSaleService } from '../../service/base-sale.service';
     ProductTableComponent,
     AmountComputingComponent,
     ModeReglementComponent,
+    FormActionAutorisationComponent,
   ],
   templateUrl: './comptant.component.html',
 })
@@ -116,6 +120,7 @@ export class ComptantComponent {
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);
+  hasAuthorityService = inject(HasAuthorityService);
   protected isSaving = false;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
@@ -123,8 +128,13 @@ export class ComptantComponent {
   protected remise?: IRemise | null;
   protected event: any;
   protected entryAmount?: number | null = null;
+  protected canRemoveItem: boolean;
+  private canApplyDiscount: boolean;
 
-  constructor() {}
+  constructor() {
+    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
+    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
+  }
 
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
@@ -263,21 +273,29 @@ export class ComptantComponent {
     this.removeItem(salesLine.id);
   }
 
-  openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {
+  openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
+    const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
       centered: true,
     });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
+    modalRef.componentInstance.entity = this.currentSaleService.currentSale();
+    modalRef.componentInstance.privilege = privilege;
+    modalRef.closed.subscribe(reason => {
+      if (reason === true) {
+        this.removeLine(entityToProccess);
+      }
+    });
   }
 
   confirmDeleteItem(item: ISalesLine): void {
     if (item) {
-      this.removeLine(item);
+      if (this.canRemoveItem) {
+        this.removeLine(item);
+      } else {
+        this.openActionAutorisationDialog(Authority.PR_SUPPRIME_PRODUIT_VENTE, item);
+      }
     } else {
-      //  this.check = true;
-      this.inputToFocusEvent.emit({ control: 'produitBox' });
+      this.baseSaleService.setInputBoxFocus('produitBox');
     }
   }
 
@@ -367,6 +385,43 @@ export class ComptantComponent {
     this.salesService.printReceipt(saleId).subscribe();
   }
 
+  openRemiseDialog(remiseSignal: RemiseSignal): void {
+    switch (remiseSignal) {
+      case 'update':
+      case 'add':
+        const modalRef = this.modalService.open(RemiseListDialogComponent, {
+          backdrop: 'static',
+          fullscreen: 'md',
+          size: 'lg',
+          centered: true,
+          animation: true,
+        });
+        modalRef.closed.subscribe((remise: IRemise) => {
+          if (remise) {
+            this.salesService
+              .addRemise({
+                key: this.currentSaleService.currentSale().id,
+                value: remise.id,
+              })
+              .subscribe({
+                next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
+                error: (err: any) => this.onSaveError(err),
+              });
+          }
+        });
+
+        break;
+      case 'remove':
+        this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
+          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
+          error: (err: any) => this.onSaveError(err),
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
@@ -389,7 +444,6 @@ export class ComptantComponent {
   protected onFinalyseError(err: any): void {
     this.isSaving = false;
     this.responseEvent.emit({ error: err, success: false });
-    // this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
   }
 
   protected onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {

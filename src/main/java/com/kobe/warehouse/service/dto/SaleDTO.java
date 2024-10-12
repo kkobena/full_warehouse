@@ -6,6 +6,8 @@ import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Poste;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.UninsuredCustomer;
@@ -152,6 +154,13 @@ public class SaleDTO implements Serializable {
         this.tvaEmbededs = Util.transformTvaEmbeded(sale.getTvaEmbeded());
         this.montantRendu = sale.getMonnaie();
         this.restToPay = sale.getRestToPay();
+        if (Objects.nonNull(sale.getRemise())) {
+            if (sale.getRemise() instanceof RemiseProduit remiseProduit) {
+                this.remise = new RemiseProduitDTO(remiseProduit);
+            } else {
+                this.remise = new RemiseClientDTO((RemiseClient) sale.getRemise());
+            }
+        }
         //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
     }
 

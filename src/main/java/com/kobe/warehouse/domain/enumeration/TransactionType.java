@@ -25,10 +25,10 @@ public enum TransactionType {
     MOUVEMENT_STOCK_OUT("Déplacement de stock sortant"),
     FORCE_STOCK("Vente en avoir"),
     MODIFICATION_PRIX_PRODUCT_A_LA_VENTE("Modification prix  produit à la vente"),
-    ENTREE_STOCK("Entrée en stock");
+    ENTREE_STOCK("Entrée en stock"),
+    ACTIVATION_PRIVILEGE("Utilisation de la clé d'activation d'une action");
 
     private final String value;
-
 
     TransactionType(String value) {
         this.value = value;

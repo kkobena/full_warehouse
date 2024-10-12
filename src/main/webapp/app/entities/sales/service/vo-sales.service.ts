@@ -9,6 +9,7 @@ import { createRequestOption } from 'app/shared/util/request-util';
 import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { UtilisationCleSecurite } from '../../action-autorisation/utilisation-cle-securite.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -129,8 +130,20 @@ export class VoSalesService {
     return this.http.put(this.resourceUrl + '/assurance/change/customer', keyValue, { observe: 'response' });
   }
 
+  authorizeAction(utilisationCleSecurite: UtilisationCleSecurite): Observable<HttpResponse<{}>> {
+    return this.http.post(this.resourceUrl + '/assurance/authorize-action', utilisationCleSecurite, { observe: 'response' });
+  }
+
   addComplementaireSales(id: number, clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<{}>> {
     return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${id}`, clientTiersPayant, { observe: 'response' });
+  }
+
+  addRemise(key: KeyValue): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/assurance/add-remise', key, { observe: 'response' });
+  }
+
+  removeRemiseFromCashSale(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id}`, { observe: 'response' });
   }
 
   private convertDateFromClient(sales: ISales): ISales {

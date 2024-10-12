@@ -180,7 +180,7 @@ public class AjustementService extends FileResourceService {
                 ajustement.getQtyMvt(),
                 p.getQtyStock()
             );
-            logsService.create(transactionType, desc, ajustement.getId().toString(), produit);
+            logsService.create(transactionType, desc, ajustement.getId().toString());
         }
     }
 

@@ -1,9 +1,9 @@
 package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.service.ReceiptPrinterService;
-import com.kobe.warehouse.service.SaleDataService;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.report.SaleReceiptService;
+import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;

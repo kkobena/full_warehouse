@@ -5,13 +5,11 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
-import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.EmailAlreadyUsedException;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
-import com.kobe.warehouse.service.errors.LoginAlreadyUsedException;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
@@ -24,7 +22,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +29,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -45,19 +41,19 @@ public class AccountResource extends AccountResourcesProxy {
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
     private final UserRepository userRepository;
     private final UserService userService;
-    private final MailService mailService;
+    // private final MailService mailService;
     private final PersistentTokenRepository persistentTokenRepository;
 
     public AccountResource(
         UserRepository userRepository,
         UserService userService,
-        MailService mailService,
+        // MailService mailService,
         PersistentTokenRepository persistentTokenRepository
     ) {
         super(userRepository, userService);
         this.userRepository = userRepository;
         this.userService = userService;
-        this.mailService = mailService;
+        // this.mailService = mailService;
         this.persistentTokenRepository = persistentTokenRepository;
     }
 
@@ -67,24 +63,6 @@ public class AccountResource extends AccountResourcesProxy {
             password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
             password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
-    }
-
-    /**
-     * {@code POST /register} : register the user.
-     *
-     * @param managedUserVM the managed user View Model.
-     * @throws InvalidPasswordException  {@code 400 (Bad Request)} if the password is incorrect.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
-     * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already used.
-     */
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
-        if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
-            throw new InvalidPasswordException();
-        }
-        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
     }
 
     /**
@@ -181,15 +159,15 @@ public class AccountResource extends AccountResourcesProxy {
         String decodedSeries = URLDecoder.decode(series, StandardCharsets.UTF_8);
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
-            .ifPresent(
+            .flatMap(
                 u ->
                     persistentTokenRepository
                         .findByUser(u)
                         .stream()
                         .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
                         .findAny()
-                        .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries))
-            );
+            )
+            .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries));
     }
 
     /**

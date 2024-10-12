@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -58,7 +59,6 @@ public class SalesResource {
     @PostMapping("/sales/comptant")
     public ResponseEntity<CashSaleDTO> createCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request)
         throws URISyntaxException {
-        log.debug("REST request to save cashSaleDTO : {}", cashSaleDTO);
         if (cashSaleDTO.getId() != null) {
             throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME, "idexists");
         }
@@ -93,7 +93,6 @@ public class SalesResource {
 
     @PutMapping("/sales/update-item/quantity-requested")
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -102,7 +101,6 @@ public class SalesResource {
 
     @PutMapping("/sales/update-item/price")
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemRegularPrice(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/price/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -111,7 +109,6 @@ public class SalesResource {
 
     @PutMapping("/sales/update-item/quantity-sold")
     public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        log.debug("REST request to save saleLineDTO : {}", saleLineDTO);
         SaleLineDTO result = saleService.updateItemQuantitySold(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-sold/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -120,7 +117,6 @@ public class SalesResource {
 
     @DeleteMapping("/sales/delete-item/{id}")
     public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSaleLineById(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -129,7 +125,6 @@ public class SalesResource {
 
     @DeleteMapping("/sales/prevente/{id}")
     public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSalePrevente(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -138,7 +133,6 @@ public class SalesResource {
 
     @DeleteMapping("/sales/cancel/comptant/{id}")
     public ResponseEntity<Void> cancelCashSale(@PathVariable Long id) {
-        log.debug("REST request to delete Sales : {}", id);
         saleService.cancelCashSale(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -155,5 +149,27 @@ public class SalesResource {
     public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable Long id) {
         saleService.removeCustomer(id);
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/sales/comptant/authorize-action")
+    public ResponseEntity<Void> authorizeAction(
+        @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
+        HttpServletRequest request
+    ) {
+        utilisationCleSecurite.setCaisse(request.getRemoteHost());
+        saleService.authorizeAction(utilisationCleSecurite);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/sales/comptant/add-remise")
+    public ResponseEntity<Void> addRemise(@Valid @RequestBody KeyValue keyValue) {
+        saleService.processDiscount(keyValue);
+        return ResponseEntity.accepted().build();
+    }
+
+    @DeleteMapping("/sales/comptant/remove-remise/{id}")
+    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable Long id) {
+        saleService.removeRemiseFromCashSale(id);
+        return ResponseEntity.ok().build();
     }
 }

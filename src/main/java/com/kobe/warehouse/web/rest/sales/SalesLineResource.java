@@ -71,7 +71,7 @@ public class SalesLineResource {
     }
 
     @PutMapping("/sales-lines")
-    public ResponseEntity<SaleLineDTO> updateSaleLine(@Valid @RequestBody SaleLineDTO saleLine) throws URISyntaxException {
+    public ResponseEntity<SaleLineDTO> updateSaleLine(@Valid @RequestBody SaleLineDTO saleLine) {
         log.debug("REST request to update saleLine : {}", saleLine);
         if (saleLine.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

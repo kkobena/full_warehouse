@@ -4,6 +4,8 @@ import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Payment;
 import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -15,6 +17,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.RemiseRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.repository.UserRepository;
@@ -23,6 +26,7 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TicketService;
+import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
@@ -30,18 +34,22 @@ import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
+import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -63,6 +71,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final SalesLineService salesLineService;
     private final PaymentService paymentService;
     private final TicketService ticketService;
+    private final UtilisationCleSecuriteService utilisationCleSecuriteService;
+    private final RemiseRepository remiseRepository;
 
     public SaleServiceImpl(
         SalesRepository salesRepository,
@@ -78,7 +88,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         ReferenceService referenceService,
         WarehouseCalendarService warehouseCalendarService,
         AvoirService avoirService,
-        PosteRepository posteRepository
+        PosteRepository posteRepository,
+        UtilisationCleSecuriteService utilisationCleSecuriteService,
+        RemiseRepository remiseRepository
     ) {
         super(
             referenceService,
@@ -99,6 +111,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.salesLineService = salesLineService;
         this.paymentService = paymentService;
         this.ticketService = ticketService;
+        this.utilisationCleSecuriteService = utilisationCleSecuriteService;
+        this.remiseRepository = remiseRepository;
     }
 
     private User getUserFormImport() {
@@ -180,7 +194,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         payment.setUser(s.getUser());
         PaymentMode paymentMode = paymentModeRepository
             .findById(dto.getPaymentCode())
-            .orElse(paymentModeRepository.getReferenceById("CASH"));
+            .orElse(paymentModeRepository.getReferenceById(Constants.MODE_ESP));
         payment.setPaymentMode(paymentMode);
         payment.setSales(s);
         return payment;
@@ -213,40 +227,32 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public CashSaleDTO createCashSale(CashSaleDTO dto) {
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
-        CashSale c = new CashSale();
-        this.intSale(dto, c);
-        c.setCustomer(uninsuredCustomer);
-        c.setOrigineVente(OrigineVente.DIRECT);
+        CashSale cashSale = new CashSale();
+        this.intSale(dto, cashSale);
+        cashSale.setCustomer(uninsuredCustomer);
+        cashSale.setOrigineVente(OrigineVente.DIRECT);
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        upddateCashSaleAmounts(c, saleLine);
-        c.getSalesLines().add(saleLine);
-        CashSale sale = salesRepository.saveAndFlush(c);
-        saleLine.setSales(c);
+        upddateCashSaleAmounts(cashSale, saleLine, null);
+        cashSale.getSalesLines().add(saleLine);
+        CashSale sale = salesRepository.saveAndFlush(cashSale);
+        saleLine.setSales(cashSale);
+
         salesLineService.saveSalesLine(saleLine);
         return new CashSaleDTO(sale);
     }
 
-    private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine) {
-        computeSaleEagerAmount(c, saleLine.getSalesAmount(), 0);
-        computeSaleCmu(c, saleLine, null);
-        processDiscountCashSale(c, saleLine, null);
-        computeCashSaleAmountToPaid(c);
-        computeSaleLazyAmount(c, saleLine, null);
-        computeTvaAmount(c, saleLine, null);
-        computeUgTvaAmount(c, saleLine, null);
-    }
-
     private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine, SalesLine oldSaleLine) {
-        computeSaleEagerAmount(c, saleLine.getSalesAmount(), oldSaleLine.getSalesAmount());
+        computeSaleEagerAmount(c, saleLine.getSalesAmount(), Objects.nonNull(oldSaleLine) ? oldSaleLine.getSalesAmount() : 0);
         computeSaleCmu(c, saleLine, oldSaleLine);
-        processDiscountCashSale(c, saleLine, oldSaleLine);
+        this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmount(c, saleLine, oldSaleLine);
         computeTvaAmount(c, saleLine, oldSaleLine);
         computeUgTvaAmount(c, saleLine, oldSaleLine);
+        arrondirMontantCaisse(c);
     }
 
     @Override
@@ -258,9 +264,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             salesLine,
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        Sales sales = salesLine.getSales();
-        upddateCashSaleAmounts((CashSale) sales, salesLine, oldSalesLine);
-        salesRepository.saveAndFlush(sales);
+        CashSale sales = (CashSale) salesLine.getSales();
+        //   this.proccessDiscount(sales);
+        upddateCashSaleAmounts(sales, salesLine, oldSalesLine);
+        cashSaleRepository.saveAndFlush(sales);
         return new SaleLineDTO(salesLine);
     }
 
@@ -268,8 +275,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        Sales sales = salesLine.getSales();
-        salesRepository.saveAndFlush(sales);
+        CashSale sales = (CashSale) salesLine.getSales();
+        this.proccessDiscount(sales);
+        cashSaleRepository.saveAndFlush(sales);
         return new SaleLineDTO(salesLine);
     }
 
@@ -308,7 +316,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void updateSaleWhenAddItem(SaleLineDTO dto, SalesLine salesLine) {
         CashSale sales = cashSaleRepository.getReferenceById(dto.getSaleId());
-        upddateCashSaleAmounts(sales, salesLine);
+        upddateCashSaleAmounts(sales, salesLine, null);
         salesLine.setSales(sales);
         salesRepository.saveAndFlush(sales);
     }
@@ -429,12 +437,47 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
         computeSaleEagerAmountOnRemovingItem(c, saleLine);
-        processDiscountSaleOnRemovingItem(c, saleLine);
+        this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
         computeUgTvaAmountOnRemovingItem(c, saleLine);
         computeTvaAmountOnRemovingItem(c, saleLine);
     }
+
     // java -jar your-application.jar
     // --spring.config.location=file:/path/to/your/additional-config1.yml,file:/path/to/your/additional-config2.yml
+    @Override
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
+        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
+    }
+
+    @Override
+    public void processDiscount(KeyValue keyValue) {
+        cashSaleRepository
+            .findById(keyValue.key())
+            .ifPresent(cashSale -> {
+                remiseRepository
+                    .findById(keyValue.value())
+                    .ifPresent(remise -> {
+                        if (cashSale.getRemise() != null) {
+                            this.removeRemise(cashSale);
+                        }
+                        if (remise instanceof RemiseProduit remiseProduit) {
+                            this.applyRemiseProduit(cashSale, remiseProduit);
+                        } else {
+                            this.applyRemiseClient(cashSale, (RemiseClient) remise);
+                        }
+                        computeCashSaleAmountToPaid(cashSale);
+                        arrondirMontantCaisse(cashSale);
+                        this.cashSaleRepository.save(cashSale);
+                    });
+            });
+    }
+
+    @Override
+    public void removeRemiseFromCashSale(Long salesId) {
+        CashSale sales = cashSaleRepository.getReferenceById(salesId);
+        this.removeRemise(sales);
+        this.cashSaleRepository.save(sales);
+    }
 }

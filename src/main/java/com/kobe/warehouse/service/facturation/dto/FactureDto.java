@@ -3,8 +3,10 @@ package com.kobe.warehouse.service.facturation.dto;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class FactureDto {
+public class FactureDto extends FactureDtoWrapper {
 
     private String numFacture;
     private String tiersPayantName;
@@ -28,6 +30,19 @@ public class FactureDto {
     private boolean factureProvisoire;
     private String periode;
     private InvoiceStatut statut;
+    private List<FactureItemDto> items;
+
+    public List<FactureItemDto> getItems() {
+        if (items == null) {
+            items = new ArrayList<>();
+        }
+        return items;
+    }
+
+    public FactureDto setItems(List<FactureItemDto> items) {
+        this.items = items;
+        return this;
+    }
 
     public LocalDateTime getCreated() {
         return created;
@@ -120,6 +135,9 @@ public class FactureDto {
     }
 
     public Long getMontant() {
+        if (montant == null) {
+            montant = 0L;
+        }
         return montant;
     }
 

@@ -1,1 +1,116 @@
-<p>facture-detail works!</p>
+<div class="row">
+  <div class="row">
+    <div class="d-flex flex-row">
+      <div class="p-2">Montant vente: <span
+        class="badge rounded-pill text-bg-light">{{ facture.montantVente | number }}</span>
+      </div>
+
+      <div class="p-2">Montant facture: <span
+        class="badge rounded-pill text-bg-light">{{ facture.montant | number }}</span>
+      </div>
+      <div class="p-2">Montant payé: <span
+        class="badge rounded-pill text-bg-light">{{ facture.montantRegle | number }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-7 col-md-8 col-lg-7 col-sm-12">
+      <p-panel>
+        <ng-template pTemplate="header">
+          <span>Détail de la facture de: <span
+            class="badge rounded-pill text-bg-light">{{ facture.tiersPayantName }}
+            [ {{ facture.numFacture }}]</span> </span>
+        </ng-template>
+        <p-table #fact [(selection)]="selectedFactureItem"
+                 [globalFilterFields]="['numBon', 'customer.firstName', 'customer.lastName', 'customer.fullName']"
+                 [paginator]="true"
+                 [rowsPerPageOptions]="[ 10, 20,30,50,100]"
+                 [rows]="20"
+                 [scrollable]="true"
+                 [value]="facture.items" dataKey="saleId"
+                 scrollHeight="500px" selectionMode="single"
+                 styleClass="p-datatable-striped">
+          <ng-template pTemplate="caption">
+            <div class="d-flex">
+
+              <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input (input)="fact.filterGlobal($event.target.value, 'contains')"
+                       [(ngModel)]="searchValue" pInputText
+                       placeholder="Filtrer"
+                       type="text" />
+            </span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Num.Bon</th>
+              <th>Assuré</th>
+              <th>Total vente</th>
+              <th>Remise</th>
+              <th>Part tp</th>
+              <th>Part client</th>
+              <th>Montant payé</th>
+              <th>Taux</th>
+            </tr>
+          </ng-template>
+          <ng-template let-factureDetail pTemplate="body">
+            <tr (click)="onRowSelect(factureDetail)">
+              <td>{{ factureDetail.numBon }}</td>
+              <td>{{ factureDetail.customer.fullName }}</td>
+              <td class="text-right">{{ factureDetail.montantVente | number }}</td>
+              <td class="text-right">{{ factureDetail.montantRemise | number }}</td>
+              <td class="text-right">{{ factureDetail.montant | number }}</td>
+              <td class="text-right">{{ factureDetail.montantClient | number }}</td>
+              <td class="text-right">{{ factureDetail.montantRegle | number }}</td>
+              <td class="text-right">{{ factureDetail.taux | number }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+    <div class="col-xl-5 col-md-4 col-lg-5 col-sm-12">
+      <p-panel header="Détail de la vente">
+        @if (selectedFactureItem) {
+          <div class="d-flex flex-row">
+
+            <div class="p-2">Numéro: <span
+              class="badge rounded-pill text-bg-light">{{ selectedFactureItem.saleNumber }}</span>
+            </div>
+            <div class="p-2">Date: <span
+              class="badge rounded-pill text-bg-light">{{ selectedFactureItem.created | date :'dd/MM/yyyy HH:mm:ss' }}</span>
+            </div>
+
+
+          </div>
+        }
+
+
+        <p-table [scrollable]="true" [value]="salesLines">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Cip</th>
+              <th>Libellé</th>
+              <th>Qté</th>
+              <th>P.U</th>
+              <th>Montant</th>
+            </tr>
+          </ng-template>
+          <ng-template let-saleLine pTemplate="body">
+            <tr>
+              <td>{{ saleLine.code }}</td>
+              <td>{{ saleLine.produitLibelle }}</td>
+              <td class="text-right">{{ saleLine.quantitySold | number }}</td>
+              <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
+              <td class="text-right">{{ saleLine.salesAmount | number }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+  </div>
+
+</div>
+

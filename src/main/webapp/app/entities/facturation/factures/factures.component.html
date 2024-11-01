@@ -147,7 +147,14 @@
             <td>{{ elRow.created | date :'dd/MM/yy HH:mm' }}</td>
             <td style="text-align: center;">
               <div class="btn-group" role="group">
-                <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info" />
+                @if (factureGroup) {
+                  <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info"
+                            (click)="onOpenGroupeDetail(elRow)" />
+                } @else {
+                  <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info"
+                            (click)="onOpenDetail(elRow)" />
+                }
+
                 @if (!elRow.factureProvisoire) {
                   <p-button icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
                 }
@@ -156,7 +163,8 @@
                           pTooltip="Exporter en Pdf" severity="warning" />
 
                 @if (elRow.statut === 'NOT_PAID') {
-                  <p-button icon="pi pi-trash" pTooltip="Supprimer" severity="danger" />
+                  <p-button icon="pi pi-trash" pTooltip="Supprimer" severity="danger"
+                            (click)="onDelete(elRow.factureId)" />
                 }
 
               </div>
@@ -174,3 +182,13 @@
   </div>
 
 </div>
+<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
+  <p-footer>
+    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>

@@ -25,9 +25,12 @@ import { Facture } from '../facture.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { TableModule } from 'primeng/table';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FactureDetailDialogComponent } from '../facture-detail/facture-detail-dialog.component';
+import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/groupe-facture-detail-dialog.component';
 
 @Component({
-  selector: 'jhi-factures-list',
+  selector: 'jhi-factures',
   standalone: true,
   providers: [
     ConfirmationService,
@@ -48,6 +51,8 @@ import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
     FloatLabelModule,
     AlertInfoComponent,
     TableModule,
+    ConfirmDialogModule,
+    FactureDetailDialogComponent,
   ],
   templateUrl: './factures.component.html',
   styles: ``,
@@ -61,6 +66,7 @@ export class FacturesComponent implements OnInit {
   modalService = inject(NgbModal);
   minLength = 2;
   confirmationService = inject(ConfirmationService);
+
   btnExports: MenuItem[];
   btnAction: MenuItem[];
   protected factureProvisoire: boolean = false;
@@ -204,6 +210,26 @@ export class FacturesComponent implements OnInit {
     this.onSearch();
   }
 
+  onDelete(id: number): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer cette facture ?',
+      header: 'SUPPRESSION DE FACTURE ',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.factureService.delete(id).subscribe({
+          next: () => {
+            this.loadPage();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+
+      key: 'delete',
+    });
+  }
+
   exportPdf(id: number): void {
     this.exporting = true;
     this.factureService.exportToPdf(id).subscribe({
@@ -217,6 +243,28 @@ export class FacturesComponent implements OnInit {
         this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
       },
     });
+  }
+
+  onOpenDetail(facture: Facture): void {
+    const modalRef = this.modalService.open(FactureDetailDialogComponent, {
+      backdrop: 'static',
+      size: 'xl',
+      centered: true,
+      animation: true,
+      modalDialogClass: 'facture-modal-dialog',
+    });
+    modalRef.componentInstance.facture = facture;
+  }
+
+  onOpenGroupeDetail(facture: Facture): void {
+    const modalRef = this.modalService.open(GroupeFactureDetailDialogComponent, {
+      backdrop: 'static',
+      size: 'xl',
+      centered: true,
+      animation: true,
+      modalDialogClass: 'facture-modal-dialog',
+    });
+    modalRef.componentInstance.facture = facture;
   }
 
   protected onSearchSuccess(data: Facture[] | null, headers: HttpHeaders, page: number): void {

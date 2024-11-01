@@ -10,6 +10,7 @@ import { FactureService } from './facture.service';
 import { FacturationComponent } from './facturation.component';
 import { EditionComponent } from './edition/edition.component';
 import { FactureDetailComponent } from './facture-detail/facture-detail.component';
+import { GroupeFactureDetailComponent } from './groupe-facture-detail/groupe-facture-detail.component';
 
 export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null | Facture> => {
   const id = route.params['id'];
@@ -51,6 +52,18 @@ const factureRoute: Routes = [
   {
     path: ':id/view',
     component: FactureDetailComponent,
+    resolve: {
+      facture: FactureResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
+    },
+    canActivate: [UserRouteAccessService],
+  },
+
+  {
+    path: ':id/group-view',
+    component: GroupeFactureDetailComponent,
     resolve: {
       facture: FactureResolve,
     },

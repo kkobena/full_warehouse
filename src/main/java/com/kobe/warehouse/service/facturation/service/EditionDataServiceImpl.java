@@ -1,10 +1,12 @@
 package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
+import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -14,7 +16,9 @@ import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
+import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
+import com.kobe.warehouse.service.facturation.dto.FactureItemDto;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
@@ -32,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +107,35 @@ public class EditionDataServiceImpl implements EditionDataService {
         int total = count(buildCountFinalGroupInvoiceQuery(invoiceSearchParams));
         List<FactureDto> list = fetchGroupInvoices(invoiceSearchParams, pageable);
         return new PageImpl<>(list, pageable, total);
+    }
+
+    @Override
+    public void deleteFacture(Long id) {
+        FactureTiersPayant factureTiersPayant = getFactureTiersPayant(id);
+        if (Objects.nonNull(factureTiersPayant)) {
+            resetThirdPartySaleLines(factureTiersPayant);
+            List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
+            if (!CollectionUtils.isEmpty(factureTiersPayants)) {
+                factureTiersPayants.forEach(this::resetThirdPartySaleLines);
+                this.facturationRepository.deleteAll(factureTiersPayants);
+            }
+
+            this.facturationRepository.delete(factureTiersPayant);
+        }
+    }
+
+    private void resetThirdPartySaleLines(FactureTiersPayant factureTiersPayant) {
+        List<ThirdPartySaleLine> thirdPartySaleLines = factureTiersPayant.getFacturesDetails();
+        thirdPartySaleLines.forEach(thirdPartySaleLine -> {
+            thirdPartySaleLine.setFactureTiersPayant(null);
+            thirdPartySaleLine.setUpdated(LocalDateTime.now());
+            thirdPartySaleLineRepository.save(thirdPartySaleLine);
+        });
+    }
+
+    @Override
+    public Optional<FactureDtoWrapper> getFacture(Long id) {
+        return Optional.ofNullable(buildFactureDtoWrapper(getFactureTiersPayant(id)));
     }
 
     @Override
@@ -389,5 +423,133 @@ public class EditionDataServiceImpl implements EditionDataService {
         groupeFactureDto.getFactures().addAll(factures);
         groupeFactureDto.setInvoiceTotalAmountLetters(NumberUtil.getNumberToWords(groupeFactureDto.getInvoiceTotalAmount()).toUpperCase());
         return groupeFactureDto;
+    }
+
+    private FactureDtoWrapper buildFactureDtoWrapper(FactureTiersPayant factureTiersPayant) {
+        List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
+        if (!CollectionUtils.isEmpty(factureTiersPayants)) {
+            return buildGroupeFactureDto(factureTiersPayant);
+        } else {
+            return buildFactureDto(factureTiersPayant);
+        }
+    }
+
+    private GroupeFactureDto buildGroupeFactureDto(FactureTiersPayant factureTiersPayant) {
+        GroupeTiersPayant groupeTiersPayant = factureTiersPayant.getGroupeTiersPayant();
+
+        GroupeFactureDto groupeFactureDto = new GroupeFactureDto();
+        groupeFactureDto.setDebutPeriode(factureTiersPayant.getDebutPeriode());
+        groupeFactureDto.setFinPeriode(factureTiersPayant.getFinPeriode());
+        groupeFactureDto.setName(groupeTiersPayant.getName());
+        groupeFactureDto.setNumFacture(factureTiersPayant.getDisplayNumFacture());
+        groupeFactureDto.setCreated(factureTiersPayant.getCreated());
+        List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
+        groupeFactureDto.setItemsBonCount(factureTiersPayants.size());
+        long remiseVente = 0;
+        long montant = 0;
+        long montantPaye = 0;
+        long montantVente = 0;
+        long remiseForfaitaire = 0;
+        long montantNet = 0;
+        long montantAttendu = 0;
+        for (FactureTiersPayant facture : factureTiersPayants) {
+            FactureDto factureDto = buildFactureDto(facture);
+            montantPaye += factureDto.getMontantRegle();
+            montantVente += factureDto.getMontantVente();
+            remiseForfaitaire += factureDto.getRemiseForfetaire();
+            montant += factureDto.getMontant();
+            remiseVente += factureDto.getMontantRemiseVente();
+            montantNet += factureDto.getMontantNet();
+            montantNet += factureDto.getMontantNet();
+            groupeFactureDto.getFactures().add(factureDto);
+        }
+        groupeFactureDto.setMontantAttendu(montantAttendu);
+        groupeFactureDto.setMontantNetVente(montantVente);
+        groupeFactureDto.setRemiseForfetaire(remiseForfaitaire);
+        groupeFactureDto.setInvoiceTotalAmount(montant);
+        groupeFactureDto.setMontantNet(montantNet);
+        groupeFactureDto.setMontantRegle(montantPaye);
+        groupeFactureDto.setMontantRemiseVente(remiseVente);
+        return groupeFactureDto;
+    }
+
+    private FactureDto buildFactureDto(FactureTiersPayant factureTiersPayant) {
+        FactureDto factureDto = new FactureDto();
+        TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
+        factureDto.setFactureId(factureTiersPayant.getId());
+        factureDto.setTiersPayantName(tiersPayant.getFullName());
+        factureDto.setNumFacture(factureTiersPayant.getDisplayNumFacture());
+        factureDto.setDebutPeriode(factureTiersPayant.getDebutPeriode());
+        factureDto.setFinPeriode(factureTiersPayant.getFinPeriode());
+        factureDto.setCreated(factureTiersPayant.getCreated());
+        factureDto.setFactureProvisoire(factureTiersPayant.isFactureProvisoire());
+        long remiseVente = 0;
+        long montantPaye = 0;
+        long montantVente = 0;
+        //   boolean isCarnet = false;
+        List<ThirdPartySaleLine> thirdPartySaleLines = factureTiersPayant.getFacturesDetails();
+        for (ThirdPartySaleLine thirdPartySaleLine : thirdPartySaleLines) {
+            ThirdPartySales sales = thirdPartySaleLine.getSale();
+            //            if (sales.getNatureVente() == NatureVente.CARNET) {
+            //                isCarnet = true;
+            //            }
+            montantVente += sales.getSalesAmount();
+            factureDto.setMontant(factureDto.getMontant() + thirdPartySaleLine.getMontant());
+            remiseVente += Objects.requireNonNullElse(sales.getDiscountAmount(), 0);
+            montantPaye += Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0);
+            factureDto.getItems().add(buildFromThirdPartySaleLine(thirdPartySaleLine, sales));
+        }
+        factureDto.setMontantRemiseVente(remiseVente);
+        factureDto.setMontantRegle(Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0));
+        factureDto.setRemiseForfetaire(Objects.requireNonNullElse(factureTiersPayant.getRemiseForfetaire(), 0L));
+        int count = thirdPartySaleLines.size();
+        factureDto.setItemsCount(count);
+        factureDto.setItemMontantRegle(montantPaye);
+        factureDto.setMontantNet(factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getRemiseForfetaire(), 0L));
+        factureDto.setMontantRestant(factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getMontantRegle(), 0));
+        factureDto.setMontantVente(montantVente);
+        factureDto.setMontantAttendu(factureDto.getMontantNet());
+        return factureDto;
+    }
+
+    private FactureItemDto buildFromThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine, ThirdPartySales sales) {
+        FactureItemDto factureItemDto = new FactureItemDto();
+        factureItemDto.setMontantClient(Objects.requireNonNullElse(sales.getPartAssure(), 0));
+        factureItemDto.setTaux(thirdPartySaleLine.getTaux());
+        factureItemDto.setSaleNumber(sales.getNumberTransaction());
+        factureItemDto.setSaleId(sales.getId());
+        factureItemDto.setStatut(thirdPartySaleLine.getStatut());
+        factureItemDto.setMontantVente(sales.getSalesAmount());
+        factureItemDto.setMontantRegle(Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));
+        factureItemDto.setMontant(thirdPartySaleLine.getMontant());
+        factureItemDto.setNumBon(thirdPartySaleLine.getNumBon());
+        factureItemDto.setMontantRemise(Objects.requireNonNullElse(sales.getDiscountAmount(), 0));
+        factureItemDto.setCreated(thirdPartySaleLine.getCreated());
+        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+        AssuredCustomer customer = clientTiersPayant.getAssuredCustomer();
+        AssuredCustomerDTO assuredCustomerDTO = buildCustomerInfos(customer, clientTiersPayant.getNum());
+        factureItemDto.setCustomer(assuredCustomerDTO);
+        factureItemDto.setAyantsDroit(buildCustomerInfos(sales.getAyantDroit(), null));
+
+        return factureItemDto;
+    }
+
+    private AssuredCustomerDTO buildCustomerInfos(AssuredCustomer customer, String numAssure) {
+        if (Objects.isNull(customer)) {
+            return null;
+        }
+        AssuredCustomerDTO assuredCustomerDTO = new AssuredCustomerDTO();
+        if (numAssure == null) {
+            numAssure = customer.getNumAyantDroit();
+        }
+        assuredCustomerDTO.setNum(numAssure);
+        assuredCustomerDTO.setFirstName(customer.getFirstName());
+        assuredCustomerDTO.setLastName(customer.getLastName());
+        assuredCustomerDTO.setFullName(customer.getFirstName() + " " + customer.getLastName());
+        assuredCustomerDTO.setPhone(customer.getPhone());
+        assuredCustomerDTO.setEmail(customer.getEmail());
+        assuredCustomerDTO.setNum(customer.getNumAyantDroit());
+        assuredCustomerDTO.setDatNaiss(customer.getDatNaiss());
+        return assuredCustomerDTO;
     }
 }

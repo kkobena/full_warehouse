@@ -1758,3 +1758,36 @@ menu  de la vente
 
 }
 
+.facture-modal-dialog {
+  //min-height: 500px;
+  max-width: 90%;
+  width: 90%;
+
+  .modal-content {
+    min-height: 400px;
+
+    .badge {
+      font-weight: 800;
+    }
+
+    .p-panel {
+      .p-panel-header {
+
+        padding: 0.357rem 1rem;
+      }
+
+      .p-panel-content {
+        padding: 0.371rem 0.3rem;
+      }
+    }
+
+
+    tr {
+      cursor: pointer;
+    }
+
+    .row {
+
+    }
+  }
+}

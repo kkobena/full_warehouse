@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,15 +36,15 @@ public class SalesLineResource {
 
     private static final String ENTITY_NAME = "salesLine";
     private final Logger log = LoggerFactory.getLogger(SalesLineResource.class);
-
+    private final SaleService saleService;
+    private final SalesLineRepository salesLineRepository;
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    @Autowired
-    private SaleService saleService;
-
-    @Autowired
-    private SalesLineRepository salesLineRepository;
+    public SalesLineResource(SaleService saleService, SalesLineRepository salesLineRepository) {
+        this.saleService = saleService;
+        this.salesLineRepository = salesLineRepository;
+    }
 
     @GetMapping("/sales-lines/{id}")
     public ResponseEntity<List<SaleLineDTO>> getAllSalesLines(@PathVariable Long id) {

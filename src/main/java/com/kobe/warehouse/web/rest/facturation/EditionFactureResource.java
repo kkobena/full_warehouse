@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
+import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -183,5 +185,16 @@ public class EditionFactureResource {
         @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
     ) {
         return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(createdDate, isGroup)), request);
+    }
+
+    @GetMapping("/edition-factures/{id}")
+    public ResponseEntity<FactureDtoWrapper> getone(@PathVariable Long id) {
+        return ResponseUtil.wrapOrNotFound(editionService.getFacture(id));
+    }
+
+    @DeleteMapping("/edition-factures/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        editionService.deleteFacture(id);
+        return ResponseEntity.noContent().build();
     }
 }

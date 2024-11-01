@@ -28,7 +28,6 @@ export class FactureService {
   query(searchParams?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(searchParams);
     let url = this.resourceUrl;
-    console.log('factureGroupees', searchParams.factureGroupees);
     if (searchParams.factureGroupees) {
       url += '/groupes';
     }

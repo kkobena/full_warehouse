@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
+import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
@@ -14,6 +15,7 @@ import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
@@ -80,6 +82,12 @@ public interface EditionDataService {
 
     Page<FactureDto> getGroupInvoicies(InvoiceSearchParams invoiceSearchParams, Pageable pageable);
 
+    void deleteFacture(Set<Long> ids);
+
+    void deleteFacture(Long id);
+
+    Optional<FactureDtoWrapper> getFacture(Long id);
+
     default String buildQuery(EditionSearchParams editionSearchParams, String query) {
         {
             query = query
@@ -142,8 +150,6 @@ public interface EditionDataService {
         }
         return buildQuery(editionSearchParams, QUERY_COUNT);
     }
-
-    void deleteFacture(Set<Long> ids);
 
     default String buildInvoiceQuery(InvoiceSearchParams invoiceSearchParams, String query) {
         return query

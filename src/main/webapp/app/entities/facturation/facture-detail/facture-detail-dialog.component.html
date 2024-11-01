@@ -1,0 +1,13 @@
+<div class="modal-header">
+  <h6 class="modal-title">Facture <span
+    class="badge rounded-pill text-bg-light"> {{ facture.numFacture }}</span></h6>
+
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal"
+          type="button">&times;
+  </button>
+</div>
+
+<div class="modal-body">
+  <jhi-facture-detail [facture]="facture"></jhi-facture-detail>
+</div>
+

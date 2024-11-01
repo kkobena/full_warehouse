@@ -1,0 +1,176 @@
+<div class="row menu-facture">
+  <p-toolbar>
+    <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-start">
+        <div class="pt-1"><label class="input-label">Groupées</label></div>
+        <div class="p-1">
+          <p-inputSwitch (onChange)="onSearch()" [(ngModel)]="factureGroup" />
+        </div>
+        <div class="pt-1"><label class="input-label">Provisoires</label></div>
+        <div class="p-1">
+          <p-inputSwitch (onChange)="onSearch()" [(ngModel)]="factureProvisoire" />
+        </div>
+
+
+        <div class="pt-2"><label class="input-label">Du</label></div>
+        <div class="p-1">
+          <div class="input-group">
+            <input
+              #d="ngbDatepicker"
+              [(ngModel)]="modelStartDate"
+              class="form-control"
+              ngbDatepicker
+              placeholder="dd/mm/yyyy"
+            />
+            <button (click)="d.toggle()" class="btn btn-outline-secondary bi bi-calendar3"
+                    type="button"></button>
+          </div>
+        </div>
+
+        <div class="pt-2"><label class="input-label">Au</label></div>
+        <div class="p-1">
+          <div class="input-group">
+            <input
+              #dtEnd="ngbDatepicker"
+              [(ngModel)]="modelEndDate"
+              class="form-control"
+              ngbDatepicker
+              placeholder="dd/mm/yyyy"
+            />
+            <button (click)="dtEnd.toggle()" class="btn btn-outline-secondary bi bi-calendar3"
+                    type="button"></button>
+          </div>
+        </div>
+        <div class="p-1">
+          <p-floatLabel>
+            <input [(ngModel)]="search" class="form-control" id="search"
+
+                   type="text"> <label for="search">Rechercher par numéro</label>
+          </p-floatLabel>
+        </div>
+        <div class="p-1">
+          <select [(ngModel)]="statut" class="form-select">
+            @for (mode of statuts; track mode.code) {
+              <option [ngValue]="mode.code">{{ mode.value }}</option>
+            }
+          </select>
+        </div>
+        @if (factureGroup) {
+          <div class="p-1">
+            <p-floatLabel>
+              <p-autoComplete id="groupeTiersPayants" inputId="groupeTiersPayants"
+                              (completeMethod)="searchGroupTiersPayant($event)"
+                              [(ngModel)]="selectedGroupeTiersPayants"
+                              [forceSelection]="true"
+                              [multiple]="true" [suggestions]="groupeTiersPayants"
+                              appendTo="body"
+                              optionLabel="name">
+              </p-autoComplete>
+              <label for="groupeTiersPayants">Rechercher un groupe</label>
+            </p-floatLabel>
+          </div>
+        } @else {
+          <div class="p-1">
+            <p-floatLabel>
+              <p-autoComplete id="tiersPayantId" inputId="tiersPayantId"
+                              (completeMethod)="searchTiersPayant($event)"
+                              [(ngModel)]="selectedTiersPayants"
+                              [forceSelection]="true"
+                              [minLength]="minLength"
+                              [multiple]="true" [suggestions]="tiersPayants"
+                              optionLabel="fullName">
+              </p-autoComplete>
+              <label for="tiersPayantId">Rechercher tiers-payants</label>
+            </p-floatLabel>
+          </div>
+        }
+      </div>
+
+
+      <div class="d-flex justify-content-end">
+        <div class="pt-1">
+          <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
+                    label="Rechercher"
+                    size="small" />
+        </div>
+        <div class="p-1">
+
+          <p-splitButton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
+                         label="Exporter"
+                         severity="help"
+                         size="small" />
+
+        </div>
+      </div>
+    </div>
+  </p-toolbar>
+  <div class="row">
+    @if (datas && datas.length > 0) {
+      <p-table (onLazyLoad)="lazyLoading($event)"
+               [lazy]="true"
+               [loading]="loading" [paginator]="true"
+               [rowsPerPageOptions]="[10,15,20,30,50]"
+               [rows]="itemsPerPage"
+               [totalRecords]="totalItems" [value]="datas"
+               dataKey="factureId"
+               selectionMode="single"
+               styleClass="p-datatable-striped mt-2"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col"><span>Num</span></th>
+            <th scope="col"><span>Tiers-payant</span></th>
+            <th scope="col"><span>Période</span></th>
+            <th scope="col">Nbre Dossiers</th>
+            <th scope="col">Montant Brut</th>
+            <th scope="col">Remise</th>
+            <th scope="col">Remise forfaitaire</th>
+            <th scope="col">Montant Net</th>
+            <th scope="col">Montant payé</th>
+            <th scope="col">Montant restant</th>
+            <th scope="col">Date édition</th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-columns="columns" let-elRow pTemplate="body">
+          <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+            <td>{{ elRow.numFacture }}</td>
+            <td>{{ elRow.tiersPayantName }}</td>
+            <td>{{ elRow.periode }}</td>
+            <td class="text-right">{{ elRow.itemsCount | number }}</td>
+            <td class="text-right">{{ elRow.montantAttendu | number }}</td>
+            <td class="text-right">{{ elRow.montantRemiseVente | number }}</td>
+            <td class="text-right">{{ elRow.remiseForfetaire | number }}</td>
+            <td class="text-right">{{ elRow.montantNet | number }}</td>
+            <td class="text-right">{{ elRow.montantRegle | number }}</td>
+            <td class="text-right">{{ elRow.montantRestant | number }}</td>
+            <td>{{ elRow.created | date :'dd/MM/yy HH:mm' }}</td>
+            <td style="text-align: center;">
+              <div class="btn-group" role="group">
+                <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info" />
+                @if (!elRow.factureProvisoire) {
+                  <p-button icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
+                }
+                <p-button [loading]="exporting" (click)="exportPdf(elRow.factureId)"
+                          icon="pi pi-file-pdf"
+                          pTooltip="Exporter en Pdf" severity="warning" />
+
+                @if (elRow.statut === 'NOT_PAID') {
+                  <p-button icon="pi pi-trash" pTooltip="Supprimer" severity="danger" />
+                }
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+
+      </p-table>
+    } @else {
+      <div class="alert alert-warning" id="no-result">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
+  </div>
+
+</div>

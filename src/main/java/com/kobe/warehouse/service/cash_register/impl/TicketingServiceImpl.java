@@ -49,8 +49,8 @@ public class TicketingServiceImpl implements TicketingService {
         cashRegister.setEndTime(LocalDateTime.now());
         cashRegister.setUpdated(cashRegister.getEndTime());
         cashRegister.setStatut(CashRegisterStatut.CLOSED);
-        this.cashRegisterService.buildCashRegisterItems(cashRegister);
         this.cashRegisterService.save(cashRegister);
+        this.cashRegisterService.buildCashRegisterItems(cashRegister);
         this.ticketingRepository.save(ticketing);
     }
 

@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +21,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -57,10 +59,6 @@ public class TiersPayant implements Serializable {
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "code_organisme", length = 100)
     private String codeOrganisme;
-
-    @Pattern(regexp = "^[a-zA-Z0-9]*$")
-    @Column(name = "code_regroupement", length = 100)
-    private String codeRegroupement;
 
     @Column(name = "conso_mensuelle")
     private Long consoMensuelle;
@@ -126,6 +124,9 @@ public class TiersPayant implements Serializable {
 
     @Column(name = "model_facture", length = 20)
     private String modelFacture;
+
+    @Transient
+    private String modelFilePath;
 
     public TiersPayant() {}
 
@@ -207,15 +208,6 @@ public class TiersPayant implements Serializable {
 
     public TiersPayant setCodeOrganisme(String codeOrganisme) {
         this.codeOrganisme = codeOrganisme;
-        return this;
-    }
-
-    public String getCodeRegroupement() {
-        return codeRegroupement;
-    }
-
-    public TiersPayant setCodeRegroupement(String coeRegroupement) {
-        codeRegroupement = coeRegroupement;
         return this;
     }
 
@@ -370,5 +362,10 @@ public class TiersPayant implements Serializable {
     public TiersPayant setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
         return this;
+    }
+
+    public String getModelFilePath() {
+        this.modelFilePath = Objects.requireNonNullElse(modelFacture, "default");
+        return modelFilePath;
     }
 }

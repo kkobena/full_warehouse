@@ -68,6 +68,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   private translate = inject(TranslateService);
   private userService = inject(UserService);
   private mvtParamServiceService = inject(MvtParamServiceService);
+  private messageService = inject(MessageService);
 
   ngAfterViewInit(): void {
     this.translate.use('fr');
@@ -87,7 +88,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.entityService
       .query({
-        statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
+        //  statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
         page: pageToLoad,
         ...this.buildParams(),
       })
@@ -111,26 +112,31 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   }
 
   protected onPrint(): void {
-    this.btnLoading = true;
-    this.updateParam();
-    this.entityService.exportToPdf(this.buildParams()).subscribe({
-      next: blod => {
-        this.btnLoading = false;
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
-      },
-      error: () => {
-        this.btnLoading = false;
-        /*  this.messageService.add({
-           severity: 'error',
-           summary: 'Error',
-           detail: 'Une erreur est survenue',
-         }); */
-      },
-      complete: () => {
-        this.btnLoading = false;
-      },
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Une erreur est survenue',
     });
+    /*  this.btnLoading = true;
+     this.updateParam();
+     this.entityService.exportToPdf(this.buildParams()).subscribe({
+       next: blod => {
+         this.btnLoading = false;
+         const blobUrl = URL.createObjectURL(blod);
+         window.open(blobUrl);
+       },
+       error: () => {
+         this.btnLoading = false;
+         /!*  this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Une erreur est survenue',
+          }); *!/
+       },
+       complete: () => {
+         this.btnLoading = false;
+       },
+     }); */
   }
 
   protected onSuccess(data: CashRegister[] | null, headers: HttpHeaders, page: number): void {
@@ -175,6 +181,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
 
   private buildParams(): any {
     return {
+      statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
       size: this.itemsPerPage,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),

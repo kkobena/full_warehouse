@@ -34,7 +34,6 @@ import { Observable } from 'rxjs';
 import { SalesService } from '../../sales.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../../../shared/error.service';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
 import { AmountComputingComponent } from './amount-computing/amount-computing.component';
@@ -116,7 +115,6 @@ export class ComptantComponent {
   router = inject(Router);
   modalService = inject(NgbModal);
   confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);

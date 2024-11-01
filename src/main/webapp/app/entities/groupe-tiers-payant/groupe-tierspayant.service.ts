@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOptions } from 'app/shared/util/request-util';
 import { IGroupeTiersPayant } from '../../shared/model/groupe-tierspayant.model';
 import { IResponseDto } from 'app/shared/util/response-dto';
 
@@ -29,7 +29,7 @@ export class GroupeTiersPayantService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<IGroupeTiersPayant[]>(this.resourceUrl, {
       params: options,
       observe: 'response',
@@ -45,7 +45,7 @@ export class GroupeTiersPayantService {
   }
 
   async queryPromise(req?: any): Promise<IGroupeTiersPayant[]> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return await firstValueFrom(this.http.get<IGroupeTiersPayant[]>(this.resourceUrl, { params: options }));
   }
 }

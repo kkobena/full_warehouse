@@ -1,0 +1,35 @@
+<table class="main-table">
+  <thead>
+  <tr>
+    <th>Nom/Prénom(s) salarié</th>
+    <th>Nom/Prénom(s) patient</th>
+    <th>Matricule</th>
+    <th>Date</th>
+    <th class="text-center">N°Bon</th>
+    <th class="text-right">Montant Total</th>
+    <th class="text-right">Montant Attendu</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="detail,stat  : ${entity.facturesDetails}">
+    <td
+      th:text="${detail.clientTiersPayant.assuredCustomer.firstName + ' ' + detail.clientTiersPayant.assuredCustomer.lastName}"></td>
+    <td th:text="${detail.sale.ayantDroit.firstName + ' ' + detail.sale.ayantDroit.lastName}"></td>
+    <td th:text="${detail.clientTiersPayant.num}"></td>
+    <td th:text="${#temporals.format(detail.created, 'dd/MM/yyyy')}"></td>
+    <td class="text-center" th:text="${detail.numBon}"></td>
+    <td class="unit"
+        th:text="${#numbers.formatInteger(detail.sale.salesAmount,3,'WHITESPACE')}"></td>
+    <td class="unit" th:text="${#numbers.formatInteger(detail.montant,3,'WHITESPACE')}"></td>
+  </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+  <tr class="tr-footer">
+    <td class="datatable-footer-total-label" colspan="4">TOTAL GENERAL</td>
+    <td class="unit"
+        th:text="${' (NOMBRE DE BONS='+#lists.size(entity.facturesDetails) +')'}"></td>
+    <td class="unit" th:text="${#numbers.formatInteger(grandTotal.e1,3,'WHITESPACE')}"></td>
+    <td class="unit" th:text="${#numbers.formatInteger(grandTotal.e2,3,'WHITESPACE')}"></td>
+  </tr>
+  </tfoot>
+</table>

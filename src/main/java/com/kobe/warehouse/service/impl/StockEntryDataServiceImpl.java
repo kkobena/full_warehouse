@@ -15,9 +15,9 @@ import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
-import com.kobe.warehouse.service.stock.DeliveryReceiptReportService;
+import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
-import com.kobe.warehouse.service.stock.impl.EtiquetteExportServiceImpl;
+import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -44,17 +44,17 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     private final EntityManager em;
     private final DeliveryReceiptRepository deliveryReceiptRepository;
     private final ExportationCsvService exportationCsvService;
-    private final DeliveryReceiptReportService receiptReportService;
+    private final DeliveryReceiptReportReportService receiptReportService;
     private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
-    private final EtiquetteExportServiceImpl etiquetteExportService;
+    private final EtiquetteExportReportServiceImpl etiquetteExportService;
 
     public StockEntryDataServiceImpl(
         EntityManager em,
         DeliveryReceiptRepository deliveryReceiptRepository,
         ExportationCsvService exportationCsvService,
-        DeliveryReceiptReportService receiptReportService,
+        DeliveryReceiptReportReportService receiptReportService,
         DeliveryReceiptItemRepository deliveryReceiptItemRepository,
-        EtiquetteExportServiceImpl etiquetteExportService
+        EtiquetteExportReportServiceImpl etiquetteExportService
     ) {
         this.em = em;
         this.deliveryReceiptRepository = deliveryReceiptRepository;

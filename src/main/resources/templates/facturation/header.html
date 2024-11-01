@@ -1,0 +1,83 @@
+<header>
+  <div class="row" style="padding-bottom: 0;">
+    <table style="padding: 0;margin: 0;">
+      <tbody>
+      <tr>
+        <td>
+          <div class="col-6 company-details">
+            <h2 class="name">
+              <span th:text="${magasin.name}"></span>
+            </h2>
+            <div th:if="${magasin.phone ne null}">
+              <span th:text="${magasin.phone}"></span>
+            </div>
+            <div th:if="${magasin.address ne null}">
+              <span th:text="${magasin.address}"></span>
+            </div>
+
+          </div>
+        </td>
+        <!-- <td style="text-align: right;padding:0">
+           <span style="text-align: right;font-weight: 600;" th:text="${page_count}"></span>
+         </td>-->
+        <td style="text-align: right;padding:0">
+          <span class="header-counter" style="text-align: right;font-weight: 600;"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+
+  </div>
+  <div class="row"
+       style="padding-top: 0;padding-bottom: 0;margin: 0;padding-left: 10px;padding-right: 10px;">
+    <table style="margin: 0;">
+      <tbody>
+      <tr>
+        <td>
+          <span th:if="${entity.tiersPayant ne null}">Facture de: <span class="tiers-payant-info"
+                                                                        th:text="${entity.tiersPayant.fullName}"></span></span>
+
+          <span th:if="${entity.groupeTiersPayant ne null}">Facture de: <span
+            class="tiers-payant-info"
+            th:text="${entity.groupeTiersPayant.name}"></span></span>
+
+        </td>
+        <td style="text-align: right;"> <span class="invoice-num">Numéro:
+                        <th:block th:text="${entity.displayNumFacture}"></th:block>
+                    </span></td>
+      </tr>
+      <tr>
+        <td>
+          <th:block th:if="${entity.tiersPayant ne null}">
+<span th:if="${entity.tiersPayant.telephone ne null}"
+      th:text="${entity.tiersPayant.telephone}"></span>
+          </th:block>
+
+          <th:block th:if="${entity.groupeTiersPayant ne null}">
+<span th:if="${entity.groupeTiersPayant.telephone ne null}"
+      th:text="${entity.groupeTiersPayant.telephone}"></span>
+          </th:block>
+
+        </td>
+        <td style="text-align: right;">
+          <span
+            th:text="${'Date facturation: '+  #temporals.format(entity.created, 'dd/MM/yyyy HH:mm')}"></span>
+
+        </td>
+      </tr>
+      <tr>
+        <td>
+
+        </td>
+        <td style="text-align: right;">
+          Date d'édtion: <span
+          th:text="${  #temporals.format(T(java.time.LocalDateTime).now(), 'dd/MM/yyyy HH:mm')}"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</header>

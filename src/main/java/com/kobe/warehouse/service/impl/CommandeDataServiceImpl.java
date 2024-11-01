@@ -13,7 +13,7 @@ import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.Sort;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
-import com.kobe.warehouse.service.report.CommandeReportService;
+import com.kobe.warehouse.service.report.CommandeReportReportService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -40,7 +40,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     private final CommandeRepository commandeRepository;
     private final ExportationCsvService exportationCsvService;
-    private final CommandeReportService commandeReportService;
+    private final CommandeReportReportService commandeReportService;
     private final CustomizedCommandeService customizedCommandeService;
     private final OrderLineRepository orderLineRepository;
 
@@ -68,7 +68,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     public CommandeDataServiceImpl(
         CommandeRepository commandeRepository,
         ExportationCsvService exportationCsvService,
-        CommandeReportService commandeReportService,
+        CommandeReportReportService commandeReportService,
         CustomizedCommandeService customizedCommandeService,
         OrderLineRepository orderLineRepository) {
         this.commandeRepository = commandeRepository;

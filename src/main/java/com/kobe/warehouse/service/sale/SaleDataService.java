@@ -32,7 +32,7 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
-import com.kobe.warehouse.service.report.SaleInvoiceService;
+import com.kobe.warehouse.service.report.SaleInvoiceReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -66,7 +66,7 @@ public class SaleDataService {
 
     private final EntityManager em;
     private final UserRepository userRepository;
-    private final SaleInvoiceService saleInvoiceService;
+    private final SaleInvoiceReportService saleInvoiceService;
     private final SalesRepository salesRepository;
     private final SalesLineRepository salesLineRepository;
     private final PaymentRepository paymentRepository;
@@ -76,7 +76,7 @@ public class SaleDataService {
     public SaleDataService(
         EntityManager em,
         UserRepository userRepository,
-        SaleInvoiceService saleInvoiceService,
+        SaleInvoiceReportService saleInvoiceService,
         SalesRepository salesRepository,
         SalesLineRepository salesLineRepository,
         PaymentRepository paymentRepository,

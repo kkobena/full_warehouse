@@ -16,6 +16,8 @@ public final class Constant {
     public static final String AJUSTEMENT_TEMPLATE_FILE = "ajustement/main";
     public static final String MVT_CAISSE_TEMPLATE_FILE = "mvtcaisse/main";
     public static final String INVENTAIRE_TEMPLATE_FILE = "inventaire/main";
+    public static final String FACTURATION_TEMPLATE_FILE = "facturation/main";
+    public static final String FACTURATION_GROUPE_TEMPLATE_FILE = "facturation/group/main";
     public static final String CURRENT_DATE = "currentDate";
     public static final String DTO_DATE = "dto_date";
     public static final String ITEM_SIZE = "item_size";
@@ -34,6 +36,8 @@ public final class Constant {
     public static final int GROUP_PAGE_SIZE = 40;
     public static final String REPORT_TITLE = "reportTitle";
     public static final String REPORT_SUMMARY = "reportSummary";
+    public static final String FACTURE_TOTAL = "grandTotal";
+    public static final String FACTURE_TOTAL_LETTERS = "invoiceTotalAmountLetters";
     public static final String TVA_GROUP_DATE = "tvaGroupDate";
     public static final String TVA_TEMPLATE_FILE = "tva/main";
     public static final String BALANCE_TEMPLATE_FILE = "balance/main";

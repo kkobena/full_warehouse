@@ -1,0 +1,34 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <title>Facture</title>
+  <style th:replace="~{facturation/css}"></style>
+</head>
+<body>
+<header th:replace="~{facturation/group/header}">
+</header>
+<div class="invoice">
+  <main>
+
+    <table th:replace="~{facturation/group/body}">
+    </table>
+
+    <div>
+
+      <h4>ARRETE LA PRESENTE FACTURE A LA SOMME DE (en lettres) : <span class="total-facture"
+                                                                        th:text="${entity.invoiceTotalAmountLetters}"></span>
+        <span
+          th:text="${' ('+#numbers.formatInteger(entity.invoiceTotalAmount,3,'WHITESPACE') +')'}"></span>
+      </h4>
+      <div class="signature">
+        <u>LE PHARMACIEN</u>
+        <p></p>
+      </div>
+
+
+    </div>
+  </main>
+</div>
+</body>
+
+</html>

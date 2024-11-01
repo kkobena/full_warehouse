@@ -124,7 +124,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private final WarehouseCalendarService warehouseCalendarService;
     private final CashRegisterService cashRegisterService;
     private final EntityManager em;
-    private final MvtCaisseReportService mvtCaisseReportService;
+    private final MvtCaisseReportReportService mvtCaisseReportService;
 
     public FinancialTransactionServiceImpl(
         PaymentTransactionRepository paymentTransactionRepository,
@@ -135,7 +135,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         WarehouseCalendarService warehouseCalendarService,
         CashRegisterService cashRegisterService,
         EntityManager em,
-        MvtCaisseReportService mvtCaisseReportService
+        MvtCaisseReportReportService mvtCaisseReportService
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;

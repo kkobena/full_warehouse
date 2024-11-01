@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { DD_MM_YYYY, DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 
 export const formatNumberToString = (cellValue: any): string | null => {
   if (cellValue?.value !== null && cellValue?.value !== undefined) {
@@ -32,10 +33,49 @@ export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
 
 export const BLOCK_SPACE: RegExp = /[^\s]/;
 export const DATE_FORMAT_DD_MM_YYYY_HH_MM_SS = (): string => dayjs().format(DD_MM_YYYY_HH_MM_SS);
-export const DATE_FORMAT_DD_MM_YYYY = (): string => dayjs().format(DD_MM_YYYY);
 
+export const DATE_FORMAT_DD_MM_YYYY = (): string => dayjs().format(DD_MM_YYYY);
+export const DATE_FROM_STRING_FR = (date: string): string | null => {
+  if (date) {
+    const dateArray = date.split('-');
+    let day = dateArray[0];
+    if (day.length === 1) {
+      day = `0${day}`;
+    }
+    let month = dateArray[1];
+    if (month.length === 1) {
+      month = `0${month}`;
+    }
+    return `${dateArray[2]}-${month}-${day}`;
+  }
+  return null;
+};
+//permet de formater la date de type NgbDateStruct en string de type 'YYYY-MM-DD'
+export const DATE_FORMAT_ISO_FROM_NGB_DATE = (dateFromNgbDate: NgbDate): string | null => {
+  if (dateFromNgbDate) {
+    if (typeof dateFromNgbDate === 'string') {
+      return DATE_FROM_STRING_FR(dateFromNgbDate);
+    }
+    let day;
+    if (dateFromNgbDate.day < 10) {
+      day = `0${dateFromNgbDate.day}`;
+    } else {
+      day = `${dateFromNgbDate.day}`;
+    }
+    let month;
+    if (dateFromNgbDate.month < 10) {
+      month = `0${dateFromNgbDate.month}`;
+    } else {
+      month = `${dateFromNgbDate.month}`;
+    }
+    return `${dateFromNgbDate.year}-${month}-${day}`;
+    // return DATE_FROM_STRING_FR(dateFromNgbDate.toString());
+  }
+  return null;
+};
 export const checkIfRomToBeUpdated = (deliveryItem: IDeliveryItem): boolean =>
   deliveryItem.regularUnitPrice !== deliveryItem.orderUnitPrice || deliveryItem.orderCostAmount !== deliveryItem.costAmount;
+
 export const priceRangeValidator =
   (min: number, max: number): ValidatorFn =>
   (control: AbstractControl<number>): ValidationErrors | null => {
@@ -51,10 +91,7 @@ export const FORMAT_ISO_DATE_TO_STRING_FR = (date: string): string | null => {
 };
 export const FORMAT_DD_MM_YYYY = (date: Date): string | null => {
   if (date) {
-    console.log(date);
-    const d = dayjs(date).format(DD_MM_YYYY);
-    console.log(d);
-    return d;
+    return dayjs(date).format(DD_MM_YYYY);
   }
   return '';
 };

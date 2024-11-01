@@ -1,12 +1,9 @@
 package com.kobe.warehouse.domain.enumeration;
 
 public enum ModelFacture {
-    MODEL_0176("0176", "Model 0176"),
-    MODEL_0177("0177", "Model 0177"),
-    MODEL_0109("0109", "Model 0109"),
-    MODEL_0303("0303", "Model 0303"),
-    MODEL_0301("0301", "Model 0301"),
-    MODEL_0202("0202", "Model 0202");
+    MODEL_0907("0907", "Model 0907"),
+    MODEL_0903("0903", "Model 0903"),
+    MODEL_0203("0203", "Model 0203");
 
     private final String value;
     private final String libelle;

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
@@ -17,42 +16,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 public class TiersPayantDataService implements TiersPayantMapper {
+
     private final TiersPayantRepository tiersPayantRepository;
 
     public TiersPayantDataService(TiersPayantRepository tiersPayantRepository) {
         this.tiersPayantRepository = tiersPayantRepository;
     }
 
-    public Page<TiersPayantDto> list(String search, String categorie, TiersPayantStatut statut, Long groupeTiersPayantId, Pageable pageable) {
+    public Page<TiersPayantDto> list(
+        String search,
+        String categorie,
+        TiersPayantStatut statut,
+        Long groupeTiersPayantId,
+        Pageable pageable
+    ) {
         Specification<TiersPayant> specification = Specification.where(this.tiersPayantRepository.specialisationStatut(statut));
-        if (!StringUtils.isEmpty(search)) {
+        if (StringUtils.hasLength(search)) {
             specification = specification.and(this.tiersPayantRepository.specialisationQueryString(search + "%"));
         }
         if (groupeTiersPayantId != null) {
             specification = specification.and(this.tiersPayantRepository.specialisationByGroup(groupeTiersPayantId));
         }
         TiersPayantCategorie tiersPayantCategorie = null;
-        if (!StringUtils.isEmpty(categorie) && !categorie.equals(EntityConstant.TOUT)) {
+        if (StringUtils.hasLength(categorie) && !categorie.equals(EntityConstant.TOUT)) {
             tiersPayantCategorie = TiersPayantCategorie.valueOf(categorie);
             specification = specification.and(this.tiersPayantRepository.specialisationCategorie(tiersPayantCategorie));
         }
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-            Sort.by(Sort.Direction.ASC, "fullName"));
+        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "fullName"));
         return this.tiersPayantRepository.findAll(specification, page).map(this::fromEntity);
     }
-
-    public long clientCount(Long tiersPayantId) {
-        return 0;
-    }
-
-    public List<AssuredCustomer> tiersPayantClients(Long tiersPayantId) {
-        return Collections.emptyList();
-    }
 }
-

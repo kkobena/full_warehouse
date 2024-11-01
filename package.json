@@ -69,8 +69,6 @@
     "packaging": "jar"
   },
   "dependencies": {
-    "ag-grid-angular": "^32.1.0",
-    "ag-grid-community": "^32.1.0",
     "@ag-grid-devtools/cli": "^32.0.5",
     "@angular/animations": "18.0.4",
     "@angular/cdk": "^18.0.4",
@@ -90,7 +88,10 @@
     "@ngx-translate/core": "15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@popperjs/core": "2.11.8",
+    "ag-grid-angular": "^32.1.0",
+    "ag-grid-community": "^32.1.0",
     "bootstrap": "5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "bootswatch": "5.3.3",
     "chart.js": "^4.4.3",
     "dayjs": "1.11.11",

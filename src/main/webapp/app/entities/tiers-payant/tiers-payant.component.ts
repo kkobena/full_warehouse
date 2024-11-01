@@ -73,7 +73,6 @@ export class TiersPayantComponent implements OnInit {
   type: string[] = ['TOUT', 'ASSURANCE', 'CARNET', 'DEPOT'];
   typeSelected = '';
   search = '';
-  splitbuttons: MenuItem[];
   tiersPayantSplitbuttons: MenuItem[];
 
   constructor(

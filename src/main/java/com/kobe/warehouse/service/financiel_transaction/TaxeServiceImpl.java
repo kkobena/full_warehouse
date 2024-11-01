@@ -38,9 +38,9 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
     private static final String WHERE_CLAUSE =
         " WHERE DATE(s.updated_at) BETWEEN ?1 AND ?2 AND s.statut IN (%s) AND s.dtype IN (%s) AND s.ca IN (%s) AND sl.to_ignore=?3";
     private final EntityManager entityManager;
-    private final TvaReportService tvaReportService;
+    private final TvaReportReportService tvaReportService;
 
-    public TaxeServiceImpl(EntityManager entityManager, TvaReportService tvaReportService) {
+    public TaxeServiceImpl(EntityManager entityManager, TvaReportReportService tvaReportService) {
         this.entityManager = entityManager;
         this.tvaReportService = tvaReportService;
     }

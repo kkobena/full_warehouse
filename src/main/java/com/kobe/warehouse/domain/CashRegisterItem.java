@@ -33,7 +33,7 @@ public class CashRegisterItem implements Serializable {
     @NotNull
     private CashRegister cashRegister;
 
-    private long amount;
+    private Long amount;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -71,11 +71,11 @@ public class CashRegisterItem implements Serializable {
         return this;
     }
 
-    public long getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    public CashRegisterItem setAmount(long amount) {
+    public CashRegisterItem setAmount(Long amount) {
         this.amount = amount;
         return this;
     }
@@ -87,5 +87,23 @@ public class CashRegisterItem implements Serializable {
     public CashRegisterItem setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return (
+            "CashRegisterItem{" +
+            "amount=" +
+            amount +
+            ", id=" +
+            id +
+            ", cashRegister=" +
+            cashRegister +
+            ", paymentMode=" +
+            paymentMode +
+            ", typeFinancialTransaction=" +
+            typeFinancialTransaction +
+            '}'
+        );
     }
 }

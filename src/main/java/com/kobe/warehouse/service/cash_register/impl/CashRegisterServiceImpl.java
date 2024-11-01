@@ -190,7 +190,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.ordinal()));
         mvtData
             .stream()
-            .collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeTransaction))
+            .collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction))
             .forEach((typeTransaction, data) -> {
                 TypeFinancialTransaction typeFinancialTransaction =
                     switch (typeTransaction) {
@@ -215,12 +215,13 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             .stream()
             .collect(Collectors.groupingBy(CashRegisterSpecialisation::getPaymentModeCode))
             .forEach((modePaymentCode, data1) -> {
-                CashRegisterItem cashRegisterItem = new CashRegisterItem();
-                cashRegisterItem.setTypeFinancialTransaction(typeFinancialTransaction);
-                cashRegisterItem.setPaymentMode(fromCode(modePaymentCode));
-                cashRegisterItem.setAmount(
-                    data1.stream().map(CashRegisterSpecialisation::getPaidAmount).reduce(new BigDecimal(0), BigDecimal::add).longValue()
-                );
+                CashRegisterItem cashRegisterItem = new CashRegisterItem()
+                    .setTypeFinancialTransaction(typeFinancialTransaction)
+                    .setPaymentMode(fromCode(modePaymentCode))
+                    .setAmount(
+                        data1.stream().map(CashRegisterSpecialisation::getPaidAmount).reduce(new BigDecimal(0), BigDecimal::add).longValue()
+                    );
+                System.err.println("cashRegisterItem = " + cashRegisterItem);
                 cashRegisterItem.setCashRegister(cashRegister);
                 cashRegister.getCashRegisterItems().add(cashRegisterItem);
             });

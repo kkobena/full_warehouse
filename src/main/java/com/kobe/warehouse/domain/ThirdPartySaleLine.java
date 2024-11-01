@@ -64,10 +64,11 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
     @Column(name = "taux", nullable = false)
     private short taux;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "invoice_statut", nullable = false)
-    private ThirdPartySaleStatut invoiceStatut = ThirdPartySaleStatut.ACTIF;
+    @Column(name = "montant_regle")
+    private Integer montantRegle = 0;
+
+    @ManyToOne
+    private FactureTiersPayant factureTiersPayant;
 
     public Long getId() {
         return id;
@@ -160,12 +161,21 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull ThirdPartySaleStatut getInvoiceStatut() {
-        return invoiceStatut;
+    public FactureTiersPayant getFactureTiersPayant() {
+        return factureTiersPayant;
     }
 
-    public ThirdPartySaleLine setInvoiceStatut(ThirdPartySaleStatut invoiceStatut) {
-        this.invoiceStatut = invoiceStatut;
+    public ThirdPartySaleLine setFactureTiersPayant(FactureTiersPayant factureTiersPayant) {
+        this.factureTiersPayant = factureTiersPayant;
+        return this;
+    }
+
+    public Integer getMontantRegle() {
+        return montantRegle;
+    }
+
+    public ThirdPartySaleLine setMontantRegle(Integer montantRegle) {
+        this.montantRegle = montantRegle;
         return this;
     }
 

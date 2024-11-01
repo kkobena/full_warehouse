@@ -337,7 +337,7 @@
             </ul>
           </li>
           <li
-            *jhiHasAnyAuthority="['groupe-tiers-payant','tiers-payant','ROLE_ADMIN']"
+            *jhiHasAnyAuthority="['groupe-tiers-payant','tiers-payant','ROLE_ADMIN','gestion-facturation']"
             [routerLinkActiveOptions]="{ exact: true }"
             class="nav-item dropdown pointer"
             display="dynamic"
@@ -346,11 +346,24 @@
           >
             <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
             <span>
-              <i class="pi pi-palette"></i>
-              <span> Facturation</span>
+              <i class="pi pi-wallet"></i>
+              <span>Facturations</span>
             </span>
             </a>
             <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
+              <li>
+                <a
+                  (click)="collapseNavbar()"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="dropdown-item"
+                  routerLink="/edition-factures"
+                  routerLinkActive="active"
+                >
+                  <i class="pi pi-credit-card"></i>
+                  <span>Gestion des factures</span>
+                </a>
+              </li>
+
               <li>
                 <a
                   (click)="collapseNavbar()"
@@ -384,8 +397,8 @@
                   routerLink="/customer"
                   routerLinkActive="active"
                 >
-                  <i class="pi pi-link"></i>
-                  <span jhiTranslate="global.menu.entities.customer">Clients</span>
+                  <i class="pi pi-users"></i>
+                  <span>Clients</span>
                 </a>
               </li>
             </ul>

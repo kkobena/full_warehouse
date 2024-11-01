@@ -36,7 +36,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
-import com.kobe.warehouse.service.report.InventoryReportService;
+import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
@@ -80,7 +80,7 @@ public class InventaireServiceImpl implements InventaireService {
     private final StorageService storageService;
     private final StockProduitRepository stockProduitRepository;
     private final RayonRepository rayonRepository;
-    private final InventoryReportService inventoryReportService;
+    private final InventoryReportReportService inventoryReportService;
     private final WarehouseCalendarService warehouseCalendarService;
 
     @PersistenceContext
@@ -93,7 +93,7 @@ public class InventaireServiceImpl implements InventaireService {
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
         RayonRepository rayonRepository,
-        InventoryReportService inventoryReportService,
+        InventoryReportReportService inventoryReportService,
         WarehouseCalendarService warehouseCalendarService
     ) {
         this.userService = userService;

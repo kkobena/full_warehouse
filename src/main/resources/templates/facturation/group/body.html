@@ -1,0 +1,28 @@
+<table class="main-table">
+  <thead>
+  <tr>
+    <th>Numéro facture</th>
+    <th>Organisme</th>
+    <th class="text-right">Nombre de Bons</th>
+    <th class="text-right">Montant</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="detail,stat  : ${entity.factures}">
+    <td th:text="${detail.numFacture}"></td>
+    <td th:text="${detail.tiersPayantName}"></td>
+    <td class="unit" th:text="${detail.itemsCount}"></td>
+    <td class="unit" th:text="${#numbers.formatInteger(detail.montant,3,'WHITESPACE')}"></td>
+  </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+  <tr class="tr-footer">
+    <td class="datatable-footer-total-label" colspan="2">TOTAL GENERAL</td>
+    <td class="unit"
+        th:text="${entity.itemsBonCount}"></td>
+    <td class="unit"
+        th:text="${#numbers.formatInteger(entity.invoiceTotalAmount,3,'WHITESPACE')}"></td>
+
+  </tr>
+  </tfoot>
+</table>

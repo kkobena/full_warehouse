@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.report.produit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
-import com.kobe.warehouse.service.stat.impl.SuiviArticleReportService;
+import com.kobe.warehouse.service.stat.impl.SuiviArticleReportReportService;
 import java.net.MalformedURLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProduitAuditingReportSeviceImpl implements ProduitAuditingReportSevice {
 
-    private final SuiviArticleReportService suiviArticleReportService;
+    private final SuiviArticleReportReportService suiviArticleReportService;
 
-    public ProduitAuditingReportSeviceImpl(SuiviArticleReportService suiviArticleReportService) {
+    public ProduitAuditingReportSeviceImpl(SuiviArticleReportReportService suiviArticleReportService) {
         this.suiviArticleReportService = suiviArticleReportService;
     }
 

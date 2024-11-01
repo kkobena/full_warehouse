@@ -1,4 +1,5 @@
 @import 'bootstrap/scss/functions';
+@import 'bootstrap-icons/font/bootstrap-icons';
 @import 'bootswatch/dist/spacelab/variables';
 @import 'bootstrap/scss/variables';
 
@@ -1683,7 +1684,6 @@ menu  de la vente
   }
 
   .card {
-
     padding: 0;
 
     .card-body {
@@ -1728,3 +1728,33 @@ menu  de la vente
     margin-bottom: 0.2rem;
   }
 }
+
+.gestion-facture {
+  padding: 0;
+
+
+  .tab-content {
+    padding: 0;
+  }
+
+  .p-toolbar {
+    padding: 2px;
+  }
+
+  .menu-facture {
+    padding: 0;
+    margin: 0;
+
+    .row {
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  ul {
+    margin-bottom: 0.1rem;
+  }
+
+
+}
+

@@ -24,9 +24,6 @@ public class TiersPayantDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     private String codeOrganisme;
 
-    @Pattern(regexp = "^[a-zA-Z0-9]*$")
-    private String codeRegroupement;
-
     private Long consoMensuelle;
     private Boolean plafondAbsolu;
     private String adresse;
@@ -149,15 +146,6 @@ public class TiersPayantDto implements Serializable {
 
     public TiersPayantDto setCodeOrganisme(String codeOrganisme) {
         this.codeOrganisme = codeOrganisme;
-        return this;
-    }
-
-    public String getCodeRegroupement() {
-        return codeRegroupement;
-    }
-
-    public TiersPayantDto setCodeRegroupement(String codeRegroupement) {
-        this.codeRegroupement = codeRegroupement;
         return this;
     }
 

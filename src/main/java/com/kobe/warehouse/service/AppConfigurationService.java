@@ -62,4 +62,10 @@ public class AppConfigurationService {
             Sort.by(Sort.Direction.ASC, "description")
         );
     }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_RESET_INVOICE_NUMBER)
+    public Optional<AppConfiguration> findParamResetInvoiceNumberEveryYear() {
+        return appConfigurationRepository.findById(EntityConstant.APP_RESET_INVOICE_NUMBER);
+    }
 }

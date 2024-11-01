@@ -93,14 +93,14 @@
              [showCurrentPageReport]="true"
              [totalRecords]="totalItems"
              [value]="tiersPayants"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
              dataKey="id"
              selectionMode="single"
              styleClass="p-datatable-gridlines mt-2"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:3%"></th>
+
           <th style="width:9%">Type</th>
           <th style="width:7%">Code</th>
           <th style="width:15%">Nom abrégé</th>
@@ -112,15 +112,8 @@
           <th style="width:14%"></th>
         </tr>
       </ng-template>
-      <ng-template let-expanded="expanded" let-tiersPayant pTemplate="body">
+      <ng-template let-tiersPayant pTemplate="body">
         <tr>
-          <td>
-            <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="tiersPayant"
-                    class="p-button-text p-button-rounded p-button-plain" pButton
-                    pRipple
-                    type="button"></button>
-          </td>
           <td>{{ tiersPayant.categorie }}</td>
           <td>{{ tiersPayant.codeOrganisme }}</td>
           <td>{{ tiersPayant.name }}</td>
@@ -160,11 +153,7 @@
           </td>
         </tr>
       </ng-template>
-      <ng-template let-tiersPayant pTemplate="rowexpansion">
-        <tr>
 
-        </tr>
-      </ng-template>
 
     </p-table>
   } @else {

@@ -1,15 +1,16 @@
 <style th:inline="css">
 
   header {
-    /*position: absolute;*/
     position: running(header);
     border-bottom: 0.5px solid #3989c6;
     font-size: 9px;
 
   }
-  div.page-footer{
+
+  div.page-footer {
 
   }
+
   #page-data:before {
     content: counter(page) "/" counter(pages);
   }
@@ -28,14 +29,11 @@
       padding-top: 2px;
       margin-bottom: 10mm;
       vertical-align: top;
-
-
     }
     @top-left {
       content: element(header);
 
     }
-
     margin-top: 30mm;
     margin-right: 15px;
     margin-left: 15px;
@@ -43,7 +41,6 @@
 
 
   .invoice {
-
     padding: 0;
 
   }
@@ -78,8 +75,6 @@
   }
 
 
-
-
   main .notices .notice {
     font-size: 1.2em
   }
@@ -90,7 +85,8 @@
     border-spacing: 0;
     -fs-table-paginate: paginate;
   }
-  table.main-table{
+
+  table.main-table {
     margin-bottom: 10px;
   }
 
@@ -124,17 +120,16 @@
     font-size: 9px
   }
 
-   table.main-table tr th {
-      white-space: nowrap;
-      font-weight: 400;
-      font-size: 10px
-    }
+  table.main-table tr th {
+    white-space: nowrap;
+    font-weight: 400;
+    font-size: 10px
+  }
+
   table .qty, table .total, table .unit {
     text-align: right;
 
   }
-
-
 
 
   table.main-table tfoot tr td {
@@ -203,10 +198,10 @@
   }
 
 
-
   .tbody-footer tr td:last-child {
     text-align: right;
   }
+
   .page-footer {
     width: 100%;
   }
@@ -222,10 +217,12 @@
   .footer-table-td table {
     width: 100%;
   }
+
   .footer-table thead tr th {
     border: 0.5px solid #4D4D4D;
 
   }
+
   .sub-table-totaux tbody tr td:last-child {
     text-align: right;
     font-weight: bold;
@@ -234,19 +231,23 @@
   .sub-table-totaux tbody tr td:first-child {
     text-align: left;
   }
+
   .row table {
     width: 100%;
     font-weight: bold;
   }
-  .text-center{
+
+  .text-center {
     text-align: center;
   }
-  .footer-table{
+
+  .footer-table {
     page-break-inside: avoid;
     -fs-page-break-inside: avoid;
     white-space: nowrap;
   }
-  td.report-title{
+
+  td.report-title {
     font-size: 11px;
   }
 

@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOptions } from 'app/shared/util/request-util';
 import { ICategorie } from 'app/shared/model/categorie.model';
 
 type EntityResponseType = HttpResponse<ICategorie>;
@@ -28,20 +28,16 @@ export class CategorieService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<ICategorie[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
+
   async queryPromise(req?: any): Promise<ICategorie[]> {
-    const options = createRequestOption(req);
-    return await this.http
-      .get<ICategorie[]>(this.resourceUrl, { params: options })
-      .toPromise();
-  }
-  async findPromise(id: number): Promise<ICategorie> {
-    return await this.http.get<ICategorie>(`${this.resourceUrl}/${id}`).toPromise();
+    const options = createRequestOptions(req);
+    return await this.http.get<ICategorie[]>(this.resourceUrl, { params: options }).toPromise();
   }
 }

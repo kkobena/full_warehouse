@@ -19,7 +19,11 @@ public final class Util {
 
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
-    private Util() {}
+    private Util() {
+        //        Class<?> clazz = this.getClass();
+        //        clazz.getDeclaredField("log");
+
+    }
 
     public static List<TvaEmbeded> transformTvaEmbeded(String content) {
         if (StringUtils.isNotEmpty(content)) {
@@ -54,4 +58,27 @@ public final class Util {
             return false;
         }
     }
+    /*
+   1- à partir de l'identifiant clavis à la rod (liste des packs de la structure)
+    2- Liste consolidée des structures qui comportent un identifiant clavis
+         - à jouter un champs clavis (du fichier open data)
+         - appel d'une api côte rod
+         - à la saisie de dans bddrenove (clavis), un appel sera fait à rod pour envoyer les infos de la structure
+         cas erreur on renouvelle l'appel  j+1 (on ne stocke pas le clavis)
+ch
+      nNou
+
+         ?? Est-ce que la mission est modfiable
+         ??
+
+
+api pacte 0::n
+[
+{
+id:
+code:
+libelle
+}
+]
+     */
 }

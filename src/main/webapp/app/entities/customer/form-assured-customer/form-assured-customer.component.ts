@@ -160,11 +160,6 @@ export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
     this.validateTiersPayantSize();
   }
 
-  valideAyantDroitSize(): void {
-    const ayantDroits = this.editForm.get('ayantDroits') as FormArray;
-    this.ayantDroitSize = ayantDroits.length < 1;
-  }
-
   searchTiersPayant(event: any): void {
     this.loadTiersPayants(event.query);
   }

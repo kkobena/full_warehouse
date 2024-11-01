@@ -138,7 +138,7 @@ export class ProductTableComponent {
     if (this.canRemoveItem) {
       this.confirmationService.confirm({
         message: ' Voullez-vous supprimer  ce produit ?',
-        header: 'RUPPRESSION DE PRODUIT ',
+        header: 'SUPPRESSION DE PRODUIT ',
         icon: 'pi pi-info-circle',
         accept: () => this.deleteItemEvent.emit(item),
         reject: () => {

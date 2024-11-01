@@ -144,6 +144,11 @@ const routes: Routes = [
     data: { pageTitle: 'Paramètres' },
     loadChildren: () => import('./parametre/app.route'),
   },
+  {
+    path: 'edition-factures',
+    data: { pageTitle: 'Gestion facturation' },
+    loadChildren: () => import('./facturation/facture.route'),
+  },
 ];
 
 export default routes;

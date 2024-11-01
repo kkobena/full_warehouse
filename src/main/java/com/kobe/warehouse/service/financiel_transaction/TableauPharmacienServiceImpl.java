@@ -40,12 +40,12 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final EntityManager entityManager;
     private final GroupeFournisseurRepository groupeFournisseurRepository;
     private final Set<Long> groupeFournisseurs = new HashSet<>();
-    private final TableauPharmacienReportService reportService;
+    private final TableauPharmacienReportReportService reportService;
 
     public TableauPharmacienServiceImpl(
         EntityManager entityManager,
         GroupeFournisseurRepository groupeFournisseurRepository,
-        TableauPharmacienReportService reportService
+        TableauPharmacienReportReportService reportService
     ) {
         this.entityManager = entityManager;
         this.groupeFournisseurRepository = groupeFournisseurRepository;

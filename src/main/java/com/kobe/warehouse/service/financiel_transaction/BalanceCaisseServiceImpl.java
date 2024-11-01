@@ -32,9 +32,9 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     private static final Logger log = LoggerFactory.getLogger(BalanceCaisseServiceImpl.class);
     private final EntityManager entityManager;
-    private final BalanceReportService balanceReportService;
+    private final BalanceReportReportService balanceReportService;
 
-    public BalanceCaisseServiceImpl(EntityManager entityManager, BalanceReportService balanceReportService) {
+    public BalanceCaisseServiceImpl(EntityManager entityManager, BalanceReportReportService balanceReportService) {
         this.entityManager = entityManager;
         this.balanceReportService = balanceReportService;
     }

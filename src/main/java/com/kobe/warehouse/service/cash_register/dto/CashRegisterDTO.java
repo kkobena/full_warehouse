@@ -28,9 +28,9 @@ public class CashRegisterDTO {
     private CashRegisterStatut statut;
     private int cashFund;
     private UserDTO updatedUser;
-    private Long estimateAmount;
-    private Long cashAmount;
-    private Long mobileAmount;
+    private long estimateAmount;
+    private long cashAmount;
+    private long mobileAmount;
     private Integer gap;
     private int canceledAmount;
 
@@ -77,7 +77,7 @@ public class CashRegisterDTO {
                 ticket.getOtherAmount(),
                 ticket.getTotalAmount()
             );
-            this.gap = (int) (this.finalAmount - ticket.getTotalAmount());
+            this.gap = (int) (ticket.getTotalAmount() - this.estimateAmount);
         }
         this.cashRegisterItems = cashRegister.getCashRegisterItems().stream().map(CashRegisterItemDTO::new).toList();
     }
@@ -208,20 +208,20 @@ public class CashRegisterDTO {
         return this;
     }
 
-    public Long getEstimateAmount() {
+    public long getEstimateAmount() {
         return estimateAmount;
     }
 
-    public CashRegisterDTO setEstimateAmount(Long estimateAmount) {
+    public CashRegisterDTO setEstimateAmount(long estimateAmount) {
         this.estimateAmount = estimateAmount;
         return this;
     }
 
-    public Long getCashAmount() {
+    public long getCashAmount() {
         return cashAmount;
     }
 
-    public CashRegisterDTO setCashAmount(Long cashAmount) {
+    public CashRegisterDTO setCashAmount(long cashAmount) {
         this.cashAmount = cashAmount;
         return this;
     }
@@ -250,13 +250,14 @@ public class CashRegisterDTO {
             .forEach(cashRegisterItem -> {
                 PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
                 this.cashRegisterItems.add(new CashRegisterItemDTO(cashRegisterItem));
-                this.estimateAmount += cashRegisterItem.getAmount();
+                long amount = Objects.requireNonNullElse(cashRegisterItem.getAmount(), 0L);
+                this.estimateAmount += amount;
                 PaymentGroup paymentGroup = paymentMode.getGroup();
                 if (paymentGroup == PaymentGroup.MOBILE) {
-                    this.mobileAmount += cashRegisterItem.getAmount();
+                    this.mobileAmount += amount;
                 }
                 if (paymentGroup == PaymentGroup.CASH) {
-                    this.cashAmount += cashRegisterItem.getAmount();
+                    this.cashAmount += amount;
                 }
             });
     }

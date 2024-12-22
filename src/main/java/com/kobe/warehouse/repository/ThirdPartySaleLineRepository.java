@@ -41,6 +41,15 @@ public interface ThirdPartySaleLineRepository
         @Param("statut") SalesStatut statut
     );
 
+    @Query(value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s WHERE s.facture_tiers_payant_id=:factureTiersPayantId", nativeQuery = true)
+    long sumMontantAttenduByFactureTiersPayantId(
+        @Param("factureTiersPayantId") Long factureTiersPayantId);
+
+
+    @Query(value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s JOIN facture_tiers_payant f ON s.facture_tiers_payant_id = f.id  WHERE f.groupe_tiers_payant_id =:factureTiersPayantId", nativeQuery = true)
+    long sumMontantAttenduGroupeFacture(
+        @Param("factureTiersPayantId") Long factureTiersPayantId);
+
     Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId,
         Long saleId);
 

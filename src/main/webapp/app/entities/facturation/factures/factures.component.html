@@ -156,7 +156,16 @@
                 }
 
                 @if (!elRow.factureProvisoire) {
-                  <p-button icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
+                  @if (factureGroup) {
+                    <p-button icon="pi pi-credit-card"
+                              [routerLink]="['/reglement-facture', elRow.factureId, 'groupes','faire-reglement']"
+                              pTooltip="Régler" severity="success" />
+                  } @else {
+                    <p-button
+                      [routerLink]="['/reglement-facture', elRow.factureId, 'individuelle','faire-reglement']"
+                      icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
+                  }
+
                 }
                 <p-button [loading]="exporting" (click)="exportPdf(elRow.factureId)"
                           icon="pi pi-file-pdf"

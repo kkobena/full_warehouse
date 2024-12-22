@@ -149,6 +149,11 @@ const routes: Routes = [
     data: { pageTitle: 'Gestion facturation' },
     loadChildren: () => import('./facturation/facture.route'),
   },
+  {
+    path: 'reglement-facture',
+    data: { pageTitle: 'Réglement de facture' },
+    loadChildren: () => import('./reglement/reglement.route'),
+  },
 ];
 
 export default routes;

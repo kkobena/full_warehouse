@@ -1,0 +1,40 @@
+<p-panel header="Menu règlement de facturations" styleClass="main-panel">
+  <div class="row entree-stock-gestion">
+    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
+
+      <p-card>
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
+             orientation="vertical">
+          <ng-container ngbNavItem="factures-reglees">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Les règlements</a>
+            <ng-template ngbNavContent>
+              <jhi-factures-reglees>
+
+              </jhi-factures-reglees>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="faire-reglement">
+            <a class="flex-sm-fill nav-link " ngbNavLink>Faire un règlement</a>
+            <ng-template ngbNavContent>
+              <jhi-faire-reglement
+                [dossierFactureProjection]="dossierFactureProjection"
+                [isGroupe]="isGroupe"
+                [reglementFactureDossiers]="reglementFactureDossiers"
+              ></jhi-faire-reglement>
+            </ng-template>
+          </ng-container>
+
+        </div>
+      </p-card>
+    </div>
+    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row reglement-facture">
+      <div [ngbNavOutlet]="nav">
+
+      </div>
+    </div>
+  </div>
+</p-panel>
+
+
+
+

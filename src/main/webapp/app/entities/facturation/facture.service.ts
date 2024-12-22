@@ -9,6 +9,7 @@ import { EditionSearchParams } from './edition-search-params.model';
 import { DossierFacture } from './dossier-facture.model';
 import { TiersPayantDossierFacture } from './tiers-payant-dossier-facture.model';
 import { FactureEditionResponse } from './facture-edition-response';
+import { DossierFactureProjection, ReglementFactureDossier } from '../reglement/model/reglement-facture-dossier.model';
 
 type EntityResponseType = HttpResponse<Facture>;
 type EntityArrayResponseType = HttpResponse<Facture[]>;
@@ -69,6 +70,28 @@ export class FactureService {
     return this.http.get(`${this.resourceUrl}/pdf`, {
       params: options,
       responseType: 'blob',
+    });
+  }
+
+  findDossierReglement(id: number, typeFacture: string, query: any): Observable<HttpResponse<ReglementFactureDossier[]>> {
+    const options = createRequestOptions(query);
+    if (typeFacture === 'groupes') {
+      return this.http.get<ReglementFactureDossier[]>(`${this.resourceUrl}/reglement/groupes/${id}`, {
+        params: options,
+        observe: 'response',
+      });
+    }
+    return this.http.get<ReglementFactureDossier[]>(`${this.resourceUrl}/reglement/single/${id}`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  findDossierFactureProjection(id: number, query: any): Observable<HttpResponse<DossierFactureProjection>> {
+    const options = createRequestOptions(query);
+    return this.http.get<DossierFactureProjection>(`${this.resourceUrl}/reglement/${id}`, {
+      params: options,
+      observe: 'response',
     });
   }
 }

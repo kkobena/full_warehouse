@@ -11,7 +11,7 @@ import { CurrentSaleService } from '../../service/current-sale.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService, Footer, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService, Footer } from 'primeng/api';
 import { ErrorService } from '../../../../shared/error.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,6 @@ import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { PreventeModalComponent } from '../../prevente-modal/prevente-modal/prevente-modal.component';
 import { SidebarModule } from 'primeng/sidebar';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { TableModule } from 'primeng/table';
@@ -59,12 +58,10 @@ import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-
     ConfirmDialogModule,
     DialogModule,
     Footer,
-    PrimeTemplate,
     AmountComputingComponent,
     DividerModule,
     DropdownModule,
     WarehouseCommonModule,
-    PreventeModalComponent,
     SidebarModule,
     RouterModule,
     NgxSpinnerModule,
@@ -90,12 +87,10 @@ import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-
     ConfirmDialogModule,
     DialogModule,
     Footer,
-    PrimeTemplate,
     AmountComputingComponent,
     DividerModule,
     DropdownModule,
     WarehouseCommonModule,
-    PreventeModalComponent,
     SidebarModule,
     RouterModule,
     NgxSpinnerModule,
@@ -117,7 +112,6 @@ import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-
     OverlayPanelModule,
     ProductTableComponent,
     ModeReglementComponent,
-    FormActionAutorisationComponent,
   ],
 })
 export class BaseSaleComponent {

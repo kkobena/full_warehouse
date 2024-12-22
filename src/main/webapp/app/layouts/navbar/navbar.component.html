@@ -363,6 +363,19 @@
                   <span>Gestion des factures</span>
                 </a>
               </li>
+              <li>
+                <a
+                  (click)="collapseNavbar()"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="dropdown-item"
+                  routerLink="/reglement-facture"
+                  routerLinkActive="active"
+                >
+                  <i class="pi pi-money-bill"></i>
+                  <span>Réglement de facture</span>
+                </a>
+              </li>
+
 
               <li>
                 <a

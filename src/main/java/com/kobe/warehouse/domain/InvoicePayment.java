@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +60,67 @@ public class InvoicePayment implements Serializable {
     @NotNull
     private CashRegister cashRegister;
 
-    @OneToMany(mappedBy = "invoicePayment")
+    @OneToMany(mappedBy = "invoicePayment", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<InvoicePaymentItem> invoicePaymentItems = new ArrayList<>();
+
+    @ManyToOne
+    private InvoicePayment parent;
+
+    @ManyToOne
+    private Banque banque;
+
+    private Boolean grouped = false;
+
+    @Column(name = "invoice_date")
+    private LocalDate invoiceDate = LocalDate.now();
+
+    @OneToMany(mappedBy = "parent", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<InvoicePayment> invoicePayments = new ArrayList<>();
+
+    public Boolean getGrouped() {
+        return grouped;
+    }
+
+    public InvoicePayment setGrouped(Boolean grouped) {
+        this.grouped = grouped;
+        return this;
+    }
+
+    public Banque getBanque() {
+        return banque;
+    }
+
+    public InvoicePayment setBanque(Banque banque) {
+        this.banque = banque;
+        return this;
+    }
+
+    public LocalDate getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public InvoicePayment setInvoiceDate(LocalDate invoiceDate) {
+        this.invoiceDate = invoiceDate;
+        return this;
+    }
+
+    public List<InvoicePayment> getInvoicePayments() {
+        return invoicePayments;
+    }
+
+    public InvoicePayment setInvoicePayments(List<InvoicePayment> invoicePayments) {
+        this.invoicePayments = invoicePayments;
+        return this;
+    }
+
+    public InvoicePayment getParent() {
+        return parent;
+    }
+
+    public InvoicePayment setParent(InvoicePayment parent) {
+        this.parent = parent;
+        return this;
+    }
 
     public @NotNull Integer getAmount() {
         return amount;

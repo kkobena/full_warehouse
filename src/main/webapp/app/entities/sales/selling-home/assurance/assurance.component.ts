@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ButtonDirective, ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { ConfirmationService, Footer, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService, Footer } from 'primeng/api';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -10,7 +10,6 @@ import { RouterModule } from '@angular/router';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { PreventeModalComponent } from '../../prevente-modal/prevente-modal/prevente-modal.component';
 import { SidebarModule } from 'primeng/sidebar';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { TableModule } from 'primeng/table';
@@ -36,12 +35,10 @@ import { BaseSaleComponent } from '../base-sale/base-sale.component';
     ConfirmDialogModule,
     DialogModule,
     Footer,
-    PrimeTemplate,
     AmountComputingComponent,
     DividerModule,
     DropdownModule,
     WarehouseCommonModule,
-    PreventeModalComponent,
     SidebarModule,
     RouterModule,
     NgxSpinnerModule,

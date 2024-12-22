@@ -9,7 +9,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IAuthority } from '../authority.model';
 import { AuthorityService } from '../service/authority.service';
-import { AuthorityFormService, AuthorityFormGroup } from './authority-form.service';
+import { AuthorityFormGroup, AuthorityFormService } from './authority-form.service';
 
 @Component({
   standalone: true,
@@ -23,10 +23,8 @@ export class AuthorityUpdateComponent implements OnInit {
 
   protected authorityService = inject(AuthorityService);
   protected authorityFormService = inject(AuthorityFormService);
-  protected activatedRoute = inject(ActivatedRoute);
-
-  // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: AuthorityFormGroup = this.authorityFormService.createAuthorityFormGroup();
+  protected activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ authority }) => {

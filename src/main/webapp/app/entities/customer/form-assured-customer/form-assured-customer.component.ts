@@ -61,7 +61,6 @@ export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
   isSaving = false;
   isValid = true;
   validSize = true;
-  ayantDroitSize = true;
   minLength = 3;
   tiersPayant!: ITiersPayant | null;
   tiersPayants: ITiersPayant[] = [];

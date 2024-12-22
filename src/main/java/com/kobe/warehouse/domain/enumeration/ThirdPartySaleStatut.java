@@ -5,4 +5,5 @@ public enum ThirdPartySaleStatut {
     HALF_PAID,
     DELETE,
     CLOSED,
+    PAID,
 }

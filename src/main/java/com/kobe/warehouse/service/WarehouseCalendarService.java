@@ -10,24 +10,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class WarehouseCalendarService {
-  private final WarehouseCalendarRepository warehouseCalendarRepository;
 
-  public WarehouseCalendarService(WarehouseCalendarRepository warehouseCalendarRepository) {
-    this.warehouseCalendarRepository = warehouseCalendarRepository;
-  }
+    private final WarehouseCalendarRepository warehouseCalendarRepository;
 
-  public WarehouseCalendar initCalendar() {
-    LocalDate now = LocalDate.now();
-    Optional<WarehouseCalendar> optionalWarehouseCalendar =
-        warehouseCalendarRepository.findById(now);
-    if (optionalWarehouseCalendar.isEmpty()) {
-
-      return warehouseCalendarRepository.save(
-          new WarehouseCalendar()
-              .setWorkDay(now)
-              .setWorkMonth(now.getMonthValue())
-              .setWorkYear(now.getYear()));
+    public WarehouseCalendarService(WarehouseCalendarRepository warehouseCalendarRepository) {
+        this.warehouseCalendarRepository = warehouseCalendarRepository;
     }
-    return optionalWarehouseCalendar.get();
-  }
+
+    public WarehouseCalendar initCalendar() {
+        LocalDate now = LocalDate.now();
+        Optional<WarehouseCalendar> optionalWarehouseCalendar = warehouseCalendarRepository.findById(now);
+        return optionalWarehouseCalendar.orElseGet(
+            () ->
+                warehouseCalendarRepository.save(
+                    new WarehouseCalendar().setWorkDay(now).setWorkMonth(now.getMonthValue()).setWorkYear(now.getYear())
+                )
+        );
+    }
 }

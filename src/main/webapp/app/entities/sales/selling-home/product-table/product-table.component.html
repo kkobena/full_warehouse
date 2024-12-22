@@ -43,8 +43,6 @@
               label="Actions sur la remise"
               [model]="actionsButtons"
               severity="warning" />
-
-
           }
 
         </div>
@@ -146,8 +144,6 @@
 
 }
 
-
-
 <p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
   <p-footer>
     <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
@@ -160,8 +156,6 @@
 </p-confirmDialog>
 <p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStock">
-
-
   <p-footer>
     <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
             pButton

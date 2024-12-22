@@ -3,7 +3,10 @@ package com.kobe.warehouse.web.rest.facturation;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
+import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
+import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
+import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
@@ -196,5 +199,27 @@ public class EditionFactureResource {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         editionService.deleteFacture(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/edition-factures/reglement/groupes/{id}")
+    public ResponseEntity<List<FacturationGroupeDossier>> getGroupReglementData(@PathVariable Long id, Pageable pageable) {
+        Page<FacturationGroupeDossier> page = editionService.findGroupeFactureReglementData(id, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/edition-factures/reglement/single/{id}")
+    public ResponseEntity<List<FacturationDossier>> getReglementData(@PathVariable Long id, Pageable pageable) {
+        Page<FacturationDossier> page = editionService.findFactureReglementData(id, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/edition-factures/reglement/{id}")
+    public ResponseEntity<DossierFactureProjection> findDossierFacture(
+        @PathVariable Long id,
+        @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
+    ) {
+        return ResponseEntity.ok().body(editionService.findDossierFacture(id, isGroup));
     }
 }

@@ -1,0 +1,16 @@
+<div>
+  @if (isGroupe) {
+    <jhi-faire-groupe-reglement
+
+      [reglementFactureDossiers]="reglementFactureDossiers"
+      [dossierFactureProjection]="dossierFactureProjection"
+
+    ></jhi-faire-groupe-reglement>
+  } @else {
+    <jhi-regelement-facture-individuelle
+      [reglementFactureDossiers]="reglementFactureDossiers"
+      [dossierFactureProjection]="dossierFactureProjection"
+    ></jhi-regelement-facture-individuelle>
+  }
+
+</div>

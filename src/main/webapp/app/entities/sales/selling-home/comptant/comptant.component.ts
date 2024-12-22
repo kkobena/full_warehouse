@@ -11,7 +11,6 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { PreventeModalComponent } from '../../prevente-modal/prevente-modal/prevente-modal.component';
 import { SidebarModule } from 'primeng/sidebar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -63,7 +62,6 @@ import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-
   ],
   imports: [
     WarehouseCommonModule,
-    PreventeModalComponent,
     SidebarModule,
     RouterModule,
     NgxSpinnerModule,
@@ -84,11 +82,9 @@ import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-
     DropdownModule,
     InputSwitchModule,
     OverlayPanelModule,
-    UninsuredCustomerListComponent,
     ProductTableComponent,
     AmountComputingComponent,
     ModeReglementComponent,
-    FormActionAutorisationComponent,
   ],
   templateUrl: './comptant.component.html',
 })

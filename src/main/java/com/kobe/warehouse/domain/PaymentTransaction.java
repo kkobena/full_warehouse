@@ -14,7 +14,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -55,10 +54,6 @@ public class PaymentTransaction implements Serializable {
 
     @Column(name = "organisme_id")
     private Long organismeId;
-
-    @Size(max = 50)
-    @Column(name = "ticket_code", length = 50)
-    private String ticketCode;
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)
@@ -188,15 +183,6 @@ public class PaymentTransaction implements Serializable {
 
     public PaymentTransaction setOrganismeId(Long organismeId) {
         this.organismeId = organismeId;
-        return this;
-    }
-
-    public String getTicketCode() {
-        return ticketCode;
-    }
-
-    public PaymentTransaction setTicketCode(String ticketCode) {
-        this.ticketCode = ticketCode;
         return this;
     }
 

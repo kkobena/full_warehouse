@@ -312,15 +312,15 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                 )
             );
         }
-        if (StringUtils.hasText(transactionFilter.search())) {
-            var search = "%" + transactionFilter.search().toLowerCase() + "%";
-            predicates.add(
-                cb.or(
-                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search),
-                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search)
-                )
-            );
-        }
+        //        if (StringUtils.hasText(transactionFilter.search())) {
+        //            var search = "%" + transactionFilter.search().toLowerCase() + "%";
+        //            predicates.add(
+        //                cb.or(
+        //                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search),
+        //                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search)
+        //                )
+        //            );
+        //        }
         if (transactionFilter.categorieChiffreAffaire() != null) {
             predicates.add(cb.equal(root.get(PaymentTransaction_.categorieChiffreAffaire), transactionFilter.categorieChiffreAffaire()));
         }

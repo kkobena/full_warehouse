@@ -30,6 +30,7 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
   }
   return EMPTY;
 };
+
 const factureRoute: Routes = [
   {
     path: '',

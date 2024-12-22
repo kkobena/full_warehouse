@@ -5,7 +5,10 @@ import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
+import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
+import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
+import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
@@ -261,4 +264,10 @@ public interface EditionDataService {
     Resource printToPdf(FactureEditionResponse factureEditionResponse);
 
     Resource printToPdf(Long id);
+
+    Page<FacturationGroupeDossier> findGroupeFactureReglementData(Long id, Pageable pageable);
+
+    Page<FacturationDossier> findFactureReglementData(Long id, Pageable pageable);
+
+    DossierFactureProjection findDossierFacture(Long id, boolean isGroup);
 }

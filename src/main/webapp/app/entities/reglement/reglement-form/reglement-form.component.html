@@ -1,0 +1,115 @@
+<form (ngSubmit)="save()" [formGroup]="reglementForm">
+  <div class="row">
+    <div class="col-2 col-sm-4 col-md-2">
+      <label class="form-check-label" for="partialPayment">Tout</label>
+      <div class="form-check form-switch form-check-reverse">
+
+        <input class="form-check-input"
+               formControlName="partialPayment" id="partialPayment"
+               role="switch" type="checkbox">
+
+      </div>
+    </div>
+    <div class=" col-10 col-sm-8 col-md-10">
+      <div class="input-group input-group-sm mb-1">
+        <span class="input-group-text">Date</span>
+        <p-calendar [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
+                    appendTo="body" dateFormat="dd/mm/yy"
+                    formControlName="paymentDate"
+                    id="datePaiement"
+                    selectOtherMonths="true"
+        />
+      </div>
+    </div>
+  </div>
+
+
+  <div class="input-group input-group-sm mb-1">
+    <span class="input-group-text">Mode de paiement</span>
+    <select class="form-control" formControlName="modePaimentCode" id="modePaiement">
+      @for (mode of paymentModes; track mode.code) {
+        <option [ngValue]="mode.code">{{ mode.libelle }}</option>
+      }
+
+    </select>
+
+
+  </div>
+  <div class="input-group input-group-sm mb-1">
+    <span class="input-group-text">Montant</span>
+    <input [readonly]="isReadOnly" [value]="defaultDefautInputAmountValue" class="form-control"
+           formControlName="amount" id="amount"
+           type="number">
+  </div>
+  @if (showBanqueInfo) {
+    <div formGroupName="banqueInfo">
+      <p-divider align="center" type="solid">
+        <b>Infos sur la banque</b>
+      </p-divider>
+      <div class="input-group input-group-sm mb-1">
+        <span class="input-group-text">Nom<span style="color:red;">*</span></span>
+        <input class="form-control" formControlName="nom" id="nom" />
+
+
+      </div>
+      @if (reglementForm.get('banqueInfo').get('nom')!.invalid && (reglementForm.get(
+        'banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
+        <div>
+          @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
+            <small class="form-text text-danger" style="color: red;">
+              Ce champ est obligatoire.
+            </small>
+          }
+
+
+        </div>
+      }
+
+      @if (reglementForm.get('modePaimentCode')!.value === CH) {
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text">Code<span style="color:red;">*</span></span>
+          <input class="form-control" formControlName="code" id="code" />
+        </div>
+        @if (reglementForm.get('banqueInfo').get('code')!.invalid && (reglementForm.get(
+          'banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get(
+          'code')!.touched)) {
+          <div>
+            @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+
+          </div>
+        }
+      }
+
+
+      <div class="input-group input-group-sm mb-1">
+        <span class="input-group-text">Bénéficiare</span>
+        <input class="form-control" formControlName="beneficiaire" id="beneficiaire" />
+      </div>
+      <!-- <div class="input-group input-group-sm mb-1">
+         <span class="input-group-text">Adresse</span>
+         <input class="form-control" formControlName="adresse" id="adresse" />
+       </div>-->
+
+
+      <!--    <div class="input-group input-group-sm mb-1">-->
+      <!--      <span class="input-group-text">Commentaire</span>-->
+      <!--      <textarea class="form-control" formControlName="comment" id="commentaire"></textarea>-->
+      <!--    </div>-->
+    </div>
+
+  }
+  <div class="d-flex justify-content-end">
+    <button [disabled]="!valid || !validMontantSaisi() || isSaving" class="btn btn-sm btn-danger"
+            type="submit">
+      <fa-icon icon="check"></fa-icon>
+      Valider
+    </button>
+  </div>
+
+
+</form>

@@ -46,7 +46,6 @@ import { MagasinService } from '../magasin/magasin.service';
     TooltipModule,
     DynamicDialogModule,
     FormsModule,
-    FormRayonComponent,
     DialogModule,
   ],
 })

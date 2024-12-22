@@ -23,11 +23,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { UninsuredCustomerListComponent } from '../uninsured-customer-list/uninsured-customer-list.component';
-import { AssuredCustomerListComponent } from '../assured-customer-list/assured-customer-list.component';
-import { AyantDroitCustomerListComponent } from '../ayant-droit-customer-list/ayant-droit-customer-list.component';
-import { TiersPayantCustomerListComponent } from '../../customer/tiers-payant-customer-list/tiers-payant-customer-list.component';
-import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ayant-droit.component';
 import { INatureVente } from '../../../shared/model/nature-vente.model';
 import { IUser, User } from '../../../core/user/user.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
@@ -50,11 +45,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
 import { HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { ProductTableComponent } from './product-table/product-table.component';
 import { CardModule } from 'primeng/card';
-import { PresaleComponent } from '../presale/presale.component';
-import { SalesComponent } from '../sales.component';
-import { VenteEnCoursComponent } from '../vente-en-cours/vente-en-cours.component';
 import { ComptantComponent } from './comptant/comptant.component';
 import { CustomerOverlayPanelComponent } from '../customer-overlay-panel/customer-overlay-panel.component';
 import { SelectedCustomerService } from '../service/selected-customer.service';
@@ -104,16 +95,7 @@ import { Authority } from '../../../shared/constants/authority.constants';
     DropdownModule,
     InputSwitchModule,
     OverlayPanelModule,
-    UninsuredCustomerListComponent,
-    AssuredCustomerListComponent,
-    AyantDroitCustomerListComponent,
-    TiersPayantCustomerListComponent,
-    FormAyantDroitComponent,
-    ProductTableComponent,
     CardModule,
-    PresaleComponent,
-    SalesComponent,
-    VenteEnCoursComponent,
     ComptantComponent,
     CustomerOverlayPanelComponent,
     InputGroupModule,

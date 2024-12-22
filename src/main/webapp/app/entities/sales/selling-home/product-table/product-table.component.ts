@@ -15,7 +15,6 @@ import { ISales } from '../../../../shared/model/sales.model';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { BaseSaleService } from '../../service/base-sale.service';
 import { Authority } from '../../../../shared/constants/authority.constants';
-import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-dialog.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 export type RemiseSignal = 'add' | 'remove' | 'update';
@@ -30,9 +29,7 @@ export type RemiseSignal = 'add' | 'remove' | 'update';
     ButtonModule,
     RippleModule,
     TooltipModule,
-    AlertInfoComponent,
     ConfirmDialogModule,
-    RemiseListDialogComponent,
     SplitButtonModule,
     NgbAlertModule,
   ],

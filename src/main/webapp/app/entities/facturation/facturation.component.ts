@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ButtonDirective, ButtonModule } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
@@ -20,7 +20,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   providers: [ConfirmationService, DialogService, MessageService],
   imports: [
     WarehouseCommonModule,
-    ButtonDirective,
     CardModule,
     InputTextModule,
     NgbNav,

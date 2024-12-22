@@ -14,7 +14,10 @@ import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
+import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
+import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
+import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
@@ -195,6 +198,24 @@ public class EditionDataServiceImpl implements EditionDataService {
         return this.groupeFactureReportService.printToPdf(buildGroupeFactureDtoFromEntity(factureTiersPayant));
     }
 
+    @Override
+    public Page<FacturationGroupeDossier> findGroupeFactureReglementData(Long id, Pageable pageable) {
+        return this.facturationRepository.findGroupeFactureById(id, pageable);
+    }
+
+    @Override
+    public Page<FacturationDossier> findFactureReglementData(Long id, Pageable pageable) {
+        return this.facturationRepository.findFacturationDossierByFactureId(id, pageable);
+    }
+
+    @Override
+    public DossierFactureProjection findDossierFacture(Long id, boolean isGroup) {
+        if (isGroup) {
+            return this.facturationRepository.findGroupDossierFacture(id);
+        }
+        return this.facturationRepository.findSingleDossierFacture(id);
+    }
+
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
         Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = Specification.where(
             this.thirdPartySaleLineRepository.canceledCriteria()
@@ -257,16 +278,17 @@ public class EditionDataServiceImpl implements EditionDataService {
         Pageable pageable
     ) {
         List<TiersPayantDossierFactureDto> factureDtos = new ArrayList<>();
-        getEditionDatas(editionSearchParams, pageable).forEach(t -> {
-            factureDtos.add(
-                new TiersPayantDossierFactureDto(
-                    t.get("tiersPayantId", Long.class),
-                    t.get("tiersPayantName", String.class),
-                    t.get("totalAmount", BigDecimal.class),
-                    t.get("factureItemCount", Long.class).intValue()
+        getEditionDatas(editionSearchParams, pageable).forEach(
+            t ->
+                factureDtos.add(
+                    new TiersPayantDossierFactureDto(
+                        t.get("tiersPayantId", Long.class),
+                        t.get("tiersPayantName", String.class),
+                        t.get("totalAmount", BigDecimal.class),
+                        t.get("factureItemCount", Long.class).intValue()
+                    )
                 )
-            );
-        });
+        );
         return factureDtos;
     }
 

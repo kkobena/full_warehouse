@@ -76,14 +76,6 @@ export class RemiseComponent implements OnInit {
       validators: [Validators.min(0), Validators.required],
       nonNullable: true,
     }),
-    /* begin: new FormControl<Date | null>(null, {
-      validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
-    }),
-    end: new FormControl<Date | null>(null, {
-      validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
-    }), */
   });
 
   constructor(

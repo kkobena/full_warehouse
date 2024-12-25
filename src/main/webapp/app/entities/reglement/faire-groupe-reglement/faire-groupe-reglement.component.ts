@@ -1,4 +1,4 @@
-import { Component, computed, Input, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, Input, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { LigneSelectionnes, ModeEditionReglement, ReglementParams } from '../model/reglement.model';
@@ -13,12 +13,17 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { ReglementService } from '../reglement.service';
+import { ConfirmationService } from 'primeng/api';
+import { ErrorService } from '../../../shared/error.service';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
   standalone: true,
+  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     TableModule,
@@ -48,6 +53,10 @@ export class FaireGroupeReglementComponent {
   dossierIds = computed(() => {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
+  reglementService = inject(ReglementService);
+  modalService = inject(NgbModal);
+  confirmationService = inject(ConfirmationService);
+  errorService = inject(ErrorService);
   protected showSidebar = false;
   protected partialPayment = false;
   protected isSaving = false;
@@ -55,6 +64,20 @@ export class FaireGroupeReglementComponent {
 
   openSideBar(): void {
     this.showSidebar = true;
+  }
+
+  openInfoDialog(message: string, infoClass: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.infoClass = infoClass;
+  }
+
+  onError(error: any): void {
+    this.isSaving = false;
+    this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 
   protected onPartielReglement(evt: boolean): void {
@@ -71,10 +94,12 @@ export class FaireGroupeReglementComponent {
   }
 
   protected onSaveReglement(params: ReglementParams): void {
-    // this.isSaving = true;
-    console.log(params);
-    const reglementParams = this.buildReglementParams(params);
-    console.log(reglementParams);
+    this.reglementService.doReglement(this.buildReglementParams(params)).subscribe({
+      next: res => {
+        this.isSaving = false;
+      },
+      error: err => this.onError(err),
+    });
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {
@@ -90,7 +115,6 @@ export class FaireGroupeReglementComponent {
   }
 
   private getModeEditionReglement(): ModeEditionReglement {
-    console.log(this.partialPayment);
     return this.partialPayment ? ModeEditionReglement.GROUPE_PARTIEL : ModeEditionReglement.GROUPE_TOTAL;
   }
 
@@ -101,6 +125,7 @@ export class FaireGroupeReglementComponent {
           id: d.id,
           montantAttendu: d.montantTotal - d.montantPaye,
           montantVerse: d.montantVerse,
+          montantFacture: this.dossierFactureProjection.montantTotal,
         };
       });
     }

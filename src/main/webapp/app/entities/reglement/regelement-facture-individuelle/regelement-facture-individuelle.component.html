@@ -108,7 +108,8 @@
                           [allSelection]="checkbox()?.checked"
                           [dossierIds]="dossierIds()"
                           [facture]="dossierFactureProjection"
-                          [montantAPayer]="montantAPayer()"
+                          [isSaving]="isSaving"
+                          [montantAPayer]="totalAmount"
                           [typeFacture]="ModeEditionReglement.SINGLE">
 
       </jhi-reglement-form>

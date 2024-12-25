@@ -9,6 +9,9 @@ export class Banque {
 
 export class ReglementParams {
   amount?: number;
+  id: number;
+  montantFacture: number;
+  totalAmount?: number;
   amountToPaid?: number;
   comment?: string;
   mode?: ModeEditionReglement;
@@ -24,6 +27,12 @@ export class LigneSelectionnes {
   id: number;
   montantVerse: number;
   montantAttendu: number;
+  montantFacture: number;
+}
+
+export class ResponseReglement {
+  id: number;
+  total: boolean;
 }
 
 export enum ModeEditionReglement {

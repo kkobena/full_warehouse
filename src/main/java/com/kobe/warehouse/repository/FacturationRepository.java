@@ -62,7 +62,7 @@ public interface FacturationRepository extends JpaRepository<FactureTiersPayant,
 
     @Query(value =
         " SELECT f.id AS id,f.created AS facturationDate,  COUNT(items.id) as itemCount, f.montant_regle AS montantPaye, SUM(items.montantTotal) AS montantTotal, SUM(items.montantPaye) AS montantDetailRegle,tp.categorie AS categorie,tp.name  AS name,f.num_facture AS numFacture from  facture_tiers_payant f JOIN  tiers_payant tp ON f.tiers_payant_id = tp.id"
-            + " JOIN (SELECT t.id, t.facture_tiers_payant_id,t.montant_regle  AS montantPaye,t.montant  AS montantTotal FROM third_party_sale_line t   WHERE t.statut NOT IN ('PAID') AND t.facture_tiers_payant_id  IS NOT NULL ) as items ON f.id=items.facture_tiers_payant_id   WHERE f.id =:id  ", nativeQuery = true)
+            + " JOIN (SELECT t.id, t.facture_tiers_payant_id,t.montant_regle  AS montantPaye,t.montant  AS montantTotal FROM third_party_sale_line t   WHERE  t.facture_tiers_payant_id  IS NOT NULL ) as items ON f.id=items.facture_tiers_payant_id   WHERE f.statut NOT IN ('PAID') AND  f.id =:id  ", nativeQuery = true)
     DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id
     );
 }

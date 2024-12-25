@@ -37,7 +37,9 @@
   </div>
   <div class="input-group input-group-sm mb-1">
     <span class="input-group-text">Montant</span>
-    <input [readonly]="isReadOnly" [value]="defaultDefautInputAmountValue" class="form-control"
+    <input [readonly]="isReadOnly"
+           autocomplete="off"
+           class="form-control"
            formControlName="amount" id="amount"
            type="number">
   </div>
@@ -48,9 +50,7 @@
       </p-divider>
       <div class="input-group input-group-sm mb-1">
         <span class="input-group-text">Nom<span style="color:red;">*</span></span>
-        <input class="form-control" formControlName="nom" id="nom" />
-
-
+        <input autocomplete="off" class="form-control" formControlName="nom" id="nom" />
       </div>
       @if (reglementForm.get('banqueInfo').get('nom')!.invalid && (reglementForm.get(
         'banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
@@ -60,15 +60,13 @@
               Ce champ est obligatoire.
             </small>
           }
-
-
         </div>
       }
 
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
         <div class="input-group input-group-sm mb-1">
-          <span class="input-group-text">Code<span style="color:red;">*</span></span>
-          <input class="form-control" formControlName="code" id="code" />
+          <span class="input-group-text">Numéro<span style="color:red;">*</span></span>
+          <input autocomplete="off" class="form-control" formControlName="code" id="code" />
         </div>
         @if (reglementForm.get('banqueInfo').get('code')!.invalid && (reglementForm.get(
           'banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get(
@@ -79,8 +77,6 @@
                 Ce champ est obligatoire.
               </small>
             }
-
-
           </div>
         }
       }
@@ -88,27 +84,27 @@
 
       <div class="input-group input-group-sm mb-1">
         <span class="input-group-text">Bénéficiare</span>
-        <input class="form-control" formControlName="beneficiaire" id="beneficiaire" />
+        <input autocomplete="off" class="form-control" formControlName="beneficiaire"
+               id="beneficiaire" />
       </div>
-      <!-- <div class="input-group input-group-sm mb-1">
-         <span class="input-group-text">Adresse</span>
-         <input class="form-control" formControlName="adresse" id="adresse" />
-       </div>-->
 
-
-      <!--    <div class="input-group input-group-sm mb-1">-->
-      <!--      <span class="input-group-text">Commentaire</span>-->
-      <!--      <textarea class="form-control" formControlName="comment" id="commentaire"></textarea>-->
-      <!--    </div>-->
     </div>
 
   }
   <div class="d-flex justify-content-end">
     <button [disabled]="!valid || !validMontantSaisi() || isSaving" class="btn btn-sm btn-danger"
             type="submit">
-      <fa-icon icon="check"></fa-icon>
-      Valider
+      @if (isSaving) {
+        <span aria-hidden="true" class="spinner-border spinner-border-sm"></span>
+        <span role="status">Traitement...</span>
+      } @else {
+        <fa-icon icon="check"></fa-icon>
+        Valider
+      }
+
+
     </button>
+
   </div>
 
 

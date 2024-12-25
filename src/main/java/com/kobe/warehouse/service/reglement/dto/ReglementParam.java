@@ -8,6 +8,8 @@ import java.util.List;
 
 public class ReglementParam {
 
+    private long id;
+
     @NotNull
     private ModeEditionReglement mode;
 
@@ -20,6 +22,35 @@ public class ReglementParam {
     private String comment;
     private List<Long> dossierIds = new ArrayList<>();
     private List<LigneSelectionnesDTO> ligneSelectionnes = new ArrayList<>();
+    private int totalAmount;
+    private int montantFacture;
+
+    public int getMontantFacture() {
+        return montantFacture;
+    }
+
+    public ReglementParam setMontantFacture(int montantFacture) {
+        this.montantFacture = montantFacture;
+        return this;
+    }
+
+    public int getTotalAmount() {
+        return totalAmount;
+    }
+
+    public ReglementParam setTotalAmount(int totalAmount) {
+        this.totalAmount = totalAmount;
+        return this;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public ReglementParam setId(long id) {
+        this.id = id;
+        return this;
+    }
 
     public int getAmount() {
         return amount;

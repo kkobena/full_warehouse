@@ -9,6 +9,7 @@ import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,5 +87,6 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         } else {
             factureTiersPayant.setStatut(InvoiceStatut.PAID);
         }
+        factureTiersPayant.setUpdated(LocalDateTime.now());
     }
 }

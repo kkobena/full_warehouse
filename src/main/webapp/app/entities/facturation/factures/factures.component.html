@@ -145,7 +145,7 @@
             <td class="text-right">{{ elRow.montantRegle | number }}</td>
             <td class="text-right">{{ elRow.montantRestant | number }}</td>
             <td>{{ elRow.created | date :'dd/MM/yy HH:mm' }}</td>
-            <td style="text-align: center;">
+            <td style="text-align: right;">
               <div class="btn-group" role="group">
                 @if (factureGroup) {
                   <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info"
@@ -155,7 +155,7 @@
                             (click)="onOpenDetail(elRow)" />
                 }
 
-                @if (!elRow.factureProvisoire) {
+                @if (!elRow.factureProvisoire && elRow.statut !== 'PAID') {
                   @if (factureGroup) {
                     <p-button icon="pi pi-credit-card"
                               [routerLink]="['/reglement-facture', elRow.factureId, 'groupes','faire-reglement']"

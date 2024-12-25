@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DossierFactureProjection } from '../model/reglement-facture-dossier.model';
 import { ModeEditionReglement, ReglementParams } from '../model/reglement.model';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
@@ -17,6 +17,7 @@ import { DATE_FORMAT } from '../../../shared/constants/input.constants';
 @Component({
   selector: 'jhi-reglement-form',
   standalone: true,
+
   imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
   templateUrl: './reglement-form.component.html',
 })
@@ -39,11 +40,18 @@ export class ReglementFormComponent implements AfterViewInit {
   primeNGConfig = inject(PrimeNGConfig);
   montantSaisi = signal(0);
   validMontantSaisi = computed(() => {
+    if (this.isGroup) {
+      return this.montantSaisi() >= this.montantAPayer;
+    } else if (this.allSelection) {
+      return this.montantSaisi() > 0;
+    }
+
     return this.montantSaisi() >= this.montantAPayer;
   });
   monnaie = computed(() => {
     return this.montantAPayer - this.montantVerse;
   });
+
   protected paymentModes: IPaymentMode[] = [];
   protected readonly statuts = INVOICES_STATUT;
   private fb = inject(FormBuilder);
@@ -62,10 +70,7 @@ export class ReglementFormComponent implements AfterViewInit {
       nonNullable: true,
     }),
     paymentDate: new FormControl<Date | null>(null, {}),
-    /*
-    Cheque, numeroCheque, banque, beneficiaire
-    virement, nom de la banque
-     */
+
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, {
         validators: [Validators.required],
@@ -75,7 +80,6 @@ export class ReglementFormComponent implements AfterViewInit {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      /*  adresse: new FormControl<string | null>(null, {}), */
       beneficiaire: new FormControl<string | null>(null, {}),
     }),
   });
@@ -86,11 +90,14 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get isReadOnly(): boolean {
-    return !this.isPartialPayment;
+    if (this.isGroup) {
+      return !this.isPartialPayment;
+    }
+    return !this.isPartialPayment && this.allSelection;
   }
 
-  get cashInput(): number {
-    return this.reglementForm.get('amount')?.value;
+  get isGroup(): boolean {
+    return this.typeFacture === ModeEditionReglement.GROUP;
   }
 
   get valid(): boolean {
@@ -148,17 +155,24 @@ export class ReglementFormComponent implements AfterViewInit {
     return 0;
   }
 
+  get cashInput(): AbstractControl<number | null> {
+    return this.reglementForm.get('amount');
+  }
+
   ngAfterViewInit() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
-    const defaultMode = this.CH;
+
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
         this.paymentModes = res.body;
-        this.reglementForm.get('modePaimentCode')?.setValue(this.paymentModes?.find(mode => mode.code === defaultMode)?.code);
+        this.setDefaultModeReglement();
       }
+    });
+    this.reglementForm.get('amount')?.valueChanges.subscribe(value => {
+      this.montantSaisi.set(value);
     });
     setTimeout(() => {
       this.reglementForm.get('amount')?.setValue(this.initTotalAmount);
@@ -179,7 +193,6 @@ export class ReglementFormComponent implements AfterViewInit {
           this.banqueInfo?.get('code')?.clearValidators();
           this.banqueInfo?.get('code')!.updateValueAndValidity();
         }
-        // if cheque, numero obligatoire, beneficiaire obligatoire
       } else {
         this.banqueInfo?.reset();
         this.banqueInfo?.get('nom')?.clearValidators();
@@ -188,18 +201,26 @@ export class ReglementFormComponent implements AfterViewInit {
         this.banqueInfo?.get('code')!.updateValueAndValidity();
       }
     });
-    this.reglementForm.get('amount')?.valueChanges.subscribe(value => {
-      this.montantSaisi.set(value);
-    });
+  }
+
+  reset(): void {
+    this.reglementForm.reset();
+    this.setDefaultModeReglement();
+    this.reglementForm.get('partialPayment')?.setValue(true);
   }
 
   protected save(): void {
     this.reglementParams.emit(this.createFromForm());
   }
 
+  private setDefaultModeReglement(): void {
+    this.reglementForm.get('modePaimentCode')?.setValue(this.paymentModes?.find(mode => mode.code === this.CH)?.code);
+  }
+
   private createFromForm(): ReglementParams {
     const paymentDate = this.reglementForm.get('paymentDate')?.value;
     const allMode = this.reglementForm.get('partialPayment')?.value;
+    console.log(this.reglementForm.get('amount')?.value, this.montantSaisi());
     return {
       amount: this.reglementForm.get('amount')?.value,
       modePaimentCode: this.reglementForm.get('modePaimentCode')?.value,
@@ -207,6 +228,9 @@ export class ReglementFormComponent implements AfterViewInit {
       banqueInfo: this.showBanqueInfo ? this.banqueInfo?.getRawValue() : null,
       amountToPaid: this.montantPayer,
       paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
+      totalAmount: this.initTotalAmount,
+      id: this.facture.id,
+      montantFacture: this.facture.montantTotal,
     };
   }
 }

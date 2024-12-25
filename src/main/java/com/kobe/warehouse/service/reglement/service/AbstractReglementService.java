@@ -10,10 +10,10 @@ import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
-import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -22,6 +22,8 @@ import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,7 @@ public abstract class AbstractReglementService implements ReglementService {
     private final FacturationRepository facturationRepository;
     private final WarehouseCalendarService warehouseCalendarService;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final InvoicePaymentItemRepository invoicePaymentItemRepository;
+
     private final BanqueRepository banqueRepository;
 
     protected AbstractReglementService(
@@ -49,7 +51,6 @@ public abstract class AbstractReglementService implements ReglementService {
         FacturationRepository facturationRepository,
         WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        InvoicePaymentItemRepository invoicePaymentItemRepository,
         BanqueRepository banqueRepository
     ) {
         this.cashRegisterService = cashRegisterService;
@@ -59,7 +60,6 @@ public abstract class AbstractReglementService implements ReglementService {
         this.facturationRepository = facturationRepository;
         this.warehouseCalendarService = warehouseCalendarService;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-        this.invoicePaymentItemRepository = invoicePaymentItemRepository;
         this.banqueRepository = banqueRepository;
     }
 
@@ -98,6 +98,13 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected void updateThirdPartyLine(ThirdPartySaleLine thirdPartySaleLine, int amount) {
         thirdPartySaleLine.setMontantRegle(thirdPartySaleLine.getMontantRegle() + amount);
+        thirdPartySaleLine.setEffectiveUpdateDate(LocalDateTime.now());
+        thirdPartySaleLine.setUpdated(thirdPartySaleLine.getEffectiveUpdateDate());
+        if (thirdPartySaleLine.getMontant() <= thirdPartySaleLine.getMontantRegle()) {
+            thirdPartySaleLine.setStatut(ThirdPartySaleStatut.PAID);
+        } else {
+            thirdPartySaleLine.setStatut(ThirdPartySaleStatut.HALF_PAID);
+        }
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
@@ -105,7 +112,7 @@ public abstract class AbstractReglementService implements ReglementService {
         invoicePayment.setBanque(buildBanque(reglementParam.getBanqueInfo()));
         invoicePayment.setFactureTiersPayant(factureTiersPayant);
         invoicePayment.setCashRegister(getCashRegister());
-        invoicePayment.setInvoiceDate(reglementParam.getPaymentDate());
+        invoicePayment.setInvoiceDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
         invoicePayment.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
         return invoicePayment;
     }
@@ -124,14 +131,15 @@ public abstract class AbstractReglementService implements ReglementService {
         return new PaymentMode().code(mode.name());
     }
 
-    protected void updateFactureTiersPayant(FactureTiersPayant factureTiersPayant, int amount, int paidAmount) {
+    protected void updateFactureTiersPayant(FactureTiersPayant factureTiersPayant, int paidAmount) {
         factureTiersPayant.setMontantRegle(Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0) + paidAmount);
-        if (factureTiersPayant.getMontantRegle() >= amount) {
+        /*if (factureTiersPayant.getMontantRegle() >= amount) {
             factureTiersPayant.setStatut(InvoiceStatut.PAID);
         } else {
             factureTiersPayant.setStatut(InvoiceStatut.PARTIALLY_PAID);
-        }
+        }*/
         factureTiersPayant.setUser(userService.getUser());
+        factureTiersPayant.setUpdated(LocalDateTime.now());
     }
 
     protected InvoicePayment saveInvoicePayment(InvoicePayment invoicePayment) {
@@ -146,18 +154,24 @@ public abstract class AbstractReglementService implements ReglementService {
         thirdPartySaleLineRepository.saveAll(thirdPartySaleLines);
     }
 
-    protected void saveItems(List<InvoicePaymentItem> items) {
-        invoicePaymentItemRepository.saveAll(items);
-    }
-
     protected Banque buildBanque(BanqueInfoDTO banqueInfo) {
         if (Objects.isNull(banqueInfo)) {
             return null;
         }
-        return banqueRepository.save(new Banque().setNom(banqueInfo.getNom()).setAdresse(banqueInfo.getAdresse()));
+        return banqueRepository.save(
+            new Banque().setCode(banqueInfo.getCode()).setNom(banqueInfo.getNom()).setBeneficiaire(banqueInfo.getBeneficiaire())
+        );
     }
 
     protected void saveInvoicePayments(List<InvoicePayment> items) {
         invoicePaymentRepository.saveAll(items);
+    }
+
+    protected void updateStatut(FactureTiersPayant factureTiersPayant, int montantFacture) {
+        if (Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0) < montantFacture) {
+            factureTiersPayant.setStatut(InvoiceStatut.PARTIALLY_PAID);
+        } else {
+            factureTiersPayant.setStatut(InvoiceStatut.PAID);
+        }
     }
 }

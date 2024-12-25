@@ -2,15 +2,16 @@ package com.kobe.warehouse.service.reglement.dto;
 
 public class LigneSelectionnesDTO {
 
-    private int id;
+    private long id;
     private int montantVerse;
     private int montantAttendu;
+    private int montantFacture;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public LigneSelectionnesDTO setId(int id) {
+    public LigneSelectionnesDTO setId(long id) {
         this.id = id;
         return this;
     }
@@ -30,6 +31,15 @@ public class LigneSelectionnesDTO {
 
     public LigneSelectionnesDTO setMontantVerse(int montantVerse) {
         this.montantVerse = montantVerse;
+        return this;
+    }
+
+    public int getMontantFacture() {
+        return montantFacture;
+    }
+
+    public LigneSelectionnesDTO setMontantFacture(int montantFacture) {
+        this.montantFacture = montantFacture;
         return this;
     }
 }

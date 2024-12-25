@@ -3,9 +3,9 @@ package com.kobe.warehouse.service.reglement.service;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
+import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
-import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -33,7 +33,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         FacturationRepository facturationRepository,
         WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        InvoicePaymentItemRepository invoicePaymentItemRepository,
         BanqueRepository banqueRepository
     ) {
         super(
@@ -44,7 +43,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             facturationRepository,
             warehouseCalendarService,
             thirdPartySaleLineRepository,
-            invoicePaymentItemRepository,
             banqueRepository
         );
         this.facturationRepository = facturationRepository;
@@ -57,6 +55,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         int montantPaye = 0;
         int totalAmount = 0;
+
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
             totalAmount = thirdParty.getMontant();
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
@@ -64,10 +63,9 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
         }
-        if (montantPaye > reglementParam.getAmount()) {
-            throw new PaymentAmountException();
-        }
-        super.updateFactureTiersPayant(factureTiersPayant, totalAmount, montantPaye);
+
+        super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
+        super.updateStatut(factureTiersPayant, reglementParam.getMontantFacture());
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setAmount(montantPaye);
@@ -75,11 +73,11 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         invoicePayment.setRestToPay(totalAmount - montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
-        return new ResponseReglementDTO(invoicePayment.getId());
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
     private FactureTiersPayant getFactureTiersPayant(ReglementParam reglementParam) {
-        return facturationRepository.findById(reglementParam.getDossierIds().getFirst()).orElseThrow();
+        return facturationRepository.findById(reglementParam.getId()).orElseThrow();
     }
 
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {
@@ -93,7 +91,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
         }
-        super.updateFactureTiersPayant(factureTiersPayant, totalAmount, montantPaye);
+        super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setAmount(montantPaye);

@@ -2,9 +2,9 @@ package com.kobe.warehouse.service.reglement.service;
 
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
+import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
-import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -36,7 +36,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         FacturationRepository facturationRepository,
         WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        InvoicePaymentItemRepository invoicePaymentItemRepository,
         BanqueRepository banqueRepository,
         ReglementFactureModeAllService reglementFactureModeAllService
     ) {
@@ -48,7 +47,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             facturationRepository,
             warehouseCalendarService,
             thirdPartySaleLineRepository,
-            invoicePaymentItemRepository,
             banqueRepository
         );
         this.facturationRepository = facturationRepository;
@@ -58,8 +56,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
-        FactureTiersPayant factureTiersPayant =
-            this.facturationRepository.findById(reglementParam.getDossierIds().getFirst()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(reglementParam.getId()).orElseThrow();
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         int montantPaye = 0;
@@ -69,13 +66,18 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         if (totalAmount > reglementParam.getAmount()) {
             throw new PaymentAmountException();
         }
+        boolean partielPayment = false;
         for (FactureTiersPayant item : factureTiersPayant.getFactureTiersPayants()) {
             var invoicePaymentItem = this.reglementFactureModeAllService.doReglement(invoicePayment, item);
             montantPaye += invoicePaymentItem.getPaidAmount();
             invoicePayments.add(invoicePaymentItem);
+            if (item.getStatut() == InvoiceStatut.PARTIALLY_PAID) {
+                partielPayment = true;
+            }
         }
 
-        super.updateFactureTiersPayant(factureTiersPayant, totalAmount, montantPaye);
+        super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
+        factureTiersPayant.setStatut(partielPayment ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
@@ -86,6 +88,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         }
         super.saveInvoicePayments(invoicePayments);
         super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
-        return new ResponseReglementDTO(invoicePayment.getId());
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

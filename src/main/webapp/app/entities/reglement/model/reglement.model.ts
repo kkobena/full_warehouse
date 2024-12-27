@@ -1,3 +1,5 @@
+import { Facture } from '../../facturation/facture.model';
+
 export class Reglement {}
 
 export class Banque {
@@ -52,14 +54,12 @@ export enum ModeEditionReglement {
    * Reglement partiel facture groupée
    */
   GROUPE_PARTIEL = 'GROUPE_PARTIEL',
-  /**
-   * Reglement partiel de toutes les  factures selectionnées
-   */
-  FACTURE_PARTIEL_ALL = 'FACTURE_PARTIEL_ALL',
-  /**
-   * Reglement partiel de toutes les  factures groupées selectionnées
-   */
-  GROUPE_PARTIEL_ALL = 'GROUPE_PARTIEL_ALL',
+
   GROUP = 'GROUP',
   SINGLE = 'SINGLE',
+}
+
+export class SelectedFacture {
+  isGroup: boolean;
+  facture: Facture;
 }

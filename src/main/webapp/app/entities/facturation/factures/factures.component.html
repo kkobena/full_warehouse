@@ -49,7 +49,7 @@
           </p-floatLabel>
         </div>
         <div class="p-1">
-          <select [(ngModel)]="statut" class="form-select">
+          <select (change)="onSearch()" [(ngModel)]="statut" class="form-select">
             @for (mode of statuts; track mode.code) {
               <option [ngValue]="mode.code">{{ mode.value }}</option>
             }

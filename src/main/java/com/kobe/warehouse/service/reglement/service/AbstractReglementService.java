@@ -108,13 +108,13 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
-        InvoicePayment invoicePayment = new InvoicePayment();
-        invoicePayment.setBanque(buildBanque(reglementParam.getBanqueInfo()));
-        invoicePayment.setFactureTiersPayant(factureTiersPayant);
-        invoicePayment.setCashRegister(getCashRegister());
-        invoicePayment.setInvoiceDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
-        invoicePayment.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
-        return invoicePayment;
+        return new InvoicePayment()
+            .setBanque(buildBanque(reglementParam.getBanqueInfo()))
+            .setFactureTiersPayant(factureTiersPayant)
+            .setCashRegister(getCashRegister())
+            .setMontantVerse(reglementParam.getAmount())
+            .setInvoiceDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()))
+            .setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, InvoicePayment paymentParent) {

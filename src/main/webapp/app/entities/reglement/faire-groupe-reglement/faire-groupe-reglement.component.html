@@ -3,7 +3,9 @@
     <span class="font-semibold text-xl">Factures</span>
   </ng-template>
   <ng-template pTemplate="content">
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false">
 
+    </jhi-factues-modal>
   </ng-template>
 </p-sidebar>
 
@@ -37,10 +39,7 @@
 
           </div>
 
-          <div>
-            <p-button (click)="openSideBar()" icon="pi pi-search" label="Rechercher une facture"
-                      styleClass="p-button-secondary p-button-sm"></p-button>
-          </div>
+
         </div>
 
 
@@ -86,7 +85,7 @@
             {{ item.montantPaye |number }}
 
           </td>
-          @if (partialPayment) {
+          @if (isInputEditable(item)) {
             <td pEditableColumn
                 class="amount-column">
               <p-cellEditor>
@@ -123,7 +122,15 @@
     </p-table>
   </div>
   <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
-    <p-fieldset [toggleable]="true" legend="Formulaire réglement">
+    <p-fieldset>
+      <ng-template pTemplate="header">
+        <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
+          <span>Formulaire réglement</span>
+          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
+                    styleClass="p-button-secondary p-button-sm"></p-button>
+
+        </div>
+      </ng-template>
       <jhi-reglement-form (partialPayment)="onPartielReglement($event)"
                           (reglementParams)="onSaveReglement($event)"
                           [allSelection]="checkbox()?.checked"

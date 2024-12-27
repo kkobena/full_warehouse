@@ -60,6 +60,9 @@ public class InvoicePayment implements Serializable {
     @NotNull
     private CashRegister cashRegister;
 
+    @Column(name = "montant_verse")
+    private Integer montantVerse;
+
     @OneToMany(mappedBy = "invoicePayment", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<InvoicePaymentItem> invoicePaymentItems = new ArrayList<>();
 
@@ -101,6 +104,15 @@ public class InvoicePayment implements Serializable {
 
     public InvoicePayment setInvoiceDate(LocalDate invoiceDate) {
         this.invoiceDate = invoiceDate;
+        return this;
+    }
+
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public InvoicePayment setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
         return this;
     }
 

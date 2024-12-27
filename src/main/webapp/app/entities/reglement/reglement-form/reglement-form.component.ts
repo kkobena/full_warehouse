@@ -38,9 +38,13 @@ export class ReglementFormComponent implements AfterViewInit {
   maxDate = new Date();
   translate = inject(TranslateService);
   primeNGConfig = inject(PrimeNGConfig);
+
   montantSaisi = signal(0);
   validMontantSaisi = computed(() => {
     if (this.isGroup) {
+      if (this.allSelection) {
+        return this.montantSaisi() > 0;
+      }
       return this.montantSaisi() >= this.montantAPayer;
     } else if (this.allSelection) {
       return this.montantSaisi() > 0;
@@ -180,6 +184,9 @@ export class ReglementFormComponent implements AfterViewInit {
 
     this.reglementForm.get('partialPayment')?.valueChanges.subscribe(value => {
       this.partialPayment.emit(!value);
+      /* if (value) {
+        this.reglementForm.get('amount')?.setValue(this.initTotalAmount);
+      } */
     });
     this.reglementForm.get('modePaimentCode')?.valueChanges.subscribe(value => {
       this.reglementForm.get('amount')?.setValue(this.defaultDefautInputAmountValue);
@@ -220,7 +227,6 @@ export class ReglementFormComponent implements AfterViewInit {
   private createFromForm(): ReglementParams {
     const paymentDate = this.reglementForm.get('paymentDate')?.value;
     const allMode = this.reglementForm.get('partialPayment')?.value;
-    console.log(this.reglementForm.get('amount')?.value, this.montantSaisi());
     return {
       amount: this.reglementForm.get('amount')?.value,
       modePaimentCode: this.reglementForm.get('modePaimentCode')?.value,

@@ -1,7 +1,7 @@
-import { Component, computed, inject, Input, signal, viewChild } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
-import { LigneSelectionnes, ModeEditionReglement, ReglementParams } from '../model/reglement.model';
+import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -19,6 +19,9 @@ import { ReglementService } from '../reglement.service';
 import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { FactureService } from '../../facturation/facture.service';
+import { HttpResponse } from '@angular/common/http';
+import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
@@ -39,6 +42,7 @@ import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
     DossierReglementInfoComponent,
     ReglementFormComponent,
     FormsModule,
+    FactuesModalComponent,
   ],
   templateUrl: './faire-groupe-reglement.component.html',
 })
@@ -53,10 +57,13 @@ export class FaireGroupeReglementComponent {
   dossierIds = computed(() => {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
+  reglementFormComponent = viewChild(ReglementFormComponent);
   reglementService = inject(ReglementService);
   modalService = inject(NgbModal);
   confirmationService = inject(ConfirmationService);
   errorService = inject(ErrorService);
+  factureService = inject(FactureService);
+  @Output() selectedFacture = new EventEmitter<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected isSaving = false;
@@ -80,8 +87,17 @@ export class FaireGroupeReglementComponent {
     this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 
+  onSelectFacture(facture: SelectedFacture): void {
+    this.selectedFacture.emit(facture);
+    this.showSidebar = false;
+  }
+
   protected onPartielReglement(evt: boolean): void {
     this.partialPayment = evt;
+    this.factureDossierSelectionnes().forEach(d => {
+      this.reglementFactureDossiers.find(r => r.id === d.id).montantVerse = d.montantTotal - d.montantDetailRegle;
+    });
+
     this.factureDossierSelectionnes.set([]);
   }
 
@@ -94,12 +110,20 @@ export class FaireGroupeReglementComponent {
   }
 
   protected onSaveReglement(params: ReglementParams): void {
+    //  console.error(this.buildReglementParams(params));
     this.reglementService.doReglement(this.buildReglementParams(params)).subscribe({
       next: res => {
         this.isSaving = false;
+        if (res.body) {
+          this.onPrintReceipt(res.body);
+        }
       },
       error: err => this.onError(err),
     });
+  }
+
+  protected isInputEditable(item: ReglementFactureDossier): boolean {
+    return this.partialPayment && this.factureDossierSelectionnes()?.some(r => r.id === item.id);
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {
@@ -130,5 +154,50 @@ export class FaireGroupeReglementComponent {
       });
     }
     return [];
+  }
+
+  private reset(response: ResponseReglement): void {
+    this.factureDossierSelectionnes.set([]);
+    this.reglementFormComponent()?.reset();
+    if (response.total) {
+      this.dossierFactureProjection = null;
+      this.reglementFactureDossiers = [];
+      this.reglementFormComponent()?.cashInput?.setValue(null);
+    } else {
+      this.fetchFacture();
+      this.reload(this.dossierFactureProjection?.id);
+    }
+  }
+
+  private reload(id: number): void {
+    this.factureService
+      .findDossierReglement(id, 'groupes', {
+        page: 0,
+        size: 999999,
+      })
+      .subscribe({
+        next: (res: HttpResponse<ReglementFactureDossier[]>) => {
+          this.reglementFactureDossiers = res.body;
+          // this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+        },
+        error: () => {
+          this.reglementFactureDossiers = [];
+          this.dossierFactureProjection = null;
+        },
+      });
+  }
+
+  private onPrintReceipt(response: ResponseReglement): void {
+    this.reset(response);
+  }
+
+  private fetchFacture(): void {
+    this.factureService
+      .findDossierFactureProjection(this.dossierFactureProjection?.id, {
+        isGroup: true,
+      })
+      .subscribe(res => {
+        this.dossierFactureProjection = res.body;
+      });
   }
 }

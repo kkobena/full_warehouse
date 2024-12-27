@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { ErrorService } from '../../../shared/error.service';
 import { FactureService } from '../facture.service';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
@@ -20,7 +20,7 @@ import { ButtonModule } from 'primeng/button';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InvoiceSearchParams } from '../edition-search-params.model';
-import { DATE_FORMAT_ISO_FROM_NGB_DATE } from '../../../shared/util/warehouse-util';
+import { DATE_FORMAT_ISO_FROM_NGB_DATE, GET_NG_DATE } from '../../../shared/util/warehouse-util';
 import { Facture } from '../facture.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { TableModule } from 'primeng/table';
@@ -28,6 +28,7 @@ import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FactureDetailDialogComponent } from '../facture-detail/facture-detail-dialog.component';
 import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/groupe-facture-detail-dialog.component';
+import { FactureStateService } from '../facture-state.service';
 
 @Component({
   selector: 'jhi-factures',
@@ -55,13 +56,14 @@ import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/gro
   templateUrl: './factures.component.html',
   styles: ``,
 })
-export class FacturesComponent implements OnInit {
+export class FacturesComponent implements OnInit, AfterViewInit {
   errorService = inject(ErrorService);
   factureService = inject(FactureService);
   tiersPayantService = inject(TiersPayantService);
   groupeTiersPayantService = inject(GroupeTiersPayantService);
   calendar = inject(NgbCalendar);
   modalService = inject(NgbModal);
+  factureStateService = inject(FactureStateService);
   minLength = 2;
   confirmationService = inject(ConfirmationService);
 
@@ -205,7 +207,6 @@ export class FacturesComponent implements OnInit {
         icon: PrimeIcons.FILE_WORD,
       },
     ];
-    this.onSearch();
   }
 
   onDelete(id: number): void {
@@ -265,6 +266,34 @@ export class FacturesComponent implements OnInit {
     modalRef.componentInstance.facture = facture;
   }
 
+  ngAfterViewInit(): void {
+    const previousSearch = this.factureStateService.invoiceSearchParams();
+
+    if (previousSearch) {
+      this.modelStartDate = previousSearch.startDate ? GET_NG_DATE(previousSearch.startDate) : null;
+      this.modelEndDate = previousSearch.endDate ? GET_NG_DATE(previousSearch.endDate) : null;
+      this.selectedTiersPayants = previousSearch.tiersPayantIds
+        ? this.tiersPayants.filter(item => previousSearch.tiersPayantIds.includes(item.id))
+        : undefined;
+      this.selectedGroupeTiersPayants = previousSearch.groupIds
+        ? this.groupeTiersPayants.filter(item => previousSearch.groupIds.includes(item.id))
+        : undefined;
+      this.search = previousSearch.search || '';
+      this.statut = previousSearch.statuts?.length > 0 ? previousSearch.statuts[0] : null;
+      this.factureProvisoire = previousSearch.factureProvisoire || false;
+      this.factureGroup = previousSearch.factureGroupees || false;
+      if (this.search) {
+        if (this.factureGroup) {
+          this.loadGroupTiersPayant(this.search);
+        } else {
+          this.loadTiersPayants(this.search);
+        }
+      }
+    }
+
+    this.onSearch();
+  }
+
   protected onSearchSuccess(data: Facture[] | null, headers: HttpHeaders, page: number): void {
     this.loading = false;
     this.loadingBtn = false;
@@ -282,8 +311,7 @@ export class FacturesComponent implements OnInit {
         statuts = [this.statut];
       }
     }
-
-    return {
+    const params = {
       startDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelStartDate),
       endDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelEndDate),
       groupIds: this.selectedGroupeTiersPayants?.map(item => item.id),
@@ -293,5 +321,7 @@ export class FacturesComponent implements OnInit {
       statuts,
       factureGroupees: this.factureGroup,
     };
+    this.factureStateService.setInvoiceSearchParams(params);
+    return params;
   }
 }

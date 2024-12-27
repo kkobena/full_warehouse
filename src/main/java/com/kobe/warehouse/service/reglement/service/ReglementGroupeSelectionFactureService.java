@@ -76,7 +76,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             if (montantVerse <= 0) {
                 break;
             }
-            //   int montantAttendu = item.getMontantAttendu();
             int itemAmountToPay = item.getMontantVerse();
             int itemAmount = itemAmountToPay;
             if (montantVerse >= itemAmountToPay) {

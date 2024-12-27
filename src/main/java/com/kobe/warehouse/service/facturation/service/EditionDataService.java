@@ -66,9 +66,9 @@ public interface EditionDataService {
 
     String GROUPE_FACTURE_QUERY =
         """
-        SELECT f.created,  f.id as factureId,f.montant_regle as montantRegle,f.debut_periode as debutPeriode,f.statut  as statut,f.fin_periode as finPeriode,f.facture_provisoire as factureProvisoire,f.num_facture as numFacture,gtp.name as tiersPayantName,
+        SELECT fd.montantDetailRegle AS montantRegle,f.created,  f.id as factureId,f.debut_periode as debutPeriode,f.statut  as statut,f.fin_periode as finPeriode,f.facture_provisoire as factureProvisoire,f.num_facture as numFacture,gtp.name as tiersPayantName,
          fd.montantTiersPayant as montantAttendu,fd.itemsCount AS itemsCount,fd.montantVente AS montantVente,fd.montantRemise AS montantRemise FROM  facture_tiers_payant f JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id=gtp.id
-         JOIN (SELECT i.groupe_facture_tiers_payant_id,COUNT(distinct i.id) as itemsCount,SUM(it.montant) as montantTiersPayant,SUM(s.sales_amount) AS montantVente,SUM(s.discount_amount) AS montantRemise   FROM facture_tiers_payant i JOIN third_party_sale_line it ON i.id = it.facture_tiers_payant_id JOIN sales s ON  it.sale_id=s.id  GROUP BY i.groupe_facture_tiers_payant_id )
+         JOIN (SELECT SUM(i.montant_regle) AS montantDetailRegle, i.groupe_facture_tiers_payant_id,COUNT(distinct i.id) as itemsCount,SUM(it.montant) as montantTiersPayant,SUM(s.sales_amount) AS montantVente,SUM(s.discount_amount) AS montantRemise   FROM facture_tiers_payant i JOIN third_party_sale_line it ON i.id = it.facture_tiers_payant_id JOIN sales s ON  it.sale_id=s.id  GROUP BY i.groupe_facture_tiers_payant_id )
           as fd ON f.id=fd.groupe_facture_tiers_payant_id
 
         """;

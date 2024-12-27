@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, Input, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, EventEmitter, inject, Input, Output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -13,13 +13,14 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { SidebarModule } from 'primeng/sidebar';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import { ModeEditionReglement, ReglementParams, ResponseReglement } from '../model/reglement.model';
+import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
 import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
+import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -39,6 +40,7 @@ import { HttpResponse } from '@angular/common/http';
     SidebarModule,
     DossierReglementInfoComponent,
     ReglementFormComponent,
+    FactuesModalComponent,
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
 })
@@ -59,6 +61,7 @@ export class RegelementFactureIndividuelleComponent {
   errorService = inject(ErrorService);
   reglementService = inject(ReglementService);
   factureService = inject(FactureService);
+  @Output() selectedFacture = new EventEmitter<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
@@ -101,6 +104,11 @@ export class RegelementFactureIndividuelleComponent {
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
+  }
+
+  onSelectFacture(facture: SelectedFacture): void {
+    this.selectedFacture.emit(facture);
+    this.showSidebar = false;
   }
 
   protected onPartielReglement(evt: boolean): void {
@@ -169,8 +177,7 @@ export class RegelementFactureIndividuelleComponent {
           this.reglementFactureDossiers = res.body;
           this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
         },
-        error: (err: any) => {
-          console.log(err);
+        error: () => {
           this.reglementFactureDossiers = [];
           this.dossierFactureProjection = null;
         },

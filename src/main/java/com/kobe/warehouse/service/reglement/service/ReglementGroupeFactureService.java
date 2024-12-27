@@ -62,22 +62,21 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         int montantPaye = 0;
 
         List<InvoicePayment> invoicePayments = new ArrayList<>();
-        int totalAmount = (int) this.thirdPartySaleLineRepository.sumMontantAttenduGroupeFacture(factureTiersPayant.getId());
+        int totalAmount = reglementParam.getTotalAmount();
         if (totalAmount > reglementParam.getAmount()) {
             throw new PaymentAmountException();
         }
-        boolean partielPayment = false;
+
         for (FactureTiersPayant item : factureTiersPayant.getFactureTiersPayants()) {
             var invoicePaymentItem = this.reglementFactureModeAllService.doReglement(invoicePayment, item);
             montantPaye += invoicePaymentItem.getPaidAmount();
             invoicePayments.add(invoicePaymentItem);
-            if (item.getStatut() == InvoiceStatut.PARTIALLY_PAID) {
-                partielPayment = true;
-            }
         }
 
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        factureTiersPayant.setStatut(partielPayment ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
+        factureTiersPayant.setStatut(
+            factureTiersPayant.getMontantRegle() < reglementParam.getMontantFacture() ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID
+        );
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);

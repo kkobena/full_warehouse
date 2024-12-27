@@ -18,7 +18,6 @@ public class ReglementParam {
     private ModePaimentCode modePaimentCode;
     private BanqueInfoDTO banqueInfo;
     private int amount;
-    private int amountToPaid;
     private String comment;
     private List<Long> dossierIds = new ArrayList<>();
     private List<LigneSelectionnesDTO> ligneSelectionnes = new ArrayList<>();
@@ -58,15 +57,6 @@ public class ReglementParam {
 
     public ReglementParam setAmount(int amount) {
         this.amount = amount;
-        return this;
-    }
-
-    public int getAmountToPaid() {
-        return amountToPaid;
-    }
-
-    public ReglementParam setAmountToPaid(int amountToPaid) {
-        this.amountToPaid = amountToPaid;
         return this;
     }
 

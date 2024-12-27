@@ -95,3 +95,14 @@ export const FORMAT_DD_MM_YYYY = (date: Date): string | null => {
   }
   return '';
 };
+export const GET_NG_DATE = (date: string): NgbDate | null => {
+  if (date) {
+    const dateArray = date.split('-');
+    return NgbDate.from({
+      year: Number(dateArray[0]),
+      month: Number(dateArray[1]),
+      day: Number(dateArray[2]),
+    });
+  }
+  return null;
+};

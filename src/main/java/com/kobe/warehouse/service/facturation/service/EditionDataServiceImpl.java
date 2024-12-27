@@ -346,7 +346,11 @@ public class EditionDataServiceImpl implements EditionDataService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (Tuple t : tuples) {
             BigDecimal montantAttendu = t.get("montantAttendu", BigDecimal.class);
-            Integer montantRegle = t.get("montantRegle", Integer.class);
+            var paidAmount = t.get("montantRegle", Number.class);
+            int montantRegle = 0;
+            if (paidAmount != null) {
+                montantRegle = paidAmount.intValue();
+            }
             BigDecimal montantVente = t.get("montantVente", BigDecimal.class);
             BigDecimal montantRemiseVente = t.get("montantRemise", BigDecimal.class);
             LocalDateTime created = t.get("created", Timestamp.class).toLocalDateTime();

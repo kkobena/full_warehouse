@@ -129,14 +129,12 @@ export class FormTransactionComponent implements OnInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    console.error(error);
+
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: this.errorService.getErrorMessage(error),
       });
     } else {
       this.messageService.add({

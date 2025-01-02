@@ -1801,3 +1801,20 @@ menu  de la vente
 .form-reglement-toolbar {
   font-size: 1rem;
 }
+
+.facture-reglees {
+  .p-row-toggler {
+    vertical-align: middle;
+    margin-right: .25rem;
+  }
+
+  .total-group {
+    font-weight: 900;
+    font-size: 1rem;
+  }
+
+  .group-title {
+    vertical-align: middle;
+    margin-top: 0;
+  }
+}

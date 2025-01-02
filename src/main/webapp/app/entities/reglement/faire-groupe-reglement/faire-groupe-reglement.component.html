@@ -8,8 +8,6 @@
     </jhi-factues-modal>
   </ng-template>
 </p-sidebar>
-
-
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table #factureDossierTable
@@ -36,17 +34,11 @@
            placeholder="Taper pour filter "
            type="text">
 </span>
-
           </div>
-
-
         </div>
-
-
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-
           <th>Organisme</th>
           <th>Période</th>
           <th>Num facture</th>
@@ -54,7 +46,6 @@
           <th>Montant</th>
           <th>Montant payé</th>
           <th>Montant versé</th>
-
           @if (partialPayment) {
             <ng-container>
               <th class="table-all-checkbos">
@@ -62,11 +53,7 @@
                 ></p-tableHeaderCheckbox>
               </th>
             </ng-container>
-
-
           }
-
-
         </tr>
       </ng-template>
       <ng-template let-item let-rowIndex="rowIndex" pTemplate="body">
@@ -107,18 +94,14 @@
               {{ item.montantVerse |number }}
             </td>
           }
-
           @if (partialPayment) {
             <td class="text-center">
               <p-tableCheckbox
                 [value]="item"></p-tableCheckbox>
             </td>
           }
-
         </tr>
-
       </ng-template>
-
     </p-table>
   </div>
   <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
@@ -128,7 +111,6 @@
           <span>Formulaire réglement</span>
           <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
                     styleClass="p-button-secondary p-button-sm"></p-button>
-
         </div>
       </ng-template>
       <jhi-reglement-form (partialPayment)="onPartielReglement($event)"
@@ -139,14 +121,11 @@
                           [isSaving]="isSaving"
                           [montantAPayer]="montantAPayer()"
                           [typeFacture]="ModeEditionReglement.GROUP">
-
       </jhi-reglement-form>
-
     </p-fieldset>
     <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjection"
                                 [totalApayer]="montantAPayer()"
     >
-
     </jhi-dossier-reglement-info>
 
   </div>

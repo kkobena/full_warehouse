@@ -20,11 +20,8 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.PaymentRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
-import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.repository.TicketRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
@@ -67,29 +64,23 @@ public class SaleDataService {
     private final EntityManager em;
     private final UserRepository userRepository;
     private final SaleInvoiceReportService saleInvoiceService;
-    private final SalesRepository salesRepository;
+
     private final SalesLineRepository salesLineRepository;
-    private final PaymentRepository paymentRepository;
-    private final TicketRepository ticketRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     public SaleDataService(
         EntityManager em,
         UserRepository userRepository,
         SaleInvoiceReportService saleInvoiceService,
-        SalesRepository salesRepository,
         SalesLineRepository salesLineRepository,
-        PaymentRepository paymentRepository,
-        TicketRepository ticketRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository
     ) {
         this.em = em;
         this.userRepository = userRepository;
         this.saleInvoiceService = saleInvoiceService;
-        this.salesRepository = salesRepository;
+
         this.salesLineRepository = salesLineRepository;
-        this.paymentRepository = paymentRepository;
-        this.ticketRepository = ticketRepository;
+
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 

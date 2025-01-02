@@ -1,0 +1,46 @@
+<tbody>
+
+
+<tr>
+  <td class="total-libelle"><span>NBRE DOSSIER(S)</span>
+  </td>
+
+  <td class="total"
+      th:text="${ entity.invoicePaymentItemsCount }"></td>
+</tr>
+<tr>
+  <td class="total-libelle"><span>MONTANT ATTENDU</span>
+  </td>
+
+  <td class="amount-to-pay"
+      th:text="${ entity.montantAttendu }"></td>
+</tr>
+
+<tr>
+  <td class="total-libelle"><span>MONTANT PAYE</span>
+  </td>
+
+  <td class="total"
+      th:text="${ entity.paidAmount }"></td>
+</tr>
+<tr>
+  <td class="total-libelle"><span>RESTE A PAYER</span>
+  </td>
+
+  <td class="total"
+      th:text="${ entity.montantRestant }"></td>
+</tr>
+
+<tr>
+  <td class="total-libelle">REGLEMENT</td>
+  <td th:text="${entity.paymentMode}">
+  </td>
+</tr>
+
+<tr th:if="${ #strings.equals(entity.paymentModeCode,'CASH')}">
+  <td>MONNAIE</td>
+  <td class="total"
+      th:text="${ entity.change }"></td>
+</tr>
+</tbody>
+

@@ -28,6 +28,24 @@ public final class NumberUtil {
         return result;
     }
 
+    public static String formatToStringIfNotNull(Number value) {
+        if (value == null) {
+            return "";
+        }
+
+        try {
+            DecimalFormatSymbols amountSymbols = new DecimalFormatSymbols();
+
+            amountSymbols.setGroupingSeparator(' ');
+
+            DecimalFormat amountFormat = new DecimalFormat("###,###", amountSymbols);
+            return amountFormat.format(value);
+        } catch (NumberFormatException ex) {
+            log.debug("", ex);
+            return "";
+        }
+    }
+
     public static String getNumberToWords(long num) {
         RuleBasedNumberFormat formatter = new RuleBasedNumberFormat(Locale.FRANCE, RuleBasedNumberFormat.SPELLOUT);
         return formatter.format(num);

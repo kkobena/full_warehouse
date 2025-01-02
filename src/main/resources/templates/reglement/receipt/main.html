@@ -10,8 +10,6 @@
 
             }
         }
-
-
         @page {
 
             size: [(${size})]  ;
@@ -99,7 +97,7 @@
         }
 
         .barcode {
-            border-top: dotted 0 #2c1e30;
+            border-top: dotted 0px #2c1e30;
         }
 
         .last-item td {
@@ -146,34 +144,17 @@
             width: 80%;
         }
 
-        .barcode .barcode-code-data {
-            margin-bottom: 0;
-            margin-top: 0;
-            margin-left: 45px;
-            text-align: left;
-        }
 
-        .row div.barcode {
-            width: 60%;
-        }
 
-        .row div.current-date {
-            width: 40%;
-            float: right;
-            text-align: right;
-            margin-top: -30px;
-            font-weight: 700;
-            padding-right: 3px;
-
+        .itm-header th{
+            border-top: solid 0.5px #2c1e30
         }
         .today {
           width: 100%;
           text-align: right;
           font-weight: 700;
           padding-right: 3px;
-        }
-        .itm-header td {
-            border-top: solid 0.5px #2c1e30
+
         }
     </style>
 
@@ -182,49 +163,30 @@
 
 
 <div id="main-container">
-    <header th:insert="~{receipt/header}">
+    <header th:insert="~{reglement/receipt/header}">
     </header>
 
     <main>
         <table>
             <thead>
-            <tr>
-                <th colspan="4">
-                    <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
-                        <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
-                    </div>
-                    <div class="receipt-info">
-                        <p th:if="${sale.customer ne null}" th:text="${'Client: '+sale.customer.fullName}">
-
-                        </p>
-                        <span th:if="${sale.cassier.id eq sale.seller.id}"
-                              th:text="${'Ticket: '+sale.numberTransaction +' Op: '+sale.cassier.abbrName}"></span>
-                        <div th:if="${sale.cassier.id ne sale.seller.id}">
-                            <p th:text="${'Ticket: '+sale.numberTransaction}"></p>
-                            <p th:text="${'Op: '+sale.cassier.abbrName +' | Vendeur: '+sale.seller.abbrName }"></p>
-                        </div>
-                    </div>
-                </th>
-            </tr>
-            <tr th:replace="~{receipt/tableHeader}">
+            <tr th:insert="~{reglement/receipt/subHeader}">
 
             </tr>
+
             </thead>
-            <tbody th:replace="~{receipt/tableBody}">
+            <tbody th:replace="~{reglement/receipt/content}">
 
             </tbody>
 
         </table>
-        <div class="totaux" th:if="${isLastPage}" th:insert="~{receipt/totaux}">
 
-        </div>
         <div class="row" th:if="${isLastPage}" >
           <div class="today"><span th:text="${currentDate}"></span></div>
         </div>
 
 
     </main>
-    <footer th:if="${isLastPage}" th:insert="~{receipt/footer}">
+    <footer th:if="${isLastPage}" th:insert="~{reglement/receipt/footer}">
 
     </footer>
 </div>

@@ -164,6 +164,12 @@
             padding-right: 3px;
 
         }
+        .today {
+          width: 100%;
+          text-align: right;
+          font-weight: 700;
+          padding-right: 3px;
+        }
         .itm-header th{
             border-top: solid 0.5px #2c1e30
         }
@@ -195,8 +201,9 @@
         <div class="totaux" th:if="${isLastPage}" th:insert="~{receipt/totauxvo}">
 
         </div>
-        <div class="row" th:if="${isLastPage}" th:insert="~{receipt/barcodeLayout}">
-
+      <div class="row" th:if="${isLastPage}" >
+ <!--       <div class="row" th:if="${isLastPage}" th:insert="~{receipt/barcodeLayout}">-->
+          <div class="today"><span th:text="${currentDate}"></span></div>
         </div>
 
 

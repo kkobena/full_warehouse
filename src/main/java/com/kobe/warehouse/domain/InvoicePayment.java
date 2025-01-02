@@ -42,10 +42,6 @@ public class InvoicePayment implements Serializable {
     private Integer paidAmount;
 
     @NotNull
-    @Column(name = "montant_restant", nullable = false)
-    private Integer restToPay;
-
-    @NotNull
     @Column(name = "created", nullable = false)
     private LocalDateTime created = LocalDateTime.now();
 
@@ -203,15 +199,6 @@ public class InvoicePayment implements Serializable {
 
     public InvoicePayment setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
-        return this;
-    }
-
-    public @NotNull Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public InvoicePayment setRestToPay(@NotNull Integer restToPay) {
-        this.restToPay = restToPay;
         return this;
     }
 

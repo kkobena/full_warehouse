@@ -16,20 +16,26 @@
 logging:
   level:
     ROOT: DEBUG
-    tech.jhipster: DEBUG
+    tech.jhipster: OFF
     com.kobe.warehouse: DEBUG
     javax:
       management:
         remote:
           rmi: OFF
 
+
+
 management:
+
+
   prometheus:
     metrics:
       export:
         enabled: false
 spring:
+
   jmx:
+
     enabled: false
   devtools:
     restart:

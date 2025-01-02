@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +33,7 @@ import tech.jhipster.web.util.HeaderUtil;
 public class SalesResource {
 
     private static final String ENTITY_NAME = "sales";
-    private final Logger log = LoggerFactory.getLogger(SalesResource.class);
+
     private final SaleService saleService;
 
     @Value("${jhipster.clientApp.name}")

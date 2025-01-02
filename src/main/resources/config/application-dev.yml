@@ -16,11 +16,18 @@
 logging:
   level:
     ROOT: DEBUG
-    tech.jhipster: DEBUG
-    org.hibernate.SQL: DEBUG
-    com.kobe.warehouse: DEBUG
+    tech.jhipster: OFF
+    com.kobe.warehouse: TRACE
+    javax:
+      management:
+        remote:
+          rmi: OFF
 
 spring:
+  jmx:
+    enabled: false
+
+
   devtools:
     restart:
       enabled: true
@@ -57,7 +64,7 @@ spring:
     cache: false
 
 server:
-  port: 8080
+  port: 9080
 
 # ===================================================================
 # JHipster specific properties

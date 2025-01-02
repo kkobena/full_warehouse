@@ -30,12 +30,12 @@
     </root>
     -->
 
-    <logger level="INFO" name="com.kobe.warehouse"/>
+    <logger level="DEBUG" name="com.kobe.warehouse"/>
 
     <logger level="WARN" name="angus.activation"/>
     <logger level="WARN" name="jakarta.activation"/>
     <logger level="WARN" name="jakarta.mail"/>
-    <logger level="WARN" name="jakarta.management.remote"/>
+    <logger level="OFF" name="jakarta.management.remote"/>
     <logger level="WARN" name="jakarta.xml.bind"/>
     <logger level="INFO" name="jdk.event.security"/>
     <logger level="WARN" name="com.ryantenney"/>

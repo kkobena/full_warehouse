@@ -3,7 +3,8 @@ import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { Reglement, ReglementParams, ResponseReglement } from './model/reglement.model';
+import { InvoicePaymentItem, Reglement, ReglementParams, ResponseReglement } from './model/reglement.model';
+import { createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<Reglement>;
 type EntityArrayResponseType = HttpResponse<Reglement[]>;
@@ -22,5 +23,25 @@ export class ReglementService {
 
   doReglement(reglementParams: ReglementParams): Observable<HttpResponse<ResponseReglement>> {
     return this.http.post<ResponseReglement>(SERVER_API_URL + 'api/reglement-factures-tp', reglementParams, { observe: 'response' });
+  }
+
+  query(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http.get<Reglement[]>(this.resourceUrl, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  getItems(id: number): Observable<HttpResponse<InvoicePaymentItem[]>> {
+    return this.http.get<InvoicePaymentItem[]>(`${this.resourceUrl}/items/${id}`, { observe: 'response' });
+  }
+
+  getGroupItems(id: number): Observable<HttpResponse<InvoicePaymentItem[]>> {
+    return this.http.get<InvoicePaymentItem[]>(`${this.resourceUrl}/group/items/${id}`, { observe: 'response' });
+  }
+
+  printReceipt(id: number): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/print-receipt/${id}`, { observe: 'response' });
   }
 }

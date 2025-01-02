@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { DD_MM_YYYY, DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 export const formatNumberToString = (cellValue: any): string | null => {
   if (cellValue?.value !== null && cellValue?.value !== undefined) {
@@ -73,6 +73,7 @@ export const DATE_FORMAT_ISO_FROM_NGB_DATE = (dateFromNgbDate: NgbDate): string 
   }
   return null;
 };
+
 export const checkIfRomToBeUpdated = (deliveryItem: IDeliveryItem): boolean =>
   deliveryItem.regularUnitPrice !== deliveryItem.orderUnitPrice || deliveryItem.orderCostAmount !== deliveryItem.costAmount;
 
@@ -103,6 +104,38 @@ export const GET_NG_DATE = (date: string): NgbDate | null => {
       month: Number(dateArray[1]),
       day: Number(dateArray[2]),
     });
+  }
+  return null;
+};
+export const dateIsoFormatFom = (dateFromNgbDate: NgbDateStruct): string | null => {
+  if (dateFromNgbDate) {
+    if (typeof dateFromNgbDate === 'string') {
+      return DATE_FROM_STRING_FR(dateFromNgbDate);
+    }
+    let day;
+    if (dateFromNgbDate.day < 10) {
+      day = `0${dateFromNgbDate.day}`;
+    } else {
+      day = `${dateFromNgbDate.day}`;
+    }
+    let month;
+    if (dateFromNgbDate.month < 10) {
+      month = `0${dateFromNgbDate.month}`;
+    } else {
+      month = `${dateFromNgbDate.month}`;
+    }
+    return `${dateFromNgbDate.year}-${month}-${day}`;
+  }
+  return null;
+};
+export const getNgbDateStruct = (date: string): NgbDateStruct | null => {
+  if (date) {
+    const dateArray = date.split('-');
+    return {
+      year: Number(dateArray[0]),
+      month: Number(dateArray[1]),
+      day: Number(dateArray[2]),
+    };
   }
   return null;
 };

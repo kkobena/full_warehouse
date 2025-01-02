@@ -51,6 +51,7 @@ public final class Constant {
     public static final String ETIQUETES_TEMPLATE_FILE = "etiquetes/main";
     public static final String ETIQUETES_BEGIN = "begin";
     public static final String INVOICE_TEMPLATE_FILE = "facture/saleInvoice";
+    public static final String REGLEMENT_TEMPLATE_FILE = "reglement/receipt/main";
 
     private Constant() {}
 }

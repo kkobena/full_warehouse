@@ -133,11 +133,6 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected void updateFactureTiersPayant(FactureTiersPayant factureTiersPayant, int paidAmount) {
         factureTiersPayant.setMontantRegle(Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0) + paidAmount);
-        /*if (factureTiersPayant.getMontantRegle() >= amount) {
-            factureTiersPayant.setStatut(InvoiceStatut.PAID);
-        } else {
-            factureTiersPayant.setStatut(InvoiceStatut.PARTIALLY_PAID);
-        }*/
         factureTiersPayant.setUser(userService.getUser());
         factureTiersPayant.setUpdated(LocalDateTime.now());
     }

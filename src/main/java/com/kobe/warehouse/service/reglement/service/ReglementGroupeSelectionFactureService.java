@@ -66,7 +66,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(reglementParam.getId()).orElseThrow();
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
-
+        invoicePayment.setGrouped(true);
         int montantPaye = 0;
         int montantVerse = reglementParam.getAmount();
 
@@ -96,7 +96,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         for (InvoicePayment item : invoicePayments) {
             item.setParent(invoicePayment);

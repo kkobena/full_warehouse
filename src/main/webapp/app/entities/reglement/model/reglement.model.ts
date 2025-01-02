@@ -1,6 +1,35 @@
 import { Facture } from '../../facturation/facture.model';
 
-export class Reglement {}
+export class Reglement {
+  id: number;
+  organismeId: number;
+  organisme: string;
+  codeFacture: string;
+  montantAttendu: string;
+  montantVerse: string;
+  montantRestant: string;
+  paymentMode: string;
+  change: string;
+  user: string;
+  created: string;
+  paidAmount: string;
+  grouped: boolean;
+  invoicePaymentItemsCount: number;
+  totalAmount: number;
+  invoicePayments: Reglement[];
+  invoicePaymentItems: InvoicePaymentItem[];
+}
+
+export class InvoicePaymentItem {
+  numBon: string;
+  montant: string;
+  montantVente: string;
+  montantAttendu: string;
+  customer: string;
+  created: string;
+  heure: string;
+  customerMatricule: string;
+}
 
 export class Banque {
   nom?: string;
@@ -62,4 +91,12 @@ export enum ModeEditionReglement {
 export class SelectedFacture {
   isGroup: boolean;
   facture: Facture;
+}
+
+export class InvoicePaymentParam {
+  search?: string;
+  organismeId?: number;
+  fromDate?: string;
+  toDate?: string;
+  grouped: boolean;
 }

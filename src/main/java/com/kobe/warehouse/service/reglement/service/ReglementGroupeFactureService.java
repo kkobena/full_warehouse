@@ -26,7 +26,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
 
     private final FacturationRepository facturationRepository;
     private final ReglementFactureModeAllService reglementFactureModeAllService;
-    private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     public ReglementGroupeFactureService(
         CashRegisterService cashRegisterService,
@@ -51,7 +50,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         );
         this.facturationRepository = facturationRepository;
         this.reglementFactureModeAllService = reglementFactureModeAllService;
-        this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
     @Override
@@ -59,6 +57,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(reglementParam.getId()).orElseThrow();
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
+        invoicePayment.setGrouped(true);
         int montantPaye = 0;
 
         List<InvoicePayment> invoicePayments = new ArrayList<>();
@@ -80,7 +79,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         for (InvoicePayment item : invoicePayments) {
             item.setParent(invoicePayment);

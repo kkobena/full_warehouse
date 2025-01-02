@@ -16,6 +16,7 @@
 
 ---
 # Conditionally disable springdoc on missing api-docs profile
+
 spring:
   config:
     activate:
@@ -95,6 +96,7 @@ spring:
         #- tls
   jmx:
     enabled: false
+
   data:
     jpa:
       repositories:

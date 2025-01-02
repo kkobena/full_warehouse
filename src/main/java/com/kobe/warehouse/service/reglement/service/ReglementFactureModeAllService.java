@@ -54,10 +54,8 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         int montantPaye = 0;
-        int totalAmount = 0;
 
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
-            totalAmount = thirdParty.getMontant();
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
             montantPaye += itemAmount;
             invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
@@ -70,7 +68,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setAmount(montantPaye);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
@@ -83,9 +80,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, groupeInvoicePayment);
         int montantPaye = 0;
-        int totalAmount = 0;
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
-            totalAmount = thirdParty.getMontant();
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
             montantPaye += itemAmount;
             invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
@@ -96,7 +91,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setAmount(montantPaye);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         return invoicePayment;
     }
 }

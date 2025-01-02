@@ -95,7 +95,6 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
@@ -110,7 +109,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         List<ThirdPartySaleLine> thirdPartySaleLinesUpdated = new ArrayList<>();
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, groupeInvoicePayment);
         int montantPaye = 0;
-        int totalAmount = item.getMontantAttendu(); // (int) this.thirdPartySaleLineRepository.sumMontantAttenduByFactureTiersPayantId(factureTiersPayant.getId());
+        int totalAmount = item.getMontantAttendu();
         int montantVerse = montantFacture;
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
             if (montantVerse <= 0) {
@@ -137,7 +136,6 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
         invoicePayment.setAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
-        invoicePayment.setRestToPay(totalAmount - montantPaye);
         return invoicePayment;
     }
 

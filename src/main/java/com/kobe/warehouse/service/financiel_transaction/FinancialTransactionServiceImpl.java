@@ -51,6 +51,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -67,7 +69,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         """
         SELECT COUNT(*) as total FROM (SELECT s.id,s.updated_at as createdAt,s.number_transaction as numberTransaction,'vente' as typeMvt,s.dtype as typeTransaction,s.ca as ca,p.payment_mode_code as paymentModeCode,s.user_id as userId
          FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id LEFT JOIN customer c ON s.customer_id = c.id   union
-         SELECT  pt.id,pt.created_at as createdAt,pt.ticket_code as numberTransaction,'transaction' as typeMvt,pt.type_transaction as typeTransaction,pt.categorie_ca as ca,pt.payment_mode_code as paymentModeCode,pt.user_id as userId
+         SELECT  pt.id,pt.created_at as createdAt,'' as numberTransaction,'transaction' as typeMvt,pt.type_transaction as typeTransaction,pt.categorie_ca as ca,pt.payment_mode_code as paymentModeCode,pt.user_id as userId
          FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
         JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt
         """;
@@ -87,7 +89,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                               pmp.libelle as paymentModeLibelle,pt.type_transaction as typeTransaction,
                               concat(up.first_name,'-',up.last_name)
                                             as userFullName,concat(pc.first_name,' ',pc.last_name) as customerFullName,
-                              pt.created_at as createdAt, pt.ticket_code as numberTransaction,
+                              pt.created_at as createdAt, '' as numberTransaction,
                               tp.name as infoAssureur,'NA' as statut,pt.categorie_ca as ca,0 as htAmount,0 as discountAmount,0 as netAmount,0 as partAssure,0 as part_tiers_payant,
                               pt.transaction_date as transactionDate
         FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp
@@ -115,6 +117,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         SELECT 'transaction' as typeMvt, SUM(pt.amount) AS amount,pt.payment_mode_code as paymentModeCode,pmp.libelle as paymentModeLibelle,pt.type_transaction as typeTransaction
         FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp  ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code
         """;
+    private static final Logger log = LoggerFactory.getLogger(FinancialTransactionServiceImpl.class);
 
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final UserService userService;
@@ -312,15 +315,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                 )
             );
         }
-        //        if (StringUtils.hasText(transactionFilter.search())) {
-        //            var search = "%" + transactionFilter.search().toLowerCase() + "%";
-        //            predicates.add(
-        //                cb.or(
-        //                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search),
-        //                    cb.like(cb.lower(root.get(PaymentTransaction_.ticketCode)), search)
-        //                )
-        //            );
-        //        }
+
         if (transactionFilter.categorieChiffreAffaire() != null) {
             predicates.add(cb.equal(root.get(PaymentTransaction_.categorieChiffreAffaire), transactionFilter.categorieChiffreAffaire()));
         }
@@ -554,7 +549,12 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         mvtCaisseDTO.setOrganisme(tuple.get("customerFullName", String.class));
         String[] usersNames = tuple.get("userFullName", String.class).split("-");
         mvtCaisseDTO.setUserFullName(usersNames[0].charAt(0) + "".toUpperCase() + ". " + usersNames[1]);
-        mvtCaisseDTO.setReference(tuple.get("numberTransaction", String.class));
+        try {
+            mvtCaisseDTO.setReference(tuple.get("numberTransaction", String.class));
+        } catch (Exception e) {
+            log.error("Error while setting reference", e);
+        }
+
         mvtCaisseDTO.setPaymentMode(tuple.get("paymentModeCode", String.class));
         mvtCaisseDTO.setPaymentModeLibelle(tuple.get("paymentModeLibelle", String.class));
         mvtCaisseDTO.setDate(DateUtil.format(tuple.get("createdAt", Timestamp.class)));
@@ -633,10 +633,6 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         where.append(String.format(" WHERE pt.created_at BETWEEN '%s' AND '%s' ", fromDate, toDate));
         if (financielTransactionFilter.userId() != null) {
             where.append(String.format(" AND pt.user_id=%d ", financielTransactionFilter.userId()));
-        }
-        if (StringUtils.hasText(financielTransactionFilter.search())) {
-            String search = "%" + financielTransactionFilter.search().toLowerCase() + "%";
-            where.append(String.format(" AND pt.ticket_code LIKE '%s' ", search));
         }
 
         if (

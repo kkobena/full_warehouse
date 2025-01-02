@@ -72,8 +72,8 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   protected factureProvisoire: boolean = false;
   protected factureGroup: boolean = false;
   protected modelStartDate: NgbDate | null = NgbDate.from({
-    year: this.calendar.getToday().year,
-    month: this.calendar.getToday().month - 1,
+    year: this.calendar.getToday().month === 1 ? this.calendar.getToday().year - 1 : this.calendar.getToday().year,
+    month: this.calendar.getToday().month === 1 ? 12 : this.calendar.getToday().month - 1,
     day: this.calendar.getToday().day,
   });
   protected modelEndDate: NgbDate | null = this.calendar.getToday();

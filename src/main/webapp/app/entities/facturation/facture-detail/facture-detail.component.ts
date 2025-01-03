@@ -3,7 +3,7 @@ import { Facture, FactureItem } from '../facture.model';
 import { SalesLineService } from '../../sales-line/sales-line.service';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { HttpResponse } from '@angular/common/http';
-import { CommonModule, DatePipe, DecimalPipe, JsonPipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
 import { FactureService } from '../facture.service';
@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'jhi-facture-detail',
   standalone: true,
-  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, JsonPipe, CommonModule, InputTextModule, FormsModule],
+  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
   templateUrl: './facture-detail.component.html',
   styles: ``,
 })

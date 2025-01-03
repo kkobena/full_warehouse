@@ -246,30 +246,6 @@ export class EditionComponent implements OnInit {
     }
   }
 
-  bonLazyLoading(event: LazyLoadEvent): void {
-    if (event) {
-      this.page = event.first / event.rows;
-      this.loadingBon = true;
-      this.factureService
-        .queryBons({
-          page: this.page,
-          size: event.rows,
-          ...this.buildSearchParams(),
-        })
-        .subscribe({
-          next: (res: HttpResponse<DossierFacture[]>) => this.onSearchBonSuccess(res.body, res.headers, this.page),
-          error: () => {
-            this.loadingBon = false;
-            this.searching = false;
-          },
-          complete: () => {
-            this.loadingBon = false;
-            this.searching = false;
-          },
-        });
-    }
-  }
-
   protected onSearchBonSuccess(data: DossierFacture[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;

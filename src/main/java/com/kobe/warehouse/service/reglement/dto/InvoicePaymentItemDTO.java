@@ -17,6 +17,7 @@ public class InvoicePaymentItemDTO {
     private final String created;
     private final String heure;
     private final String customerMatricule;
+    private final String montantRestant;
 
     public InvoicePaymentItemDTO(InvoicePaymentItem invoicePaymentItem) {
         ThirdPartySaleLine thirdPartySaleLine = invoicePaymentItem.getThirdPartySaleLine();
@@ -30,6 +31,11 @@ public class InvoicePaymentItemDTO {
         AssuredCustomer assuredCustomer = clientTiersPayant.getAssuredCustomer();
         this.customer = assuredCustomer.getFirstName() + " " + assuredCustomer.getLastName();
         this.customerMatricule = clientTiersPayant.getNum();
+        this.montantRestant = NumberUtil.formatToString(invoicePaymentItem.getAmount() - invoicePaymentItem.getPaidAmount());
+    }
+
+    public String getMontantRestant() {
+        return montantRestant;
     }
 
     public String getCreated() {

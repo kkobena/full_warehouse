@@ -126,6 +126,20 @@ export class FaireGroupeReglementComponent {
     return this.partialPayment && this.factureDossierSelectionnes()?.some(r => r.id === item.id);
   }
 
+  private onPrintReceipt(response: ResponseReglement): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous imprimer le ticket ?',
+      header: 'TICKET REGLEMENT',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.reglementService.printReceipt(response.id).subscribe();
+        this.reset(response);
+      },
+      reject: () => this.reset(response),
+      key: 'printReceipt',
+    });
+  }
+
   private computeMontantRestant(d: ReglementFactureDossier): number {
     return d.montantVerse;
   }
@@ -185,10 +199,6 @@ export class FaireGroupeReglementComponent {
           this.dossierFactureProjection = null;
         },
       });
-  }
-
-  private onPrintReceipt(response: ResponseReglement): void {
-    this.reset(response);
   }
 
   private fetchFacture(): void {

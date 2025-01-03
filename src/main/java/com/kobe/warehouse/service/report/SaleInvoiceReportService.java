@@ -35,7 +35,7 @@ public class SaleInvoiceReportService extends CommonReportService {
         StorageService storageService,
         FileStorageProperties fileStorageProperties
     ) {
-        super(fileStorageProperties);
+        super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

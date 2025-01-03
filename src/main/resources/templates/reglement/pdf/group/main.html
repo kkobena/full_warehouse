@@ -1,0 +1,21 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <title>Liste des règlements factures</title>
+  <style th:replace="~{reglement/pdf/css}"></style>
+</head>
+<body>
+<header th:replace="~{reglement/pdf/group/header}">
+</header>
+<div class="invoice">
+  <main>
+
+    <table th:replace="~{reglement/pdf/group/body}">
+    </table>
+
+
+  </main>
+</div>
+</body>
+
+</html>

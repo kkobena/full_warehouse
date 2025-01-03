@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
@@ -34,9 +35,11 @@ public abstract class CommonReportService {
 
     protected final Logger log = LoggerFactory.getLogger(CommonReportService.class);
     private final FileStorageProperties fileStorageProperties;
+    private final StorageService storageService;
 
-    protected CommonReportService(FileStorageProperties fileStorageProperties) {
+    protected CommonReportService(FileStorageProperties fileStorageProperties, StorageService storageService) {
         this.fileStorageProperties = fileStorageProperties;
+        this.storageService = storageService;
     }
 
     protected abstract List<?> getItems();
@@ -199,5 +202,11 @@ public abstract class CommonReportService {
             log.debug("printOneReceiptPage", e);
         }
         return filePath;
+    }
+
+    protected void getCommonParameters() {
+        Magasin magasin = storageService.getUser().getMagasin();
+        getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.FOOTER, "\"" + builderFooter(magasin) + "\"");
     }
 }

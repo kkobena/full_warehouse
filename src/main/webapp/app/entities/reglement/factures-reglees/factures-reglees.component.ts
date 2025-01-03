@@ -10,6 +10,7 @@ import {
   NgbDatepickerI18n,
   NgbDatepickerModule,
   NgbDateStruct,
+  NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
@@ -28,6 +29,12 @@ import { RegelementStateService } from '../regelement-state.service';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
 import { ReglementService } from '../reglement.service';
+import { ConfirmationService } from 'primeng/api';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { ErrorService } from '../../../shared/error.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DetailSingleReglementComponent } from '../detail-single-reglement/detail-single-reglement.component';
+import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-group-reglement.component';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -45,22 +52,26 @@ import { ReglementService } from '../reglement.service';
     InputTextModule,
     DividerModule,
     RippleModule,
+    ConfirmDialogModule,
   ],
   providers: [
+    ConfirmationService,
     I18n,
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
     { provide: NgbDateAdapter, useClass: CustomAdapter },
     { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
   ],
   templateUrl: './factures-reglees.component.html',
-  styleUrl: './factures-reglees.component.scss',
 })
 export class FacturesRegleesComponent implements AfterViewInit {
   tiersPayantService = inject(TiersPayantService);
   groupeTiersPayantService = inject(GroupeTiersPayantService);
   regelementStateService = inject(RegelementStateService);
   reglementService = inject(ReglementService);
-  expandedRows = {};
+  confirmationService = inject(ConfirmationService);
+  errorService = inject(ErrorService);
+  modalService = inject(NgbModal);
+  protected expandedRows = {};
   protected calendar = inject(NgbCalendar);
   protected today = this.calendar.getToday();
   protected modelStartDate: NgbDateStruct;
@@ -73,30 +84,88 @@ export class FacturesRegleesComponent implements AfterViewInit {
   protected selectedTiersPayant: ITiersPayant | undefined;
   protected minLength = 2;
   protected loadingBtn = false;
+  protected loadingPdf = false;
   protected removeAll = false;
   protected datas: Reglement[] = [];
   protected selectedDatas: Reglement[] = [];
-  protected scrollHeight = 'calc(100vh - 300px)';
+  protected scrollHeight = 'calc(100vh - 350px)';
 
   onSearch(): void {
     this.fetchData();
   }
 
   onRemoveAll(): void {
-    console.log('onRemoveAll: ', this.selectedDatas);
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer ces règlements ?',
+      header: 'SUPPRESSION DE REGLEMENT',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
+          next: () => {
+            this.selectedDatas = [];
+            this.fetchData();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+
+      key: 'delete',
+    });
   }
 
   onView(item: Reglement): void {
-    console.log('onView: ', item);
+    if (this.factureGroup) {
+      this.onOpenGroupDetail(item);
+    } else {
+      this.onOpenDetail(item);
+    }
   }
 
   onPrint(item: Reglement): void {
-    console.log('onPrint: ', item);
     this.reglementService.printReceipt(item.id).subscribe();
   }
 
+  onPrintPdf(): void {
+    this.loadingPdf = true;
+    this.reglementService.onPrintPdf(this.buildSearchParams()).subscribe({
+      next: blod => {
+        this.loadingPdf = false;
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+      error: () => (this.loadingPdf = false),
+    });
+  }
+
   onDelete(item: Reglement): void {
-    console.log('onDelete: ', item);
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer cet règlement ?',
+      header: 'SUPPRESSION DE REGLEMENT',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.reglementService.delete(item.id).subscribe({
+          next: () => {
+            this.fetchData();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+
+      key: 'delete',
+    });
+  }
+
+  openInfoDialog(message: string, infoClass: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.infoClass = infoClass;
   }
 
   searchTiersPayant(event: any): void {
@@ -138,6 +207,28 @@ export class FacturesRegleesComponent implements AfterViewInit {
   expandAll() {
     // @ts-ignore
     this.expandedRows = this.datas.reduce((acc, p) => (acc[p.organismeId] = true) && acc, {});
+  }
+
+  onOpenDetail(reglement: Reglement): void {
+    const modalRef = this.modalService.open(DetailSingleReglementComponent, {
+      backdrop: 'static',
+      size: 'xl',
+      centered: true,
+      animation: true,
+      modalDialogClass: 'facture-modal-dialog',
+    });
+    modalRef.componentInstance.reglement = reglement;
+  }
+
+  onOpenGroupDetail(reglement: Reglement): void {
+    const modalRef = this.modalService.open(DetailGroupReglementComponent, {
+      backdrop: 'static',
+      size: 'xl',
+      centered: true,
+      animation: true,
+      modalDialogClass: 'facture-modal-dialog',
+    });
+    modalRef.componentInstance.reglement = reglement;
   }
 
   ngAfterViewInit(): void {
@@ -185,12 +276,15 @@ export class FacturesRegleesComponent implements AfterViewInit {
   }
 
   private fetchData(): void {
+    this.loadingBtn = true;
     this.reglementService.query(this.buildSearchParams()).subscribe({
       next: (res: HttpResponse<Reglement[]>) => {
+        this.loadingBtn = false;
         this.datas = res.body;
         this.expandAll();
       },
       error: () => {
+        this.loadingBtn = false;
         this.datas = [];
       },
     });

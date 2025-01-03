@@ -1,0 +1,56 @@
+<table class="main-table">
+  <thead>
+  <tr>
+    <th style="width:18%;">Date règlement</th>
+    <th style="width:16%;">N° Facture</th>
+    <th class="text-right" style="width:16%;">Nbre Dossiers</th>
+    <th class="text-right" style="width:17%;">Montant Attendu</th>
+    <th class="text-right" style="width:17%;">Montant Règlé</th>
+    <th class="text-right" style="width:16%;">Montant Restant</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="obj : ${items}">
+    <td colspan="6">
+      <table>
+        <tbody>
+        <tr th:each="item : ${obj.invoicePayments}">
+          <td style="width:18%;" th:text="${item.created}"></td>
+          <td style="width:16%;" th:text="${item.codeFacture}"></td>
+          <td class="unit" style="width:16%;" th:text="${item.invoicePaymentItemsCount}"></td>
+          <td class="unit" style="width:17%;" th:text="${item.montantAttendu}"></td>
+          <td class="unit" style="width:17%;" th:text="${item.paidAmount}"></td>
+          <td class="unit" style="width:16%;" th:text="${item.montantRestant}"></td>
+        </tr>
+        </tbody>
+
+        <tfoot class="datatable-footer">
+        <tr class="tr-footer">
+          <td class="datatable-footer-total-label" colspan="2"
+              th:text="${'TOTAL DE: '+obj.organisme.name }"></td>
+          <td class="unit"
+              th:text="${' (NOMBRE DE DOSSIERS= '+obj.invoicePaymentItemsCount +' )'}"></td>
+          <td></td>
+          <td class="unit" th:text="${obj.totalAmount}"></td>
+          <td></td>
+        </tr>
+        </tfoot>
+
+      </table>
+
+    </td>
+
+
+  </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+  <tr class="tr-footer">
+    <td class="datatable-footer-total-label" colspan="2">TOTAL GENERAL</td>
+    <td class="unit"
+        th:text="${' (NOMBRE DE DOSSIERS= '+totalDossier +' )'}"></td>
+    <td></td>
+    <td class="unit" th:text="${paidAmount}"></td>
+    <td></td>
+  </tr>
+  </tfoot>
+</table>

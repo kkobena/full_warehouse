@@ -29,6 +29,7 @@ export class InvoicePaymentItem {
   created: string;
   heure: string;
   customerMatricule: string;
+  montantRestant: string;
 }
 
 export class Banque {

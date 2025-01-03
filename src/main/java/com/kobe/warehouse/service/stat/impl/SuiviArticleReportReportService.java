@@ -31,7 +31,7 @@ public class SuiviArticleReportReportService extends CommonReportService {
         FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties);
+        super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;

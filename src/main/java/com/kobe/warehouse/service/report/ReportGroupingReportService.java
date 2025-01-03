@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.config.FileStorageProperties;
+import com.kobe.warehouse.service.StorageService;
 import com.lowagie.text.DocumentException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,8 +15,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Component
 public abstract class ReportGroupingReportService extends CommonReportService {
 
-    protected ReportGroupingReportService(FileStorageProperties fileStorageProperties) {
-        super(fileStorageProperties);
+    protected ReportGroupingReportService(FileStorageProperties fileStorageProperties, StorageService storageService) {
+        super(fileStorageProperties, storageService);
     }
 
     public String printOneReceiptPage() {

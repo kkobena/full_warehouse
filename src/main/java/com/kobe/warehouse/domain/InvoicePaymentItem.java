@@ -36,10 +36,6 @@ public class InvoicePaymentItem implements Serializable {
     private Integer paidAmount;
 
     @NotNull
-    @Column(name = "montant_restant", nullable = false)
-    private Integer restToPay;
-
-    @NotNull
     @ManyToOne(optional = false)
     private ThirdPartySaleLine thirdPartySaleLine;
 
@@ -53,15 +49,6 @@ public class InvoicePaymentItem implements Serializable {
 
     public InvoicePaymentItem setThirdPartySaleLine(@NotNull ThirdPartySaleLine thirdPartySaleLine) {
         this.thirdPartySaleLine = thirdPartySaleLine;
-        return this;
-    }
-
-    public @NotNull Integer getRestToPay() {
-        return restToPay;
-    }
-
-    public InvoicePaymentItem setRestToPay(@NotNull Integer restToPay) {
-        this.restToPay = restToPay;
         return this;
     }
 

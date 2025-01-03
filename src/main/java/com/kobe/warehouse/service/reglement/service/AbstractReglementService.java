@@ -92,7 +92,6 @@ public abstract class AbstractReglementService implements ReglementService {
         invoicePaymentItem.setInvoicePayment(invoicePayment);
         invoicePaymentItem.setThirdPartySaleLine(thirdPartySaleLine);
         invoicePaymentItem.setPaidAmount(amount);
-        invoicePaymentItem.setRestToPay(invoicePaymentItem.getAmount() - amount);
         return invoicePaymentItem;
     }
 

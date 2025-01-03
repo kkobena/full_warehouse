@@ -44,7 +44,7 @@ public class FacturationReportServiceImpl extends CommonReportService implements
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties);
+        super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
         this.fileStorageProperties = fileStorageProperties;

@@ -5,11 +5,14 @@ import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.service.OrganismeDTO;
+import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
@@ -17,8 +20,13 @@ import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,23 +43,26 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final ReglementReportService reglementReportService;
+    private final ReglementReceiptService reglementReceiptService;
     private final InvoicePaymentItemRepository invoicePaymentItemRepository;
+    private final ReglementReportService reglementReportService;
 
     public ReglementDataServiceImpl(
         FacturationRepository facturationRepository,
         PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        ReglementReportService reglementReportService,
-        InvoicePaymentItemRepository invoicePaymentItemRepository
+        ReglementReceiptService reglementReceiptService,
+        InvoicePaymentItemRepository invoicePaymentItemRepository,
+        ReglementReportService reglementReportService
     ) {
         this.facturationRepository = facturationRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-        this.reglementReportService = reglementReportService;
+        this.reglementReceiptService = reglementReceiptService;
         this.invoicePaymentItemRepository = invoicePaymentItemRepository;
+        this.reglementReportService = reglementReportService;
     }
 
     @Override
@@ -75,8 +86,14 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     }
 
     @Override
+    @Transactional
+    public void deleteReglement(Set<Long> idReglements) {
+        idReglements.forEach(this::deleteReglement);
+    }
+
+    @Override
     public void printReceipt(long idReglement) {
-        this.reglementReportService.printRecipt(getInvoicePaymentReceipt(idReglement));
+        this.reglementReceiptService.printRecipt(getInvoicePaymentReceipt(idReglement));
     }
 
     @Override
@@ -86,15 +103,15 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     @Override
     public List<InvoicePaymentDTO> fetchInvoicesPayments(InvoicePaymentParam invoicePaymentParam) {
-        return fetchInvoicePayments(invoicePaymentParam);
+        return fetchInvoicePayments(invoicePaymentParam).stream().map(InvoicePaymentDTO::new).toList();
     }
 
-    private List<InvoicePaymentDTO> fetchInvoicePayments(InvoicePaymentParam invoicePaymentParam) {
+    private List<InvoicePayment> fetchInvoicePayments(InvoicePaymentParam invoicePaymentParam) {
         var startDate = Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now() : invoicePaymentParam.dateDebut();
         var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate : invoicePaymentParam.dateFin();
-        Sort sort = Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
+        Sort sort = Sort.by(Direction.ASC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
         if (invoicePaymentParam.grouped()) {
-            sort = Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
+            sort = Sort.by(Direction.ASC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
         }
         Specification<InvoicePayment> invoicePaymentSpecification = Specification.where(
             this.invoicePaymentRepository.periodeCriteria(startDate, endDate)
@@ -118,7 +135,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
                 this.invoicePaymentRepository.specialisationQueryString(invoicePaymentParam.search() + "%")
             );
         }
-        return this.invoicePaymentRepository.findAll(invoicePaymentSpecification, sort).stream().map(InvoicePaymentDTO::new).toList();
+        return this.invoicePaymentRepository.findAll(invoicePaymentSpecification, sort);
     }
 
     @Override
@@ -131,6 +148,23 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         return this.invoicePaymentRepository.findInvoicePaymentByParentId(idReglement).stream().map(InvoicePaymentDTO::new).toList();
     }
 
+    @Override
+    public Resource printToPdf(InvoicePaymentParam invoicePaymentParam) throws ReportFileExportException {
+        List<InvoicePaymentWrapper> invoicePaymentWrappers;
+        if (invoicePaymentParam.grouped()) {
+            invoicePaymentWrappers = buildGroupInvoicePaymentWrapper(invoicePaymentParam);
+        } else {
+            invoicePaymentWrappers = buildInvoicePaymentWrapper(invoicePaymentParam);
+        }
+        if (CollectionUtils.isEmpty(invoicePaymentWrappers)) {
+            throw new ReportFileExportException();
+        }
+        if (invoicePaymentWrappers.size() == 1) {
+            return this.reglementReportService.printToPdf(invoicePaymentWrappers.getFirst());
+        }
+        return this.reglementReportService.printToPdf(invoicePaymentWrappers);
+    }
+
     private InvoicePaymentReceiptDTO getInvoicePaymentReceipt(long idReglement) {
         return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.getReferenceById(idReglement));
     }
@@ -141,10 +175,15 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         int paidAmount = 0;
         for (InvoicePaymentItem invoicePaymentItem : invoicePayment.getInvoicePaymentItems()) {
             ThirdPartySaleLine thirdPartySaleLine = invoicePaymentItem.getThirdPartySaleLine();
-            thirdPartySaleLine.setMontantRegle(thirdPartySaleLine.getMontantRegle() - invoicePaymentItem.getPaidAmount());
-            factureTiersPayant.setMontantRegle(factureTiersPayant.getMontantRegle() - invoicePaymentItem.getPaidAmount());
+            thirdPartySaleLine.setMontantRegle(Math.max(thirdPartySaleLine.getMontantRegle() - invoicePaymentItem.getPaidAmount(), 0));
+            factureTiersPayant.setMontantRegle(Math.max(factureTiersPayant.getMontantRegle() - invoicePaymentItem.getPaidAmount(), 0));
             totalAmount += thirdPartySaleLine.getMontant();
             paidAmount += invoicePaymentItem.getPaidAmount();
+            if (thirdPartySaleLine.getMontantRegle() == 0) {
+                thirdPartySaleLine.setStatut(ThirdPartySaleStatut.ACTIF);
+            } else {
+                thirdPartySaleLine.setStatut(ThirdPartySaleStatut.HALF_PAID);
+            }
             thirdPartySaleLineRepository.save(thirdPartySaleLine);
         }
         paymentTransactionRepository.deleteByOrganismeId(invoicePayment.getId());
@@ -153,7 +192,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         updateFactureTiersPayantStatus(factureTiersPayant, totalAmount);
         facturationRepository.save(factureTiersPayant);
         if (groupeFacture != null) {
-            factureTiersPayant.setMontantRegle(groupeFacture.getMontantRegle() - paidAmount);
+            factureTiersPayant.setMontantRegle(Math.max(groupeFacture.getMontantRegle() - paidAmount, 0));
         }
         return totalAmount;
     }
@@ -167,5 +206,51 @@ public class ReglementDataServiceImpl implements ReglementDataService {
             factureTiersPayant.setStatut(InvoiceStatut.PAID);
         }
         factureTiersPayant.setUpdated(LocalDateTime.now());
+    }
+
+    private List<InvoicePaymentWrapper> buildInvoicePaymentWrapper(InvoicePaymentParam invoicePaymentParam) {
+        var periode = buildPeriode(invoicePaymentParam);
+        List<InvoicePaymentWrapper> invoicePaymentWrappers = new ArrayList<>();
+        fetchInvoicePayments(invoicePaymentParam)
+            .stream()
+            .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getTiersPayant()))
+            .forEach((k, v) -> {
+                InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
+                invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
+                invoicePaymentWrapper.setInvoicePayments(v.stream().map(InvoicePaymentDTO::new).toList());
+                invoicePaymentWrapper.setPeriode(periode);
+                invoicePaymentWrappers.add(invoicePaymentWrapper);
+            });
+        return invoicePaymentWrappers;
+    }
+
+    private List<InvoicePaymentWrapper> buildGroupInvoicePaymentWrapper(InvoicePaymentParam invoicePaymentParam) {
+        List<InvoicePaymentWrapper> invoicePaymentWrappers = new ArrayList<>();
+        var periode = buildPeriode(invoicePaymentParam);
+        fetchInvoicePayments(invoicePaymentParam)
+            .stream()
+            .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getGroupeTiersPayant()))
+            .forEach((k, v) -> {
+                InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
+                invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
+                invoicePaymentWrapper.setInvoicePayments(v.stream().map(InvoicePaymentDTO::new).toList());
+                invoicePaymentWrapper.setPeriode(periode);
+                invoicePaymentWrappers.add(invoicePaymentWrapper);
+            });
+        return invoicePaymentWrappers;
+    }
+
+    private String buildPeriode(InvoicePaymentParam invoicePaymentParam) {
+        var startDate = Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now() : invoicePaymentParam.dateDebut();
+        var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate : invoicePaymentParam.dateFin();
+        if (startDate.equals(endDate)) {
+            return startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        return (
+            " DU " +
+            startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+            " AU " +
+            endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        );
     }
 }

@@ -102,7 +102,12 @@
       <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
                 label="Rechercher"
                 size="small" />
+      <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf"
+                label="Imprimer"
+                severity="warning"
+                size="small" />
     </div>
+    
 
   </div>
 
@@ -250,3 +255,13 @@
 
   </p-table>
 </div>
+<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
+  <p-footer>
+    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
+            pButton
+            type="button"></button>
+    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
+            type="button"></button>
+  </p-footer>
+
+</p-confirmDialog>

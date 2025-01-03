@@ -2,58 +2,118 @@ package com.kobe.warehouse.service.reglement.service;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.receipt.AbstractReceiptServiceImpl;
-import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
+import com.kobe.warehouse.service.errors.ReportFileExportException;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
+import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
-public class ReglementReportServiceImpl extends AbstractReceiptServiceImpl implements ReglementReportService {
+public class ReglementReportServiceImpl extends CommonReportService implements ReglementReportService {
 
-    private final Map<String, Object> parametres = new HashMap<>();
-    private String path;
+    private final SpringTemplateEngine templateEngine;
 
-    protected ReglementReportServiceImpl(
+    private final Map<String, Object> variablesMap = new HashMap<>();
+
+    private String templateFile;
+
+    public ReglementReportServiceImpl(
+        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FileStorageProperties fileStorageProperties
+        StorageService storageService
     ) {
-        super(templateEngine, storageService, fileStorageProperties);
+        super(fileStorageProperties, storageService);
+        this.templateEngine = templateEngine;
     }
 
     @Override
-    public void printRecipt(InvoicePaymentReceiptDTO invoicePaymentReceipt) {
-        this.path = super.fileStorageLocation
-            .resolve(
-                "reglement_fature_" +
-                invoicePaymentReceipt.getCodeFacture() +
-                "_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                ".pdf"
-            )
-            .toFile()
-            .getAbsolutePath();
-        this.parametres.put(Constant.ENTITY, invoicePaymentReceipt);
-        super.print();
+    public Resource printToPdf(List<InvoicePaymentWrapper> invoicePaymentWrappers) throws ReportFileExportException {
+        this.templateFile = Constant.REGLEMENT_GROUP_TEMPLATE_FILE;
+        try {
+            return this.getResource(print(invoicePaymentWrappers));
+        } catch (Exception e) {
+            log.error("printToPdf", e);
+            throw new ReportFileExportException();
+        }
     }
 
     @Override
-    public Map<String, Object> getParameters() {
-        return this.parametres;
+    public Resource printToPdf(InvoicePaymentWrapper invoicePayment) throws ReportFileExportException {
+        this.templateFile = Constant.REGLEMENT_SINGLE_TEMPLATE_FILE;
+        try {
+            return this.getResource(print(invoicePayment));
+        } catch (Exception e) {
+            log.error("printToPdf", e);
+            throw new ReportFileExportException();
+        }
     }
 
     @Override
-    public String getTemplate() {
-        return Constant.REGLEMENT_TEMPLATE_FILE;
+    protected List<?> getItems() {
+        return List.of();
     }
 
     @Override
-    public String getPath() {
-        return this.path;
+    protected int getMaxiRowCount() {
+        return 0;
+    }
+
+    @Override
+    protected String getTemplateAsHtml() {
+        return templateEngine.process(templateFile, super.getContextVariables());
+    }
+
+    @Override
+    protected String getTemplateAsHtml(Context context) {
+        this.getParameters().forEach(context::setVariable);
+        return templateEngine.process(templateFile, context);
+    }
+
+    @Override
+    protected Map<String, Object> getParameters() {
+        return this.variablesMap;
+    }
+
+    @Override
+    protected String getGenerateFileName() {
+        return "releve_reglement";
+    }
+
+    private String print(InvoicePaymentWrapper invoicePayment) {
+        int itemSize = 0;
+        int totalAmount = 0;
+        for (InvoicePaymentDTO i : invoicePayment.getInvoicePayments()) {
+            itemSize += i.getInvoicePaymentItemsCount();
+            totalAmount += i.getTotalAmount();
+        }
+        this.getParameters().put(Constant.REGLEMENT_COUNT, NumberUtil.formatToString(itemSize));
+        this.getParameters().put(Constant.REGLEMENT_PAID_AMOUNT, NumberUtil.formatToString(totalAmount));
+        this.getParameters().put(Constant.ENTITY, invoicePayment);
+        super.getCommonParameters();
+        return super.printOneReceiptPage(getDestFilePath());
+    }
+
+    private String print(List<InvoicePaymentWrapper> invoicePaymentWrappers) {
+        int itemSize = 0;
+        int totalAmount = 0;
+        for (InvoicePaymentWrapper invoicePaymentWrapper : invoicePaymentWrappers) {
+            itemSize += Integer.parseInt(invoicePaymentWrapper.getInvoicePaymentItemsCount().replaceAll(" ", ""));
+            totalAmount += Integer.parseInt(invoicePaymentWrapper.getTotalAmount().replaceAll(" ", ""));
+        }
+        this.getParameters().put(Constant.REGLEMENT_COUNT, NumberUtil.formatToString(itemSize));
+        this.getParameters().put(Constant.ITEMS, invoicePaymentWrappers);
+        this.getParameters().put(Constant.REGLEMENT_PAID_AMOUNT, NumberUtil.formatToString(totalAmount));
+        this.getParameters().put(Constant.REGLEMENT_PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
+
+        super.getCommonParameters();
+        return super.printOneReceiptPage(getDestFilePath());
     }
 }

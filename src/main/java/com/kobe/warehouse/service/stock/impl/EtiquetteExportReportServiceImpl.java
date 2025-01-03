@@ -46,7 +46,7 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties);
+        super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

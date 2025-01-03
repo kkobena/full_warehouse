@@ -2,7 +2,6 @@ import { AfterViewInit, Component, EventEmitter, inject, Input, Output } from '@
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Facture } from '../../facturation/facture.model';
 import { LazyLoadEvent } from 'primeng/api';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { FactureService } from '../../facturation/facture.service';
 import { InvoiceSearchParams } from '../../facturation/edition-search-params.model';
 import { DATE_FORMAT_ISO_FROM_NGB_DATE, GET_NG_DATE } from '../../../shared/util/warehouse-util';
@@ -56,7 +55,7 @@ export class FactuesModalComponent implements AfterViewInit {
   protected loadingBtn = false;
   protected loading!: boolean;
   protected totalItems = 0;
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly itemsPerPage = 20;
   protected page = 0;
   protected datas: Facture[] = [];
   protected statut: string = null;

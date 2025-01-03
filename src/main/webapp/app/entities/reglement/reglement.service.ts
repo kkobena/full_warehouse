@@ -37,11 +37,25 @@ export class ReglementService {
     return this.http.get<InvoicePaymentItem[]>(`${this.resourceUrl}/items/${id}`, { observe: 'response' });
   }
 
-  getGroupItems(id: number): Observable<HttpResponse<InvoicePaymentItem[]>> {
-    return this.http.get<InvoicePaymentItem[]>(`${this.resourceUrl}/group/items/${id}`, { observe: 'response' });
+  getGroupItems(id: number): Observable<HttpResponse<Reglement[]>> {
+    return this.http.get<Reglement[]>(`${this.resourceUrl}/group/items/${id}`, { observe: 'response' });
   }
 
   printReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/print-receipt/${id}`, { observe: 'response' });
+  }
+
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  deleteAll(req?: any): Observable<HttpResponse<{}>> {
+    const options = createRequestOptions(req);
+    return this.http.delete(`${this.resourceUrl}/all`, { params: options, observe: 'response' });
+  }
+
+  onPrintPdf(req?: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
   }
 }

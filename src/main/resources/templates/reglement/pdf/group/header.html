@@ -1,0 +1,59 @@
+<header>
+  <div class="row" style="padding-bottom: 0;">
+    <table style="padding: 0;margin: 0;">
+      <tbody>
+      <tr>
+        <td>
+          <div class="col-6 company-details">
+            <h2 class="name">
+              <span th:text="${magasin.name}"></span>
+            </h2>
+            <div th:if="${magasin.phone ne null}">
+              <span th:text="${magasin.phone}"></span>
+            </div>
+            <div th:if="${magasin.address ne null}">
+              <span th:text="${magasin.address}"></span>
+            </div>
+
+          </div>
+        </td>
+
+        <td style="text-align: right;padding:0">
+          <span class="header-counter" style="text-align: right;font-weight: 600;"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+
+  </div>
+  <div class="row"
+       style="padding-top: 0;padding-bottom: 0;margin: 0;padding-left: 10px;padding-right: 10px;">
+    <table style="margin: 0;">
+      <tbody>
+      <tr>
+        <td colspan="2">
+          <span class="tiers-payant-info">LISTE DES REGLEMENTS FACTURES PERIODE  <span
+            class="tiers-payant-info"
+            th:text="${periode}"></span></span>
+
+
+        </td>
+
+      </tr>
+
+      <tr>
+        <td>
+
+        </td>
+        <td style="text-align: right;">
+          Date d'édtion: <span
+          th:text="${  #temporals.format(T(java.time.LocalDateTime).now(), 'dd/MM/yyyy HH:mm')}"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</header>

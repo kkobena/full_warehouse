@@ -134,7 +134,17 @@ export class RegelementFactureIndividuelleComponent {
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-    this.reset(response);
+    this.confirmationService.confirm({
+      message: ' Voullez-vous imprimer le ticket ?',
+      header: 'TICKET REGLEMENT',
+      icon: 'pi pi-info-circle',
+      accept: () => {
+        this.reglementService.printReceipt(response.id).subscribe();
+        this.reset(response);
+      },
+      reject: () => this.reset(response),
+      key: 'printReceipt',
+    });
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {

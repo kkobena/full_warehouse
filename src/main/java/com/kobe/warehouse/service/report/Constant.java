@@ -51,7 +51,12 @@ public final class Constant {
     public static final String ETIQUETES_TEMPLATE_FILE = "etiquetes/main";
     public static final String ETIQUETES_BEGIN = "begin";
     public static final String INVOICE_TEMPLATE_FILE = "facture/saleInvoice";
-    public static final String REGLEMENT_TEMPLATE_FILE = "reglement/receipt/main";
+    public static final String REGLEMENT_RECEIPT_TEMPLATE_FILE = "reglement/receipt/main";
+    public static final String REGLEMENT_SINGLE_TEMPLATE_FILE = "reglement/pdf/single/main";
+    public static final String REGLEMENT_GROUP_TEMPLATE_FILE = "reglement/pdf/group/main";
+    public static final String REGLEMENT_COUNT = "totalDossier";
+    public static final String REGLEMENT_PAID_AMOUNT = "paidAmount";
+    public static final String REGLEMENT_PERIODE = "periode";
 
     private Constant() {}
 }

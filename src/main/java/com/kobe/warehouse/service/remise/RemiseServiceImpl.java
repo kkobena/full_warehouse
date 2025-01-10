@@ -73,7 +73,15 @@ public class RemiseServiceImpl implements RemiseService {
         return toEntity(remiseDTO, new RemiseClient());
     }
 
-    private Remise toEntity(RemiseDTO remiseDTO, Remise remise) {
+    private Remise toEntity(RemiseDTO remiseDTO, RemiseProduit remise) {
+        remise.setValeur(remiseDTO.getValeur());
+        if (remiseDTO.getId() != null) {
+            remise.setId(remiseDTO.getId());
+        }
+        return remise;
+    }
+
+    private Remise toEntity(RemiseDTO remiseDTO, RemiseClient remise) {
         remise.setRemiseValue(remiseDTO.getRemiseValue());
         remise.setValeur(remiseDTO.getValeur());
         if (remiseDTO.getId() != null) {

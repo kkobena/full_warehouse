@@ -198,6 +198,34 @@ public abstract class CommonReportService {
             renderer.setDocumentFromString(this.getTemplateAsHtml());
             renderer.layout();
             renderer.createPDF(outputStream);
+            /*
+public Response generatePdf() {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+        PdfRendererBuilder builder = new PdfRendererBuilder();
+        builder.useFastMode();
+        builder.withHtmlContent("<html><body><h1>Hello, PDF!</h1></body></html>", null);
+        builder.toStream(baos);
+        builder.run();
+
+        return Response.ok(baos.toByteArray())
+                       .header("Content-Disposition", "inline; filename=output.pdf")
+                       .build();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return Response.serverError().build();
+    }
+}
+ try (OutputStream os = new FileOutputStream("output.pdf")) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withHtmlContent("<html><body><h1>Hello, PDF!</h1></body></html>", null);
+            builder.toStream(os);
+            builder.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+             */
         } catch (IOException | DocumentException e) {
             log.debug("printOneReceiptPage", e);
         }

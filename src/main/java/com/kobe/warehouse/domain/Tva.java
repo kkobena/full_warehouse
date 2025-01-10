@@ -39,8 +39,9 @@ public class Tva implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public Tva setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Integer getTaux() {

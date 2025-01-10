@@ -11,13 +11,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.Objects;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -37,12 +33,8 @@ public class Remise implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "valeur")
+    @Column(name = "libelle", length = 100)
     private String valeur;
-
-    @NotNull
-    @Column(name = "remise_value", nullable = false)
-    private Float remiseValue;
 
     @NotNull
     @Column(name = "enable", nullable = false, columnDefinition = "boolean default true")
@@ -52,28 +44,6 @@ public class Remise implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
-
-    @NotNull
-    @Column(name = "begin", nullable = false)
-    @FutureOrPresent
-    private LocalDate begin = LocalDate.now();
-
-    @NotNull
-    @Column(name = "end", nullable = false)
-    @FutureOrPresent
-    private LocalDate end = LocalDate.now().plusDays(10);
-
-    @Transient
-    private float tauxRemise;
-
-    public LocalDate getBegin() {
-        return begin;
-    }
-
-    public Remise setBegin(LocalDate begin) {
-        this.begin = begin;
-        return this;
-    }
 
     public Long getId() {
         return id;
@@ -104,41 +74,12 @@ public class Remise implements Serializable {
         return this;
     }
 
-    public Float getRemiseValue() {
-        return remiseValue;
-    }
-
-    public void setRemiseValue(Float remiseValue) {
-        this.remiseValue = remiseValue;
-    }
-
-    public Remise remiseValue(Float remiseValue) {
-        this.remiseValue = remiseValue;
-        return this;
-    }
-
     public Status getStatus() {
         return status;
     }
 
     public Remise setStatus(Status status) {
         this.status = status;
-        return this;
-    }
-
-    public float getTauxRemise() {
-        if (Objects.nonNull(remiseValue)) {
-            tauxRemise = remiseValue / 100;
-        }
-        return tauxRemise;
-    }
-
-    public LocalDate getEnd() {
-        return end;
-    }
-
-    public Remise setEnd(LocalDate end) {
-        this.end = end;
         return this;
     }
 
@@ -156,19 +97,5 @@ public class Remise implements Serializable {
     @Override
     public int hashCode() {
         return 31;
-    }
-
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "Remise{"
-            + "id="
-            + getId()
-            + ", valeur='"
-            + getValeur()
-            + "'"
-            + ", remiseValue="
-            + getRemiseValue()
-            + "}";
     }
 }

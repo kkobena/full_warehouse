@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.enumeration.Status;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
@@ -42,11 +43,13 @@ public class RemiseDTO implements Serializable {
     public RemiseDTO(Remise remise) {
         id = remise.getId();
         valeur = remise.getValeur();
-        remiseValue = remise.getRemiseValue();
+        if (remise instanceof RemiseClient remiseClient) {
+            remiseValue = remiseClient.getRemiseValue();
+        }
+
         status = remise.getStatus();
-        end = remise.getEnd();
-        begin = remise.getBegin();
-        displayName = remise.getValeur() + " " + remise.getRemiseValue() + "%";
+
+        displayName = remise.getValeur();
         this.enable = remise.isEnable();
     }
 

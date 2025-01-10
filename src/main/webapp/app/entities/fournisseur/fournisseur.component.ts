@@ -23,6 +23,7 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-fournisseur',
@@ -58,6 +59,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     InputTextModule,
     DropdownModule,
     KeyFilterModule,
+    TooltipModule,
   ],
 })
 export class FournisseurComponent implements OnInit {
@@ -96,6 +98,17 @@ export class FournisseurComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPage();
+    this.groupeFournisseurService
+      .query({
+        search: '',
+      })
+      .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
+        if (res.body) {
+          res.body.forEach(item => {
+            this.groupes.push({ label: item.libelle, value: item.id });
+          });
+        }
+      });
   }
 
   loadPage(page?: number, search?: string): void {
@@ -143,26 +156,15 @@ export class FournisseurComponent implements OnInit {
   }
 
   updateForm(entity: IFournisseur): void {
-    this.groupeFournisseurService
-      .query({
-        search: '',
-      })
-      .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
-        if (res.body) {
-          res.body.forEach(item => {
-            this.groupes.push({ label: item.libelle, value: item.id });
-          });
-        }
-        this.editForm.patchValue({
-          id: entity.id,
-          code: entity.code,
-          libelle: entity.libelle,
-          groupeFournisseurId: entity.groupeFournisseurId,
-          addresspostale: entity.addressePostal,
-          phone: entity.phone,
-          mobile: entity.mobile,
-        });
-      });
+    this.editForm.patchValue({
+      id: entity.id,
+      code: entity.code,
+      libelle: entity.libelle,
+      groupeFournisseurId: entity.groupeFournisseurId,
+      addresspostale: entity.addressePostal,
+      phone: entity.phone,
+      mobile: entity.mobile,
+    });
   }
 
   save(): void {

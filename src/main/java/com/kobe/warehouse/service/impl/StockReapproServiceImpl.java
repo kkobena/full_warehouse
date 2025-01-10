@@ -53,7 +53,7 @@ public class StockReapproServiceImpl implements StockReapproService {
 
     @Override
     // @Scheduled(cron = "0 0 8-19 * * *")
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
         Optional<AppConfiguration> appConfiguration = getLastReapproDate();
         appConfiguration.ifPresent(configuration -> {

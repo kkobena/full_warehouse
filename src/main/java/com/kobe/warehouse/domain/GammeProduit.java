@@ -45,8 +45,9 @@ public class GammeProduit implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public GammeProduit setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getCode() {

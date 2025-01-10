@@ -11,7 +11,7 @@ import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.service.OrganismeDTO;
+import com.kobe.warehouse.service.dto.OrganismeDTO;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;

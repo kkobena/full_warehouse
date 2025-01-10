@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
@@ -8,8 +10,10 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -20,8 +24,8 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.SalesLineService;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -115,35 +119,44 @@ public class SalesLineServiceImpl implements SalesLineService {
         }
     }
 
+    private Optional<GrilleRemise> getGrilleRemise(CodeRemise codeRemise, RemiseProduit remiseProduit, Sales sales) {
+        List<GrilleRemise> grilleRemises = remiseProduit.getGrilles();
+        if (CollectionUtils.isEmpty(grilleRemises)) {
+            return Optional.empty();
+        }
+        if (sales instanceof CashSale) {
+            return grilleRemises.stream().filter(grilleRemise -> grilleRemise.getCode() == codeRemise.getCodeVno()).findFirst();
+        } else if (sales instanceof ThirdPartySales) {
+            return grilleRemises.stream().filter(grilleRemise -> grilleRemise.getCode() == codeRemise.getCodeVo()).findFirst();
+        }
+        return Optional.empty();
+    }
+
     public void processProductDiscount(SalesLine salesLine) {
-        Remise remise = salesLine.getSales().getRemise();
+        Sales sales = salesLine.getSales();
+        Remise remise = sales.getRemise();
         if (Objects.isNull(remise)) {
             salesLine.setNetAmount(0);
             return;
         }
         RemiseProduit remiseProduit = (RemiseProduit) remise;
-        if (
-            salesLine.getProduit().getRemisable() &&
-            remiseProduit.isEnable() &&
-            remiseProduit.getEnd().isAfter(LocalDate.now()) &&
-            (remiseProduit.getBegin().isBefore(LocalDate.now()) || remiseProduit.getBegin().isEqual(LocalDate.now()))
-        ) {
-            int discount = (int) Math.ceil(salesLine.getSalesAmount() * remiseProduit.getTauxRemise());
+        getGrilleRemise(salesLine.getProduit().getCodeRemise(), remiseProduit, sales).ifPresent(grilleRemise -> {
+            int discount = (int) Math.ceil(salesLine.getSalesAmount() * grilleRemise.getTauxRemise());
             salesLine.setDiscountAmount(discount);
             salesLine.setNetAmount(salesLine.getSalesAmount() - salesLine.getDiscountAmount());
             salesLine.setDiscountAmountHorsUg(salesLine.getDiscountAmount());
             if (salesLine.getQuantityUg() > 0) {
                 int discountHUg = (int) Math.ceil(
                     ((salesLine.getQuantityRequested() - salesLine.getQuantityUg()) * salesLine.getRegularUnitPrice()) *
-                    remiseProduit.getRemiseValue()
+                    grilleRemise.getRemiseValue()
                 );
                 salesLine.setDiscountAmountHorsUg(discountHUg);
                 discountHUg = (int) Math.ceil(
-                    (salesLine.getQuantityUg() * salesLine.getRegularUnitPrice()) * remiseProduit.getRemiseValue()
+                    (salesLine.getQuantityUg() * salesLine.getRegularUnitPrice()) * grilleRemise.getRemiseValue()
                 );
                 salesLine.setDiscountAmountUg(discountHUg);
             }
-        }
+        });
     }
 
     @Override

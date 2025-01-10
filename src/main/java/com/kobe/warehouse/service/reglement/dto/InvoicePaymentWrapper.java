@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.reglement.dto;
 
-import com.kobe.warehouse.service.OrganismeDTO;
+import com.kobe.warehouse.service.dto.OrganismeDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.ArrayList;
 import java.util.List;

@@ -2,8 +2,6 @@ package com.kobe.warehouse.constant;
 
 public final class EntityConstant {
 
-    public static final String TYPE_DATA_SOURCE_JDBC = "JDBC";
-    public static final String TYPE_DATA_SOURCE_OBJECT_COLLECTION = "OBJECT_COLLECTION";
     public static final String KEY_MULTI_SITE = "KEY_MULTI_SITE";
     public static final String KEY_MENU_TYPE = "KEY_MENU_TYPE";
     public static final String KEY_MENU_COLOR = "KEY_MENU_COLOR";
@@ -40,4 +38,6 @@ public final class EntityConstant {
     public static final int APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE = 84;
     public static final String CASH_CODE = "CASH";
     public static final String APP_RESET_INVOICE_NUMBER = "APP_RESET_INVOICE_NUMBER";
+    public static final String SANS_EMPLACEMENT_CODE = "SANS";
+    public static final Long DEFAULT_TYPE_ETIQUETTES = 2L;
 }

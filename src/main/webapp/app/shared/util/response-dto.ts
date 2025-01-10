@@ -4,6 +4,8 @@ export interface IResponseDto {
   size?: number;
   totalSize?: number;
   completed?: boolean;
+  rejectFileUrl?: string;
+  errorSize?: number;
 }
 
 export class ResponseDto implements IResponseDto {
@@ -12,6 +14,8 @@ export class ResponseDto implements IResponseDto {
     public success?: boolean,
     public size?: number,
     public totalSize?: number,
-    public completed?: boolean
+    public completed?: boolean,
+    public rejectFileUrl?: string,
+    public errorSize?: number,
   ) {}
 }

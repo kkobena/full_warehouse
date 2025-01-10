@@ -42,8 +42,9 @@ public class FormProduit implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public FormProduit setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getLibelle() {

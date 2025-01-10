@@ -16,4 +16,6 @@ public interface RayonRepository extends JpaRepository<Rayon, Long> {
     Optional<Rayon> findFirstByLibelleAndStorageId(String libelle, Long storageId);
 
     Optional<Rayon> findFirstByCodeAndStorageId(String code, Long storageId);
+
+    Rayon findByCodeEquals(String code);
 }

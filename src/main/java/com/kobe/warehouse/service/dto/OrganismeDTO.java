@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -13,6 +13,24 @@ public class OrganismeDTO implements Serializable {
     private String adresse;
     private String telephone;
     private String telephoneFixe;
+
+    public OrganismeDTO(TiersPayant tiersPayant) {
+        this.adresse = tiersPayant.getAdresse();
+        this.codeOrganisme = tiersPayant.getCodeOrganisme();
+        this.fullName = tiersPayant.getFullName();
+        this.id = tiersPayant.getId();
+        this.name = tiersPayant.getFullName();
+        this.telephone = tiersPayant.getTelephone();
+        this.telephoneFixe = tiersPayant.getTelephoneFixe();
+    }
+
+    public OrganismeDTO(GroupeTiersPayant tiersPayant) {
+        this.adresse = tiersPayant.getAdresse();
+        this.id = tiersPayant.getId();
+        this.name = tiersPayant.getName();
+        this.telephone = tiersPayant.getTelephone();
+        this.telephoneFixe = tiersPayant.getTelephoneFixe();
+    }
 
     public String getAdresse() {
         return adresse;
@@ -68,23 +86,5 @@ public class OrganismeDTO implements Serializable {
 
     public void setTelephoneFixe(String telephoneFixe) {
         this.telephoneFixe = telephoneFixe;
-    }
-
-    public OrganismeDTO(TiersPayant tiersPayant) {
-        this.adresse = tiersPayant.getAdresse();
-        this.codeOrganisme = tiersPayant.getCodeOrganisme();
-        this.fullName = tiersPayant.getFullName();
-        this.id = tiersPayant.getId();
-        this.name = tiersPayant.getFullName();
-        this.telephone = tiersPayant.getTelephone();
-        this.telephoneFixe = tiersPayant.getTelephoneFixe();
-    }
-
-    public OrganismeDTO(GroupeTiersPayant tiersPayant) {
-        this.adresse = tiersPayant.getAdresse();
-        this.id = tiersPayant.getId();
-        this.name = tiersPayant.getName();
-        this.telephone = tiersPayant.getTelephone();
-        this.telephoneFixe = tiersPayant.getTelephoneFixe();
     }
 }

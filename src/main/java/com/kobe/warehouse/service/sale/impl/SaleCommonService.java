@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.PosteRepository;
@@ -439,7 +440,7 @@ public class SaleCommonService {
     public void applyRemiseClient(Sales sales, RemiseClient remiseClient) {
         if (remiseClient != null) {
             sales.setRemise(remiseClient);
-            computeRemisableAmount(sales);
+            computeRemisableAmount(remiseClient, sales);
         }
     }
 
@@ -452,17 +453,17 @@ public class SaleCommonService {
             });
     }
 
-    private void computeRemisableAmount(Sales sales) {
+    private void computeRemisableAmount(RemiseClient remiseClient, Sales sales) {
         int totalAmount = sales
             .getSalesLines()
             .stream()
-            .filter(e -> e.getProduit().getRemisable())
+            .filter(e -> e.getProduit().getCodeRemise() != CodeRemise.NONE)
             .mapToInt(SalesLine::getSalesAmount)
             .sum();
         if (totalAmount == 0) {
             return;
         }
-        int discount = (int) Math.ceil(totalAmount * sales.getRemise().getTauxRemise());
+        int discount = (int) Math.ceil(totalAmount * remiseClient.getTauxRemise());
         sales.setDiscountAmount(discount);
         sales.setNetAmount(sales.getSalesAmount() - discount);
     }
@@ -473,7 +474,7 @@ public class SaleCommonService {
             if (remise instanceof RemiseProduit) {
                 this.computeRemiseProduit(sales);
             } else {
-                this.computeRemisableAmount(sales);
+                this.computeRemisableAmount((RemiseClient) remise, sales);
             }
         }
     }

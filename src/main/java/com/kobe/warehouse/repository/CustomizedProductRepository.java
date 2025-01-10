@@ -28,6 +28,7 @@ import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
@@ -548,7 +549,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
             );
         }
         if (Objects.nonNull(produitCriteria.getRemisable())) {
-            predicates.add(cb.equal(root.get(Produit_.remisable), produitCriteria.getRemisable()));
+            predicates.add(cb.notEqual(root.get(Produit_.codeRemise), CodeRemise.NONE));
         }
         return predicates;
     }
@@ -665,7 +666,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
 
         if (Objects.nonNull(produitCriteria.getRemisable())) {
-            predicates.add(cb.equal(root.get(Produit_.remisable), produitCriteria.getRemisable()));
+            predicates.add(cb.notEqual(root.get(Produit_.codeRemise), CodeRemise.NONE));
         }
 
         return predicates;

@@ -42,8 +42,9 @@ public class Laboratoire implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public Laboratoire setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getLibelle() {

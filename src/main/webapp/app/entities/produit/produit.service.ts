@@ -113,6 +113,10 @@ export class ProduitService {
     return this.http.post<IRayonProduit>(this.rayonProduitUrl, rayonProduit, { observe: 'response' });
   }
 
+  getRejectCsv(reference: string): Observable<Blob> {
+    return this.http.get(`${this.importationResourceUrl}/rejet-csv/${reference}`, { responseType: 'blob' });
+  }
+
   queryLite(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http

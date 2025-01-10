@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.CascadeType;
@@ -115,7 +116,7 @@ public class Produit implements Serializable {
 
     @Min(value = 0)
     @Column(name = "prix_reference")
-    private Integer PrixRererence;
+    private Integer prixRererence;
 
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
@@ -233,8 +234,22 @@ public class Produit implements Serializable {
     @Column(name = "seuil_decond")
     private Integer seuilDeconditionnement;
 
-    @Column(name = "remisable", columnDefinition = "boolean default true")
-    private Boolean remisable = Boolean.TRUE;
+    @Enumerated(EnumType.STRING)
+    @Column(
+        name = "code_remise",
+        length = 6,
+        columnDefinition = "varchar(6) default 'CODE_0' COMMENT 'Code de remise qui seront mappés sur les grilles de remises'"
+    )
+    private CodeRemise codeRemise = CodeRemise.CODE_0;
+
+    public CodeRemise getCodeRemise() {
+        return codeRemise;
+    }
+
+    public Produit setCodeRemise(CodeRemise codeRemise) {
+        this.codeRemise = codeRemise;
+        return this;
+    }
 
     public @Min(value = 0) Integer getSeuilReassort() {
         return seuilReassort;
@@ -252,14 +267,6 @@ public class Produit implements Serializable {
         this.seuilDeconditionnement = seuilDeconditionnement;
     }
 
-    public Boolean getRemisable() {
-        return remisable;
-    }
-
-    public void setRemisable(Boolean remisable) {
-        this.remisable = remisable;
-    }
-
     /*
     public List<ParcoursProduit> getParcoursProduits() {
     return parcoursProduits;
@@ -271,11 +278,11 @@ public class Produit implements Serializable {
   }*/
 
     public @Min(value = 0) Integer getPrixRererence() {
-        return PrixRererence;
+        return prixRererence;
     }
 
     public void setPrixRererence(@Min(value = 0) Integer prixRererence) {
-        PrixRererence = prixRererence;
+        this.prixRererence = prixRererence;
     }
 
     public Dci getDci() {

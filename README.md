@@ -135,13 +135,13 @@ as a guideline (300 items x 50% = 150 items)
 
 # REQUETE POUR EXPORTER LES FOURNISSEURS EN CSV
 
-SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code, f.libelle AS
+SELECT  TRIM(g.str_LIBELLE) AS libelle,TRIM(g.str_CODE) AS code, f.libelle AS
 groupeFournisseur_libelle,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE AS mobile,
 g.str_TELEPHONE AS phone ,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur
-FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id;
+FROM t_grossiste g LEFT JOIN groupefournisseur f ON g.groupeId=f.id GROUP BY TRIM(g.str_LIBELLE);
 
 #REQUETE FAMILLE PRODUIT
-SELECT g.str_LIBELLE AS libelle,g.str_CODE AS code,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE
+SELECT DISTINCT g.str_LIBELLE AS libelle,g.str_CODE AS code,g.str_CODE_POSTAL AS addresse_postal,g.str_MOBILE
 AS mobile, g.str_TELEPHONE AS phone
 ,g.str_URL_EXTRANET AS site, g.idrepartiteur AS identifiant_repartiteur, f.libelle AS
 groupeFournisseur_libelle
@@ -157,9 +157,9 @@ select l.libelle AS libelle from laboratoire l;
 
 # REQUETE POUR EXPORTER LES RAYONS EN CSV
 
-SELECT r.str_LIBELLEE AS libelle,r.str_CODE AS code, r.bool_ACCOUNT AS exclude FROM
+SELECT DISTINCT  TRIM(r.str_LIBELLEE) AS libelle,TRIM(r.str_CODE) AS code, r.bool_ACCOUNT AS exclude FROM
 t_zone_geographique r
-WHERE r.str_STATUT='enable' AND r.str_LIBELLEE <> 'Default';
+WHERE r.str_STATUT='enable' AND r.str_LIBELLEE <> 'Default' GROUP BY TRIM(r.str_LIBELLEE);
 
 #REQUETE POUR EXPORTER LES GROUPE DE TIERSPAYANTS
 
@@ -335,4 +335,27 @@ FROM t_compte_client_tiers_payant cp join t_compte_client c on cp.lg_COMPTE_CLIE
          
   # export requete to csv       
 mysql -u username -p -e "SELECT * FROM your_table;" -B > output.csv
+
+##REQUETE POUR EXPORTER LES produits EN CSV
+ `SELECT TRIM(f.int_CIP) AS codeCip,IFNULL(f.int_EAN13,'')   AS codeEan,TRIM(f.str_NAME) AS produitName,f.int_PAF AS prixAchat,f.int_PRICE AS prixUni,
+s.int_NUMBER_AVAILABLE AS produitStock,f.int_SEUIL_MIN AS seuilMin,
+f.int_QTE_REAPPROVISIONNEMENT AS qtyReappro,f.bool_ACCOUNT AS chiffre,
+f.is_scheduled AS scheduled,
+IFNULL( f.cmu_price,0) AS prixCmu,
+tva.int_VALUE AS codeTva,IFNULL(f.str_CODE_REMISE,'0') AS codeRemise,IFNULL(TRIM(f.int_T),'') AS codeTableau,TRIM(z.str_CODE) AS codeRayon
+,TRIM(fm.str_CODE_FAMILLE) AS codeFamille,TRIM(gr.str_CODE)  AS codeFournnisseur,IFNULL(f.bool_CHECKEXPIRATIONDATE,'0') AS checkExpiryDate,
+IFNULL(DATE_FORMAT(f.dt_PEREMPTION,'%Y-%m-%d'),'') AS perimeAt,IFNULL(TRIM(lab.libelle),'') AS libelleLab,
+IFNULL(TRIM(game.libelle),'') AS libelleGamme,IFNULL(f.int_NUMBERDETAIL,1) AS nombreDetail,IFNULL(decon.int_NUMBER_AVAILABLE,'') AS deconQty,IFNULL(decon.prixDT,'') AS prixUniDetail
+,IFNULL(decon.prixAchatDT,'') AS prixAchatDetail
+ FROM  t_famille f JOIN t_famille_stock s ON f.lg_FAMILLE_ID=s.lg_FAMILLE_ID 
+JOIN t_zone_geographique z ON f.lg_ZONE_GEO_ID=z.lg_ZONE_GEO_ID 
+JOIN t_famillearticle fm ON f.lg_FAMILLEARTICLE_ID =fm.lg_FAMILLEARTICLE_ID
+JOIN t_grossiste gr ON f.lg_GROSSISTE_ID=gr.lg_GROSSISTE_ID
+LEFT JOIN laboratoire lab ON f.laboratoire_id=lab.id LEFT JOIN gamme_produit game ON f.gamme_id=game.id
+JOIN t_code_tva tva ON f.lg_CODE_TVA_ID=tva.lg_CODE_TVA_ID
+LEFT JOIN (SELECT id.int_PRICE AS prixDT,id.int_PAF AS prixAchatDT, ds.int_NUMBER_AVAILABLE,id.lg_FAMILLE_PARENT_ID FROM t_famille id JOIN  t_famille_stock ds ON id.lg_FAMILLE_ID=ds.lg_FAMILLE_ID WHERE ds.lg_EMPLACEMENT_ID='1'
+AND id.str_STATUT='enable' AND id.bool_DECONDITIONNE=1 AND ds.int_NUMBER_AVAILABLE >=0 GROUP  BY id.lg_FAMILLE_PARENT_ID) AS decon ON f.lg_FAMILLE_ID=decon.lg_FAMILLE_PARENT_ID
+
+WHERE s.lg_EMPLACEMENT_ID='1' AND f.str_STATUT='enable' AND f.bool_DECONDITIONNE=0  GROUP BY TRIM(f.int_CIP), gr.lg_GROSSISTE_ID;
+`
 npm install libphonenumber-js --save

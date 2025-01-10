@@ -1,0 +1,60 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+             size="medium"
+             type="timer"></ngx-spinner>
+<!--<div class="spinner-border text-info ws-spinner" role="status"
+     style="width: 4rem; height: 4rem;">
+  <span class="sr-only">Loading...</span>
+</div>-->
+<div class="modal-header">
+  <h6 class="modal-title">{{ title }}</h6>
+
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal"
+          type="button">&times;
+  </button>
+</div>
+<div class="modal-body" style="padding:15px;">
+  <div class="ui-g form-group">
+
+    <label class="form-control-label" for="fournisseurId">Fournisseurs<span
+      style="font-weight: 900;color: red;">*</span></label>
+    <p-dropdown #fournisseur [filter]="true"
+                [options]="fournisseurs" [style]="{'width':'100%'}"
+                [virtualScroll]="false"
+                filterBy="libelle"
+                id="fournisseurId"
+                optionLabel="libelle"
+                optionValue="id"
+                placeholder="Sélectionner un fournisseur"
+    >
+    </p-dropdown>
+
+  </div>
+  <div class="text-center ui-g form-group">
+    <p-fileUpload #fileUpload [accept]="accept"
+                  [customUpload]="true"
+                  [showUploadButton]="false"
+                  cancelLabel="Annuler"
+                  cancelStyleClass="p-button-danger"
+                  chooseIcon="pi pi-download"
+                  chooseLabel="Chargez votre fichier"
+                  chooseStyleClass="p-button-help"
+                  mode="advanced" name="importcsv">
+    </p-fileUpload>
+  </div>
+
+
+</div>
+
+<div class="modal-footer">
+  <button (click)="cancel()" data-dismiss="modal" pButton severity="danger" type="button">Fermer
+  </button>
+
+  <button (click)="onUpload()" [disabled]="!isFileUploadValid || isSaving " icon="pi pi-upload"
+          pButton
+          severity="primary"
+          type="submit">
+    Enrégistrer
+  </button>
+</div>
+
+<p-toast position="center"></p-toast>

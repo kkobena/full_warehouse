@@ -127,12 +127,22 @@ export class ProduitUpdateComponent implements OnInit {
         this.isDatePeremptionChecked = true;
       }
     }
-    this.typeEtiquetteService.query().subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
-      this.etiquettes = res.body || [];
-    });
-    this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
-      this.tvas = res.body || [];
-    });
+    this.typeEtiquetteService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
+        this.etiquettes = res.body || [];
+      });
+    this.tvaService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<ITva[]>) => {
+        this.tvas = res.body || [];
+      });
 
     this.fournisseurService
       .query({
@@ -142,21 +152,41 @@ export class ProduitUpdateComponent implements OnInit {
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
       });
-    this.rayonService.query().subscribe((res: HttpResponse<IRayon[]>) => {
-      this.rayons = res.body || [];
-    });
+    this.rayonService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IRayon[]>) => {
+        this.rayons = res.body || [];
+      });
     this.laboratoireService.query().subscribe((res: HttpResponse<ILaboratoire[]>) => {
       this.laboratoires = res.body || [];
     });
-    this.gammeProduitService.query().subscribe((res: HttpResponse<IGammeProduit[]>) => {
-      this.gammes = res.body || [];
-    });
-    this.familleService.query().subscribe((res: HttpResponse<IFamilleProduit[]>) => {
-      this.familleProduits = res.body || [];
-    });
-    this.formeProduitService.query().subscribe((res: HttpResponse<IFormProduit[]>) => {
-      this.formeProduits = res.body || [];
-    });
+    this.gammeProduitService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IGammeProduit[]>) => {
+        this.gammes = res.body || [];
+      });
+    this.familleService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
+        this.familleProduits = res.body || [];
+      });
+    this.formeProduitService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IFormProduit[]>) => {
+        this.formeProduits = res.body || [];
+      });
   }
 
   updateForm(produit: IProduit): void {

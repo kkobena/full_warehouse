@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
-import { combineLatest, Observable, Subscription } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
 import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
-import { faCut, faFileUpload, faImage, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCut, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
@@ -41,6 +41,8 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
+import { ImportProduitModalComponent } from './import-produit-modal/import-produit-modal.component';
+import { saveAs } from 'file-saver';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -110,16 +112,10 @@ export type ExpandMode = 'single' | 'multiple';
     RippleModule,
     TooltipModule,
     InputSwitchModule,
-    ProduitDeleteDialogComponent,
-    DetailFormDialogComponent,
-    DeconditionDialogComponent,
-    FormProduitFournisseurComponent,
     InputTextModule,
   ],
 })
 export class ProduitComponent implements OnInit {
-  faFileUpload = faFileUpload;
-  faImage = faImage;
   faCut = faCut;
   faPlusCircle = faPlusCircle;
   produits!: IProduit[];
@@ -129,7 +125,6 @@ export class ProduitComponent implements OnInit {
   filtesProduits: SelectItem[] = [];
   rayons: SelectItem[] = [];
   familles: SelectItem[] = [];
-  eventSubscriber?: Subscription;
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
@@ -154,6 +149,7 @@ export class ProduitComponent implements OnInit {
   configuration?: IConfiguration | null;
   isMono = true;
   rowExpandMode: ExpandMode = 'single';
+  protected typeImportation: string | null = null;
 
   //            <td><span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span></td>
   constructor(
@@ -173,24 +169,27 @@ export class ProduitComponent implements OnInit {
     this.criteria.status = Statut.ENABLE;
     this.splitbuttons = [
       {
-        label: 'Fiche à partir csv',
+        label: 'Nouvelle installation',
         icon: 'pi pi-file-excel',
         command: () => {
-          this.fileDialog = true;
+          this.typeImportation = 'NOUVELLE_INSTALLATION';
+          this.onOpenImportDialog();
         },
       },
       {
-        label: 'Fiche à partir json',
-        icon: 'pi pi-file-o',
-        command: () => {
-          this.jsonDialog = true;
-        },
-      },
-      {
-        label: 'Mise à jour du stock à partir json',
+        label: 'Basculement',
         icon: 'pi pi-filter',
         command: () => {
-          this.stockFileJsonDialog = true;
+          this.typeImportation = 'BASCULEMENT';
+          this.onOpenImportDialog();
+        },
+      },
+      {
+        label: 'Basculement de perstige',
+        icon: 'pi pi-file-o',
+        command: () => {
+          this.typeImportation = 'BASCULEMENT_PRESTIGE';
+          this.onOpenImportDialog();
         },
       },
     ];
@@ -201,24 +200,47 @@ export class ProduitComponent implements OnInit {
       { label: 'Déconditionnés', value: 3 },
       { label: 'Tous', value: 10 },
     ];
-    this.familles.push({ label: 'TOUT', value: null });
-    this.rayons.push({ label: 'TOUT', value: null });
+
     this.search = '';
     this.populate();
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
+  onOpenImportDialog(): void {
+    const modalRef = this.modalService.open(ImportProduitModalComponent, {
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
+      animation: true,
+    });
+    modalRef.componentInstance.type = this.typeImportation;
+    modalRef.closed.subscribe(reason => {
+      if (reason) {
+        this.responsedto = reason;
+        this.responseDialog = true;
+        this.loadPage(0);
+      }
+    });
   }
 
-  async populate(): Promise<void> {
-    const familleProduitsResponse = await this.familleService.queryPromise({ search: '' });
-    familleProduitsResponse.forEach(e => {
-      this.familles.push({ label: e.libelle, value: e.id });
+  populate(): void {
+    this.familleService.query({ search: '' }).subscribe({
+      next: familleProduitsResponse => {
+        this.familles.push({ label: 'TOUT', value: null });
+        familleProduitsResponse.body.forEach(e => {
+          this.familles.push({ label: e.libelle, value: e.id });
+        });
+      },
+      error: err => console.log(err),
     });
-    const rayonsResponse = await this.rayonService.queryPromise({ search: '' });
-    rayonsResponse.forEach(e => {
-      this.rayons.push({ label: e.libelle, value: e.id });
+
+    this.rayonService.query({ search: '' }).subscribe({
+      next: rayonsResponse => {
+        this.rayons.push({ label: 'TOUT', value: null });
+        rayonsResponse.body.forEach(e => {
+          this.rayons.push({ label: e.libelle, value: e.id });
+        });
+      },
+      error: err => console.log(err),
     });
   }
 
@@ -258,11 +280,6 @@ export class ProduitComponent implements OnInit {
     this.findConfigStock();
     this.handleNavigation();
     this.registerChangeInProduits();
-  }
-
-  trackId(index: number, item: IProduit): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
   }
 
   registerChangeInProduits(): void {
@@ -323,13 +340,6 @@ export class ProduitComponent implements OnInit {
       });
       modalRef.componentInstance.produit = produit;
     }
-  }
-
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.produitService.uploadFile(formData));
   }
 
   cancel(): void {
@@ -461,20 +471,13 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+  onClickLink(): void {
+    this.produitService.getRejectCsv(this.responsedto?.rejectFileUrl).subscribe({
+      next: blod => {
+        saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto?.rejectFileUrl);
+        this.responseDialog = false;
+      },
     });
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-    }
-    this.responseDialog = true;
-    this.fileDialog = false;
-    this.loadPage(0);
   }
 
   protected onSaveError(): void {

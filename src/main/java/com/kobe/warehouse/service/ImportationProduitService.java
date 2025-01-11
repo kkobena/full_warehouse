@@ -71,7 +71,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -380,16 +379,6 @@ public class ImportationProduitService {
         };
     }
 
-    private String buildCip(String cip) {
-        if (cip.length() <= 0) {
-            return cip;
-        }
-
-        String cip1 = cip.substring(0, 4);
-        String cip2 = cip.substring(11, cip.length() - 1);
-        return cip1 + cip2 + RandomStringUtils.randomNumeric(2);
-    }
-
     private ResponseDTO faireNouvelleInstallation(InputStream inputStream, Fournisseur fournisseur) {
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
         Storage storage = storageService.getDefaultMagasinMainStorage();
@@ -658,13 +647,11 @@ public class ImportationProduitService {
                                 var produitAvecOrdance = record.get(9);
                                 var checkExpiryDate = record.get(17);
                                 var perimeAt = record.get(18);
-                                System.err.println("perimeAt ===>> " + perimeAt + " checkExpiryDate ===>> " + checkExpiryDate);
                                 var itemNumber = NumberUtil.parseInt(record.get(21));
                                 var detailIndex = record.get(22);
                                 var deconQty = NumberUtil.parseInt(detailIndex);
                                 var prixUniDetail = NumberUtil.parseInt(record.get(23));
                                 var prixAchatDetail = NumberUtil.parseInt(record.get(24));
-                                System.err.println("deconQty ===>> " + deconQty + " prixUniDetail ===>> " + prixUniDetail);
                                 produitRecord = new Record(
                                     org.springframework.util.StringUtils.hasText(tab) ? tableauCode.get(tab) : null,
                                     record.get(0),
@@ -691,8 +678,7 @@ public class ImportationProduitService {
                                     org.springframework.util.StringUtils.hasText(checkExpiryDate)
                                         ? NumberUtil.parseInt(checkExpiryDate) == 1
                                         : null,
-                                    null,
-                                    /*  org.springframework.util.StringUtils.hasText(perimeAt) ? LocalDate.parse(perimeAt) : null,*/
+                                    org.springframework.util.StringUtils.hasText(perimeAt) ? LocalDate.parse(perimeAt) : null,
                                     itemNumber > 0 ? itemNumber : null,
                                     deconQty,
                                     prixUniDetail,
@@ -703,7 +689,6 @@ public class ImportationProduitService {
                                 Produit produit = saveRecord(produitRecord, storage);
 
                                 if (org.springframework.util.StringUtils.hasText(detailIndex)) {
-                                    System.err.println("deconQty ===>> ***************************************************" + detailIndex);
                                     saveRecordDetail(produitRecord, produit, storage);
                                 }
 
@@ -718,6 +703,7 @@ public class ImportationProduitService {
                 );
             });
             response.setErrorSize(errorSize.get()).size(count.get());
+            exportLigneRejeteesToCsv(response, errorList);
         } catch (IOException e) {
             log.error("importation : {0}", e);
         }
@@ -815,7 +801,6 @@ public class ImportationProduitService {
         produit.setItemRegularUnitPrice(0);
         produit.setRegularUnitPrice(record.prixVente());
         produit.setCheckExpiryDate(false);
-
         produit.setQtyAppro(record.qtyReappro());
         produit.setQtySeuilMini(record.seuil());
         produit.setCmuAmount(record.cmu());

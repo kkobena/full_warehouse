@@ -44,7 +44,7 @@
     <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
       <p-card>
         <div #nav="ngbNav" (navChange)="onNavChange($event)"
-             [(activeId)]="active" animation="true"
+             [(activeId)]="active"
              class="nav flex-column nav-pills "
              ngbNav orientation="vertical">
           <ng-container ngbNavItem="comptant">
@@ -77,12 +77,6 @@
 
       </p-card>
     </p-panel>
-    <p-divider></p-divider>
-    <p-panel header="Sélectionner la nature vente" styleClass="menu-panel">
-      <p-selectButton (onChange)="onTypePrescriptionChange($event)" [(ngModel)]="typePrescription"
-                      [options]="typePrescriptions"
-                      optionLabel="name"></p-selectButton>
-    </p-panel>
 
   </div>
   <div class=" col-md-10 col-sm-10 row sale-container">
@@ -92,7 +86,7 @@
         <div class="text-right row sale-action-toolbar" style="padding:0;width: 100%;">
           <div [ngClass]="getToolBarCssClass()" style="padding:0;">
             <div class="p-inputgroup">
-              <span class="p-inputgroup-addon">Opérateur</span>
+              <span class="p-inputgroup-addon">Vendeurs</span>
               <p-autoComplete #userBox (completeMethod)="searchUser()"
                               (onSelect)="onSelectUser()"
                               [(ngModel)]="userSeller"

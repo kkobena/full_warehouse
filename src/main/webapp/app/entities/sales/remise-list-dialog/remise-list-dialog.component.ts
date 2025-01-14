@@ -4,14 +4,13 @@ import { RemiseService } from '../../remise/remise.service';
 import { HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'jhi-remise-list-dialog',
   standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+  imports: [WarehouseCommonModule, FormsModule],
   templateUrl: './remise-list-dialog.component.html',
-  styles: ``,
 })
 export class RemiseListDialogComponent implements OnInit {
   types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
@@ -19,7 +18,6 @@ export class RemiseListDialogComponent implements OnInit {
   entites?: IRemise[];
   type: RemiseType = null;
   activeModal = inject(NgbActiveModal);
-  fb = inject(UntypedFormBuilder);
 
   ngOnInit(): void {
     this.load();

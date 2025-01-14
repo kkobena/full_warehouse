@@ -7,45 +7,57 @@
            dataKey="id"
            selectionMode="single">
     <ng-template pTemplate="caption">
-      <div class="d-flex produit-vente-table-tb">
-        <div class="p-2">Produits</div>
-        <div class="p-2">
-              <span class="p-input-icon-left">
+      <div class="d-flex produit-vente-table-tb justify-content-between">
+
+        <div class="p-0">
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">Produits</span>
+            <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
     <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
            [style]="{'width': '300px'}"
            placeholder="Taper pour filter les produits"
            type="text">
 </span>
-
+          </div>
         </div>
-        <div class="p-2">@if (currentSaleService.currentSale()?.remise) {
-          <ngb-alert [type]="typeAlert" [dismissible]="false">
-            <b> Remise appliquée:
-              <span
-                class="taux-remise"> {{ currentSaleService.currentSale()?.remise?.remiseValue }}%
+
+        <div class="p-0">
+          @if (currentSaleService.currentSale()?.remise) {
+            <ngb-alert [type]="typeAlert" [dismissible]="false">
+              <b> Remise appliquée:
+                <span
+                  class="taux-remise"> {{ remiseTaux }}
             </span></b>
-          </ngb-alert>
-        }
-
-        </div>
-
-
-        <div class="ms-auto p-2">
-          @if (!currentSaleService.currentSale()?.remise) {
-            <p-button [raised]="true" icon="pi pi-cart-plus" severity="help"
-                      (click)="onAddRemise()"
-                      label="Ajouter une remise" />
-          } @else {
-
-            <p-splitButton
-
-              label="Actions sur la remise"
-              [model]="actionsButtons"
-              severity="warning" />
+            </ngb-alert>
           }
 
         </div>
+        @if (remises.length > 0) {
+          <div class=" p-0 remises-select">
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">Remises</span>
+              <p-dropdown
+                (onChange)="onSelectRemise()"
+                [options]="remises"
+                [(ngModel)]="selectedRemise"
+                placeholder="Choisir une remise"
+                optionLabel="valeur"
+                [style]="{'width': '250px'}"
+                [showClear]="true"
+                [group]="true">
+                <ng-template let-group pTemplate="group">
+                  <div class="flex align-items-center">
+
+                    <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+          </div>
+        }
+
+
       </div>
 
 

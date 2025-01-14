@@ -76,22 +76,26 @@
     <div class="p-toolbar-group-left p-md-8">
       <div class="row">
         <div class="col">
-          <p-dropdown (onChange)="filtreClik()" [(ngModel)]="selectedCriteria" [filter]="false"
-                      [options]="filtesProduits" placeholder="Filtrer par critère"
+          <p-dropdown (onChange)="filtreClik()" [(ngModel)]="selectedCriteria"
+                      [options]="filtesProduits"
+                      placeholder="Filtrer par critère"
                       styleClass="dropdown-width">
           </p-dropdown>
         </div>
 
         <div class="col">
-          <p-dropdown (onChange)="filtreRayon($event)" [(ngModel)]="selectedRayon" [filter]="true"
-                      [options]="rayons" placeholder="Séléctionner un rayon "
+          <p-dropdown (onChange)="filtreRayon($event)"
+                      [(ngModel)]="selectedRayon"
+                      [options]="rayons"
+                      [showClear]="true" optionLabel="label" optionValue="value"
+                      placeholder="Séléctionner un rayon "
                       styleClass="dropdown-width">
           </p-dropdown>
 
         </div>
         <div class="col">
-          <p-dropdown (onChange)="filtreFamilleProduit($event)" [(ngModel)]="selectedFamille"
-                      [filter]="true" [options]="familles" placeholder="Séléctionner une famille"
+          <p-dropdown (onChange)="filtreFamilleProduit($event)"
+                      [options]="familles" [showClear]="true" placeholder="Séléctionner une famille"
                       styleClass="dropdown-width">
           </p-dropdown>
         </div>

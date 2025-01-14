@@ -71,6 +71,7 @@ export interface IProduit {
   rayonProduits?: IRayonProduit[];
   cmuAmount?: number;
   tableau?: ITableau;
+  remiseCode?: string;
 }
 
 export class Produit implements IProduit {
@@ -133,6 +134,6 @@ export class Produit implements IProduit {
     public expirationDate?: string,
     public displayField?: string,
     public rayonProduits?: IRayonProduit[],
-    public cmuAmount?: number
+    public cmuAmount?: number,
   ) {}
 }

@@ -233,15 +233,21 @@ export class ProduitComponent implements OnInit {
       error: err => console.log(err),
     });
 
-    this.rayonService.query({ search: '' }).subscribe({
-      next: rayonsResponse => {
-        this.rayons.push({ label: 'TOUT', value: null });
-        rayonsResponse.body.forEach(e => {
-          this.rayons.push({ label: e.libelle, value: e.id });
-        });
-      },
-      error: err => console.log(err),
-    });
+    this.rayonService
+      .query({
+        search: '',
+        page: 0,
+        size: 9999,
+      })
+      .subscribe({
+        next: rayonsResponse => {
+          this.rayons.push({ label: 'TOUT', value: null });
+          rayonsResponse.body.forEach(e => {
+            this.rayons.push({ label: e.libelle, value: e.id });
+          });
+        },
+        error: err => console.log(err),
+      });
   }
 
   loadPage(page?: number, dontNavigate?: boolean): void {

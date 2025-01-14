@@ -1,9 +1,13 @@
 package com.kobe.warehouse.web.rest.proxy;
 
+import com.kobe.warehouse.service.GrilleRemiseDTO;
+import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseDTO;
+import com.kobe.warehouse.service.dto.RemiseProduitsDTO;
 import com.kobe.warehouse.service.dto.TypeRemise;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.remise.RemiseService;
+import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -70,5 +76,26 @@ public class RemiseResourceProxy {
         }
         RemiseDTO result = this.remiseService.changeStatus(remiseDTO);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
+    }
+
+    @GetMapping("/remises/codes")
+    public ResponseEntity<List<CodeRemiseDTO>> getCodesRemise() {
+        return ResponseEntity.ok().body(this.remiseService.findAllCodeRemise());
+    }
+
+    @GetMapping("/remises/grilles")
+    public ResponseEntity<List<GrilleRemiseDTO>> findAllGrilles() {
+        return ResponseEntity.ok().body(this.remiseService.findAllGrilles());
+    }
+
+    @GetMapping("/remises/full-codes")
+    public ResponseEntity<List<CodeRemiseDTO>> queryFullCodes() {
+        return ResponseEntity.ok().body(this.remiseService.queryFullCodes());
+    }
+
+    @PostMapping("/remises/associer")
+    public ResponseEntity<Void> assosier(@Valid @RequestBody RemiseProduitsDTO remiseProduits) {
+        this.remiseService.assosier(remiseProduits);
+        return ResponseEntity.ok().build();
     }
 }

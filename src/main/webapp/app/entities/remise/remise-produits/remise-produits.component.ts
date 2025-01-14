@@ -1,62 +1,44 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
-import { ToolbarModule } from 'primeng/toolbar';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
-import { IResponseDto } from '../../shared/util/response-dto';
+import { ButtonDirective } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { Ripple } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { IResponseDto } from '../../../shared/util/response-dto';
+import { IRemise } from '../../../shared/model/remise.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RemiseService } from '../remise.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { IRemise } from '../../shared/model/remise.model';
-import { RemiseService } from './remise.service';
-import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { StyleClassModule } from 'primeng/styleclass';
-import { RemiseClientFormModalComponent } from './remise-client-form-modal/remise-client-form-modal.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
 
 @Component({
-  selector: 'jhi-remise',
+  selector: 'jhi-remise-produits',
   standalone: true,
   providers: [MessageService, ConfirmationService],
   imports: [
-    WarehouseCommonModule,
     FormsModule,
-    ConfirmDialogModule,
-    DialogModule,
-    ToolbarModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
-    TableModule,
-    TooltipModule,
-    KeyFilterModule,
     ToastModule,
-    DropdownModule,
-    CalendarModule,
+    ButtonDirective,
+    ConfirmDialogModule,
     InputSwitchModule,
-    StyleClassModule,
+    Ripple,
+    TableModule,
+    ToolbarModule,
+    TooltipModule,
   ],
-  templateUrl: './remise.component.html',
+  templateUrl: './remise-produits.component.html',
 })
-export class RemiseComponent implements OnInit {
+export class RemiseProduitsComponent implements OnInit {
   responsedto!: IResponseDto;
   entites?: IRemise[];
   loading = false;
-
-  //types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
-
   ngModalService = inject(NgbModal);
   entityService = inject(RemiseService);
   activatedRoute = inject(ActivatedRoute);
@@ -66,7 +48,7 @@ export class RemiseComponent implements OnInit {
 
   loadPage(): void {
     this.loading = true;
-    this.entityService.query({ typeRemise: 'CLIENT' }).subscribe({
+    this.entityService.query({ typeRemise: 'PRODUIT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
       error: () => this.onError(),
     });
@@ -89,15 +71,15 @@ export class RemiseComponent implements OnInit {
     });
   }
 
-  onOpenRemiseClientForm(remise?: IRemise): void {
-    const modalRef = this.ngModalService.open(RemiseClientFormModalComponent, {
+  onOpenRemiseForm(remise?: IRemise): void {
+    const modalRef = this.ngModalService.open(RemiseProduitFormModalComponent, {
       backdrop: 'static',
       size: 'lg',
       centered: true,
       animation: true,
     });
     modalRef.componentInstance.entity = remise;
-    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise client';
+    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise produit';
     modalRef.closed.subscribe(r => {
       this.loadPage();
     });
@@ -115,6 +97,22 @@ export class RemiseComponent implements OnInit {
 
   confirmDelete(id: number): void {
     this.confirmDialog(id);
+  }
+
+  protected getVnoTaux(entity: IRemise): string {
+    const taut = entity.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
+    if (taut) {
+      return taut + ' %';
+    }
+    return '';
+  }
+
+  protected getVoTaux(entity: IRemise): string {
+    const taut = entity.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
+    if (taut) {
+      return taut + ' %';
+    }
+    return '';
   }
 
   protected onStatusChange(entity: IRemise): void {

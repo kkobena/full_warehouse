@@ -56,4 +56,5 @@ export enum Authority {
   PR_SUPPRIME_PRODUIT_VENTE = 'PR_SUPPRIME_PRODUIT_VENTE',
   EDITION_FACTURATION = 'edition-factures',
   GESTION_REGLEMENT_FACTURE = 'reglement-facture',
+  REMISE = 'remise',
 }

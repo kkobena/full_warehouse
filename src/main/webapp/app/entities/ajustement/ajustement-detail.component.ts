@@ -26,6 +26,8 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { BadgeModule } from 'primeng/badge';
 import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-ajustement-detail',
@@ -43,6 +45,8 @@ import { TableModule } from 'primeng/table';
     InputTextModule,
     BadgeModule,
     TableModule,
+    RippleModule,
+    TooltipModule,
   ],
   providers: [ConfirmationService, DialogService],
 })

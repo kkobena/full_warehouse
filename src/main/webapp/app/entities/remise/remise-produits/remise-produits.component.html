@@ -8,13 +8,13 @@
 </p-confirmDialog>
 
 <div class="card" style="padding-right: 1rem;padding-left: 1rem;padding-bottom: 1rem;"><h3>Liste des
-  remises client</h3>
+  remises produits</h3>
   <p-toolbar>
     <div class="p-toolbar-group-left">
     </div>
     <div class="p-toolbar-group-right">
 
-      <button (click)="onOpenRemiseClientForm()" class="p-button-raised p-button-success"
+      <button (click)="onOpenRemiseForm()" class="p-button-raised p-button-success"
               icon="pi pi-plus"
               iconPos="left" label="Nouveau"
               pButton pRipple style="float: right;"
@@ -33,7 +33,9 @@
           <th scope="col" style="width:30px;">#</th>
 
           <th scope="col"><span>Libellé</span></th>
-          <th scope="col"><span>Taux</span></th>
+          <th scope="col"><span>Code remise associé</span></th>
+          <th scope="col"><span>Taux VNO</span></th>
+          <th scope="col"><span>Taux VO</span></th>
           <th scope="col" class="text-right">Activation/Désactivation</th>
           <th scope="col"></th>
         </tr>
@@ -43,15 +45,16 @@
           <td>{{ rowIndex + 1 }}</td>
 
           <td>{{ elRow.valeur }}</td>
-          <td style="text-align: right;">{{ elRow.remiseValue }}</td>
-
+          <td class="text-right">{{ elRow.grilles[0]?.codeRemise?.value }}</td>
+          <td class="text-right">{{ getVnoTaux(elRow) }}</td>
+          <td class="text-right">{{ getVoTaux(elRow) }}</td>
           <td class="text-right">
             <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
 
           <td class="text-right">
             @if (elRow.enable) {
-              <button (click)="onOpenRemiseClientForm(elRow)"
+              <button (click)="onOpenRemiseForm(elRow)"
                       class="p-button-rounded p-button-success p-mr-1"
                       icon="pi pi-pencil" pButton pRipple
                       pTooltip="Editer"

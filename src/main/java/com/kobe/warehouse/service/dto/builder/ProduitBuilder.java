@@ -11,11 +11,11 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
-import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.TypeEtiquette;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
@@ -50,6 +50,10 @@ public final class ProduitBuilder {
         produit.setTypeProduit(TypeProduit.PACKAGE);
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(produit.getCreatedAt());
+        if (org.springframework.util.StringUtils.hasText(produitDTO.getRemiseCode())) {
+            produit.setCodeRemise(CodeRemise.fromValue(produitDTO.getRemiseCode()));
+        }
+
         produit.setCmuAmount(produitDTO.getCmuAmount());
         produit.setCostAmount(produitDTO.getCostAmount());
         if (produitDTO.getDeconditionnable()) {
@@ -73,7 +77,7 @@ public final class ProduitBuilder {
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-        produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
+        produit.setGamme(gammeFromId(produitDTO.getGammeId()));
         produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
@@ -106,7 +110,7 @@ public final class ProduitBuilder {
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-        produit.setGamme(gammeFromId(produitDTO.getRemiseId()));
+        produit.setGamme(gammeFromId(produitDTO.getGammeId()));
         produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduit);
@@ -181,7 +185,7 @@ public final class ProduitBuilder {
                 .map(StockProduitDTO::new)
                 .collect(Collectors.toSet())
         );
-        produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().collect(Collectors.summingInt(StockProduitDTO::getQtyStock)));
+        produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
         return produitDTO;
     }
 
@@ -276,6 +280,7 @@ public final class ProduitBuilder {
         Produit parent = produit.getParent();
         ProduitDTO produitDTO = new ProduitDTO()
             .setId(produit.getId())
+            .setRemiseCode(produit.getCodeRemise().getValue())
             .setLibelle(produit.getLibelle())
             .cmuAmount(produit.getCmuAmount())
             .setTypeProduit(produit.getTypeProduit())
@@ -349,6 +354,7 @@ public final class ProduitBuilder {
         ProduitDTO dto = new ProduitDTO();
         dto.setId(produit.getId());
         dto.setLibelle(produit.getLibelle());
+        dto.setRemiseCode(produit.getCodeRemise().getValue());
         dto.setTypeProduit(produit.getTypeProduit());
         dto.setRegularUnitPrice(produit.getRegularUnitPrice());
         dto.setNetUnitPrice(produit.getNetUnitPrice());
@@ -375,15 +381,6 @@ public final class ProduitBuilder {
         }
 
         return dto;
-    }
-
-    public static RemiseProduit resmiseProduitFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        RemiseProduit remiseProduit = new RemiseProduit();
-        remiseProduit.setId(id);
-        return remiseProduit;
     }
 
     public static Tva tvaFromId(Long tvaId) {
@@ -489,6 +486,9 @@ public final class ProduitBuilder {
             produit.setItemCostAmount(produitDTO.getCostAmount());
             produit.setItemQty(1);
             produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
+        }
+        if (org.springframework.util.StringUtils.hasText(produitDTO.getRemiseCode())) {
+            produit.setCodeRemise(CodeRemise.fromValue(produitDTO.getRemiseCode()));
         }
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCodeEan(produitDTO.getCodeEan());

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -13,7 +13,7 @@ import { IRayon } from '../../shared/model/rayon.model';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITva } from '../../shared/model/tva.model';
 import { ITypeEtiquette } from '../../shared/model/type-etiquette.model';
-import { IRemise } from '../../shared/model/remise.model';
+import { CodeRemise } from '../../shared/model/remise.model';
 import { IFormProduit } from '../../shared/model/form-produit.model';
 import { IGammeProduit } from '../../shared/model/gamme-produit.model';
 import { ILaboratoire } from '../../shared/model/laboratoire.model';
@@ -32,6 +32,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputMaskModule } from 'primeng/inputmask';
+import { RemiseService } from '../remise/remise.service';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -62,7 +63,8 @@ export class ProduitUpdateComponent implements OnInit {
   tvas: ITva[] = [];
   fournisseurs: IFournisseur[] = [];
   rayons: IRayon[] = [];
-  remisesProduits: IRemise[] = [];
+  remisesCodes: CodeRemise[] = [];
+  remiseService = inject(RemiseService);
   editForm = this.fb.group({
     id: [],
     tvaId: [null, [Validators.required]],
@@ -77,7 +79,7 @@ export class ProduitUpdateComponent implements OnInit {
     codeEan: [],
     qtyAppro: [],
     qtySeuilMini: [],
-    remiseId: [],
+    remiseCode: [],
     gammeId: [],
     formeId: [],
     laboratoireId: [],
@@ -187,6 +189,9 @@ export class ProduitUpdateComponent implements OnInit {
       .subscribe((res: HttpResponse<IFormProduit[]>) => {
         this.formeProduits = res.body || [];
       });
+    this.remiseService.queryCodes().subscribe((res: HttpResponse<CodeRemise[]>) => {
+      this.remisesCodes = res.body || [];
+    });
   }
 
   updateForm(produit: IProduit): void {
@@ -209,7 +214,7 @@ export class ProduitUpdateComponent implements OnInit {
       codeEan: produit.codeEan,
       qtyAppro: produit.qtyAppro,
       qtySeuilMini: produit.qtySeuilMini,
-      remiseId: produit.remiseId,
+      remiseCode: produit.remiseCode,
       gammeId: produit.gammeId,
       laboratoireId: produit.laboratoireId,
       deconditionnable: produit.deconditionnable,
@@ -339,7 +344,7 @@ export class ProduitUpdateComponent implements OnInit {
       codeEan: this.editForm.get(['codeEan'])!.value,
       qtyAppro: this.editForm.get(['qtyAppro'])!.value,
       qtySeuilMini: this.editForm.get(['qtySeuilMini'])!.value,
-      remiseId: this.editForm.get(['remiseId'])!.value,
+      remiseCode: this.editForm.get(['remiseCode'])!.value,
       gammeId: this.editForm.get(['gammeId'])!.value,
       fournisseurId: this.editForm.get(['fournisseurId'])!.value,
       laboratoireId: this.editForm.get(['laboratoireId'])!.value,

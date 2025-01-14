@@ -3,12 +3,8 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
-import com.kobe.warehouse.domain.enumeration.Status;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
@@ -26,28 +22,17 @@ public class RemiseDTO implements Serializable {
 
     protected String valeur;
 
-    @NotNull
-    protected Float remiseValue;
-
     protected String typeRemise;
     protected String typeLibelle;
     protected String displayName;
 
-    protected Status status;
-    protected LocalDate begin;
-    protected LocalDate end;
-    protected boolean enable;
+    protected boolean enable = true;
 
     public RemiseDTO() {}
 
     public RemiseDTO(Remise remise) {
         id = remise.getId();
         valeur = remise.getValeur();
-        if (remise instanceof RemiseClient remiseClient) {
-            remiseValue = remiseClient.getRemiseValue();
-        }
-
-        status = remise.getStatus();
 
         displayName = remise.getValeur();
         this.enable = remise.isEnable();
@@ -66,24 +51,6 @@ public class RemiseDTO implements Serializable {
         return displayName;
     }
 
-    public LocalDate getBegin() {
-        return begin;
-    }
-
-    public RemiseDTO setBegin(LocalDate begin) {
-        this.begin = begin;
-        return this;
-    }
-
-    public LocalDate getEnd() {
-        return end;
-    }
-
-    public RemiseDTO setEnd(LocalDate end) {
-        this.end = end;
-        return this;
-    }
-
     public Long getId() {
         return id;
     }
@@ -98,22 +65,6 @@ public class RemiseDTO implements Serializable {
 
     public void setValeur(String valeur) {
         this.valeur = valeur;
-    }
-
-    public Float getRemiseValue() {
-        return remiseValue;
-    }
-
-    public void setRemiseValue(Float remiseValue) {
-        this.remiseValue = remiseValue;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     public String getTypeRemise() {
@@ -147,23 +98,5 @@ public class RemiseDTO implements Serializable {
     @Override
     public int hashCode() {
         return 31;
-    }
-
-    @Override
-    public String toString() {
-        return (
-            "RemiseDTO{" +
-            "id=" +
-            getId() +
-            ", valeur='" +
-            getValeur() +
-            "'" +
-            ", remiseValue=" +
-            getRemiseValue() +
-            ", status='" +
-            getStatus() +
-            "'" +
-            "}"
-        );
     }
 }

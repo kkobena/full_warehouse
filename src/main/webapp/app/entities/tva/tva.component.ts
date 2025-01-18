@@ -67,10 +67,10 @@ export class TvaComponent implements OnInit {
         page: pageToLoad,
         size: this.itemsPerPage,
       })
-      .subscribe({
-        next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
+      .subscribe(
+        (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        () => this.onError(),
+      );
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -81,11 +81,12 @@ export class TvaComponent implements OnInit {
         .query({
           page: this.page,
           size: event.rows,
+          // sort: this.sort(),
         })
-        .subscribe({
-          next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
+        .subscribe(
+          (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, this.page),
+          () => this.onError(),
+        );
     }
   }
 
@@ -93,6 +94,12 @@ export class TvaComponent implements OnInit {
     this.activatedRoute.data.subscribe(() => {
       this.loadPage();
     });
+  }
+
+  trackId(index: number, item: ITva): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    // tslint:disable-next-line:no-non-null-assertion
+    return item.id;
   }
 
   delete(tva: ITva): void {
@@ -148,6 +155,11 @@ export class TvaComponent implements OnInit {
     this.displayDialog = true;
   }
 
+  onEdit(tva: ITva): void {
+    this.updateForm(tva);
+    this.displayDialog = true;
+  }
+
   protected onSuccess(data: ITva[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
@@ -176,10 +188,10 @@ export class TvaComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError(),
+    );
   }
 
   private createFromForm(): ITva {

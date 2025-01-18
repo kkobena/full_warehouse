@@ -37,6 +37,7 @@ import { InputTextModule } from 'primeng/inputtext';
     TableModule,
     RouterModule,
     InputTextModule,
+    FormFamilleComponent,
   ],
 })
 export class FamilleProduitComponent implements OnInit {
@@ -48,8 +49,8 @@ export class FamilleProduitComponent implements OnInit {
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page = 0;
-  loading!: boolean;
   selectedEl?: IFamilleProduit;
+  loading!: boolean;
   isSaving = false;
   customUpload = true;
   displayDialog?: boolean;

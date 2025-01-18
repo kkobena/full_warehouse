@@ -9,18 +9,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AlertInfoComponent } from '../../../../shared/alert/alert-info.component';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { ISales } from '../../../../shared/model/sales.model';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { BaseSaleService } from '../../service/base-sale.service';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { RemiseCacheService } from '../../service/remise-cache.service';
-import { GroupRemise, IRemise, Remise } from '../../../../shared/model/remise.model';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
 
 export type RemiseSignal = 'add' | 'remove' | 'update';
 
@@ -37,9 +32,6 @@ export type RemiseSignal = 'add' | 'remove' | 'update';
     ConfirmDialogModule,
     SplitButtonModule,
     NgbAlertModule,
-    NgSelectModule,
-    FormsModule,
-    DropdownModule,
   ],
   templateUrl: './product-table.component.html',
   styleUrls: ['./product-table.component.scss'],
@@ -50,44 +42,36 @@ export class ProductTableComponent {
   @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
   @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
-  // @Output() addRemiseEvent = new EventEmitter<RemiseSignal>();
-  @Output() addRemiseEvent = new EventEmitter<Remise>(null);
+  @Output() addRemiseEvent = new EventEmitter<RemiseSignal>();
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   hasAuthorityService = inject(HasAuthorityService);
   canModifiePrice: boolean;
   baseSaleService = inject(BaseSaleService);
   currentSaleService = inject(CurrentSaleService);
   confirmationService = inject(ConfirmationService);
-  remiseCacheService = inject(RemiseCacheService);
   modalService = inject(NgbModal);
   protected typeAlert = 'success';
-  protected remises: GroupRemise[] = this.remiseCacheService.remises();
-  protected selectedRemise: any;
+  protected actionsButtons: MenuItem[];
   private canRemoveItem: boolean;
 
   constructor() {
     this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
     this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
-
+    this.actionsButtons = [
+      {
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.onRemiseChange(),
+      },
+      {
+        label: 'Supprimer',
+        icon: 'pi pi-trash',
+        command: () => this.onRemoveRemise(),
+      },
+    ];
     effect(() => {
       this.sale = this.currentSaleService.currentSale();
     });
-  }
-
-  get remiseTaux(): string {
-    if (this.currentSaleService.currentSale()?.remise) {
-      const sale = this.currentSaleService.currentSale();
-      const remise = sale.remise;
-      if (remise.type === 'remiseProduit') {
-        return this.getTaux(remise, sale.type);
-      }
-      return remise.remiseValue + ' %';
-    }
-    return '';
-  }
-
-  onSelectRemise(): void {
-    this.addRemiseEvent.emit(this.selectedRemise);
   }
 
   totalQtyProduit(): number {
@@ -165,23 +149,15 @@ export class ProductTableComponent {
   }
 
   onRemiseChange(): void {
-    // this.addRemiseEvent.emit('update');
+    this.addRemiseEvent.emit('update');
   }
 
   onAddRemise(): void {
-    // this.addRemiseEvent.emit('add');
+    this.addRemiseEvent.emit('add');
   }
 
   onRemoveRemise(): void {
-    //this.addRemiseEvent.emit('remove');
-  }
-
-  protected getTaux(entity: IRemise, type: string): string {
-    const taut = entity.grilles.filter(grille => grille.grilleType === type)[0]?.remiseValue;
-    if (taut) {
-      return taut + ' %';
-    }
-    return '';
+    this.addRemiseEvent.emit('remove');
   }
 
   private onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {

@@ -24,7 +24,6 @@ import com.kobe.warehouse.service.dto.StockProduitDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -37,7 +36,7 @@ public interface CustomizedProductService {
 
     void save(ProduitDTO dto, Rayon rayon) throws Exception;
 
-    void save(Produit produit) throws Exception;
+    void save(Produit dto) throws Exception;
 
     void update(ProduitDTO dto) throws Exception;
 
@@ -72,10 +71,6 @@ public interface CustomizedProductService {
     StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg);
 
     void updateFromCommande(ProduitDTO dto, Produit produit);
-
-    List<Produit> find(ProduitCriteria produitCriteria);
-
-    List<Produit> findByIds(Set<Long> ids);
 
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();

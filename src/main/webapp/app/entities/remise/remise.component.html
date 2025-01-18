@@ -7,14 +7,14 @@
   </p-footer>
 </p-confirmDialog>
 
-<div class="card" style="padding-right: 1rem;padding-left: 1rem;padding-bottom: 1rem;"><h3>Liste des
-  remises client</h3>
+<div class="card" style="padding-left:15%;padding-right:15%;padding-bottom:15px;"><h3>Liste des
+  remises</h3>
   <p-toolbar>
     <div class="p-toolbar-group-left">
     </div>
     <div class="p-toolbar-group-right">
 
-      <button (click)="onOpenRemiseClientForm()" class="p-button-raised p-button-success"
+      <button (click)="addNewEntity()" class="p-button-raised p-button-success"
               icon="pi pi-plus"
               iconPos="left" label="Nouveau"
               pButton pRipple style="float: right;"
@@ -27,38 +27,41 @@
   @if (entites && entites.length > 0) {
     <p-table (onLazyLoad)="lazyLoading()"
              [lazy]="true" [loading]="loading" [paginator]="false" [value]="entites"
-             dataKey="id" styleClass="ui-table-cars">
+             dataKey="id" style="margin-top:5px;" styleClass="ui-table-cars">
       <ng-template pTemplate="header">
         <tr>
           <th scope="col" style="width:30px;">#</th>
-
+          <th scope="col">Type</th>
           <th scope="col"><span>Libellé</span></th>
           <th scope="col"><span>Taux</span></th>
-          <th scope="col" class="text-right">Activation/Désactivation</th>
+          <th scope="col"><span>Date debut</span></th>
+          <th scope="col"><span>Date fin</span></th>
+          <th scope="col">Activation/Désactivation</th>
           <th scope="col"></th>
         </tr>
       </ng-template>
       <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
           <td>{{ rowIndex + 1 }}</td>
-
+          @if (elRow.type === 'remiseProduit' || elRow.type === 'Remise produit') {
+            <td>Remise produit</td>
+          } @else {
+            <td>Remise client</td>
+          }
           <td>{{ elRow.valeur }}</td>
           <td style="text-align: right;">{{ elRow.remiseValue }}</td>
-
-          <td class="text-right">
+          <td style="text-align: center;">{{ elRow.begin | date : 'dd/MM/yyyy' }}</td>
+          <td style="text-align: center;">{{ elRow.end | date : 'dd/MM/yyyy' }}</td>
+          <td style="text-align: center;">
             <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
 
-          <td class="text-right">
-            @if (elRow.enable) {
-              <button (click)="onOpenRemiseClientForm(elRow)"
-                      class="p-button-rounded p-button-success p-mr-1"
-                      icon="pi pi-pencil" pButton pRipple
-                      pTooltip="Editer"
-                      type="submit"></button>
+          <td style="text-align: right;">
 
-            }
-
+            <button (click)="onEdit(elRow)" class="p-button-rounded p-button-success p-mr-1"
+                    icon="pi pi-pencil" pButton pRipple
+                    pTooltip="Editer"
+                    type="submit"></button>
             <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
                     icon="pi pi-trash" pButton pRipple
                     pTooltip="Supprimer" type="button"></button>
@@ -75,5 +78,95 @@
 
 
 </div>
+<!-- formulaire de creation et d edition-->
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
+            [style]="{width: '600px'}"
+            header="Créer ou éditer une remise"
+  >
+    <ng-template pTemplate="content">
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
 
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="ui-g form-group">
+        <label for="type">Type remise</label>
+        <div class="ui-g-12" style="margin-bottom:10px">
+          <p-dropdown [options]="types" [style]="{'width':'100%'}"
+
+                      [virtualScroll]="true" appendTo="body"
+                      formControlName="type" id="type"
+                      name="type" placeholder="Séléctionner le type de remise"
+          >
+          </p-dropdown>
+        </div>
+        @if (editForm.get('type')!.invalid && (editForm.get('type')!.dirty || editForm.get(
+          'type')!.touched)) {
+          <div>
+            @if (editForm.get('type')?.errors?.required) {
+              <small class="form-text text-danger"
+                     style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
+
+
+      </div>
+      <div class="ui-g form-group">
+        <label for="remiseValue">Taux</label>
+        <div class="ui-g-12">
+
+          <input autocomplete="off" formControlName="remiseValue" id="remiseValue"
+                 name="remiseValue" pInputText
+                 pKeyFilter="int" pStyleClass="form-control" style="width: 100%;" type="text">
+        </div>
+        @if (editForm.get('remiseValue')!.invalid && (editForm.get('remiseValue')!.dirty
+          || editForm.get('remiseValue')!.touched)) {
+          <div>
+            @if (editForm.get('remiseValue')?.errors?.required) {
+              <small class="form-text text-danger"
+                     style="color: red;">
+                Ce champ est obligatoire.
+              </small>
+            }
+
+          </div>
+        }
+
+
+      </div>
+
+      <div class="ui-g form-group">
+        <label for="valeur">Description</label>
+        <div class="ui-g-12">
+
+          <input autocomplete="off" formControlName="valeur" id="valeur" name="valeur" pInputText
+                 pStyleClass="form-control" style="width: 100%;" type="text">
+        </div>
+        <div
+          *ngIf="editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)">
+          <small *ngIf="editForm.get('valeur')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+        </div>
+      </div>
+
+    </ng-template>
+    <p-footer>
+      <button [disabled]="editForm.invalid || isSaving"
+              class="p-button-success p-mr-2" icon="pi pi-check"
+              label="Enregistrer"
+              pButton pRipple type="submit"></button>
+      <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler"
+              pButton
+              pRipple
+              type="button"></button>
+
+    </p-footer>
+  </p-dialog>
+</form>
 

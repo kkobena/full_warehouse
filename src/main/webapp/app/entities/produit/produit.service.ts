@@ -125,10 +125,11 @@ export class ProduitService {
   }
 
   protected convertDateFromClient(produit: IProduit): IProduit {
-    return Object.assign({}, produit, {
+    const copy: IProduit = Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,
       updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined,
     });
+    return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {

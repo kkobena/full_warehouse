@@ -258,16 +258,18 @@
 
         </div>
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="remiseCode">Remise produit</label>
+          <label class="form-control-label" for="remiseId">Remise produit</label>
 
           <p-dropdown
-            [options]="remisesCodes" [style]="{'width':'100%'}"
+            [options]="remisesProduits" [style]="{'width':'100%'}"
             appendTo="body"
-            formControlName="remiseCode" id="remiseCode"
-            name="remiseCode"
-            optionLabel="value"
-            optionValue="value"
-            placeholder="Sélectionner le code de remise"
+            emptyFilterMessage="Aucune remise trouvée"
+            emptyMessage="Aucune remise trouvée"
+            formControlName="remiseId" id="remiseId"
+            name="remiseId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une remise"
           >
           </p-dropdown>
 

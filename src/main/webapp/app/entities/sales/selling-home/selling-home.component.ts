@@ -67,7 +67,6 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
 import { BaseSaleService } from '../service/base-sale.service';
 import { CarnetComponent } from './carnet/carnet.component';
 import { Authority } from '../../../shared/constants/authority.constants';
-import { RemiseCacheService } from '../service/remise-cache.service';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -134,13 +133,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   messageService = inject(MessageService);
   voSalesService = inject(VoSalesService);
   baseSaleService = inject(BaseSaleService);
-  remiseCacheService = inject(RemiseCacheService);
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];
   protected naturesVente: INatureVente | null = null;
   protected users: IUser[];
   protected userCaissier?: IUser | null;
   protected userSeller?: IUser;
+  protected typePrescriptions: ITypePrescription[] = [];
   protected typePrescription?: ITypePrescription | null;
   protected customers: ICustomer[] = [];
   protected produits: IProduit[] = [];
@@ -300,6 +299,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       //   this.selectedCustomerService.setCustomer(sales.customer);
       this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
+      this.typePrescription = this.typePrescriptions.find(e => e.code === sales.typePrescription) || null;
       this.typePrescriptionService.setTypePrescription(this.typePrescription);
       this.userSeller = this.users?.find(e => e.id === sales.sellerId) || this.userSeller;
       this.userVendeurService.setVendeur(this.userSeller);
@@ -313,8 +313,15 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAllUsers();
     this.userCaissier = { ...this.currentAccount() } as IUser;
     this.userCaissierService.setCaissier(this.userCaissier);
-
-    this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
+    this.typePrescriptions = [
+      { code: 'PRESCRIPTION', name: 'Prescription' },
+      {
+        code: 'CONSEIL',
+        name: 'Conseil',
+      },
+      /// { code: 'DEPOT', name: 'Dépôt' },
+    ];
+    this.typePrescription = this.typePrescriptionService.typePrescriptionDefault() || this.typePrescriptions[0];
 
     this.activatedRoute.data.subscribe(({ sales }) => {
       if (sales.id) {

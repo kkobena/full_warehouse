@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,6 +40,11 @@ public class Remise implements Serializable {
     @Column(name = "enable", nullable = false, columnDefinition = "boolean default true")
     private boolean enable = true;
 
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.ENABLE;
+
     public Long getId() {
         return id;
     }
@@ -63,6 +71,15 @@ public class Remise implements Serializable {
 
     public Remise valeur(String valeur) {
         this.valeur = valeur;
+        return this;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public Remise setStatus(Status status) {
+        this.status = status;
         return this;
     }
 

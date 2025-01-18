@@ -302,25 +302,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Produit> find(ProduitCriteria produitCriteria) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
-        Root<Produit> root = cq.from(Produit.class);
-        root.fetch(Produit_.stockProduits, JoinType.LEFT);
-        cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
-        List<Predicate> predicates = rechercheProduitPredicate(cb, root, produitCriteria);
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Produit> q = em.createQuery(cq);
-        return q.getResultList();
-    }
-
-    @Override
-    public List<Produit> findByIds(Set<Long> ids) {
-        return this.produitRepository.findAllById(ids);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
         long total = findAllCount(produitCriteria);
         List<ProduitDTO> list = new ArrayList<>();

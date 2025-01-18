@@ -1819,20 +1819,17 @@ menu  de la vente
   }
 }
 
-.remises-select {
-  .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-input {
-    position: relative !important;
-    left: 0;
-    width: 100%;
-  }
+.ws-spinner {
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 99999;
+  position: absolute;
+  opacity: 1;
 
-  .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
-    width: 100%;
-  }
+  top: 50%;
+  left: 50%;
+  margin: 0;
 
-  /*  width: 100%;*/
 
+  //background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
 
 }
-
-

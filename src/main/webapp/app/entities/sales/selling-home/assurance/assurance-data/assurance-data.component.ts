@@ -30,6 +30,7 @@ import { AddComplementaireComponent } from '../add-complementaire/add-complement
   providers: [ConfirmationService, DialogService, MessageService],
   standalone: true,
   imports: [
+    AssuredCustomerListComponent,
     FormsModule,
     KeyFilterModule,
     PanelModule,
@@ -38,8 +39,11 @@ import { AddComplementaireComponent } from '../add-complementaire/add-complement
     TableModule,
     SpeedDialModule,
     SplitButtonModule,
+    AyantDroitCustomerListComponent,
     ConfirmPopupModule,
     ConfirmDialogModule,
+    AssureFormStepComponent,
+    AddComplementaireComponent,
   ],
   templateUrl: './assurance-data.component.html',
 })

@@ -364,27 +364,6 @@ export class BaseSaleComponent {
     this.salesService.printReceipt(saleId).subscribe();
   }
 
-  onAddRemise(remise: IRemise): void {
-    if (remise) {
-      this.salesService
-        .addRemise({
-          key: this.currentSaleService.currentSale().id,
-          value: remise.id,
-        })
-        .subscribe({
-          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-          error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-        });
-    } else {
-      if (this.currentSaleService.currentSale()?.remise) {
-        this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
-          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-          error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-        });
-      }
-    }
-  }
-
   openRemiseDialog(remiseSignal: RemiseSignal): void {
     switch (remiseSignal) {
       case 'update':

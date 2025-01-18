@@ -18,12 +18,7 @@ public class RemiseProduit extends Remise implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @OneToMany(
-        mappedBy = "remiseProduit",
-        fetch = FetchType.EAGER,
-        cascade = { CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE },
-        orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "remiseProduit", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<GrilleRemise> grilles = new ArrayList<>();
 
     public List<GrilleRemise> getGrilles() {

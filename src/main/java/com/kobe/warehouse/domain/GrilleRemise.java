@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CodeGrilleRemise;
+import com.kobe.warehouse.domain.enumeration.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,13 +22,7 @@ import java.util.Objects;
  * A Remise.
  */
 @Entity
-@Table(
-    name = "grille_remise",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "code" }, name = "grille_remise_code_un_index"),
-        @UniqueConstraint(columnNames = { "code", "remise_produit_id" }, name = "remise_produit_id_code_un_index"),
-    }
-)
+@Table(name = "grille_remise", uniqueConstraints = { @UniqueConstraint(columnNames = { "remise_produit_id", "code" }) })
 public class GrilleRemise implements Serializable {
 
     @Serial
@@ -45,13 +40,18 @@ public class GrilleRemise implements Serializable {
     @Column(name = "remise_value", nullable = false)
     private Float remiseValue;
 
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.ENABLE;
+
     @ManyToOne(optional = false)
     @NotNull
     private RemiseProduit remiseProduit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "code", length = 10, nullable = false, unique = true)
+    @Column(name = "code", length = 10, nullable = false)
     private CodeGrilleRemise code;
 
     @Transient
@@ -61,36 +61,40 @@ public class GrilleRemise implements Serializable {
         return remiseProduit;
     }
 
-    public GrilleRemise setRemiseProduit(RemiseProduit remiseProduit) {
+    public void setRemiseProduit(RemiseProduit remiseProduit) {
         this.remiseProduit = remiseProduit;
-        return this;
     }
 
     public Float getRemiseValue() {
         return remiseValue;
     }
 
-    public GrilleRemise setRemiseValue(Float remiseValue) {
+    public void setRemiseValue(Float remiseValue) {
         this.remiseValue = remiseValue;
-        return this;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Long getId() {
         return id;
     }
 
-    public GrilleRemise setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
-        return this;
     }
 
     public boolean isEnable() {
         return enable;
     }
 
-    public GrilleRemise setEnable(boolean enable) {
+    public void setEnable(boolean enable) {
         this.enable = enable;
-        return this;
     }
 
     public CodeGrilleRemise getCode() {

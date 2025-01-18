@@ -73,7 +73,7 @@ export class ComplementaireStepComponent {
   }
 
   addTiersPayant(): void {
-    const tiersPayants = this.editFormGroups;
+    const tiersPayants = this.editForm.get('tiersPayants') as FormArray;
     tiersPayants.push(
       this.fb.group({
         taux: [null, [Validators.required, Validators.min(10), Validators.max(100)]],

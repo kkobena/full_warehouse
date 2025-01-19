@@ -153,6 +153,16 @@ public class SaleCommonService {
         }
     }
 
+    private int computeHtAmount(Integer amount, Integer taxValue) {
+        int tax = Objects.requireNonNullElse(taxValue, 0);
+        int ttc = Objects.requireNonNullElse(amount, 0);
+        if (tax == 0) {
+            return ttc;
+        }
+        double valeurTva = 1 + ((double) tax / 100);
+        return (int) Math.ceil(ttc / valeurTva);
+    }
+
     public void computeTvaAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
         if (oldSaleLine == null) {
             if (saleLine.getTaxValue().compareTo(0) == 0) {
@@ -160,8 +170,7 @@ public class SaleCommonService {
                 saleLine.setTaxAmount(0);
                 saleLine.setHtAmount(saleLine.getSalesAmount());
             } else {
-                Double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-                int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
+                int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
                 int montantTva = saleLine.getSalesAmount() - htAmont;
                 c.setTaxAmount(c.getTaxAmount() + montantTva);
                 c.setHtAmount(c.getHtAmount() + htAmont);
@@ -173,10 +182,9 @@ public class SaleCommonService {
                 c.setHtAmount((c.getHtAmount() - oldSaleLine.getSalesAmount()) + saleLine.getSalesAmount());
                 saleLine.setHtAmount(saleLine.getSalesAmount());
             } else {
-                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-                int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
+                int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
                 int montantTva = saleLine.getSalesAmount() - htAmont;
-                int htAmontOld = (int) Math.ceil(oldSaleLine.getSalesAmount() / valeurTva);
+                int htAmontOld = computeHtAmount(oldSaleLine.getSalesAmount(), saleLine.getTaxValue());
                 int montantTvaOld = oldSaleLine.getSalesAmount() - htAmontOld;
                 c.setTaxAmount((c.getTaxAmount() - montantTvaOld) + montantTva);
                 c.setHtAmount((c.getHtAmount() - htAmontOld) + htAmont);
@@ -205,8 +213,7 @@ public class SaleCommonService {
             c.setHtAmountUg(c.getHtAmountUg() - htc);
             c.setMontantttcUg(c.getMontantttcUg() - htc);
         } else {
-            double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-            int htAmont = (int) Math.ceil(htc / valeurTva);
+            int htAmont = computeHtAmount(htc, saleLine.getTaxValue());
             int montantTva = htc - htAmont;
             c.setMontantTvaUg(c.getMontantTvaUg() - montantTva);
             c.setHtAmountUg(c.getHtAmountUg() - htAmont);
@@ -221,8 +228,7 @@ public class SaleCommonService {
         if (saleLine.getTaxValue().compareTo(0) == 0) {
             c.setHtAmount(c.getHtAmount() - saleLine.getSalesAmount());
         } else {
-            double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-            int htAmont = (int) Math.ceil(saleLine.getSalesAmount() / valeurTva);
+            int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
             int montantTva = saleLine.getSalesAmount() - htAmont;
             c.setTaxAmount(c.getTaxAmount() - montantTva);
             c.setHtAmount(c.getHtAmount() - htAmont);

@@ -31,24 +31,6 @@
 </p-confirmDialog>
 
 
-<div class="row">
-
-
-  @if (remises.length == -10) {
-    <div class="col-md-3">
-      <div class="p-inputgroup">
-        <span class="p-inputgroup-addon">Remises</span>
-        <p-dropdown [style]="{'width':'100%'}" [(ngModel)]="remise"
-                    [options]="remises"
-                    optionLabel="valeur"
-                    placeholder="Selectionner une remise"></p-dropdown>
-      </div>
-    </div>
-
-  }
-</div>
-
-
 <p-divider></p-divider>
 @if (this.currentSaleService.currentSale()) {
   <div class="row">
@@ -57,7 +39,7 @@
                          (itemPriceEvent)="updateItemPrice($event)"
                          (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
                          (itemQtySoldEvent)="updateItemQtySold($event)"
-                         (addRemiseEvent)="openRemiseDialog($event)"
+                         (addRemiseEvent)="onAddRemise($event)"
       >
 
       </jhi-product-table>

@@ -3,8 +3,7 @@ export interface IRemise {
   valeur?: string;
   remiseValue?: number;
   type?: string;
-  begin?: string;
-  end?: string;
+  typeLibelle?: string;
   enable?: boolean;
   grilles?: GrilleRemise[];
 }
@@ -13,8 +12,10 @@ export class Remise implements IRemise {
   constructor(
     public id?: number,
     public valeur?: string,
+    public typeLibelle?: string,
     public remiseValue?: number,
     public type?: string,
+    public enable?: boolean,
   ) {}
 }
 
@@ -41,5 +42,13 @@ export class GrilleRemise {
     public code?: string,
     public codeRemise?: CodeRemise,
     public grilleType?: string,
+  ) {}
+}
+
+export class GroupRemise {
+  constructor(
+    public type: string,
+    public typeLibelle: string,
+    public items: IRemise[],
   ) {}
 }

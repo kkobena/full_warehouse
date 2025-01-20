@@ -1,9 +1,9 @@
 INSERT IGNORE INTO authority (name, libelle)
 VALUES ('ROLE_VENDEUR', 'Vendeur');
 INSERT IGNORE INTO authority (name, libelle)
-VALUES ('ROLE_CAISSE', 'Caisse');
+VALUES ('ROLE_CAISSIER', 'Caissier');
 INSERT IGNORE INTO authority (name, libelle)
-VALUES ('ROLE_RESPOSSABLE_COMMANDE', 'Responsable de commande');
+VALUES ('ROLE_RESPONSABLE_COMMANDE', 'Responsable de commande');
 
 INSERT IGNORE INTO privilege (name, libelle, menu_id)
 VALUES ('PR_FORCE_STOCK', 'Privilège de Forçage du stock à la vente', 37);

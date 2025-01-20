@@ -53,7 +53,11 @@ public class AuthorityServiceImpl implements AuthorityService {
     @Override
     public void save(AuthorityDTO authorityDTO) {
         Authority authority = new Authority();
-        authority.setName(authorityDTO.name());
+        String roleName = authorityDTO.name();
+        if (!StringUtils.startsWithIgnoreCase(roleName, "ROLE_")) {
+            roleName = "ROLE_" + roleName;
+        }
+        authority.setName(roleName.toUpperCase());
         authority.setLibelle(authorityDTO.libelle());
         if (CollectionUtils.isEmpty(authorityDTO.privilleges())) {
             authority.setMenus(Collections.emptySet());

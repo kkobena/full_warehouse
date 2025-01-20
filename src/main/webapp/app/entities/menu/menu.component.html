@@ -19,15 +19,8 @@
 
       <jhi-alert></jhi-alert>
 
-      <div *ngIf="authorities?.length === 0" class="alert alert-warning" id="no-result">
-        <span jhiTranslate="warehouseApp.menu.home.notFound">No data found</span>
-      </div>
-
 
       <p-table
-
-
-        *ngIf="authorities && authorities.length > 0"
         [paginator]="false"
         [value]="authorities"
         dataKey="id"
@@ -64,11 +57,13 @@
                         pRipple
                         pTooltip="Gérer les privilèges"
                         type="button"></button>
-                <button (click)="delete(row)"
-                        *ngIf="row.name!=='ROLE_ADMIN' && row.name!=='ROLE_USER'"
-                        class="p-button-rounded p-button-danger"
-                        icon="pi pi-trash" pButton pRipple
-                        pTooltip="Supprimer" type="button"></button>
+                @if (isNotPredefined(row)) {
+                  <button (click)="delete(row)"
+                          class="p-button-rounded p-button-danger"
+                          icon="pi pi-trash" pButton pRipple
+                          pTooltip="Supprimer" type="button"></button>
+                }
+
 
               </div>
             </td>

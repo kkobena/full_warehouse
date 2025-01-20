@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuDeleteDialogComponent } from './menu-delete-dialog.component';
 import { PrivillegeService } from './privillege.service';
@@ -16,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { PanelModule } from 'primeng/panel';
+import { Authority } from '../../shared/constants/authority.constants';
 
 @Component({
   selector: 'jhi-menu',
@@ -37,24 +37,23 @@ import { PanelModule } from 'primeng/panel';
 })
 export class MenuComponent implements OnInit {
   protected authorities?: IAuthority[];
-  protected eventSubscriber?: Subscription;
+  protected privillegeService = inject(PrivillegeService);
+  protected modalService = inject(NgbModal);
+  private readonly predefinedAuthorities: string[] = [
+    Authority.ADMIN,
+    Authority.USER,
+    Authority.ROLE_CAISSIER,
+    Authority.ROLE_VENDEUR,
+    Authority.ROLE_RESPONSABLE_COMMANDE,
+  ];
 
-  constructor(
-    private messageService: MessageService,
-    protected privillegeService: PrivillegeService,
-    protected modalService: NgbModal,
-  ) {}
+  constructor() {}
 
   loadAll(): void {
     this.privillegeService.queryAuthorities().subscribe((res: HttpResponse<IAuthority[]>) => (this.authorities = res.body || []));
   }
 
   ngOnInit(): void {
-    this.loadAll();
-    this.registerChangeInMenus();
-  }
-
-  registerChangeInMenus(): void {
     this.loadAll();
   }
 
@@ -76,5 +75,9 @@ export class MenuComponent implements OnInit {
         error: () => this.loadAll(),
       });
     }
+  }
+
+  protected isNotPredefined(authority: IAuthority): boolean {
+    return !this.predefinedAuthorities.includes(authority.name);
   }
 }

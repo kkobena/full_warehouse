@@ -23,7 +23,7 @@ export class UserVendeurService {
     //  if (this.vendeurs() && this.vendeurs().length === 0) {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
       this.vendeurs.set(
-        res.body?.filter(u => u.authorities.includes(Authority.ROLE_VENDEUR) || u.authorities.includes(Authority.ROLE_CAISSE)),
+        res.body?.filter(u => u.authorities.includes(Authority.ROLE_VENDEUR) || u.authorities.includes(Authority.ROLE_CAISSIER)),
       );
     });
     //  }

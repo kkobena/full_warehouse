@@ -765,12 +765,15 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             case NatureVente.ASSURANCE -> {
                 thirdPartySales.setPartTiersPayant(totalMontantTiersPayant);
                 thirdPartySales.setPartAssure(
-                    (thirdPartySales.getSalesAmount() - thirdPartySales.getPartTiersPayant()) - thirdPartySales.getDiscountAmount()
+                    Math.max(
+                        (thirdPartySales.getSalesAmount() - thirdPartySales.getPartTiersPayant()) - thirdPartySales.getDiscountAmount(),
+                        0
+                    )
                 );
             }
             case NatureVente.CARNET -> {
-                thirdPartySales.setPartTiersPayant(totalMontantTiersPayant - thirdPartySales.getDiscountAmount());
-                thirdPartySales.setPartAssure(thirdPartySales.getNetAmount() - thirdPartySales.getPartTiersPayant());
+                thirdPartySales.setPartTiersPayant(Math.max(totalMontantTiersPayant - thirdPartySales.getDiscountAmount(), 0));
+                thirdPartySales.setPartAssure(Math.max(thirdPartySales.getNetAmount() - thirdPartySales.getPartTiersPayant(), 0));
             }
             case COMPTANT -> throw new RuntimeException("Not yet implemented");
         }
@@ -939,11 +942,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (remise instanceof RemiseClient remiseClient) {
             this.applyRemiseClient(thirdPartySales, remiseClient);
         } else {
-            if (thirdPartySales.getNatureVente() == NatureVente.CARNET) {
-                this.applyRemiseProduit(thirdPartySales, (RemiseProduit) remise);
-            } else {
+            // if (thirdPartySales.getNatureVente() == NatureVente.CARNET) {
+            this.applyRemiseProduit(thirdPartySales, (RemiseProduit) remise);
+            thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
+            /*}
+            else {
                 throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
-            }
+            }*/
         }
         reComputeAmounts(thirdPartySales);
         this.thirdPartySaleRepository.save(thirdPartySales);

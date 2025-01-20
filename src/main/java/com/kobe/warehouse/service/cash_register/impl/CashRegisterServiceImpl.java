@@ -24,6 +24,7 @@ import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpeci
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
 import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.errors.CashRegisterException;
+import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -92,7 +93,10 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) {
+    public Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException {
+        if (this.hasOpenCashRegister()) {
+            throw new NonClosedCashRegisterException();
+        }
         var user = this.userService.getUser();
         CashRegister cashRegister = create(user);
         CashFund cashFund = this.cashFundService.initCashFund(cashFundAmount, user);
@@ -107,6 +111,9 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     public CashRegister openCashRegister(User user, User cashRegisterOwner) {
         AppConfiguration appConfiguration = this.appConfigurationService.findOneById(EntityConstant.APP_CASH_FUND).orElse(null);
         if (Objects.nonNull(appConfiguration) && Integer.parseInt(appConfiguration.getValue().trim()) == 1) {
+            if (this.hasOpenCashRegister()) {
+                throw new NonClosedCashRegisterException();
+            }
             CashRegister cashRegister = create(cashRegisterOwner);
             CashFund cashFund =
                 this.cashFundService.allocateCashFund(
@@ -221,7 +228,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
                     .setAmount(
                         data1.stream().map(CashRegisterSpecialisation::getPaidAmount).reduce(new BigDecimal(0), BigDecimal::add).longValue()
                     );
-                System.err.println("cashRegisterItem = " + cashRegisterItem);
+
                 cashRegisterItem.setCashRegister(cashRegister);
                 cashRegister.getCashRegisterItems().add(cashRegisterItem);
             });
@@ -271,6 +278,19 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             .map(CashRegisterVenteSpecialisation::getPaidAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add)
             .intValue();
+    }
+
+    @Override
+    public boolean hasOpenCashRegister() {
+        Specification<CashRegister> cashRegisterSpecification = Specification.where(
+            this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING))
+        );
+
+        cashRegisterSpecification = cashRegisterSpecification.and(
+            this.cashRegisterRepository.specialisation(userService.getUser().getId())
+        );
+
+        return !this.cashRegisterRepository.findAll(cashRegisterSpecification).isEmpty();
     }
 
     private Page<CashRegister> loadCashRegisters(FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {

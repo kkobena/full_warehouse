@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { IUser, User } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
@@ -42,6 +42,11 @@ import { ICustomer } from '../../../../shared/model/customer.model';
 export class PreventeModalComponent implements OnInit {
   @Input() user: IUser;
   @Output() pendingSalesSidebarChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  salesService = inject(SalesService);
+  userService = inject(UserService);
+  currentSaleService = inject(CurrentSaleService);
+  customerService = inject(CustomerService);
+  selectedCustomerService = inject(SelectedCustomerService);
   protected typeVenteSelected = 'TOUT';
   protected preventes: ISales[] = [];
   protected users: IUser[] = [];
@@ -50,13 +55,7 @@ export class PreventeModalComponent implements OnInit {
   protected readonly appendTo = APPEND_TO;
   protected selectedRowIndex?: number;
 
-  constructor(
-    protected salesService: SalesService,
-    protected userService: UserService,
-    protected currentSaleService: CurrentSaleService,
-    protected customerService: CustomerService,
-    protected selectedCustomerService: SelectedCustomerService,
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.selectedRowIndex = 0;

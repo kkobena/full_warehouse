@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
@@ -90,7 +91,11 @@ public class SaleCommonService {
         }
     }
 
-    public void processDiscountCashSale(Sales c) {
+    public void processDiscountCash(CashSale c, int discountAmount) {
+        c.setNetAmount(c.getSalesAmount() - discountAmount);
+    }
+
+    public void processDiscountCommonAmounts(Sales c) {
         int discountAmount = 0;
         int discountAmountUg = 0;
         int discountAmountHorsUg = 0;
@@ -102,7 +107,9 @@ public class SaleCommonService {
         c.setDiscountAmount(discountAmount);
         c.setDiscountAmountUg(discountAmountUg);
         c.setDiscountAmountHorsUg(discountAmountHorsUg);
-        c.setNetAmount(c.getSalesAmount() - discountAmount);
+        if (c instanceof CashSale) {
+            processDiscountCash((CashSale) c, discountAmount);
+        }
     }
 
     public void computeUgTvaAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
@@ -426,12 +433,15 @@ public class SaleCommonService {
         sales.setNetAmount(sales.getSalesAmount());
         sales.setDiscountAmountUg(0);
         sales.setDiscountAmountHorsUg(0);
+        sales.setAmountToBePaid(sales.getSalesAmount());
+        sales.setRestToPay(sales.getSalesAmount());
         sales
             .getSalesLines()
             .forEach(salesLine -> {
                 salesLine.setDiscountAmount(0);
                 salesLine.setDiscountAmountUg(0);
                 salesLine.setDiscountAmountHorsUg(0);
+                salesLine.setNetAmount(salesLine.getSalesAmount());
                 this.salesLineService.saveSalesLine(salesLine);
             });
     }
@@ -455,7 +465,7 @@ public class SaleCommonService {
             .getSalesLines()
             .forEach(salesLine -> {
                 salesLineService.processProductDiscount(salesLine);
-                this.processDiscountCashSale(sales);
+                this.processDiscountCommonAmounts(sales);
             });
     }
 

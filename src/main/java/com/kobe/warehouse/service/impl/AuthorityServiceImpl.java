@@ -108,9 +108,8 @@ public class AuthorityServiceImpl implements AuthorityService {
                         .filter(authorityPrivilege -> !actions.contains(authorityPrivilege.getPrivilege().getName()))
                         .collect(Collectors.toSet())
                 );
-        } else {
-            actions.forEach(actionName -> saveActionPrivilege(actionName, authority));
         }
+        actions.forEach(actionName -> saveActionPrivilege(actionName, authority));
     }
 
     @Override

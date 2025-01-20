@@ -11,96 +11,96 @@
 
 
 <p-toolbar>
-  <div class="d-flex">
-    <div class="p-toolbar-group-left sale-toolbar d-flex justify-content-start">
+
+  <div class="p-toolbar-group-left sale-toolbar d-flex justify-content-start">
 
 
-      <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [filter]="false"
-                  [options]="typeVentes" [panelStyle]="{'width':'115px'}"
-                  [style]="{'width':'115px'}" placeholder="Filtrer par critère"
-                  styleClass="dropdown-width">
-      </p-dropdown>
-      <p-divider layout="vertical"></p-divider>
+    <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [filter]="false"
+                [options]="typeVentes" [panelStyle]="{'width':'115px'}"
+                [style]="{'width':'115px'}" placeholder="Filtrer par critère"
+                styleClass="dropdown-width">
+    </p-dropdown>
+    <p-divider layout="vertical"></p-divider>
 
 
-      <span class="p-input-icon-left">
+    <span class="p-input-icon-left">
                                 <i class="pi pi-search"></i>
                                 <input (keyup.enter)="onSearch()" [(ngModel)]="search"
                                        class="toobar-input-search"
                                        pInputText
                                        placeholder="Recherge globale" type="text">
                             </span>
-      <p-divider layout="vertical"></p-divider>
-      <p-checkbox [(ngModel)]="global" [binary]="true" label="Global"></p-checkbox>
+    <p-divider layout="vertical"></p-divider>
+    <p-checkbox [(ngModel)]="global" [binary]="true" label="Global"></p-checkbox>
 
 
-      <p-divider layout="vertical"></p-divider>
-      <label class="mr-sm-1">Du&nbsp;</label>
-      <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                  [showButtonBar]="true"
-                  dateFormat="dd/mm/yy"
-      >
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1">Du&nbsp;</label>
+    <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+    >
 
-      </p-calendar>
-      <p-divider layout="vertical"></p-divider>
-      <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
-      <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
-                  [showButtonBar]="true"
-                  dateFormat="dd/mm/yy"
-      ></p-calendar>
-      <p-divider layout="vertical"></p-divider>
-      <label class="mr-sm-1 ml-sm-1">De&nbsp;</label>
-      <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
-      <p-divider layout="vertical"></p-divider>
-      <label class="mr-sm-1 ml-sm-1">A&nbsp;</label>
-      <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
-      <p-divider layout="vertical"></p-divider>
-      <select #userControl (change)="onSelectUser(userControl)" [(ngModel)]="selectedUserId"
-              class="form-select">
-        <option [value]="null" selected>Tout</option>
-        @for (u of users; track u.id) {
-          <option [value]="u.id">{{ u.abbrName }}</option>
-        }
-
-      </select>
-
-    </div>
-    <div class="sale p-toolbar-group-left d-flex justify-content-end">
-      @if (isLargeScreen) {
-        <div class="btn-group">
-          <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-                    styleClass="p-button-info"></p-button>
-          <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-                         label="Exporter" styleClass="p-button-raised p-button-help"
-          ></p-splitButton>
-          <p-button [routerLink]="['/sales', false, 'new']"
-                    icon="pi pi-plus"
-                    label="Nouvelle"
-                    styleClass="p-button-raised p-button-success "
-          >
-          </p-button>
-        </div>
-      } @else {
-
-        <div class="btn-group">
-          <p-button (click)="loadPage()" icon="pi pi-search" pTooltip="Rechercher"
-                    styleClass="p-button-info" tooltipPosition="top"></p-button>
-          <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-                         pTooltip="Exporter" styleClass="p-button-raised p-button-help"
-                         tooltipPosition="top"></p-splitButton>
-          <p-button [routerLink]="['/sales', false, 'new']"
-                    icon="pi pi-plus"
-                    pTooltip="Nouvelle vente"
-                    styleClass="p-button-raised  p-button-success"
-                    tooltipPosition="top">
-          </p-button>
-        </div>
-
+    </p-calendar>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
+    <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+    ></p-calendar>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">De&nbsp;</label>
+    <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
+    <p-divider layout="vertical"></p-divider>
+    <label class="mr-sm-1 ml-sm-1">A&nbsp;</label>
+    <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
+    <p-divider layout="vertical"></p-divider>
+    <select #userControl (change)="onSelectUser(userControl)" [(ngModel)]="selectedUserId"
+            class="form-select">
+      <option [value]="null" selected>Tout</option>
+      @for (u of users; track u.id) {
+        <option [value]="u.id">{{ u.abbrName }}</option>
       }
 
+    </select>
 
-    </div>
   </div>
+  <div class="sale  d-flex justify-content-end">
+    @if (isLargeScreen) {
+      <div>
+        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
+        <!-- <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                        label="Exporter" styleClass="p-button-raised p-button-help"
+         ></p-splitButton>-->
+        <p-button [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
+                  label="Nouvelle"
+                  styleClass="p-button-raised p-button-success "
+        >
+        </p-button>
+      </div>
+    } @else {
+
+      <div>
+        <p-button (click)="loadPage()" icon="pi pi-search" pTooltip="Rechercher"
+                  styleClass="p-button-info" tooltipPosition="top"></p-button>
+        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                       pTooltip="Exporter" styleClass="p-button-raised p-button-help"
+                       tooltipPosition="top"></p-splitButton>
+        <p-button [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
+                  pTooltip="Nouvelle vente"
+                  styleClass="p-button-raised  p-button-success"
+                  tooltipPosition="top">
+        </p-button>
+      </div>
+
+    }
+
+
+  </div>
+
 
 </p-toolbar>
 
@@ -163,8 +163,8 @@
                     pTooltip="Voir">
 
             </button>
-            @if (canEdit) {
-              <button [routerLink]="['/sales', sale.id,false, 'edit']"
+            @if (canEdit && sale.natureVente === 'ASSURANCE') {
+              <button [hidden]="false" [routerLink]="['/sales', sale.id,false, 'edit']"
                       class="p-button-rounded p-button-success p-button-sm btn-sm"
                       icon="pi pi-pencil"
                       pButton pRipple

@@ -51,8 +51,9 @@
             <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
             <ng-template ngbNavContent>
               <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
-                            (responseEvent)="onFinalyse($event)" (saveResponse)="onSave($event)"
-                            [isPresale]="isPresale">
+                            (responseEvent)="onFinalyse($event)"
+                            (saveResponse)="onSave($event)" [isPresale]="isPresale"
+              >
 
 
               </jhi-comptant>
@@ -83,39 +84,43 @@
 
     <p-panel [styleClass]="'sale-panel-header'">
       <ng-template pTemplate="header">
-        <div class="text-right row sale-action-toolbar" style="padding:0;width: 100%;">
-          <div [ngClass]="getToolBarCssClass()" style="padding:0;">
-            <div class="p-inputgroup">
+        <div class="row"
+             style="padding-left:10px;width: 100%;padding-right:0;">
+          <div class="col-3" style="padding:0;">
+            <div [style]="{'width':'99%'}" class="p-inputgroup">
               <span class="p-inputgroup-addon">Vendeurs</span>
-              <p-autoComplete #userBox (completeMethod)="searchUser()"
-                              (onSelect)="onSelectUser()"
-                              [(ngModel)]="userSeller"
-                              [appendTo]="appendTo"
-                              [autofocus]="true"
-                              [dataKey]="'id'"
-                              [dropdown]="true"
-                              [inputStyle]="{'width':'100%'}" [style]="{'width':'100%'}"
-                              [suggestions]="users" optionLabel="abbrName"></p-autoComplete>
+              <p-dropdown #userBox
+                          (onChange)="onSelectUser()"
+                          [(ngModel)]="userSeller"
+                          [appendTo]="appendTo"
+                          [autofocus]="true"
+                          [dataKey]="'id'"
+                          [options]="this.userVendeurService.vendeurs()"
+                          [style]="{'width':'100%'}"
+                          optionLabel="abbrName"></p-dropdown>
             </div>
 
           </div>
-          @if (active === 'comptant' && currentSaleService.currentSale()) {
-            <div [ngClass]="getToolBarCustomerCssClass()">
-              <jhi-customer-overlay-panel
-                (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+          <div class="col-9 row text-right" style="padding:0;">
+            <div class="col-8">
+              @if (active === 'comptant' && currentSaleService.currentSale()) {
+
+                <jhi-customer-overlay-panel
+                  (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+
+              }
             </div>
-          }
+            <div class="col-4">
 
-
-          <div [ngClass]="getToolBarActionCssClass()">
-            @if (currentSaleService.currentSale() == null && !isPresale) {
-              <p-button (click)="openPindingSide()" icon="pi pi-search" label="Ventes en attente"
+              <p-button (click)="openPindingSide()"
+                        [disabled]="currentSaleService.currentSale() || isPresale"
+                        icon="pi pi-search" label="Ventes en attente"
                         styleClass="p-button-info p-button-sm"></p-button>
 
-            }
 
-            <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                      styleClass="p-button-danger p-button-sm"></p-button>
+              <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
+                        styleClass="p-button-danger p-button-sm"></p-button>
+            </div>
           </div>
 
 
@@ -144,8 +149,9 @@
                                 [dropdown]="true"
                                 [emptyMessage]="notFoundText"
                                 [inputStyle]="{'width':'100%'}"
-                                [minLength]="minLength" [showEmptyMessage]="true"
-                                [style]="{'width':'100%'}" [suggestions]="produits"
+                                [minLength]="minLength" [showClear]="true"
+                                [showEmptyMessage]="true" [style]="{'width':'100%'}"
+                                [suggestions]="produits"
                                 optionLabel="libelle">
                   <ng-template let-item pTemplate="item">
                     @if (item.totalQuantity > 0) {

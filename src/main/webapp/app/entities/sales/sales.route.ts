@@ -36,7 +36,7 @@ const salesRoute: Routes = [
     path: '',
     component: SalesHomeComponent,
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.sales.home.title',
     },
@@ -49,7 +49,7 @@ const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
@@ -61,7 +61,7 @@ const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
     },
     canActivate: [UserRouteAccessService],
   },
@@ -72,7 +72,8 @@ const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
+      mode: 'edit',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -83,7 +84,8 @@ const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
+      mode: 'presale',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -94,7 +96,7 @@ const salesRoute: Routes = [
       sales: SalesResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSE, Authority.ROLE_VENDEUR],
     },
     canActivate: [UserRouteAccessService],
   },

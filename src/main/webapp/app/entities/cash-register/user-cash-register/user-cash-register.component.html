@@ -52,11 +52,12 @@
 
       </ul>
       <ng-template pTemplate="footer">
-        <div class="flex gap-3 mt-1">
+        <div class="d-flex justify-content-center gap-3 mt-1">
           <p-button [routerLink]="['/my-cash-register',cashRegisters[0].id,'billetage']"
                     label="Fermer la caisse" severity="primary" class="w-full"
                     styleClass="w-full" />
-          <p-button label="Nouvelle caisse" (click)="onOpenCashRegister()" severity="warning"
+          <p-button label="Nouvelle caisse" [hidden]="hasOpingCashRegister()"
+                    (click)="onOpenCashRegister()" severity="warning"
                     class="w-full"
                     styleClass="w-full" />
 

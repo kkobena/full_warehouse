@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.cash_register.dto.CashRegisterDTO;
 import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.errors.CashRegisterException;
+import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -19,7 +20,7 @@ public interface CashRegisterService {
 
     CashRegister openCashRegister(User user, Long cashFundId);
 
-    Optional<CashRegisterDTO> openCashRegister(int cashFundAmount);
+    Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException;
 
     CashRegister openCashRegister(User user, User cashRegisterOwner);
 
@@ -44,4 +45,6 @@ public interface CashRegisterService {
     }
 
     int getCanceledAmount(CashRegister cashRegister);
+
+    boolean hasOpenCashRegister();
 }

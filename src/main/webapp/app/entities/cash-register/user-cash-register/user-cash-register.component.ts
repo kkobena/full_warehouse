@@ -7,7 +7,6 @@ import { CashRegister, CashRegisterStatut } from '../model/cash-register.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
-import { SortDirective } from '../../../shared/sort';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,7 +15,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { DialogModule } from 'primeng/dialog';
 import { left } from '@popperjs/core';
-import { TicketingComponent } from '../ticketing/ticketing.component';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
@@ -28,7 +26,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     PanelModule,
     ButtonModule,
     RouterModule,
-    SortDirective,
     CardModule,
     TableModule,
     ReactiveFormsModule,
@@ -36,7 +33,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     InputTextModule,
     RippleModule,
     DialogModule,
-    TicketingComponent,
     ToastModule,
     ConfirmDialogModule,
   ],
@@ -185,6 +181,10 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
         });
       },
     });
+  }
+
+  protected hasOpingCashRegister(): boolean {
+    return this.cashRegisters.some(cr => cr.statut === CashRegisterStatut.OPEN);
   }
 
   private setCashFundControlFocus(): void {

@@ -24,11 +24,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { INatureVente } from '../../../shared/model/nature-vente.model';
-import { IUser, User } from '../../../core/user/user.model';
+import { IUser } from '../../../core/user/user.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
-import { IRemise } from '../../../shared/model/remise.model';
+import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
 import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
@@ -37,7 +37,6 @@ import { SalesService } from '../sales.service';
 import { CustomerService } from '../../customer/customer.service';
 import { ProduitService } from '../../produit/produit.service';
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { UserService } from '../../../core/user/user.service';
 import { AccountService } from '../../../core/auth/account.service';
 import { ErrorService } from '../../../shared/error.service';
 import { DeconditionService } from '../../decondition/decondition.service';
@@ -113,7 +112,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   inputBoxFocus: Subscription;
   onCompleteSale: Subscription;
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
-  canForceStock: boolean;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
   readonly ASSURANCE = 'ASSURANCE';
@@ -129,16 +127,35 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   typePrescriptionService = inject(TypePrescriptionService);
   userCaissierService = inject(UserCaissierService);
   userVendeurService = inject(UserVendeurService);
+  accountService = inject(AccountService);
   currentAccount = this.accountService.trackCurrentAccount();
   hasAuthorityService = inject(HasAuthorityService);
   messageService = inject(MessageService);
   voSalesService = inject(VoSalesService);
   baseSaleService = inject(BaseSaleService);
+  selectModeReglementService = inject(SelectModeReglementService);
+  currentSaleService = inject(CurrentSaleService);
+  selectedCustomerService = inject(SelectedCustomerService);
+  lastCurrencyGivenService = inject(LastCurrencyGivenService);
+  salesService = inject(SalesService);
+  customerService = inject(CustomerService);
+  produitService = inject(ProduitService);
+  activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
+  modalService = inject(NgbModal);
+  // userService = inject(UserService);
+  confirmationService = inject(ConfirmationService);
+  errorService = inject(ErrorService);
+  decondtionService = inject(DeconditionService);
+  dialogService = inject(DialogService);
+  translate = inject(TranslateService);
+  primeNGConfig = inject(PrimeNGConfig);
   remiseCacheService = inject(RemiseCacheService);
+  remises: GroupRemise[] = this.remiseCacheService.remises();
+  protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];
   protected naturesVente: INatureVente | null = null;
-  protected users: IUser[];
   protected userCaissier?: IUser | null;
   protected userSeller?: IUser;
   protected typePrescription?: ITypePrescription | null;
@@ -164,32 +181,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected commonDialog = false;
   protected showStock = true;
   protected printTicket = true;
-  protected canApplyDiscount = true;
   protected active = 'comptant';
   private readonly saleEventManager = inject(SaleEventManager);
 
-  constructor(
-    protected selectModeReglementService: SelectModeReglementService,
-    protected currentSaleService: CurrentSaleService,
-    protected selectedCustomerService: SelectedCustomerService,
-    protected lastCurrencyGivenService: LastCurrencyGivenService,
-    protected salesService: SalesService,
-    protected customerService: CustomerService,
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    protected userService: UserService,
-    private accountService: AccountService,
-    public confirmationService: ConfirmationService,
-    protected errorService: ErrorService,
-    protected decondtionService: DeconditionService,
-    public dialogService: DialogService,
-    public translate: TranslateService,
-    public primeNGConfig: PrimeNGConfig,
-  ) {
+  constructor() {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
-    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
+
     this.onCompleteSale = this.saleEventManager.subscribe('completeSale', (response: SaleEvent<unknown>) => {
       if (this.isAssurance() || this.isCartnet()) {
         const content = response.content;
@@ -269,8 +266,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onLoadPrevente(sales: ISales, toEdit: boolean = true): void {
-    if (sales.statut === SalesStatut.CLOSED) {
+  onLoadPrevente(sales: ISales, toEdit: boolean = false): void {
+    if (!toEdit && sales.statut !== SalesStatut.CLOSED) {
       // modification vente cloturee
       //1 annuler la vente originale
       // gerer ordonnance de la vente vo
@@ -301,7 +298,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       //   this.selectedCustomerService.setCustomer(sales.customer);
       this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
       this.typePrescriptionService.setTypePrescription(this.typePrescription);
-      this.userSeller = this.users?.find(e => e.id === sales.sellerId) || this.userSeller;
+      this.userSeller = this.userVendeurService.vendeurs()?.find(e => e.id === sales.sellerId) || this.userSeller;
       this.userVendeurService.setVendeur(this.userSeller);
       this.loadPrevente();
     }
@@ -310,20 +307,20 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.currentSaleService.setCurrentSale(null);
     this.selectedCustomerService.setCustomer(null);
-    this.loadAllUsers();
     this.userCaissier = { ...this.currentAccount() } as IUser;
     this.userCaissierService.setCaissier(this.userCaissier);
 
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
 
-    this.activatedRoute.data.subscribe(({ sales }) => {
+    this.activatedRoute.data.subscribe(({ sales, mode }) => {
+      console.warn('mode', mode);
       if (sales.id) {
         if (sales.customer) {
           this.customerService
             .find(sales.customer.id)
             .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
         }
-        this.onLoadPrevente(sales, true);
+        this.onLoadPrevente(sales, this.isEditionClosedSale(mode));
       }
       this.loadProduits();
     });
@@ -341,10 +338,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     this.userVendeurService.setVendeur(this.userSeller);
-  }
-
-  loadAllUsers(): void {
-    this.userService.query().subscribe((res: HttpResponse<User[]>) => (this.users = res.body || []));
   }
 
   manageAmountDiv(): void {
@@ -418,10 +411,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   cancelCommonDialog(): void {
     this.commonDialog = false;
-  }
-
-  searchUser(): void {
-    this.loadAllUsers();
   }
 
   onSelectUser(): void {
@@ -925,6 +914,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.produitbox().inputEL.nativeElement.focus();
   }
 
+  private isEditionClosedSale(mode: string): boolean {
+    return mode === 'edit';
+  }
+
   private isCartnet(): boolean {
     return this.active === 'carnet';
   }
@@ -982,6 +975,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
+    if (this.produits.length === 1) {
+      this.produitSelected = this.produits[0];
+      this.produitbox().hide();
+      this.onSelect();
+    }
   }
 
   private onSaveSuccess(sale: ISales | null): void {
@@ -1115,7 +1113,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.carnetComponent().onLoadPrevente();
         }
       }
-      //  this.produitbox()?.inputEL.nativeElement.focus();
     }, 60);
   }
 

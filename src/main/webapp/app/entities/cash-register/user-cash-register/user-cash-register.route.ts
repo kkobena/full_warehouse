@@ -3,7 +3,6 @@ import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { CashRegisterService } from '../cash-register.service';
 import { CashRegister } from '../model/cash-register.model';
@@ -32,9 +31,9 @@ const userCahsRoutes: Routes = [
   {
     path: '',
     component: UserCashRegisterComponent,
-    data: {
-      authorities: [Authority.USER],
-    },
+    /*    data: {
+         authorities: [Authority.USER],
+       }, */
     canActivate: [UserRouteAccessService],
   },
   {
@@ -44,7 +43,7 @@ const userCahsRoutes: Routes = [
       cashRegister: CategorieResolve,
     },
     data: {
-      authorities: [Authority.USER],
+      /*  authorities: [Authority.USER], */
       pageTitle: 'Billetage',
     },
     canActivate: [UserRouteAccessService],

@@ -23,7 +23,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
-import { ProductTableComponent, RemiseSignal } from '../product-table/product-table.component';
+import { ProductTableComponent } from '../product-table/product-table.component';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { IPayment } from '../../../../shared/model/payment.model';
 import { IRemise } from '../../../../shared/model/remise.model';
@@ -47,7 +47,6 @@ import { BaseSaleService } from '../../service/base-sale.service';
 import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
-import { RemiseListDialogComponent } from '../../remise-list-dialog/remise-list-dialog.component';
 
 @Component({
   selector: 'jhi-comptant',
@@ -118,12 +117,11 @@ export class ComptantComponent {
   protected isSaving = false;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
-  protected remises: IRemise[] = [];
   protected remise?: IRemise | null;
   protected event: any;
   protected entryAmount?: number | null = null;
   protected canRemoveItem: boolean;
-  private canApplyDiscount: boolean;
+  protected canApplyDiscount: boolean;
 
   constructor() {
     this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
@@ -379,7 +377,35 @@ export class ComptantComponent {
     this.salesService.printReceipt(saleId).subscribe();
   }
 
+  onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
+    const modalRef = this.modalService.open(FormActionAutorisationComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.entity = this.currentSaleService.currentSale();
+    modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;
+    modalRef.closed.subscribe(reason => {
+      if (reason === true) {
+        this.addRemise(remise);
+      }
+    });
+  }
+
   onAddRemise(remise: IRemise): void {
+    if (this.canApplyDiscount) {
+      this.addRemise(remise);
+    } else {
+      if (remise) {
+        this.onAddRmiseOpenActionAutorisationDialog(remise);
+      } else {
+        if (this.currentSaleService.currentSale()?.remise) {
+          this.onAddRmiseOpenActionAutorisationDialog(remise);
+        }
+      }
+    }
+  }
+
+  addRemise(remise: IRemise): void {
     if (remise) {
       this.salesService
         .addRemise({
@@ -397,43 +423,6 @@ export class ComptantComponent {
           error: (err: any) => this.onSaveError(err),
         });
       }
-    }
-  }
-
-  openRemiseDialog(remiseSignal: RemiseSignal): void {
-    switch (remiseSignal) {
-      case 'update':
-      case 'add':
-        const modalRef = this.modalService.open(RemiseListDialogComponent, {
-          backdrop: 'static',
-          fullscreen: 'md',
-          size: 'lg',
-          centered: true,
-          animation: true,
-        });
-        modalRef.closed.subscribe((remise: IRemise) => {
-          if (remise) {
-            this.salesService
-              .addRemise({
-                key: this.currentSaleService.currentSale().id,
-                value: remise.id,
-              })
-              .subscribe({
-                next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-                error: (err: any) => this.onSaveError(err),
-              });
-          }
-        });
-
-        break;
-      case 'remove':
-        this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
-          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-          error: (err: any) => this.onSaveError(err),
-        });
-        break;
-      default:
-        break;
     }
   }
 

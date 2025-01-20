@@ -115,17 +115,16 @@ export class SalesComponent implements OnInit, AfterViewInit {
   hasAuthorityService = inject(HasAuthorityService);
   saleToolBarService = inject(SaleToolBarService);
   userControl = viewChild<ElementRef>('userControl');
+  public translate = inject(TranslateService);
+  public primeNGConfig = inject(PrimeNGConfig);
+  protected assuranceSalesService = inject(VoSalesService);
+  protected salesService = inject(SalesService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected confirmationService = inject(ConfirmationService);
+  protected userService = inject(UserService);
 
-  constructor(
-    protected assuranceSalesService: VoSalesService,
-    protected salesService: SalesService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected confirmationService: ConfirmationService,
-    protected userService: UserService,
-    public translate: TranslateService,
-    public primeNGConfig: PrimeNGConfig,
-  ) {
+  constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);

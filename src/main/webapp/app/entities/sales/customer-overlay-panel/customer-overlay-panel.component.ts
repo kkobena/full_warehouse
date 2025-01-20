@@ -9,6 +9,7 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { SelectedCustomerService } from '../service/selected-customer.service';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-customer-overlay-panel',
@@ -23,6 +24,7 @@ import { SelectedCustomerService } from '../service/selected-customer.service';
     FormsModule,
     OverlayPanelModule,
     CustomerDataTableComponent,
+    TagModule,
   ],
   providers: [],
   templateUrl: './customer-overlay-panel.component.html',

@@ -33,29 +33,29 @@
           }
 
         </div>
-        @if (remises.length > 0) {
-          <div class=" p-0 remises-select">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon">Remises</span>
-              <p-dropdown
-                (onChange)="onSelectRemise()"
-                [options]="remises"
-                [(ngModel)]="selectedRemise"
-                placeholder="Choisir une remise"
-                optionLabel="valeur"
-                [style]="{'width': '250px'}"
-                [showClear]="true"
-                [group]="true">
-                <ng-template let-group pTemplate="group">
-                  <div class="flex align-items-center">
+        <!-- @if (remises.length > 0) {-->
+        <div class=" p-0 remises-select">
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">Remises</span>
+            <p-dropdown
+              (onChange)="onSelectRemise()"
+              [options]="remiseCacheService.remises()"
+              [(ngModel)]="selectedRemise"
+              placeholder="Choisir une remise"
+              optionLabel="valeur"
+              [style]="{'width': '250px'}"
+              [showClear]="true"
+              [group]="true">
+              <ng-template let-group pTemplate="group">
+                <div class="flex align-items-center">
 
-                    <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
-                  </div>
-                </ng-template>
-              </p-dropdown>
-            </div>
+                  <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
           </div>
-        }
+        </div>
+        <!--   }-->
 
 
       </div>

@@ -17,12 +17,10 @@ import { BaseSaleService } from '../../service/base-sale.service';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { RemiseCacheService } from '../../service/remise-cache.service';
-import { GroupRemise, IRemise, Remise } from '../../../../shared/model/remise.model';
+import { IRemise, Remise } from '../../../../shared/model/remise.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-
-export type RemiseSignal = 'add' | 'remove' | 'update';
 
 @Component({
   selector: 'jhi-product-table',
@@ -50,7 +48,6 @@ export class ProductTableComponent {
   @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
   @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
   @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
-  // @Output() addRemiseEvent = new EventEmitter<RemiseSignal>();
   @Output() addRemiseEvent = new EventEmitter<Remise>(null);
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   hasAuthorityService = inject(HasAuthorityService);
@@ -61,11 +58,12 @@ export class ProductTableComponent {
   remiseCacheService = inject(RemiseCacheService);
   modalService = inject(NgbModal);
   protected typeAlert = 'success';
-  protected remises: GroupRemise[] = this.remiseCacheService.remises();
+  protected canApplyDiscount = true;
   protected selectedRemise: any;
-  private canRemoveItem: boolean;
+  private readonly canRemoveItem: boolean;
 
   constructor() {
+    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
     this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
     this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
 
@@ -162,18 +160,6 @@ export class ProductTableComponent {
     } else {
       this.deleteItemEvent.emit(item);
     }
-  }
-
-  onRemiseChange(): void {
-    // this.addRemiseEvent.emit('update');
-  }
-
-  onAddRemise(): void {
-    // this.addRemiseEvent.emit('add');
-  }
-
-  onRemoveRemise(): void {
-    //this.addRemiseEvent.emit('remove');
   }
 
   protected getTaux(entity: IRemise, type: string): string {

@@ -11,9 +11,9 @@ import { SalesService } from '../sales/sales.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-customer-detail',
-  styles: [
-    `
+    selector: 'jhi-customer-detail',
+    styles: [
+        `
       .table tr:hover {
         cursor: pointer;
       }
@@ -150,10 +150,9 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
         justify-content: space-between;
       }
     `,
-  ],
-  templateUrl: './customer-detail.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule],
+    ],
+    templateUrl: './customer-detail.component.html',
+    imports: [WarehouseCommonModule]
 })
 export class CustomerDetailComponent implements OnInit {
   customer: ICustomer | null = null;

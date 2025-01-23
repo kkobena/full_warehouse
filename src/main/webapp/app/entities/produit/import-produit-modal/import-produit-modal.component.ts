@@ -17,22 +17,21 @@ import { FournisseurService } from '../../fournisseur/fournisseur.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
-  selector: 'jhi-import-produit-modal',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    PanelModule,
-    TableModule,
-    FileUploadModule,
-    ToastModule,
-    DropdownModule,
-    NgxSpinnerModule,
-  ],
-  templateUrl: './import-produit-modal.component.html',
-  styles: ``,
+    selector: 'jhi-import-produit-modal',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        PanelModule,
+        TableModule,
+        FileUploadModule,
+        ToastModule,
+        DropdownModule,
+        NgxSpinnerModule,
+    ],
+    templateUrl: './import-produit-modal.component.html',
+    styles: ``
 })
 export class ImportProduitModalComponent implements OnInit {
   type: string | null = null;

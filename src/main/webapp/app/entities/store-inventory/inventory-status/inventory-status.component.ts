@@ -5,10 +5,9 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
-  selector: 'jhi-inventory-status',
-  templateUrl: './inventory-status.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule],
+    selector: 'jhi-inventory-status',
+    templateUrl: './inventory-status.component.html',
+    imports: [WarehouseCommonModule]
 })
 export class InventoryStatusComponent implements ICellRendererAngularComp, OnChanges {
   params!: any;

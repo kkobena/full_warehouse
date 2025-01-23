@@ -15,19 +15,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-form-famille',
-  templateUrl: './form-famille.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    DropdownModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-  ],
+    selector: 'jhi-form-famille',
+    templateUrl: './form-famille.component.html',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ToastModule,
+        DropdownModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+    ]
 })
 export class FormFamilleComponent implements OnInit {
   isSaving = false;

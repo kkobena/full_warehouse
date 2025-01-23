@@ -13,19 +13,18 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-etiquette-delevery',
-  templateUrl: './etiquette.component.html',
-  imports: [
-    WarehouseCommonModule,
-    KeyFilterModule,
-    ButtonModule,
-    NgxSpinnerModule,
-    RippleModule,
-    DynamicDialogModule,
-    FormsModule,
-    InputTextModule,
-  ],
+    selector: 'jhi-etiquette-delevery',
+    templateUrl: './etiquette.component.html',
+    imports: [
+        WarehouseCommonModule,
+        KeyFilterModule,
+        ButtonModule,
+        NgxSpinnerModule,
+        RippleModule,
+        DynamicDialogModule,
+        FormsModule,
+        InputTextModule,
+    ]
 })
 export class EtiquetteComponent implements OnInit {
   isSaving = false;

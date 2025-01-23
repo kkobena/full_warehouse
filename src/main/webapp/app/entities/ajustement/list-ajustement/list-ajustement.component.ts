@@ -18,10 +18,9 @@ import { Ripple } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-list-ajustement',
-  templateUrl: './list-ajustement.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, Ripple, TooltipModule],
+    selector: 'jhi-list-ajustement',
+    templateUrl: './list-ajustement.component.html',
+    imports: [WarehouseCommonModule, ButtonModule, TableModule, Ripple, TooltipModule]
 })
 export class ListAjustementComponent implements OnInit {
   protected ajustementStatut: AjustementStatut = AjustementStatut.CLOSED;

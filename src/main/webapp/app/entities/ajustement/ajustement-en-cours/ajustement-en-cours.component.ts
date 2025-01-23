@@ -19,11 +19,10 @@ import { Ripple } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-ajustement-en-cours',
-  templateUrl: './ajustement-en-cours.component.html',
-  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
-  providers: [ConfirmationService, DialogService, MessageService],
+    selector: 'jhi-ajustement-en-cours',
+    templateUrl: './ajustement-en-cours.component.html',
+    imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
+    providers: [ConfirmationService, DialogService, MessageService]
 })
 export class AjustementEnCoursComponent implements OnInit {
   protected ajustementStatut: AjustementStatut = AjustementStatut.PENDING;

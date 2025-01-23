@@ -25,11 +25,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
-  imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective, ActiveMenuDirective],
+    selector: 'jhi-navbar',
+    templateUrl: './navbar.component.html',
+    styleUrl: './navbar.component.scss',
+    imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective, ActiveMenuDirective]
 })
 export default class NavbarComponent implements OnInit {
   inProduction?: boolean;

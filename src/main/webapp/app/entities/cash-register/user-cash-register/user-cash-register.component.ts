@@ -19,25 +19,24 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
-  selector: 'jhi-user-cash-register',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    PanelModule,
-    ButtonModule,
-    RouterModule,
-    CardModule,
-    TableModule,
-    ReactiveFormsModule,
-    KeyFilterModule,
-    InputTextModule,
-    RippleModule,
-    DialogModule,
-    ToastModule,
-    ConfirmDialogModule,
-  ],
-  providers: [ConfirmationService, MessageService],
-  templateUrl: './user-cash-register.component.html',
+    selector: 'jhi-user-cash-register',
+    imports: [
+        WarehouseCommonModule,
+        PanelModule,
+        ButtonModule,
+        RouterModule,
+        CardModule,
+        TableModule,
+        ReactiveFormsModule,
+        KeyFilterModule,
+        InputTextModule,
+        RippleModule,
+        DialogModule,
+        ToastModule,
+        ConfirmDialogModule,
+    ],
+    providers: [ConfirmationService, MessageService],
+    templateUrl: './user-cash-register.component.html'
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');

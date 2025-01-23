@@ -13,10 +13,9 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-magasin-update',
-  templateUrl: './magasin-update.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule],
+    selector: 'jhi-magasin-update',
+    templateUrl: './magasin-update.component.html',
+    imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule]
 })
 export class MagasinUpdateComponent implements OnInit {
   isSaving = false;

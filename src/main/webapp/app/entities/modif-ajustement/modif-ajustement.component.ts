@@ -23,27 +23,26 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-modif-ajustement',
-  templateUrl: './modif-ajustement.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    DynamicDialogModule,
-    FormsModule,
-    FormMotifAjustementComponent,
-  ],
+    selector: 'jhi-modif-ajustement',
+    templateUrl: './modif-ajustement.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        DynamicDialogModule,
+        FormsModule,
+        FormMotifAjustementComponent,
+    ]
 })
 export class ModifAjustementComponent implements OnInit {
   fileDialog?: boolean;

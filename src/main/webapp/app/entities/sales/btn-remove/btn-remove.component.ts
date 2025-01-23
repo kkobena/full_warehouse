@@ -3,14 +3,13 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
-  selector: 'jhi-btn-remove',
-  standalone: true,
-  imports: [WarehouseCommonModule],
-  template: `
+    selector: 'jhi-btn-remove',
+    imports: [WarehouseCommonModule],
+    template: `
     <button type="submit" (click)="btnClickedHandler()" class="btn btn-danger btn-sm">
       <fa-icon icon="times"></fa-icon>
     </button>
-  `,
+  `
 })
 export class BtnRemoveComponent implements ICellRendererAngularComp {
   params!: any;

@@ -12,9 +12,9 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
-  selector: 'jhi-inventory-transaction',
-  styles: [
-    `
+    selector: 'jhi-inventory-transaction',
+    styles: [
+        `
       .master {
         padding: 14px 12px;
         border-radius: 12px;
@@ -28,10 +28,9 @@ import { AgGridAngular } from 'ag-grid-angular';
         min-height: 400px;
       }
     `,
-  ],
-  templateUrl: './inventory-transaction.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, AgGridAngular],
+    ],
+    templateUrl: './inventory-transaction.component.html',
+    imports: [WarehouseCommonModule, AgGridAngular]
 })
 export class InventoryTransactionComponent implements OnInit {
   totalItems = 0;

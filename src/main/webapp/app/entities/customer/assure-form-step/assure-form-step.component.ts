@@ -20,22 +20,21 @@ import { CustomerService } from '../customer.service';
 import { CommonService } from './common.service';
 
 @Component({
-  selector: 'jhi-assure-form-step',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    RouterOutlet,
-    StepsModule,
-    FaIconComponent,
-    TranslateDirective,
-    StepperModule,
-    Button,
-    ToastModule,
-    AssureStepComponent,
-    AyantDroitStepComponent,
-  ],
-  templateUrl: './assure-form-step.component.html',
-  providers: [MessageService],
+    selector: 'jhi-assure-form-step',
+    imports: [
+        WarehouseCommonModule,
+        RouterOutlet,
+        StepsModule,
+        FaIconComponent,
+        TranslateDirective,
+        StepperModule,
+        Button,
+        ToastModule,
+        AssureStepComponent,
+        AyantDroitStepComponent,
+    ],
+    templateUrl: './assure-form-step.component.html',
+    providers: [MessageService]
 })
 export class AssureFormStepComponent implements OnInit {
   ayantDroitStepComponent = viewChild(AyantDroitStepComponent);

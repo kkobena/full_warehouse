@@ -11,23 +11,22 @@ import { DossierFactureProjection, ReglementFactureDossier } from './model/regle
 import { FactureService } from '../facturation/facture.service';
 
 @Component({
-  selector: 'jhi-reglement',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    CardModule,
-    FacturesRegleesComponent,
-    FaireReglementComponent,
-    NgbNav,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavLink,
-    NgbNavLinkBase,
-    PanelModule,
-    FormsModule,
-  ],
-  templateUrl: './reglement.component.html',
-  styleUrl: './reglement.component.scss',
+    selector: 'jhi-reglement',
+    imports: [
+        WarehouseCommonModule,
+        CardModule,
+        FacturesRegleesComponent,
+        FaireReglementComponent,
+        NgbNav,
+        NgbNavContent,
+        NgbNavItem,
+        NgbNavLink,
+        NgbNavLinkBase,
+        PanelModule,
+        FormsModule,
+    ],
+    templateUrl: './reglement.component.html',
+    styleUrl: './reglement.component.scss'
 })
 export class ReglementComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);

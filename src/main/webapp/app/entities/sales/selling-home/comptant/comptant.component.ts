@@ -49,43 +49,42 @@ import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
 
 @Component({
-  selector: 'jhi-comptant',
-  standalone: true,
-  providers: [ConfirmationService, DialogService],
-  styles: [
-    `
+    selector: 'jhi-comptant',
+    providers: [ConfirmationService, DialogService],
+    styles: [
+        `
       .table tr:hover {
         cursor: pointer;
       }
     `,
-  ],
-  imports: [
-    WarehouseCommonModule,
-    SidebarModule,
-    RouterModule,
-    NgxSpinnerModule,
-    TableModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    FormsModule,
-    DialogModule,
-    ConfirmDialogModule,
-    PanelModule,
-    SelectButtonModule,
-    AutoCompleteModule,
-    TooltipModule,
-    DividerModule,
-    KeyFilterModule,
-    TagModule,
-    DropdownModule,
-    InputSwitchModule,
-    OverlayPanelModule,
-    ProductTableComponent,
-    AmountComputingComponent,
-    ModeReglementComponent,
-  ],
-  templateUrl: './comptant.component.html',
+    ],
+    imports: [
+        WarehouseCommonModule,
+        SidebarModule,
+        RouterModule,
+        NgxSpinnerModule,
+        TableModule,
+        InputTextModule,
+        ButtonModule,
+        RippleModule,
+        FormsModule,
+        DialogModule,
+        ConfirmDialogModule,
+        PanelModule,
+        SelectButtonModule,
+        AutoCompleteModule,
+        TooltipModule,
+        DividerModule,
+        KeyFilterModule,
+        TagModule,
+        DropdownModule,
+        InputSwitchModule,
+        OverlayPanelModule,
+        ProductTableComponent,
+        AmountComputingComponent,
+        ModeReglementComponent,
+    ],
+    templateUrl: './comptant.component.html'
 })
 export class ComptantComponent {
   @Input('isPresale') isPresale = false;

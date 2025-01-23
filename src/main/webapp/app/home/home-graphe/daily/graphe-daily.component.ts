@@ -14,11 +14,10 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 
 @Component({
-  selector: 'jhi-graphe-daily',
-  templateUrl: './graphe-daily.component.html',
-  styleUrls: ['./graphe-daily.component.scss'],
-  standalone: true,
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule],
+    selector: 'jhi-graphe-daily',
+    templateUrl: './graphe-daily.component.html',
+    styleUrls: ['./graphe-daily.component.scss'],
+    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule]
 })
 export class GrapheDailyComponent implements OnInit {
   protected readonly TOPS = TOPS;

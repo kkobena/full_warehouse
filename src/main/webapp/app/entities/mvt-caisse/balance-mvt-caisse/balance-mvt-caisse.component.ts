@@ -23,26 +23,25 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'jhi-balance-mvt-caisse',
-  standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService],
-  imports: [
-    Button,
-    CalendarModule,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    DecimalPipe,
-    DatePipe,
-    SelectButtonModule,
-    CardModule,
-    SplitButtonModule,
-    RadioButtonModule,
-    DividerModule,
-    ToastModule,
-  ],
-  templateUrl: './balance-mvt-caisse.component.html',
+    selector: 'jhi-balance-mvt-caisse',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        Button,
+        CalendarModule,
+        MultiSelectModule,
+        PaginatorModule,
+        ToolbarModule,
+        TooltipModule,
+        DecimalPipe,
+        DatePipe,
+        SelectButtonModule,
+        CardModule,
+        SplitButtonModule,
+        RadioButtonModule,
+        DividerModule,
+        ToastModule,
+    ],
+    templateUrl: './balance-mvt-caisse.component.html'
 })
 export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;

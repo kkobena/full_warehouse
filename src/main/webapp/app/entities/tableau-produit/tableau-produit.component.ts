@@ -20,26 +20,25 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'jhi-groupe-fournisseur',
-  templateUrl: './tableau-produit.component.html',
-  providers: [MessageService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ConfirmDialogModule,
-    DialogModule,
-    ToolbarModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
-    TableModule,
-    TooltipModule,
-    KeyFilterModule,
-    ToastModule,
-  ],
+    selector: 'jhi-groupe-fournisseur',
+    templateUrl: './tableau-produit.component.html',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ConfirmDialogModule,
+        DialogModule,
+        ToolbarModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        RouterModule,
+        TableModule,
+        TooltipModule,
+        KeyFilterModule,
+        ToastModule,
+    ]
 })
 export class TableauProduitComponent implements OnInit {
   fileDialog?: boolean;

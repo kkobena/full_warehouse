@@ -21,23 +21,22 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { ICustomer } from '../../../../shared/model/customer.model';
 
 @Component({
-  selector: 'jhi-prevente-modal',
-  templateUrl: './prevente-modal.component.html',
-  styleUrls: ['./prevente-modal.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    AutoCompleteModule,
-    ToolbarModule,
-    DividerModule,
-  ],
+    selector: 'jhi-prevente-modal',
+    templateUrl: './prevente-modal.component.html',
+    styleUrls: ['./prevente-modal.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        TableModule,
+        AutoCompleteModule,
+        ToolbarModule,
+        DividerModule,
+    ]
 })
 export class PreventeModalComponent implements OnInit {
   @Input() user: IUser;

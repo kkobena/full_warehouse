@@ -26,28 +26,27 @@ import { DialogModule } from 'primeng/dialog';
 import { MagasinService } from '../magasin/magasin.service';
 
 @Component({
-  selector: 'jhi-rayon',
-  templateUrl: './rayon.component.html',
-  styleUrls: ['./rayon.component.scss'],
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DropdownModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    DynamicDialogModule,
-    FormsModule,
-    DialogModule,
-  ],
+    selector: 'jhi-rayon',
+    templateUrl: './rayon.component.html',
+    styleUrls: ['./rayon.component.scss'],
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DropdownModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        DynamicDialogModule,
+        FormsModule,
+        DialogModule,
+    ]
 })
 export class RayonComponent implements OnInit {
   magasin?: IMagasin;

@@ -15,20 +15,19 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 
 @Component({
-  selector: 'jhi-type-etiquette',
-  templateUrl: './type-etiquette.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    DialogModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
-    TableModule,
-  ],
+    selector: 'jhi-type-etiquette',
+    templateUrl: './type-etiquette.component.html',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        DialogModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        RouterModule,
+        TableModule,
+    ]
 })
 export class TypeEtiquetteComponent implements OnInit {
   entites?: ITypeEtiquette[];

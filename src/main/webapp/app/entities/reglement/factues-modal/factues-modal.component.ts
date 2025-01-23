@@ -24,25 +24,24 @@ import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } 
 import { SelectedFacture } from '../model/reglement.model';
 
 @Component({
-  selector: 'jhi-factues-modal',
-  standalone: true,
-  imports: [
-    ButtonModule,
-    TableModule,
-    WarehouseCommonModule,
-    ToolbarModule,
-    InputSwitchModule,
-    FormsModule,
-    FloatLabelModule,
-    AutoCompleteModule,
-  ],
-  providers: [
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
-  templateUrl: './factues-modal.component.html',
+    selector: 'jhi-factues-modal',
+    imports: [
+        ButtonModule,
+        TableModule,
+        WarehouseCommonModule,
+        ToolbarModule,
+        InputSwitchModule,
+        FormsModule,
+        FloatLabelModule,
+        AutoCompleteModule,
+    ],
+    providers: [
+        I18n,
+        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+        { provide: NgbDateAdapter, useClass: CustomAdapter },
+        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+    ],
+    templateUrl: './factues-modal.component.html'
 })
 export class FactuesModalComponent implements AfterViewInit {
   factureService = inject(FactureService);

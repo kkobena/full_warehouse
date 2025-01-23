@@ -16,11 +16,10 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
-  selector: 'jhi-importation-new-commande',
-  templateUrl: './importation-new-commande.component.html',
-  providers: [DialogService, ConfirmationService],
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, DropdownModule],
+    selector: 'jhi-importation-new-commande',
+    templateUrl: './importation-new-commande.component.html',
+    providers: [DialogService, ConfirmationService],
+    imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, DropdownModule]
 })
 export class ImportationNewCommandeComponent implements OnInit {
   isSaving = false;

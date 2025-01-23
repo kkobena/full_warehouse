@@ -30,19 +30,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-commande-en-cours',
-  templateUrl: './commande-en-cours.component.html',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TableModule,
-    NgxSpinnerModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TooltipModule,
-  ],
+    selector: 'jhi-commande-en-cours',
+    templateUrl: './commande-en-cours.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        TableModule,
+        NgxSpinnerModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        TooltipModule,
+    ]
 })
 export class CommandeEnCoursComponent implements OnInit {
   @Input() search = '';

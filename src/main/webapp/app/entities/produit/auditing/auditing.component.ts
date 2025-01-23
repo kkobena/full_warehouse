@@ -15,20 +15,19 @@ import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 
 @Component({
-  selector: 'jhi-auditing',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    FormsModule,
-    PanelModule,
-    TableModule,
-    BadgeModule,
-    DividerModule,
-    NgxSpinnerModule,
-  ],
-  templateUrl: './auditing.component.html',
+    selector: 'jhi-auditing',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        FormsModule,
+        PanelModule,
+        TableModule,
+        BadgeModule,
+        DividerModule,
+        NgxSpinnerModule,
+    ],
+    templateUrl: './auditing.component.html'
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;

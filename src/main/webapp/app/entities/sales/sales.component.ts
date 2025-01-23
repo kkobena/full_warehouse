@@ -30,9 +30,9 @@ import { SaleToolBarService } from './service/sale-tool-bar.service';
 import { Authority } from '../../shared/constants/authority.constants';
 
 @Component({
-  selector: 'jhi-sales',
-  styles: [
-    `
+    selector: 'jhi-sales',
+    styles: [
+        `
       .table tr:hover {
         cursor: pointer;
       }
@@ -66,27 +66,26 @@ import { Authority } from '../../shared/constants/authority.constants';
         color: #2d2d2d !important;
       }
     `,
-  ],
-  templateUrl: './sales.component.html',
-  providers: [ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    RouterModule,
-    ConfirmDialogModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    DropdownModule,
-    ToolbarModule,
-    DividerModule,
-    CalendarModule,
-    CheckboxModule,
-    SplitButtonModule,
-  ],
+    ],
+    templateUrl: './sales.component.html',
+    providers: [ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        RouterModule,
+        ConfirmDialogModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        TableModule,
+        DropdownModule,
+        ToolbarModule,
+        DividerModule,
+        CalendarModule,
+        CheckboxModule,
+        SplitButtonModule,
+    ]
 })
 export class SalesComponent implements OnInit, AfterViewInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];

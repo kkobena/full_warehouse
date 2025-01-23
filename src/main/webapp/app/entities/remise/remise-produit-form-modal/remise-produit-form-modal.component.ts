@@ -13,12 +13,11 @@ import { HttpResponse } from '@angular/common/http';
 import { MessagesModule } from 'primeng/messages';
 
 @Component({
-  selector: 'jhi-remise-produit-form-modal',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [ButtonDirective, ReactiveFormsModule, Ripple, ToastModule, MessagesModule],
-  templateUrl: './remise-produit-form-modal.component.html',
-  styles: ``,
+    selector: 'jhi-remise-produit-form-modal',
+    providers: [MessageService, ConfirmationService],
+    imports: [ButtonDirective, ReactiveFormsModule, Ripple, ToastModule, MessagesModule],
+    templateUrl: './remise-produit-form-modal.component.html',
+    styles: ``
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   modalService = inject(NgbModal);

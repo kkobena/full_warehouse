@@ -25,26 +25,25 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
 @Component({
-  selector: 'jhi-gestion-caisse',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    Button,
-    CalendarModule,
-    DropdownModule,
-    InputTextModule,
-    MultiSelectModule,
-    ToolbarModule,
-    TooltipModule,
-    FormsModule,
-    ToastModule,
-    CardModule,
-    TableModule,
-    TagModule,
-  ],
-  templateUrl: './gestion-caisse.component.html',
-  styles: ``,
+    selector: 'jhi-gestion-caisse',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        Button,
+        CalendarModule,
+        DropdownModule,
+        InputTextModule,
+        MultiSelectModule,
+        ToolbarModule,
+        TooltipModule,
+        FormsModule,
+        ToastModule,
+        CardModule,
+        TableModule,
+        TagModule,
+    ],
+    templateUrl: './gestion-caisse.component.html',
+    styles: ``
 })
 export class GestionCaisseComponent implements OnInit, AfterViewInit {
   entityService = inject(CashRegisterService);

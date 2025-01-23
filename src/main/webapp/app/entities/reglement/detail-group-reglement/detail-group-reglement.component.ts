@@ -10,11 +10,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 
 @Component({
-  selector: 'jhi-detail-group-reglement',
-  standalone: true,
-  imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule],
-  templateUrl: './detail-group-reglement.component.html',
-  styles: ``,
+    selector: 'jhi-detail-group-reglement',
+    imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule],
+    templateUrl: './detail-group-reglement.component.html',
+    styles: ``
 })
 export class DetailGroupReglementComponent implements OnInit {
   modalService = inject(NgbModal);

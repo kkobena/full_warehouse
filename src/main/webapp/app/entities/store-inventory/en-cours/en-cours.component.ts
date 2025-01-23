@@ -27,22 +27,20 @@ import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
-  selector: 'jhi-en-cours',
-  templateUrl: './en-cours.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ConfirmDialogModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    ToastModule,
-    NgxSpinnerModule,
-    TableModule,
-    RouterModule,
-  ],
-
-  providers: [ConfirmationService, DialogService, MessageService],
+    selector: 'jhi-en-cours',
+    templateUrl: './en-cours.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ConfirmDialogModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ToastModule,
+        NgxSpinnerModule,
+        TableModule,
+        RouterModule,
+    ],
+    providers: [ConfirmationService, DialogService, MessageService]
 })
 export class EnCoursComponent implements OnInit {
   @Input() inventoryCategories: InventoryCategory[];

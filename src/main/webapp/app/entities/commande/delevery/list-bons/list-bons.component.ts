@@ -17,19 +17,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-list-bons',
-  templateUrl: './list-bons.component.html',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TableModule,
-    NgxSpinnerModule,
-    TooltipModule,
-  ],
+    selector: 'jhi-list-bons',
+    templateUrl: './list-bons.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        TableModule,
+        NgxSpinnerModule,
+        TooltipModule,
+    ]
 })
 export class ListBonsComponent implements OnInit {
   @Input() search = '';

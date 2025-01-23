@@ -27,28 +27,27 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
 import { InputMaskModule } from 'primeng/inputmask';
 
 @Component({
-  selector: 'jhi-form-assured-customer',
-  templateUrl: './form-assured-customer.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ToastModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    AutoCompleteModule,
-    SelectButtonModule,
-    RadioButtonModule,
-    DropdownModule,
-    ReactiveFormsModule,
-    CalendarModule,
-    DividerModule,
-    KeyFilterModule,
-    InputMaskModule,
-  ],
+    selector: 'jhi-form-assured-customer',
+    templateUrl: './form-assured-customer.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ToastModule,
+        FormsModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        InputTextModule,
+        AutoCompleteModule,
+        SelectButtonModule,
+        RadioButtonModule,
+        DropdownModule,
+        ReactiveFormsModule,
+        CalendarModule,
+        DividerModule,
+        KeyFilterModule,
+        InputMaskModule,
+    ]
 })
 export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;

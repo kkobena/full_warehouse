@@ -23,24 +23,23 @@ import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
-  selector: 'jhi-product-table',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    TableModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    ConfirmDialogModule,
-    SplitButtonModule,
-    NgbAlertModule,
-    NgSelectModule,
-    FormsModule,
-    DropdownModule,
-  ],
-  templateUrl: './product-table.component.html',
-  styleUrls: ['./product-table.component.scss'],
+    selector: 'jhi-product-table',
+    imports: [
+        WarehouseCommonModule,
+        TableModule,
+        InputTextModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ConfirmDialogModule,
+        SplitButtonModule,
+        NgbAlertModule,
+        NgSelectModule,
+        FormsModule,
+        DropdownModule,
+    ],
+    templateUrl: './product-table.component.html',
+    styleUrls: ['./product-table.component.scss']
 })
 export class ProductTableComponent {
   sale: ISales;

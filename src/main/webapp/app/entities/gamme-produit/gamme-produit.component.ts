@@ -23,33 +23,32 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-gamme-produit',
-  templateUrl: './gamme-produit.component.html',
-  styles: [
-    `
+    selector: 'jhi-gamme-produit',
+    templateUrl: './gamme-produit.component.html',
+    styles: [
+        `
       body .ui-inputtext {
         width: 100% !important;
       }
     `,
-  ],
-  providers: [MessageService, DialogService, ConfirmationService],
-  encapsulation: ViewEncapsulation.None,
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    FormGammeComponent,
-  ],
+    ],
+    providers: [MessageService, DialogService, ConfirmationService],
+    encapsulation: ViewEncapsulation.None,
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        FormGammeComponent,
+    ]
 })
 export class GammeProduitComponent implements OnInit {
   fileDialog = false;

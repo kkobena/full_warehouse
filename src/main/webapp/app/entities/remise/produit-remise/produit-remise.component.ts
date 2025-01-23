@@ -17,22 +17,21 @@ import { DialogModule } from 'primeng/dialog';
 import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
-  selector: 'jhi-produit-remise',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    PickListModule,
-    ToolbarModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    ConfirmDialogModule,
-    DialogModule,
-    KeyFilterModule,
-  ],
-  templateUrl: './produit-remise.component.html',
-  styleUrl: './produit-remise.component.scss',
+    selector: 'jhi-produit-remise',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        PickListModule,
+        ToolbarModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        ConfirmDialogModule,
+        DialogModule,
+        KeyFilterModule,
+    ],
+    templateUrl: './produit-remise.component.html',
+    styleUrl: './produit-remise.component.scss'
 })
 export class ProduitRemiseComponent {
   produitsSource: IProduit[] = [];

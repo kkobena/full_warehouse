@@ -9,10 +9,9 @@ import { RippleModule } from 'primeng/ripple';
 import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-login',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, RouterModule, CardModule, ButtonModule, RippleModule],
-  templateUrl: './login.component.html',
+    selector: 'jhi-login',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, RouterModule, CardModule, ButtonModule, RippleModule],
+    templateUrl: './login.component.html'
 })
 export default class LoginComponent implements OnInit, AfterViewInit {
   username = viewChild.required<ElementRef>('username');

@@ -14,20 +14,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-form-motif-ajustement',
-  templateUrl: './form-motif-ajustement.component.html',
-  styles: [],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    DynamicDialogModule,
-  ],
+    selector: 'jhi-form-motif-ajustement',
+    templateUrl: './form-motif-ajustement.component.html',
+    styles: [],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ToastModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        DynamicDialogModule,
+    ]
 })
 export class FormMotifAjustementComponent implements OnInit {
   entity?: IMotifAjustement;

@@ -31,30 +31,29 @@ import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/gro
 import { FactureStateService } from '../facture-state.service';
 
 @Component({
-  selector: 'jhi-factures',
-  standalone: true,
-  providers: [
-    ConfirmationService,
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
-  imports: [
-    ToolbarModule,
-    InputSwitchModule,
-    WarehouseCommonModule,
-    FormsModule,
-    AutoCompleteModule,
-    ButtonGroupModule,
-    ButtonModule,
-    SplitButtonModule,
-    FloatLabelModule,
-    TableModule,
-    ConfirmDialogModule,
-  ],
-  templateUrl: './factures.component.html',
-  styles: ``,
+    selector: 'jhi-factures',
+    providers: [
+        ConfirmationService,
+        I18n,
+        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+        { provide: NgbDateAdapter, useClass: CustomAdapter },
+        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+    ],
+    imports: [
+        ToolbarModule,
+        InputSwitchModule,
+        WarehouseCommonModule,
+        FormsModule,
+        AutoCompleteModule,
+        ButtonGroupModule,
+        ButtonModule,
+        SplitButtonModule,
+        FloatLabelModule,
+        TableModule,
+        ConfirmDialogModule,
+    ],
+    templateUrl: './factures.component.html',
+    styles: ``
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
   errorService = inject(ErrorService);

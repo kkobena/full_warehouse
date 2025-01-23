@@ -26,29 +26,28 @@ import { RemiseClientFormModalComponent } from './remise-client-form-modal/remis
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'jhi-remise',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ConfirmDialogModule,
-    DialogModule,
-    ToolbarModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
-    TableModule,
-    TooltipModule,
-    KeyFilterModule,
-    ToastModule,
-    DropdownModule,
-    CalendarModule,
-    InputSwitchModule,
-    StyleClassModule,
-  ],
-  templateUrl: './remise.component.html',
+    selector: 'jhi-remise',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ConfirmDialogModule,
+        DialogModule,
+        ToolbarModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        RouterModule,
+        TableModule,
+        TooltipModule,
+        KeyFilterModule,
+        ToastModule,
+        DropdownModule,
+        CalendarModule,
+        InputSwitchModule,
+        StyleClassModule,
+    ],
+    templateUrl: './remise.component.html'
 })
 export class RemiseComponent implements OnInit {
   responsedto!: IResponseDto;

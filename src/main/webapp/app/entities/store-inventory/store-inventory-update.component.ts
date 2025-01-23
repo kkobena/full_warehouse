@@ -36,26 +36,25 @@ import { Authority } from '../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../sales/service/has-authority.service';
 
 @Component({
-  selector: 'jhi-store-inventory-update',
-  templateUrl: './store-inventory-update.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    RouterModule,
-    DividerModule,
-    NgxSpinnerModule,
-    DropdownModule,
-    AutoCompleteModule,
-    TableModule,
-    ButtonModule,
-    RippleModule,
-    ToastModule,
-    ConfirmDialogModule,
-    AgGridAngular,
-    InputTextModule,
-  ],
+    selector: 'jhi-store-inventory-update',
+    templateUrl: './store-inventory-update.component.html',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        RouterModule,
+        DividerModule,
+        NgxSpinnerModule,
+        DropdownModule,
+        AutoCompleteModule,
+        TableModule,
+        ButtonModule,
+        RippleModule,
+        ToastModule,
+        ConfirmDialogModule,
+        AgGridAngular,
+        InputTextModule,
+    ]
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   @ViewChild('itemsGrid') productGrid!: AgGridAngular;

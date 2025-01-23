@@ -26,27 +26,26 @@ import { MvtCaisseParams } from '../mvt-caisse-util';
 import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
 
 @Component({
-  selector: 'jhi-tableau-pharmacien',
-  standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService],
-  imports: [
-    Button,
-    CalendarModule,
-    DropdownModule,
-    InputTextModule,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    RadioButtonModule,
-    DecimalPipe,
-    DatePipe,
-    SelectButtonModule,
-    ChartModule,
-    CardModule,
-    SplitButtonModule,
-  ],
-  templateUrl: './tableau-pharmacien.component.html',
+    selector: 'jhi-tableau-pharmacien',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        Button,
+        CalendarModule,
+        DropdownModule,
+        InputTextModule,
+        MultiSelectModule,
+        PaginatorModule,
+        ToolbarModule,
+        TooltipModule,
+        RadioButtonModule,
+        DecimalPipe,
+        DatePipe,
+        SelectButtonModule,
+        ChartModule,
+        CardModule,
+        SplitButtonModule,
+    ],
+    templateUrl: './tableau-pharmacien.component.html'
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];

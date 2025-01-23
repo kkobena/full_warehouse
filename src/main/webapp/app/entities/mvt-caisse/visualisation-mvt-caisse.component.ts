@@ -34,27 +34,26 @@ import { MvtParamServiceService } from './mvt-param-service.service';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'jhi-visualisation-mvt-caisse',
-  standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
-  imports: [
-    WarehouseCommonModule,
-    ToolbarModule,
-    FormsModule,
-    RippleModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    InputTextModule,
-    CalendarModule,
-    DropdownModule,
-    MultiSelectModule,
-    ButtonGroupModule,
-    DividerModule,
-    CardModule,
-    ToastModule,
-  ],
-  templateUrl: './visualisation-mvt-caisse.component.html',
+    selector: 'jhi-visualisation-mvt-caisse',
+    providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+    imports: [
+        WarehouseCommonModule,
+        ToolbarModule,
+        FormsModule,
+        RippleModule,
+        ButtonModule,
+        TableModule,
+        TooltipModule,
+        InputTextModule,
+        CalendarModule,
+        DropdownModule,
+        MultiSelectModule,
+        ButtonGroupModule,
+        DividerModule,
+        CardModule,
+        ToastModule,
+    ],
+    templateUrl: './visualisation-mvt-caisse.component.html'
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected search = '';

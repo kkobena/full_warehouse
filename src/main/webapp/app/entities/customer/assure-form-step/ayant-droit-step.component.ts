@@ -16,23 +16,22 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
 import { DividerModule } from 'primeng/divider';
 
 @Component({
-  selector: 'jhi-ayant-droit-step',
-  standalone: true,
-  imports: [
-    FaIconComponent,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
-    ReactiveFormsModule,
-    ToastModule,
-    TranslateDirective,
-    CardModule,
-    DatePipe,
-    DividerModule,
-  ],
-  templateUrl: './ayant-droit-step.component.html',
-  styles: ``,
+    selector: 'jhi-ayant-droit-step',
+    imports: [
+        FaIconComponent,
+        InputMaskModule,
+        InputTextModule,
+        KeyFilterModule,
+        RadioButtonModule,
+        ReactiveFormsModule,
+        ToastModule,
+        TranslateDirective,
+        CardModule,
+        DatePipe,
+        DividerModule,
+    ],
+    templateUrl: './ayant-droit-step.component.html',
+    styles: ``
 })
 export class AyantDroitStepComponent implements OnInit {
   assure?: ICustomer;

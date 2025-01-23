@@ -13,19 +13,18 @@ import { EntityArrayResponseType, AuthorityService } from '../service/authority.
 import { AuthorityDeleteDialogComponent } from '../delete/authority-delete-dialog.component';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-authority',
-  templateUrl: './authority.component.html',
-  imports: [
-    RouterModule,
-    FormsModule,
-    SharedModule,
-    SortDirective,
-    SortByDirective,
-    DurationPipe,
-    FormatMediumDatetimePipe,
-    FormatMediumDatePipe,
-  ],
+    selector: 'jhi-authority',
+    templateUrl: './authority.component.html',
+    imports: [
+        RouterModule,
+        FormsModule,
+        SharedModule,
+        SortDirective,
+        SortByDirective,
+        DurationPipe,
+        FormatMediumDatetimePipe,
+        FormatMediumDatePipe,
+    ]
 })
 export class AuthorityComponent implements OnInit {
   subscription: Subscription | null = null;

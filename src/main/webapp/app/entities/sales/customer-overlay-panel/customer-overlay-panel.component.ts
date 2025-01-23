@@ -12,22 +12,21 @@ import { SelectedCustomerService } from '../service/selected-customer.service';
 import { TagModule } from 'primeng/tag';
 
 @Component({
-  selector: 'jhi-customer-overlay-panel',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    InputTextModule,
-    ReactiveFormsModule,
-    RippleModule,
-    TooltipModule,
-    FormsModule,
-    OverlayPanelModule,
-    CustomerDataTableComponent,
-    TagModule,
-  ],
-  providers: [],
-  templateUrl: './customer-overlay-panel.component.html',
+    selector: 'jhi-customer-overlay-panel',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        InputTextModule,
+        ReactiveFormsModule,
+        RippleModule,
+        TooltipModule,
+        FormsModule,
+        OverlayPanelModule,
+        CustomerDataTableComponent,
+        TagModule,
+    ],
+    providers: [],
+    templateUrl: './customer-overlay-panel.component.html'
 })
 export class CustomerOverlayPanelComponent {
   @Output() onCloseEvent = new EventEmitter<boolean>();

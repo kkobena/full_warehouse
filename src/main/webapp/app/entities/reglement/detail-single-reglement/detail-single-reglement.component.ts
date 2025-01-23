@@ -10,11 +10,10 @@ import { ReglementService } from '../reglement.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'jhi-detail-single-reglement',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule],
-  templateUrl: './detail-single-reglement.component.html',
-  styles: ``,
+    selector: 'jhi-detail-single-reglement',
+    imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule],
+    templateUrl: './detail-single-reglement.component.html',
+    styles: ``
 })
 export class DetailSingleReglementComponent implements OnInit {
   modalService = inject(NgbModal);

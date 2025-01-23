@@ -5,10 +5,9 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, FontAwesomeModule, NgbTooltipModule],
-  selector: 'jhi-commande-btn',
-  template: `
+    imports: [CommonModule, FontAwesomeModule, NgbTooltipModule],
+    selector: 'jhi-commande-btn',
+    template: `
     <div class="btn-group btn-group-sm" role="group">
       @if (showEditBtn) {
         <button (click)="onEditLigneInfo()" class="btn-sm btn btn-success" [ngbTooltip]="showEditBtnTpl">
@@ -21,7 +20,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
         </button>
       }
     </div>
-  `,
+  `
 })
 export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;

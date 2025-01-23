@@ -12,21 +12,20 @@ import { PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-groupe-facture-detail',
-  standalone: true,
-  imports: [
-    FactureDetailComponent,
-    DecimalPipe,
-    PanelModule,
-    PrimeTemplate,
-    TableModule,
-    InputTextModule,
-    PaginatorModule,
-    CommonModule,
-    FormsModule,
-  ],
-  templateUrl: './groupe-facture-detail.component.html',
-  styles: ``,
+    selector: 'jhi-groupe-facture-detail',
+    imports: [
+        FactureDetailComponent,
+        DecimalPipe,
+        PanelModule,
+        PrimeTemplate,
+        TableModule,
+        InputTextModule,
+        PaginatorModule,
+        CommonModule,
+        FormsModule,
+    ],
+    templateUrl: './groupe-facture-detail.component.html',
+    styles: ``
 })
 export class GroupeFactureDetailComponent implements OnInit {
   @Input() groupeFacture: Facture | null = null;

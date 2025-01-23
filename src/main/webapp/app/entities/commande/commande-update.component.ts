@@ -40,10 +40,9 @@ import { ToastModule } from 'primeng/toast';
 import { CommandCommonService } from './command-common.service';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-commande-update',
-  styles: [
-    `
+    selector: 'jhi-commande-update',
+    styles: [
+        `
       .table tr:hover {
         cursor: pointer;
       }
@@ -74,30 +73,30 @@ import { CommandCommonService } from './command-common.service';
         margin-left: 0.1rem;
       }
     `,
-  ],
-  templateUrl: './commande-update.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    NgSelectModule,
-    ButtonModule,
-    RippleModule,
-    NgxSpinnerModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    TagModule,
-    TableModule,
-    RouterModule,
-    SplitButtonModule,
-    AutoCompleteModule,
-    FileUploadModule,
-    DropdownModule,
-    DialogModule,
-    ToolbarModule,
-    TooltipModule,
-    ToastModule,
-  ],
+    ],
+    templateUrl: './commande-update.component.html',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        NgSelectModule,
+        ButtonModule,
+        RippleModule,
+        NgxSpinnerModule,
+        ConfirmDialogModule,
+        InputTextModule,
+        TagModule,
+        TableModule,
+        RouterModule,
+        SplitButtonModule,
+        AutoCompleteModule,
+        FileUploadModule,
+        DropdownModule,
+        DialogModule,
+        ToolbarModule,
+        TooltipModule,
+        ToastModule,
+    ]
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   isSaving = false;

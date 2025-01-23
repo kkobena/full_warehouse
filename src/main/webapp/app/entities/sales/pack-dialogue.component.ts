@@ -13,10 +13,9 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-pack-dialogue',
-  templateUrl: './pack-dialogue.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+    selector: 'jhi-pack-dialogue',
+    templateUrl: './pack-dialogue.component.html',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
 })
 export class PackDialogueComponent implements OnInit {
   produit?: IProduit;

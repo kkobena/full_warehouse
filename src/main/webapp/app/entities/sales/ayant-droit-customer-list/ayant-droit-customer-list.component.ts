@@ -13,20 +13,19 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-  selector: 'jhi-ayant-droit-customer-list',
-  templateUrl: './ayant-droit-customer-list.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    DynamicDialogModule,
-    TableModule,
-    ToolbarModule,
-  ],
+    selector: 'jhi-ayant-droit-customer-list',
+    templateUrl: './ayant-droit-customer-list.component.html',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        DynamicDialogModule,
+        TableModule,
+        ToolbarModule,
+    ]
 })
 export class AyantDroitCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];

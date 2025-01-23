@@ -7,10 +7,9 @@ import SharedModule from 'app/shared/shared.module';
 import { PasswordResetFinishService } from './password-reset-finish.service';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-password-reset-finish',
-  imports: [SharedModule, RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
-  templateUrl: './password-reset-finish.component.html',
+    selector: 'jhi-password-reset-finish',
+    imports: [SharedModule, RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
+    templateUrl: './password-reset-finish.component.html'
 })
 export default class PasswordResetFinishComponent implements OnInit, AfterViewInit {
   newPassword = viewChild.required<ElementRef>('newPassword');

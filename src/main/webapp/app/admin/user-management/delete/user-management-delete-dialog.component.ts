@@ -6,10 +6,9 @@ import { UserManagementService } from '../service/user-management.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-user-mgmt-delete-dialog',
-  templateUrl: './user-management-delete-dialog.component.html',
-  imports: [WarehouseCommonModule, FormsModule],
+    selector: 'jhi-user-mgmt-delete-dialog',
+    templateUrl: './user-management-delete-dialog.component.html',
+    imports: [WarehouseCommonModule, FormsModule]
 })
 export default class UserManagementDeleteDialogComponent {
   user?: User;

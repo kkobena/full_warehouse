@@ -20,29 +20,28 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-  selector: 'jhi-parametre',
-  standalone: true,
-  imports: [
-    DatePipe,
-    FaIconComponent,
-    ItemCountComponent,
-    NgbPagination,
-    PanelModule,
-    SortByDirective,
-    SortDirective,
-    TranslateDirective,
-    AlertErrorComponent,
-    ButtonDirective,
-    DialogModule,
-    InputTextareaModule,
-    ReactiveFormsModule,
-    Ripple,
-    CheckboxModule,
-    FormsModule,
-    InputTextModule,
-  ],
-  templateUrl: './parametre.component.html',
-  styles: ``,
+    selector: 'jhi-parametre',
+    imports: [
+        DatePipe,
+        FaIconComponent,
+        ItemCountComponent,
+        NgbPagination,
+        PanelModule,
+        SortByDirective,
+        SortDirective,
+        TranslateDirective,
+        AlertErrorComponent,
+        ButtonDirective,
+        DialogModule,
+        InputTextareaModule,
+        ReactiveFormsModule,
+        Ripple,
+        CheckboxModule,
+        FormsModule,
+        InputTextModule,
+    ],
+    templateUrl: './parametre.component.html',
+    styles: ``
 })
 export class ParametreComponent implements OnInit {
   apps: IConfiguration[] = [];

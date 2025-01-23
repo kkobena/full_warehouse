@@ -15,20 +15,19 @@ import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
-  selector: 'jhi-uninsured-customer-form',
-  templateUrl: './uninsured-customer-form.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    KeyFilterModule,
-  ],
+    selector: 'jhi-uninsured-customer-form',
+    templateUrl: './uninsured-customer-form.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ToastModule,
+        ButtonModule,
+        RippleModule,
+        InputTextModule,
+        KeyFilterModule,
+    ]
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;

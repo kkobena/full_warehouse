@@ -22,25 +22,24 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchChangeEvent } from 'primeng/inputswitch/inputswitch.interface';
 
 @Component({
-  selector: 'jhi-form-tiers-payant',
-  templateUrl: './form-tiers-payant.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    DynamicDialogModule,
-    NgSelectModule,
-    InputSwitchModule,
-    KeyFilterModule,
-    ToastModule,
-    AutoCompleteModule,
-    DropdownModule,
-  ],
+    selector: 'jhi-form-tiers-payant',
+    templateUrl: './form-tiers-payant.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        DynamicDialogModule,
+        NgSelectModule,
+        InputSwitchModule,
+        KeyFilterModule,
+        ToastModule,
+        AutoCompleteModule,
+        DropdownModule,
+    ]
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   name = viewChild.required<ElementRef>('name');

@@ -24,27 +24,26 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-groupe-tiers-payant',
-  templateUrl: './groupe-tiers-payant.component.html',
-  standalone: true,
-  providers: [MessageService, ConfirmationService, DialogService],
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    DynamicDialogModule,
-    FormsModule,
-    FormGroupeTiersPayantComponent,
-  ],
+    selector: 'jhi-groupe-tiers-payant',
+    templateUrl: './groupe-tiers-payant.component.html',
+    providers: [MessageService, ConfirmationService, DialogService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        DynamicDialogModule,
+        FormsModule,
+        FormGroupeTiersPayantComponent,
+    ]
 })
 export class GroupeTiersPayantComponent implements OnInit {
   fileDialog?: boolean;

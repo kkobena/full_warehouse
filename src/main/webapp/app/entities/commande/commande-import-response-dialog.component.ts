@@ -7,9 +7,8 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  templateUrl: './commande-import-response-dialog.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, ButtonModule],
+    templateUrl: './commande-import-response-dialog.component.html',
+    imports: [WarehouseCommonModule, ButtonModule]
 })
 export class CommandeImportResponseDialogComponent {
   responseCommande?: ICommandeResponse;

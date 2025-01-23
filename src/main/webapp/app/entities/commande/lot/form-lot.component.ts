@@ -19,23 +19,22 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-form-lot',
-  templateUrl: './form-lot.component.html',
-  providers: [MessageService],
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TooltipModule,
-    ToastModule,
-    RippleModule,
-    DynamicDialogModule,
-    FormsModule,
-    ReactiveFormsModule,
-    KeyFilterModule,
-    CalendarModule,
-    InputTextModule,
-  ],
+    selector: 'jhi-form-lot',
+    templateUrl: './form-lot.component.html',
+    providers: [MessageService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        TooltipModule,
+        ToastModule,
+        RippleModule,
+        DynamicDialogModule,
+        FormsModule,
+        ReactiveFormsModule,
+        KeyFilterModule,
+        CalendarModule,
+        InputTextModule,
+    ]
 })
 export class FormLotComponent implements OnInit {
   primngtranslate: Subscription;

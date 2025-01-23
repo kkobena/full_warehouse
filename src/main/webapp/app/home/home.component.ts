@@ -14,21 +14,20 @@ import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component'
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-home',
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  imports: [
-    WarehouseCommonModule,
-    RouterModule,
-    CardModule,
-    HomeGrapheComponent,
-    HalfyearlyDataComponent,
-    YearlyDataComponent,
-    MonthlyDataComponent,
-    WeeklyDataComponent,
-    DailyDataComponent,
-  ],
+    selector: 'jhi-home',
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss',
+    imports: [
+        WarehouseCommonModule,
+        RouterModule,
+        CardModule,
+        HomeGrapheComponent,
+        HalfyearlyDataComponent,
+        YearlyDataComponent,
+        MonthlyDataComponent,
+        WeeklyDataComponent,
+        DailyDataComponent,
+    ]
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);

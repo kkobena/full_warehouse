@@ -10,10 +10,9 @@ import { DeconditionService } from '../decondition/decondition.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-decondition',
-  templateUrl: 'decondition-dialog.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule],
+    selector: 'jhi-decondition',
+    templateUrl: 'decondition-dialog.component.html',
+    imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule]
 })
 export class DeconditionDialogComponent implements OnInit {
   isSaving = false;

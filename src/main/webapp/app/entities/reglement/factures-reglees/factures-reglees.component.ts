@@ -37,31 +37,30 @@ import { DetailSingleReglementComponent } from '../detail-single-reglement/detai
 import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-group-reglement.component';
 
 @Component({
-  selector: 'jhi-factures-reglees',
-  standalone: true,
-  imports: [
-    ButtonModule,
-    TableModule,
-    WarehouseCommonModule,
-    ToolbarModule,
-    InputSwitchModule,
-    FormsModule,
-    FloatLabelModule,
-    AutoCompleteModule,
-    NgbDatepickerModule,
-    InputTextModule,
-    DividerModule,
-    RippleModule,
-    ConfirmDialogModule,
-  ],
-  providers: [
-    ConfirmationService,
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
-  templateUrl: './factures-reglees.component.html',
+    selector: 'jhi-factures-reglees',
+    imports: [
+        ButtonModule,
+        TableModule,
+        WarehouseCommonModule,
+        ToolbarModule,
+        InputSwitchModule,
+        FormsModule,
+        FloatLabelModule,
+        AutoCompleteModule,
+        NgbDatepickerModule,
+        InputTextModule,
+        DividerModule,
+        RippleModule,
+        ConfirmDialogModule,
+    ],
+    providers: [
+        ConfirmationService,
+        I18n,
+        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+        { provide: NgbDateAdapter, useClass: CustomAdapter },
+        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+    ],
+    templateUrl: './factures-reglees.component.html'
 })
 export class FacturesRegleesComponent implements AfterViewInit {
   tiersPayantService = inject(TiersPayantService);

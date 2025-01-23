@@ -11,10 +11,9 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-detail-form-dialog',
-  templateUrl: './detail-form-dialog.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule],
+    selector: 'jhi-detail-form-dialog',
+    templateUrl: './detail-form-dialog.component.html',
+    imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule]
 })
 export class DetailFormDialogComponent implements OnInit {
   isSaving = false;

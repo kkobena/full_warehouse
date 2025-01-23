@@ -30,25 +30,24 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-ajustement-detail',
-  templateUrl: './ajustement-detail.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    CardModule,
-    FormsModule,
-    ConfirmDialogModule,
-    DynamicDialogModule,
-    ToolbarModule,
-    ButtonModule,
-    AutoCompleteModule,
-    InputTextModule,
-    BadgeModule,
-    TableModule,
-    RippleModule,
-    TooltipModule,
-  ],
-  providers: [ConfirmationService, DialogService],
+    selector: 'jhi-ajustement-detail',
+    templateUrl: './ajustement-detail.component.html',
+    imports: [
+        WarehouseCommonModule,
+        CardModule,
+        FormsModule,
+        ConfirmDialogModule,
+        DynamicDialogModule,
+        ToolbarModule,
+        ButtonModule,
+        AutoCompleteModule,
+        InputTextModule,
+        BadgeModule,
+        TableModule,
+        RippleModule,
+        TooltipModule,
+    ],
+    providers: [ConfirmationService, DialogService]
 })
 export class AjustementDetailComponent implements OnInit {
   protected ajustement: IAjust | null = null;

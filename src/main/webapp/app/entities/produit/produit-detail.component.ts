@@ -22,23 +22,22 @@ import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-uti
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
-  selector: 'jhi-produit-detail',
-  templateUrl: './produit-detail.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    FormsModule,
-    PanelModule,
-    AutoCompleteModule,
-    ToolbarModule,
-    CalendarModule,
-    TableModule,
-    BadgeModule,
-    DividerModule,
-    NgxSpinnerModule,
-  ],
+    selector: 'jhi-produit-detail',
+    templateUrl: './produit-detail.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        FormsModule,
+        PanelModule,
+        AutoCompleteModule,
+        ToolbarModule,
+        CalendarModule,
+        TableModule,
+        BadgeModule,
+        DividerModule,
+        NgxSpinnerModule,
+    ]
 })
 export class ProduitDetailComponent implements OnInit {
   produit: IProduit | null = null;

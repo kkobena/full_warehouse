@@ -23,26 +23,25 @@ import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 
 @Component({
-  selector: 'jhi-regelement-facture-individuelle',
-  standalone: true,
-  providers: [ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    TableModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    ConfirmDialogModule,
-    SplitButtonModule,
-    NgbAlertModule,
-    FieldsetModule,
-    SidebarModule,
-    DossierReglementInfoComponent,
-    ReglementFormComponent,
-    FactuesModalComponent,
-  ],
-  templateUrl: './regelement-facture-individuelle.component.html',
+    selector: 'jhi-regelement-facture-individuelle',
+    providers: [ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        TableModule,
+        InputTextModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ConfirmDialogModule,
+        SplitButtonModule,
+        NgbAlertModule,
+        FieldsetModule,
+        SidebarModule,
+        DossierReglementInfoComponent,
+        ReglementFormComponent,
+        FactuesModalComponent,
+    ],
+    templateUrl: './regelement-facture-individuelle.component.html'
 })
 export class RegelementFactureIndividuelleComponent {
   @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];

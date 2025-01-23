@@ -6,15 +6,14 @@ import { SortDirective } from './sort.directive';
 import { SortState, sortStateSignal } from './sort-state';
 
 @Component({
-  standalone: true,
-  imports: [SortDirective],
-  template: `
+    imports: [SortDirective],
+    template: `
     <table>
       <thead>
         <tr jhiSort [sortState]="sortState" (sortChange)="transition($event)"></tr>
       </thead>
     </table>
-  `,
+  `
 })
 class TestSortDirectiveComponent {
   sortState = sortStateSignal({ predicate: 'ID' });

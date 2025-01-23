@@ -14,10 +14,9 @@ import { PickListModule } from 'primeng/picklist';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-  selector: 'jhi-produit-associes',
-  templateUrl: './produit-associes.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, RippleModule],
+    selector: 'jhi-produit-associes',
+    templateUrl: './produit-associes.component.html',
+    imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, RippleModule]
 })
 export class ProduitAssociesComponent implements OnInit {
   produitsSource: IProduit[] = [];

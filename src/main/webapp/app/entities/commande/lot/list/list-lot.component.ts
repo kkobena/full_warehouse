@@ -14,20 +14,19 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-list-lot',
-  templateUrl: './list-lot.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TooltipModule,
-    ToastModule,
-    TableModule,
-    RippleModule,
-    DynamicDialogModule,
-    ConfirmDialogModule,
-  ],
+    selector: 'jhi-list-lot',
+    templateUrl: './list-lot.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        TooltipModule,
+        ToastModule,
+        TableModule,
+        RippleModule,
+        DynamicDialogModule,
+        ConfirmDialogModule,
+    ]
 })
 export class ListLotComponent implements OnInit {
   lots: ILot[] = [];

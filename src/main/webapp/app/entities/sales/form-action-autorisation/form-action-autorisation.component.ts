@@ -12,11 +12,10 @@ import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 
 @Component({
-  selector: 'jhi-form-action-autorisation',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './form-action-autorisation.component.html',
-  styles: ``,
+    selector: 'jhi-form-action-autorisation',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+    templateUrl: './form-action-autorisation.component.html',
+    styles: ``
 })
 export class FormActionAutorisationComponent implements AfterViewInit {
   entity: ISales;

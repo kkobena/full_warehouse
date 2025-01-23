@@ -16,20 +16,19 @@ import { BaseSaleService } from '../service/base-sale.service';
 import { IPayment, Payment } from '../../../shared/model/payment.model';
 
 @Component({
-  selector: 'jhi-mode-reglement',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    InputSwitchModule,
-    KeyFilterModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    FormsModule,
-    OverlayPanelModule,
-    CustomerDataTableComponent,
-  ],
-  templateUrl: './mode-reglement.component.html',
+    selector: 'jhi-mode-reglement',
+    imports: [
+        WarehouseCommonModule,
+        InputSwitchModule,
+        KeyFilterModule,
+        InputTextModule,
+        ButtonModule,
+        RippleModule,
+        FormsModule,
+        OverlayPanelModule,
+        CustomerDataTableComponent,
+    ],
+    templateUrl: './mode-reglement.component.html'
 })
 export class ModeReglementComponent implements OnInit {
   @Input() showModeReglementCard: boolean = true;

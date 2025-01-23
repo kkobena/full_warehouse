@@ -10,10 +10,9 @@ import { CategorieService } from './categorie.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-categorie-update',
-  templateUrl: './categorie-update.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+    selector: 'jhi-categorie-update',
+    templateUrl: './categorie-update.component.html',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
 })
 export class CategorieUpdateComponent implements OnInit {
   isSaving = false;

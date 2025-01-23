@@ -19,25 +19,24 @@ import { TableModule } from 'primeng/table';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
-  selector: 'jhi-forme-produit',
-  templateUrl: './forme-produit.component.html',
-  providers: [ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextareaModule,
-  ],
+    selector: 'jhi-forme-produit',
+    templateUrl: './forme-produit.component.html',
+    providers: [ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextareaModule,
+    ]
 })
 export class FormeProduitComponent implements OnInit {
   entites?: IFormProduit[];

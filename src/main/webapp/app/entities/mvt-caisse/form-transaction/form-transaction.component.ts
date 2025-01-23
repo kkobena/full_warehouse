@@ -21,23 +21,22 @@ import { TranslateDirective } from '../../../shared/language';
 import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
-  selector: 'jhi-form-transaction',
-  standalone: true,
-  imports: [
-    FaIconComponent,
-    FormsModule,
-    InputTextModule,
-    KeyFilterModule,
-    NgIf,
-    ReactiveFormsModule,
-    ToastModule,
-    TranslateDirective,
-    DropdownModule,
-    CalendarModule,
-    InputNumberModule,
-  ],
-  templateUrl: './form-transaction.component.html',
-  styleUrl: './form-transaction.component.scss',
+    selector: 'jhi-form-transaction',
+    imports: [
+        FaIconComponent,
+        FormsModule,
+        InputTextModule,
+        KeyFilterModule,
+        NgIf,
+        ReactiveFormsModule,
+        ToastModule,
+        TranslateDirective,
+        DropdownModule,
+        CalendarModule,
+        InputNumberModule,
+    ],
+    templateUrl: './form-transaction.component.html',
+    styleUrl: './form-transaction.component.scss'
 })
 export class FormTransactionComponent implements OnInit {
   isSaving = false;

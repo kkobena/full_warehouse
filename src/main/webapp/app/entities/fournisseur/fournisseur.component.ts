@@ -26,10 +26,10 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-fournisseur',
-  templateUrl: './fournisseur.component.html',
-  styles: [
-    `
+    selector: 'jhi-fournisseur',
+    templateUrl: './fournisseur.component.html',
+    styles: [
+        `
       body .ui-inputtext {
         width: 100% !important;
       }
@@ -38,29 +38,28 @@ import { TooltipModule } from 'primeng/tooltip';
         width: 100% !important;
       }
     `,
-  ],
-  providers: [MessageService, ConfirmationService],
-  encapsulation: ViewEncapsulation.None,
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    NgxSpinnerModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    DropdownModule,
-    KeyFilterModule,
-    TooltipModule,
-  ],
+    ],
+    providers: [MessageService, ConfirmationService],
+    encapsulation: ViewEncapsulation.None,
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        NgxSpinnerModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        DropdownModule,
+        KeyFilterModule,
+        TooltipModule,
+    ]
 })
 export class FournisseurComponent implements OnInit {
   fileDialog?: boolean;

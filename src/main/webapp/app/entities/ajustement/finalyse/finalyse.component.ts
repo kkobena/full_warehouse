@@ -15,11 +15,10 @@ import { Ripple } from 'primeng/ripple';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-finalyse',
-  templateUrl: './finalyse.component.html',
-  providers: [MessageService],
-  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, Ripple, InputTextareaModule],
+    selector: 'jhi-finalyse',
+    templateUrl: './finalyse.component.html',
+    providers: [MessageService],
+    imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, Ripple, InputTextareaModule]
 })
 export class FinalyseComponent implements OnInit {
   commentaire = viewChild.required<ElementRef>('commentaire');

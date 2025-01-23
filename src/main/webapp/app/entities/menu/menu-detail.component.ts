@@ -12,10 +12,9 @@ import { RippleModule } from 'primeng/ripple';
 import { PanelModule } from 'primeng/panel';
 
 @Component({
-  selector: 'jhi-menu-detail',
-  templateUrl: './menu-detail.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, PickListModule, ButtonModule, RippleModule, PanelModule],
+    selector: 'jhi-menu-detail',
+    templateUrl: './menu-detail.component.html',
+    imports: [WarehouseCommonModule, PickListModule, ButtonModule, RippleModule, PanelModule]
 })
 export class MenuDetailComponent implements OnInit {
   entity: IAuthority | null = null;

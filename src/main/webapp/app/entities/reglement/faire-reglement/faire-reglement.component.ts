@@ -8,13 +8,11 @@ import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'jhi-faire-reglement',
-  standalone: true,
-  imports: [SidebarModule, FaireGroupeReglementComponent, RegelementFactureIndividuelleComponent],
-  templateUrl: './faire-reglement.component.html',
-
-  styleUrls: ['./faire-reglement.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'jhi-faire-reglement',
+    imports: [SidebarModule, FaireGroupeReglementComponent, RegelementFactureIndividuelleComponent],
+    templateUrl: './faire-reglement.component.html',
+    styleUrls: ['./faire-reglement.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class FaireReglementComponent {
   @Input() isGroupe = false;

@@ -12,10 +12,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-form-rayon',
-  templateUrl: './form-rayon.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule],
+    selector: 'jhi-form-rayon',
+    templateUrl: './form-rayon.component.html',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule]
 })
 export class FormRayonComponent implements OnInit {
   isSaving = false;

@@ -29,23 +29,22 @@ import { RouterModule } from '@angular/router';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
-  selector: 'jhi-init-inventory',
-  templateUrl: './inventory-form.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ConfirmDialogModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    ToastModule,
-    NgxSpinnerModule,
-    TableModule,
-    RouterModule,
-    DynamicDialogModule,
-    DropdownModule,
-    ReactiveFormsModule,
-  ],
+    selector: 'jhi-init-inventory',
+    templateUrl: './inventory-form.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ConfirmDialogModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ToastModule,
+        NgxSpinnerModule,
+        TableModule,
+        RouterModule,
+        DynamicDialogModule,
+        DropdownModule,
+        ReactiveFormsModule,
+    ]
 })
 export class InventoryFormComponent implements OnInit {
   protected isSaving: boolean = false;

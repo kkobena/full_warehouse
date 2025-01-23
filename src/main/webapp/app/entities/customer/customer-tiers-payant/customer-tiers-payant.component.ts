@@ -27,29 +27,28 @@ import { HttpResponse } from '@angular/common/http';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 
 @Component({
-  selector: 'jhi-customer-tiers-payant',
-  standalone: true,
-  providers: [MessageService, DialogService, ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    ToastModule,
-    FormsModule,
-    NgSelectModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    AutoCompleteModule,
-    SelectButtonModule,
-    RadioButtonModule,
-    DropdownModule,
-    ReactiveFormsModule,
-    CalendarModule,
-    DividerModule,
-    KeyFilterModule,
-    InputMaskModule,
-  ],
-  templateUrl: './customer-tiers-payant.component.html',
+    selector: 'jhi-customer-tiers-payant',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ToastModule,
+        FormsModule,
+        NgSelectModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        InputTextModule,
+        AutoCompleteModule,
+        SelectButtonModule,
+        RadioButtonModule,
+        DropdownModule,
+        ReactiveFormsModule,
+        CalendarModule,
+        DividerModule,
+        KeyFilterModule,
+        InputMaskModule,
+    ],
+    templateUrl: './customer-tiers-payant.component.html'
 })
 export class CustomerTiersPayantComponent implements OnInit {
   minLength = 3;

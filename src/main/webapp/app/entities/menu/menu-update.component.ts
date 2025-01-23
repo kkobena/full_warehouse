@@ -16,19 +16,18 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-  selector: 'jhi-menu-update',
-  templateUrl: './menu-update.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    PanelModule,
-    FormsModule,
-    KeyFilterModule,
-    ReactiveFormsModule,
-    InputTextModule,
-  ],
+    selector: 'jhi-menu-update',
+    templateUrl: './menu-update.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        PanelModule,
+        FormsModule,
+        KeyFilterModule,
+        ReactiveFormsModule,
+        InputTextModule,
+    ]
 })
 export class MenuUpdateComponent implements OnInit {
   isSaving = false;

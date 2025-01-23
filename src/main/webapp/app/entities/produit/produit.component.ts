@@ -47,9 +47,9 @@ import { saveAs } from 'file-saver';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-  selector: 'jhi-produit',
-  styles: [
-    `
+    selector: 'jhi-produit',
+    styles: [
+        `
       .p-datatable td {
         font-size: 0.6rem;
       }
@@ -92,28 +92,27 @@ export type ExpandMode = 'single' | 'multiple';
         text-align: right !important;
       }
     `,
-  ],
-  templateUrl: './produit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    DropdownModule,
-    SplitButtonModule,
-    TableModule,
-    ToolbarModule,
-    FileUploadModule,
-    RouterModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    InputSwitchModule,
-    InputTextModule,
-  ],
+    ],
+    templateUrl: './produit.component.html',
+    providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        DropdownModule,
+        SplitButtonModule,
+        TableModule,
+        ToolbarModule,
+        FileUploadModule,
+        RouterModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        InputSwitchModule,
+        InputTextModule,
+    ]
 })
 export class ProduitComponent implements OnInit {
   faCut = faCut;

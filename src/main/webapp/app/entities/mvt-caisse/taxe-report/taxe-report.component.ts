@@ -25,27 +25,26 @@ import { MvtParamServiceService } from '../mvt-param-service.service';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'jhi-taxe-report',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    Button,
-    CalendarModule,
-    DropdownModule,
-    InputTextModule,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    RadioButtonModule,
-    DecimalPipe,
-    DatePipe,
-    SelectButtonModule,
-    ChartModule,
-    CardModule,
-    ToastModule,
-  ],
-  templateUrl: './taxe-report.component.html',
+    selector: 'jhi-taxe-report',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        Button,
+        CalendarModule,
+        DropdownModule,
+        InputTextModule,
+        MultiSelectModule,
+        PaginatorModule,
+        ToolbarModule,
+        TooltipModule,
+        RadioButtonModule,
+        DecimalPipe,
+        DatePipe,
+        SelectButtonModule,
+        ChartModule,
+        CardModule,
+        ToastModule,
+    ],
+    templateUrl: './taxe-report.component.html'
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected documentStyle: CSSStyleDeclaration;

@@ -5,11 +5,10 @@ import { Facture } from '../facture.model';
 import { FactureDetailComponent } from './facture-detail.component';
 
 @Component({
-  selector: 'jhi-facture-detail-dialog',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, FactureDetailComponent],
-  templateUrl: './facture-detail-dialog.component.html',
-  styles: ``,
+    selector: 'jhi-facture-detail-dialog',
+    imports: [FormsModule, ReactiveFormsModule, FactureDetailComponent],
+    templateUrl: './facture-detail-dialog.component.html',
+    styles: ``
 })
 export class FactureDetailDialogComponent {
   modalService = inject(NgbModal);

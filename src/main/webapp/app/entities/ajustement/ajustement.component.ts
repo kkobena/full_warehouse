@@ -22,25 +22,24 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AjustementService } from './ajustement.service';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-ajustement',
-  templateUrl: './ajustement.component.html',
-  imports: [
-    WarehouseCommonModule,
-    DividerModule,
-    DropdownModule,
-    ButtonModule,
-    TableModule,
-    NgxSpinnerModule,
-    CardModule,
-    ToolbarModule,
-    CalendarModule,
-    RouterModule,
-    FormsModule,
-    AjustementEnCoursComponent,
-    InputTextModule,
-    ListAjustementComponent,
-  ],
+    selector: 'jhi-ajustement',
+    templateUrl: './ajustement.component.html',
+    imports: [
+        WarehouseCommonModule,
+        DividerModule,
+        DropdownModule,
+        ButtonModule,
+        TableModule,
+        NgxSpinnerModule,
+        CardModule,
+        ToolbarModule,
+        CalendarModule,
+        RouterModule,
+        FormsModule,
+        AjustementEnCoursComponent,
+        InputTextModule,
+        ListAjustementComponent,
+    ]
 })
 export class AjustementComponent implements OnInit {
   ajustementEnCours = viewChild(AjustementEnCoursComponent);

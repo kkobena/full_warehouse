@@ -23,28 +23,27 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-groupe-fournisseur',
-  templateUrl: './groupe-fournisseur.component.html',
-  providers: [MessageService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextareaModule,
-    InputTextModule,
-    KeyFilterModule,
-    TooltipModule,
-  ],
+    selector: 'jhi-groupe-fournisseur',
+    templateUrl: './groupe-fournisseur.component.html',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DialogModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextareaModule,
+        InputTextModule,
+        KeyFilterModule,
+        TooltipModule,
+    ]
 })
 export class GroupeFournisseurComponent implements OnInit {
   fileDialog?: boolean;

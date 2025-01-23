@@ -18,22 +18,21 @@ import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 
 @Component({
-  selector: 'jhi-form-groupe-tiers-payant',
-  templateUrl: './form-groupe-tiers-payant.component.html',
-  providers: [MessageService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    DropdownModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    KeyFilterModule,
-    DynamicDialogModule,
-  ],
+    selector: 'jhi-form-groupe-tiers-payant',
+    templateUrl: './form-groupe-tiers-payant.component.html',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ToastModule,
+        DropdownModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        KeyFilterModule,
+        DynamicDialogModule,
+    ]
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
   entity?: IGroupeTiersPayant;

@@ -24,27 +24,26 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'jhi-form-delivery',
-  templateUrl: './delivery-modal.component.html',
-  standalone: true,
-  providers: [MessageService],
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TableModule,
-    NgxSpinnerModule,
-    TooltipModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CardModule,
-    ToastModule,
-    CalendarModule,
-    KeyFilterModule,
-    InputTextModule,
-  ],
+    selector: 'jhi-form-delivery',
+    templateUrl: './delivery-modal.component.html',
+    providers: [MessageService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        TableModule,
+        NgxSpinnerModule,
+        TooltipModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CardModule,
+        ToastModule,
+        CalendarModule,
+        KeyFilterModule,
+        InputTextModule,
+    ]
 })
 export class DeliveryModalComponent implements OnInit {
   isSaving = false;

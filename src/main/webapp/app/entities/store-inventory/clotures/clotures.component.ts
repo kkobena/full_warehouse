@@ -22,10 +22,9 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'jhi-clotures',
-  templateUrl: './clotures.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
+    selector: 'jhi-clotures',
+    templateUrl: './clotures.component.html',
+    imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
 })
 export class CloturesComponent implements OnInit {
   @Input() inventoryCategories: InventoryCategory[];

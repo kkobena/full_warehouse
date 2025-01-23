@@ -26,11 +26,10 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-weekly-data',
-  templateUrl: './weekly-data.component.html',
-  styleUrls: ['./weekly-data.component.scss'],
-  standalone: true,
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
+    selector: 'jhi-weekly-data',
+    templateUrl: './weekly-data.component.html',
+    styleUrls: ['./weekly-data.component.scss'],
+    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule]
 })
 export class WeeklyDataComponent implements OnInit {
   faShoppingBasket = faShoppingBasket;

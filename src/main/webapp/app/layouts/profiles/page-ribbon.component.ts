@@ -6,17 +6,16 @@ import { ProfileService } from './profile.service';
 import SharedModule from 'app/shared/shared.module';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-page-ribbon',
-  template: `
+    selector: 'jhi-page-ribbon',
+    template: `
     @if (ribbonEnv$ | async; as ribbonEnv) {
       <div class="ribbon">
         <a href="" [jhiTranslate]="'global.ribbon.' + (ribbonEnv ?? '')">{{ { dev: 'Développement' }[ribbonEnv ?? ''] }}</a>
       </div>
     }
   `,
-  styleUrls: ['./page-ribbon.component.scss'],
-  imports: [SharedModule],
+    styleUrls: ['./page-ribbon.component.scss'],
+    imports: [SharedModule]
 })
 export default class PageRibbonComponent implements OnInit {
   ribbonEnv$?: Observable<string | undefined>;

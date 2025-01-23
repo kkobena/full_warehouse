@@ -26,26 +26,25 @@ type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryRe
 type ModelFichier = { label: string; value: string };
 
 @Component({
-  selector: 'jhi-import-delivery-form',
-  templateUrl: './import-delivery-form.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    DropdownModule,
-    ToastModule,
-    NgxSpinnerModule,
-    CardModule,
-    KeyFilterModule,
-    CalendarModule,
-    FileUploadModule,
-  ],
+    selector: 'jhi-import-delivery-form',
+    templateUrl: './import-delivery-form.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        DropdownModule,
+        ToastModule,
+        NgxSpinnerModule,
+        CardModule,
+        KeyFilterModule,
+        CalendarModule,
+        FileUploadModule,
+    ]
 })
 export class ImportDeliveryFormComponent implements OnInit {
   appendTo = 'body';

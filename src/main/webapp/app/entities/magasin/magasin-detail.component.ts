@@ -6,10 +6,9 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { PanelModule } from 'primeng/panel';
 
 @Component({
-  selector: 'jhi-magasin-detail',
-  templateUrl: './magasin-detail.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, PanelModule, RouterModule],
+    selector: 'jhi-magasin-detail',
+    templateUrl: './magasin-detail.component.html',
+    imports: [WarehouseCommonModule, PanelModule, RouterModule]
 })
 export class MagasinDetailComponent implements OnInit {
   magasin: IMagasin | null = null;

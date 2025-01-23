@@ -4,10 +4,9 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-dossier-reglement-info',
-  standalone: true,
-  imports: [FieldsetModule, WarehouseCommonModule],
-  templateUrl: './dossier-reglement-info.component.html',
+    selector: 'jhi-dossier-reglement-info',
+    imports: [FieldsetModule, WarehouseCommonModule],
+    templateUrl: './dossier-reglement-info.component.html'
 })
 export class DossierReglementInfoComponent {
   @Input() dossierFactureProjection: DossierFactureProjection | null = null;

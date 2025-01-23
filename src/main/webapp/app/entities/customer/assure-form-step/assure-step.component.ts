@@ -25,26 +25,25 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 
 @Component({
-  selector: 'jhi-assure-step',
-  standalone: true,
-  imports: [
-    AutoCompleteModule,
-    ButtonDirective,
-    DividerModule,
-    DropdownModule,
-    FaIconComponent,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
-    ReactiveFormsModule,
-    SelectButtonModule,
-    TranslateDirective,
-    CardModule,
-    ComplementaireStepComponent,
-  ],
-  templateUrl: './assure-step.component.html',
-  styles: ``,
+    selector: 'jhi-assure-step',
+    imports: [
+        AutoCompleteModule,
+        ButtonDirective,
+        DividerModule,
+        DropdownModule,
+        FaIconComponent,
+        InputMaskModule,
+        InputTextModule,
+        KeyFilterModule,
+        RadioButtonModule,
+        ReactiveFormsModule,
+        SelectButtonModule,
+        TranslateDirective,
+        CardModule,
+        ComplementaireStepComponent,
+    ],
+    templateUrl: './assure-step.component.html',
+    styles: ``
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;

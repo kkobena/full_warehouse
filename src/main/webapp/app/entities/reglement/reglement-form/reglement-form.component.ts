@@ -15,11 +15,9 @@ import moment from 'moment/moment';
 import { DATE_FORMAT } from '../../../shared/constants/input.constants';
 
 @Component({
-  selector: 'jhi-reglement-form',
-  standalone: true,
-
-  imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
-  templateUrl: './reglement-form.component.html',
+    selector: 'jhi-reglement-form',
+    imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
+    templateUrl: './reglement-form.component.html'
 })
 export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';

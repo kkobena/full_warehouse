@@ -26,11 +26,10 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-halfyearly-data',
-  templateUrl: './halfyearly-data.component.html',
-  styleUrls: ['./halfyearly-data.component.scss'],
-  standalone: true,
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
+    selector: 'jhi-halfyearly-data',
+    templateUrl: './halfyearly-data.component.html',
+    styleUrls: ['./halfyearly-data.component.scss'],
+    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule]
 })
 export class HalfyearlyDataComponent implements OnInit {
   faShoppingBasket = faShoppingBasket;

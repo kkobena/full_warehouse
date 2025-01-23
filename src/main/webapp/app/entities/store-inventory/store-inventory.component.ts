@@ -26,11 +26,11 @@ import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
 
 @Component({
-  selector: 'jhi-store-inventory',
-  templateUrl: './store-inventory.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
-  styles: [
-    `
+    selector: 'jhi-store-inventory',
+    templateUrl: './store-inventory.component.html',
+    providers: [ConfirmationService, DialogService, MessageService],
+    styles: [
+        `
       .table tr:hover {
         cursor: pointer;
       }
@@ -45,22 +45,21 @@ import { CloturesComponent } from './clotures/clotures.component';
         max-height: 700px;
       }
     `,
-  ],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    MultiSelectModule,
-    CardModule,
-    ToolbarModule,
-    DropdownModule,
-    ButtonModule,
-    RippleModule,
-    FormsModule,
-    EnCoursComponent,
-    CloturesComponent,
-    StoreInventoryDeleteDialogComponent,
-    InventoryFormComponent,
-  ],
+    ],
+    imports: [
+        WarehouseCommonModule,
+        MultiSelectModule,
+        CardModule,
+        ToolbarModule,
+        DropdownModule,
+        ButtonModule,
+        RippleModule,
+        FormsModule,
+        EnCoursComponent,
+        CloturesComponent,
+        StoreInventoryDeleteDialogComponent,
+        InventoryFormComponent,
+    ]
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];

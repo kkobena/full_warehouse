@@ -29,10 +29,9 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-commande-passes',
-  templateUrl: './commande-passes.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule],
+    selector: 'jhi-commande-passes',
+    templateUrl: './commande-passes.component.html',
+    imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule]
 })
 export class CommandePassesComponent implements OnInit {
   @Input() search = '';

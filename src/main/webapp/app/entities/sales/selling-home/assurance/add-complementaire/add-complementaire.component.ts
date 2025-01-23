@@ -13,20 +13,19 @@ import { ToastModule } from 'primeng/toast';
 import TranslateDirective from '../../../../../shared/language/translate.directive';
 
 @Component({
-  selector: 'jhi-add-complementaire',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FaIconComponent,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
-    ToastModule,
-    TranslateDirective,
-  ],
-  templateUrl: './add-complementaire.component.html',
-  styles: ``,
+    selector: 'jhi-add-complementaire',
+    imports: [
+        ReactiveFormsModule,
+        FaIconComponent,
+        InputMaskModule,
+        InputTextModule,
+        KeyFilterModule,
+        RadioButtonModule,
+        ToastModule,
+        TranslateDirective,
+    ],
+    templateUrl: './add-complementaire.component.html',
+    styles: ``
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
   tiersPayant = viewChild.required<ElementRef>('tiersPayant');

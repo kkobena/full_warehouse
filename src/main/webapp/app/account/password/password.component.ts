@@ -10,10 +10,9 @@ import PasswordStrengthBarComponent from './password-strength-bar/password-stren
 import { CardModule } from 'primeng/card';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-password',
-  imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, CardModule],
-  templateUrl: './password.component.html',
+    selector: 'jhi-password',
+    imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, CardModule],
+    templateUrl: './password.component.html'
 })
 export default class PasswordComponent implements OnInit {
   doNotMatch = signal(false);

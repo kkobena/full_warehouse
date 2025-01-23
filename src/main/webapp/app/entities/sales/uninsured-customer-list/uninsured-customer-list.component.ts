@@ -10,21 +10,20 @@ import { TableModule } from 'primeng/table';
 import { CustomerDataTableComponent } from './customer-data-table.component';
 
 @Component({
-  selector: 'jhi-uninsured-customer-list',
-  templateUrl: './uninsured-customer-list.component.html',
-  providers: [DialogService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    DynamicDialogModule,
-    TableModule,
-    CustomerDataTableComponent,
-  ],
+    selector: 'jhi-uninsured-customer-list',
+    templateUrl: './uninsured-customer-list.component.html',
+    providers: [DialogService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        DynamicDialogModule,
+        TableModule,
+        CustomerDataTableComponent,
+    ]
 })
 export class UninsuredCustomerListComponent {
   constructor(public ref: DynamicDialogRef) {}

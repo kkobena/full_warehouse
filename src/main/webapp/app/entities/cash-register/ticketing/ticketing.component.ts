@@ -20,26 +20,25 @@ import { CashRegisterService } from '../cash-register.service';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'jhi-ticketing',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    ToolbarModule,
-    ReactiveFormsModule,
-    CardModule,
-    BadgeModule,
-    KeyFilterModule,
-    ConfirmDialogModule,
-    ToastModule,
-  ],
-  providers: [ConfirmationService, MessageService],
-  templateUrl: './ticketing.component.html',
+    selector: 'jhi-ticketing',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        TableModule,
+        ToolbarModule,
+        ReactiveFormsModule,
+        CardModule,
+        BadgeModule,
+        KeyFilterModule,
+        ConfirmDialogModule,
+        ToastModule,
+    ],
+    providers: [ConfirmationService, MessageService],
+    templateUrl: './ticketing.component.html'
 })
 export class TicketingComponent implements OnInit, AfterViewInit {
   @ViewChild('numberOf10Thousand') numberOf10ThousandInput: ElementRef;

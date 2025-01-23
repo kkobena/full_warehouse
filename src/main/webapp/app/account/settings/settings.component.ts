@@ -10,10 +10,9 @@ import { PrimeNgCommonModule } from '../../shared/prime-ng-common/prime-ng-commo
 const initialAccount: Account = {} as Account;
 
 @Component({
-  standalone: true,
-  selector: 'jhi-settings',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
-  templateUrl: './settings.component.html',
+    selector: 'jhi-settings',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
+    templateUrl: './settings.component.html'
 })
 export default class SettingsComponent implements OnInit {
   success = signal(false);

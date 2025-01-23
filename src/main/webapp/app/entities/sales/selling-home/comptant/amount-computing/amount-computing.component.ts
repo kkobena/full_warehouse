@@ -4,10 +4,9 @@ import { CurrentSaleService } from '../../../service/current-sale.service';
 import { LastCurrencyGivenService } from '../../../service/last-currency-given.service';
 
 @Component({
-  selector: 'jhi-amount-computing',
-  standalone: true,
-  imports: [WarehouseCommonModule],
-  templateUrl: './amount-computing.component.html',
+    selector: 'jhi-amount-computing',
+    imports: [WarehouseCommonModule],
+    templateUrl: './amount-computing.component.html'
 })
 export class AmountComputingComponent {
   @Input() entryAmount: number = 0;

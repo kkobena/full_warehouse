@@ -15,23 +15,22 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-  selector: 'jhi-vente-en-cours',
-  templateUrl: './vente-en-cours.component.html',
-  providers: [ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    RouterModule,
-    ConfirmDialogModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    DropdownModule,
-    ToolbarModule,
-  ],
+    selector: 'jhi-vente-en-cours',
+    templateUrl: './vente-en-cours.component.html',
+    providers: [ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        RouterModule,
+        ConfirmDialogModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        TableModule,
+        DropdownModule,
+        ToolbarModule,
+    ]
 })
 export class VenteEnCoursComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];

@@ -8,11 +8,10 @@ import { AppPageTitleStrategy } from 'app/app-page-title-strategy';
 import '@angular/common/locales/global/fr';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-main',
-  templateUrl: './main.component.html',
-  providers: [AppPageTitleStrategy],
-  imports: [RouterOutlet],
+    selector: 'jhi-main',
+    templateUrl: './main.component.html',
+    providers: [AppPageTitleStrategy],
+    imports: [RouterOutlet]
 })
 export default class MainComponent implements OnInit {
   private renderer: Renderer2;

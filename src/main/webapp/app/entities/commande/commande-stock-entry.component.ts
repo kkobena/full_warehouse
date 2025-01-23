@@ -39,23 +39,22 @@ import { HttpResponse } from '@angular/common/http';
 import { ITva } from '../../shared/model/tva.model';
 
 @Component({
-  selector: 'jhi-commande-stock-entry',
-  styles: [``],
-  templateUrl: './commande-stock-entry.component.html',
-  standalone: true,
-  providers: [ConfirmationService, DialogService],
-  imports: [
-    WarehouseCommonModule,
-    NgbTooltipModule,
-    FormsModule,
-    NgSelectModule,
-    ButtonModule,
-    RippleModule,
-    NgxSpinnerModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    AgGridAngular,
-  ],
+    selector: 'jhi-commande-stock-entry',
+    styles: [``],
+    templateUrl: './commande-stock-entry.component.html',
+    providers: [ConfirmationService, DialogService],
+    imports: [
+        WarehouseCommonModule,
+        NgbTooltipModule,
+        FormsModule,
+        NgSelectModule,
+        ButtonModule,
+        RippleModule,
+        NgxSpinnerModule,
+        ConfirmDialogModule,
+        InputTextModule,
+        AgGridAngular,
+    ]
 })
 export class CommandeStockEntryComponent implements OnInit {
   commande?: ICommande | null = null;

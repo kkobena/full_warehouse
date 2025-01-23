@@ -24,27 +24,26 @@ import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 
 @Component({
-  selector: 'jhi-faire-groupe-reglement',
-  standalone: true,
-  providers: [ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    TableModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    TooltipModule,
-    ConfirmDialogModule,
-    SplitButtonModule,
-    NgbAlertModule,
-    FieldsetModule,
-    SidebarModule,
-    DossierReglementInfoComponent,
-    ReglementFormComponent,
-    FormsModule,
-    FactuesModalComponent,
-  ],
-  templateUrl: './faire-groupe-reglement.component.html',
+    selector: 'jhi-faire-groupe-reglement',
+    providers: [ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        TableModule,
+        InputTextModule,
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ConfirmDialogModule,
+        SplitButtonModule,
+        NgbAlertModule,
+        FieldsetModule,
+        SidebarModule,
+        DossierReglementInfoComponent,
+        ReglementFormComponent,
+        FormsModule,
+        FactuesModalComponent,
+    ],
+    templateUrl: './faire-groupe-reglement.component.html'
 })
 export class FaireGroupeReglementComponent {
   @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];

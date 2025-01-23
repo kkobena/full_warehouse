@@ -18,24 +18,23 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-delevery',
-  templateUrl: './delivery.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
-  imports: [
-    WarehouseCommonModule,
-    BonEnCoursComponent,
-    ListBonsComponent,
-    ButtonModule,
-    CardModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    ToolbarModule,
-    FormsModule,
-    InputTextModule,
-    PanelModule,
-  ],
+    selector: 'jhi-delevery',
+    templateUrl: './delivery.component.html',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        WarehouseCommonModule,
+        BonEnCoursComponent,
+        ListBonsComponent,
+        ButtonModule,
+        CardModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        ToolbarModule,
+        FormsModule,
+        InputTextModule,
+        PanelModule,
+    ]
 })
 export class DeliveryComponent {
   search = '';

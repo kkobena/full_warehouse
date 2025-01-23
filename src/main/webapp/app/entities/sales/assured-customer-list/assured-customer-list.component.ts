@@ -16,20 +16,19 @@ import { CurrentSaleService } from '../service/current-sale.service';
 import { ISales } from '../../../shared/model/sales.model';
 
 @Component({
-  selector: 'jhi-assured-customer-list',
-  templateUrl: './assured-customer-list.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    DynamicDialogModule,
-    TableModule,
-  ],
+    selector: 'jhi-assured-customer-list',
+    templateUrl: './assured-customer-list.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        TooltipModule,
+        ButtonModule,
+        InputTextModule,
+        RippleModule,
+        DynamicDialogModule,
+        TableModule,
+    ]
 })
 export class AssuredCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];

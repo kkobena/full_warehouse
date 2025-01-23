@@ -18,10 +18,9 @@ import { SortDirective } from '../../shared/sort/sort.directive';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-categorie',
-  templateUrl: './categorie.component.html',
-  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule, SortDirective, InfiniteScrollModule],
+    selector: 'jhi-categorie',
+    templateUrl: './categorie.component.html',
+    imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule, SortDirective, InfiniteScrollModule]
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];

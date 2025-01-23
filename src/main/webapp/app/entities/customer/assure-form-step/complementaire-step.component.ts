@@ -21,22 +21,21 @@ import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/f
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
-  selector: 'jhi-complementaire-step',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    ReactiveFormsModule,
-    DropdownModule,
-    ButtonDirective,
-    KeyFilterModule,
-    InputTextModule,
-    AutoCompleteModule,
-    ToastModule,
-    CardModule,
-    ConfirmDialogModule,
-  ],
-  templateUrl: './complementaire-step.component.html',
-  styles: ``,
+    selector: 'jhi-complementaire-step',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        ReactiveFormsModule,
+        DropdownModule,
+        ButtonDirective,
+        KeyFilterModule,
+        InputTextModule,
+        AutoCompleteModule,
+        ToastModule,
+        CardModule,
+        ConfirmDialogModule,
+    ],
+    templateUrl: './complementaire-step.component.html',
+    styles: ``
 })
 export class ComplementaireStepComponent {
   catgories = [

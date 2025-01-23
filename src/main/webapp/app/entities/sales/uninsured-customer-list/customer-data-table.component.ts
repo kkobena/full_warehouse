@@ -14,21 +14,20 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 
 @Component({
-  selector: 'jhi-customer-data-table',
-  standalone: true,
-  providers: [ConfirmationService, DialogService],
-  imports: [
-    ButtonModule,
-    InputTextModule,
-    ReactiveFormsModule,
-    RippleModule,
-    SharedModule,
-    TableModule,
-    TooltipModule,
-    WarehouseCommonModule,
-    FormsModule,
-  ],
-  templateUrl: './customer-data-table.component.html',
+    selector: 'jhi-customer-data-table',
+    providers: [ConfirmationService, DialogService],
+    imports: [
+        ButtonModule,
+        InputTextModule,
+        ReactiveFormsModule,
+        RippleModule,
+        SharedModule,
+        TableModule,
+        TooltipModule,
+        WarehouseCommonModule,
+        FormsModule,
+    ],
+    templateUrl: './customer-data-table.component.html'
 })
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];

@@ -12,10 +12,9 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-magasin',
-  templateUrl: './magasin.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, PanelModule, RouterModule, ButtonModule, RippleModule],
+    selector: 'jhi-magasin',
+    templateUrl: './magasin.component.html',
+    imports: [WarehouseCommonModule, PanelModule, RouterModule, ButtonModule, RippleModule]
 })
 export class MagasinComponent implements OnInit {
   magasin?: IMagasin;

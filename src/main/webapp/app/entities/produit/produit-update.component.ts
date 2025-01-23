@@ -35,20 +35,19 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { RemiseService } from '../remise/remise.service';
 
 @Component({
-  selector: 'jhi-produit-update',
-  templateUrl: './produit-update.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    DropdownModule,
-    RippleModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    KeyFilterModule,
-    InputMaskModule,
-  ],
+    selector: 'jhi-produit-update',
+    templateUrl: './produit-update.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        DropdownModule,
+        RippleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        KeyFilterModule,
+        InputMaskModule,
+    ]
 })
 export class ProduitUpdateComponent implements OnInit {
   isSaving = false;

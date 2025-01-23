@@ -7,10 +7,9 @@ import { Session } from './session.model';
 import { SessionsService } from './sessions.service';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-sessions',
-  imports: [SharedModule],
-  templateUrl: './sessions.component.html',
+    selector: 'jhi-sessions',
+    imports: [SharedModule],
+    templateUrl: './sessions.component.html'
 })
 export default class SessionsComponent implements OnInit {
   account: Account | null = null;

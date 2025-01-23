@@ -19,21 +19,20 @@ import { Observable } from 'rxjs';
 import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
 
 @Component({
-  selector: 'jhi-remise-produits',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    FormsModule,
-    ToastModule,
-    ButtonDirective,
-    ConfirmDialogModule,
-    InputSwitchModule,
-    Ripple,
-    TableModule,
-    ToolbarModule,
-    TooltipModule,
-  ],
-  templateUrl: './remise-produits.component.html',
+    selector: 'jhi-remise-produits',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        FormsModule,
+        ToastModule,
+        ButtonDirective,
+        ConfirmDialogModule,
+        InputSwitchModule,
+        Ripple,
+        TableModule,
+        ToolbarModule,
+        TooltipModule,
+    ],
+    templateUrl: './remise-produits.component.html'
 })
 export class RemiseProduitsComponent implements OnInit {
   responsedto!: IResponseDto;

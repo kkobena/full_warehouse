@@ -34,33 +34,32 @@ import { PanelModule } from 'primeng/panel';
 import { CommandCommonService } from './command-common.service';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-commande',
-  templateUrl: './commande.component.html',
-  providers: [ConfirmationService, DialogService],
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TableModule,
-    NgxSpinnerModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TooltipModule,
-    DialogModule,
-    ConfirmDialogModule,
-    FileUploadModule,
-    CardModule,
-    FormsModule,
-    ToolbarModule,
-    InputTextModule,
-    CommandeEnCoursComponent,
-    CommandePassesComponent,
-    CommandeRecusComponent,
-    PanelModule,
-  ],
-  styles: [
-    `
+    selector: 'jhi-commande',
+    templateUrl: './commande.component.html',
+    providers: [ConfirmationService, DialogService],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        TableModule,
+        NgxSpinnerModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        TooltipModule,
+        DialogModule,
+        ConfirmDialogModule,
+        FileUploadModule,
+        CardModule,
+        FormsModule,
+        ToolbarModule,
+        InputTextModule,
+        CommandeEnCoursComponent,
+        CommandePassesComponent,
+        CommandeRecusComponent,
+        PanelModule,
+    ],
+    styles: [
+        `
       .commande-gestion .table tr:hover {
         cursor: pointer;
       }
@@ -69,7 +68,7 @@ import { CommandCommonService } from './command-common.service';
         background-color: #95caf9 !important;
       }
     `,
-  ],
+    ]
 })
 export class CommandeComponent implements OnInit {
   commandes: ICommande[] = [];

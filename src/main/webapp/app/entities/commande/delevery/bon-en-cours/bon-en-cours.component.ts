@@ -15,19 +15,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-  standalone: true,
-  selector: 'jhi-bon-en-cours',
-  templateUrl: './bon-en-cours.component.html',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TableModule,
-    NgxSpinnerModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TooltipModule,
-  ],
+    selector: 'jhi-bon-en-cours',
+    templateUrl: './bon-en-cours.component.html',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        TableModule,
+        NgxSpinnerModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        TooltipModule,
+    ]
 })
 export class BonEnCoursComponent implements OnInit {
   @Input() search = '';

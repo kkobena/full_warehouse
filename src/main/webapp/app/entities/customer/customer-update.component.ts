@@ -14,10 +14,9 @@ import { ProduitService } from 'app/entities/produit/produit.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'jhi-customer-update',
-  templateUrl: './customer-update.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+    selector: 'jhi-customer-update',
+    templateUrl: './customer-update.component.html',
+    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
 })
 export class CustomerUpdateComponent implements OnInit {
   isSaving = false;

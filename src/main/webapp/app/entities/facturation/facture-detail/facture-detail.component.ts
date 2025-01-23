@@ -11,11 +11,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-facture-detail',
-  standalone: true,
-  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
-  templateUrl: './facture-detail.component.html',
-  styles: ``,
+    selector: 'jhi-facture-detail',
+    imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
+    templateUrl: './facture-detail.component.html',
+    styles: ``
 })
 export class FactureDetailComponent implements OnInit, OnChanges {
   @Input() facture: Facture | null = null;

@@ -2,7 +2,8 @@ import { Directive, ElementRef, Input, NgZone, OnInit } from '@angular/core';
 import { EditableColumn, Table } from 'primeng/table';
 
 @Directive({
-  selector: '[jhiTableEditor]',
+    selector: '[jhiTableEditor]',
+    standalone: false
 })
 export class TableEditorDirective extends EditableColumn implements OnInit {
   @Input() moveToNext: boolean;

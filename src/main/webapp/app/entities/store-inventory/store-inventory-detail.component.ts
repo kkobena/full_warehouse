@@ -22,21 +22,20 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-  selector: 'jhi-store-inventory-detail',
-  templateUrl: './store-inventory-detail.component.html',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    RouterModule,
-    DividerModule,
-    NgxSpinnerModule,
-    DropdownModule,
-    AutoCompleteModule,
-    TableModule,
-    ButtonModule,
-    RippleModule,
-  ],
+    selector: 'jhi-store-inventory-detail',
+    templateUrl: './store-inventory-detail.component.html',
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        RouterModule,
+        DividerModule,
+        NgxSpinnerModule,
+        DropdownModule,
+        AutoCompleteModule,
+        TableModule,
+        ButtonModule,
+        RippleModule,
+    ]
 })
 export class StoreInventoryDetailComponent implements OnInit {
   storeInventory: IStoreInventory | null = null;

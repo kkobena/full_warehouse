@@ -26,22 +26,21 @@ import { BaseSaleService } from '../../../service/base-sale.service';
 import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
 
 @Component({
-  selector: 'jhi-assurance-data',
-  providers: [ConfirmationService, DialogService, MessageService],
-  standalone: true,
-  imports: [
-    FormsModule,
-    KeyFilterModule,
-    PanelModule,
-    InputTextModule,
-    OverlayPanelModule,
-    TableModule,
-    SpeedDialModule,
-    SplitButtonModule,
-    ConfirmPopupModule,
-    ConfirmDialogModule,
-  ],
-  templateUrl: './assurance-data.component.html',
+    selector: 'jhi-assurance-data',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        FormsModule,
+        KeyFilterModule,
+        PanelModule,
+        InputTextModule,
+        OverlayPanelModule,
+        TableModule,
+        SpeedDialModule,
+        SplitButtonModule,
+        ConfirmPopupModule,
+        ConfirmDialogModule,
+    ],
+    templateUrl: './assurance-data.component.html'
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   customerService = inject(CustomerService);

@@ -34,28 +34,27 @@ import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 
 @Component({
-  selector: 'jhi-customer',
-  templateUrl: './customer.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    DropdownModule,
-    ToolbarModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    TableModule,
-    DialogModule,
-    FileUploadModule,
-    DividerModule,
-    SplitButtonModule,
-    NgxSpinnerModule,
-    TooltipModule,
-    AssureFormStepComponent,
-  ],
+    selector: 'jhi-customer',
+    templateUrl: './customer.component.html',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        WarehouseCommonModule,
+        DropdownModule,
+        ToolbarModule,
+        FormsModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        InputTextModule,
+        TableModule,
+        DialogModule,
+        FileUploadModule,
+        DividerModule,
+        SplitButtonModule,
+        NgxSpinnerModule,
+        TooltipModule,
+        AssureFormStepComponent,
+    ]
 })
 export class CustomerComponent implements OnInit {
   customers?: ICustomer[];

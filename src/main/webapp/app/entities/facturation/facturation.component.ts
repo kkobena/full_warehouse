@@ -15,29 +15,28 @@ import { EditionComponent } from './edition/edition.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'jhi-facturation',
-  standalone: true,
-  providers: [ConfirmationService, DialogService, MessageService],
-  imports: [
-    WarehouseCommonModule,
-    CardModule,
-    InputTextModule,
-    NgbNav,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavLink,
-    ButtonModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    ToolbarModule,
-    FormsModule,
-    PanelModule,
-    FacturesComponent,
-    EditionComponent,
-  ],
-  templateUrl: './facturation.component.html',
-  styles: ``,
+    selector: 'jhi-facturation',
+    providers: [ConfirmationService, DialogService, MessageService],
+    imports: [
+        WarehouseCommonModule,
+        CardModule,
+        InputTextModule,
+        NgbNav,
+        NgbNavContent,
+        NgbNavItem,
+        NgbNavLink,
+        ButtonModule,
+        RouterModule,
+        RippleModule,
+        DynamicDialogModule,
+        ToolbarModule,
+        FormsModule,
+        PanelModule,
+        FacturesComponent,
+        EditionComponent,
+    ],
+    templateUrl: './facturation.component.html',
+    styles: ``
 })
 export class FacturationComponent {
   protected active = 'factures';

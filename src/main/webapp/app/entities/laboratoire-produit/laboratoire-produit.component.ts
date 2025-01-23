@@ -23,35 +23,34 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 
 @Component({
-  selector: 'jhi-laboratoire-produit',
-  templateUrl: './laboratoire-produit.component.html',
-  standalone: true,
-  styles: [
-    `
+    selector: 'jhi-laboratoire-produit',
+    templateUrl: './laboratoire-produit.component.html',
+    styles: [
+        `
       body .ui-inputtext {
         width: 100% !important;
       }
     `,
-  ],
-  providers: [MessageService, DialogService, ConfirmationService],
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    WarehouseCommonModule,
-    DialogModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    DynamicDialogModule,
-    FormsModule,
-    FormLaboratoireComponent,
-  ],
+    ],
+    providers: [MessageService, DialogService, ConfirmationService],
+    encapsulation: ViewEncapsulation.None,
+    imports: [
+        WarehouseCommonModule,
+        DialogModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        ToastModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        DynamicDialogModule,
+        FormsModule,
+        FormLaboratoireComponent,
+    ]
 })
 export class LaboratoireProduitComponent implements OnInit {
   fileDialog = false;

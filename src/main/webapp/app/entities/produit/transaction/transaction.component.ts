@@ -27,30 +27,29 @@ import { RippleModule } from 'primeng/ripple';
 import { StatSalesComponent } from '../stat-sales/stat-sales.component';
 
 @Component({
-  selector: 'jhi-transaction',
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    CalendarModule,
-    CardModule,
-    DividerModule,
-    DropdownModule,
-    InputTextModule,
-    NgbNav,
-    ToolbarModule,
-    FormsModule,
-    RouterModule,
-    PanelModule,
-    AuditingComponent,
-    StatDeliveryComponent,
-    BadgeModule,
-    AutoCompleteModule,
-    RippleModule,
-    StatSalesComponent,
-  ],
-  templateUrl: './transaction.component.html',
-  providers: [ProduitAuditingParamService],
+    selector: 'jhi-transaction',
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        CalendarModule,
+        CardModule,
+        DividerModule,
+        DropdownModule,
+        InputTextModule,
+        NgbNav,
+        ToolbarModule,
+        FormsModule,
+        RouterModule,
+        PanelModule,
+        AuditingComponent,
+        StatDeliveryComponent,
+        BadgeModule,
+        AutoCompleteModule,
+        RippleModule,
+        StatSalesComponent,
+    ],
+    templateUrl: './transaction.component.html',
+    providers: [ProduitAuditingParamService]
 })
 export class TransactionComponent implements OnInit {
   protected active = 'auditing';

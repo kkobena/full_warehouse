@@ -7,9 +7,8 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  templateUrl: './commande-delete-dialog.component.html',
-  standalone: true,
-  imports: [WarehouseCommonModule, FormsModule],
+    templateUrl: './commande-delete-dialog.component.html',
+    imports: [WarehouseCommonModule, FormsModule]
 })
 export class CommandeDeleteDialogComponent {
   commande?: ICommande;

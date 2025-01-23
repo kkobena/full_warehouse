@@ -27,30 +27,28 @@ import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 @Component({
-  selector: 'jhi-tiers-payant',
-  templateUrl: './tiers-payant.component.html',
-
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    DropdownModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    DynamicDialogModule,
-    FormsModule,
-    DialogModule,
-    FormTiersPayantComponent,
-    SplitButtonModule,
-    NgxSpinnerModule,
-  ],
+    selector: 'jhi-tiers-payant',
+    templateUrl: './tiers-payant.component.html',
+    providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+    imports: [
+        WarehouseCommonModule,
+        ButtonModule,
+        RippleModule,
+        ConfirmDialogModule,
+        DropdownModule,
+        FileUploadModule,
+        ToolbarModule,
+        TableModule,
+        RouterModule,
+        InputTextModule,
+        TooltipModule,
+        DynamicDialogModule,
+        FormsModule,
+        DialogModule,
+        FormTiersPayantComponent,
+        SplitButtonModule,
+        NgxSpinnerModule,
+    ]
 })
 export class TiersPayantComponent implements OnInit {
   tiersPayants?: ITiersPayant[] = [];

@@ -19,23 +19,22 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 
 @Component({
-  selector: 'jhi-form-ayant-droit',
-  templateUrl: './form-ayant-droit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
-  standalone: true,
-  imports: [
-    WarehouseCommonModule,
-    ToastModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    RadioButtonModule,
-    ReactiveFormsModule,
-    CalendarModule,
-    KeyFilterModule,
-    InputMaskModule,
-  ],
+    selector: 'jhi-form-ayant-droit',
+    templateUrl: './form-ayant-droit.component.html',
+    providers: [MessageService, DialogService, ConfirmationService],
+    imports: [
+        WarehouseCommonModule,
+        ToastModule,
+        FormsModule,
+        ButtonModule,
+        RippleModule,
+        InputTextModule,
+        RadioButtonModule,
+        ReactiveFormsModule,
+        CalendarModule,
+        KeyFilterModule,
+        InputMaskModule,
+    ]
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   firstName = viewChild.required<ElementRef>('firstName');

@@ -27,28 +27,27 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
-  selector: 'jhi-code-remise-produits-modal',
-  standalone: true,
-  providers: [MessageService, ConfirmationService],
-  imports: [
-    ToastModule,
-    DialogModule,
-    DropdownModule,
-    FormsModule,
-    InputTextModule,
-    KeyFilterModule,
-    ReactiveFormsModule,
-    StyleClassModule,
-    ButtonDirective,
-    Ripple,
-    TagModule,
-    ToolbarModule,
-    TableModule,
-    TooltipModule,
-    NgSelectModule,
-    NgxSpinnerComponent,
-  ],
-  templateUrl: './code-remise-produits-modal.component.html',
+    selector: 'jhi-code-remise-produits-modal',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        ToastModule,
+        DialogModule,
+        DropdownModule,
+        FormsModule,
+        InputTextModule,
+        KeyFilterModule,
+        ReactiveFormsModule,
+        StyleClassModule,
+        ButtonDirective,
+        Ripple,
+        TagModule,
+        ToolbarModule,
+        TableModule,
+        TooltipModule,
+        NgSelectModule,
+        NgxSpinnerComponent,
+    ],
+    templateUrl: './code-remise-produits-modal.component.html'
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   modalService = inject(NgbModal);

@@ -36,31 +36,30 @@ import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { FactureEditionResponse } from '../facture-edition-response';
 
 @Component({
-  selector: 'jhi-edition',
-  standalone: true,
-  providers: [
-    ConfirmationService,
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    DropdownModule,
-    ReactiveFormsModule,
-    TableModule,
-    InputTextModule,
-    TooltipModule,
-    StyleClassModule,
-    NgbDatepickerModule,
-    InputSwitchModule,
-    AutoCompleteModule,
-    ConfirmDialogModule,
-  ],
-  templateUrl: './edition.component.html',
-  styles: ``,
+    selector: 'jhi-edition',
+    providers: [
+        ConfirmationService,
+        I18n,
+        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+        { provide: NgbDateAdapter, useClass: CustomAdapter },
+        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+    ],
+    imports: [
+        WarehouseCommonModule,
+        FormsModule,
+        DropdownModule,
+        ReactiveFormsModule,
+        TableModule,
+        InputTextModule,
+        TooltipModule,
+        StyleClassModule,
+        NgbDatepickerModule,
+        InputSwitchModule,
+        AutoCompleteModule,
+        ConfirmDialogModule,
+    ],
+    templateUrl: './edition.component.html',
+    styles: ``
 })
 export class EditionComponent implements OnInit {
   errorService = inject(ErrorService);

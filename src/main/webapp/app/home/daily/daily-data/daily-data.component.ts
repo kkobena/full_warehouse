@@ -26,12 +26,10 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'jhi-daily-data',
-
-  templateUrl: './daily-data.component.html',
-  styleUrls: ['./daily-data.component.scss'],
-  standalone: true,
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
+    selector: 'jhi-daily-data',
+    templateUrl: './daily-data.component.html',
+    styleUrls: ['./daily-data.component.scss'],
+    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule]
 })
 export class DailyDataComponent implements OnInit {
   protected faShoppingBasket = faShoppingBasket;

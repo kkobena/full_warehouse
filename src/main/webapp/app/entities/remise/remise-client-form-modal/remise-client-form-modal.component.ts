@@ -17,22 +17,21 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'jhi-remise-client-form-modal',
-  providers: [MessageService, ConfirmationService],
-  standalone: true,
-  imports: [
-    ButtonDirective,
-    ToastModule,
-    DialogModule,
-    DropdownModule,
-    FormsModule,
-    InputTextModule,
-    KeyFilterModule,
-    ReactiveFormsModule,
-    Ripple,
-    StyleClassModule,
-  ],
-  templateUrl: './remise-client-form-modal.component.html',
+    selector: 'jhi-remise-client-form-modal',
+    providers: [MessageService, ConfirmationService],
+    imports: [
+        ButtonDirective,
+        ToastModule,
+        DialogModule,
+        DropdownModule,
+        FormsModule,
+        InputTextModule,
+        KeyFilterModule,
+        ReactiveFormsModule,
+        Ripple,
+        StyleClassModule,
+    ],
+    templateUrl: './remise-client-form-modal.component.html'
 })
 export class RemiseClientFormModalComponent implements AfterViewInit {
   modalService = inject(NgbModal);

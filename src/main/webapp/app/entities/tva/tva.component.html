@@ -1,9 +1,5 @@
 <p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
-  <p-footer>
-    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
-    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
-            type="button"></button>
-  </p-footer>
+
 </p-confirmDialog>
 
 <div>
@@ -89,15 +85,15 @@
         </div>
 
       </div>
-      <p-footer>
-        <button [disabled]="editForm.invalid || isSaving" class="p-button-success p-mr-2"
-                icon="pi pi-check" label="Enregistrer"
-                pButton pRipple type="submit"></button>
-        <button (click)="cancel()" class="p-button-danger p-mr-2" icon="pi pi-times" label="Annuler"
-                pButton
-                pRipple type="button"></button>
+      <ng-template #footer>
+        <p-button [disabled]="editForm.invalid || isSaving" class=" p-mr-2" icon="pi pi-check"
+                  label="Enregistrer" pRipple
+                  severity="success" type="submit"></p-button>
+        <p-button (click)="cancel()" class=" p-mr-2" icon="pi pi-times" label="Annuler"
+                  pRipple
+                  severity="danger" type="button"></p-button>
 
-      </p-footer>
+      </ng-template>
     </p-dialog>
   </form>
 </div>

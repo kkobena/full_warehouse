@@ -15,7 +15,7 @@ import { IProduit } from '../../../shared/model/produit.model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { CodeRemise } from '../../../shared/model/remise.model';
 import { RayonService } from '../../rayon/rayon.service';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -27,27 +27,27 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
-    selector: 'jhi-code-remise-produits-modal',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        ToastModule,
-        DialogModule,
-        DropdownModule,
-        FormsModule,
-        InputTextModule,
-        KeyFilterModule,
-        ReactiveFormsModule,
-        StyleClassModule,
-        ButtonDirective,
-        Ripple,
-        TagModule,
-        ToolbarModule,
-        TableModule,
-        TooltipModule,
-        NgSelectModule,
-        NgxSpinnerComponent,
-    ],
-    templateUrl: './code-remise-produits-modal.component.html'
+  selector: 'jhi-code-remise-produits-modal',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    ToastModule,
+    DialogModule,
+    DropdownModule,
+    FormsModule,
+    InputTextModule,
+    KeyFilterModule,
+    ReactiveFormsModule,
+    StyleClassModule,
+    Ripple,
+    TagModule,
+    ToolbarModule,
+    TableModule,
+    TooltipModule,
+    NgSelectModule,
+    NgxSpinnerComponent,
+    ButtonModule,
+  ],
+  templateUrl: './code-remise-produits-modal.component.html',
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   modalService = inject(NgbModal);

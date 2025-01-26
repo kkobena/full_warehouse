@@ -21,25 +21,26 @@ import { IRemise, Remise } from '../../../../shared/model/remise.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
+import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-product-table',
-    imports: [
-        WarehouseCommonModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        TooltipModule,
-        ConfirmDialogModule,
-        SplitButtonModule,
-        NgbAlertModule,
-        NgSelectModule,
-        FormsModule,
-        DropdownModule,
-    ],
-    templateUrl: './product-table.component.html',
-    styleUrls: ['./product-table.component.scss']
+  selector: 'jhi-product-table',
+  imports: [
+    WarehouseCommonModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ConfirmDialogModule,
+    SplitButtonModule,
+    NgbAlertModule,
+    NgSelectModule,
+    FormsModule,
+    DropdownModule,
+  ],
+  templateUrl: './product-table.component.html',
+  styleUrls: ['./product-table.component.scss'],
 })
 export class ProductTableComponent {
   sale: ISales;
@@ -150,6 +151,8 @@ export class ProductTableComponent {
         message: ' Voullez-vous supprimer  ce produit ?',
         header: 'SUPPRESSION DE PRODUIT ',
         icon: 'pi pi-info-circle',
+        rejectButtonProps: rejectButtonProps(),
+        acceptButtonProps: acceptButtonProps(),
         accept: () => this.deleteItemEvent.emit(item),
         reject: () => {
           this.deleteItemEvent.emit(null);
@@ -174,6 +177,8 @@ export class ProductTableComponent {
       message,
       header: 'FORCER LE STOCK ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.itemQtyRequestedEvent.emit(salesLine),
       reject: () => this.itemQtyRequestedEvent.emit(null),
       key: 'forcerStock',

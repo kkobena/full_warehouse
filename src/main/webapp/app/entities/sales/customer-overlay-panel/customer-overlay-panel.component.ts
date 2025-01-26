@@ -5,28 +5,28 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
-import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 import { TagModule } from 'primeng/tag';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
-    selector: 'jhi-customer-overlay-panel',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        InputTextModule,
-        ReactiveFormsModule,
-        RippleModule,
-        TooltipModule,
-        FormsModule,
-        OverlayPanelModule,
-        CustomerDataTableComponent,
-        TagModule,
-    ],
-    providers: [],
-    templateUrl: './customer-overlay-panel.component.html'
+  selector: 'jhi-customer-overlay-panel',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    InputTextModule,
+    ReactiveFormsModule,
+    RippleModule,
+    TooltipModule,
+    FormsModule,
+    PopoverModule,
+    CustomerDataTableComponent,
+    TagModule,
+  ],
+  providers: [],
+  templateUrl: './customer-overlay-panel.component.html',
 })
 export class CustomerOverlayPanelComponent {
   @Output() onCloseEvent = new EventEmitter<boolean>();
@@ -43,7 +43,7 @@ export class CustomerOverlayPanelComponent {
     return 'Choisir client';
   }
 
-  protected onClose(op: OverlayPanel): void {
+  protected onClose(op: any): void {
     //   this.customer = cust;
     this.onCloseEvent.emit(true);
 

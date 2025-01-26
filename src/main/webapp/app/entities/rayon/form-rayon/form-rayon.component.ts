@@ -12,9 +12,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'jhi-form-rayon',
-    templateUrl: './form-rayon.component.html',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule]
+  selector: 'jhi-form-rayon',
+  templateUrl: './form-rayon.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule],
 })
 export class FormRayonComponent implements OnInit {
   isSaving = false;
@@ -63,10 +63,10 @@ export class FormRayonComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IRayon>>): void {
-    result.subscribe(
-      (res: HttpResponse<IRayon>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: (res: HttpResponse<IRayon>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(response: IRayon | null): void {

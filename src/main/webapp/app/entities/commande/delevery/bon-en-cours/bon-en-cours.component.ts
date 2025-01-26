@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Router, RouterModule } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { DeliveryService } from '../delivery.service';
@@ -15,18 +15,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-    selector: 'jhi-bon-en-cours',
-    templateUrl: './bon-en-cours.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TableModule,
-        NgxSpinnerModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TooltipModule,
-    ]
+  selector: 'jhi-bon-en-cours',
+  templateUrl: './bon-en-cours.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class BonEnCoursComponent implements OnInit {
   @Input() search = '';
@@ -40,13 +40,11 @@ export class BonEnCoursComponent implements OnInit {
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
   protected selectedFilter = 'PENDING';
-  protected loadingSelectedFilter = false;
 
   constructor(
     protected router: Router,
     private spinner: NgxSpinnerService,
     protected entityService: DeliveryService,
-    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {

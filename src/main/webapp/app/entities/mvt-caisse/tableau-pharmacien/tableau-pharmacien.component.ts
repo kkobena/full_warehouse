@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService, MenuItem, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
 import { HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_ISO_DATE, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { TableauPharmacien, TableauPharmacienWrapper } from './tableau-pharmacien.model';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -24,28 +23,35 @@ import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.mod
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { MvtCaisseParams } from '../mvt-caisse-util';
 import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
+import { PrimeNG } from 'primeng/config';
+import { FormsModule } from '@angular/forms';
+import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
+import { DatePicker } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
-    selector: 'jhi-tableau-pharmacien',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        Button,
-        CalendarModule,
-        DropdownModule,
-        InputTextModule,
-        MultiSelectModule,
-        PaginatorModule,
-        ToolbarModule,
-        TooltipModule,
-        RadioButtonModule,
-        DecimalPipe,
-        DatePipe,
-        SelectButtonModule,
-        ChartModule,
-        CardModule,
-        SplitButtonModule,
-    ],
-    templateUrl: './tableau-pharmacien.component.html'
+  selector: 'jhi-tableau-pharmacien',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    Button,
+    DropdownModule,
+    InputTextModule,
+    MultiSelectModule,
+    PaginatorModule,
+    ToolbarModule,
+    TooltipModule,
+    RadioButtonModule,
+    DecimalPipe,
+    DatePipe,
+    SelectButtonModule,
+    ChartModule,
+    CardModule,
+    SplitButtonModule,
+    FormsModule,
+    DatePicker,
+    FloatLabel,
+  ],
+  templateUrl: './tableau-pharmacien.component.html',
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];
@@ -63,43 +69,18 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected colspan = 9;
   protected verticalBarChart: VerticalBarChart | null = null;
   protected grossiste: VerticalBarChart | null = null;
-  protected textColor: string;
-  protected textColorSecondary: string;
-  protected surfaceBorder: string;
-  protected documentStyle: CSSStyleDeclaration;
+
   protected showGrossisteChart = false;
-  private primeNGConfig = inject(PrimeNGConfig);
+  private primeNGConfig = inject(PrimeNG);
   private translate = inject(TranslateService);
   private messageService = inject(MessageService);
   private tableauPharmacienService = inject(TableauPharmacienService);
   private mvtParamServiceService = inject(MvtParamServiceService);
-  private colors: string[] = [];
-  private hoverColors: string[] = [];
+  private chartColorsUtilsService = inject(ChartColorsUtilsService);
 
-  constructor() {
-    this.documentStyle = getComputedStyle(document.documentElement);
-    this.textColor = this.documentStyle.getPropertyValue('--text-color');
-    this.textColorSecondary = this.documentStyle.getPropertyValue('--text-color-secondary');
-    this.surfaceBorder = this.documentStyle.getPropertyValue('--surface-border');
-  }
+  constructor() {}
 
   ngOnInit(): void {
-    this.colors = [
-      this.documentStyle.getPropertyValue('--blue-300'),
-      this.documentStyle.getPropertyValue('--yellow-300'),
-      this.documentStyle.getPropertyValue('--green-300'),
-      this.documentStyle.getPropertyValue('--pink-300'),
-      this.documentStyle.getPropertyValue('--orange-300'),
-      this.documentStyle.getPropertyValue('--red-300'),
-    ];
-    this.hoverColors = [
-      this.documentStyle.getPropertyValue('--blue-200'),
-      this.documentStyle.getPropertyValue('--yellow-200'),
-      this.documentStyle.getPropertyValue('--green-200'),
-      this.documentStyle.getPropertyValue('--pink-200'),
-      this.documentStyle.getPropertyValue('--orange-200'),
-      this.documentStyle.getPropertyValue('--red-200'),
-    ];
     this.exportMenus = [
       {
         label: 'PDF',
@@ -248,8 +229,8 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     const montantRemises = tableauPharmaciens.map(tableauPharmacien => tableauPharmacien.montantRemise);
     this.buildBarChart(labels, comptants, credits, montantNets, montantRemises);
     const achatsGrossiste: any = [];
-    const cls = this.colors;
-    const hColors = this.hoverColors;
+    const cls = this.chartColorsUtilsService.colors();
+    const hColors = this.chartColorsUtilsService.hoverColors();
     const labelsBarGrossiste: string[] = [];
     const dataSet: any[] = [];
 
@@ -332,26 +313,26 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
           {
             label: 'Comptant',
             data: comptants,
-            backgroundColor: this.colors.slice(0, 1),
-            hoverBackgroundColor: this.hoverColors.slice(0, 1),
+            backgroundColor: this.chartColorsUtilsService.colors().slice(0, 1),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, 1),
           },
           {
             label: 'Crédit',
             data: credits,
-            backgroundColor: this.colors.slice(1, 2),
-            hoverBackgroundColor: this.hoverColors.slice(1, 2),
+            backgroundColor: this.chartColorsUtilsService.colors().slice(1, 2),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(1, 2),
           },
           {
             label: 'Montant net',
             data: montantNets,
-            backgroundColor: this.colors.slice(2, 3),
-            hoverBackgroundColor: this.hoverColors.slice(2, 3),
+            backgroundColor: this.chartColorsUtilsService.colors().slice(2, 3),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(2, 3),
           },
           {
             label: 'Montant remise',
             data: montantRemises,
-            backgroundColor: this.colors.slice(3, 4),
-            hoverBackgroundColor: this.hoverColors.slice(3, 4),
+            backgroundColor: this.chartColorsUtilsService.colors().slice(3, 4),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(3, 4),
           },
         ],
       },
@@ -362,29 +343,29 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.textColor,
+              color: this.chartColorsUtilsService.textColor(),
             },
           },
         },
         scales: {
           x: {
             ticks: {
-              color: this.textColorSecondary,
+              color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
                 weight: 700,
               },
             },
             grid: {
-              color: this.surfaceBorder,
+              color: this.chartColorsUtilsService.surfaceBorder(),
               drawBorder: false,
             },
           },
           y: {
             ticks: {
-              color: this.textColorSecondary,
+              color: this.chartColorsUtilsService.textColorSecondary(),
             },
             grid: {
-              color: this.surfaceBorder,
+              color: this.chartColorsUtilsService.surfaceBorder(),
               drawBorder: false,
             },
           },
@@ -406,29 +387,29 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.textColor,
+              color: this.chartColorsUtilsService.textColor(),
             },
           },
         },
         scales: {
           x: {
             ticks: {
-              color: this.textColorSecondary,
+              color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
                 weight: 700,
               },
             },
             grid: {
-              color: this.surfaceBorder,
+              color: this.chartColorsUtilsService.surfaceBorder(),
               drawBorder: false,
             },
           },
           y: {
             ticks: {
-              color: this.textColorSecondary,
+              color: this.chartColorsUtilsService.textColorSecondary(),
             },
             grid: {
-              color: this.surfaceBorder,
+              color: this.chartColorsUtilsService.surfaceBorder(),
               drawBorder: false,
             },
           },

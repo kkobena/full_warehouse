@@ -3,24 +3,16 @@
              type="timer"></ngx-spinner>
 <p-confirmDialog #deleteCommande [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deleteCommande">
-  <p-footer>
-    <button (click)="deleteCommande.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteCommande.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-
 </p-confirmDialog>
 <p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '50vw'}" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"
+    <p-fileupload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"
                   accept=".csv,.xls,.xlsx"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importcsv"
                   uploadLabel="Enrégistrer">
-    </p-fileUpload>
+    </p-fileupload>
   </div>
   <p-footer>
     <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
@@ -94,51 +86,46 @@
           </div>
           <div class="p-toolbar-group-right">
                  <span class="p-buttonset">
-                     <button (click)="test()" [hidden]="true"
-                             class="p-button-raised p-button-info "
-                             icon="pi pi-search"
-                             label="Test" pButton
-                             pRipple
-                             type="button"></button>
-
-
-
-                <button (click)="onSearch()" class="p-button-raised p-button-info "
-                        icon="pi pi-search"
-                        label="Rechercher" pButton
+                <button (click)="onSearch()"
+                        [raised]="true"
+                        pButton pButtonIcon="pi pi-search"
+                        pButtonLabel="Rechercher"
                         pRipple
+                        severity="info"
                         type="button"></button>
-                <button (click)="onShowNewCommandeDialog()" class="p-button-raised p-button-help "
-                        icon="pi pi-upload" label="Importation" pButton
-                        pRipple type="button"></button>
-
-
-
+                <button (click)="onShowNewCommandeDialog()"
+                        [raised]="true" pButton pButtonIcon="pi pi-upload"
+                        pButtonLabel="Importation"
+                        pRipple
+                        severity="help" type="button"></button>
    <button (click)="onCreatNewCommande()"
-           class="p-button-raised   p-button-success " pButton
-           pRipple type="button">
-                    <i class="pi pi-plus"></i>
-                    <span jhiTranslate="warehouseApp.commande.home.createLabel">
-               Nouvelle commande
-            </span>
-                </button>
+           [raised]="true"
+           pButton
+           pButtonIcon="pi pi-plus"
+           pButtonLabel="Nouvelle commande"
+           pRipple
+           severity="success" type="button"></button>
                    @if (active === 'REQUESTED' && selectionLength > 1) {
                      <button (click)="fusionner()"
-                             class="p-button-raised p-button-warning"
+                             pButtonIcon="pi pi-copy"
+                             pButtonLabel="Fusionner"
+                             [raised]="true"
+                             severity="warn"
                              pButton
                              pRipple type="button">
-                    <fa-icon icon="copy"></fa-icon>&nbsp;<span
-                       jhiTranslate="entity.action.fusionner">Fusionner</span>
+
                 </button>
 
                    }
                    @if (selectionLength > 0) {
-                     <button class="p-button-raised p-button-danger"
-                             pButton
-                             pRipple type="button">
-                    <fa-icon icon="times"></fa-icon>&nbsp;<span
-                       (click)="confirmDeleteSelectedRows()"
-                       jhiTranslate="entity.action.delete">Supprimer</span>
+                     <button
+                       pButton
+                       pButtonIcon="pi pi-times"
+                       pButtonLabel="Supprimer"
+                       [raised]="true"
+                       severity="danger"
+                       pRipple type="button">
+
                 </button>
                    }
 

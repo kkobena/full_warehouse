@@ -1824,17 +1824,26 @@ menu  de la vente
   }
 }
 
-.ws-spinner {
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: 99999;
-  position: absolute;
-  opacity: 1;
+.ws-toolbar-flex {
+  .p-inputwrapper {
+    width: 100% !important;
+  }
 
-  top: 50%;
-  left: 50%;
-  margin: 0;
+  .sale-product-div {
+    .p-autocomplete-option {
+      width: 100% !important;
 
+      li {
+        width: 100% !important;
+      }
+    }
 
-  //background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+    .p-inputwrapper {
+      width: 100% !important;
+    }
 
+    .p-autocomplete-input {
+      width: 100% !important;
+    }
+  }
 }

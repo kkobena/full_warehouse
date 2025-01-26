@@ -14,7 +14,7 @@
   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
   dataKey="id"
   selectionMode="multiple"
-  styleClass="p-datatable-gridlines mt-2" styleClass="p-datatable-striped">
+  styleClass="p-datatable-gridlines mt-2">
   <ng-template pTemplate="header">
     <tr>
       <th style="width:1%"></th>
@@ -36,11 +36,10 @@
   <ng-template let-expanded="expanded" let-row pTemplate="body">
     <tr>
       <td>
-        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [pRowToggler]="row" class="p-button-text p-button-rounded p-button-plain"
-                pButton
-                pRipple
-                type="button"></button>
+
+        <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="row" [rounded]="true" [text]="true" pRipple
+                  type="button" />
       </td>
       <td>{{ row.numberTransaction }}</td>
       <td>{{ row.createdDate |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
@@ -57,27 +56,43 @@
 
       <td class="text-right">
         <div class="btn-group">
-          <button
-            *ngIf="row.statut==='PENDING0'" class="p-button-rounded p-button-success p-button-sm"
-            icon="pi pi-pencil" pButton
-            pRipple pTooltip="Editer">
+          @if (row.statut === 'PENDING0') {
+            <button
 
-          </button>
+              pButtonIcon="pi pi-pencil" pButton
+              severity="success"
+              [rounded]="true"
+              size="small"
+              pRipple pTooltip="Editer">
 
-          <button *ngIf="row.statut==='PENDING'" [routerLink]="['/commande', row.id, 'stock-entry']"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                  pButton
-                  pRipple
-                  pTooltip="Faire l'entréé en  stock"></button>
+            </button>
+          }
+          @if (row.statut === 'PENDING') {
+            <button [routerLink]="['/commande', row.id, 'stock-entry']"
+                    class="ml-sm-1" pButtonIcon="pi pi-upload"
+                    pButton
+                    pRipple
+                    size="small"
+                    [rounded]="true"
+                    severity="help"
+                    pTooltip="Faire l'entréé en  stock"></button>
+          }
+
           <button (click)="exportPdf(row)"
-                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                  icon="pi pi-file-pdf"
+                  [rounded]="true"
+                  class=" ml-sm-1"
                   pButton
-                  pRipple pTooltip="Imprimer"></button>
+                  pButtonIcon="pi pi-file-pdf"
+                  pRipple
+                  pTooltip="Imprimer"
+                  severity="warn" size="small"></button>
           <button (click)="printEtiquette(row)"
-                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  [rounded]="true" class=" p-button-sm ml-sm-1"
                   pButton
-                  pRipple pTooltip="Imprimer étiquettes"></button>
+                  pButtonIcon="pi pi-print"
+                  pRipple
+                  pTooltip="Imprimer étiquettes"
+                  severity="secondary" size="small"></button>
         </div>
       </td>
     </tr>

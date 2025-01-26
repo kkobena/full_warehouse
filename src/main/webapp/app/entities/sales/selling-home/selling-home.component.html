@@ -15,14 +15,8 @@
 </ngx-spinner>
 
 
-<p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
-  <p-footer>
-    <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteItem.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
+
 
 </p-confirmDialog>
 
@@ -87,18 +81,21 @@
         <div class="row"
              style="padding-left:10px;width: 100%;padding-right:0;">
           <div class="col-3" style="padding:0;">
-            <div [style]="{'width':'99%'}" class="p-inputgroup">
-              <span class="p-inputgroup-addon">Vendeurs</span>
-              <p-dropdown #userBox
-                          (onChange)="onSelectUser()"
-                          [(ngModel)]="userSeller"
-                          [appendTo]="appendTo"
-                          [autofocus]="true"
-                          [dataKey]="'id'"
-                          [options]="this.userVendeurService.vendeurs()"
-                          [style]="{'width':'100%'}"
-                          optionLabel="abbrName"></p-dropdown>
-            </div>
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                Vendeurs
+                <!--<i class="pi pi-user"></i>-->
+              </p-inputgroup-addon>
+              <p-select #userBox
+                        (onChange)="onSelectUser()"
+                        [(ngModel)]="userSeller"
+                        [appendTo]="appendTo"
+                        [autofocus]="true"
+                        [dataKey]="'id'"
+                        [options]="this.userVendeurService.vendeurs()"
+                        optionLabel="abbrName"></p-select>
+            </p-inputgroup>
+
 
           </div>
           <div class="col-9 row text-right" style="padding:0;">
@@ -114,12 +111,10 @@
 
               <p-button (click)="openPindingSide()"
                         [disabled]="currentSaleService.currentSale() || isPresale"
-                        icon="pi pi-search" label="Ventes en attente"
-                        styleClass="p-button-info p-button-sm"></p-button>
-
-
+                        icon="pi pi-search" label="Ventes en attente" severity="info"
+              ></p-button>
               <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                        styleClass="p-button-danger p-button-sm"></p-button>
+                        severity="danger"></p-button>
             </div>
           </div>
 
@@ -128,7 +123,7 @@
 
       </ng-template>
 
-      <ng-template pTemplate="content">
+      <ng-template #content>
         <div class="sale-body">
 
           @if (active === 'assurance' || active === 'carnet') {
@@ -136,67 +131,75 @@
           }
 
           <div class="row">
-            <div class="col-md-6">
-              <div class="p-inputgroup">
-                <span class="p-inputgroup-addon">Produits</span>
-                <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                                (keydown)="onSelectKeyDow($event)"
-                                (onSelect)="onSelect()"
-                                [(ngModel)]="produitSelected"
-                                [appendTo]="appendTo"
-                                [autofocus]="true"
-                                [dataKey]="'id'"
-                                [dropdown]="true"
-                                [emptyMessage]="notFoundText"
-                                [inputStyle]="{'width':'100%'}"
-                                [minLength]="minLength" [showClear]="true"
-                                [showEmptyMessage]="true" [style]="{'width':'100%'}"
-                                [suggestions]="produits"
-                                optionLabel="libelle">
-                  <ng-template let-item pTemplate="item">
-                    @if (item.totalQuantity > 0) {
-                      <div>
+            <div class="col-md-6 sale-product-div">
+              <div class="d-flex ">
+                <div class=" p-inputgroupaddon ">
+                  Produits
+                </div>
+                <div class="flex-fill">
+                  <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                                  (keydown)="onSelectKeyDow($event)"
+                                  (onSelect)="onSelect()"
+                                  [(ngModel)]="produitSelected"
+                                  [appendTo]="appendTo"
+                                  [autofocus]="true"
+                                  [dataKey]="'id'"
+                                  [dropdown]="true"
+                                  [emptyMessage]="notFoundText"
+                                  [inputStyle]="{'width':'100%'}"
+                                  [minLength]="minLength" [showClear]="true"
+                                  [showEmptyMessage]="true" [style]="{'width':'100%'}"
+                                  [suggestions]="produits"
+                                  optionLabel="libelle">
+                    <ng-template #item let-item>
+                      @if (item.totalQuantity > 0) {
+                        <div [style]="{'width':'100%'}">
             <span
               style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
-                        <span
-                          class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
-                      </div>
-                    }
-                    @if (item.totalQuantity <= 0) {
-                      <div>
+                          <span
+                            class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                        </div>
+                      }
+                      @if (item.totalQuantity <= 0) {
+                        <div [style]="{'width':'100%'}">
                                             <span class="stockless"
                                                   style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
-                        class="stockless"> {{ item.libelle }}</span> <span
-                        class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
-                      </div>
-                    }
+                          class="stockless"> {{ item.libelle }}</span> <span
+                          class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+                        </div>
+                      }
 
-                  </ng-template>
+                    </ng-template>
 
-                </p-autoComplete>
-
-
+                  </p-autoComplete>
+                </div>
               </div>
+
             </div>
             <div class="col-md-2">
-              <p-inputGroup>
-                <span class="p-inputgroup-addon">Qté</span>
+              <p-inputgroup>
+                <p-inputgroup-addon>
+                  Qté
+                </p-inputgroup-addon>
                 <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
                        [(ngModel)]="quantiteSaisie"
                        pInputText
                        type="number" />
-                <button (click)="onQtyBntClickEvent()" class="p-button-success" icon="pi pi-plus"
-                        pButton
-                        type="button"></button>
 
+                <p-inputgroup-addon>
+                  <p-button (click)="onQtyBntClickEvent()" icon="pi pi-plus" severity="success"
 
-              </p-inputGroup>
+                            type="button"></p-button>
+                </p-inputgroup-addon>
+
+              </p-inputgroup>
             </div>
+
             @if (produitSelected) {
               @if (showStock) {
 
                 <div class="col-md-1">
-                  <p-button label="Stock" styleClass="p-button-success"
+                  <p-button label="Stock" severity="info" variant="outlined"
                             badge="{{ produitSelected.totalQuantity |number }}"
                   ></p-button>
 
@@ -206,7 +209,7 @@
               <div class="col-md-3">
                 Rayons:
                 @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
-                  <p-tag severity="warning">
+                  <p-tag severity="info">
                     {{ rayon.libelleRayon }}
                   </p-tag>
                 }
@@ -235,36 +238,16 @@
 
 <p-confirmDialog #forcerStockDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStockDialog">
-  <p-footer>
-    <button (click)="forcerStockDialog.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non"
-            pButton
-            type="button"></button>
-    <button #forcerStockDialogBtn (click)="forcerStockDialog.accept()" icon="pi pi-check"
-            label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 </p-confirmDialog>
 <p-toast position="center"></p-toast>
 
 <p-confirmDialog #changeTab key="changeTab">
-  <p-footer>
-    <button (click)="changeTab.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="changeTab.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>
 
 <p-confirmDialog #venteSansBon key="venteSansBon">
-  <p-footer>
-    <button (click)="venteSansBon.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="venteSansBon.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>

@@ -241,13 +241,7 @@
 
   </div>
 </div>
-<p-confirmDialog #printialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="printialog">
-  <p-footer>
-    <button (click)="printialog.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="printialog.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="printialog">
+
 
 </p-confirmDialog>

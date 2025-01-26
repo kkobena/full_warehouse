@@ -1,52 +1,32 @@
 <p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier json" showEffect="fade">
+          [style]="{width: '50vw'}" header="Importer un fichier json">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
+    <p-fileupload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
-    </p-fileUpload>
+    </p-fileupload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler"
+    <button (click)="cancel()" [raised]="true" class="mr-2"
             pButton
-            pRipple type="button"></button>
+            pButtonIcon="pi pi-times"
+            pButtonLabel="Annuler"
+            pRipple
+            severity="danger" type="button"></button>
   </p-footer>
 </p-dialog>
 
 
-<p-confirmDialog #deleteCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deleteCustomer">
-  <p-footer>
-    <button (click)="deleteCustomer.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteCustomer.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
 
 </p-confirmDialog>
-<p-confirmDialog #desactiverCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="desactiverCustomer">
-  <p-footer>
-    <button (click)="desactiverCustomer.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non" pButton
-            type="button"></button>
-    <button (click)="desactiverCustomer.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
 
 </p-confirmDialog>
-<p-confirmDialog #deleteTiersPayant [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deleteTiersPayant">
-  <p-footer>
-    <button (click)="deleteTiersPayant.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteTiersPayant.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
 
 </p-confirmDialog>
 
@@ -82,9 +62,9 @@
         <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
                   styleClass="p-button-info"></p-button>
 
-               <p-splitButton [model]="newCustomerbuttons" icon="pi pi-user-plus"
+               <p-splitbutton [model]="newCustomerbuttons" icon="pi pi-user-plus"
                               label="Nouveau client" styleClass="p-button-raised p-button-secondary"
-               ></p-splitButton>
+               ></p-splitbutton>
 
 
             </span>
@@ -126,11 +106,9 @@
       <ng-template let-customer let-expanded="expanded" pTemplate="body">
         <tr>
           <td>
-            <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="customer" class="p-button-text p-button-rounded p-button-plain"
-                    pButton
-                    pRipple
-                    type="button"></button>
+            <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [pRowToggler]="customer" [rounded]="true" [text]="true" pRipple
+                      type="button" />
           </td>
           <td>{{ customer.categorie }}</td>
           <td>{{ customer.fullName }}</td>
@@ -140,26 +118,28 @@
           <td class="text-right">{{ customer.encours |number }}</td>
           <td class="text-right">
             <div class="btn-group">
-              <button [routerLink]="['/customer', customer.id, 'view']" class="btn btn-info btn-sm"
+              <button pButton [routerLink]="['/customer', customer.id, 'view']" severity="info"
+                      [rounded]="true" size="small" pButtonIcon="pi pi-eye"
                       pTooltip="Voir détails" type="submit">
-                <fa-icon icon="eye"></fa-icon>
+
 
               </button>
 
 
               @if (customer.categorie === 'ASSURE') {
-                <button (click)="editAssureCustomer(customer)"
-
-                        class="btn btn-primary btn-sm" data-placement="left"
+                <button (click)="editAssureCustomer(customer)" pButton [rounded]="true" size="small"
+                        severity="primary" pButtonIcon="pi pi-pencil"
+                        data-placement="left"
                         pTooltip="Editer" type="button">
-                  <fa-icon icon="pencil-alt"></fa-icon>
+
 
                 </button>
                 @if (customer.typeTiersPayant === 'ASSURANCE') {
-                  <button (click)="addAyantDroit(customer)"
-                          class="btn btn-success btn-sm" data-placement="left"
+                  <button (click)="addAyantDroit(customer)" pButton [rounded]="true" size="small"
+                          data-placement="left"
+                          severity="success" pButtonIcon="pi pi-users"
                           pTooltip="Ajouter un ayant droit" type="button">
-                    <fa-icon icon="users"></fa-icon>
+
                   </button>
                 }
 
@@ -171,24 +151,26 @@
                      <fa-icon icon="hospital-user"></fa-icon>
                  </button>-->
               @if (customer.categorie === 'STANDARD') {
-                <button (click)="editUninsuredCustomer(customer)"
-                        class="btn btn-primary btn-sm"
+                <button (click)="editUninsuredCustomer(customer)" severity="primary"
+                        pButtonIcon="pi pi-pencil"
+                        pButton [rounded]="true" size="small"
                         data-placement="left" pTooltip="Editer" type="button"
                 >
-                  <fa-icon icon="pencil-alt"></fa-icon>
+
                 </button>
 
               }
 
-              <button (click)="confirmRemove(customer)" class="btn btn-danger btn-sm"
-                      pTooltip="Supprimer"
+              <button (click)="confirmRemove(customer)" severity="danger" pButtonIcon="pi pi-times"
+                      pTooltip="Supprimer" pButton [rounded]="true" size="small"
                       type="button">
-                <fa-icon icon="times"></fa-icon>
+
               </button>
-              <button (click)="confirmDesactivation(customer)" class="btn btn-warning btn-sm"
-                      pTooltip="Désativer"
+              <button (click)="confirmDesactivation(customer)"
+                      pTooltip="Désativer" pButton [rounded]="true" size="small"
+                      severity="warn" pButtonIcon="pi pi-lock"
                       type="button">
-                <fa-icon icon="lock"></fa-icon>
+
               </button>
             </div>
           </td>
@@ -254,7 +236,10 @@
                             <th style="width:8%;">Sexe</th>
                             <th style="width:15%; text-align:right;">
                               <button (click)="addAyantDroit(customer)"
-                                      class="p-button-rounded p-button-primary" icon="pi pi-plus"
+                                      size="small"
+                                      severity="primary"
+                                      [rounded]="true"
+                                      pButtonIcon="pi pi-plus"
                                       pButton
                                       pTooltip="Ajouter un ayant droit"></button>
                             </th>
@@ -270,14 +255,20 @@
                                 <td class="text-right">
                                   <div class="btn-group">
                                     <button (click)="editAyantDroit(customer,ayantDroit)"
-                                            class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"
-                                            icon="pi pi-pencil"
+                                            class="p-mb-3 mr-1"
+                                            pButtonIcon="pi pi-pencil"
+                                            size="small"
+                                            severity="success"
+                                            [rounded]="true"
                                             pButton
                                             pRipple
                                             pTooltip="Editer"></button>
                                     <button (click)="confirmRemoveAyantDroit(ayantDroit)"
-                                            class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
-                                            icon="pi pi-trash"
+                                            class="p-mb-3 "
+                                            size="small"
+                                            severity="danger"
+                                            [rounded]="true"
+                                            pButtonIcon="pi pi-trash"
                                             pButton
                                             pRipple
                                             pTooltip="Supprimer"></button>
@@ -309,8 +300,11 @@
                           @if (displayTiersPayantAddBtn(customer)) {
                             <th style="width:11%; text-align:right;">
                               <button (click)="onAddNewTiersPayant(customer)"
-                                      class="p-button-rounded p-button-sm p-button-primary"
-                                      icon="pi pi-plus"
+
+                                      severity="primary"
+                                      [rounded]="true"
+                                      size="small"
+                                      pButtonIcon="pi pi-plus"
                                       pButton pTooltip="Ajouter un tiers-payant"></button>
                             </th>
                           }
@@ -331,16 +325,22 @@
                                 <td class="text-right">
                                   <div class="btn-group">
                                     <button
-                                      class="p-button-rounded p-button-success p-button-sm  p-mb-3 mr-1"
+                                      class=" p-mb-3 mr-1"
                                       (click)="onEditTiersPayant(customer,tierspayant)"
-                                      icon="pi pi-pencil" pButton
+                                      pButtonIcon="pi pi-pencil" pButton
                                       pRipple
+                                      severity="success"
+                                      [rounded]="true"
+                                      size="small"
                                       pTooltip="Editer les infos du tierspayant"></button>
                                     @if (customer.typeTiersPayant === 'ASSURANCE'
                                     && customer.tiersPayants.length > 1) {
                                       <button
-                                        class="p-button-rounded p-button-danger p-button-sm  p-mb-3 "
-                                        icon="pi pi-trash" pButton
+                                        class="p-mb-3 "
+                                        pButtonIcon="pi pi-trash" pButton
+                                        severity="danger"
+                                        [rounded]="true"
+                                        size="small"
                                         pRipple
                                         pTooltip="Supprimer"
                                         (click)="onRemoveTiersPayant(tierspayant)"></button>

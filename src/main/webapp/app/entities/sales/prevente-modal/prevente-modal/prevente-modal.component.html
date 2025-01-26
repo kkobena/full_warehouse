@@ -51,10 +51,9 @@
     <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)"
         [ngClass]="{'active' : selectedRowIndex == sale.id }">
       <td>
-        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [pRowToggler]="sale" class="p-button-text p-button-rounded p-button-plain" pButton
-                pRipple
-                type="button"></button>
+        <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="sale" [rounded]="true" [text]="true" pRipple
+                  type="button" />
       </td>
       <td>{{ sale.numberTransaction }}</td>
       <td class="text-right">{{ sale.salesLines.length |number }}</td>

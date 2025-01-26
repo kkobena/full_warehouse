@@ -10,7 +10,6 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
-import ActiveMenuDirective from './active-menu.directive';
 import NavbarItem from './navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import {
@@ -25,10 +24,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'jhi-navbar',
-    templateUrl: './navbar.component.html',
-    styleUrl: './navbar.component.scss',
-    imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective, ActiveMenuDirective]
+  selector: 'jhi-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrl: './navbar.component.scss',
+  imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective],
 })
 export default class NavbarComponent implements OnInit {
   inProduction?: boolean;

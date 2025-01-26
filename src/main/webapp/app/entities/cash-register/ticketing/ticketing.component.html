@@ -191,16 +191,16 @@
   </form>
   <ng-template pTemplate="footer">
     <div class=" gap-2 mt-1 d-flex justify-content-center">
-      <button (click)="save()" [disabled]="editForm.invalid || isSaving " class="btn btn-primary"
-              id="save-entity"
-              pButton pRipple
-              type="submit">
-        <fa-icon icon="check"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
-      </button>
-      <button (click)="previousState()" class="btn btn-secondary" pButton pRipple
-              type="button">
-        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Retour</span>
-      </button>
+      <p-button (click)="save()" [disabled]="editForm.invalid || isSaving " icon="pi pi-check"
+                id="save-entity"
+                label="Enregistrer" pRipple raised="true"
+                severity="primary"
+                type="submit">
+
+      </p-button>
+      <p-button (click)="previousState()" icon="pi pi-times" label="Annuler" pRipple
+                raised="true" severity="danger" type="button">
+      </p-button>
     </div>
 
   </ng-template>

@@ -5,7 +5,7 @@
       <label class="col-auto col-form-label">Commentaire<span
         style="font-weight: 900;color: red;">*</span></label>
       <textarea #commentaire
-                formControlName="commentaire" name="commentaire" pInputTextarea
+                formControlName="commentaire" name="commentaire" pTextarea
       ></textarea>
       @if (editForm.get('commentaire')!.invalid && (editForm.get('commentaire')!.dirty
         || editForm.get('commentaire')!.touched)) {
@@ -25,13 +25,14 @@
   </div>
   <div class="mt-2" style="float: right;">
     <button [disabled]="editForm.invalid || isSaving"
-            class="p-button-success mr-2 p-button-raised" icon="pi pi-check"
-            label="Valider"
-            pButton pRipple
+            class="p-button-success mr-2 p-button-raised" pButton
+            pButtonIcon="pi pi-check"
+            pButtonLabel="Valider" pRipple
             type="submit"></button>
-    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler"
+    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised"
             pButton
+            pButtonIcon="pi pi-times"
+            pButtonLabel="Annuler"
             pRipple type="button"></button>
   </div>
 </form>

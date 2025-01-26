@@ -32,34 +32,35 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { CommandCommonService } from './command-common.service';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-commande',
-    templateUrl: './commande.component.html',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TableModule,
-        NgxSpinnerModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TooltipModule,
-        DialogModule,
-        ConfirmDialogModule,
-        FileUploadModule,
-        CardModule,
-        FormsModule,
-        ToolbarModule,
-        InputTextModule,
-        CommandeEnCoursComponent,
-        CommandePassesComponent,
-        CommandeRecusComponent,
-        PanelModule,
-    ],
-    styles: [
-        `
+  selector: 'jhi-commande',
+  templateUrl: './commande.component.html',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+    DialogModule,
+    ConfirmDialogModule,
+    FileUploadModule,
+    CardModule,
+    FormsModule,
+    ToolbarModule,
+    InputTextModule,
+    CommandeEnCoursComponent,
+    CommandePassesComponent,
+    CommandeRecusComponent,
+    PanelModule,
+  ],
+  styles: [
+    `
       .commande-gestion .table tr:hover {
         cursor: pointer;
       }
@@ -68,7 +69,7 @@ import { CommandCommonService } from './command-common.service';
         background-color: #95caf9 !important;
       }
     `,
-    ]
+  ],
 })
 export class CommandeComponent implements OnInit {
   commandes: ICommande[] = [];
@@ -207,6 +208,8 @@ export class CommandeComponent implements OnInit {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer ces commandes  ?',
       header: ' SUPPRESSION',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       icon: 'pi pi-info-circle',
       accept: () => {
         if (this.active === 'REQUESTED') {
@@ -222,6 +225,8 @@ export class CommandeComponent implements OnInit {
       message: ' Voullez-vous LES retourner dans commande en cours ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         if (this.active === 'PASSED') {
           this.commandePasses().rollbackAll();

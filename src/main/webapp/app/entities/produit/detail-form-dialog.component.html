@@ -9,7 +9,7 @@
   <div class="modal-body">
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      <input class="form-control" class="form-control" formControlName="createdAt" id="field_createdAt"
+      <input class="form-control" formControlName="createdAt" id="field_createdAt"
              name="createdAt" placeholder="YYYY-MM-DD HH:mm" style="display:none;"
              type="hidden" />
     </div>
@@ -35,7 +35,8 @@
         <label class="form-control-label" for="field_costAmount"
                jhiTranslate="warehouseApp.produit.costAmount">Cost
           Amount</label>
-        <input class="form-control" formControlName="costAmount" id="field_costAmount" name="costAmount"
+        <input class="form-control" formControlName="costAmount" id="field_costAmount"
+               name="costAmount"
                type="number" />
         <div
           *ngIf="editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)">

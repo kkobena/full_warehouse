@@ -43,11 +43,6 @@ export class FamilleProduitService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  queryPromise(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http.get<IFamilleProduit[]>(this.resourceUrl, { params: options, observe: 'response' });
-  }
-
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {
     return this.http.post<IResponseDto>(`${this.resourceUrl}/importcsv`, file, { observe: 'response' });
   }

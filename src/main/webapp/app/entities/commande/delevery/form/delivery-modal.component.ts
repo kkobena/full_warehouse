@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, Subscription } from 'rxjs';
 import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
@@ -22,28 +22,29 @@ import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
 
 @Component({
-    selector: 'jhi-form-delivery',
-    templateUrl: './delivery-modal.component.html',
-    providers: [MessageService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TableModule,
-        NgxSpinnerModule,
-        TooltipModule,
-        FormsModule,
-        ReactiveFormsModule,
-        CardModule,
-        ToastModule,
-        CalendarModule,
-        KeyFilterModule,
-        InputTextModule,
-    ]
+  selector: 'jhi-form-delivery',
+  templateUrl: './delivery-modal.component.html',
+  providers: [MessageService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TableModule,
+    NgxSpinnerModule,
+    TooltipModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CardModule,
+    ToastModule,
+    CalendarModule,
+    KeyFilterModule,
+    InputTextModule,
+  ],
 })
 export class DeliveryModalComponent implements OnInit {
   isSaving = false;
@@ -79,7 +80,7 @@ export class DeliveryModalComponent implements OnInit {
     private fb: FormBuilder,
     private messageService: MessageService,
     private spinner: NgxSpinnerService,
-    public primeNGConfig: PrimeNGConfig,
+    public primeNGConfig: PrimeNG,
     public translate: TranslateService,
   ) {
     this.translate.use('fr');

@@ -29,31 +29,37 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FactureDetailDialogComponent } from '../facture-detail/facture-detail-dialog.component';
 import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/groupe-facture-detail-dialog.component';
 import { FactureStateService } from '../facture-state.service';
+import { Tooltip } from 'primeng/tooltip';
+import { RouterLink } from '@angular/router';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-factures',
-    providers: [
-        ConfirmationService,
-        I18n,
-        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-        { provide: NgbDateAdapter, useClass: CustomAdapter },
-        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-    ],
-    imports: [
-        ToolbarModule,
-        InputSwitchModule,
-        WarehouseCommonModule,
-        FormsModule,
-        AutoCompleteModule,
-        ButtonGroupModule,
-        ButtonModule,
-        SplitButtonModule,
-        FloatLabelModule,
-        TableModule,
-        ConfirmDialogModule,
-    ],
-    templateUrl: './factures.component.html',
-    styles: ``
+  selector: 'jhi-factures',
+  providers: [
+    ConfirmationService,
+    I18n,
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+    { provide: NgbDateAdapter, useClass: CustomAdapter },
+    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+  ],
+  imports: [
+    ToolbarModule,
+    InputSwitchModule,
+    WarehouseCommonModule,
+    FormsModule,
+    AutoCompleteModule,
+    ButtonGroupModule,
+    ButtonModule,
+    SplitButtonModule,
+    FloatLabelModule,
+    TableModule,
+    ConfirmDialogModule,
+    ToolbarModule,
+    Tooltip,
+    RouterLink,
+  ],
+  templateUrl: './factures.component.html',
+  styles: ``,
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
   errorService = inject(ErrorService);
@@ -213,6 +219,8 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       message: ' Voullez-vous supprimer cette facture ?',
       header: 'SUPPRESSION DE FACTURE ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         this.factureService.delete(id).subscribe({
           next: () => {

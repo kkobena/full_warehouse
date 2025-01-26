@@ -2,16 +2,15 @@ import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { BalanceCaisseWrapper } from './balance-caisse.model';
 import { BalanceMvtCaisseService } from './balance-mvt-caisse.service';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CardModule } from 'primeng/card';
 import { SplitButtonModule } from 'primeng/splitbutton';
@@ -21,27 +20,32 @@ import { MvtCaisseParams } from '../mvt-caisse-util';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
+import { FormsModule } from '@angular/forms';
+import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
-    selector: 'jhi-balance-mvt-caisse',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        Button,
-        CalendarModule,
-        MultiSelectModule,
-        PaginatorModule,
-        ToolbarModule,
-        TooltipModule,
-        DecimalPipe,
-        DatePipe,
-        SelectButtonModule,
-        CardModule,
-        SplitButtonModule,
-        RadioButtonModule,
-        DividerModule,
-        ToastModule,
-    ],
-    templateUrl: './balance-mvt-caisse.component.html'
+  selector: 'jhi-balance-mvt-caisse',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    Button,
+    MultiSelectModule,
+    PaginatorModule,
+    ToolbarModule,
+    TooltipModule,
+    DecimalPipe,
+    SelectButtonModule,
+    CardModule,
+    SplitButtonModule,
+    RadioButtonModule,
+    DividerModule,
+    ToastModule,
+    FormsModule,
+    DatePicker,
+    FloatLabel,
+  ],
+  templateUrl: './balance-mvt-caisse.component.html',
 })
 export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;
@@ -52,7 +56,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   private messageService = inject(MessageService);
   private translate = inject(TranslateService);
   private balanceMvtCaisseService = inject(BalanceMvtCaisseService);
-  private primeNGConfig = inject(PrimeNGConfig);
+  private primeNGConfig = inject(PrimeNG);
 
   ngAfterViewInit(): void {
     this.translate.use('fr');

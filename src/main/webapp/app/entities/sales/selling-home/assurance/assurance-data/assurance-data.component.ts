@@ -24,23 +24,24 @@ import { CurrentSaleService } from '../../../service/current-sale.service';
 import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
 import { BaseSaleService } from '../../../service/base-sale.service';
 import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-assurance-data',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        FormsModule,
-        KeyFilterModule,
-        PanelModule,
-        InputTextModule,
-        OverlayPanelModule,
-        TableModule,
-        SpeedDialModule,
-        SplitButtonModule,
-        ConfirmPopupModule,
-        ConfirmDialogModule,
-    ],
-    templateUrl: './assurance-data.component.html'
+  selector: 'jhi-assurance-data',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    FormsModule,
+    KeyFilterModule,
+    PanelModule,
+    InputTextModule,
+    OverlayPanelModule,
+    TableModule,
+    SpeedDialModule,
+    SplitButtonModule,
+    ConfirmPopupModule,
+    ConfirmDialogModule,
+  ],
+  templateUrl: './assurance-data.component.html',
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   customerService = inject(CustomerService);
@@ -60,24 +61,20 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   baseSaleService = inject(BaseSaleService);
 
   constructor(@Inject(DOCUMENT) private document: Document) {
-    effect(
-      () => {
-        const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
-        if (!this.currentSaleService.isEdit()) {
-          if (this.currentSaleService.typeVo() === 'ASSURANCE') {
-            this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
-            this.ayantDroit =
-              assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
-            if (!this.ayantDroit) {
-              this.ayantDroit = assuredCustomer;
-            }
-          } else if (this.currentSaleService.typeVo() === 'CARNET') {
-            this.selectedTiersPayants.set([assuredCustomer?.tiersPayants[0]]);
+    effect(() => {
+      const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
+      if (!this.currentSaleService.isEdit()) {
+        if (this.currentSaleService.typeVo() === 'ASSURANCE') {
+          this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
+          this.ayantDroit = assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
+          if (!this.ayantDroit) {
+            this.ayantDroit = assuredCustomer;
           }
+        } else if (this.currentSaleService.typeVo() === 'CARNET') {
+          this.selectedTiersPayants.set([assuredCustomer?.tiersPayants[0]]);
         }
-      },
-      { allowSignalWrites: true },
-    );
+      }
+    });
     effect(() => {
       const tpSize = this.selectedTiersPayants()?.length || 0;
       if (tpSize === 2) {
@@ -193,6 +190,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       message: 'Etes-vous sûr de vouloir supprimer ce tiers payant?',
       header: 'Supprimer tiers payant',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (this.currentSaleService.currentSale()) {
           this.baseSaleService.onRemoveThirdPartySaleLineToSalesSuccess(tiersPayant.id);
@@ -288,6 +287,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       message: 'Etes-vous sûr de vouloir changer le client?',
       header: 'Changer le client',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.openAssuredCustomerListTable(),
       key: 'changeCustomer',
     });

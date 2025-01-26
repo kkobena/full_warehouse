@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { StepsModule } from 'primeng/steps';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
@@ -20,21 +19,20 @@ import { CustomerService } from '../customer.service';
 import { CommonService } from './common.service';
 
 @Component({
-    selector: 'jhi-assure-form-step',
-    imports: [
-        WarehouseCommonModule,
-        RouterOutlet,
-        StepsModule,
-        FaIconComponent,
-        TranslateDirective,
-        StepperModule,
-        Button,
-        ToastModule,
-        AssureStepComponent,
-        AyantDroitStepComponent,
-    ],
-    templateUrl: './assure-form-step.component.html',
-    providers: [MessageService]
+  selector: 'jhi-assure-form-step',
+  imports: [
+    WarehouseCommonModule,
+    StepsModule,
+    FaIconComponent,
+    TranslateDirective,
+    StepperModule,
+    Button,
+    ToastModule,
+    AssureStepComponent,
+    AyantDroitStepComponent,
+  ],
+  templateUrl: './assure-form-step.component.html',
+  providers: [MessageService],
 })
 export class AssureFormStepComponent implements OnInit {
   ayantDroitStepComponent = viewChild(AyantDroitStepComponent);

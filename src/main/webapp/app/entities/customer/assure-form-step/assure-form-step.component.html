@@ -1,53 +1,61 @@
 <p-toast position="center"></p-toast>
 <div class="modal-body form-client-step" id="modal">
 
-  <p-stepper [(activeStep)]="active" [linear]="true">
-    <p-stepperPanel header="Infos Assuré">
-      <ng-template let-nextCallback="nextCallback" pTemplate="content">
-        <jhi-assure-step></jhi-assure-step>
-        <div class="d-flex justify-content-center pt-2 ">
-          @if (assureStepComponent()?.editForm.valid) {
-            <p-button (onClick)="save()" icon="pi pi-check"
-                      iconPos="right" [disabled]="isSaving" [loading]="isSaving"
-                      label="Enregister"
-                      styleClass="p-button-success mx-1" />
-            @if (commonService.categorieTiersPayant()
-            === 'ASSURANCE') {
-              <p-button (onClick)="onGoAyantDroit(nextCallback)" icon="pi pi-arrow-right"
-                        iconPos="right"
-                        label="Suivant" />
-            }
+  <p-stepper [linear]="true" [value]="1">
+    <p-step-list>
+      <p-step [value]="1">Infos Assuré</p-step>
+      @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
+        <p-step [value]="2">Infos Ayant-droit</p-step>
+      }
 
-          }
 
-        </div>
-      </ng-template>
-    </p-stepperPanel>
-    @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
-      <p-stepperPanel header="Infos Ayant-droit">
-
-        <ng-template let-nextCallback="nextCallback" let-prevCallback="prevCallback"
-                     pTemplate="content">
-          <jhi-ayant-droit-step></jhi-ayant-droit-step>
+    </p-step-list>
+    <p-step-panels>
+      <p-step-panel [value]="1">
+        <ng-template #content let-nextCallback="nextCallback">
+          <jhi-assure-step></jhi-assure-step>
           <div class="d-flex justify-content-center pt-2 ">
-            <p-button (onClick)="onGoBackFromAyantDroit(prevCallback)" icon="pi pi-arrow-left"
-                      label="Précedent"
-                      severity="secondary" />
-            @if (ayantDroitStepComponent()?.isValidForm()) {
-              <p-button (onClick)="save()" icon="pi pi-check" [disabled]="isSaving"
-                        [loading]="isSaving"
-                        iconPos="right"
+            @if (assureStepComponent()?.editForm.valid) {
+              <p-button (onClick)="save()" icon="pi pi-check"
+                        iconPos="right" [disabled]="isSaving" [loading]="isSaving"
                         label="Enregister"
                         styleClass="p-button-success mx-1" />
+              @if (commonService.categorieTiersPayant()
+              === 'ASSURANCE') {
+                <p-button (onClick)="onGoAyantDroit(nextCallback)" icon="pi pi-arrow-right"
+                          iconPos="right"
+                          label="Suivant" />
+              }
 
             }
-
 
           </div>
         </ng-template>
-      </p-stepperPanel>
-    }
+      </p-step-panel>
+      @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
+        <p-step-panel [value]="2">
+          <ng-template let-nextCallback="nextCallback" let-prevCallback="prevCallback"
+                       #content>
+            <jhi-ayant-droit-step></jhi-ayant-droit-step>
+            <div class="d-flex justify-content-center pt-2 ">
+              <p-button (onClick)="onGoBackFromAyantDroit(prevCallback)" icon="pi pi-arrow-left"
+                        label="Précedent"
+                        severity="secondary" />
+              @if (ayantDroitStepComponent()?.isValidForm()) {
+                <p-button (onClick)="save()" icon="pi pi-check" [disabled]="isSaving"
+                          [loading]="isSaving"
+                          iconPos="right"
+                          label="Enregister"
+                          styleClass="p-button-success mx-1" />
 
+              }
+
+
+            </div>
+          </ng-template>
+        </p-step-panel>
+      }
+    </p-step-panels>
 
   </p-stepper>
 

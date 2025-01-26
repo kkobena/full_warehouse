@@ -2,26 +2,14 @@
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
              size="medium"
              type="timer"></ngx-spinner>
-<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="delete">
-  <p-footer>
-    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>
-<p-confirmDialog #saveAll [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="saveAll">
-  <p-footer>
-    <button (click)="saveAll.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="saveAll.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>
 <p-table
@@ -51,26 +39,29 @@
       <td class="text-right">
         <div class="btn-group">
 
-          <button
+          <p-button
             [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
-            class="p-button-rounded p-button-success p-button-sm"
-            icon="pi pi-pencil" pButton
-            pRipple pTooltip="Editer">
-          </button>
-          <button (click)="confirmSave(storeInventory)"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-lock"
-                  pButton pRipple
-                  pTooltip="Clôtuer"></button>
-          <button (click)="exportPdf(storeInventory)"
-                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
-                  pButton
-                  pRipple pTooltip="Imprimer"></button>
-          <button (click)="confirmDelete(storeInventory)"
-                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
-                  icon="pi pi-trash"
-                  pButton pRipple
-                  pTooltip="Supprimer"
-                  type="submit"></button>
+            icon="pi pi-pencil" pButton pRipple
+            pTooltip="Editer" rounded="true"
+            severity="success" size="small">
+          </p-button>
+          <p-button (click)="confirmSave(storeInventory)"
+                    class=" ml-sm-1" icon="pi pi-lock"
+                    pButton pRipple pTooltip="Clôtuer"
+                    rounded="true" severity="help"
+                    size="small"></p-button>
+          <p-button (click)="exportPdf(storeInventory)"
+                    class="ml-sm-1" icon="pi pi-print"
+                    pButton pRipple pTooltip="Imprimer"
+                    rounded="true"
+                    severity="secondary" size="small"></p-button>
+          <p-button (click)="confirmDelete(storeInventory)"
+                    class=" ml-sm-1"
+                    icon="pi pi-trash" pButton pRipple
+                    pTooltip="Supprimer"
+                    rounded="true" severity="danger"
+                    size="small"
+                    type="submit"></p-button>
 
         </div>
       </td>

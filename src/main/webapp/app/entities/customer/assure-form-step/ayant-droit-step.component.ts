@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Customer, ICustomer } from '../../../shared/model/customer.model';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -11,27 +10,24 @@ import TranslateDirective from '../../../shared/language/translate.directive';
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
 import { MessageService } from 'primeng/api';
-import { DatePipe } from '@angular/common';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
 
 @Component({
-    selector: 'jhi-ayant-droit-step',
-    imports: [
-        FaIconComponent,
-        InputMaskModule,
-        InputTextModule,
-        KeyFilterModule,
-        RadioButtonModule,
-        ReactiveFormsModule,
-        ToastModule,
-        TranslateDirective,
-        CardModule,
-        DatePipe,
-        DividerModule,
-    ],
-    templateUrl: './ayant-droit-step.component.html',
-    styles: ``
+  selector: 'jhi-ayant-droit-step',
+  imports: [
+    InputMaskModule,
+    InputTextModule,
+    KeyFilterModule,
+    RadioButtonModule,
+    ReactiveFormsModule,
+    ToastModule,
+    TranslateDirective,
+    CardModule,
+    DividerModule,
+  ],
+  templateUrl: './ayant-droit-step.component.html',
+  styles: ``,
 })
 export class AyantDroitStepComponent implements OnInit {
   assure?: ICustomer;

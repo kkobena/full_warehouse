@@ -10,11 +10,15 @@ import moment from 'moment';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { AgGridAngular } from 'ag-grid-angular';
+import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions } from 'ag-grid-community';
+
+ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
+provideGlobalGridOptions({ theme: 'legacy' });
 
 @Component({
-    selector: 'jhi-inventory-transaction',
-    styles: [
-        `
+  selector: 'jhi-inventory-transaction',
+  styles: [
+    `
       .master {
         padding: 14px 12px;
         border-radius: 12px;
@@ -28,9 +32,9 @@ import { AgGridAngular } from 'ag-grid-angular';
         min-height: 400px;
       }
     `,
-    ],
-    templateUrl: './inventory-transaction.component.html',
-    imports: [WarehouseCommonModule, AgGridAngular]
+  ],
+  templateUrl: './inventory-transaction.component.html',
+  imports: [WarehouseCommonModule, AgGridAngular],
 })
 export class InventoryTransactionComponent implements OnInit {
   totalItems = 0;

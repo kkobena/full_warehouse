@@ -45,15 +45,15 @@
                          class="payment-mode-input" pInputText />
                   @if (isShowAddBtn()) {
                     <button (click)="onAddPaymentModeToggle(modePay,$event)"
-                            class="p-button-info add-mode-payment-btn"
-                            icon="pi pi-plus" pButton
+                            class=" add-mode-payment-btn" pButton [rounded]="true"
+                            pButtonIcon="pi pi-plus" severity="info"
                             type="button"></button>
                   }
 
 
                   <button (click)="onRemovePaymentModeToggle(modePay,$event)"
-                          class="p-button-danger"
-                          icon="pi pi-times"
+                          [rounded]="true" severity="danger"
+                          pButtonIcon="pi pi-times"
                           pButton type="button"></button>
                 </div>
 
@@ -102,7 +102,7 @@
     }
   }
 </div>
-<p-overlayPanel #addOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
+<p-popover #addOverlayPanel [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
       @for (modePay of reglementsModes; track modePay.code; let i = $index) {
@@ -117,9 +117,9 @@
     </div>
   </ng-template>
 
-</p-overlayPanel>
+</p-popover>
 
-<p-overlayPanel #removeOverlayPanel [showCloseIcon]="true" [style]="{'width': '450px'}">
+<p-popover #removeOverlayPanel [style]="{'width': '450px'}">
   <ng-template pTemplate="content">
     <div class="d-flex flex-wrap">
       @for (modePay of reglementsModes; track modePay.code; let i = $index) {
@@ -136,14 +136,14 @@
     </div>
   </ng-template>
 
-</p-overlayPanel>
+</p-popover>
 
-<p-overlayPanel #customerModal [showCloseIcon]="true" [style]="{ width: '650px' }">
+<p-popover #customerModal [style]="{ width: '650px' }">
 
   <ng-template pTemplate="content">
     <jhi-customer-data-table (closeModalEvent)="onClose(customerModal)"></jhi-customer-data-table>
   </ng-template>
 
 
-</p-overlayPanel>
+</p-popover>
 

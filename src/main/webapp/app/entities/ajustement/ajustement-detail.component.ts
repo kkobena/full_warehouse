@@ -28,26 +28,27 @@ import { BadgeModule } from 'primeng/badge';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-ajustement-detail',
-    templateUrl: './ajustement-detail.component.html',
-    imports: [
-        WarehouseCommonModule,
-        CardModule,
-        FormsModule,
-        ConfirmDialogModule,
-        DynamicDialogModule,
-        ToolbarModule,
-        ButtonModule,
-        AutoCompleteModule,
-        InputTextModule,
-        BadgeModule,
-        TableModule,
-        RippleModule,
-        TooltipModule,
-    ],
-    providers: [ConfirmationService, DialogService]
+  selector: 'jhi-ajustement-detail',
+  templateUrl: './ajustement-detail.component.html',
+  imports: [
+    WarehouseCommonModule,
+    CardModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DynamicDialogModule,
+    ToolbarModule,
+    ButtonModule,
+    AutoCompleteModule,
+    InputTextModule,
+    BadgeModule,
+    TableModule,
+    RippleModule,
+    TooltipModule,
+  ],
+  providers: [ConfirmationService, DialogService],
 })
 export class AjustementDetailComponent implements OnInit {
   protected ajustement: IAjust | null = null;
@@ -106,6 +107,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Vous aller être rediriger à la parge précedente  ?',
       header: ' REDIRECTION',
       icon: 'pi pi-warning-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.previousState(),
       key: 'redirect',
     });
@@ -124,6 +127,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne ?',
       header: 'SUPPRESSION  ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.removeLine(item),
       reject: () => {
         this.focusPrdoduitBox();
@@ -137,6 +142,7 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Vous devez selectionner le motif',
       header: 'MOTIF AJUSTEMENT  ',
       icon: 'pi pi-times-circle',
+      rejectButtonProps: rejectWarningButtonProps,
       reject() {},
       key: 'warningMessage',
     });
@@ -147,6 +153,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Voullez-vous supprimer toutes les lignes  ?',
       header: 'SUPPRESSION  ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.deleteSelectedItems(),
       reject: () => {
         this.focusPrdoduitBox();

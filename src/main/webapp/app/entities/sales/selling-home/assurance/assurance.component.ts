@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ButtonDirective, ButtonModule } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { ConfirmationService, Footer } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -27,40 +27,38 @@ import { ProductTableComponent } from '../product-table/product-table.component'
 import { BaseSaleComponent } from '../base-sale/base-sale.component';
 
 @Component({
-    selector: 'jhi-assurance',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        ButtonDirective,
-        ConfirmDialogModule,
-        DialogModule,
-        Footer,
-        AmountComputingComponent,
-        DividerModule,
-        DropdownModule,
-        WarehouseCommonModule,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        DialogModule,
-        ConfirmDialogModule,
-        PanelModule,
-        SelectButtonModule,
-        TooltipModule,
-        DividerModule,
-        KeyFilterModule,
-        TagModule,
-        DropdownModule,
-        InputSwitchModule,
-        OverlayPanelModule,
-        ProductTableComponent,
-        ModeReglementComponent,
-    ],
-    templateUrl: '../base-sale/base-sale.component.html'
+  selector: 'jhi-assurance',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    ConfirmDialogModule,
+    DialogModule,
+    AmountComputingComponent,
+    DividerModule,
+    DropdownModule,
+    WarehouseCommonModule,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    DialogModule,
+    ConfirmDialogModule,
+    PanelModule,
+    SelectButtonModule,
+    TooltipModule,
+    DividerModule,
+    KeyFilterModule,
+    TagModule,
+    DropdownModule,
+    InputSwitchModule,
+    OverlayPanelModule,
+    ProductTableComponent,
+    ModeReglementComponent,
+  ],
+  templateUrl: '../base-sale/base-sale.component.html',
 })
 export class AssuranceComponent extends BaseSaleComponent {
   constructor() {

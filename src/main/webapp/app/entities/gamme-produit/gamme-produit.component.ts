@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -21,34 +21,38 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-gamme-produit',
-    templateUrl: './gamme-produit.component.html',
-    styles: [
-        `
+  selector: 'jhi-gamme-produit',
+  templateUrl: './gamme-produit.component.html',
+  styles: [
+    `
       body .ui-inputtext {
         width: 100% !important;
       }
     `,
-    ],
-    providers: [MessageService, DialogService, ConfirmationService],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        InputTextModule,
-        TooltipModule,
-        FormGammeComponent,
-    ]
+  ],
+  providers: [MessageService, DialogService, ConfirmationService],
+
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    IconField,
+    InputIcon,
+  ],
 })
 export class GammeProduitComponent implements OnInit {
   fileDialog = false;
@@ -112,6 +116,8 @@ export class GammeProduitComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);

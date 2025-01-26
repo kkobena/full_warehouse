@@ -32,11 +32,9 @@
     <ng-template let-commande let-expanded="expanded" pTemplate="body">
       <tr>
         <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain"
-                  pButton
-                  pRipple
-                  type="button"></button>
+          <p-button type="button" pRipple [pRowToggler]="commande" [text]="true" [rounded]="true"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+
         </td>
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ commande.orderRefernce }}</td>
@@ -50,29 +48,34 @@
         </td>
         <td class="text-right">
           <div class="btn-group">
-            <button
+            <p-button
               (click)="onPasserEnCours(commande)"
-              class="p-button-rounded p-button-info p-button-sm"
-              icon="pi pi-fast-forward" pButton
-              pRipple pTooltip="Passer en cours">
-            </button>
-            <button
+              severity="info" [rounded]="true"
+              pButtonIcon="pi pi-fast-forward"
+              pRipple
+              pTooltip="Passer en cours">
+            </p-button>
+            <p-button
               [routerLink]="['/commande', commande.id, 'edit']"
-              class="p-button-rounded p-button-success p-button-sm"
-              icon="pi pi-pencil" pButton
-              pRipple pTooltip="Editer">
-            </button>
+              severity="success"
+              pButtonIcon="pi pi-pencil" [rounded]="true"
+              pRipple
+              pTooltip="Editer">
+            </p-button>
 
-            <button (click)="onCreateBon(commande)"
-                    class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                    pButton
-                    pRipple
-                    pTooltip="Faire l'entréé en  stock"></button>
-            <button (click)="onShowFileDialog(commande)"
-                    [hidden]="true"
-                    class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                    pButton pRipple
-                    pTooltip="Importer la reponse "></button>
+            <p-button (click)="onCreateBon(commande)"
+                      severity="help"
+                      pButtonIcon="pi pi-upload"
+                      [rounded]="true"
+                      pRipple
+                      pTooltip="Faire l'entréé en  stock"></p-button>
+            <p-button (click)="onShowFileDialog(commande)"
+                      [hidden]="true"
+                      pRipple
+                      [rounded]="true" pButtonIcon="pi pi-upload"
+                      severity="help"
+
+                      pTooltip="Importer la reponse "></p-button>
             <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
                        class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
                        icon="pi pi-shopping-cart" pButton
@@ -80,24 +83,27 @@
                        pTooltip="Envoi par Pharma-ML"></button>-->
 
 
-            <button (click)="exportCSV(commande)"
-                    class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                    icon="pi pi-file-excel"
-                    pButton pRipple
-                    pTooltip="Exporter en CSV">
+            <p-button (click)="exportCSV(commande)"
+                      pButtonIcon="pi pi-file-excel"
+                      [rounded]="true"
+                      pRipple
+                      severity="warn"
+                      pTooltip="Exporter en CSV" />
 
-            </button>
-            <button (click)="exportPdf(commande)"
-                    class="p-button-rounded p-button-secondary p-button-sm ml-sm-1"
-                    icon="pi pi-print"
-                    pButton
-                    pRipple pTooltip="Imprimer"></button>
-            <button (click)="confirmDelete(commande)"
-                    class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
-                    icon="pi pi-trash"
-                    pButton pRipple
-                    pTooltip="Supprimer"
-                    type="submit"></button>
+
+            <p-button (click)="exportPdf(commande)"
+                      pButtonIcon="pi pi-print"
+                      severity="secondary"
+                      [rounded]="true"
+                      pRipple
+                      pTooltip="Imprimer" />
+            <p-button (click)="confirmDelete(commande)"
+                      [rounded]="true"
+                      pRipple
+                      severity="danger"
+                      pButtonIcon="pi pi-trash"
+                      pTooltip="Supprimer"
+                      type="submit" />
 
           </div>
         </td>

@@ -6,8 +6,6 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
-import { DecimalPipe } from '@angular/common';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
@@ -22,35 +20,33 @@ import { RippleModule } from 'primeng/ripple';
 import { SaleToolBarService } from '../service/sale-tool-bar.service';
 
 @Component({
-    selector: 'jhi-sales-home',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        CalendarModule,
-        CardModule,
-        DividerModule,
-        DropdownModule,
-        InputTextModule,
-        NgbNav,
-        ToolbarModule,
-        FormsModule,
-        RouterModule,
-        PanelModule,
-        BadgeModule,
-        AutoCompleteModule,
-        RippleModule,
-        SalesComponent,
-        PresaleComponent,
-        VenteEnCoursComponent,
-        AutoCompleteModule,
-        ButtonModule,
-        CalendarModule,
-        CardModule,
-        DecimalPipe,
-        FaIconComponent,
-    ],
-    templateUrl: './sales-home.component.html',
-    styleUrl: './sales-home.component.scss'
+  selector: 'jhi-sales-home',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    CalendarModule,
+    CardModule,
+    DividerModule,
+    DropdownModule,
+    InputTextModule,
+    NgbNav,
+    ToolbarModule,
+    FormsModule,
+    RouterModule,
+    PanelModule,
+    BadgeModule,
+    AutoCompleteModule,
+    RippleModule,
+    SalesComponent,
+    PresaleComponent,
+    VenteEnCoursComponent,
+    AutoCompleteModule,
+    ButtonModule,
+    CalendarModule,
+    CardModule,
+  ],
+  templateUrl: './sales-home.component.html',
+  styleUrl: './sales-home.component.scss',
 })
 export class SalesHomeComponent implements OnInit {
   saleToolBarService = inject(SaleToolBarService);

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { CATEGORY_INVENTORY, InventoryCategory, IStoreInventory } from 'app/shared/model/store-inventory.model';
@@ -26,11 +26,11 @@ import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
 
 @Component({
-    selector: 'jhi-store-inventory',
-    templateUrl: './store-inventory.component.html',
-    providers: [ConfirmationService, DialogService, MessageService],
-    styles: [
-        `
+  selector: 'jhi-store-inventory',
+  templateUrl: './store-inventory.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
+  styles: [
+    `
       .table tr:hover {
         cursor: pointer;
       }
@@ -45,25 +45,22 @@ import { CloturesComponent } from './clotures/clotures.component';
         max-height: 700px;
       }
     `,
-    ],
-    imports: [
-        WarehouseCommonModule,
-        MultiSelectModule,
-        CardModule,
-        ToolbarModule,
-        DropdownModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        EnCoursComponent,
-        CloturesComponent,
-        StoreInventoryDeleteDialogComponent,
-        InventoryFormComponent,
-    ]
+  ],
+  imports: [
+    WarehouseCommonModule,
+    MultiSelectModule,
+    CardModule,
+    ToolbarModule,
+    DropdownModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    EnCoursComponent,
+    CloturesComponent,
+  ],
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];
-  protected eventSubscriber?: Subscription;
   protected selectedRowIndex?: number;
   protected itemsPerPage: number;
   protected links: any;

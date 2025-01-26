@@ -24,30 +24,31 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { StyleClassModule } from 'primeng/styleclass';
 import { RemiseClientFormModalComponent } from './remise-client-form-modal/remise-client-form-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-remise',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ConfirmDialogModule,
-        DialogModule,
-        ToolbarModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        RouterModule,
-        TableModule,
-        TooltipModule,
-        KeyFilterModule,
-        ToastModule,
-        DropdownModule,
-        CalendarModule,
-        InputSwitchModule,
-        StyleClassModule,
-    ],
-    templateUrl: './remise.component.html'
+  selector: 'jhi-remise',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DialogModule,
+    ToolbarModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+    TooltipModule,
+    KeyFilterModule,
+    ToastModule,
+    DropdownModule,
+    CalendarModule,
+    InputSwitchModule,
+    StyleClassModule,
+  ],
+  templateUrl: './remise.component.html',
 })
 export class RemiseComponent implements OnInit {
   responsedto!: IResponseDto;
@@ -80,6 +81,8 @@ export class RemiseComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();

@@ -25,6 +25,9 @@ import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
 
 const routerFeatures: Array<RouterFeatures> = [
   withComponentInputBinding(),
@@ -44,10 +47,12 @@ const routerFeatures: Array<RouterFeatures> = [
 if (DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
-
+/* ModuleRegistry.registerModules([AllCommunityModule]);
+provideGlobalGridOptions({ theme: 'legacy' }); */
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, ...routerFeatures),
+
     importProvidersFrom(BrowserModule),
     importProvidersFrom(BrowserAnimationsModule),
     // importProvidersFrom(ModuleRegistry.registerModules([ClientSideRowModelModule])),
@@ -61,6 +66,12 @@ export const appConfig: ApplicationConfig = {
     { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     httpInterceptorProviders,
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
-    // jhipster-needle-angular-add-module JHipster will add new module here
+    provideAnimationsAsync(),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+      },
+      /*  translation: {}, */
+    }),
   ],
 };

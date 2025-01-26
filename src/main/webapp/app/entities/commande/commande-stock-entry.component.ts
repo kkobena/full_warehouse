@@ -31,30 +31,36 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ReceiptStatusComponent } from './status/receipt-status.component';
-import { GridApi, GridReadyEvent, RowModelType } from 'ag-grid-community';
-import { AgGridAngular } from 'ag-grid-angular';
+import type { GridApi, GridReadyEvent } from 'ag-grid-community';
+import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions, RowModelType } from 'ag-grid-community';
+
 import dayjs from 'dayjs';
 import { TvaService } from '../tva/tva.service';
 import { HttpResponse } from '@angular/common/http';
 import { ITva } from '../../shared/model/tva.model';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { AgGridAngular } from 'ag-grid-angular';
+
+ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
+provideGlobalGridOptions({ theme: 'legacy' });
 
 @Component({
-    selector: 'jhi-commande-stock-entry',
-    styles: [``],
-    templateUrl: './commande-stock-entry.component.html',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        WarehouseCommonModule,
-        NgbTooltipModule,
-        FormsModule,
-        NgSelectModule,
-        ButtonModule,
-        RippleModule,
-        NgxSpinnerModule,
-        ConfirmDialogModule,
-        InputTextModule,
-        AgGridAngular,
-    ]
+  selector: 'jhi-commande-stock-entry',
+  styles: [``],
+  templateUrl: './commande-stock-entry.component.html',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    NgbTooltipModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    NgxSpinnerModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    AgGridAngular,
+  ],
 })
 export class CommandeStockEntryComponent implements OnInit {
   commande?: ICommande | null = null;
@@ -86,7 +92,9 @@ export class CommandeStockEntryComponent implements OnInit {
   dialogService = inject(DialogService);
   spinner = inject(NgxSpinnerService);
   rowModelType: RowModelType = 'clientSide';
+  pagination = true;
   protected themeClass: string = 'ag-theme-quartz';
+  protected readonly animateRows: boolean = true;
   private gridApi!: GridApi<IDeliveryItem>;
   private tvas: number[] = [];
 
@@ -580,6 +588,8 @@ export class CommandeStockEntryComponent implements OnInit {
       message: ' Voullez-vous imprimer les étiquettes ?',
       header: 'IMPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.printEtiquette(delivery),
       reject: () => {
         this.previousState();

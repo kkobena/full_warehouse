@@ -5,40 +5,28 @@
     <jhi-alert-error></jhi-alert-error>
   </p>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler" pButton
-            pRipple type="button"></button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" pButton
+              pRipple raised="true"
+              severity="danger" type="button"></p-button>
 
   </p-footer>
 </p-dialog>
 
-<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
-  <p-footer>
-    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
-    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
-            type="button"></button>
-  </p-footer>
-</p-confirmDialog>
-<p-confirmDialog #deleteFournisseur [baseZIndex]="10000" [style]="{width: '50vw'}"
-                 key="deleteFournisseur">
-  <p-footer>
-    <button (click)="deleteFournisseur.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non" pButton
-            type="button"></button>
-    <button (click)="deleteFournisseur.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
 
+</p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '50vw'}"
+                 key="deleteFournisseur">
 </p-confirmDialog>
 
 
 <p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '50vw'}" header="Importer un fichier json">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
+    <p-fileupload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
-    </p-fileUpload>
+    </p-fileupload>
   </div>
   <p-footer>
     <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
@@ -112,22 +100,19 @@
 
     </div>
     <div class="p-toolbar-group-right">
-      <p-splitButton [model]="splitbuttons" icon="pi pi-upload" label="Importation"
-                     styleClass="p-button-raised p-button-help mr-2 mb-2"></p-splitButton>
-      <button [routerLink]="['/produit/new']" class="p-button-raised  mb-2 p-button-success "
-              pButton
-              pRipple type="button">
-        <i class="pi pi-plus"></i>
-        <span jhiTranslate="warehouseApp.produit.home.createLabel">
-                Create a new Produit
-            </span>
+      <p-splitbutton [model]="splitbuttons" [raised]="true" icon="pi pi-upload" label="Importation"
+                     severity="help"
+                     styleClass=" mr-2 mb-2"></p-splitbutton>
+      <button [raised]="true" [routerLink]="['/produit/new']" class=" mb-2 " pButton
+              pButtonIcon="pi pi-plus"
+              pButtonLabel="Nouveau produit" pRipple severity="success"
+              type="button">
+
       </button>
     </div>
   </p-toolbar>
 
   <hr>
-
-
 
   @if (produits && produits.length > 0) {
     <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id"
@@ -159,11 +144,10 @@
       <ng-template let-expanded="expanded" let-produit pTemplate="body">
         <tr>
           <td>
-            <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="produit"
-                    class="p-button-text p-button-rounded p-button-plain" pButton
-                    pRipple
-                    type="button"></button>
+
+            <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [pRowToggler]="expanded" [rounded]="true" [text]="true" pRipple
+                      type="button" />
           </td>
           <td>{{ produit.codeCip }}</td>
           <td>{{ produit.codeEan }}</td>
@@ -335,8 +319,9 @@
                         <th style="width: 45%;">Libelle rayon</th>
                         <th *ngIf="!isMono" style="width:30%;">Stockage</th>
                         <th *ngIf="!isMono" style="width:10%; text-align:right;">
-                          <button class="p-button-rounded p-button-primary"
-                                  icon="pi pi-plus" pButton
+                          <button size="small" rounded="true"
+
+                                  pButtonIcon="pi pi-plus" pButton severity="primary"
                                   pTooltip="Ajouter un rayon"></button>
                         </th>
                       </tr>
@@ -348,8 +333,9 @@
                         <td>{{ rayon.libelleRayon }}</td>
                         <td *ngIf="!isMono">{{ rayon.libelleStorage }}</td>
                         <td *ngIf="!isMono">
-                          <button class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
-                                  icon="pi pi-trash" pButton
+                          <button size="small" class=" p-mb-3"
+                                  pButtonIcon="pi pi-trash" pButton [rounded]="true"
+                                  severity="danger"
                                   pRipple
                                   pTooltip="Supprimer"></button>
                         </td>
@@ -373,7 +359,9 @@
                         <th style="width:60%;">Stockage</th>
                         <th style="width:10%;">Stock</th>
                         <th pTooltip="Repartir le stock" style="text-align:right;width:30%;">
-                          <button class="p-button-rounded p-button-primary" icon="pi pi-plus"
+                          <button pButtonIcon="pi pi-plus"
+                                  severity="primary"
+                                  [rounded]="true" size="small"
                                   pButton></button>
                         </th>
                       </tr>
@@ -383,12 +371,16 @@
                         <td>{{ stock.storageName }}</td>
                         <td>{{ stock.qtyStock | number }}</td>
                         <td style="text-align: right;">
-                          <button class="p-button-rounded p-button-success p-mr-2"
-                                  icon="pi pi-pencil"
+                          <button class=" p-mr-2"
+                                  pButtonIcon="pi pi-pencil"
+                                  severity="success"
+                                  [rounded]="true" size="small"
                                   pButton
                                   pRipple
                           ></button>
-                          <button class="p-button-rounded p-button-danger" icon="pi pi-trash"
+                          <button pButtonIcon="pi pi-trash"
+                                  severity="danger"
+                                  [rounded]="true" size="small"
                                   pButton
                                   pRipple
                           ></button>
@@ -410,8 +402,10 @@
                         <th style="width:12%">Prix.U</th>
                         <th style="width: 31%;text-align:right;">
                           <button (click)="addFournisseur(elRow)"
-                                  class="p-button-rounded p-button-sm  p-button-primary"
-                                  icon="pi pi-plus" pButton
+                                  class="p-button-primary"
+                                  severity="primary"
+                                  [rounded]="true" size="small"
+                                  pButtonIcon="pi pi-plus" pButton
                                   pTooltip="Ajouter un fournisseur"></button>
                         </th>
                       </tr>
@@ -429,17 +423,21 @@
 
                                          pTooltip="Changer en fournisseur principal">
                           </p-inputSwitch>
-                          <button (click)="editFournisseur(elRow,four)"
-                                  class="p-button-rounded p-button-success p-button-sm p-mr-2 p-ml-2 p-mb-3"
-                                  icon="pi pi-pencil"
+                          <button (click)="editFournisseur(elRow,four)" [rounded]="true"
+                                  size="small"
+                                  severity="success"
+                                  class="p-mr-2 p-ml-2 p-mb-3"
+                                  pButtonIcon="pi pi-pencil"
                                   pButton pRipple
                                   pTooltip="Editer"></button>
 
                           <button (click)="confirmDeleteProduitFournisseur(four,elRow)"
-                                  class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
-                                  icon="pi pi-trash"
+                                  class=" p-mb-3"
+                                  pButtonIcon="pi pi-trash"
                                   pButton
                                   pRipple
+                                  severity="danger"
+                                  [rounded]="true" size="small"
                                   pTooltip="Supprimer"></button>
                         </td>
                       </tr>

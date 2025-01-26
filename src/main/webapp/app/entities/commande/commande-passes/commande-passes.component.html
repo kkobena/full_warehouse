@@ -32,19 +32,22 @@
   <ng-template let-commande let-expanded="expanded" pTemplate="body">
     <tr>
       <td>
-        <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain"
-                pButton
-                pRipple
-                type="button"></button>
+        <!-- <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                 [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain"
+                 pButton
+                 pRipple
+                 type="button"></button>
+         -->
+        <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="commande" [rounded]="true" [text]="true" pRipple
+                  type="button" />
       </td>
-      <td>{{commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
-      <td>{{commande.orderRefernce}}</td>
-      <td class="text-right">{{commande.itemSize |number}}</td>
-      <td class="text-right">{{commande.grossAmount |number}}</td>
-      <td class="text-right">{{commande.orderAmount |number}}</td>
-      <td>{{commande.fournisseur?.libelle}}</td>
-      <td>{{commande.lastUserEdit?.abbrName}}</td>
+      <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ commande.orderRefernce }}</td>
+      <td class="text-right">{{ commande.itemSize |number }}</td>
+      <td class="text-right">{{ commande.grossAmount |number }}</td>
+      <td class="text-right">{{ commande.orderAmount |number }}</td>
+      <td>{{ commande.fournisseur?.libelle }}</td>
+      <td>{{ commande.lastUserEdit?.abbrName }}</td>
       <td class="text-center">
         <p-tableCheckbox [value]="commande"></p-tableCheckbox>
       </td>
@@ -52,14 +55,18 @@
         <div class="btn-group">
 
           <button (click)="onCreateBon(commande)"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
+                  [rounded]="true"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1"
                   pButton
+                  pButtonIcon="pi pi-upload"
                   pRipple
                   pTooltip="Faire l'entréé en  stock"></button>
           <button (click)="onShowFileDialog(commande)"
                   [hidden]="true"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1" icon="pi pi-upload"
-                  pButton pRipple
+                  [rounded]="true"
+                  class="p-button-rounded p-button-help p-button-sm ml-sm-1"
+                  pButton pButtonIcon="pi pi-upload"
+                  pRipple
                   pTooltip="Importer la reponse "></button>
           <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
                      class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
@@ -69,21 +76,25 @@
 
 
           <button (click)="exportCSV(commande)"
+                  [rounded]="true"
                   class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                  icon="pi pi-file-excel"
-                  pButton pRipple
+                  pButton pButtonIcon="pi pi-file-excel"
+                  pRipple
                   pTooltip="Exporter en CSV">
 
 
           </button>
           <button (click)="exportPdf(commande)"
-                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1" icon="pi pi-print"
+                  [rounded]="true"
+                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1"
                   pButton
+                  pButtonIcon="pi pi-print"
                   pRipple pTooltip="Imprimer"></button>
           <button (click)="confirmRollback(commande)"
+                  [rounded]="true"
                   class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
-                  icon="pi pi-undo"
-                  pButton pRipple
+                  pButton pButtonIcon="pi pi-undo"
+                  pRipple
                   pTooltip="Envoyer dans commande en cours"
                   type="submit"></button>
 
@@ -118,26 +129,29 @@
           </ng-template>
           <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
             <tr [ngClass]="orderLineTableColor(orderLine)">
-              <td style="text-align: left;">{{rowIndex + 1}}</td>
-              <td>{{orderLine.produitCip}}</td>
+              <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+              <td>{{ orderLine.produitCip }}</td>
 
-              <td>{{orderLine.produitLibelle}}</td>
-              <td style="text-align: right;">{{orderLine.initStock |number}}</td>
-
-              <td style="text-align: right;">
-                {{orderLine.orderCostAmount |number}}
-              </td>
-              <td style="text-align: right;">{{orderLine.costAmount |number}}</td>
+              <td>{{ orderLine.produitLibelle }}</td>
+              <td style="text-align: right;">{{ orderLine.initStock |number }}</td>
 
               <td style="text-align: right;">
-                {{orderLine.orderUnitPrice |number}}
+                {{ orderLine.orderCostAmount |number }}
               </td>
-              <td style="text-align: right;">{{orderLine.regularUnitPrice |number}}</td>
+              <td style="text-align: right;">{{ orderLine.costAmount |number }}</td>
+
               <td style="text-align: right;">
-                {{orderLine.quantityRequested |number}}
+                {{ orderLine.orderUnitPrice |number }}
               </td>
-              <td style="text-align: right;">{{orderLine.quantityRequested
-              * orderLine.orderCostAmount |number}}</td>
+              <td style="text-align: right;">{{ orderLine.regularUnitPrice |number }}</td>
+              <td style="text-align: right;">
+                {{ orderLine.quantityRequested |number }}
+              </td>
+              <td style="text-align: right;">{{
+                  orderLine.quantityRequested
+                  * orderLine.orderCostAmount |number
+                }}
+              </td>
 
             </tr>
           </ng-template>

@@ -1,13 +1,16 @@
 <div class="modal-body">
   <p-toolbar styleClass="mb-1">
     <ng-template pTemplate="left">
-      <button (click)="add()" class="p-button-success mr-2" icon="pi pi-plus" label="Nouveau" pButton
-              pRipple></button>
+      <button (click)="add()" class=" mr-2" pButton pButtonIcon="pi pi-plus"
+              pButtonLabel="Nouveau" pRipple
+              severity="success"></button>
 
     </ng-template>
 
   </p-toolbar>
-  <p-table #tiersPayantTable [globalFilterFields]="['tiersPayantName','tiersPayantFullName','typeTiersPayant']" [showCurrentPageReport]="true"
+  <p-table #tiersPayantTable
+           [globalFilterFields]="['tiersPayantName','tiersPayantFullName','typeTiersPayant']"
+           [showCurrentPageReport]="true"
            [value]="tiersPayants"
            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} "
            dataKey="id"
@@ -17,7 +20,8 @@
 
       <span class="p-input-icon-left">
     <i class="pi pi-search"></i>
-    <input (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')" pInputText placeholder="TAPEZ POUR FILTRER"
+    <input (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')" pInputText
+           placeholder="TAPEZ POUR FILTRER"
            type="text">
 </span>
 
@@ -43,10 +47,13 @@
         <td>{{ tiersPayant.typeTiersPayant }}</td>
 
         <td style="text-align: right;">
-          <button (click)="onSelect(tiersPayant)" class="p-button-rounded p-button-info p-button-sm  p-mb-3" icon="pi pi-check"
+          <button (click)="onSelect(tiersPayant)" [rounded]="true" class=" p-mb-3"
                   pButton
+                  pButtonIcon="pi pi-check"
                   pRipple
-                  pTooltip="Séléctionner"></button>
+                  pTooltip="Séléctionner"
+                  severity="info"
+                  size="small"></button>
         </td>
       </tr>
 

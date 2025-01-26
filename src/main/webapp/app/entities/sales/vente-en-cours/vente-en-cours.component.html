@@ -1,52 +1,49 @@
 <p-confirmDialog #deletePrevente [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deletePrevente">
-  <p-footer>
-    <button (click)="deletePrevente.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deletePrevente.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
 
 </p-confirmDialog>
-<div>
+<div class="container-fluid">
 
   <p-toolbar>
-    <div class="p-toolbar-group-left p-md-8">
-      <div class="row">
-        <div class="col">
-          <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
+    <ng-template #start>
+      <div>
+        <div class="row">
+          <div class="col">
+            <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
                       [filter]="false"
                       [options]="typeVentes" placeholder="Filtrer par critère"
                       styleClass="dropdown-width">
-          </p-dropdown>
-        </div>
+            </p-select>
+          </div>
 
 
-        <div class="col">
-                            <span class="p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-                                       placeholder="Taper pour rechercher"
-                                       type="text">
-                            </span>
+          <div class="col">
+
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input (keyup.enter)="onSearch()" pInputText
+                     placeholder="Taper pour rechercher"
+
+                     type="text">
+            </p-iconfield>
+          </div>
+
         </div>
 
       </div>
+    </ng-template>
+    <ng-template #end>
+      <div>
 
-    </div>
-    <div class="p-toolbar-group-right">
+        <p-button [routerLink]="['/sales', false, 'new']"
+                  class=" mb-2" icon="pi pi-plus" label="Nouvelle vente"
+                  pRipple raised="true" severity="success"
+                  type="button">
 
-      <button [routerLink]="['/sales', false, 'new']"
-              class="p-button-raised  mb-2 p-button-success " pButton
-              pRipple
-              type="button">
-        <i class="pi pi-plus"></i>
-        <span>
-                Nouvelle vente
-            </span>
-      </button>
-    </div>
+        </p-button>
+      </div>
+    </ng-template>
+
   </p-toolbar>
 
   <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
@@ -69,13 +66,13 @@
         <th style="width:9%"></th>
       </tr>
     </ng-template>
-    <ng-template let-expanded="expanded" let-sale pTemplate="body">
+    <ng-template #body let-expanded="expanded" let-sale>
       <tr>
         <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="sale" class="p-button-text p-button-rounded p-button-plain" pButton
-                  pRipple
-                  type="button"></button>
+
+          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [pRowToggler]="sale" [rounded]="true" [text]="true" pRipple
+                    type="button" />
         </td>
         @if (sale.natureVente === 'ASSURANCE') {
           <td>Assurance</td>
@@ -108,7 +105,7 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template let-elRow pTemplate="rowexpansion">
+    <ng-template #expandedrow let-elRow>
       <tr>
         <td colspan="8">
           <div class="card">

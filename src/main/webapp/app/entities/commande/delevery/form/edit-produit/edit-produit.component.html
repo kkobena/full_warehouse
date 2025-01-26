@@ -8,24 +8,29 @@
     <div class="form-row">
       <div class="form-group col-md-3">
         <span class="badge bg-info" style="width: 90%;margin-top: 2rem;">
-          {{delivery.fournisseurLibelle}}
+          {{ delivery.fournisseurLibelle }}
         </span>
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label"
                for="field_codeCip">Code cip</label>
-        <input autocomplete="off" class="form-control" formControlName="codeCip" id="field_codeCip"
+        <input [pKeyFilter]="'int'" autocomplete="off" class="form-control"
+               formControlName="codeCip"
+               id="field_codeCip"
                name="codeCip"
-               pInputText
-               pKeyFilter="int" type="text" />
+               pInputText type="text" />
+        @let codeCip = editForm.get('codeCip');
+        @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
+          <div>
+            @if (codeCip?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+          </div>
+        }
 
-        <div
-          *ngIf="editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)">
-          <small *ngIf="editForm.get('codeCip')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
       </div>
       <div class="form-group col-md-5" style="padding-left: 1rem;padding-top: 2rem;">
         <div class="form-check form-switch ">
@@ -46,13 +51,17 @@
                formControlName="prixAchat" id="field_prixAchat"
                name="prixAchat" pKeyFilter="int"
                type="number" />
-        <div
-          *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
-          <small *ngIf="editForm.get('prixAchat')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @let prixAchat = editForm.get('prixAchat');
+        @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
+          <div>
+            @if (prixAchat?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+          </div>
+        }
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label"
@@ -61,13 +70,18 @@
                formControlName="prixUni"
                id="field_prixUni" name="prixAchat" pKeyFilter="int"
                type="number" />
-        <div
-          *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">
-          <small *ngIf="editForm.get('prixUni')?.errors?.required" class="form-text text-danger"
-                 jhiTranslate="entity.validation.required">
-            This field is required.
-          </small>
-        </div>
+        @let prixUni = editForm.get('prixUni');
+        @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
+          <div>
+            @if (prixUni?.errors?.required) {
+              <small class="form-text text-danger"
+                     jhiTranslate="entity.validation.required">
+                This field is required.
+              </small>
+            }
+          </div>
+
+        }
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label" for="tvaId">Tva</label>
@@ -106,11 +120,11 @@
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
-        <p-inputMask autocomplete="off" formControlName="expirationDate" id="field_perimeAt"
+        <p-inputmask autocomplete="off" formControlName="expirationDate" id="field_perimeAt"
                      mask="99/99/9999"
                      name="expirationDate" placeholder="01/11/2020"
                      slotChar="dd/mm/yyyy" styleClass="form-control">
-        </p-inputMask>
+        </p-inputmask>
       </div>
     </div>
     <div class="form-row">
@@ -151,15 +165,18 @@
 
   <div class="modal-footer">
     <button (click)="cancel()"
-            class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
-
-            pButton pRipple type="button">
+            [raised]="true" class=" p-mr-2 "
+            pButton
+            pButtonIcon="pi pi-times"
+            pRipple severity="danger" type="button">
       <span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
     <button [disabled]="editForm.invalid || isSaving || !isValid"
-            class="p-button-success mr-2 p-button-raised" icon="pi pi-check" label="Enregistrer"
-            pButton pRipple
+            [raised]="true" class=" mr-2" pButton
+            pButtonIcon="pi pi-check" pButtonLabel="Enregistrer"
+            pRipple
+            severity="success"
             type="submit">
 
     </button>

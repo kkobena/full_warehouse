@@ -1,10 +1,5 @@
 <p-toast position="center"></p-toast>
 <p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
-  <p-footer>
-    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
-    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
-            type="button"></button>
-  </p-footer>
 </p-confirmDialog>
 
 <div>
@@ -12,8 +7,8 @@
     <div class="mb-1" style="text-align: right;">
 
       <button (click)="add()" class="p-button-raised p-button-primary"
-              icon="pi pi-check"
-              iconPos="left" label="Ajouter un nouveau lot" pButton
+              pButtonIcon="pi pi-check"
+              pButtonLabel="Ajouter un nouveau lot" pButton
               pRipple type="button"></button>
     </div>
   }
@@ -45,12 +40,16 @@
           <td>{{ elRow.expiryDate |date:'dd/MM/yyyy' }}</td>
 
           <td style="text-align: center;">
-            <button (click)="edit(elRow)" class="p-button-rounded p-button-success p-mr-2"
-                    icon="pi pi-pencil" pButton pRipple
+            <button (click)="edit(elRow)" class=" p-mr-2"
+                    pButtonIcon="pi pi-pencil" pButton pRipple
                     pTooltip="Editer"
+                    severity="success"
+                    [rounded]="true"
                     type="submit"></button>
-            <button (click)="delete(elRow)" class="p-button-rounded p-button-warning"
-                    icon="pi pi-trash" pButton
+            <button (click)="delete(elRow)"
+                    pButtonIcon="pi pi-trash" pButton
+                    severity="warn"
+                    [rounded]="true"
                     pRipple type="submit"></button>
           </td>
         </tr>
@@ -66,8 +65,9 @@
 
 </div>
 <div class="mt-2" style="float: right;">
-  <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
-          label="Fermer"
+  <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised"
           pButton
+          pButtonIcon="pi pi-times"
+          pButtonLabel="Fermer"
           pRipple type="button"></button>
 </div>

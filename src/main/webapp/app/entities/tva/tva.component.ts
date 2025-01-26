@@ -15,24 +15,25 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-tva',
-    templateUrl: './tva.component.html',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ConfirmDialogModule,
-        DialogModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        RouterModule,
-        TableModule,
-        KeyFilterModule,
-    ]
+  selector: 'jhi-tva',
+  templateUrl: './tva.component.html',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DialogModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+    KeyFilterModule,
+  ],
 })
 export class TvaComponent implements OnInit {
   tvas?: ITva[];
@@ -116,6 +117,8 @@ export class TvaComponent implements OnInit {
     this.modalService.confirm({
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.tvaService.delete(id).subscribe(() => {

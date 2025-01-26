@@ -2,7 +2,8 @@
   <h2 id="page-heading">
     <span jhiTranslate="warehouseApp.categorie.home.title">Categories</span>
 
-    <button [routerLink]="['/categorie/new']" class="btn btn-primary float-right jh-create-entity create-categorie"
+    <button [routerLink]="['/categorie/new']"
+            class="btn btn-primary float-right jh-create-entity create-categorie"
             id="jh-create-entity">
       <fa-icon icon="plus"></fa-icon>
       <span jhiTranslate="warehouseApp.categorie.home.createLabel">
@@ -22,23 +23,22 @@
   <div *ngIf="categories && categories.length > 0" class="table-responsive" id="entities">
     <table aria-describedby="page-heading" class="table table-striped">
       <thead>
-      <tr [(ascending)]="ascending" [(predicate)]="predicate" jhiSort>
-        <th jhiSortBy="id" scope="col"><span jhiTranslate="global.field.id">ID</span>
+      <tr>
+        <th scope="col"><span jhiTranslate="global.field.id">ID</span>
           <fa-icon icon="sort"></fa-icon>
         </th>
-        <th jhiSortBy="libelle" scope="col"><span
+        <th scope="col"><span
           jhiTranslate="warehouseApp.categorie.libelle">Libelle</span>
           <fa-icon icon="sort"></fa-icon>
         </th>
-        <th jhiSortBy="libelle" scope="col"><span
+        <th scope="col"><span
           jhiTranslate="warehouseApp.categorie.code">Code</span>
           <fa-icon icon="sort"></fa-icon>
         </th>
         <th scope="col"></th>
       </tr>
       </thead>
-      <tbody (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0"
-             infinite-scroll>
+      <tbody>
       <tr *ngFor="let categorie of categories ;trackBy: trackId">
         <td><a [routerLink]="['/categorie', categorie.id, 'view']">{{ categorie.id }}</a></td>
         <td>{{ categorie.libelle }}</td>
@@ -47,7 +47,8 @@
           <div class="btn-group">
 
 
-            <button [routerLink]="['/categorie', categorie.id, 'edit']" class="btn btn-primary btn-sm"
+            <button [routerLink]="['/categorie', categorie.id, 'edit']"
+                    class="btn btn-primary btn-sm"
                     type="submit">
               <fa-icon icon="pencil-alt"></fa-icon>
               <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>

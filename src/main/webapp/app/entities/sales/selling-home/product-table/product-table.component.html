@@ -131,11 +131,13 @@
         <td style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
         </td>
         <td style="text-align: right;">
-          <button (click)="onDeleteItem(saleLine)"
-                  class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
-                  icon="pi pi-trash"
-                  pButton pRipple
-                  pTooltip="Supprimer"></button>
+          <p-button (click)="onDeleteItem(saleLine)"
+                    class=" p-mb-3"
+                    icon="pi pi-trash" [rounded]="true"
+                    severity="danger"
+                    size="small"
+                    pRipple
+                    pTooltip="Supprimer"></p-button>
         </td>
       </tr>
 
@@ -157,22 +159,8 @@
 }
 
 <p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
-  <p-footer>
-    <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteItem.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-
 </p-confirmDialog>
 <p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStock">
-  <p-footer>
-    <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button #forcerStockBtn (click)="forcerStock.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 </p-confirmDialog>

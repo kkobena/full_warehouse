@@ -22,28 +22,29 @@ import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-faire-groupe-reglement',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        TooltipModule,
-        ConfirmDialogModule,
-        SplitButtonModule,
-        NgbAlertModule,
-        FieldsetModule,
-        SidebarModule,
-        DossierReglementInfoComponent,
-        ReglementFormComponent,
-        FormsModule,
-        FactuesModalComponent,
-    ],
-    templateUrl: './faire-groupe-reglement.component.html'
+  selector: 'jhi-faire-groupe-reglement',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ConfirmDialogModule,
+    SplitButtonModule,
+    NgbAlertModule,
+    FieldsetModule,
+    SidebarModule,
+    DossierReglementInfoComponent,
+    ReglementFormComponent,
+    FormsModule,
+    FactuesModalComponent,
+  ],
+  templateUrl: './faire-groupe-reglement.component.html',
 })
 export class FaireGroupeReglementComponent {
   @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];
@@ -130,6 +131,8 @@ export class FaireGroupeReglementComponent {
       message: ' Voullez-vous imprimer le ticket ?',
       header: 'TICKET REGLEMENT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.reglementService.printReceipt(response.id).subscribe();
         this.reset(response);

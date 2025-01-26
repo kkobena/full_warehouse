@@ -1,26 +1,20 @@
-<p-confirmDialog #comfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="comfirmDialog">
-  <p-footer>
-    <button (click)="comfirmDialog.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="comfirmDialog.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="comfirmDialog">
+
 
 </p-confirmDialog>
 <p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
           [style]="{width: '50vw'}" header="Importer un fichier json">
   <div class="ui-g form-group">
-    <p-fileUpload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
+    <p-fileupload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
                   cancelLabel="Annuler"
                   chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
-    </p-fileUpload>
+    </p-fileupload>
   </div>
   <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler"
-            pButton
-            pRipple type="button"></button>
+    <p-button (click)="cancel()" class="mr-2 " icon="pi pi-times" label="Annuler" pRipple
+              raised="true"
+
+              severity="danger" type="button"></p-button>
   </p-footer>
 </p-dialog>
 <div>
@@ -76,12 +70,12 @@
                       styleClass="p-button-raised p-button-help"></p-button>
 
 
-            <p-splitButton [model]="tiersPayantSplitbuttons"
+            <p-splitbutton [model]="tiersPayantSplitbuttons"
                            icon="pi pi-user-plus"
                            label="Nouveau tiers-payant"
                            styleClass="p-button-raised   p-button-success "
             >
-            </p-splitButton> </span>
+            </p-splitbutton> </span>
     </div>
   </p-toolbar>
 

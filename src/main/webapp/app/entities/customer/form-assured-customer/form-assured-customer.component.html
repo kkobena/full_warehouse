@@ -140,7 +140,7 @@
 
       <div class="form-group col-md-3">
         <label class="form-control-label">Date de naissance</label>
-        <p-inputMask [style]="{'width':'100%'}"
+        <p-inputmask [style]="{'width':'100%'}"
                      formControlName="datNaiss"
                      inputId="datNaiss"
                      mask="99/99/9999"
@@ -188,9 +188,12 @@
 
       <div class="form-group col-md-3">
         <h5 class="form-control-label">Sexe</h5>
-        <p-radioButton formControlName="sexe" label="Masculin" labelStyleClass="mr-3" name="sexe"
+        <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
                        value="M"></p-radioButton>
-        <p-radioButton formControlName="sexe" label="Feminin" name="sexe" value="F"></p-radioButton>
+        <label class="ml-2" for="masculin">Masculin</label>
+        <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe"
+                       value="F"></p-radioButton>
+        <label class="ml-2" for="feminin">Feminin</label>
       </div>
     </div>
     <p-divider align="left">
@@ -200,8 +203,11 @@
 
     @if (validSize) {
       <div style="text-align: right;">
-        <button (click)="addTiersPayant()" class="p-button-rounded p-button-success p-button-sm"
-                icon="pi pi-plus" pButton
+        <button (click)="addTiersPayant()"
+                [rounded]="true"
+                size="small"
+                severity="success"
+                pButtonIcon="pi pi-plus" pButton
                 type="button"></button>
       </div>
     }
@@ -251,8 +257,11 @@
 
             </div>
             <div class="form-group col-md-1 pt-4">
-              <button (click)="removeTiersPayant(i)" class="p-button-rounded p-button-danger"
-                      icon="pi pi-times" pButton
+              <button (click)="removeTiersPayant(i)"
+                      severity="danger"
+                      [rounded]="true"
+                      size="small"
+                      pButtonIcon="pi pi-times" pButton
                       type="button"></button>
             </div>
 

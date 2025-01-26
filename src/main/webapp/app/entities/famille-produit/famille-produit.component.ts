@@ -19,24 +19,31 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Tooltip } from 'primeng/tooltip';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
 
 @Component({
-    selector: 'jhi-famille-produit',
-    templateUrl: './famille-produit.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        InputTextModule,
-    ]
+  selector: 'jhi-famille-produit',
+  templateUrl: './famille-produit.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    Tooltip,
+    InputIcon,
+    IconField,
+  ],
 })
 export class FamilleProduitComponent implements OnInit {
   fileDialog?: boolean;
@@ -104,6 +111,8 @@ export class FamilleProduitComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);

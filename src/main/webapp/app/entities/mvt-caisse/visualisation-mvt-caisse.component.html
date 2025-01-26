@@ -1,53 +1,60 @@
 <div class="mvt-caisse">
   <p-toolbar>
-    <div class="p-toolbar-group-start">
-      <div class="input-group">
+    <ng-template #start>
+      <div class="d-flex justify-content-between">
+        <p-floatlabel variant="on">
+          <p-datePicker [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
 
+                        id="dateDebut"
+                        inputId="dateDebut"
+                        selectOtherMonths="true" showIcon="true"></p-datePicker>&nbsp;
+          <label for="dateDebut">Date début</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on">
+          <p-datePicker [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        id="dateFin"
+                        inputId="dateFin"
+                        selectOtherMonths="true"
+                        showIcon="true"></p-datePicker>&nbsp;
+          <label for="dateFin">Date fin</label>
+        </p-floatlabel>
 
-        <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                    [style]="{width: '130px'}"
-                    dateFormat="dd/mm/yy"
-                    inputId="dateDebut"
-                    placeholder="Date début"
-                    selectOtherMonths="true" showIcon="true"></p-calendar>&nbsp;
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (keyup.enter)="onSearch()" pInputText
+                 placeholder="Taper pour rechercher"
 
-        <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                    [style]="{width: '130px',margingRight: '10px'}" dateFormat="dd/mm/yy"
-                    inputId="dateFin"
-                    placeholder="Date fin"
-                    selectOtherMonths="true"
-                    showIcon="true"></p-calendar>&nbsp;
+                 type="text">&nbsp;
 
-
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search"
-               [style]="{width: '180px'}" pInputText
-               placeholder="Taper pour rechercher"
-               type="text">&nbsp;
-
+        </p-iconfield>
 
         <p-multiSelect [(ngModel)]="selectedTypes" [filter]="true" [options]="types"
                        [showClear]="true"
-                       display="chip"
-                       maxSelectedLabels="1"
+                       display="chip" id="typeMvr"
                        placeholder="Type de mouvement"
         ></p-multiSelect>&nbsp;
 
+
         <p-multiSelect [(ngModel)]="selectedModes" [options]="paymentModes"
                        [showClear]="true"
-                       [style]="{width: '200px'}"
-                       display="chip"
+                       display="chip" id="modeR"
                        optionLabel="libelle"
-                       placeholder="Mode de paiement"
+                       placeholder="Mode de règlement"
         ></p-multiSelect>&nbsp;
 
-        <p-dropdown [(ngModel)]="selectedUser" [options]="users"
-                    optionLabel="abbrName"
-                    placeholder="Opérateur"
-        ></p-dropdown>
+
+        <p-select [(ngModel)]="selectedUser" [options]="users" [showClear]="true"
+                  id="op"
+                  optionLabel="abbrName"
+                  placeholder="Opérateur"
+        ></p-select>
+
 
       </div>
-    </div>
-    <div class="p-toolbar-group-end">
+    </ng-template>
+    <ng-template #end>
       <div class="input-group">
         <p-button (click)="onSearch()"
                   [loading]="btnLoading"
@@ -62,13 +69,13 @@
         >
         </p-button>&nbsp;
         <p-button (click)="onPrint()" [loading]="btnLoading" icon="pi pi-print" pTooltip="Imprimer"
-                  severity="warning"
+                  severity="warn"
                   tooltipPosition="top"
         />
 
       </div>
 
-    </div>
+    </ng-template>
   </p-toolbar>
   <div class="row mvt-caisse-data-section">
     @if (mvtCaisses && mvtCaisses.length > 0) {
@@ -122,7 +129,9 @@
               <td class="text-right">
                 <div class="btn-group">
                   <p-button
-                    class="p-button-rounded p-button-info p-button-sm"
+                    severity="info"
+                    size="small"
+                    [rounded]="true"
                     icon="pi pi-eye"
                     pTooltip="Voir">
                   </p-button>

@@ -71,7 +71,7 @@
 
     @if (factureGroup) {
       <div class="p-1">
-        <p-floatLabel>
+        <p-floatlabel>
           <p-autoComplete id="groupeTiersPayants" inputId="groupeTiersPayants"
                           (completeMethod)="searchGroupTiersPayant($event)"
                           [(ngModel)]="selectedGroupeTiersPayant"
@@ -81,11 +81,11 @@
                           optionLabel="name">
           </p-autoComplete>
           <label for="groupeTiersPayants">Rechercher un groupe</label>
-        </p-floatLabel>
+        </p-floatlabel>
       </div>
     } @else {
       <div class="p-1">
-        <p-floatLabel>
+        <p-floatlabel>
           <p-autoComplete id="tiersPayantId" inputId="tiersPayantId"
                           (completeMethod)="searchTiersPayant($event)"
                           [(ngModel)]="selectedTiersPayant"
@@ -95,7 +95,7 @@
                           optionLabel="fullName">
           </p-autoComplete>
           <label for="tiersPayantId">Rechercher tiers-payants</label>
-        </p-floatLabel>
+        </p-floatlabel>
       </div>
     }
     <div class="pt-1">
@@ -104,10 +104,10 @@
                 size="small" />
       <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf"
                 label="Imprimer"
-                severity="warning"
+                severity="warn"
                 size="small" />
     </div>
-    
+
 
   </div>
 
@@ -192,15 +192,10 @@
                  pTemplate="groupheader">
       <tr>
         <td colspan="4">
-          <button
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [pRowToggler]="reglement"
-            class="p-button-text p-button-rounded p-button-plain mr-2"
-            pButton
-            pRipple
-            type="button">
-          </button>
 
+          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [pRowToggler]="reglement" [rounded]="true" [text]="true" pRipple
+                    type="button" />
           <span class="font-bold ml-2 group-title">{{ reglement.organisme }}</span>
         </td>
         <td class="text-right">
@@ -255,13 +250,7 @@
 
   </p-table>
 </div>
-<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
-  <p-footer>
-    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
+
 
 </p-confirmDialog>

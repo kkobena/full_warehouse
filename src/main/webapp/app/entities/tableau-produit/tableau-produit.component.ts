@@ -18,27 +18,28 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-groupe-fournisseur',
-    templateUrl: './tableau-produit.component.html',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ConfirmDialogModule,
-        DialogModule,
-        ToolbarModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        RouterModule,
-        TableModule,
-        TooltipModule,
-        KeyFilterModule,
-        ToastModule,
-    ]
+  selector: 'jhi-groupe-fournisseur',
+  templateUrl: './tableau-produit.component.html',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ConfirmDialogModule,
+    DialogModule,
+    ToolbarModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+    TooltipModule,
+    KeyFilterModule,
+    ToastModule,
+  ],
 })
 export class TableauProduitComponent implements OnInit {
   fileDialog?: boolean;
@@ -93,6 +94,8 @@ export class TableauProduitComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();

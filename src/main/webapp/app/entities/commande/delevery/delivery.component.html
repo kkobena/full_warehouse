@@ -40,14 +40,17 @@
           </div>
           <div class="p-toolbar-group-right">
                  <span class="p-buttonset">
-                <button (click)="onSearch()" class="p-button-raised p-button-info "
-                        icon="pi pi-search"
-                        label="Rechercher" pButton
+                <button (click)="onSearch()"
+                        pButton
+                        pButtonIcon="pi pi-search" pButtonLabel="Rechercher"
                         pRipple
+                        raised="true"
+                        severity="info"
                         type="button"></button>
-                     <button (click)="onImportNew()" class="p-button-raised p-button-help "
-                             icon="pi pi-upload" label="Importer directement un BL" pButton
-                             pRipple type="button"></button>
+                     <button (click)="onImportNew()" pButton pButtonIcon="pi pi-upload"
+                             pButtonLabel="Importer directement un BL" pRipple
+                             raised="true"
+                             severity="help" type="button"></button>
                  </span>
 
           </div>

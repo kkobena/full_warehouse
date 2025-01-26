@@ -17,12 +17,13 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { Ripple } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-ajustement-en-cours',
-    templateUrl: './ajustement-en-cours.component.html',
-    imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
-    providers: [ConfirmationService, DialogService, MessageService]
+  selector: 'jhi-ajustement-en-cours',
+  templateUrl: './ajustement-en-cours.component.html',
+  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
+  providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {
   protected ajustementStatut: AjustementStatut = AjustementStatut.PENDING;
@@ -64,6 +65,8 @@ export class AjustementEnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.delete(ajust.id),
       key: 'delete',
     });

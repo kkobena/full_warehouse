@@ -1,47 +1,36 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { Configuration, IConfiguration } from '../../shared/model/configuration.model';
-import { DatePipe } from '@angular/common';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import ItemCountComponent from '../../shared/pagination/item-count.component';
-import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
 import { PanelModule } from 'primeng/panel';
-import { SortByDirective, SortDirective } from '../../shared/sort';
 import TranslateDirective from '../../shared/language/translate.directive';
 import { AlertErrorComponent } from '../../shared/alert/alert-error.component';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Ripple } from 'primeng/ripple';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TextareaModule } from 'primeng/textarea';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-    selector: 'jhi-parametre',
-    imports: [
-        DatePipe,
-        FaIconComponent,
-        ItemCountComponent,
-        NgbPagination,
-        PanelModule,
-        SortByDirective,
-        SortDirective,
-        TranslateDirective,
-        AlertErrorComponent,
-        ButtonDirective,
-        DialogModule,
-        InputTextareaModule,
-        ReactiveFormsModule,
-        Ripple,
-        CheckboxModule,
-        FormsModule,
-        InputTextModule,
-    ],
-    templateUrl: './parametre.component.html',
-    styles: ``
+  selector: 'jhi-parametre',
+  imports: [
+    PanelModule,
+    TranslateDirective,
+    AlertErrorComponent,
+    DialogModule,
+    TextareaModule,
+    ReactiveFormsModule,
+    Ripple,
+    CheckboxModule,
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
+  ],
+  templateUrl: './parametre.component.html',
+  styles: ``,
 })
 export class ParametreComponent implements OnInit {
   apps: IConfiguration[] = [];

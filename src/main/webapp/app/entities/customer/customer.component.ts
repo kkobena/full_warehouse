@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Data, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -9,7 +9,7 @@ import { ICustomer } from 'app/shared/model/customer.model';
 
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
 import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -32,29 +32,31 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
+import { PrimeNG } from 'primeng/config';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-customer',
-    templateUrl: './customer.component.html',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        WarehouseCommonModule,
-        DropdownModule,
-        ToolbarModule,
-        FormsModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        InputTextModule,
-        TableModule,
-        DialogModule,
-        FileUploadModule,
-        DividerModule,
-        SplitButtonModule,
-        NgxSpinnerModule,
-        TooltipModule,
-        AssureFormStepComponent,
-    ]
+  selector: 'jhi-customer',
+  templateUrl: './customer.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    DropdownModule,
+    ToolbarModule,
+    FormsModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    TableModule,
+    DialogModule,
+    FileUploadModule,
+    DividerModule,
+    SplitButtonModule,
+    NgxSpinnerModule,
+    TooltipModule,
+    RouterLink,
+  ],
 })
 export class CustomerComponent implements OnInit {
   customers?: ICustomer[];
@@ -88,7 +90,7 @@ export class CustomerComponent implements OnInit {
     private dialogService: DialogService,
     protected confirmationService: ConfirmationService,
     public translate: TranslateService,
-    public primeNGConfig: PrimeNGConfig,
+    public primeNGConfig: PrimeNG,
     private spinner: NgxSpinnerService,
     private messageService: MessageService,
   ) {
@@ -200,6 +202,8 @@ export class CustomerComponent implements OnInit {
       message: 'Voulez-vous vraiment supprimer ce client ?',
       header: 'SUPPRESSION DE CLIENT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         if (customer.categorie === 'ASSURE') {
           this.deleteAssuredCustomer(customer);
@@ -215,6 +219,8 @@ export class CustomerComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment désativer ce client ?',
       header: 'DESACTIVATION DE CLIENT',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       icon: 'pi pi-info-circle',
       accept: () => this.lock(customer),
       key: 'desactiverCustomer',
@@ -315,6 +321,8 @@ export class CustomerComponent implements OnInit {
   confirmRemoveAyantDroit(ayantDroit: ICustomer): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer cet ayant droit ?',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       header: 'SUPPRESSION ',
       icon: 'pi pi-info-circle',
       accept: () => this.deleteAssuredCustomer(ayantDroit),
@@ -361,6 +369,8 @@ export class CustomerComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce tiers payant ?',
       header: 'SUPPRESSION DE TIERS PAYANT',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       icon: 'pi pi-info-circle',
       accept: () => {
         this.customerService.deleteTiersPayant(clientTiersPayant.id).subscribe(() => this.loadPage());

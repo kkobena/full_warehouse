@@ -1,34 +1,10 @@
 <p-confirmDialog #redirect [baseZIndex]="10000" [style]="{width: '40vw'}" key="redirect">
-  <p-footer>
-    <button (click)="redirect.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="redirect.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-
 </p-confirmDialog>
 <p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
-  <p-footer>
-    <button (click)="deleteItem.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteItem.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-
 </p-confirmDialog>
 
 <p-confirmDialog #warningMessage [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="warningMessage">
-  <p-footer>
-    <button (click)="warningMessage.reject()" class="p-button-secondary" icon="pi pi-times"
-            label="Fermer"
-            pButton
-            type="button"></button>
-
-  </p-footer>
-
 </p-confirmDialog>
 
 
@@ -49,7 +25,7 @@
                             [minLength]="PRODUIT_COMBO_MIN_LENGTH"
                             [showEmptyMessage]="true" [style]="{'width':'100%'}"
                             [suggestions]="motifs"
-                            field="libelle"
+                            optionLabel="libelle"
                             placeholder="Sélectionner le motif">
 
             </p-autoComplete>
@@ -76,14 +52,14 @@
 
                 <div *ngIf="item.totalQuantity>0">
             <span
-              style="width:20%; display:inline-block">{{item.fournisseurProduit?.codeCip}}</span><span> {{item.libelle}}</span>
-                  <span class="float-right">{{item.regularUnitPrice |number}}</span>
+              style="width:20%; display:inline-block">{{ item.fournisseurProduit?.codeCip }}</span><span> {{ item.libelle }}</span>
+                  <span class="float-right">{{ item.regularUnitPrice |number }}</span>
                 </div>
                 <div *ngIf="item.totalQuantity<=0">
                                             <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{item.fournisseurProduit?.codeCip}}</span><span
-                  class="stockless"> {{item.libelle}}</span> <span
-                  class="float-right stockless">{{item.regularUnitPrice |number}}</span>
+                                                  style="width:20%; display:inline-block">{{ item.fournisseurProduit?.codeCip }}</span><span
+                  class="stockless"> {{ item.libelle }}</span> <span
+                  class="float-right stockless">{{ item.regularUnitPrice |number }}</span>
                 </div>
               </ng-template>
 
@@ -179,10 +155,10 @@
           </ng-template>
           <ng-template let-ajustement let-rowIndex="rowIndex" pTemplate="body">
             <tr>
-              <td style="text-align: left;">{{rowIndex + 1}}</td>
-              <td>{{ajustement.codeCip}}</td>
-              <td>{{ajustement.produitLibelle}}</td>
-              <td style="text-align: right;">{{ajustement.stockBefore |number}}</td>
+              <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+              <td>{{ ajustement.codeCip }}</td>
+              <td>{{ ajustement.produitLibelle }}</td>
+              <td style="text-align: right;">{{ ajustement.stockBefore |number }}</td>
               <td pEditableColumn style="text-align: right;">
                 <p-cellEditor>
                   <ng-template pTemplate="input">
@@ -194,11 +170,11 @@
                            type="number">
                   </ng-template>
                   <ng-template pTemplate="output">
-                    {{ajustement.qtyMvt |number}}
+                    {{ ajustement.qtyMvt |number }}
                   </ng-template>
                 </p-cellEditor>
               </td>
-              <td class="text-right">  {{ajustement.stockAfter |number}}</td>
+              <td class="text-right"> {{ ajustement.stockAfter |number }}</td>
               <td style="text-align: right;">
 
                 <button (click)="confirmDeleteItem(ajustement)"

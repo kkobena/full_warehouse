@@ -1,37 +1,40 @@
 <p-toast position="center"></p-toast>
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
 
-    <div class="p-col-12">
-        <div class="form-group" [hidden]="!editForm.get('id')!.value">
-            <input type="hidden" class="form-control" id="id" name="id" formControlName="id" readonly />
-        </div>
-        <jhi-alert-error></jhi-alert-error>
-
-        <div class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col">
-                <label class="col-auto col-form-label">Libellé<span
-                    style="font-weight: 900;color: red;">*</span></label>
-                <input type="text" pInputText class="form-control" formControlName="libelle" name="libelle"
-                       autocomplete="off" />
-                <div
-                    *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
-                    <small class="form-text text-danger" style="color: red;"
-                           *ngIf="editForm.get('libelle')?.errors?.required">
-                        Ce champ est obligatoire.
-                    </small>
-
-                </div>
-            </div>
-        </div>
-
-       
+  <div class="p-col-12">
+    <div [hidden]="!editForm.get('id')!.value" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
-    <div style="float: right;margin-top:15px;">
-        <button pButton pRipple type="submit" [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
-                class="p-button-success p-mr-2 p-button-raised"  label="Enregistrer"></button>
-        <button type="button" class="p-button-danger p-mr-2 p-button-raised" pButton pRipple icon="pi pi-times"
-                (click)="cancel()" label="Annuler"></button>
+    <jhi-alert-error></jhi-alert-error>
+
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Libellé<span
+          style="font-weight: 900;color: red;">*</span></label>
+        <input autocomplete="off" class="form-control" formControlName="libelle" name="libelle"
+               pInputText
+               type="text" />
+        <div
+          *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+          <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger"
+                 style="color: red;">
+            Ce champ est obligatoire.
+          </small>
+
+        </div>
+      </div>
     </div>
+
+
+  </div>
+  <div style="float: right;margin-top:15px;">
+    <p-button [disabled]="editForm.invalid || isSaving" [raised]="true" class=" p-mr-2 "
+              icon="pi pi-check"
+              label="Enregistrer" pRipple severity="success" type="submit"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class="p-mr-2 " icon="pi pi-times" label="Annuler"
+              pRipple
+              severity="danger" type="button"></p-button>
+  </div>
 
 </form>
 

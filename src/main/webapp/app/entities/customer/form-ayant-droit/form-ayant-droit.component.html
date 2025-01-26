@@ -79,7 +79,7 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Date de naissance</label>
-        <p-inputMask [style]="{'width':'100%'}"
+        <p-inputmask [style]="{'width':'100%'}"
                      formControlName="datNaiss"
                      inputId="datNaiss"
                      mask="99/99/9999"
@@ -89,9 +89,12 @@
     <div class="form-row">
       <div class="form-group col">
         <h5 class="form-control-label">Sexe</h5>
-        <p-radioButton formControlName="sexe" label="Masculin" labelStyleClass="mr-3" name="sexe"
+        <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
                        value="M"></p-radioButton>
-        <p-radioButton formControlName="sexe" label="Feminin" name="sexe" value="F"></p-radioButton>
+        <label class="ml-2" for="masculin">Masculin</label>
+        <p-radioButton formControlName="sexe" id="Feminin" inputId="Feminin" name="sexe"
+                       value="F"></p-radioButton>
+        <label class="ml-2" for="Feminin">Feminin</label>
       </div>
     </div>
 

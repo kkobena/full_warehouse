@@ -12,21 +12,22 @@ import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-list-lot',
-    templateUrl: './list-lot.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TooltipModule,
-        ToastModule,
-        TableModule,
-        RippleModule,
-        DynamicDialogModule,
-        ConfirmDialogModule,
-    ]
+  selector: 'jhi-list-lot',
+  templateUrl: './list-lot.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TooltipModule,
+    ToastModule,
+    TableModule,
+    RippleModule,
+    DynamicDialogModule,
+    ConfirmDialogModule,
+  ],
 })
 export class ListLotComponent implements OnInit {
   lots: ILot[] = [];
@@ -114,6 +115,8 @@ export class ListLotComponent implements OnInit {
       message: 'Voulez-vous supprimer ce lot ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         this.entityService.remove(lot.id).subscribe({
           next: () => {

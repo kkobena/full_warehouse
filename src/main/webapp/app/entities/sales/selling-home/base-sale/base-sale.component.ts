@@ -11,7 +11,7 @@ import { CurrentSaleService } from '../../service/current-sale.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService, Footer } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../../../shared/error.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -24,7 +24,7 @@ import { FinalyseSale, ISales } from '../../../../shared/model/sales.model';
 import { Observable } from 'rxjs';
 import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
-import { ButtonDirective, ButtonModule } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
@@ -47,70 +47,69 @@ import { ProductTableComponent } from '../product-table/product-table.component'
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 
 @Component({
-    templateUrl: './base-sale.component.html',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        ButtonDirective,
-        ConfirmDialogModule,
-        DialogModule,
-        Footer,
-        AmountComputingComponent,
-        DividerModule,
-        DropdownModule,
-        WarehouseCommonModule,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        DialogModule,
-        ConfirmDialogModule,
-        PanelModule,
-        SelectButtonModule,
-        TooltipModule,
-        DividerModule,
-        KeyFilterModule,
-        TagModule,
-        DropdownModule,
-        InputSwitchModule,
-        OverlayPanelModule,
-        ProductTableComponent,
-        ModeReglementComponent,
-        ButtonDirective,
-        ConfirmDialogModule,
-        DialogModule,
-        Footer,
-        AmountComputingComponent,
-        DividerModule,
-        DropdownModule,
-        WarehouseCommonModule,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        DialogModule,
-        ConfirmDialogModule,
-        PanelModule,
-        SelectButtonModule,
-        TooltipModule,
-        DividerModule,
-        KeyFilterModule,
-        TagModule,
-        DropdownModule,
-        InputSwitchModule,
-        OverlayPanelModule,
-        ProductTableComponent,
-        ModeReglementComponent,
-    ]
+  templateUrl: './base-sale.component.html',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    ConfirmDialogModule,
+    DialogModule,
+
+    AmountComputingComponent,
+    DividerModule,
+    DropdownModule,
+    WarehouseCommonModule,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    DialogModule,
+    ConfirmDialogModule,
+    PanelModule,
+    SelectButtonModule,
+    TooltipModule,
+    DividerModule,
+    KeyFilterModule,
+    TagModule,
+    DropdownModule,
+    InputSwitchModule,
+    OverlayPanelModule,
+    ProductTableComponent,
+    ModeReglementComponent,
+    ConfirmDialogModule,
+    DialogModule,
+
+    AmountComputingComponent,
+    DividerModule,
+    DropdownModule,
+    WarehouseCommonModule,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    DialogModule,
+    ConfirmDialogModule,
+    PanelModule,
+    SelectButtonModule,
+    TooltipModule,
+    DividerModule,
+    KeyFilterModule,
+    TagModule,
+    DropdownModule,
+    InputSwitchModule,
+    OverlayPanelModule,
+    ProductTableComponent,
+    ModeReglementComponent,
+  ],
 })
 export class BaseSaleComponent {
   differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
@@ -234,6 +233,8 @@ export class BaseSaleComponent {
       message: 'Voullez-vous regler le reste en différé ?',
       header: 'Vente différé',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.currentSaleService.currentSale().differe = true;
         this.finalyseSale();

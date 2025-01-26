@@ -47,44 +47,45 @@ import { BaseSaleService } from '../../service/base-sale.service';
 import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
+import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-comptant',
-    providers: [ConfirmationService, DialogService],
-    styles: [
-        `
+  selector: 'jhi-comptant',
+  providers: [ConfirmationService, DialogService],
+  styles: [
+    `
       .table tr:hover {
         cursor: pointer;
       }
     `,
-    ],
-    imports: [
-        WarehouseCommonModule,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        DialogModule,
-        ConfirmDialogModule,
-        PanelModule,
-        SelectButtonModule,
-        AutoCompleteModule,
-        TooltipModule,
-        DividerModule,
-        KeyFilterModule,
-        TagModule,
-        DropdownModule,
-        InputSwitchModule,
-        OverlayPanelModule,
-        ProductTableComponent,
-        AmountComputingComponent,
-        ModeReglementComponent,
-    ],
-    templateUrl: './comptant.component.html'
+  ],
+  imports: [
+    WarehouseCommonModule,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    DialogModule,
+    ConfirmDialogModule,
+    PanelModule,
+    SelectButtonModule,
+    AutoCompleteModule,
+    TooltipModule,
+    DividerModule,
+    KeyFilterModule,
+    TagModule,
+    DropdownModule,
+    InputSwitchModule,
+    OverlayPanelModule,
+    ProductTableComponent,
+    AmountComputingComponent,
+    ModeReglementComponent,
+  ],
+  templateUrl: './comptant.component.html',
 })
 export class ComptantComponent {
   @Input('isPresale') isPresale = false;
@@ -136,6 +137,8 @@ export class ComptantComponent {
       message: 'Voullez-vous regler le reste en différé ?',
       header: 'Vente différé',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (!this.currentSaleService.currentSale().customerId) {
           this.openUninsuredCustomer(true);
@@ -158,6 +161,8 @@ export class ComptantComponent {
       message: 'Vous devez ajouter un client à la vente ?',
       header: 'Vente en avoir',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.openUninsuredCustomer(false, putsOnStandby);
       },

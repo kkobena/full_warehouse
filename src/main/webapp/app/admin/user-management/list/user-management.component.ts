@@ -19,20 +19,19 @@ import { RippleModule } from 'primeng/ripple';
 import { PanelModule } from 'primeng/panel';
 
 @Component({
-    selector: 'jhi-user-mgmt',
-    templateUrl: './user-management.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        PanelModule,
-        RouterModule,
-        SharedModule,
-        UserManagementDeleteDialogComponent,
-        SortDirective,
-        SortByDirective,
-        ItemCountComponent,
-    ]
+  selector: 'jhi-user-mgmt',
+  templateUrl: './user-management.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    PanelModule,
+    RouterModule,
+    SharedModule,
+    SortDirective,
+    SortByDirective,
+    ItemCountComponent,
+  ],
 })
 export default class UserManagementComponent implements OnInit {
   currentAccount = inject(AccountService).trackCurrentAccount();

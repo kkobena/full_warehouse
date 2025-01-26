@@ -35,32 +35,33 @@ import { ErrorService } from '../../../shared/error.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DetailSingleReglementComponent } from '../detail-single-reglement/detail-single-reglement.component';
 import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-group-reglement.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-factures-reglees',
-    imports: [
-        ButtonModule,
-        TableModule,
-        WarehouseCommonModule,
-        ToolbarModule,
-        InputSwitchModule,
-        FormsModule,
-        FloatLabelModule,
-        AutoCompleteModule,
-        NgbDatepickerModule,
-        InputTextModule,
-        DividerModule,
-        RippleModule,
-        ConfirmDialogModule,
-    ],
-    providers: [
-        ConfirmationService,
-        I18n,
-        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-        { provide: NgbDateAdapter, useClass: CustomAdapter },
-        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-    ],
-    templateUrl: './factures-reglees.component.html'
+  selector: 'jhi-factures-reglees',
+  imports: [
+    ButtonModule,
+    TableModule,
+    WarehouseCommonModule,
+    ToolbarModule,
+    InputSwitchModule,
+    FormsModule,
+    FloatLabelModule,
+    AutoCompleteModule,
+    NgbDatepickerModule,
+    InputTextModule,
+    DividerModule,
+    RippleModule,
+    ConfirmDialogModule,
+  ],
+  providers: [
+    ConfirmationService,
+    I18n,
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+    { provide: NgbDateAdapter, useClass: CustomAdapter },
+    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+  ],
+  templateUrl: './factures-reglees.component.html',
 })
 export class FacturesRegleesComponent implements AfterViewInit {
   tiersPayantService = inject(TiersPayantService);
@@ -98,6 +99,8 @@ export class FacturesRegleesComponent implements AfterViewInit {
       message: ' Voullez-vous supprimer ces règlements ?',
       header: 'SUPPRESSION DE REGLEMENT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
           next: () => {
@@ -143,6 +146,8 @@ export class FacturesRegleesComponent implements AfterViewInit {
       message: ' Voullez-vous supprimer cet règlement ?',
       header: 'SUPPRESSION DE REGLEMENT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.reglementService.delete(item.id).subscribe({
           next: () => {

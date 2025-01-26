@@ -30,31 +30,42 @@ import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridApi, GridReadyEvent } from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ClientSideRowModelModule,
+  GridApi,
+  GridReadyEvent,
+  ModuleRegistry,
+  provideGlobalGridOptions,
+} from 'ag-grid-community';
 import { InputTextModule } from 'primeng/inputtext';
 import { Authority } from '../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../sales/service/has-authority.service';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+
+ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
+provideGlobalGridOptions({ theme: 'legacy' });
 
 @Component({
-    selector: 'jhi-store-inventory-update',
-    templateUrl: './store-inventory-update.component.html',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        RouterModule,
-        DividerModule,
-        NgxSpinnerModule,
-        DropdownModule,
-        AutoCompleteModule,
-        TableModule,
-        ButtonModule,
-        RippleModule,
-        ToastModule,
-        ConfirmDialogModule,
-        AgGridAngular,
-        InputTextModule,
-    ]
+  selector: 'jhi-store-inventory-update',
+  templateUrl: './store-inventory-update.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    RouterModule,
+    DividerModule,
+    NgxSpinnerModule,
+    DropdownModule,
+    AutoCompleteModule,
+    TableModule,
+    ButtonModule,
+    RippleModule,
+    ToastModule,
+    ConfirmDialogModule,
+    AgGridAngular,
+    InputTextModule,
+  ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   @ViewChild('itemsGrid') productGrid!: AgGridAngular;
@@ -190,6 +201,8 @@ export class StoreInventoryUpdateComponent implements OnInit {
       message: "Voullez-vous clôturer l'inventaire ?",
       header: ' CLOTURE',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.close(),
       key: 'saveAll',
     });
@@ -322,13 +335,6 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected onSelectStrorage(evt: any): void {
     this.loadPage(0);
     this.loadRayons(null, evt.value.id);
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
   }
 
   protected onSaveSuccess(): void {

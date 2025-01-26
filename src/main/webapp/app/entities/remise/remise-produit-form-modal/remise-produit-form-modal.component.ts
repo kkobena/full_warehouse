@@ -1,11 +1,11 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
-import { ConfirmationService, Message, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { RemiseService } from '../remise.service';
 import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
 import { Observable } from 'rxjs';
@@ -13,11 +13,11 @@ import { HttpResponse } from '@angular/common/http';
 import { MessagesModule } from 'primeng/messages';
 
 @Component({
-    selector: 'jhi-remise-produit-form-modal',
-    providers: [MessageService, ConfirmationService],
-    imports: [ButtonDirective, ReactiveFormsModule, Ripple, ToastModule, MessagesModule],
-    templateUrl: './remise-produit-form-modal.component.html',
-    styles: ``
+  selector: 'jhi-remise-produit-form-modal',
+  providers: [MessageService, ConfirmationService],
+  imports: [ReactiveFormsModule, Ripple, ToastModule, MessagesModule, ButtonModule],
+  templateUrl: './remise-produit-form-modal.component.html',
+  styles: ``,
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   modalService = inject(NgbModal);
@@ -64,7 +64,6 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   protected isSaving = false;
   protected title: string | null = null;
   protected remisesCodes: CodeRemise[] = [];
-  protected messages: Message | undefined;
 
   get grilleVno(): FormGroup {
     return this.editForm.get('vno') as FormGroup;

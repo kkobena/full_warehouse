@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonDirective, ButtonModule } from 'primeng/button';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -19,23 +19,25 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-complementaire-step',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        ReactiveFormsModule,
-        DropdownModule,
-        ButtonDirective,
-        KeyFilterModule,
-        InputTextModule,
-        AutoCompleteModule,
-        ToastModule,
-        CardModule,
-        ConfirmDialogModule,
-    ],
-    templateUrl: './complementaire-step.component.html',
-    styles: ``
+  selector: 'jhi-complementaire-step',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    ReactiveFormsModule,
+    DropdownModule,
+    ButtonDirective,
+    KeyFilterModule,
+    InputTextModule,
+    AutoCompleteModule,
+    ToastModule,
+    CardModule,
+    ConfirmDialogModule,
+    ButtonModule,
+  ],
+  templateUrl: './complementaire-step.component.html',
+  styles: ``,
 })
 export class ComplementaireStepComponent {
   catgories = [
@@ -207,6 +209,8 @@ export class ComplementaireStepComponent {
       message: 'Voulez-vous vraiment ce complémentaire ?',
       header: 'Suppression',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         this.removeTiersPayant(index);
       },

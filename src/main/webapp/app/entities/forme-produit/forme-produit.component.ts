@@ -16,27 +16,28 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-forme-produit',
-    templateUrl: './forme-produit.component.html',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextareaModule,
-    ]
+  selector: 'jhi-forme-produit',
+  templateUrl: './forme-produit.component.html',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TextareaModule,
+  ],
 })
 export class FormeProduitComponent implements OnInit {
   entites?: IFormProduit[];
@@ -102,6 +103,8 @@ export class FormeProduitComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);

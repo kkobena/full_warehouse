@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ICategorie } from 'app/shared/model/categorie.model';
@@ -14,17 +13,14 @@ import { PanelModule } from 'primeng/panel';
 
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
-import { SortDirective } from '../../shared/sort/sort.directive';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 @Component({
-    selector: 'jhi-categorie',
-    templateUrl: './categorie.component.html',
-    imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule, SortDirective, InfiniteScrollModule]
+  selector: 'jhi-categorie',
+  templateUrl: './categorie.component.html',
+  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule],
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];
-  eventSubscriber?: Subscription;
   itemsPerPage: number;
   links: any;
   page: number;

@@ -17,33 +17,35 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
+import { TextareaModule } from 'primeng/textarea';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-groupe-fournisseur',
-    templateUrl: './groupe-fournisseur.component.html',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextareaModule,
-        InputTextModule,
-        KeyFilterModule,
-        TooltipModule,
-    ]
+  selector: 'jhi-groupe-fournisseur',
+  templateUrl: './groupe-fournisseur.component.html',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TextareaModule,
+    InputTextModule,
+    KeyFilterModule,
+    TooltipModule,
+  ],
 })
 export class GroupeFournisseurComponent implements OnInit {
   fileDialog?: boolean;
@@ -124,6 +126,8 @@ export class GroupeFournisseurComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);

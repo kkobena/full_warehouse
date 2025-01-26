@@ -33,11 +33,13 @@
           class="p-picklist-filter-input p-inputtext p-component"
           role="textbox"
           type="text" />
-        <span
-          (click)=" searchSource = '';sourceFilter()"
-          *ngIf="searchSource"
-          class="p-picklist-filter-icon pi pi-times">
+        @if (searchSource) {
+          <span
+            (click)=" searchSource = '';sourceFilter()"
+
+            class="p-picklist-filter-icon pi pi-times">
                  </span>
+        }
       </div>
     </ng-template>
 
@@ -48,11 +50,12 @@
           class="p-picklist-filter-input
                        p-inputtext p-component"
           role="textbox" type="text" />
-        <span
-          (click)=" searchTarget = '';targeFilter()"
-          *ngIf="searchTarget"
-          class="p-picklist-filter-icon pi pi-times">
+        @if (searchTarget) {
+          <span
+            (click)=" searchTarget = '';targeFilter()"
+            class="p-picklist-filter-icon pi pi-times">
                  </span>
+        }
       </div>
     </ng-template>
 

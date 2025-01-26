@@ -11,10 +11,8 @@ import { MvtCaisse, MvtCaisseWrapper, TypeFinancialTransaction } from '../cash-r
 import { MvtCaisseServiceService } from './mvt-caisse-service.service';
 import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { IUser } from '../../core/user/user.model';
 import { ModePaymentService } from '../mode-payments/mode-payment.service';
@@ -32,28 +30,38 @@ import { CardModule } from 'primeng/card';
 import { Tuple } from '../../shared/model/tuple.model';
 import { MvtParamServiceService } from './mvt-param-service.service';
 import { ToastModule } from 'primeng/toast';
+import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
+import { FloatLabel } from 'primeng/floatlabel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
-    selector: 'jhi-visualisation-mvt-caisse',
-    providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
-    imports: [
-        WarehouseCommonModule,
-        ToolbarModule,
-        FormsModule,
-        RippleModule,
-        ButtonModule,
-        TableModule,
-        TooltipModule,
-        InputTextModule,
-        CalendarModule,
-        DropdownModule,
-        MultiSelectModule,
-        ButtonGroupModule,
-        DividerModule,
-        CardModule,
-        ToastModule,
-    ],
-    templateUrl: './visualisation-mvt-caisse.component.html'
+  selector: 'jhi-visualisation-mvt-caisse',
+  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+  imports: [
+    WarehouseCommonModule,
+    ToolbarModule,
+    FormsModule,
+    RippleModule,
+    ButtonModule,
+    TableModule,
+    TooltipModule,
+    InputTextModule,
+
+    MultiSelectModule,
+    ButtonGroupModule,
+    DividerModule,
+    CardModule,
+    ToastModule,
+    DatePicker,
+    Select,
+    FloatLabel,
+    IconField,
+    InputIcon,
+  ],
+  templateUrl: './visualisation-mvt-caisse.component.html',
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected search = '';
@@ -93,7 +101,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private modeService = inject(ModePaymentService);
   private dialogService = inject(DialogService);
-  private primeNGConfig = inject(PrimeNGConfig);
+  private primeNGConfig = inject(PrimeNG);
   private translate = inject(TranslateService);
   private mvtParamServiceService = inject(MvtParamServiceService);
   private messageService = inject(MessageService);

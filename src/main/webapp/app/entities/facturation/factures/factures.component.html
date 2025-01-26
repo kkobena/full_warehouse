@@ -42,11 +42,11 @@
           </div>
         </div>
         <div class="p-1">
-          <p-floatLabel>
+          <p-floatlabel>
             <input [(ngModel)]="search" class="form-control" id="search"
 
                    type="text"> <label for="search">Rechercher par numéro</label>
-          </p-floatLabel>
+          </p-floatlabel>
         </div>
         <div class="p-1">
           <select (change)="onSearch()" [(ngModel)]="statut" class="form-select">
@@ -57,7 +57,7 @@
         </div>
         @if (factureGroup) {
           <div class="p-1">
-            <p-floatLabel>
+            <p-floatlabel>
               <p-autoComplete id="groupeTiersPayants" inputId="groupeTiersPayants"
                               (completeMethod)="searchGroupTiersPayant($event)"
                               [(ngModel)]="selectedGroupeTiersPayants"
@@ -67,11 +67,11 @@
                               optionLabel="name">
               </p-autoComplete>
               <label for="groupeTiersPayants">Rechercher un groupe</label>
-            </p-floatLabel>
+            </p-floatlabel>
           </div>
         } @else {
           <div class="p-1">
-            <p-floatLabel>
+            <p-floatlabel>
               <p-autoComplete id="tiersPayantId" inputId="tiersPayantId"
                               (completeMethod)="searchTiersPayant($event)"
                               [(ngModel)]="selectedTiersPayants"
@@ -81,7 +81,7 @@
                               optionLabel="fullName">
               </p-autoComplete>
               <label for="tiersPayantId">Rechercher tiers-payants</label>
-            </p-floatLabel>
+            </p-floatlabel>
           </div>
         }
       </div>
@@ -95,7 +95,7 @@
         </div>
         <div class="p-1">
 
-          <p-splitButton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
+          <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
                          label="Exporter"
                          severity="help"
                          size="small" />
@@ -148,31 +148,33 @@
             <td style="text-align: right;">
               <div class="btn-group" role="group">
                 @if (factureGroup) {
-                  <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info"
+                  <p-button [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail" severity="info"
                             (click)="onOpenGroupeDetail(elRow)" />
                 } @else {
-                  <p-button icon="pi pi-eye" pTooltip="Voir détail" severity="info"
+                  <p-button [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail" severity="info"
                             (click)="onOpenDetail(elRow)" />
                 }
 
                 @if (!elRow.factureProvisoire && elRow.statut !== 'PAID') {
                   @if (factureGroup) {
-                    <p-button icon="pi pi-credit-card"
+                    <p-button [rounded]="true" icon="pi pi-credit-card"
                               [routerLink]="['/reglement-facture', elRow.factureId, 'groupes','faire-reglement']"
                               pTooltip="Régler" severity="success" />
                   } @else {
-                    <p-button
-                      [routerLink]="['/reglement-facture', elRow.factureId, 'individuelle','faire-reglement']"
-                      icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
+                    <p-button [rounded]="true"
+                              [routerLink]="['/reglement-facture', elRow.factureId, 'individuelle','faire-reglement']"
+                              icon="pi pi-credit-card" pTooltip="Régler" severity="success" />
                   }
 
                 }
-                <p-button [loading]="exporting" (click)="exportPdf(elRow.factureId)"
+                <p-button [rounded]="true" [loading]="exporting"
+                          (click)="exportPdf(elRow.factureId)"
                           icon="pi pi-file-pdf"
-                          pTooltip="Exporter en Pdf" severity="warning" />
+                          pTooltip="Exporter en Pdf" severity="warn" />
 
                 @if (elRow.statut === 'NOT_PAID') {
-                  <p-button icon="pi pi-trash" pTooltip="Supprimer" severity="danger"
+                  <p-button [rounded]="true" icon="pi pi-trash" pTooltip="Supprimer"
+                            severity="danger"
                             (click)="onDelete(elRow.factureId)" />
                 }
 
@@ -191,13 +193,7 @@
   </div>
 
 </div>
-<p-confirmDialog #delete [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
-  <p-footer>
-    <button (click)="delete.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="delete.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
+
 
 </p-confirmDialog>

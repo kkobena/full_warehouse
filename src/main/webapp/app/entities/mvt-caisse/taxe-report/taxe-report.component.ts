@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -8,7 +7,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TypeFinancialTransaction } from '../../cash-register/model/cash-register.model';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
 import { TaxeReportService } from './taxe-report.service';
@@ -16,38 +15,45 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { getTypeVentes, MvtCaisseParams } from '../mvt-caisse-util';
 import { TaxeWrapper } from './taxe-report.model';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ChartModule } from 'primeng/chart';
 import { DoughnutChart } from '../../../shared/model/doughnut-chart.model';
 import { CardModule } from 'primeng/card';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { ToastModule } from 'primeng/toast';
+import { FormsModule } from '@angular/forms';
+import { PrimeNG } from 'primeng/config';
+import { FloatLabel } from 'primeng/floatlabel';
+import { DatePickerModule } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
+import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 
 @Component({
-    selector: 'jhi-taxe-report',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        Button,
-        CalendarModule,
-        DropdownModule,
-        InputTextModule,
-        MultiSelectModule,
-        PaginatorModule,
-        ToolbarModule,
-        TooltipModule,
-        RadioButtonModule,
-        DecimalPipe,
-        DatePipe,
-        SelectButtonModule,
-        ChartModule,
-        CardModule,
-        ToastModule,
-    ],
-    templateUrl: './taxe-report.component.html'
+  selector: 'jhi-taxe-report',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    Button,
+    CommonModule,
+    DropdownModule,
+    InputTextModule,
+    MultiSelectModule,
+    PaginatorModule,
+    ToolbarModule,
+    TooltipModule,
+    RadioButtonModule,
+    SelectButtonModule,
+    ChartModule,
+    CardModule,
+    ToastModule,
+    FormsModule,
+    FloatLabel,
+    DatePickerModule,
+    Select,
+  ],
+  templateUrl: './taxe-report.component.html',
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {
-  protected documentStyle: CSSStyleDeclaration;
   protected fromDate: Date | undefined;
   protected toDate: Date | undefined;
   protected loading = false;
@@ -61,23 +67,15 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     { icon: 'pi pi-chart-bar', value: 'graphe' },
   ];
   protected doughnutChart: DoughnutChart | null = null;
-  protected textColor: string;
-  protected textColorSecondary: string;
-  protected surfaceBorder: string;
-  private primeNGConfig = inject(PrimeNGConfig);
+  private primeNGConfig = inject(PrimeNG);
   private translate = inject(TranslateService);
   private messageService = inject(MessageService);
   private taxeReportService = inject(TaxeReportService);
-  private colors: string[] = [];
-  private hoverColors: string[] = [];
-  private mvtParamServiceService = inject(MvtParamServiceService);
 
-  constructor() {
-    this.documentStyle = getComputedStyle(document.documentElement);
-    this.textColor = this.documentStyle.getPropertyValue('--text-color');
-    this.textColorSecondary = this.documentStyle.getPropertyValue('--text-color-secondary');
-    this.surfaceBorder = this.documentStyle.getPropertyValue('--surface-border');
-  }
+  private mvtParamServiceService = inject(MvtParamServiceService);
+  private chartColorsUtilsService = inject(ChartColorsUtilsService);
+
+  constructor() {}
 
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
@@ -89,22 +87,6 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     }
 
     this.onSearch();
-    this.colors = [
-      this.documentStyle.getPropertyValue('--blue-300'),
-      this.documentStyle.getPropertyValue('--yellow-300'),
-      this.documentStyle.getPropertyValue('--green-300'),
-      this.documentStyle.getPropertyValue('--pink-300'),
-      this.documentStyle.getPropertyValue('--orange-300'),
-      this.documentStyle.getPropertyValue('--red-300'),
-    ];
-    this.hoverColors = [
-      this.documentStyle.getPropertyValue('--blue-200'),
-      this.documentStyle.getPropertyValue('--yellow-200'),
-      this.documentStyle.getPropertyValue('--green-200'),
-      this.documentStyle.getPropertyValue('--pink-200'),
-      this.documentStyle.getPropertyValue('--orange-200'),
-      this.documentStyle.getPropertyValue('--red-200'),
-    ];
   }
 
   ngAfterViewInit(): void {
@@ -179,8 +161,8 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
         datasets: [
           {
             data: this.taxeReportWrapper?.chart?.data,
-            backgroundColor: this.colors.slice(0, this.taxeReportWrapper?.chart?.labeles.length),
-            hoverBackgroundColor: this.hoverColors.slice(0, this.taxeReportWrapper?.chart?.labeles.length),
+            backgroundColor: this.chartColorsUtilsService.colors().slice(0, this.taxeReportWrapper?.chart?.labeles.length),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart?.labeles.length),
           },
         ],
       },
@@ -190,7 +172,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.textColor,
+              color: this.chartColorsUtilsService.textColor(),
             },
           },
         },

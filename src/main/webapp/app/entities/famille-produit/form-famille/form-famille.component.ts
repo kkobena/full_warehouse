@@ -13,20 +13,21 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
+import { ICategorie } from '../../../shared/model/categorie.model';
 
 @Component({
-    selector: 'jhi-form-famille',
-    templateUrl: './form-famille.component.html',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        DropdownModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-    ]
+  selector: 'jhi-form-famille',
+  templateUrl: './form-famille.component.html',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+  ],
 })
 export class FormFamilleComponent implements OnInit {
   isSaving = false;
@@ -51,6 +52,9 @@ export class FormFamilleComponent implements OnInit {
   ngOnInit(): void {
     this.familleProduit = this.config.data.familleProduit;
     this.populateAssurrance();
+    if (this.familleProduit) {
+      this.updateForm(this.familleProduit);
+    }
   }
 
   updateForm(entity: IFamilleProduit): void {
@@ -62,14 +66,17 @@ export class FormFamilleComponent implements OnInit {
     });
   }
 
-  async populateAssurrance(): Promise<void> {
-    const categoriesResponse = await this.categorieProduitService.queryPromise({ search: '' });
-    categoriesResponse.forEach(e => {
-      this.categorieproduits.push({ label: e.libelle, value: e.id });
+  populateAssurrance(): void {
+    this.categorieProduitService.query({ search: '' }).subscribe({
+      next: (res: HttpResponse<ICategorie[]>) => {
+        this.categorieproduits = res.body!.map((item: ICategorie) => {
+          return {
+            label: item.libelle,
+            value: item.id,
+          };
+        });
+      },
     });
-    if (this.familleProduit) {
-      this.updateForm(this.familleProduit);
-    }
   }
 
   save(): void {

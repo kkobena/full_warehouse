@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { Ripple } from 'primeng/ripple';
@@ -17,22 +17,23 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-remise-produits',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        FormsModule,
-        ToastModule,
-        ButtonDirective,
-        ConfirmDialogModule,
-        InputSwitchModule,
-        Ripple,
-        TableModule,
-        ToolbarModule,
-        TooltipModule,
-    ],
-    templateUrl: './remise-produits.component.html'
+  selector: 'jhi-remise-produits',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    FormsModule,
+    ToastModule,
+    ConfirmDialogModule,
+    InputSwitchModule,
+    Ripple,
+    TableModule,
+    ToolbarModule,
+    TooltipModule,
+    ButtonModule,
+  ],
+  templateUrl: './remise-produits.component.html',
 })
 export class RemiseProduitsComponent implements OnInit {
   responsedto!: IResponseDto;
@@ -62,6 +63,8 @@ export class RemiseProduitsComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();

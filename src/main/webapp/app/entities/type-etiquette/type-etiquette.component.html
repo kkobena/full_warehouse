@@ -65,11 +65,11 @@
 
     <p-footer>
 
-      <button (click)="save()" [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
-              label="Enregistrer"
-              pButton type="submit"></button>
-      <button (click)="cancel()" class="ui-button-danger" icon="pi pi-times" label="Annuler" pButton
-              type="button"></button>
+      <p-button (click)="save()" [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
+                label="Enregistrer"
+                type="submit"></p-button>
+      <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="danger"
+                type="button"></p-button>
 
     </p-footer>
   </p-dialog>

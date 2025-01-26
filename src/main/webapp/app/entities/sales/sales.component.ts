@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import moment from 'moment';
@@ -11,14 +11,13 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
 import { HOURS, ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
-import { DropdownModule } from 'primeng/dropdown';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
 import { CalendarModule } from 'primeng/calendar';
@@ -28,11 +27,19 @@ import { VoSalesService } from './service/vo-sales.service';
 import { HasAuthorityService } from './service/has-authority.service';
 import { SaleToolBarService } from './service/sale-tool-bar.service';
 import { Authority } from '../../shared/constants/authority.constants';
+import { PrimeNG } from 'primeng/config';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
-    selector: 'jhi-sales',
-    styles: [
-        `
+  selector: 'jhi-sales',
+  styles: [
+    `
       .table tr:hover {
         cursor: pointer;
       }
@@ -66,26 +73,32 @@ import { Authority } from '../../shared/constants/authority.constants';
         color: #2d2d2d !important;
       }
     `,
-    ],
-    templateUrl: './sales.component.html',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        RouterModule,
-        ConfirmDialogModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        TableModule,
-        DropdownModule,
-        ToolbarModule,
-        DividerModule,
-        CalendarModule,
-        CheckboxModule,
-        SplitButtonModule,
-    ]
+  ],
+  templateUrl: './sales.component.html',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ConfirmDialogModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    ToolbarModule,
+    DividerModule,
+    CalendarModule,
+    CheckboxModule,
+    SplitButtonModule,
+    ConfirmDialog,
+    Select,
+    IconField,
+    InputIcon,
+    InputGroupModule,
+    InputGroupAddonModule,
+    DatePickerModule,
+  ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
@@ -113,9 +126,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   primngtranslate: Subscription;
   hasAuthorityService = inject(HasAuthorityService);
   saleToolBarService = inject(SaleToolBarService);
-  userControl = viewChild<ElementRef>('userControl');
+  userControl = viewChild<Select>('userControl');
   public translate = inject(TranslateService);
-  public primeNGConfig = inject(PrimeNGConfig);
+  public primeNGConfig = inject(PrimeNG);
   protected assuranceSalesService = inject(VoSalesService);
   protected salesService = inject(SalesService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -165,7 +178,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
       if (res.body) {
-        this.users = res.body;
+        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [...this.users, ...res.body];
       }
     });
   }
@@ -245,6 +259,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       message: 'Voulez-vous vraiment annuler cette vente ?',
       header: 'ANNULATION DE VENTE',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.delete(sale),
       key: 'deleteVente',
     });
@@ -270,7 +286,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.userControl().nativeElement.value = this.selectedUserId;
+    this.userControl().value = this.selectedUserId;
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {

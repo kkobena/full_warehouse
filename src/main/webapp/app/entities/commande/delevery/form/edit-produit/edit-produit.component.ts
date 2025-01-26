@@ -24,24 +24,26 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ToastModule } from 'primeng/toast';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
-    selector: 'jhi-edit-produit',
-    templateUrl: './edit-produit.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        DropdownModule,
-        ToastModule,
-        InputMaskModule,
-    ]
+  selector: 'jhi-edit-produit',
+  templateUrl: './edit-produit.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    ToastModule,
+    KeyFilterModule,
+    InputMaskModule,
+  ],
 })
 export class EditProduitComponent implements OnInit {
   appendTo = 'body';

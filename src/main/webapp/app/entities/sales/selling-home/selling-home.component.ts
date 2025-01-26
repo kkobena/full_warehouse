@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { AutoCompleteModule } from 'primeng/autocomplete';
+import { AutoComplete } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -8,7 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
@@ -67,43 +67,49 @@ import { BaseSaleService } from '../service/base-sale.service';
 import { CarnetComponent } from './carnet/carnet.component';
 import { Authority } from '../../../shared/constants/authority.constants';
 import { RemiseCacheService } from '../service/remise-cache.service';
+import { PrimeNG } from 'primeng/config';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 @Component({
-    selector: 'jhi-selling-home',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        WarehouseCommonModule,
-        PreventeModalComponent,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        DialogModule,
-        ConfirmDialogModule,
-        PanelModule,
-        SelectButtonModule,
-        AutoCompleteModule,
-        TooltipModule,
-        DividerModule,
-        KeyFilterModule,
-        TagModule,
-        DropdownModule,
-        InputSwitchModule,
-        OverlayPanelModule,
-        CardModule,
-        ComptantComponent,
-        CustomerOverlayPanelComponent,
-        InputGroupModule,
-        AssuranceComponent,
-        AssuranceDataComponent,
-        ToastModule,
-        CarnetComponent,
-    ],
-    templateUrl: './selling-home.component.html'
+  selector: 'jhi-selling-home',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    PreventeModalComponent,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    DialogModule,
+    ConfirmDialogModule,
+    PanelModule,
+    SelectButtonModule,
+    TooltipModule,
+    DividerModule,
+    KeyFilterModule,
+    TagModule,
+    DropdownModule,
+    InputSwitchModule,
+    OverlayPanelModule,
+    CardModule,
+    ComptantComponent,
+    CustomerOverlayPanelComponent,
+    InputGroupModule,
+    AssuranceComponent,
+    AssuranceDataComponent,
+    ToastModule,
+    CarnetComponent,
+    Select,
+    InputGroupAddonModule,
+    AutoComplete,
+  ],
+  templateUrl: './selling-home.component.html',
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   responseEvent: Subscription;
@@ -148,7 +154,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   decondtionService = inject(DeconditionService);
   dialogService = inject(DialogService);
   translate = inject(TranslateService);
-  primeNGConfig = inject(PrimeNGConfig);
+  primeNGConfig = inject(PrimeNG);
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
   protected canForceStock: boolean;
@@ -372,6 +378,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           message: 'Voullez-vous continuer la vente sans numéro de bon ?',
           header: 'Vente sans numéro de bon',
           icon: 'pi pi-info-circle',
+          rejectButtonProps: rejectButtonProps(),
+          acceptButtonProps: acceptButtonProps(),
           accept: () => {
             if (this.isAssurance()) {
               this.assuranceComponent().save();
@@ -661,6 +669,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       message: 'Stock détail insuffisant . Voullez-vous faire un déconditionnement ?',
       header: 'DECONDITIONNEMENT A LA VENTE',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         const qtyDetail = produit.itemQty;
         if (qtyDetail) {
@@ -696,6 +706,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       message,
       header: 'FORCER LE STOCK ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.processQtyRequested(salesLine);
       },
@@ -888,6 +900,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         message,
         header: 'Changement de type de vente',
         icon: 'pi pi-info-circle',
+        rejectButtonProps: rejectButtonProps(),
+        acceptButtonProps: acceptButtonProps(),
         accept: () => {
           if (evt.nextId === 'comptant') {
             if (currentSale.categorie === 'VO') {
@@ -1152,6 +1166,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       message,
       header: 'FORCER LE STOCK',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.onAddProduit(qytMvt);
       },

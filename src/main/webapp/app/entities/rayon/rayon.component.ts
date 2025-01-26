@@ -1,5 +1,5 @@
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -23,30 +23,34 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
-import { MagasinService } from '../magasin/magasin.service';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
-    selector: 'jhi-rayon',
-    templateUrl: './rayon.component.html',
-    styleUrls: ['./rayon.component.scss'],
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DropdownModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        InputTextModule,
-        TooltipModule,
-        DynamicDialogModule,
-        FormsModule,
-        DialogModule,
-    ]
+  selector: 'jhi-rayon',
+  templateUrl: './rayon.component.html',
+  styleUrls: ['./rayon.component.scss'],
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DropdownModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    DynamicDialogModule,
+    FormsModule,
+    DialogModule,
+    IconField,
+    InputIcon,
+  ],
 })
 export class RayonComponent implements OnInit {
   magasin?: IMagasin;
@@ -67,16 +71,14 @@ export class RayonComponent implements OnInit {
   customUpload = true;
   selectedEl: IRayon[];
   multipleSite = false;
+  protected entityService = inject(RayonService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(ConfirmationService);
+  protected dialogService = inject(DialogService);
+  protected messageService = inject(MessageService);
 
-  constructor(
-    protected entityService: RayonService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: ConfirmationService,
-    private dialogService: DialogService,
-    private messageService: MessageService,
-    private magasinService: MagasinService,
-  ) {
+  constructor() {
     this.magasins = [];
     this.selectedEl = [];
     this.entites = [];
@@ -186,6 +188,8 @@ export class RayonComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
@@ -196,10 +200,6 @@ export class RayonComponent implements OnInit {
 
   search(event: any): void {
     this.loadPage(0, event.target.value);
-  }
-
-  cloner(): void {
-    this.dialogueClone = true;
   }
 
   onCloneChange(event: any): void {
@@ -221,8 +221,6 @@ export class RayonComponent implements OnInit {
       this.uploadFileResponse(this.entityService.cloner(this.selectedEl, this.clone.id));
     }
   }
-
-  onBasculer(entity: IRayon): void {}
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.subscribe({

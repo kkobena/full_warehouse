@@ -1,8 +1,6 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { CashRegisterService } from '../../cash-register/cash-register.service';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IUser } from '../../../core/user/user.model';
 import { CashRegister, CashRegisterStatut, MvtCaisse } from '../../cash-register/model/cash-register.model';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { MvtCaisseParams } from '../mvt-caisse-util';
@@ -23,27 +21,32 @@ import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
-    selector: 'jhi-gestion-caisse',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        Button,
-        CalendarModule,
-        DropdownModule,
-        InputTextModule,
-        MultiSelectModule,
-        ToolbarModule,
-        TooltipModule,
-        FormsModule,
-        ToastModule,
-        CardModule,
-        TableModule,
-        TagModule,
-    ],
-    templateUrl: './gestion-caisse.component.html',
-    styles: ``
+  selector: 'jhi-gestion-caisse',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    Button,
+    InputTextModule,
+    MultiSelectModule,
+    ToolbarModule,
+    TooltipModule,
+    FormsModule,
+    ToastModule,
+    CardModule,
+    TableModule,
+    TagModule,
+    DatePicker,
+    Select,
+    FloatLabel,
+  ],
+  templateUrl: './gestion-caisse.component.html',
+  styles: ``,
 })
 export class GestionCaisseComponent implements OnInit, AfterViewInit {
   entityService = inject(CashRegisterService);
@@ -63,7 +66,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
-  private primeNGConfig = inject(PrimeNGConfig);
+  private primeNGConfig = inject(PrimeNG);
   private translate = inject(TranslateService);
   private userService = inject(UserService);
   private mvtParamServiceService = inject(MvtParamServiceService);

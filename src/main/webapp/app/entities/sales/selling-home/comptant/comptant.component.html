@@ -4,33 +4,6 @@
 </ngx-spinner>
 
 
-<p-confirmDialog #addModePaymentConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 appendTo="body"
-                 key="addModePaymentConfirmDialog">
-  <p-footer>
-    <button (click)="addModePaymentConfirmDialog.reject()" class="p-button-danger"
-            icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button #addModePaymentConfirmDialogBtn (click)="addModePaymentConfirmDialog.accept()"
-            icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-</p-confirmDialog>
-<p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
-                 key="forcerStock">
-
-
-  <p-footer>
-    <button (click)="forcerStock.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button #forcerStockBtn (click)="forcerStock.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-</p-confirmDialog>
-
-
 <p-divider></p-divider>
 @if (this.currentSaleService.currentSale()) {
   <div class="row">
@@ -76,24 +49,11 @@
 <p-confirmDialog #differeConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  appendTo="body"
                  key="differeConfirmDialog">
-  <p-footer>
-    <button (click)="differeConfirmDialog.reject()" class="p-button-danger"
-            icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button #differeConfirmDialogBtn (click)="differeConfirmDialog.accept()"
-            icon="pi pi-check" label="Oui"
-            pButton type="button"></button>
-  </p-footer>
+
 </p-confirmDialog>
 
 <p-confirmDialog #avoirConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  appendTo="body"
                  key="avoirConfirmDialog">
-  <p-footer>
 
-    <button #avoirConfirmDialogBtn (click)="avoirConfirmDialog.accept()"
-            icon="pi pi-check" label="Ajouter"
-            pButton type="button"></button>
-  </p-footer>
 </p-confirmDialog>

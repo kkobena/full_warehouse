@@ -1,24 +1,8 @@
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
              type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
-<p-confirmDialog #printTicket [baseZIndex]="10000" [style]="{width: '40vw'}" key="printTicket">
-  <p-footer>
-    <button (click)="printTicket.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="printTicket.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
-
-</p-confirmDialog>
-<p-confirmDialog #saveAll [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="saveAll">
-  <p-footer>
-    <button (click)="saveAll.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="saveAll.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>
 
@@ -57,49 +41,57 @@
         Filtre
       </div>
       <div class="card-body">
-        <div *ngIf="storeInventory.inventoryCategory.name==='MAGASIN'" class="row">
-          <label>Emplacements</label>
-          <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
-                      [appendTo]="APPEND_TO"
-                      [filter]="false"
-                      [options]="storages"
-                      [showClear]="true"
-                      [style]="{'width':'100%'}"
-                      optionLabel="name" placeholder="Séléctionner un emplacement"
-          >
-          </p-dropdown>
-        </div>
-        <div *ngIf="storeInventory.inventoryCategory.name!=='RAYON'" class="row"
-             style="margin-top: 0.5rem;">
-          <label>Rayons</label>
-          <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
-                          (onClear)="onClear()"
-                          (onSelect)="onSelect()"
-                          [(ngModel)]="selectedRayon"
-                          [appendTo]="APPEND_TO"
-                          [dataKey]="'id'"
-                          [dropdown]="true"
-                          [emptyMessage]="NOT_FOUND"
-                          [inputStyle]="{'width':'100%'}"
-                          [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
-                          [showEmptyMessage]="true"
-                          [style]="{'width':'100%'}" [suggestions]="rayons"
-                          optionLabel="libelle"></p-autoComplete>
-        </div>
+        @if (storeInventory.inventoryCategory.name === 'MAGASIN') {
+          <div class="row">
+            <label>Emplacements</label>
+            <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+                        [appendTo]="APPEND_TO"
+                        [filter]="false"
+                        [options]="storages"
+                        [showClear]="true"
+                        [style]="{'width':'100%'}"
+                        optionLabel="name" placeholder="Séléctionner un emplacement"
+            >
+            </p-dropdown>
+          </div>
+        }
+        @if (storeInventory.inventoryCategory.name !== 'RAYON') {
+
+          <div class="row"
+               style="margin-top: 0.5rem;">
+            <label>Rayons</label>
+            <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
+                            (onClear)="onClear()"
+                            (onSelect)="onSelect()"
+                            [(ngModel)]="selectedRayon"
+                            [appendTo]="APPEND_TO"
+                            [dataKey]="'id'"
+                            [dropdown]="true"
+                            [emptyMessage]="NOT_FOUND"
+                            [inputStyle]="{'width':'100%'}"
+                            [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
+                            [showEmptyMessage]="true"
+                            [style]="{'width':'100%'}" [suggestions]="rayons"
+                            optionLabel="libelle"></p-autoComplete>
+          </div>
+        }
+        @if (showFilterCombox) {
+          <div class="row" style="margin-top: 0.5rem;">
+            <label>Filtrer par</label>
+            <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
+                        [appendTo]="APPEND_TO"
+                        [filter]="false"
+                        [options]="filtres"
+                        [showClear]="true"
+                        [style]="{'width':'100%'}"
+                        optionLabel="label" placeholder="Filtrer par"
+            >
+            </p-dropdown>
+          </div>
+        }
 
 
-        <div *ngIf="showFilterCombox" class="row" style="margin-top: 0.5rem;">
-          <label>Filtrer par</label>
-          <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
-                      [appendTo]="APPEND_TO"
-                      [filter]="false"
-                      [options]="filtres"
-                      [showClear]="true"
-                      [style]="{'width':'100%'}"
-                      optionLabel="label" placeholder="Filtrer par"
-          >
-          </p-dropdown>
-        </div>
+
 
         <div class="row" style="margin-top: 0.5rem;">
                    <span class="p-buttonset justify-content-center">
@@ -154,18 +146,21 @@
 
                        style="width: 100%; height: 100%;">
       </ag-grid-angular>
-      <div *ngIf="storeInventoryLines && storeInventoryLines.length > 0" class="mt-2">
+      @if (storeInventoryLines && storeInventoryLines.length > 0) {
+        <div class="mt-2">
 
 
-        <div class="d-flex justify-content-center">
-          <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage"
-                          [boundaryLinks]="true"
-                          [collectionSize]="totalItems" [maxSize]="5" [pageSize]="itemsPerPage"
-                          [rotate]="true"></ngb-pagination>
+          <div class="d-flex justify-content-center">
+            <ngb-pagination (pageChange)="loadPage($event)" [(page)]="ngbPaginationPage"
+                            [boundaryLinks]="true"
+                            [collectionSize]="totalItems" [maxSize]="5" [pageSize]="itemsPerPage"
+                            [rotate]="true"></ngb-pagination>
+          </div>
+
+
         </div>
+      }
 
-
-      </div>
     </div>
 
 

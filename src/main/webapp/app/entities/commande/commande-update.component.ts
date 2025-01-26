@@ -38,11 +38,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ToastModule } from 'primeng/toast';
 import { CommandCommonService } from './command-common.service';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-commande-update',
-    styles: [
-        `
+  selector: 'jhi-commande-update',
+  styles: [
+    `
       .table tr:hover {
         cursor: pointer;
       }
@@ -73,30 +74,30 @@ import { CommandCommonService } from './command-common.service';
         margin-left: 0.1rem;
       }
     `,
-    ],
-    templateUrl: './commande-update.component.html',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        NgSelectModule,
-        ButtonModule,
-        RippleModule,
-        NgxSpinnerModule,
-        ConfirmDialogModule,
-        InputTextModule,
-        TagModule,
-        TableModule,
-        RouterModule,
-        SplitButtonModule,
-        AutoCompleteModule,
-        FileUploadModule,
-        DropdownModule,
-        DialogModule,
-        ToolbarModule,
-        TooltipModule,
-        ToastModule,
-    ]
+  ],
+  templateUrl: './commande-update.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    NgxSpinnerModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    TagModule,
+    TableModule,
+    RouterModule,
+    SplitButtonModule,
+    AutoCompleteModule,
+    FileUploadModule,
+    DropdownModule,
+    DialogModule,
+    ToolbarModule,
+    TooltipModule,
+    ToastModule,
+  ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   isSaving = false;
@@ -180,7 +181,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       }
     });
     this.loadFournisseurs();
-    console.log('retour------ 0000', this.commande);
   }
 
   filtreFournisseur(event: any): void {
@@ -396,6 +396,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       message: ' Voullez-vous supprimer de la commande  ce produit ?',
       header: 'SUPPRESSION DE PRODUIT ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.onDeleteOrderLineById(item),
       reject: () => {
         this.updateProduitQtyBox();
@@ -409,6 +411,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       message: ' Voullez-vous rester sur la page ?',
       header: ' INFORMATION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => this.resetAll(),
       reject: () => {
         this.previousState();

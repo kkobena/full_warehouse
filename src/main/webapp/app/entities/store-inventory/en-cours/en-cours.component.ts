@@ -25,22 +25,23 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-en-cours',
-    templateUrl: './en-cours.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ConfirmDialogModule,
-        ButtonModule,
-        RippleModule,
-        TooltipModule,
-        ToastModule,
-        NgxSpinnerModule,
-        TableModule,
-        RouterModule,
-    ],
-    providers: [ConfirmationService, DialogService, MessageService]
+  selector: 'jhi-en-cours',
+  templateUrl: './en-cours.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ConfirmDialogModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ToastModule,
+    NgxSpinnerModule,
+    TableModule,
+    RouterModule,
+  ],
+  providers: [ConfirmationService, DialogService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
   @Input() inventoryCategories: InventoryCategory[];
@@ -98,6 +99,8 @@ export class EnCoursComponent implements OnInit {
       message: "Voullez-vous clôturer l'inventaire ?",
       header: ' CLOTURE',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.close(storeInventory.id),
       key: 'saveAll',
     });

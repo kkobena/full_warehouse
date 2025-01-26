@@ -45,11 +45,11 @@
       <td>{{ customer.lastName }}</td>
       <td>{{ customer.phone }}</td>
       <td style="text-align: right;">
-        <button (click)="onSelect(customer)"
-                class="p-button-rounded p-button-info p-button-sm  p-mb-3" icon="pi pi-check"
-                pButton
-                pRipple
-                pTooltip="Séléctionner"></button>
+        <p-button (click)="onSelect(customer)" [rounded]="true" class=" p-mb-3" icon="pi pi-check"
+                  pRipple pTooltip="Séléctionner"
+
+                  severity="info"
+                  size="small"></p-button>
       </td>
     </tr>
 

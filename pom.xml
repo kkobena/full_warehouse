@@ -699,7 +699,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <relativePath/>
-        <version>3.3.3</version>
+        <version>3.4.1</version>
         <!-- lookup parent from repository -->
     </parent>
 
@@ -981,9 +981,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.2.5</maven.version>
 
-        <node.version>v20.15.0</node.version>
+        <node.version>v22.13.0</node.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
-        <npm.version>10.8.1</npm.version>
+        <npm.version>10.9.2</npm.version>
         <profile.api-docs/>
         <profile.e2e/>
 

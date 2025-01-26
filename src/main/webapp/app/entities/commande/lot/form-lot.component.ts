@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, Subscription } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
@@ -17,24 +17,25 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
 
 @Component({
-    selector: 'jhi-form-lot',
-    templateUrl: './form-lot.component.html',
-    providers: [MessageService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TooltipModule,
-        ToastModule,
-        RippleModule,
-        DynamicDialogModule,
-        FormsModule,
-        ReactiveFormsModule,
-        KeyFilterModule,
-        CalendarModule,
-        InputTextModule,
-    ]
+  selector: 'jhi-form-lot',
+  templateUrl: './form-lot.component.html',
+  providers: [MessageService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TooltipModule,
+    ToastModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    KeyFilterModule,
+    CalendarModule,
+    InputTextModule,
+  ],
 })
 export class FormLotComponent implements OnInit {
   primngtranslate: Subscription;
@@ -73,7 +74,7 @@ export class FormLotComponent implements OnInit {
     public config: DynamicDialogConfig,
     private fb: FormBuilder,
     private messageService: MessageService,
-    public primeNGConfig: PrimeNGConfig,
+    public primeNGConfig: PrimeNG,
     public translate: TranslateService,
   ) {
     this.translate.use('fr');

@@ -1,10 +1,6 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
-  <p-footer>
-    <button (click)="cd.accept()" icon="pi pi-check" label="Oui" pButton type="button"></button>
-    <button (click)="cd.reject()" class="p-button-danger" icon="pi pi-times" label="Non" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
+
 </p-confirmDialog>
 
 <div class="card" style="padding-right: 1rem;padding-left: 1rem;padding-bottom: 1rem;"><h3>Liste des
@@ -14,11 +10,11 @@
     </div>
     <div class="p-toolbar-group-right">
 
-      <button (click)="onOpenRemiseClientForm()" class="p-button-raised p-button-success"
-              icon="pi pi-plus"
-              iconPos="left" label="Nouveau"
-              pButton pRipple style="float: right;"
-              type="button"></button>
+      <p-button (click)="onOpenRemiseClientForm()"
+                [raised]="true" icon="pi pi-plus"
+                label="Nouveau" pRipple
+                severity="success"
+                type="button"></p-button>
     </div>
   </p-toolbar>
 
@@ -51,17 +47,17 @@
 
           <td class="text-right">
             @if (elRow.enable) {
-              <button (click)="onOpenRemiseClientForm(elRow)"
-                      class="p-button-rounded p-button-success p-mr-1"
-                      icon="pi pi-pencil" pButton pRipple
-                      pTooltip="Editer"
-                      type="submit"></button>
+              <p-button (click)="onOpenRemiseClientForm(elRow)"
+                        severity="success"
+                        icon="pi pi-pencil" [rounded]="true"
+                        pTooltip="Editer" size="small"
+              ></p-button>
 
             }
 
-            <button (click)="delete(elRow)" class="p-button-rounded p-button-danger"
-                    icon="pi pi-trash" pButton pRipple
-                    pTooltip="Supprimer" type="button"></button>
+            <p-button (click)="delete(elRow)" [rounded]="true" severity="danger"
+                      icon="pi pi-trash" size="small"
+                      pTooltip="Supprimer" type="button"></p-button>
           </td>
         </tr>
       </ng-template>

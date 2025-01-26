@@ -7,7 +7,6 @@ import { IResponseDto } from '../../shared/util/response-dto';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
@@ -21,28 +20,28 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-modif-ajustement',
-    templateUrl: './modif-ajustement.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        InputTextModule,
-        TooltipModule,
-        DynamicDialogModule,
-        FormsModule,
-        FormMotifAjustementComponent,
-    ]
+  selector: 'jhi-modif-ajustement',
+  templateUrl: './modif-ajustement.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    DynamicDialogModule,
+    FormsModule,
+  ],
 })
 export class ModifAjustementComponent implements OnInit {
   fileDialog?: boolean;
@@ -56,14 +55,11 @@ export class ModifAjustementComponent implements OnInit {
   selectedEl?: IMotifAjustement;
   loading!: boolean;
   isSaving = false;
-  customUpload = true;
-  displayDialog?: boolean;
 
   constructor(
     protected entityService: ModifAjustementService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    private messageService: MessageService,
     private dialogService: DialogService,
     protected modalService: ConfirmationService,
   ) {}
@@ -110,17 +106,14 @@ export class ModifAjustementComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
     });
-  }
-
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
   }
 
   delete(entity: IMotifAjustement): void {
@@ -131,19 +124,8 @@ export class ModifAjustementComponent implements OnInit {
     this.confirmDialog(id);
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
-  }
-
   search(event: any): void {
     this.loadPage(0, event.target.value);
-  }
-
-  showFileDialog(): void {
-    this.fileDialog = true;
   }
 
   addNewEntity(): void {
@@ -166,30 +148,6 @@ export class ModifAjustementComponent implements OnInit {
     this.ref.onClose.subscribe(() => {
       this.loadPage(0);
     });
-  }
-
-  protected onSaveError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'opération a échouée",
-    });
-  }
-
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
-    });
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-      this.responseDialog = true;
-      this.fileDialog = false;
-      this.loadPage(0);
-    }
   }
 
   protected onSuccess(data: IMotifAjustement[] | null, headers: HttpHeaders, page: number): void {

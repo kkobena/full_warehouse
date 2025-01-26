@@ -1,13 +1,11 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ButtonDirective } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { RadioButtonModule } from 'primeng/radiobutton';
+import { RadioButton, RadioButtonModule } from 'primeng/radiobutton';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -25,25 +23,25 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 
 @Component({
-    selector: 'jhi-assure-step',
-    imports: [
-        AutoCompleteModule,
-        ButtonDirective,
-        DividerModule,
-        DropdownModule,
-        FaIconComponent,
-        InputMaskModule,
-        InputTextModule,
-        KeyFilterModule,
-        RadioButtonModule,
-        ReactiveFormsModule,
-        SelectButtonModule,
-        TranslateDirective,
-        CardModule,
-        ComplementaireStepComponent,
-    ],
-    templateUrl: './assure-step.component.html',
-    styles: ``
+  selector: 'jhi-assure-step',
+  imports: [
+    AutoCompleteModule,
+    RadioButton,
+    RadioButtonModule,
+    DividerModule,
+    DropdownModule,
+    InputMaskModule,
+    InputTextModule,
+    KeyFilterModule,
+    RadioButtonModule,
+    ReactiveFormsModule,
+    SelectButtonModule,
+    TranslateDirective,
+    CardModule,
+    ComplementaireStepComponent,
+  ],
+  templateUrl: './assure-step.component.html',
+  styles: ``,
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;

@@ -11,26 +11,30 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DropdownModule } from 'primeng/dropdown';
 import { ToolbarModule } from 'primeng/toolbar';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { Select } from 'primeng/select';
 
 @Component({
-    selector: 'jhi-presale',
-    templateUrl: './presale.component.html',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        RouterModule,
-        ConfirmDialogModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        TableModule,
-        DropdownModule,
-        ToolbarModule,
-    ]
+  selector: 'jhi-presale',
+  templateUrl: './presale.component.html',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ConfirmDialogModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    ToolbarModule,
+    IconField,
+    InputIcon,
+    Select,
+  ],
 })
 export class PresaleComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];

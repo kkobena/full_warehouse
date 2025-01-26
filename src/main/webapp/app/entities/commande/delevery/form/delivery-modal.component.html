@@ -146,14 +146,18 @@
   </form>
   <ng-template pTemplate="footer">
     <button (click)="save()" [disabled]="editForm.invalid || isSaving"
-            class="p-button-success mr-2 p-button-raised" icon="pi pi-check"
-            label="Enregistrer"
-            pButton pRipple
-            type="submit"></button>
-    <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler"
+            [raised]="true" class=" mr-2"
             pButton
-            pRipple type="button"></button>
+            pButtonIcon="pi pi-check"
+            pButtonLabel="Enregistrer"
+            pRipple severity="success"
+            type="submit"></button>
+    <button (click)="cancel()" [raised]="true" class=" p-mr-2"
+            pButton
+            pButtonIcon="pi pi-times"
+            pButtonLabel="Annuler"
+            pRipple
+            severity="danger" type="button"></button>
   </ng-template>
 </p-card>
 

@@ -24,12 +24,15 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
-    selector: 'jhi-fournisseur',
-    templateUrl: './fournisseur.component.html',
-    styles: [
-        `
+  selector: 'jhi-fournisseur',
+  templateUrl: './fournisseur.component.html',
+  styles: [
+    `
       body .ui-inputtext {
         width: 100% !important;
       }
@@ -38,28 +41,30 @@ import { TooltipModule } from 'primeng/tooltip';
         width: 100% !important;
       }
     `,
-    ],
-    providers: [MessageService, ConfirmationService],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        ToastModule,
-        DialogModule,
-        FileUploadModule,
-        ToolbarModule,
-        TableModule,
-        RouterModule,
-        NgxSpinnerModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        DropdownModule,
-        KeyFilterModule,
-        TooltipModule,
-    ]
+  ],
+  providers: [MessageService, ConfirmationService],
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    DialogModule,
+    FileUploadModule,
+    ToolbarModule,
+    TableModule,
+    RouterModule,
+    NgxSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    KeyFilterModule,
+    TooltipModule,
+    IconFieldModule,
+    InputIconModule,
+  ],
 })
 export class FournisseurComponent implements OnInit {
   fileDialog?: boolean;
@@ -146,6 +151,8 @@ export class FournisseurComponent implements OnInit {
       message: 'Voulez-vous supprimer cet enregistrement ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);

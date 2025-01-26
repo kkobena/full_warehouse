@@ -9,14 +9,14 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { PickListModule } from 'primeng/picklist';
 import { ToolbarModule } from 'primeng/toolbar';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
-    selector: 'jhi-produit-associes',
-    templateUrl: './produit-associes.component.html',
-    imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, RippleModule]
+  selector: 'jhi-produit-associes',
+  templateUrl: './produit-associes.component.html',
+  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule, DividerModule],
 })
 export class ProduitAssociesComponent implements OnInit {
   produitsSource: IProduit[] = [];
@@ -25,6 +25,7 @@ export class ProduitAssociesComponent implements OnInit {
   searchSource: string;
   searchTarget: string;
   tableau: ITableau;
+  protected scrollHeight = 'calc(100vh - 350px)';
 
   constructor(
     protected produitService: ProduitService,

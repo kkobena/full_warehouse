@@ -103,18 +103,16 @@
         </div>
 
         <div>
-          <button (click)="previousState()" class="p-button-raised p-button-secondary"
-                  icon="pi pi-ban" id="cancel-save" pButton pRipple
-                  type="button">
-            &nbsp;<span
-            jhiTranslate="entity.action.cancel">Cancel</span>
-          </button>
+          <p-button (click)="previousState()"
+                    icon="pi pi-times" id="cancel-save"
+                    label="Annuler" pRipple raised="true" severity="danger"
+                    type="button">
+          </p-button>
 
-          <button [disabled]="editForm.invalid || isSaving" class="p-button-raised p-button-success"
-                  icon="pi pi-save"
-                  id="save-entity" pButton pRipple type="submit">
-            &nbsp;<span jhiTranslate="entity.action.save">Save</span>
-          </button>
+          <p-button [disabled]="editForm.invalid || isSaving" icon="pi pi-save" id="save-entity"
+                    label="Enregistrer"
+                    pRipple raised="true" severity="success" type="submit">
+          </p-button>
         </div>
       </form>
     </p-panel>

@@ -13,9 +13,9 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    selector: 'jhi-pack-dialogue',
-    templateUrl: './pack-dialogue.component.html',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
+  selector: 'jhi-pack-dialogue',
+  templateUrl: './pack-dialogue.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class PackDialogueComponent implements OnInit {
   produit?: IProduit;
@@ -62,10 +62,10 @@ export class PackDialogueComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(sale: ISales): void {
@@ -78,10 +78,10 @@ export class PackDialogueComponent implements OnInit {
   }
 
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe(
-      (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   private createFromForm(): ISalesLine {

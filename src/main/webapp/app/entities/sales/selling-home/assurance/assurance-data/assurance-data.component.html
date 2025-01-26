@@ -38,7 +38,7 @@
               </li>
             </ul>
           </div>
-          @if (currentSaleService.typeVo()==='ASSURANCE'){
+          @if (currentSaleService.typeVo() === 'ASSURANCE') {
             @if (ayantDroit) {
               <div [class]="divCustomer">
                 <ul class="list-group list-group-flush">
@@ -52,10 +52,10 @@
                         class="pi pi-user-edit"></i>&nbsp;Remplacer</span>
                       </button>
                     } @else {
-                      <p-splitButton
+                      <p-splitbutton
                         label="Gérer"
                         icon="pi pi-user-edit"
-                        size="sm"
+                        size="small"
                         [model]="items" text
                         severity="info" />
                     }
@@ -102,7 +102,8 @@
                     </button>
                   }
                   @if (selectedTiersPayants().length
-                  < selectedCustomerService.selectedCustomerSignal().tiersPayants.length && currentSaleService.typeVo()==='ASSURANCE') {
+                  < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
+                  && currentSaleService.typeVo() === 'ASSURANCE') {
                     <button class="btn btn-primary" type="button" (click)="addComplementaire()"><i
                       class="pi pi-plus"></i>
                     </button>
@@ -120,28 +121,14 @@
 </div>
 
 
-<p-confirmDialog #deleteTiersPayant [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deleteTiersPayant">
-  <p-footer>
-    <button (click)="deleteTiersPayant.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteTiersPayant.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>
 
-<p-confirmDialog #changeCustomer [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="changeCustomer">
-  <p-footer>
-    <button (click)="changeCustomer.reject()" class="p-button-danger" icon="pi pi-times"
-            label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="changeCustomer.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+
 
 </p-confirmDialog>

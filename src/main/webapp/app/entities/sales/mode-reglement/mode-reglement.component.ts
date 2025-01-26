@@ -8,27 +8,27 @@ import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { IPaymentMode, PaymentModeControl } from '../../../shared/model/payment-mode.model';
 import { DOCUMENT } from '@angular/common';
-import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
 import { BaseSaleService } from '../service/base-sale.service';
 import { IPayment, Payment } from '../../../shared/model/payment.model';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
-    selector: 'jhi-mode-reglement',
-    imports: [
-        WarehouseCommonModule,
-        InputSwitchModule,
-        KeyFilterModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        OverlayPanelModule,
-        CustomerDataTableComponent,
-    ],
-    templateUrl: './mode-reglement.component.html'
+  selector: 'jhi-mode-reglement',
+  imports: [
+    WarehouseCommonModule,
+    InputSwitchModule,
+    KeyFilterModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    CustomerDataTableComponent,
+    PopoverModule,
+  ],
+  templateUrl: './mode-reglement.component.html',
 })
 export class ModeReglementComponent implements OnInit {
   @Input() showModeReglementCard: boolean = true;
@@ -256,7 +256,7 @@ export class ModeReglementComponent implements OnInit {
     return payments;
   }
 
-  protected onClose(op: OverlayPanel): void {
+  protected onClose(op: any): void {
     this.onCloseEvent.emit(true);
     op.hide();
   }

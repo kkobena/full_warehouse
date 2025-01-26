@@ -1,36 +1,40 @@
 <div class="mvt-caisse">
   <p-toolbar>
-    <div class="p-toolbar-group-start">
+    <ng-template #start>
       <div class="input-group">
-        <p-calendar [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                    [style]="{width: '140px'}"
-                    dateFormat="dd/mm/yy"
-                    inputId="dateDebut"
-                    placeholder="Date début"
-                    selectOtherMonths="true" showIcon="true"></p-calendar>&nbsp;
+        <p-floatlabel variant="on">
+          <p-datePicker [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        id="dateDebut"
+                        inputId="dateDebut"
+                        selectOtherMonths="true" showIcon="true" />
+          <label for="dateDebut">Date début</label>
+        </p-floatlabel>&nbsp;
 
-        <p-calendar [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                    [style]="{width: '140px',margingRight: '10px'}" dateFormat="dd/mm/yy"
-                    inputId="dateFin"
-                    placeholder="Date fin"
-                    selectOtherMonths="true"
-                    showIcon="true"></p-calendar>&nbsp;
+        <p-floatlabel variant="on">
+          <p-datePicker [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        id="dateFin"
+                        inputId="dateFin"
+                        selectOtherMonths="true"
+                        showIcon="true"></p-datePicker>&nbsp;
+          <label for="dateFin">Date fin</label>
+        </p-floatlabel>
 
 
-        <p-dropdown [(ngModel)]="selectedVente" [filter]="false" [options]="types"
-                    [showClear]="true"
+        <p-select [(ngModel)]="selectedVente" [filter]="false" [options]="types"
+                  [showClear]="true"
 
-                    placeholder="Type de vente"
-        ></p-dropdown>&nbsp;
+                  placeholder="Type de vente"
+        ></p-select>&nbsp;
         <div class="tva-radio flex align-items-center">
           <p-radioButton
             (onClick)="onAffichageChange()"
             [(ngModel)]="groupBy"
-            id="codeTva"
-            inputId="codeTva"
+            id="codeTva" inputId="codeTva"
             name="codeTva"
             value="codeTva" />
-          <label class="tva-radio-label" for="codeTva">
+          <label class="tva-radio-label mt-2" for="codeTva">
             <span>Période</span>
 
           </label>
@@ -43,14 +47,14 @@
             inputId="daily"
             name="daily"
             value="daily" />
-          <label class="tva-radio-label" for="daily">
+          <label class="tva-radio-label mt-2" for="daily">
             <span>Journalier</span>
           </label>
         </div>
 
       </div>
-    </div>
-    <div class="p-toolbar-group-end">
+    </ng-template>
+    <ng-template #end>
       <div class="input-group">
 
         <p-button (click)="onSearch()" [disabled]="loading"
@@ -64,20 +68,20 @@
 
         <p-button (click)="onPrint()" [loading]="loading" icon="pi pi-print" label="Imprimer"
                   pTooltip="Imprimer"
-                  severity="warning"
+                  severity="warn"
                   tooltipPosition="top"
         />&nbsp;
         <p-selectButton
           [(ngModel)]="affichage"
           [options]="typeAffichafes"
           optionLabel="icon" optionValue="value">
-          <ng-template let-item pTemplate>
+          <ng-template #item let-item>
             <i [class]="item.icon"></i>
           </ng-template>
         </p-selectButton>
       </div>
 
-    </div>
+    </ng-template>
   </p-toolbar>
   <div class="row mvt-caisse-data-section">
     @if (taxeReportWrapper) {

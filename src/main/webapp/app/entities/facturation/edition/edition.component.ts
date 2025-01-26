@@ -34,32 +34,35 @@ import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { FactureEditionResponse } from '../facture-edition-response';
+import { ButtonModule } from 'primeng/button';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-edition',
-    providers: [
-        ConfirmationService,
-        I18n,
-        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-        { provide: NgbDateAdapter, useClass: CustomAdapter },
-        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-    ],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        DropdownModule,
-        ReactiveFormsModule,
-        TableModule,
-        InputTextModule,
-        TooltipModule,
-        StyleClassModule,
-        NgbDatepickerModule,
-        InputSwitchModule,
-        AutoCompleteModule,
-        ConfirmDialogModule,
-    ],
-    templateUrl: './edition.component.html',
-    styles: ``
+  selector: 'jhi-edition',
+  providers: [
+    ConfirmationService,
+    I18n,
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+    { provide: NgbDateAdapter, useClass: CustomAdapter },
+    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+  ],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    DropdownModule,
+    ReactiveFormsModule,
+    TableModule,
+    InputTextModule,
+    TooltipModule,
+    StyleClassModule,
+    NgbDatepickerModule,
+    InputSwitchModule,
+    AutoCompleteModule,
+    ConfirmDialogModule,
+    ButtonModule,
+  ],
+  templateUrl: './edition.component.html',
+  styles: ``,
 })
 export class EditionComponent implements OnInit {
   errorService = inject(ErrorService);
@@ -95,7 +98,6 @@ export class EditionComponent implements OnInit {
   protected searching = false;
   protected editing = false;
   protected loading!: boolean;
-  protected loadingBon!: boolean;
   protected exporting = false;
 
   constructor() {}
@@ -299,6 +301,8 @@ export class EditionComponent implements OnInit {
       message: ' Voullez-vous imprimer les factures ?',
       header: 'IMPRESSION DE FACTURE ',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps,
+      acceptButtonProps: acceptButtonProps,
       accept: () => {
         this.exporting = true;
         this.factureService.exportAllInvoices(response).subscribe({

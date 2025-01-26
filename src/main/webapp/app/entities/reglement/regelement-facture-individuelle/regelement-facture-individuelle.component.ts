@@ -21,27 +21,28 @@ import { ReglementService } from '../reglement.service';
 import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
-    selector: 'jhi-regelement-facture-individuelle',
-    providers: [ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        TableModule,
-        InputTextModule,
-        ButtonModule,
-        RippleModule,
-        TooltipModule,
-        ConfirmDialogModule,
-        SplitButtonModule,
-        NgbAlertModule,
-        FieldsetModule,
-        SidebarModule,
-        DossierReglementInfoComponent,
-        ReglementFormComponent,
-        FactuesModalComponent,
-    ],
-    templateUrl: './regelement-facture-individuelle.component.html'
+  selector: 'jhi-regelement-facture-individuelle',
+  providers: [ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    TableModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ConfirmDialogModule,
+    SplitButtonModule,
+    NgbAlertModule,
+    FieldsetModule,
+    SidebarModule,
+    DossierReglementInfoComponent,
+    ReglementFormComponent,
+    FactuesModalComponent,
+  ],
+  templateUrl: './regelement-facture-individuelle.component.html',
 })
 export class RegelementFactureIndividuelleComponent {
   @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];
@@ -137,6 +138,8 @@ export class RegelementFactureIndividuelleComponent {
       message: ' Voullez-vous imprimer le ticket ?',
       header: 'TICKET REGLEMENT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.reglementService.printReceipt(response.id).subscribe();
         this.reset(response);

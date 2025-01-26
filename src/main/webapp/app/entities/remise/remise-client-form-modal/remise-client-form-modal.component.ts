@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
-import { ButtonDirective } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
@@ -17,21 +17,21 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
 @Component({
-    selector: 'jhi-remise-client-form-modal',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        ButtonDirective,
-        ToastModule,
-        DialogModule,
-        DropdownModule,
-        FormsModule,
-        InputTextModule,
-        KeyFilterModule,
-        ReactiveFormsModule,
-        Ripple,
-        StyleClassModule,
-    ],
-    templateUrl: './remise-client-form-modal.component.html'
+  selector: 'jhi-remise-client-form-modal',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    ToastModule,
+    DialogModule,
+    DropdownModule,
+    FormsModule,
+    InputTextModule,
+    KeyFilterModule,
+    ReactiveFormsModule,
+    Ripple,
+    StyleClassModule,
+    ButtonModule,
+  ],
+  templateUrl: './remise-client-form-modal.component.html',
 })
 export class RemiseClientFormModalComponent implements AfterViewInit {
   modalService = inject(NgbModal);

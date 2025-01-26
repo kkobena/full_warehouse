@@ -1,93 +1,88 @@
-<p-confirmDialog #deleteVente [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteVente">
-  <p-footer>
-    <button (click)="deleteVente.reject()" class="p-button-danger" icon="pi pi-times" label="Non"
-            pButton
-            type="button"></button>
-    <button (click)="deleteVente.accept()" icon="pi pi-check" label="Oui" pButton
-            type="button"></button>
-  </p-footer>
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteVente">
 
 </p-confirmDialog>
 
+<div class="container-fluid">
+  <p-toolbar>
+    <ng-template #start>
+      <div class="d-flex justify-content-around ws-toolbar-flex">
+        <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
+                  [options]="typeVentes"
+                  size="small"
 
-<p-toolbar>
-
-  <div class="p-toolbar-group-left sale-toolbar d-flex justify-content-start">
-
-
-    <p-dropdown (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [filter]="false"
-                [options]="typeVentes" [panelStyle]="{'width':'115px'}"
-                [style]="{'width':'115px'}" placeholder="Filtrer par critère"
-                styleClass="dropdown-width">
-    </p-dropdown>
-    <p-divider layout="vertical"></p-divider>
-
-
-    <span class="p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch()" [(ngModel)]="search"
-                                       class="toobar-input-search"
-                                       pInputText
-                                       placeholder="Recherge globale" type="text">
-                            </span>
-    <p-divider layout="vertical"></p-divider>
-    <p-checkbox [(ngModel)]="global" [binary]="true" label="Global"></p-checkbox>
-
-
-    <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1">Du&nbsp;</label>
-    <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-    >
-
-    </p-calendar>
-    <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
-    <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-    ></p-calendar>
-    <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">De&nbsp;</label>
-    <p-dropdown [(ngModel)]="fromHour" [options]="hous"></p-dropdown>
-    <p-divider layout="vertical"></p-divider>
-    <label class="mr-sm-1 ml-sm-1">A&nbsp;</label>
-    <p-dropdown [(ngModel)]="toHour" [options]="hous"></p-dropdown>
-    <p-divider layout="vertical"></p-divider>
-    <select #userControl (change)="onSelectUser(userControl)" [(ngModel)]="selectedUserId"
-            class="form-select">
-      <option [value]="null" selected>Tout</option>
-      @for (u of users; track u.id) {
-        <option [value]="u.id">{{ u.abbrName }}</option>
-      }
-
-    </select>
-
-  </div>
-  <div class="sale  d-flex justify-content-end">
-    @if (isLargeScreen) {
-      <div>
-        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-                  styleClass="p-button-info"></p-button>
-        <!-- <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-                        label="Exporter" styleClass="p-button-raised p-button-help"
-         ></p-splitButton>-->
-        <p-button [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-plus"
-                  label="Nouvelle"
-                  styleClass="p-button-raised p-button-success "
         >
-        </p-button>
-      </div>
-    } @else {
+        </p-select> &nbsp;
 
-      <div>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (keyup.enter)="onSearch()" pInputText
+                 placeholder="Taper pour rechercher"
+
+                 type="text">
+        </p-iconfield>
+        &nbsp;&nbsp;
+
+        <p-checkbox [(ngModel)]="global" [binary]="true" class="mt-2" id="global"
+                    inputId="global"></p-checkbox>
+        <label class="ml-2 mt-2" for="global">Global</label>
+        &nbsp;&nbsp;
+        <p-inputgroup>
+          <p-inputgroup-addon>Du</p-inputgroup-addon>
+          <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+          >
+
+          </p-datePicker>
+        </p-inputgroup>
+        &nbsp;
+        <p-inputgroup>
+          <p-inputgroup-addon>Au</p-inputgroup-addon>
+          <p-datePicker [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+          ></p-datePicker>
+        </p-inputgroup>
+        &nbsp;
+        <p-inputgroup>
+          <p-inputgroup-addon>De</p-inputgroup-addon>
+          <p-select [(ngModel)]="fromHour" [options]="hous"></p-select>
+        </p-inputgroup>
+        &nbsp;
+        <p-inputgroup>
+          <p-inputgroup-addon>A</p-inputgroup-addon>
+          <p-select [(ngModel)]="toHour" [options]="hous"></p-select>
+        </p-inputgroup>
+        &nbsp;
+
+        <p-select #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName"
+                  optionValue="id"></p-select>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div class="sale  d-flex ">
+        <!-- @if (isLargeScreen) {
+           <div>
+             <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                       styleClass="p-button-info"></p-button>
+             &lt;!&ndash; <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
+                             label="Exporter" styleClass="p-button-raised p-button-help"
+              ></p-splitButton>&ndash;&gt;
+             <p-button [routerLink]="['/sales', false, 'new']"
+                       icon="pi pi-plus"
+                       label="Nouvelle"
+                       styleClass="p-button-raised p-button-success "
+             >
+             </p-button>
+           </div>
+         } -->
+
+
         <p-button (click)="loadPage()" icon="pi pi-search" pTooltip="Rechercher"
-                  styleClass="p-button-info" tooltipPosition="top"></p-button>
-        <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-                       pTooltip="Exporter" styleClass="p-button-raised p-button-help"
-                       tooltipPosition="top"></p-splitButton>
+                  styleClass="p-button-info" tooltipPosition="top"></p-button> &nbsp;
+        <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
+                          pTooltip="Exporter" styleClass="p-button-raised p-button-help"
+                          tooltipPosition="top"></p-splitbutton>-->
         <p-button [routerLink]="['/sales', false, 'new']"
                   icon="pi pi-plus"
                   pTooltip="Nouvelle vente"
@@ -96,305 +91,316 @@
         </p-button>
       </div>
 
-    }
 
-
-  </div>
-
-
-</p-toolbar>
-
-@if (sales && sales.length > 0) {
-  <p-table (onLazyLoad)="lazyLoading($event)"
-           [(selection)]="selectedEl"
-           [lazy]="true"
-           [loading]="loading" [paginator]="true"
-           [rowsPerPageOptions]="[5,10,15,20,30,50]"
-           [rows]="itemsPerPage"
-           [showCurrentPageReport]="true"
-           [totalRecords]="totalItems" [value]="sales"
-           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
-           dataKey="id"
-           selectionMode="single"
-           styleClass="p-datatable-striped mt-2"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th style="width:3%"></th>
-        <th style="width:12%">Date</th>
-        <th style="width:5%">Type</th>
-        <th style="width:8%">Référence</th>
-        <th style="width:6%">Nbre d'articles</th>
-        <th style="width:6%">Montant</th>
-        <th style="width:16%">Client</th>
-        <th style="width:15%">Vendeur</th>
-        <th style="width:15%">Caissier</th>
-        <th style="width:14%"></th>
-      </tr>
     </ng-template>
-    <ng-template let-expanded="expanded" let-sale pTemplate="body">
-      <tr>
-        <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="sale" class="p-button-text p-button-rounded p-button-plain" pButton
-                  pRipple
-                  type="button"></button>
-        </td>
-        <td>{{ sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        @if (sale.natureVente === 'ASSURANCE') {
-          <td>Assurance</td>
-        } @else if (sale.natureVente === 'CARNET') {
-          <td>Carnet</td>
-        } @else {
-          <td>VNO</td>
-        }
-        <td>{{ sale.numberTransaction }}</td>
-        <td class="text-right">{{ sale.salesLines.length |number }}</td>
-        <td class="text-right">{{ sale.salesAmount |number }}</td>
-        <td>{{ sale.customer?.fullName }}</td>
-        <td>{{ sale.seller?.abbrName }}</td>
-        <td>{{ sale.cassier?.abbrName }}</td>
-        <td>
-          <div class="btn-group d-flex justify-content-end">
-            <button [routerLink]="['/sales', sale.id, 'view']"
-                    class="p-button-rounded p-button-info p-button-sm btn-sm"
-                    icon="pi pi-eye"
-                    pButton pRipple
-                    pTooltip="Voir">
 
-            </button>
-            @if (canEdit && sale.natureVente === 'ASSURANCE') {
-              <button [hidden]="false" [routerLink]="['/sales', sale.id,false, 'edit']"
-                      class="p-button-rounded p-button-success p-button-sm btn-sm"
-                      icon="pi pi-pencil"
-                      pButton pRipple
-                      pTooltip="Editer">
 
-              </button>
-            }
+  </p-toolbar>
 
-            @if (sale.customer) {
-              <button (click)="printSale(sale)"
-                      class=" btn-sm p-button-rounded p-button-secondary p-button-sm ml-2"
-                      icon="pi pi-print"
-                      pButton pRipple
-                      pTooltip="Imprimer"></button>
-              <button (click)="print(sale)"
-                      class="p-button-rounded p-button-warning p-button-sm ml-2  btn-sm"
-                      icon="pi pi-receipt"
-                      pButton pRipple
-                      pTooltip="Imprimer la facture"></button>
-            }
+  @if (sales && sales.length > 0) {
+    <p-table (onLazyLoad)="lazyLoading($event)"
+             [(selection)]="selectedEl"
+             [lazy]="true"
+             [loading]="loading" [paginator]="true"
+             [rowsPerPageOptions]="[5,10,15,20,30,50]"
+             [rows]="itemsPerPage"
+             [showCurrentPageReport]="true"
+             [totalRecords]="totalItems" [value]="sales"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+             dataKey="id"
+             selectionMode="single"
+             styleClass="p-datatable-striped mt-2"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:3%"></th>
+          <th style="width:12%">Date</th>
+          <th style="width:5%">Type</th>
+          <th style="width:8%">Référence</th>
+          <th style="width:6%">Nbre d'articles</th>
+          <th style="width:6%">Montant</th>
+          <th style="width:16%">Client</th>
+          <th style="width:15%">Vendeur</th>
+          <th style="width:15%">Caissier</th>
+          <th style="width:14%"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-expanded="expanded" let-sale #body>
+        <tr>
+          <td>
 
-            <button (click)="suggerer(sale)" [hidden]="true"
-                    class="p-button-rounded p-button-help p-button-sm ml-2  btn-sm"
-                    icon="pi pi-send"
-                    pButton pRipple
-                    pTooltip="Suggérer"></button>
-            @if (canCancel) {
-              <button (click)="confirmRemove(sale)"
-                      class="p-button-rounded p-button-danger p-button-sm ml-2  btn-sm"
-                      icon="pi pi-trash"
-                      pButton pRipple
-                      pTooltip="Annuler"></button>
-            }
-
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template let-elRow pTemplate="rowexpansion">
-      <tr>
-        <td colspan="9">
-          @if (elRow.categorie === 'VNO') {
-            <div class="card">
-              <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-              <div class="card-body">
-                <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
-                         [showCurrentPageReport]="true"
-                         [value]="elRow.salesLines"
-                         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                         dataKey="id" selectionMode="single"
-                         styleClass="p-datatable-striped rowexpansion-table"
-                >
-
-                  <ng-template pTemplate="header">
-                    <tr>
-                      <th style="width:5%">
-                        #
-                      </th>
-                      <th style="width:10%">CODE</th>
-                      <th style="width:44%">LIBELLE</th>
-                      <th style="width:8%">QTE.D</th>
-                      <th style="width:8%">QTE.S</th>
-                      <th style="width:9%">PU</th>
-                      <th style="width:10%">TOTAL</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                    <tr
-                      [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                      <td style="text-align: left;">{{ rowIndex + 1 }}</td>
-                      <td>{{ saleLine.code }}</td>
-                      <td>{{ saleLine.produitLibelle }}</td>
-                      <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
-                      <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
-                      <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
-                      <td
-                        style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
-                      </td>
-
-                    </tr>
-
-                  </ng-template>
-                </p-table>
-
-              </div>
-            </div>
+            <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [pRowToggler]="sale" [rounded]="true" [text]="true" pRipple
+                      type="button" />
+          </td>
+          <td>{{ sale.updatedAt |date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+          @if (sale.natureVente === 'ASSURANCE') {
+            <td>Assurance</td>
+          } @else if (sale.natureVente === 'CARNET') {
+            <td>Carnet</td>
           } @else {
-            <div class="row">
-              <div class="col-6 vo-item">
-                <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
-                         [showCurrentPageReport]="true"
-                         [value]="elRow.salesLines"
-                         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                         dataKey="id" selectionMode="single"
-                         styleClass="p-datatable-striped rowexpansion-table"
-                >
+            <td>VNO</td>
+          }
+          <td>{{ sale.numberTransaction }}</td>
+          <td class="text-right">{{ sale.salesLines.length |number }}</td>
+          <td class="text-right">{{ sale.salesAmount |number }}</td>
+          <td>{{ sale.customer?.fullName }}</td>
+          <td>{{ sale.seller?.abbrName }}</td>
+          <td>{{ sale.cassier?.abbrName }}</td>
+          <td>
+            <div class="btn-group d-flex justify-content-end">
+              <p-button [routerLink]="['/sales', sale.id, 'view']"
+                        class=" mr-1"
+                        icon="pi pi-eye"
+                        [rounded]="true"
+                        severity="info"
+                        size="small"
+                        pTooltip="Voir">
 
-                  <ng-template pTemplate="header">
+              </p-button>
+              @if (canEdit && sale.natureVente === 'ASSURANCE') {
+                <p-button [routerLink]="['/sales', sale.id,false, 'edit']"
+                          [rounded]="true"
+                          severity="success"
+                          size="small"
+                          icon="pi pi-pencil"
+
+                          pTooltip="Editer">
+
+                </p-button>
+              }
+
+              @if (sale.customer) {
+                <p-button (click)="printSale(sale)"
+                          class=" ml-1"
+                          [rounded]="true"
+                          severity="secondary"
+                          size="small"
+                          icon="pi pi-print"
+
+                          pTooltip="Imprimer"></p-button>
+                <p-button (click)="print(sale)"
+
+                          icon="pi pi-receipt"
+                          [rounded]="true"
+                          severity="warn"
+                          size="small"
+                          pTooltip="Imprimer la facture"></p-button>
+              }
+
+              <p-button (click)="suggerer(sale)" [hidden]="true"
+                        class="ml-1 "
+                        icon="pi pi-send"
+                        [rounded]="true"
+                        severity="help"
+                        size="small"
+                        pTooltip="Suggérer"></p-button>
+              @if (canCancel) {
+                <p-button (click)="confirmRemove(sale)"
+                          class="ml-1 "
+                          icon="pi pi-trash"
+                          [rounded]="true"
+                          severity="danger"
+                          size="small"
+                          pTooltip="Annuler"></p-button>
+              }
+
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template let-elRow #expandedrow>
+        <tr>
+          <td colspan="9">
+            @if (elRow.categorie === 'VNO') {
+              <div class="card">
+                <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+                <div class="card-body">
+                  <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
+                           [showCurrentPageReport]="true"
+                           [value]="elRow.salesLines"
+                           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                           dataKey="id" selectionMode="single"
+                           styleClass="p-datatable-striped rowexpansion-table"
+                  >
+
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width:5%">
+                          #
+                        </th>
+                        <th style="width:10%">CODE</th>
+                        <th style="width:44%">LIBELLE</th>
+                        <th style="width:8%">QTE.D</th>
+                        <th style="width:8%">QTE.S</th>
+                        <th style="width:9%">PU</th>
+                        <th style="width:10%">TOTAL</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                      <tr
+                        [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                        <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                        <td>{{ saleLine.code }}</td>
+                        <td>{{ saleLine.produitLibelle }}</td>
+                        <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                        <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                        <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
+                        <td
+                          style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                        </td>
+
+                      </tr>
+
+                    </ng-template>
+                  </p-table>
+
+                </div>
+              </div>
+            } @else {
+              <div class="row">
+                <div class="col-6 vo-item">
+                  <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+                  <p-table [paginator]="true" [rowsPerPageOptions]="[10,15,20,30,50]" [rows]="10"
+                           [showCurrentPageReport]="true"
+                           [value]="elRow.salesLines"
+                           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                           dataKey="id" selectionMode="single"
+                           styleClass="p-datatable-striped rowexpansion-table"
+                  >
+
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width:3%">
+                          #
+                        </th>
+                        <th style="width:12%">CODE</th>
+                        <th style="width:42%">LIBELLE</th>
+                        <th style="width:9%">QTE.D</th>
+                        <th style="width:9%">QTE.S</th>
+                        <th style="width:9%">PU</th>
+                        <th style="width:10%">TOTAL</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                      <tr
+                        [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
+                        <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+                        <td>{{ saleLine.code }}</td>
+                        <td>{{ saleLine.produitLibelle }}</td>
+                        <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
+                        <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
+                        <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
+                        <td
+                          style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                        </td>
+
+                      </tr>
+
+                    </ng-template>
+                  </p-table>
+
+                </div>
+
+                <div class="col-6 vo-item">
+                  <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
+                  <table class="table table-bordered">
+                    <tbody>
                     <tr>
-                      <th style="width:3%">
-                        #
-                      </th>
-                      <th style="width:12%">CODE</th>
-                      <th style="width:42%">LIBELLE</th>
-                      <th style="width:9%">QTE.D</th>
-                      <th style="width:9%">QTE.S</th>
-                      <th style="width:9%">PU</th>
-                      <th style="width:10%">TOTAL</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                    <tr
-                      [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-                      <td style="text-align: left;">{{ rowIndex + 1 }}</td>
-                      <td>{{ saleLine.code }}</td>
-                      <td>{{ saleLine.produitLibelle }}</td>
-                      <td class="text-right"> {{ saleLine.quantityRequested |number }}</td>
-                      <td class="text-right"> {{ saleLine.quantitySold |number }}</td>
-                      <td class="text-right"> {{ saleLine.regularUnitPrice |number }}</td>
-                      <td
-                        style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
+                      <td class="firstColumn">
+                        MONTANT ASSURE
+                      </td>
+                      <td class="secondColumn">{{ elRow?.partAssure |number }}
+                      </td>
+
+                      <td class="firstColumn">
+                        MONTANT ASSURANCE
+                      </td>
+                      <td class="secondColumn">{{
+                          elRow?.partTiersPayant |number
+                        }}
                       </td>
 
                     </tr>
 
-                  </ng-template>
-                </p-table>
+                    <tr>
+                      <td class="firstColumn">
+                        MONTANT TTC
+                      </td>
+                      <td class="secondColumn">{{ elRow?.salesAmount }}
+                      </td>
+                      <td class="firstColumn">
+                        MONTANT HT
+                      </td>
+                      <td class="secondColumn">{{ elRow?.htAmount | number }}
+                      </td>
+
+                    </tr>
+
+                    <tr>
+                      <td class="firstColumn">
+                        MONTANT TAXE
+                      </td>
+                      <td class="secondColumn">{{ elRow?.taxAmount |number }}
+                      </td>
+                      <td class="firstColumn">
+                        REMISE
+                      </td>
+                      <td class="secondColumn">{{ elRow?.discountAmount |number }}
+                      </td>
+
+                    </tr>
+                    <tr>
+                      <td class="firstColumn">
+                        MONTANT A PAYER
+                      </td>
+                      <td class="secondColumn">{{ elRow?.amountToBePaid| number }}
+                      </td>
+                      <td class="firstColumn">
+                        RESTE A PAYER
+                      </td>
+                      <td class="secondColumn">{{ elRow?.restToPay }}
+
+                      </td>
+                    </tr>
+                    <tr *ngFor="let tp of elRow?.thirdPartySaleLines; let i = index">
+                      <td class="firstColumn">
+                        {{ tp?.tiersPayantFullName }}
+                      </td>
+                      <td class="secondColumn">{{ tp?.taux + '%' }}
+                      </td>
+                      <td class="firstColumn">
+                        MONTANT
+                      </td>
+                      <td class="secondColumn">{{ tp?.montant | number }}
+
+                      </td>
+                    </tr>
+                    <tr *ngFor="let payment of elRow?.payments; let i = index">
+                      <td class="firstColumn" colspan="3">
+                        {{ payment?.paymentMode?.libelle }}
+                      </td>
+
+                      <td class="secondColumn">{{ payment?.paidAmount | number }}
+
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+
 
               </div>
+            }
 
-              <div class="col-6 vo-item">
-                <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
-                <table class="table table-bordered">
-                  <tbody>
-                  <tr>
-                    <td class="firstColumn">
-                      MONTANT ASSURE
-                    </td>
-                    <td class="secondColumn">{{ elRow?.partAssure |number }}
-                    </td>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="alert alert-warning" id="no-result">
+      <span>Aucune donnée trouvée</span>
+    </div>
+  }
 
-                    <td class="firstColumn">
-                      MONTANT ASSURANCE
-                    </td>
-                    <td class="secondColumn">{{
-                        elRow?.partTiersPayant |number
-                      }}
-                    </td>
-
-                  </tr>
-
-                  <tr>
-                    <td class="firstColumn">
-                      MONTANT TTC
-                    </td>
-                    <td class="secondColumn">{{ elRow?.salesAmount }}
-                    </td>
-                    <td class="firstColumn">
-                      MONTANT HT
-                    </td>
-                    <td class="secondColumn">{{ elRow?.htAmount | number }}
-                    </td>
-
-                  </tr>
-
-                  <tr>
-                    <td class="firstColumn">
-                      MONTANT TAXE
-                    </td>
-                    <td class="secondColumn">{{ elRow?.taxAmount |number }}
-                    </td>
-                    <td class="firstColumn">
-                      REMISE
-                    </td>
-                    <td class="secondColumn">{{ elRow?.discountAmount |number }}
-                    </td>
-
-                  </tr>
-                  <tr>
-                    <td class="firstColumn">
-                      MONTANT A PAYER
-                    </td>
-                    <td class="secondColumn">{{ elRow?.amountToBePaid| number }}
-                    </td>
-                    <td class="firstColumn">
-                      RESTE A PAYER
-                    </td>
-                    <td class="secondColumn">{{ elRow?.restToPay }}
-
-                    </td>
-                  </tr>
-                  <tr *ngFor="let tp of elRow?.thirdPartySaleLines; let i = index">
-                    <td class="firstColumn">
-                      {{ tp?.tiersPayantFullName }}
-                    </td>
-                    <td class="secondColumn">{{ tp?.taux + '%' }}
-                    </td>
-                    <td class="firstColumn">
-                      MONTANT
-                    </td>
-                    <td class="secondColumn">{{ tp?.montant | number }}
-
-                    </td>
-                  </tr>
-                  <tr *ngFor="let payment of elRow?.payments; let i = index">
-                    <td class="firstColumn" colspan="3">
-                      {{ payment?.paymentMode?.libelle }}
-                    </td>
-
-                    <td class="secondColumn">{{ payment?.paidAmount | number }}
-
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-
-
-            </div>
-          }
-
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-} @else {
-  <div class="alert alert-warning" id="no-result">
-    <span>Aucune donnée trouvée</span>
-  </div>
-}
-
-
+</div>

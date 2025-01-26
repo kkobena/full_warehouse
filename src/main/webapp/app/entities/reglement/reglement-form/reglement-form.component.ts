@@ -8,16 +8,16 @@ import { HttpResponse } from '@angular/common/http';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { CalendarModule } from 'primeng/calendar';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimeNGConfig } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import moment from 'moment/moment';
 import { DATE_FORMAT } from '../../../shared/constants/input.constants';
+import { PrimeNG } from 'primeng/config';
 
 @Component({
-    selector: 'jhi-reglement-form',
-    imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
-    templateUrl: './reglement-form.component.html'
+  selector: 'jhi-reglement-form',
+  imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
+  templateUrl: './reglement-form.component.html',
 })
 export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';
@@ -35,7 +35,7 @@ export class ReglementFormComponent implements AfterViewInit {
   appendTo = 'body';
   maxDate = new Date();
   translate = inject(TranslateService);
-  primeNGConfig = inject(PrimeNGConfig);
+  primeNGConfig = inject(PrimeNG);
 
   montantSaisi = signal(0);
   validMontantSaisi = computed(() => {

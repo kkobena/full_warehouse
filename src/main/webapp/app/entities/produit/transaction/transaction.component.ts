@@ -18,7 +18,6 @@ import { IProduit } from '../../../shared/model/produit.model';
 import { ProduitService } from '../produit.service';
 
 import { HttpResponse } from '@angular/common/http';
-import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component';
 import { ProduitAuditingParamService } from './produit-auditing-param.service';
 import { BadgeModule } from 'primeng/badge';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
@@ -27,29 +26,27 @@ import { RippleModule } from 'primeng/ripple';
 import { StatSalesComponent } from '../stat-sales/stat-sales.component';
 
 @Component({
-    selector: 'jhi-transaction',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        CalendarModule,
-        CardModule,
-        DividerModule,
-        DropdownModule,
-        InputTextModule,
-        NgbNav,
-        ToolbarModule,
-        FormsModule,
-        RouterModule,
-        PanelModule,
-        AuditingComponent,
-        StatDeliveryComponent,
-        BadgeModule,
-        AutoCompleteModule,
-        RippleModule,
-        StatSalesComponent,
-    ],
-    templateUrl: './transaction.component.html',
-    providers: [ProduitAuditingParamService]
+  selector: 'jhi-transaction',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    CalendarModule,
+    CardModule,
+    DividerModule,
+    DropdownModule,
+    InputTextModule,
+    NgbNav,
+    ToolbarModule,
+    FormsModule,
+    RouterModule,
+    PanelModule,
+    AuditingComponent,
+    BadgeModule,
+    AutoCompleteModule,
+    RippleModule,
+  ],
+  templateUrl: './transaction.component.html',
+  providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit {
   protected active = 'auditing';

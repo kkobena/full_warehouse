@@ -14,32 +14,32 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchChangeEvent } from 'primeng/inputswitch/inputswitch.interface';
+import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
-    selector: 'jhi-form-tiers-payant',
-    templateUrl: './form-tiers-payant.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        DynamicDialogModule,
-        NgSelectModule,
-        InputSwitchModule,
-        KeyFilterModule,
-        ToastModule,
-        AutoCompleteModule,
-        DropdownModule,
-    ]
+  selector: 'jhi-form-tiers-payant',
+  templateUrl: './form-tiers-payant.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+    NgSelectModule,
+    KeyFilterModule,
+    ToastModule,
+    AutoCompleteModule,
+    Select,
+    ToggleSwitch,
+  ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   name = viewChild.required<ElementRef>('name');

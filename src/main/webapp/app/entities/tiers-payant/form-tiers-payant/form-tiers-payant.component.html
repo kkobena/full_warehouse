@@ -3,7 +3,8 @@
   <div class="modal-body">
 
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
+             type="hidden" />
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
@@ -12,7 +13,8 @@
         style="font-weight: 900;color: red;">*</span>
         <input #name autocomplete="off" class="form-control" formControlName="name"
                id="field_libelle"
-               name="name" type="text" />
+               name="name"
+               pInputText type="text" />
         @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
           'name')!.touched)) {
           <div>
@@ -63,16 +65,16 @@
 
       <div class="form-group col-md-3">
         <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
-        <p-dropdown [filter]="false"
-                    [options]="groupeTiersPayants"
-                    appendTo="body"
-                    formControlName="groupeTiersPayantId"
-                    id="groupeTiersPayantId"
-                    name="groupeTiersPayantId" optionLabel="name"
-                    optionValue="id"
-                    placeholder="Sélectionner un groupe"
+        <p-select [filter]="false"
+                  [options]="groupeTiersPayants"
+                  appendTo="body"
+                  formControlName="groupeTiersPayantId"
+                  id="groupeTiersPayantId"
+                  name="groupeTiersPayantId" optionLabel="name"
+                  optionValue="id"
+                  placeholder="Sélectionner un groupe"
         >
-        </p-dropdown>
+        </p-select>
       </div>
 
 
@@ -113,22 +115,22 @@
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label">Le plofond est-il absolu ?</label>
-        <p-inputSwitch class="form-control" formControlName="plafondAbsolu"
-                       inputId="plafondAbsolu"></p-inputSwitch>
+        <p-toggleswitch class="form-control" formControlName="plafondAbsolu"
+                        inputId="plafondAbsolu"></p-toggleswitch>
       </div>
 
       <div class="form-group col-md-3">
         <label class="form-control-label" for="groupeTiersPayantId">Modèle de facture</label>
-        <p-dropdown [filter]="false"
-                    [options]="modelFacture"
-                    appendTo="body"
-                    formControlName="modelFacture"
-                    id="modelFacture"
-                    name="modelFacture" optionLabel="value"
-                    optionValue="key"
-                    placeholder="Sélectionner un groupe"
+        <p-select [filter]="false"
+                  [options]="modelFacture"
+                  appendTo="body"
+                  formControlName="modelFacture"
+                  id="modelFacture"
+                  name="modelFacture" optionLabel="value"
+                  optionValue="key"
+                  placeholder="Sélectionner un groupe"
         >
-        </p-dropdown>
+        </p-select>
 
       </div>
     </div>
@@ -136,23 +138,24 @@
       @if (categorie === 'ASSURANCE') {
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix CMU ?</label>
-          <p-inputSwitch (onChange)="onCmuChange($event)" class="form-control" formControlName="cmu"
-                         inputId="cmu"></p-inputSwitch>
+          <p-toggleswitch (onChange)="onCmuChange($event)" class="form-control"
+                          formControlName="cmu"
+                          inputId="cmu"></p-toggleswitch>
         </div>
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix de référence ?</label>
-          <p-inputSwitch (onChange)="onReferencedPriceChange($event)" class="form-control"
-                         formControlName="useReferencedPrice" inputId="useReferencedPrice"
-                         name="useReferencedPrice"></p-inputSwitch>
+          <p-toggleswitch (onChange)="onReferencedPriceChange($event)" class="form-control"
+                          formControlName="useReferencedPrice" inputId="useReferencedPrice"
+                          name="useReferencedPrice"></p-toggleswitch>
         </div>
       }
 
       @if (categorie !== 'DEPOT') {
         <div class="form-group col-md-3">
-          <label class="form-control-label">Exclure du CA</label>
-          <p-inputSwitch class="form-control" formControlName="toBeExclude"
-                         inputId="toBeExclude"
-                         name="toBeExclude"></p-inputSwitch>
+          <label class="form-control-label" for="toBeExclude">Exclure du CA</label>
+          <p-toggleswitch class="form-control" formControlName="toBeExclude"
+                          inputId="toBeExclude" id="toBeExclude"
+                          name="toBeExclude"></p-toggleswitch>
         </div>
       }
 
@@ -171,14 +174,16 @@
   </div>
 
   <div class="modal-footer">
-    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
-      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-    </button>
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
-            id="save-entity"
-            type="submit">
-      <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
-    </button>
+
+    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
+              label="Annuler"
+              pRipple
+              severity="danger"
+              type="button"></p-button>
+    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
+              icon="pi pi-check" label="Enregistrer"
+
+              pRipple severity="success" type="submit"></p-button>
   </div>
 
 </form>

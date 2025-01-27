@@ -107,11 +107,12 @@
                pInputText
                pKeyFilter="int" type="text" />
       </div>
-      <div class="form-group col-md-5">
-        <label class="form-control-label">Le plofond est-il absolu ?</label>
+      <div class="form-group col-md-5 pt-3">
+        <label class="form-control-label" for="plafondAbsolu">Le plofond est-il absolu
+          ?</label>
 
-        <p-selectButton [options]="plafonds" formControlName="plafondAbsolu" optionLabel="label"
-                        optionValue="value"></p-selectButton>
+        <p-toggleswitch formControlName="plafondAbsolu" id="plafondAbsolu"
+        ></p-toggleswitch>
       </div>
 
 
@@ -121,15 +122,15 @@
   </div>
 
   <div class="modal-footer">
-    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
-      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-    </button>
+    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
+              label="Annuler"
+              pRipple
+              severity="danger"
+              type="button"></p-button>
+    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
+              icon="pi pi-check" label="Enregistrer"
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid" class="btn btn-primary"
-            id="save-entity"
-            type="submit">
-      <fa-icon icon="times"></fa-icon>&nbsp;<span>Enregistrer</span>
-    </button>
+              pRipple severity="success" type="submit"></p-button>
   </div>
 </form>
 

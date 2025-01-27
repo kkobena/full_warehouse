@@ -13,16 +13,15 @@
     <div class=" col-10 col-sm-8 col-md-10">
       <div class="input-group input-group-sm mb-1">
         <span class="input-group-text">Date</span>
-        <p-calendar [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
-                    appendTo="body" dateFormat="dd/mm/yy"
-                    formControlName="paymentDate"
-                    id="datePaiement"
-                    selectOtherMonths="true"
+        <p-datePicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
+                      appendTo="body" dateFormat="dd/mm/yy"
+                      formControlName="paymentDate"
+                      id="datePaiement"
+                      selectOtherMonths="true"
         />
       </div>
     </div>
   </div>
-
 
   <div class="input-group input-group-sm mb-1">
     <span class="input-group-text">Mode de paiement</span>
@@ -92,7 +91,7 @@
 
   }
   <div class="d-flex justify-content-end">
-    <button [disabled]="!valid || !validMontantSaisi() || isSaving" class="btn btn-sm btn-danger"
+    <button [disabled]="!valid || !validMontantSaisi() || isSaving" class="btn btn-danger"
             type="submit">
       @if (isSaving) {
         <span aria-hidden="true" class="spinner-border spinner-border-sm"></span>

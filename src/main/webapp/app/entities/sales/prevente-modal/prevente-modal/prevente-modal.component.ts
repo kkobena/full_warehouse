@@ -1,10 +1,9 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
-import { IUser, User } from '../../../../core/user/user.model';
+import { IUser } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
 import { APPEND_TO } from '../../../../shared/constants/pagination.constants';
 import { HttpResponse } from '@angular/common/http';
-import { UserService } from '../../../../core/user/user.service';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,30 +18,40 @@ import { CurrentSaleService } from '../../service/current-sale.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
 import { ICustomer } from '../../../../shared/model/customer.model';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { Select } from 'primeng/select';
+import { UserVendeurService } from '../../service/user-vendeur.service';
 
 @Component({
-    selector: 'jhi-prevente-modal',
-    templateUrl: './prevente-modal.component.html',
-    styleUrls: ['./prevente-modal.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        TableModule,
-        AutoCompleteModule,
-        ToolbarModule,
-        DividerModule,
-    ]
+  selector: 'jhi-prevente-modal',
+  templateUrl: './prevente-modal.component.html',
+  styleUrls: ['./prevente-modal.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    AutoCompleteModule,
+    ToolbarModule,
+    DividerModule,
+    IconField,
+    InputIcon,
+    InputGroup,
+    InputGroupAddon,
+    Select,
+  ],
 })
 export class PreventeModalComponent implements OnInit {
   @Input() user: IUser;
   @Output() pendingSalesSidebarChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   salesService = inject(SalesService);
-  userService = inject(UserService);
   currentSaleService = inject(CurrentSaleService);
   customerService = inject(CustomerService);
   selectedCustomerService = inject(SelectedCustomerService);
@@ -53,6 +62,7 @@ export class PreventeModalComponent implements OnInit {
   protected userSeller?: IUser;
   protected readonly appendTo = APPEND_TO;
   protected selectedRowIndex?: number;
+  protected userVendeurService = inject(UserVendeurService);
 
   constructor() {}
 
@@ -70,14 +80,6 @@ export class PreventeModalComponent implements OnInit {
   onSearch(event: any): void {
     this.search = event.target.value;
     this.loadPreventes();
-  }
-
-  loadAllUsers(): void {
-    this.userService.query().subscribe((res: HttpResponse<User[]>) => (this.users = res.body || []));
-  }
-
-  searchUser(): void {
-    this.loadAllUsers();
   }
 
   loadPreventes(): void {

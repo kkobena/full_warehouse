@@ -301,8 +301,8 @@ export class EditionComponent implements OnInit {
       message: ' Voullez-vous imprimer les factures ?',
       header: 'IMPRESSION DE FACTURE ',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.exporting = true;
         this.factureService.exportAllInvoices(response).subscribe({

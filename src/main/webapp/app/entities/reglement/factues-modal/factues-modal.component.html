@@ -38,7 +38,7 @@
       </div>
       <div class="p-1">
         <p-floatlabel>
-          <input [(ngModel)]="search" class="form-control" id="search"
+          <input [(ngModel)]="search" id="search" pInputText
 
                  type="text"> <label for="search">Rechercher par numéro</label>
         </p-floatlabel>
@@ -80,7 +80,7 @@
       <div class="pt-1">
         <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
                   label="Rechercher"
-                  size="small" />
+                  severity="info" />
       </div>
 
     </div>

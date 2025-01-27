@@ -34,6 +34,9 @@ import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-customer',
@@ -56,6 +59,9 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
     NgxSpinnerModule,
     TooltipModule,
     RouterLink,
+    Select,
+    IconField,
+    InputIcon,
   ],
 })
 export class CustomerComponent implements OnInit {
@@ -202,8 +208,8 @@ export class CustomerComponent implements OnInit {
       message: 'Voulez-vous vraiment supprimer ce client ?',
       header: 'SUPPRESSION DE CLIENT',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (customer.categorie === 'ASSURE') {
           this.deleteAssuredCustomer(customer);
@@ -219,8 +225,8 @@ export class CustomerComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment désativer ce client ?',
       header: 'DESACTIVATION DE CLIENT',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => this.lock(customer),
       key: 'desactiverCustomer',
@@ -321,8 +327,8 @@ export class CustomerComponent implements OnInit {
   confirmRemoveAyantDroit(ayantDroit: ICustomer): void {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer cet ayant droit ?',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       header: 'SUPPRESSION ',
       icon: 'pi pi-info-circle',
       accept: () => this.deleteAssuredCustomer(ayantDroit),
@@ -369,8 +375,8 @@ export class CustomerComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Voulez-vous vraiment supprimer ce tiers payant ?',
       header: 'SUPPRESSION DE TIERS PAYANT',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => {
         this.customerService.deleteTiersPayant(clientTiersPayant.id).subscribe(() => this.loadPage());

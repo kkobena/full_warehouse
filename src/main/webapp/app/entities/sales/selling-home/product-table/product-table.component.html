@@ -10,16 +10,16 @@
       <div class="d-flex produit-vente-table-tb justify-content-between">
 
         <div class="p-0">
-          <div class="p-inputgroup">
-            <span class="p-inputgroup-addon">Produits</span>
-            <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
-           [style]="{'width': '300px'}"
-           placeholder="Taper pour filter les produits"
-           type="text">
-</span>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              Produits
+            </p-inputgroup-addon>
+            <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
+                   [style]="{'width': '300px'}"
+                   placeholder="Taper pour filter les produits"
+                   type="text">
+          </p-inputgroup>
+
         </div>
 
         <div class="p-0">
@@ -33,29 +33,33 @@
           }
 
         </div>
-        <!-- @if (remises.length > 0) {-->
-        <div class=" p-0 remises-select">
-          <div class="p-inputgroup">
-            <span class="p-inputgroup-addon">Remises</span>
-            <p-dropdown
-              (onChange)="onSelectRemise()"
-              [options]="remiseCacheService.remises()"
-              [(ngModel)]="selectedRemise"
-              placeholder="Choisir une remise"
-              optionLabel="valeur"
-              [style]="{'width': '250px'}"
-              [showClear]="true"
-              [group]="true">
-              <ng-template let-group pTemplate="group">
-                <div class="flex align-items-center">
+        @let remises = remiseCacheService.remises();
+        @if (remises?.length > 0) {
+          <div class=" p-0 remises-select0">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                Remises
+              </p-inputgroup-addon>
+              <p-select
+                (onChange)="onSelectRemise()"
+                [options]="remises"
+                [(ngModel)]="selectedRemise"
+                placeholder="Choisir une remise"
+                optionLabel="valeur"
+                [showClear]="true"
+                [group]="true">
+                <ng-template let-group #group>
+                  <div class="flex align-items-center">
 
-                  <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
-                </div>
-              </ng-template>
-            </p-dropdown>
+                    <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            </p-inputgroup>
+
+
           </div>
-        </div>
-        <!--   }-->
+        }
 
 
       </div>
@@ -136,7 +140,7 @@
                     icon="pi pi-trash" [rounded]="true"
                     severity="danger"
                     size="small"
-                    pRipple
+                    
                     pTooltip="Supprimer"></p-button>
         </td>
       </tr>

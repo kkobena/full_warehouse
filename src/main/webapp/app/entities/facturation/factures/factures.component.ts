@@ -32,6 +32,7 @@ import { FactureStateService } from '../facture-state.service';
 import { Tooltip } from 'primeng/tooltip';
 import { RouterLink } from '@angular/router';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-factures',
@@ -57,6 +58,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     ToolbarModule,
     Tooltip,
     RouterLink,
+    InputText,
   ],
   templateUrl: './factures.component.html',
   styles: ``,

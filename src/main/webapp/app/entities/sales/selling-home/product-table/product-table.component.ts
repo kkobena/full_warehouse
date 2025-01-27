@@ -20,8 +20,10 @@ import { RemiseCacheService } from '../../service/remise-cache.service';
 import { IRemise, Remise } from '../../../../shared/model/remise.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
 import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-product-table',
@@ -37,7 +39,9 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
     NgbAlertModule,
     NgSelectModule,
     FormsModule,
-    DropdownModule,
+    InputGroupAddonModule,
+    InputGroupModule,
+    Select,
   ],
   templateUrl: './product-table.component.html',
   styleUrls: ['./product-table.component.scss'],

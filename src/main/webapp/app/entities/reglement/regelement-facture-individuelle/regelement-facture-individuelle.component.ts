@@ -22,6 +22,9 @@ import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { Drawer } from 'primeng/drawer';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -41,6 +44,9 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     DossierReglementInfoComponent,
     ReglementFormComponent,
     FactuesModalComponent,
+    Drawer,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
 })

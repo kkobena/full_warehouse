@@ -22,6 +22,9 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
 
 @Component({
   selector: 'jhi-groupe-tiers-payant',
@@ -42,6 +45,8 @@ import { FormsModule } from '@angular/forms';
     TooltipModule,
     DynamicDialogModule,
     FormsModule,
+    InputIcon,
+    IconField,
   ],
 })
 export class GroupeTiersPayantComponent implements OnInit {
@@ -127,6 +132,8 @@ export class GroupeTiersPayantComponent implements OnInit {
       message: 'Voulez-vous vraiment supprimer ce groupe ?',
       header: 'SUPPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.delete(groupeTiersPyant),
       key: 'deleteGroupe',
     });

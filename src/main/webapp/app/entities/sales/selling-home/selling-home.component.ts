@@ -12,7 +12,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
-import { SidebarModule } from 'primeng/sidebar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { TableModule } from 'primeng/table';
@@ -71,6 +70,7 @@ import { PrimeNG } from 'primeng/config';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { Select } from 'primeng/select';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { DrawerModule } from 'primeng/drawer';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -78,7 +78,6 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
   imports: [
     WarehouseCommonModule,
     PreventeModalComponent,
-    SidebarModule,
     RouterModule,
     NgxSpinnerModule,
     TableModule,
@@ -108,6 +107,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
     Select,
     InputGroupAddonModule,
     AutoComplete,
+    DrawerModule,
   ],
   templateUrl: './selling-home.component.html',
 })

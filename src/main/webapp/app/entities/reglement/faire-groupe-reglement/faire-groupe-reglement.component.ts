@@ -7,7 +7,6 @@ import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import { SidebarModule } from 'primeng/sidebar';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
@@ -23,6 +22,9 @@ import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { Drawer } from 'primeng/drawer';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
@@ -38,11 +40,13 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     SplitButtonModule,
     NgbAlertModule,
     FieldsetModule,
-    SidebarModule,
     DossierReglementInfoComponent,
     ReglementFormComponent,
     FormsModule,
     FactuesModalComponent,
+    Drawer,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './faire-groupe-reglement.component.html',
 })

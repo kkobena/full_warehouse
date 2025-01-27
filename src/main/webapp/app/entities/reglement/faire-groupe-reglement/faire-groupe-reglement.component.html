@@ -1,4 +1,4 @@
-<p-sidebar [(visible)]="showSidebar" position="right" styleClass="p-sidebar-lg">
+<p-drawer [(visible)]="showSidebar" [style]="{width: '60vw'}" position="right">
   <ng-template pTemplate="header">
     <span class="font-semibold text-xl">Factures</span>
   </ng-template>
@@ -7,7 +7,7 @@
 
     </jhi-factues-modal>
   </ng-template>
-</p-sidebar>
+</p-drawer>
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table #factureDossierTable
@@ -26,14 +26,16 @@
         <div class="d-flex justify-content-between">
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
           <div class="p-0">
-              <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
-           [style]="{'width': '300px'}"
-           pInputText
-           placeholder="Taper pour filter "
-           type="text">
-</span>
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
+                     [style]="{'width': '300px'}"
+                     pInputText
+                     placeholder="Taper pour filter "
+                     type="text">
+            </p-iconfield>
+
+     
           </div>
         </div>
       </ng-template>
@@ -110,7 +112,7 @@
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
           <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
-                    styleClass="p-button-secondary p-button-sm"></p-button>
+                    severity="info"></p-button>
         </div>
       </ng-template>
       <jhi-reglement-form (partialPayment)="onPartielReglement($event)"

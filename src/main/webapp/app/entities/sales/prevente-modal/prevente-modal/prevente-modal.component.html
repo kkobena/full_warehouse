@@ -1,30 +1,37 @@
 <p-toolbar>
+  <ng-template #start>
+    <div class="d-flex justify-content-between">
+      <div class="mr-1">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            Vendeurs
+            <!--<i class="pi pi-user"></i>-->
+          </p-inputgroup-addon>
+          <p-select
+            (onChange)="onSelectUser()"
+            [(ngModel)]="userSeller"
+            [appendTo]="appendTo"
+            [autofocus]="true"
+            [dataKey]="'id'"
+            [options]="this.userVendeurService.vendeurs()"
+            optionLabel="abbrName"></p-select>
+        </p-inputgroup>
+      </div>
 
-  <div class="row" style="width: 95%;">
-    <div class="col-md-6">
-      <p-autoComplete (completeMethod)="searchUser()"
-                      (onSelect)="onSelectUser()"
-                      [(ngModel)]="userSeller"
-                      [appendTo]="appendTo"
-                      [autofocus]="true"
-                      [dataKey]="'id'"
-                      [dropdown]="true"
-                      [inputStyle]="{'width':'100%'}" [style]="{'width':'100%'}"
-                      [suggestions]="users" optionLabel="abbrName"></p-autoComplete>
+      <div>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (keyup.enter)="onSearch($event)" pInputText
+                 placeholder="Taper pour rechercher"
+
+                 type="text">
+        </p-iconfield>
+      </div>
+
     </div>
 
-    <div class="col-md-6">
-                            <span class="p-input-icon-left" style="width: 100%;">
-                                <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch($event)" pInputText
-                                       placeholder="Taper pour rechercher"
-                                       style="width: 100%;"
-                                       type="text">
-                            </span>
-    </div>
+  </ng-template>
 
-
-  </div>
 
 </p-toolbar>
 
@@ -63,7 +70,7 @@
 
     </tr>
   </ng-template>
-  <ng-template let-elRow pTemplate="rowexpansion">
+  <ng-template #expandedrow let-elRow>
     <tr>
       <td colspan="8">
         <div class="card">

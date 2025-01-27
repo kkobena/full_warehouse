@@ -22,26 +22,28 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
 import { SelectedFacture } from '../model/reglement.model';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
-    selector: 'jhi-factues-modal',
-    imports: [
-        ButtonModule,
-        TableModule,
-        WarehouseCommonModule,
-        ToolbarModule,
-        InputSwitchModule,
-        FormsModule,
-        FloatLabelModule,
-        AutoCompleteModule,
-    ],
-    providers: [
-        I18n,
-        { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-        { provide: NgbDateAdapter, useClass: CustomAdapter },
-        { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-    ],
-    templateUrl: './factues-modal.component.html'
+  selector: 'jhi-factues-modal',
+  imports: [
+    ButtonModule,
+    TableModule,
+    WarehouseCommonModule,
+    ToolbarModule,
+    InputSwitchModule,
+    FormsModule,
+    FloatLabelModule,
+    AutoCompleteModule,
+    InputText,
+  ],
+  providers: [
+    I18n,
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
+    { provide: NgbDateAdapter, useClass: CustomAdapter },
+    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+  ],
+  templateUrl: './factues-modal.component.html',
 })
 export class FactuesModalComponent implements AfterViewInit {
   factureService = inject(FactureService);

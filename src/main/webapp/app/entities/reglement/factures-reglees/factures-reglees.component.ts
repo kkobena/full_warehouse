@@ -36,6 +36,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DetailSingleReglementComponent } from '../detail-single-reglement/detail-single-reglement.component';
 import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-group-reglement.component';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -53,6 +55,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     DividerModule,
     RippleModule,
     ConfirmDialogModule,
+    IconField,
+    InputIcon,
   ],
   providers: [
     ConfirmationService,

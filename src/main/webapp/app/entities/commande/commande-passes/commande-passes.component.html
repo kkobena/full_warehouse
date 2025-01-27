@@ -38,7 +38,8 @@
                  pRipple
                  type="button"></button>
          -->
-        <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [pRowToggler]="commande" [rounded]="true" [text]="true" pRipple
+        <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="commande" [rounded]="true" [text]="true" pRipple
                   type="button" />
       </td>
       <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
@@ -102,7 +103,7 @@
       </td>
     </tr>
   </ng-template>
-  <ng-template let-elRow pTemplate="rowexpansion">
+  <ng-template #expandedrow let-elRow>
     <tr class="commande-rowexpansion">
       <td colspan="10">
         <p-table [paginator]="true" [rowsPerPageOptions]="[10,20,30,40,50]" [rows]="30"

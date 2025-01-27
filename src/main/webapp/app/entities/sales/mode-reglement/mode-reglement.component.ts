@@ -1,6 +1,5 @@
 import { Component, ElementRef, EventEmitter, inject, Inject, Input, OnInit, Output, signal, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -14,12 +13,14 @@ import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-
 import { BaseSaleService } from '../service/base-sale.service';
 import { IPayment, Payment } from '../../../shared/model/payment.model';
 import { PopoverModule } from 'primeng/popover';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
 
 @Component({
   selector: 'jhi-mode-reglement',
   imports: [
     WarehouseCommonModule,
-    InputSwitchModule,
     KeyFilterModule,
     InputTextModule,
     ButtonModule,
@@ -27,6 +28,9 @@ import { PopoverModule } from 'primeng/popover';
     FormsModule,
     CustomerDataTableComponent,
     PopoverModule,
+    ToggleSwitch,
+    InputGroupAddonModule,
+    InputGroupModule,
   ],
   templateUrl: './mode-reglement.component.html',
 })

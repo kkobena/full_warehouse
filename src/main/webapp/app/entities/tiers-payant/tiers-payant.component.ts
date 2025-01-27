@@ -26,6 +26,10 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-tiers-payant',
@@ -49,6 +53,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
     SplitButtonModule,
     NgxSpinnerModule,
     ProgressBarModule,
+    Select,
+    IconField,
+    InputIcon,
   ],
 })
 export class TiersPayantComponent implements OnInit {
@@ -70,7 +77,7 @@ export class TiersPayantComponent implements OnInit {
   loading!: boolean;
   ref!: DynamicDialogRef;
   type: string[] = ['TOUT', 'ASSURANCE', 'CARNET', 'DEPOT'];
-  typeSelected = '';
+  typeSelected = 'TOUT';
   search = '';
   tiersPayantSplitbuttons: MenuItem[];
 
@@ -205,6 +212,8 @@ export class TiersPayantComponent implements OnInit {
       message: 'Voulez-vous vraiment supprimer ce tiers-payant ?',
       header: 'SUPPRESSION DE TIERS-PAYANT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.onDelete(tiersPayant),
       key: 'comfirmDialog',
     });
@@ -215,6 +224,8 @@ export class TiersPayantComponent implements OnInit {
       message: 'Voulez-vous vraiment désativer ce tiers-payant ?',
       header: 'DESACTIVATION DE TIERS-PAYANT',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.onDesable(tiersPayant),
       key: 'comfirmDialog',
     });

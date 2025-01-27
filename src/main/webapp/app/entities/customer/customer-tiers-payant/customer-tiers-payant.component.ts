@@ -25,30 +25,32 @@ import { ICustomer } from '../../../shared/model/customer.model';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
-    selector: 'jhi-customer-tiers-payant',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ToastModule,
-        FormsModule,
-        NgSelectModule,
-        ButtonModule,
-        RippleModule,
-        ConfirmDialogModule,
-        InputTextModule,
-        AutoCompleteModule,
-        SelectButtonModule,
-        RadioButtonModule,
-        DropdownModule,
-        ReactiveFormsModule,
-        CalendarModule,
-        DividerModule,
-        KeyFilterModule,
-        InputMaskModule,
-    ],
-    templateUrl: './customer-tiers-payant.component.html'
+  selector: 'jhi-customer-tiers-payant',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ToastModule,
+    FormsModule,
+    NgSelectModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    AutoCompleteModule,
+    SelectButtonModule,
+    RadioButtonModule,
+    DropdownModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    DividerModule,
+    KeyFilterModule,
+    InputMaskModule,
+    ToggleSwitch,
+  ],
+  templateUrl: './customer-tiers-payant.component.html',
 })
 export class CustomerTiersPayantComponent implements OnInit {
   minLength = 3;

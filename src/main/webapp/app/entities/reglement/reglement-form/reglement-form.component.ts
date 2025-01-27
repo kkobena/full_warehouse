@@ -6,17 +6,17 @@ import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { INVOICES_STATUT } from '../../../shared/constants/data-constants';
 import { HttpResponse } from '@angular/common/http';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
-import { CalendarModule } from 'primeng/calendar';
 import { TranslateService } from '@ngx-translate/core';
 import { DividerModule } from 'primeng/divider';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import moment from 'moment/moment';
 import { DATE_FORMAT } from '../../../shared/constants/input.constants';
 import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-reglement-form',
-  imports: [FormsModule, ReactiveFormsModule, CalendarModule, DividerModule, FaIconComponent],
+  imports: [FormsModule, ReactiveFormsModule, DividerModule, FaIconComponent, DatePicker],
   templateUrl: './reglement-form.component.html',
 })
 export class ReglementFormComponent implements AfterViewInit {

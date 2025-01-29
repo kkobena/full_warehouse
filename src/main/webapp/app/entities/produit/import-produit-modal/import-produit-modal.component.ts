@@ -16,6 +16,7 @@ import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { FournisseurService } from '../../fournisseur/fournisseur.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ButtonModule } from 'primeng/button';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-import-produit-modal',
@@ -31,6 +32,7 @@ import { ButtonModule } from 'primeng/button';
     DropdownModule,
     NgxSpinnerModule,
     ButtonModule,
+    Select,
   ],
   templateUrl: './import-produit-modal.component.html',
   styles: ``,

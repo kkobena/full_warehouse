@@ -24,6 +24,9 @@ import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
+import { Select } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -57,6 +60,9 @@ import { CloturesComponent } from './clotures/clotures.component';
     FormsModule,
     EnCoursComponent,
     CloturesComponent,
+    Select,
+    InputGroup,
+    InputGroupAddon,
   ],
 })
 export class StoreInventoryComponent implements OnInit {

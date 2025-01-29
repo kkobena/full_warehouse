@@ -8,11 +8,12 @@ import { HttpResponse } from '@angular/common/http';
 import { Decondition, IDecondition } from '../../shared/model/decondition.model';
 import { DeconditionService } from '../decondition/decondition.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
-    selector: 'jhi-decondition',
-    templateUrl: 'decondition-dialog.component.html',
-    imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule]
+  selector: 'jhi-decondition',
+  templateUrl: 'decondition-dialog.component.html',
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText],
 })
 export class DeconditionDialogComponent implements OnInit {
   isSaving = false;
@@ -43,11 +44,7 @@ export class DeconditionDialogComponent implements OnInit {
   onQuantitySoldBoxChanged(event: any): void {
     const qty = event.target.value;
     const oldStock = this.produit.totalQuantity;
-    if (oldStock < Number(qty)) {
-      this.isNotValid = true;
-    } else {
-      this.isNotValid = false;
-    }
+    this.isNotValid = oldStock < Number(qty);
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IDecondition>>): void {

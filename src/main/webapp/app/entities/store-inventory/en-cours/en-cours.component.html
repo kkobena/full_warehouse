@@ -41,7 +41,7 @@
 
           <p-button
             [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
-            icon="pi pi-pencil" pButton
+            icon="pi pi-pencil"
             pTooltip="Editer" rounded="true"
             severity="success" size="small">
           </p-button>
@@ -52,12 +52,12 @@
                     size="small"></p-button>
           <p-button (click)="exportPdf(storeInventory)"
                     class="ml-sm-1" icon="pi pi-print"
-                    pButton pTooltip="Imprimer"
+                    pTooltip="Imprimer"
                     rounded="true"
                     severity="secondary" size="small"></p-button>
           <p-button (click)="confirmDelete(storeInventory)"
                     class=" ml-sm-1"
-                    icon="pi pi-trash" pButton
+                    icon="pi pi-trash"
                     pTooltip="Supprimer"
                     rounded="true" severity="danger"
                     size="small"

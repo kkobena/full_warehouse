@@ -8,12 +8,12 @@
 
   <div class="form-group">
     <label for="inventoryCategory">Le type d'inventaire</label>
-    <p-dropdown (onChange)="onSelectCategory($event)" [appendTo]="appendTo" [filter]="false"
-                [options]="categories" [required]="true" [style]="{width: '100%'}"
-                class="form-control" formControlName="inventoryCategory"
-                id="inventoryCategory" optionLabel="label" placeholder="Séléctionner le type "
+    <p-select (onChange)="onSelectCategory($event)" [appendTo]="appendTo" [filter]="false"
+              [options]="categories" [required]="true" [style]="{width: '100%'}"
+              class="form-control" formControlName="inventoryCategory"
+              id="inventoryCategory" optionLabel="label" placeholder="Séléctionner le type "
     >
-    </p-dropdown>
+    </p-select>
     @if (editForm.get('inventoryCategory')!.invalid && (editForm.get('inventoryCategory')!.dirty
       || editForm.get('inventoryCategory')!.touched)) {
       <div>
@@ -30,12 +30,12 @@
   @if (editForm.get('inventoryCategory').value.name !== 'MAGASIN') {
     <div class="form-group ">
       <label for="storage">Emplacement</label>
-      <p-dropdown (onChange)="onSelectStrorage($event)" [appendTo]="appendTo" [filter]="false"
-                  [options]="storages" [required]="true" [style]="{width: '100%'}"
-                  class="form-control" formControlName="storage" id="storage"
-                  optionLabel="name" placeholder="Séléctionner un emplacement"
+      <p-select (onChange)="onSelectStrorage($event)" [appendTo]="appendTo" [filter]="false"
+                [options]="storages" [required]="true" [style]="{width: '100%'}"
+                class="form-control" formControlName="storage" id="storage"
+                optionLabel="name" placeholder="Séléctionner un emplacement"
       >
-      </p-dropdown>
+      </p-select>
       <div
         *ngIf="editForm.get('storage')!.invalid && (editForm.get('storage')!.dirty || editForm.get('storage')!.touched)">
         <small *ngIf="editForm.get('storage')?.errors?.required"
@@ -49,12 +49,12 @@
   @if (editForm.get('inventoryCategory').value.name === 'RAYON') {
     <div class="form-group ">
       <label for="rayon">Rayon</label>
-      <p-dropdown [appendTo]="appendTo" [filter]="true"
-                  [options]="rayons" [required]="true"
-                  [style]="{width: '100%'}" class="form-control"
-                  formControlName="rayon" id="rayon"
-                  optionLabel="libelle" placeholder="Séléctionner le rayon">
-      </p-dropdown>
+      <p-select [appendTo]="appendTo" [filter]="true"
+                [options]="rayons" [required]="true"
+                [style]="{width: '100%'}" class="form-control"
+                formControlName="rayon" id="rayon"
+                optionLabel="libelle" placeholder="Séléctionner le rayon">
+      </p-select>
       <div
         *ngIf="editForm.get('rayon')!.invalid && (editForm.get('rayon')!.dirty || editForm.get('rayon')!.touched)">
         <small *ngIf="editForm.get('rayon')?.errors?.required"

@@ -19,24 +19,28 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
-    selector: 'jhi-form-produit-fournisseur',
-    templateUrl: './form-produit-fournisseur.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        InputTextModule,
-        DropdownModule,
-        ButtonModule,
-        RippleModule,
-        InputSwitchModule,
-        KeyFilterModule,
-        DynamicDialogModule,
-    ]
+  selector: 'jhi-form-produit-fournisseur',
+  templateUrl: './form-produit-fournisseur.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    InputTextModule,
+    DropdownModule,
+    ButtonModule,
+    RippleModule,
+    InputSwitchModule,
+    KeyFilterModule,
+    DynamicDialogModule,
+    Select,
+    ToggleSwitch,
+  ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
   produit?: IProduit;

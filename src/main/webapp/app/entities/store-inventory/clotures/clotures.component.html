@@ -44,11 +44,11 @@
         <div class="btn-group">
           <p-button [rounded]="true"
                     [routerLink]="['/store-inventory', storeInventory.id, 'view']" icon="pi pi-eye"
-                    size="small"
+                    pTooltip="Voir"
+                    severity="info" size="small"></p-button>
           >
 
 
-          </p-button>
           <p-button (click)="exportPdf(storeInventory)"
                     [rounded]="true" class=" ml-sm-1" icon="pi pi-print"
                     pTooltip="Imprimer"

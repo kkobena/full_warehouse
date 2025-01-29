@@ -15,27 +15,29 @@ import { ITEMS_PER_PAGE } from '../../config/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { Select } from 'primeng/select';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
-    selector: 'jhi-store-inventory-detail',
-    templateUrl: './store-inventory-detail.component.html',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        RouterModule,
-        DividerModule,
-        NgxSpinnerModule,
-        DropdownModule,
-        AutoCompleteModule,
-        TableModule,
-        ButtonModule,
-        RippleModule,
-    ]
+  selector: 'jhi-store-inventory-detail',
+  templateUrl: './store-inventory-detail.component.html',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    RouterModule,
+    DividerModule,
+    NgxSpinnerModule,
+    AutoCompleteModule,
+    TableModule,
+    ButtonModule,
+    RippleModule,
+    Select,
+    Tooltip,
+  ],
 })
 export class StoreInventoryDetailComponent implements OnInit {
   storeInventory: IStoreInventory | null = null;

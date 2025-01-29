@@ -251,9 +251,6 @@ angular-cli removes postcss-rtl processed inline css, processed rules must be ad
   padding: 0.2rem 1rem;
 }
 
-.p-toolbar {
-  padding: 5px;
-}
 
 .p-autocomplete {
   width: 100%;
@@ -1861,6 +1858,21 @@ menu  de la vente
 }
 
 .produit-audit-toolbar {
+  .form-control {
+    padding: 0 !important;
+  }
+}
+
+.p-toolbar {
+  padding: 0.2rem !important;
+  background-color: #F1F5F9 !important;
+}
+
+.ajustement-toolbar {
+  .p-inputwrapper {
+    width: 100% !important;
+  }
+
   .form-control {
     padding: 0 !important;
   }

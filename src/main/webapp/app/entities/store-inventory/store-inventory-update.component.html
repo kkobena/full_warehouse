@@ -44,15 +44,15 @@
         @if (storeInventory.inventoryCategory.name === 'MAGASIN') {
           <div class="row">
             <label>Emplacements</label>
-            <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
-                        [appendTo]="APPEND_TO"
-                        [filter]="false"
-                        [options]="storages"
-                        [showClear]="true"
-                        [style]="{'width':'100%'}"
-                        optionLabel="name" placeholder="Séléctionner un emplacement"
+            <p-select (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="storages"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="name" placeholder="Séléctionner un emplacement"
             >
-            </p-dropdown>
+            </p-select>
           </div>
         }
         @if (storeInventory.inventoryCategory.name !== 'RAYON') {
@@ -78,15 +78,15 @@
         @if (showFilterCombox) {
           <div class="row" style="margin-top: 0.5rem;">
             <label>Filtrer par</label>
-            <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
-                        [appendTo]="APPEND_TO"
-                        [filter]="false"
-                        [options]="filtres"
-                        [showClear]="true"
-                        [style]="{'width':'100%'}"
-                        optionLabel="label" placeholder="Filtrer par"
+            <p-select (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
+                      [appendTo]="APPEND_TO"
+                      [filter]="false"
+                      [options]="filtres"
+                      [showClear]="true"
+                      [style]="{'width':'100%'}"
+                      optionLabel="label" placeholder="Filtrer par"
             >
-            </p-dropdown>
+            </p-select>
           </div>
         }
 
@@ -95,18 +95,18 @@
 
         <div class="row" style="margin-top: 0.5rem;">
                    <span class="p-buttonset justify-content-center">
-    <button (click)="confirmClose()" class="p-button-success p-button-raised"
-            pButton
-            type="button">  <fa-icon
-      icon="lock"></fa-icon>&nbsp;<span>Cloturer</span></button>
-                  <button (click)="exportPdf()"
-                          class="p-button-warning p-button-raised"
-                          pButton
-                          type="button">  <fa-icon
-                    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+    <p-button (click)="confirmClose()" icon="pi pi-lock" label="Clôtuer" raised="true"
+              severity="success"
 
-                   <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                             styleClass="p-button-raised p-button-secondary"></p-button>
+              type="button" />
+                  <p-button (click)="exportPdf()" [raised]="true"
+                            icon="pi pi-file-pdf"
+                            label="Imprimer" severity="warn"
+                            type="button" />
+
+                   <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
+                             label="Retour"
+                             severity="secondary"></p-button>
                 </span>
         </div>
 
@@ -116,36 +116,37 @@
   </div>
 
   <div class="col-md-9 row">
-    <div class="row" style="margin: 0.2rem;">
-      <div class="col-4" style="margin: 0; padding:0;">
-        <input (keydown.enter)="onFilter()" [(ngModel)]="searchValue"
-               [style]="{'width':'98%'}" pInputText
-               placeholder="Taper pour rechercher"
+    <p-toolbar>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input (keydown.enter)="onFilter()" [(ngModel)]="searchValue" [style]="{width: '350px'}"
+               pInputText placeholder="Taper pour rechercher"
+               size="large"
                type="text">
-      </div>
-
-
-    </div>
+      </p-iconfield>
+    </p-toolbar>
     <div class=" row ag-theme-alpine"
          style="width: 100%; height:65vh;">
-      <ag-grid-angular #itemsGrid (cellValueChanged)="onCellValueChanged($event)"
-                       (gridReady)="onGridReady($event)"
-                       *ngIf="storeInventory"
-                       [animateRows]="true"
-                       [columnDefs]="columnDefs"
-                       [context]="context"
-                       [defaultColDef]="defaultColDef"
-                       [domLayout]="'normal'"
-                       [enableCellEditingOnBackspace]="true"
-                       [enterNavigatesVerticallyAfterEdit]="true"
-                       [paginationPageSize]="itemsPerPage"
-                       [readOnlyEdit]="false"
-                       [rowData]="storeInventoryLines"
-                       [singleClickEdit]="true"
-                       [stopEditingWhenCellsLoseFocus]="false"
 
-                       style="width: 100%; height: 100%;">
-      </ag-grid-angular>
+      @if (storeInventory) {
+        <ag-grid-angular #itemsGrid (cellValueChanged)="onCellValueChanged($event)"
+                         (gridReady)="onGridReady($event)"
+                         [animateRows]="true"
+                         [columnDefs]="columnDefs"
+                         [context]="context"
+                         [defaultColDef]="defaultColDef"
+                         [domLayout]="'normal'"
+                         [enableCellEditingOnBackspace]="true"
+                         [enterNavigatesVerticallyAfterEdit]="true"
+                         [paginationPageSize]="itemsPerPage"
+                         [readOnlyEdit]="false"
+                         [rowData]="storeInventoryLines"
+                         [singleClickEdit]="true"
+                         [stopEditingWhenCellsLoseFocus]="false"
+
+                         style="width: 100%; height: 100%;">
+        </ag-grid-angular>
+      }
       @if (storeInventoryLines && storeInventoryLines.length > 0) {
         <div class="mt-2">
 

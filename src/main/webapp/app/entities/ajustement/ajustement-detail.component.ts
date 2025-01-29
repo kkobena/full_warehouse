@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { IProduit } from '../../shared/model/produit.model';
@@ -29,6 +29,11 @@ import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-ajustement-detail',
@@ -47,30 +52,35 @@ import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '
     TableModule,
     RippleModule,
     TooltipModule,
+    Select,
+    InputGroup,
+    InputGroupAddon,
+    IconField,
+    InputIcon,
   ],
   providers: [ConfirmationService, DialogService],
 })
-export class AjustementDetailComponent implements OnInit {
+export class AjustementDetailComponent implements OnInit, AfterViewInit {
+  quantityBox = viewChild.required<ElementRef>('quantityBox');
   protected ajustement: IAjust | null = null;
   protected produitSelected!: IProduit | null;
-  protected motifSelected!: IMotifAjustement | null;
+  protected motifSelected!: number | null;
   protected isSaving = false;
   protected produits: IProduit[] = [];
   protected motifs: IMotifAjustement[] = [];
   protected items: IAjustement[] = [];
-  @ViewChild('quantityBox')
-  protected quantityBox?: ElementRef;
   @ViewChild('comment')
   protected comment?: ElementRef;
   protected search: string;
   protected context: any;
-  @ViewChild('produitbox')
-  protected produitbox?: any;
+  protected produitbox = viewChild.required<any>('produitbox');
+  protected motif = viewChild.required<Select>('motif');
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly APPEND_TO = APPEND_TO;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected selectedEl: IAjustement[];
   protected ref?: DynamicDialogRef;
+  protected readonly appendTo = APPEND_TO;
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -107,8 +117,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Vous aller être rediriger à la parge précedente  ?',
       header: ' REDIRECTION',
       icon: 'pi pi-warning-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.previousState(),
       key: 'redirect',
     });
@@ -127,8 +137,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne ?',
       header: 'SUPPRESSION  ',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.removeLine(item),
       reject: () => {
         this.focusPrdoduitBox();
@@ -142,7 +152,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Vous devez selectionner le motif',
       header: 'MOTIF AJUSTEMENT  ',
       icon: 'pi pi-times-circle',
-      rejectButtonProps: rejectWarningButtonProps,
+      acceptVisible: false,
+      rejectButtonProps: rejectWarningButtonProps(),
       reject() {},
       key: 'warningMessage',
     });
@@ -153,8 +164,8 @@ export class AjustementDetailComponent implements OnInit {
       message: ' Voullez-vous supprimer toutes les lignes  ?',
       header: 'SUPPRESSION  ',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.deleteSelectedItems(),
       reject: () => {
         this.focusPrdoduitBox();
@@ -169,8 +180,20 @@ export class AjustementDetailComponent implements OnInit {
     this.subscribeAddItemResponse(this.ajustementService.updateItem(ajustement));
   }
 
+  ngAfterViewInit(): void {
+    this.motif()?.focus();
+  }
+
   protected onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
+    this.onAddItem(qytMvt);
+  }
+
+  protected onQuantity(): void {
+    const qytMvt = Number(this.quantityBox().nativeElement.value);
+    if (qytMvt <= 0) {
+      return;
+    }
     this.onAddItem(qytMvt);
   }
 
@@ -231,11 +254,7 @@ export class AjustementDetailComponent implements OnInit {
     this.loadProduits(event.query);
   }
 
-  protected searchMotif(event: any): void {
-    this.loadMotifs(event.query);
-  }
-
-  protected onSelectMotif(event: any): void {
+  protected onSelectMotif(): void {
     this.focusPrdoduitBox();
   }
 
@@ -303,7 +322,7 @@ export class AjustementDetailComponent implements OnInit {
     }
     this.loadAll(this.ajustement.id);
     this.produitSelected = null;
-    this.quantityBox.nativeElement.value = 1;
+    this.quantityBox().nativeElement.value = 1;
     this.focusPrdoduitBox();
   }
 
@@ -348,8 +367,8 @@ export class AjustementDetailComponent implements OnInit {
 
   private focusPrdoduitBox(): void {
     setTimeout(() => {
-      this.produitbox.inputEL.nativeElement.focus();
-      this.produitbox.inputEL.nativeElement.select();
+      this.produitbox().inputEL.nativeElement.focus();
+      this.produitbox().inputEL.nativeElement.select();
     }, 50);
   }
 
@@ -366,13 +385,13 @@ export class AjustementDetailComponent implements OnInit {
       produitId: produit.id,
       qtyMvt: quantity,
       ajustId: this.ajustement?.id,
-      motifAjustementId: this.motifSelected?.id,
+      motifAjustementId: this.motifSelected,
     };
   }
 
   private setQuantityBoxFocused(): void {
     setTimeout(() => {
-      const el = this.quantityBox.nativeElement;
+      const el = this.quantityBox().nativeElement;
       el.focus();
       el.value = 1;
       el.select();

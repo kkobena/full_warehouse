@@ -14,16 +14,16 @@
 
     <label class="form-control-label" for="fournisseurId">Fournisseurs<span
       style="font-weight: 900;color: red;">*</span></label>
-    <p-dropdown #fournisseur [filter]="true"
-                [options]="fournisseurs" [style]="{'width':'100%'}"
-                [virtualScroll]="false"
-                filterBy="libelle"
-                id="fournisseurId"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner un fournisseur"
+    <p-select #fournisseur [filter]="true"
+              [options]="fournisseurs" [style]="{'width':'100%'}"
+              [virtualScroll]="false"
+              filterBy="libelle"
+              id="fournisseurId"
+              optionLabel="libelle"
+              optionValue="id"
+              placeholder="Sélectionner un fournisseur"
     >
-    </p-dropdown>
+    </p-select>
 
   </div>
   <div class="text-center ui-g form-group">
@@ -43,17 +43,17 @@
 </div>
 
 <div class="modal-footer">
-  <button (click)="cancel()" data-dismiss="modal" pButton pButtonIcon="pi pi-times"
-          pButtonLabel="Fermer" severity="danger" type="button">
-  </button>
+  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times"
+            label="Fermer" severity="danger" type="button">
+  </p-button>
 
-  <button (click)="onUpload()" [disabled]="!isFileUploadValid || isSaving "
-          pButton
-          pButtonIcon="pi pi-upload" pButtonLabel="Enrégistrer"
-          severity="primary"
-          type="submit">
+  <p-button (click)="onUpload()" [disabled]="!isFileUploadValid || isSaving "
 
-  </button>
+            icon="pi pi-upload" label="Enrégistrer"
+            severity="success"
+            type="submit">
+
+  </p-button>
 </div>
 
 <p-toast position="center"></p-toast>

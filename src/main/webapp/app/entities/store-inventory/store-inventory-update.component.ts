@@ -42,6 +42,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Authority } from '../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../sales/service/has-authority.service';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { Toolbar } from 'primeng/toolbar';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 provideGlobalGridOptions({ theme: 'legacy' });
@@ -65,6 +69,10 @@ provideGlobalGridOptions({ theme: 'legacy' });
     ConfirmDialogModule,
     AgGridAngular,
     InputTextModule,
+    Select,
+    Toolbar,
+    IconField,
+    InputIcon,
   ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {

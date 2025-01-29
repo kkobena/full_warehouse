@@ -28,11 +28,11 @@
                   chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
     </p-fileupload>
   </div>
-  <p-footer>
-    <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
-            label="Annuler" pButton
-            type="button"></button>
-  </p-footer>
+  <ng-template #footer>
+    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" pButton
+              raised="true" severity="danger"
+              type="button"></p-button>
+  </ng-template>
 </p-dialog>
 
 
@@ -44,7 +44,7 @@
       <h4> Veuillez cliquer sur le lien pour télécharger les lignes rejetées </h4>
     </div>
     <h4>
-      <p-button styleClass="p-button-link" (click)="onClickLink()"
+      <p-button [link]="true" (click)="onClickLink()"
       >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
       </p-button>
     </h4>
@@ -57,43 +57,45 @@
 
 </p-dialog>
 <div>
-  <h4 id="page-heading">
+  <h5 id="page-heading">
     <span jhiTranslate="warehouseApp.produit.home.title">Produits</span>
-  </h4>
+  </h5>
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-8">
       <div class="row">
         <div class="col">
-          <p-dropdown (onChange)="filtreClik()" [(ngModel)]="selectedCriteria"
-                      [options]="filtesProduits"
-                      placeholder="Filtrer par critère"
-                      styleClass="dropdown-width">
-          </p-dropdown>
+          <p-select (onChange)="filtreClik()" [(ngModel)]="selectedCriteria"
+                    [options]="filtesProduits"
+                    placeholder="Filtrer par critère"
+          >
+          </p-select>
         </div>
 
         <div class="col">
-          <p-dropdown (onChange)="filtreRayon($event)"
-                      [(ngModel)]="selectedRayon"
-                      [options]="rayons"
-                      [showClear]="true" optionLabel="label" optionValue="value"
-                      placeholder="Séléctionner un rayon "
-                      styleClass="dropdown-width">
-          </p-dropdown>
+          <p-select (onChange)="filtreRayon($event)"
+                    [(ngModel)]="selectedRayon"
+                    [options]="rayons"
+                    [showClear]="true" optionLabel="label" optionValue="value"
+                    placeholder="Séléctionner un rayon "
+          >
+          </p-select>
 
         </div>
         <div class="col">
-          <p-dropdown (onChange)="filtreFamilleProduit($event)"
-                      [options]="familles" [showClear]="true" placeholder="Séléctionner une famille"
-                      styleClass="dropdown-width">
-          </p-dropdown>
+          <p-select (onChange)="filtreFamilleProduit($event)"
+                    [options]="familles" [showClear]="true" placeholder="Séléctionner une famille"
+          >
+          </p-select>
         </div>
         <div class="col">
-                            <span class="p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch($event)" pInputText
-                                       placeholder="Taper pour rechercher"
-                                       type="text">
-                            </span>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input (keyup.enter)="onSearch($event)" pInputText
+                   placeholder="Taper pour rechercher"
+                   type="text">
+          </p-iconfield>
+
+
         </div>
 
       </div>
@@ -103,12 +105,12 @@
       <p-splitbutton [model]="splitbuttons" [raised]="true" icon="pi pi-upload" label="Importation"
                      severity="help"
                      styleClass=" mr-2 mb-2"></p-splitbutton>
-      <button [raised]="true" [routerLink]="['/produit/new']" class=" mb-2 " pButton
-              pButtonIcon="pi pi-plus"
-              pButtonLabel="Nouveau produit" severity="success"
-              type="button">
+      <p-button [raised]="true" [routerLink]="['/produit/new']" class=" mb-2 "
+                icon="pi pi-plus"
+                label="Nouveau produit" severity="success"
+                type="button">
 
-      </button>
+      </p-button>
     </div>
   </p-toolbar>
 
@@ -146,7 +148,7 @@
           <td>
 
             <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [pRowToggler]="expanded" [rounded]="true" [text]="true"
+                      [pRowToggler]="produit" [rounded]="true" [text]="true"
                       type="button" />
           </td>
           <td>{{ produit.codeCip }}</td>
@@ -401,12 +403,11 @@
                         <th style="width:12%">Prix.A</th>
                         <th style="width:12%">Prix.U</th>
                         <th style="width: 31%;text-align:right;">
-                          <button (click)="addFournisseur(elRow)"
-                                  class="p-button-primary"
-                                  severity="primary"
-                                  [rounded]="true" size="small"
-                                  pButtonIcon="pi pi-plus" pButton
-                                  pTooltip="Ajouter un fournisseur"></button>
+                          <p-button (click)="addFournisseur(elRow)"
+                                    severity="info"
+                                    [rounded]="true" size="small"
+                                    icon="pi pi-plus"
+                                    pTooltip="Ajouter un fournisseur"></p-button>
                         </th>
                       </tr>
                       </thead>
@@ -418,27 +419,26 @@
                         <td>{{ four.prixAchat | number }}</td>
                         <td>{{ four.prixUni | number }}</td>
                         <td style="text-align: right;">
-                          <p-inputSwitch (onChange)="onChangeDefaultProduitFournisseur($event,four)"
-                                         [(ngModel)]="four.principal"
+                          <p-toggleswitch
+                            (onChange)="onChangeDefaultProduitFournisseur($event,four)"
+                            [(ngModel)]="four.principal"
 
-                                         pTooltip="Changer en fournisseur principal">
-                          </p-inputSwitch>
-                          <button (click)="editFournisseur(elRow,four)" [rounded]="true"
-                                  size="small"
-                                  severity="success"
-                                  class="p-mr-2 p-ml-2 p-mb-3"
-                                  pButtonIcon="pi pi-pencil"
-                                  pButton
-                                  pTooltip="Editer"></button>
+                            pTooltip="Changer en fournisseur principal">
+                          </p-toggleswitch>
+                          <p-button (click)="editFournisseur(elRow,four)" [rounded]="true"
+                                    size="small"
+                                    severity="success"
+                                    class="p-mr-2 p-ml-2 p-mb-3"
+                                    icon="pi pi-pencil"
 
-                          <button (click)="confirmDeleteProduitFournisseur(four,elRow)"
-                                  class=" p-mb-3"
-                                  pButtonIcon="pi pi-trash"
-                                  pButton
+                                    pTooltip="Editer"></p-button>
 
-                                  severity="danger"
-                                  [rounded]="true" size="small"
-                                  pTooltip="Supprimer"></button>
+                          <p-button (click)="confirmDeleteProduitFournisseur(four,elRow)"
+                                    class=" p-mb-3"
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    [rounded]="true" size="small"
+                                    pTooltip="Supprimer"></p-button>
                         </td>
                       </tr>
                       </tbody>
@@ -473,3 +473,4 @@
     </div>
   }
 </div>
+

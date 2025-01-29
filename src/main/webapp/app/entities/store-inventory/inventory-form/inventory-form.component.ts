@@ -26,25 +26,25 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
 
 @Component({
-    selector: 'jhi-init-inventory',
-    templateUrl: './inventory-form.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ConfirmDialogModule,
-        ButtonModule,
-        RippleModule,
-        TooltipModule,
-        ToastModule,
-        NgxSpinnerModule,
-        TableModule,
-        RouterModule,
-        DynamicDialogModule,
-        DropdownModule,
-        ReactiveFormsModule,
-    ]
+  selector: 'jhi-init-inventory',
+  templateUrl: './inventory-form.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ConfirmDialogModule,
+    ButtonModule,
+    RippleModule,
+    TooltipModule,
+    ToastModule,
+    NgxSpinnerModule,
+    TableModule,
+    RouterModule,
+    DynamicDialogModule,
+    ReactiveFormsModule,
+    Select,
+  ],
 })
 export class InventoryFormComponent implements OnInit {
   protected isSaving: boolean = false;

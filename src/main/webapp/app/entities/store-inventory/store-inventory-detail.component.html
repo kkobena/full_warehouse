@@ -71,15 +71,15 @@
       <div class="card-body">
         <div *ngIf="storeInventory.inventoryCategory.name==='MAGASIN'" class="row">
           <label>Emplacements</label>
-          <p-dropdown (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
-                      [appendTo]="APPEND_TO"
-                      [filter]="false"
-                      [options]="storages"
-                      [showClear]="true"
-                      [style]="{'width':'100%'}"
-                      optionLabel="name" placeholder="Séléctionner un emplacement"
+          <p-select (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+                    [appendTo]="APPEND_TO"
+                    [filter]="false"
+                    [options]="storages"
+                    [showClear]="true"
+                    [style]="{'width':'100%'}"
+                    optionLabel="name" placeholder="Séléctionner un emplacement"
           >
-          </p-dropdown>
+          </p-select>
         </div>
         <div *ngIf="storeInventory.inventoryCategory.name!=='RAYON'" class="row"
              style="margin-top: 0.5rem;">
@@ -102,28 +102,29 @@
 
         <div class="row" style="margin-top: 0.5rem;">
           <label>Filtrer par</label>
-          <p-dropdown (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
-                      [appendTo]="APPEND_TO"
-                      [filter]="false"
-                      [options]="filtres"
-                      [showClear]="true"
-                      [style]="{'width':'100%'}"
-                      optionLabel="label" placeholder="Filtrer par"
+          <p-select (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
+                    [appendTo]="APPEND_TO"
+                    [filter]="false"
+                    [options]="filtres"
+                    [showClear]="true"
+                    [style]="{'width':'100%'}"
+                    optionLabel="label" placeholder="Filtrer par"
           >
-          </p-dropdown>
+          </p-select>
         </div>
 
-        <div class="row" style="margin-top: 0.5rem;">
+        <div class="row text-center" style="margin-top: 0.5rem;">
                    <span class="p-buttonset justify-content-center">
 
-                  <button (click)="exportPdf()"
-                          class="p-button-warning p-button-raised"
-                          pButton
-                          type="button">  <fa-icon
-                    icon="file-pdf"></fa-icon>&nbsp;<span>PDF</span></button>
+                  <p-button (click)="exportPdf()" icon="pi pi-file-pdf"
+                            label="Imprimer"
+                            raised="true" severity="warn" />
+
 
                    <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                             styleClass="p-button-raised p-button-secondary"></p-button>
+                             raised="true"
+                             severity="secondary"
+                   />
                 </span>
         </div>
 
@@ -173,12 +174,10 @@
           <td class="text-right">
             <div class="btn-group">
 
-              <button [routerLink]="['/produit', storeInventory.produitId, 'view']"
-                      class="btn btn-info btn-sm"
-                      type="submit">
-                <fa-icon icon="eye"></fa-icon>
+              <p-button [routerLink]="['/produit', storeInventory.produitId, 'view']"
+                        icon="pi pi-eye" pTooltip="Voir" rounded="true" severity="info"
+                        size="small" />
 
-              </button>
             </div>
           </td>
         </tr>

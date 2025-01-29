@@ -88,6 +88,8 @@ export class EnCoursComponent implements OnInit {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer cette ligne  ?',
       header: ' SUPPRESSION',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => this.delete(storeInventory.id),
       key: 'delete',

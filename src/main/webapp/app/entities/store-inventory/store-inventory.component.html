@@ -21,38 +21,25 @@
   </div>
 
   <div class="col-10 col-md-10 col-sm-10 row">
-    <div>
-      <p-toolbar>
-        <div class="p-toolbar-group-left" style="width:70%;">
-          <div class="row" style="width: 100%;">
-            @if (showUserCombo) {
-              <div class="col-md-6 row">
-                <div class="col-md-3">Opérateurs</div>
-                <div class="col-md-9">
-                  <p-dropdown (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
-                              [showClear]="true" [style]="{width: '100%'}"
-                              optionLabel="fullName"></p-dropdown>
-                </div>
-              </div>
-            }
-            <div class="col-md-10 row">
-              <div class="col-md-2">Types</div>
-              <div class="col-md-10">
-                <p-multiSelect [(ngModel)]="inventoryCategories"
-                               [filter]="false"
-                               [options]="categories"
-                               [showClear]="true" [showToggleAll]="false" [style]="{width: '100%'}"
-                               optionLabel="label" placeholder="Filter par type"></p-multiSelect>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="p-toolbar-group-right">
-
-<span class="p-buttonset">
-        <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher"
+    <p-toolbar>
+      <ng-template #start>
+        <p-inputgroup [hidden]="true">
+          <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
+          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                    [showClear]="true"
+                    optionLabel="fullName"></p-select>
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputgroup-addon>Types</p-inputgroup-addon>
+          <p-multiSelect [(ngModel)]="inventoryCategories"
+                         [filter]="false" [options]="categories"
+                         [showClear]="true"
+                         [showToggleAll]="false" optionLabel="label"
+                         placeholder="Filter par type" />
+        </p-inputgroup>
+      </ng-template>
+      <ng-template #end>
+        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
                   raised="true"
                   severity="info"
         ></p-button>
@@ -64,11 +51,11 @@
                   severity="success"
 
         >
-        </p-button></span>
+        </p-button>
+      </ng-template>
 
-        </div>
-      </p-toolbar>
-    </div>
+    </p-toolbar>
+
 
     <div [ngbNavOutlet]="nav">
 

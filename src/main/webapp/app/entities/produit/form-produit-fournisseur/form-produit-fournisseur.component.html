@@ -9,14 +9,14 @@
       <div class="form-group col">
         <label class="form-control-label"
                for="field_fournisseurId">Fournisseurs</label>
-        <p-dropdown (onChange)="onChange($event)" [filter]="false"
-                    [options]="fournisseurs"
-                    [style]="{width: '100%'}" class="form-control ngCombo"
+        <p-select (onChange)="onChange($event)" [filter]="false"
+                  [options]="fournisseurs"
+                  [style]="{width: '100%'}" class="form-control ngCombo"
 
-                    formControlName="fournisseurId" id="field_fournisseurId"
-                    optionLabel="libelle" optionValue="id"
-                    placeholder="Séléctionner un fournisseur ">
-        </p-dropdown>
+                  formControlName="fournisseurId" id="field_fournisseurId"
+                  optionLabel="libelle" optionValue="id"
+                  placeholder="Séléctionner un fournisseur ">
+        </p-select>
         <div
           *ngIf="editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)">
           <small *ngIf="editForm.get('fournisseurId')?.errors?.required"
@@ -51,7 +51,8 @@
                for="field_prixAchat">Prix achat</label>
         <input (keyup)="handlePrixAchatInput($event)" autocomplete="off" class="form-control"
                formControlName="prixAchat"
-               id="field_prixAchat" name="prixAchat"
+               id="field_prixAchat"
+               name="prixAchat" pInputText
                type="number" />
         <div
           *ngIf="editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)">
@@ -68,7 +69,8 @@
                for="field_prixUni">Prix unitaire</label>
         <input (keyup)="handlePrixUnitaireInput($event)" autocomplete="off" class="form-control"
                formControlName="prixUni"
-               id="field_prixUni" name="prixAchat"
+               id="field_prixUni"
+               name="prixAchat" pInputText
                type="number" />
         <div
           *ngIf="editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)">
@@ -81,8 +83,8 @@
     </div>
     <div class="form-row">
       <div class="form-check  pt-1">
-        <p-inputSwitch [disabled]="hasPrincipal()" formControlName="principal"
-                       id="principal"></p-inputSwitch>
+        <p-toggleswitch [disabled]="hasPrincipal()" formControlName="principal"
+                        id="principal"></p-toggleswitch>
         <label class="form-check-label form-control-label ml-3" for="principal">Est-il le
           fournisseur principal
           ?</label>

@@ -14,32 +14,44 @@ import { TableModule } from 'primeng/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
-import { CalendarModule } from 'primeng/calendar';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { AjustementService } from './ajustement.service';
+import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
+import { APPEND_TO } from '../../shared/constants/pagination.constants';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
 @Component({
-    selector: 'jhi-ajustement',
-    templateUrl: './ajustement.component.html',
-    imports: [
-        WarehouseCommonModule,
-        DividerModule,
-        DropdownModule,
-        ButtonModule,
-        TableModule,
-        NgxSpinnerModule,
-        CardModule,
-        ToolbarModule,
-        CalendarModule,
-        RouterModule,
-        FormsModule,
-        AjustementEnCoursComponent,
-        InputTextModule,
-        ListAjustementComponent,
-    ]
+  selector: 'jhi-ajustement',
+  templateUrl: './ajustement.component.html',
+  imports: [
+    WarehouseCommonModule,
+    DividerModule,
+    DropdownModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    CardModule,
+    ToolbarModule,
+
+    RouterModule,
+    FormsModule,
+
+    InputTextModule,
+    ListAjustementComponent,
+    DatePicker,
+    Select,
+    IconField,
+    InputIcon,
+    InputGroup,
+    InputGroupAddon,
+  ],
 })
 export class AjustementComponent implements OnInit {
   ajustementEnCours = viewChild(AjustementEnCoursComponent);
@@ -49,8 +61,9 @@ export class AjustementComponent implements OnInit {
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected users: IUser[] = [];
-  protected userId?: number | null;
-  protected active = 'PENDING';
+  protected userId?: number | null = null;
+  protected active = 'CLOSED';
+  protected readonly appendTo = APPEND_TO;
 
   constructor(
     protected userService: UserService,
@@ -67,7 +80,9 @@ export class AjustementComponent implements OnInit {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
       //  this.users.push({ id: null, fullName: 'TOUT' });
       if (res.body) {
-        this.users = res.body;
+        this.users = [{ id: null, abbrName: 'TOUT' }];
+
+        this.users = [...this.users, ...res.body];
       }
       // this.user = { id: null, fullName: 'TOUT' };
     });
@@ -87,8 +102,8 @@ export class AjustementComponent implements OnInit {
     }
   }
 
-  protected onSelectUser(userControl: any): void {
-    this.userId = userControl.value;
+  protected onSelectUser(): void {
+    // this.userId = userControl.value;
     this.onSearch();
   }
 }

@@ -22,11 +22,9 @@
 
       <tr>
         <td>
-          <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="ajust" class="p-button-text p-button-rounded p-button-plain"
-                  pButton
-
-                  type="button"></button>
+          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [pRowToggler]="ajust" [rounded]="true" [text]="true"
+                    type="button" />
         </td>
         <td>{{ ajust.userFullName }}</td>
         <td>{{ ajust.dateMtv | date:'dd/MM/yy HH:mm' }}</td>
@@ -37,11 +35,11 @@
           <div class="btn-group">
 
 
-            <button (click)="exportPdf(ajust)"
-                    class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                    icon="pi pi-file-pdf"
-                    pButton
-                    pTooltip="Imprimer"></button>
+            <p-button (click)="exportPdf(ajust)"
+                      class=" ml-sm-1" rounded="true"
+                      icon="pi pi-print"
+                      severity="secondary"
+                      pTooltip="Imprimer"></p-button>
 
           </div>
         </td>

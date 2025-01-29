@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 public class TableauPharmacienServiceImpl implements TableauPharmacienService {
@@ -104,18 +105,29 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                 achatDTO
                     .setMontantNet(t.get("montantNet", BigDecimal.class).longValue())
                     .setMontantTtc(t.get("montantTtc", BigDecimal.class).longValue())
-                    .setMontantHt(t.get("montantHt", BigDecimal.class).longValue())
+                    // .setMontantHt(t.get("montantHt", BigDecimal.class).longValue())
                     .setMontantTaxe(t.get("montantTaxe", BigDecimal.class).longValue())
                     .setMontantRemise(t.get("montantRemise", BigDecimal.class).longValue())
                     .setGroupeGrossiste(t.get("groupeGrossiste", String.class))
                     .setGroupeGrossisteId(t.get("groupeGrossisteId", Long.class))
                     .setOrdreAffichage(t.get("ordreAffichage", Integer.class))
-                    .setMvtDate(LocalDate.parse(t.get("mvtDate", String.class)));
+                    .setMvtDate(getMvtDate(t.get("mvtDate", String.class)));
                 updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO);
                 return achatDTO;
             })
             .sorted(Comparator.comparing(AchatDTO::getOrdreAffichage))
             .toList();
+    }
+
+    private LocalDate getMvtDate(String mvtDate) {
+        if (StringUtils.hasText(mvtDate)) {
+            if (mvtDate.length() == 7) {
+                return DateUtil.formaFromYearMonth(mvtDate);
+            } else {
+                return LocalDate.parse(mvtDate);
+            }
+        }
+        return null;
     }
 
     private void updateTableauPharmacienWrapper(TableauPharmacienWrapper tableauPharmacienWrapper, AchatDTO achatDTO) {

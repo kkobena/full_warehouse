@@ -6,12 +6,12 @@
     <p-card>
       <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
            orientation="vertical">
-        <ng-container ngbNavItem="PENDING">
+        <!--<ng-container ngbNavItem="PENDING">
           <a class="flex-sm-fill nav-link " ngbNavLink>Ajustement en cours</a>
           <ng-template ngbNavContent>
             <jhi-ajustement-en-cours></jhi-ajustement-en-cours>
           </ng-template>
-        </ng-container>
+        </ng-container>-->
         <ng-container ngbNavItem="CLOSED">
           <a class="flex-sm-fill nav-link " ngbNavLink>Ajustements</a>
           <ng-template ngbNavContent>
@@ -24,72 +24,71 @@
 
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row">
-    <div>
-      <p-toolbar>
-        <div class="p-toolbar-group-left" style="width: 75%;">
+  <div class="col-10 col-md-10 col-sm-10 row ">
 
-          <label class="mr-sm-1">Du&nbsp;</label>
-          <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                      [showButtonBar]="true"
-                      dateFormat="dd/mm/yy"
+    <p-toolbar class="ajustement-toolbar">
+      <ng-template #start>
+        <p-inputgroup class="mr-1">
+          <p-inputgroup-addon>Du</p-inputgroup-addon>
+          <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        showIcon="true"
           >
 
-          </p-calendar>
-          <p-divider layout="vertical"></p-divider>
-          <label class="mr-sm-1 ml-sm-1">Au&nbsp;</label>
-          <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
-                      [showButtonBar]="true"
-                      dateFormat="dd/mm/yy"
-          ></p-calendar>
+          </p-datePicker>
+        </p-inputgroup>
 
-          <p-divider layout="vertical"></p-divider>
+        <p-inputgroup class="mr-1">
+          <p-inputgroup-addon>AU</p-inputgroup-addon>
+          <p-datePicker [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        dateFormat="dd/mm/yy"
+          ></p-datePicker>
+        </p-inputgroup>
 
-          <label class="ml-sm-4">Opérateur&nbsp;</label>
+        <p-inputgroup class="mr-1 ml-1">
+          <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
+          <p-select
+            (onChange)="onSelectUser()"
+            [(ngModel)]="userId"
+            [appendTo]="appendTo"
+            [dataKey]="'id'"
+            [options]="users"
+            optionLabel="abbrName"
+            optionValue="id"></p-select>
+        </p-inputgroup>
 
 
-          <select #userControl (change)="onSelectUser(userControl)"
-                  class="form-select">
-            <option [value]="null" selected>Tout</option>
-            @for (u of users; track u.id) {
-              <option [value]="u.id">{{ u.abbrName }}</option>
-            }
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search"
+                 class="toobar-input-search"
+                 pInputText
+                 placeholder="Recherge globale" type="text">
+        </p-iconfield>
 
-          </select>
-
-          <p-divider layout="vertical"></p-divider>
-          <span class="p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input (keyup.enter)="onSearch()" [(ngModel)]="search"
-                                       class="toobar-input-search"
-                                       pInputText
-                                       placeholder="Recherge globale" type="text">
-                            </span>
-
-        </div>
-        <div class="p-toolbar-group-right">
-
-<span class="p-buttonset">
-        <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher"
-                  styleClass="p-button-info"></p-button>
+        <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher"
+                  raised="true"
+                  severity="info"></p-button>
 
         <p-button [routerLink]="['/ajustement', 'new']"
                   icon="pi pi-plus"
                   label="Nouveau"
-                  styleClass="p-button-raised p-button-success"
+                  raised="true"
+                  severity="success"
         >
-        </p-button></span>
+        </p-button>
 
-        </div>
-      </p-toolbar>
-    </div>
+
+      </ng-template>
+
+
+    </p-toolbar>
+
     <div [ngbNavOutlet]="nav">
 
     </div>
   </div>
-</div>
-
-<div>
-
-
 </div>

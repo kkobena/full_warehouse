@@ -17,7 +17,6 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IProduitCriteria, ProduitCriteria } from '../../shared/model/produit-criteria.model';
 import { RayonService } from '../rayon/rayon.service';
 import { FamilleProduitService } from '../famille-produit/famille-produit.service';
-import { SERVER_API_URL } from '../../app.constants';
 import { Statut } from '../../shared/model/enumerations/statut.model';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
@@ -44,6 +43,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ImportProduitModalComponent } from './import-produit-modal/import-produit-modal.component';
 import { saveAs } from 'file-saver';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -113,6 +116,10 @@ export type ExpandMode = 'single' | 'multiple';
     TooltipModule,
     InputSwitchModule,
     InputTextModule,
+    Select,
+    IconField,
+    InputIcon,
+    ToggleSwitch,
   ],
 })
 export class ProduitComponent implements OnInit {
@@ -144,7 +151,6 @@ export class ProduitComponent implements OnInit {
   splitbuttons: MenuItem[];
   criteria: IProduitCriteria;
   onErrorOccur = false;
-  public resourceUrl = SERVER_API_URL;
   ref!: DynamicDialogRef;
   configuration?: IConfiguration | null;
   isMono = true;
@@ -468,7 +474,6 @@ export class ProduitComponent implements OnInit {
       accept: () => {
         this.onDeleteProduitFournisseur(four, produit);
       },
-      key: 'deleteItem',
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -9,7 +9,6 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 export type ExpandMode = 'single' | 'multiple';
@@ -17,19 +16,10 @@ export type ExpandMode = 'single' | 'multiple';
 @Component({
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TableModule,
-    NgxSpinnerModule,
-    RouterModule,
-    RippleModule,
-    DynamicDialogModule,
-    TooltipModule,
-  ],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RouterModule, DynamicDialogModule, TooltipModule],
 })
 export class BonEnCoursComponent implements OnInit {
-  @Input() search = '';
+  search = input<string>('');
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;

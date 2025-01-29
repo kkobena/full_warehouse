@@ -1,9 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -24,16 +22,15 @@ import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../..
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { RippleModule } from 'primeng/ripple';
 import { StatSalesComponent } from '../stat-sales/stat-sales.component';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-transaction',
   imports: [
     WarehouseCommonModule,
     ButtonModule,
-    CalendarModule,
     CardModule,
     DividerModule,
-    DropdownModule,
     InputTextModule,
     NgbNav,
     ToolbarModule,
@@ -44,6 +41,7 @@ import { StatSalesComponent } from '../stat-sales/stat-sales.component';
     BadgeModule,
     AutoCompleteModule,
     RippleModule,
+    DatePicker,
   ],
   templateUrl: './transaction.component.html',
   providers: [ProduitAuditingParamService],

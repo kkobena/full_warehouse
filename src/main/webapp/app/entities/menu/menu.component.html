@@ -5,11 +5,11 @@
       <ng-template pTemplate="header">
         <div class="float-right" style="width: 100%;">
           <span jhiTranslate="warehouseApp.menu.home.title">Menus</span>
-          <button [routerLink]="['/menu/new']" class="p-button-raised p-button-success float-right"
-                  icon="pi pi-plus"
-                  iconPos="left" label=" Ajouter un nouveau rôle"
-                  pButton pRipple
-                  type="button"></button>
+          <p-button [routerLink]="['/menu/new']" class="float-right"
+                    icon="pi pi-plus"
+                    label=" Ajouter un nouveau rôle"
+                    raised="true" severity="success"
+                    type="button"></p-button>
         </div>
 
       </ng-template>
@@ -52,16 +52,16 @@
 
             <td class="text-right">
               <div class="btn-group">
-                <button [routerLink]=" ['/menu', row.name, 'view']"
-                        class="p-button-rounded p-button-info p-mr-1" icon="pi pi-box" pButton
-                        pRipple
-                        pTooltip="Gérer les privilèges"
-                        type="button"></button>
+                <p-button [routerLink]=" ['/menu', row.name, 'view']"
+                          class=" p-mr-1" icon="pi pi-box" pTooltip="Gérer les privilèges"
+                          rounded="true"
+                          severity="info"
+                          type="button"></p-button>
                 @if (isNotPredefined(row)) {
-                  <button (click)="delete(row)"
-                          class="p-button-rounded p-button-danger"
-                          icon="pi pi-trash" pButton pRipple
-                          pTooltip="Supprimer" type="button"></button>
+                  <p-button (click)="delete(row)"
+                            rounded="true" severity="danger"
+                            icon="pi pi-trash"
+                            pTooltip="Supprimer" type="button"></p-button>
                 }
 
 

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DeliveryService } from '../../delivery.service';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
@@ -19,32 +19,37 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { CalendarModule } from 'primeng/calendar';
 import { FileUploadModule } from 'primeng/fileupload';
+import { Select } from 'primeng/select';
+import { DatePicker } from 'primeng/datepicker';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryReceipt: IDelivery };
 type ModelFichier = { label: string; value: string };
 
 @Component({
-    selector: 'jhi-import-delivery-form',
-    templateUrl: './import-delivery-form.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        DropdownModule,
-        ToastModule,
-        NgxSpinnerModule,
-        CardModule,
-        KeyFilterModule,
-        CalendarModule,
-        FileUploadModule,
-    ]
+  selector: 'jhi-import-delivery-form',
+  templateUrl: './import-delivery-form.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    ToastModule,
+    NgxSpinnerModule,
+    CardModule,
+    KeyFilterModule,
+    FileUploadModule,
+    Select,
+    DatePicker,
+  ],
 })
 export class ImportDeliveryFormComponent implements OnInit {
   appendTo = 'body';
@@ -54,7 +59,12 @@ export class ImportDeliveryFormComponent implements OnInit {
   isSaving = false;
   entity?: IDelivery;
   maxDate = new Date();
-
+  primeNGConfig = inject(PrimeNG);
+  translate = inject(TranslateService);
+  primngtranslate: Subscription;
+  private entityService = inject(DeliveryService);
+  private ref = inject(DynamicDialogRef);
+  private fb = inject(FormBuilder);
   editForm = this.fb.group({
     model: new FormControl<ModelFichier | null>(null, {
       validators: [Validators.required],
@@ -82,16 +92,15 @@ export class ImportDeliveryFormComponent implements OnInit {
       }),
     }),
   });
+  private messageService = inject(MessageService);
+  private fournisseurService = inject(FournisseurService);
+  private spinner = inject(NgxSpinnerService);
 
-  constructor(
-    protected entityService: DeliveryService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private fournisseurService: FournisseurService,
-    private spinner: NgxSpinnerService,
-  ) {
+  constructor() {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     this.models = [
       { label: 'LABOREX', value: 'LABOREX' },
       { label: 'COPHARMED', value: 'COPHARMED' },

@@ -42,7 +42,7 @@
       <td class="text-right text-danger">{{ elRow.canceledQuantity | number }}</td>
       <td class="text-right">{{ elRow.storeInventoryQuantity | number }}</td>
       <td class="text-right">{{ elRow.inventoryGap | number }}</td>
-      <td class="text-right">{{ elRow.afterStock | number }}</td>
+      <td class="text-right ">{{ elRow.afterStock | number }}</td>
 
 
     </tr>
@@ -53,31 +53,31 @@
         <td colspan="2">
           TOTAUX
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ saleQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ retourFournisseurQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ perimeQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ ajustementNegatifQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ deconNegatifQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ deleveryQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="text-right amount-column">
           {{ ajustementPositifQuantity | number }}
         </td>
-        <td class="text-right">
+        <td class="amount-column text-right">
           {{ deconPositifQuantity | number }}
         </td>
-        <td class="text-right text-danger">
+        <td class="text-right amount-column text-danger">
           {{ canceledQuantity | number }}
         </td>
         <td colspan="3"></td>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { saveAs } from 'file-saver';
@@ -13,30 +13,29 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-    selector: 'jhi-etiquette-delevery',
-    templateUrl: './etiquette.component.html',
-    imports: [
-        WarehouseCommonModule,
-        KeyFilterModule,
-        ButtonModule,
-        NgxSpinnerModule,
-        RippleModule,
-        DynamicDialogModule,
-        FormsModule,
-        InputTextModule,
-    ]
+  selector: 'jhi-etiquette-delevery',
+  templateUrl: './etiquette.component.html',
+  imports: [
+    WarehouseCommonModule,
+    KeyFilterModule,
+    ButtonModule,
+    NgxSpinnerModule,
+    RippleModule,
+    DynamicDialogModule,
+    FormsModule,
+    InputTextModule,
+  ],
 })
 export class EtiquetteComponent implements OnInit {
   isSaving = false;
   entity?: IDelivery;
   startAt: number = 1;
+  entityService = inject(DeliveryService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  spinner = inject(NgxSpinnerService);
 
-  constructor(
-    protected entityService: DeliveryService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private spinner: NgxSpinnerService,
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

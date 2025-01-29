@@ -247,6 +247,7 @@ export class CustomerComponent implements OnInit {
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
       width: '85%',
       closeOnEscape: false,
+      maximizable: true,
     });
     this.ref.onClose.subscribe((resp: ICustomer) => {
       if (resp) {
@@ -255,13 +256,13 @@ export class CustomerComponent implements OnInit {
     });
   }
 
-  //AssureFormStepComponent
   editAssureCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: { entity: customer },
-      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
+      header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
       width: '85%',
       closeOnEscape: false,
+      maximizable: true,
     });
     this.ref.onClose.subscribe((resp: ICustomer) => {
       if (resp) {
@@ -286,7 +287,7 @@ export class CustomerComponent implements OnInit {
   editUninsuredCustomer(customer: ICustomer): void {
     this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
       data: { entity: customer },
-      header: 'FORMULAIRE DE MODIFICATION DE CLIENT ',
+      header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
       width: '50%',
     });
     this.ref.onClose.subscribe((resp: ICustomer) => {
@@ -313,7 +314,7 @@ export class CustomerComponent implements OnInit {
   editAyantDroit(customer: ICustomer, ayantDroit: ICustomer): void {
     this.ref = this.dialogService.open(FormAyantDroitComponent, {
       data: { entity: ayantDroit, assure: customer },
-      header: "FORMULAIRE DE MODIFICATION D'AYANT DROIT ",
+      header: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`,
       width: '50%',
       closeOnEscape: false,
     });

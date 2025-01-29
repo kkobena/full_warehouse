@@ -18,11 +18,11 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
-import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-form-delivery',
@@ -41,9 +41,9 @@ import { PrimeNG } from 'primeng/config';
     ReactiveFormsModule,
     CardModule,
     ToastModule,
-    CalendarModule,
     KeyFilterModule,
     InputTextModule,
+    DatePicker,
   ],
 })
 export class DeliveryModalComponent implements OnInit {

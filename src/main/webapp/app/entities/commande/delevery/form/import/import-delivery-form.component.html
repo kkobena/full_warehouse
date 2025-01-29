@@ -7,10 +7,10 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Fournisseurs</label>
-        <p-dropdown [appendTo]="appendTo" [filter]="true" [options]="fournisseurs"
-                    [style]="{width: '100%'}" formControlName="fournisseur"
-                    optionLabel="libelle" placeholder="Séléctionner un fournisseur ">
-        </p-dropdown>
+        <p-select [appendTo]="appendTo" [filter]="true" [options]="fournisseurs"
+                  [style]="{width: '100%'}" formControlName="fournisseur"
+                  optionLabel="libelle" placeholder="Séléctionner un fournisseur ">
+        </p-select>
         @if (editForm.get('fournisseur')!.invalid && (editForm.get('fournisseur')!.dirty
           || editForm.get('fournisseur')!.touched)) {
           <div>
@@ -30,12 +30,12 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Model de fichier</label>
-        <p-dropdown [appendTo]="appendTo" [filter]="false" [options]="models"
-                    [style]="{width: '100%'}"
+        <p-select [appendTo]="appendTo" [filter]="false" [options]="models"
+                  [style]="{width: '100%'}"
 
-                    formControlName="model" optionLabel="label"
-                    placeholder="Séléctionner un model de fichier">
-        </p-dropdown>
+                  formControlName="model" optionLabel="label"
+                  placeholder="Séléctionner un model de fichier">
+        </p-select>
         @if (editForm.get('model')!.invalid && (editForm.get('model')!.dirty || editForm.get(
           'model')!.touched)) {
           <div>
@@ -75,11 +75,11 @@
             <div class="p-field col-md-6">
               <label class="col-auto col-form-label">Date de livraison<span
                 style="font-weight: 900;color: red;">*</span></label>
-              <p-calendar
-                [maxDate]="maxDate"
-                [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
-                dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
-              ></p-calendar>
+              <p-datePicker [maxDate]="maxDate" [selectOtherMonths]="true"
+                            [showButtonBar]="true"
+                            [showIcon]="true" appendTo="body" class="form-control"
+                            dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
+              ></p-datePicker>
               @if (editForm.get('deliveryReceipt').get('receiptDate')!.invalid && (editForm.get(
                 'deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get(
                 'receiptDate')!.touched)) {
@@ -172,20 +172,20 @@
       </div>
     </div>
   </form>
-  <ng-template pTemplate="footer">
-    <button (click)="save()" [disabled]="editForm.invalid || isSaving || !isValidForm()"
-            [raised]="true" class="mr-2 "
-            pButton
-            pButtonIcon="pi pi-check"
-            pButtonLabel="Enregistrer"
-            pRipple severity="success"
-            type="submit"></button>
-    <button (click)="cancel()" [raised]="true" class=" p-mr-2"
-            pButton
-            pButtonIcon="pi pi-times"
-            pButtonLabel="Annuler"
-            pRipple
-            severity="danger" type="button"></button>
+  <ng-template #footer>
+    <p-button (click)="save()" [disabled]="editForm.invalid || isSaving || !isValidForm()"
+              [raised]="true" class="mr-2 "
+
+              icon="pi pi-check"
+              label="Enregistrer"
+              severity="success"
+              type="submit"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2"
+
+              icon="pi pi-times"
+              label="Annuler"
+
+              severity="danger" type="button"></p-button>
   </ng-template>
 </p-card>
 

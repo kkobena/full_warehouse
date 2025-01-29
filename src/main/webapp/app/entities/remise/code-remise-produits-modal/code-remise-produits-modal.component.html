@@ -74,13 +74,13 @@
 <div class="modal-footer">
 
   <p-button (click)="cancel()" class=" p-mr-2" icon="pi pi-times" label="Annuler"
-            pRipple
+
             severity="danger"
             type="button"></p-button>
   <p-button (click)="onSave()" [disabled]="selectedProduits.length===0 || isSaving"
             class=" p-mr-2" icon="pi pi-check" label="Enregistrer"
-            
-            pRipple severity="success"></p-button>
+
+            severity="success"></p-button>
 </div>
 
 <p-toast position="center"></p-toast>

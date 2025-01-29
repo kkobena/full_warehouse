@@ -13,13 +13,14 @@ import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
+import { Button } from 'primeng/button';
 
 @Component({
-    selector: 'jhi-importation-new-commande',
-    templateUrl: './importation-new-commande.component.html',
-    providers: [DialogService, ConfirmationService],
-    imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, DropdownModule]
+  selector: 'jhi-importation-new-commande',
+  templateUrl: './importation-new-commande.component.html',
+  providers: [DialogService, ConfirmationService],
+  imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, Select, Button],
 })
 export class ImportationNewCommandeComponent implements OnInit {
   isSaving = false;

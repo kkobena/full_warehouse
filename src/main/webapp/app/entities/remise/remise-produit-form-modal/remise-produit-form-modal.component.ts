@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
@@ -15,7 +14,7 @@ import { MessagesModule } from 'primeng/messages';
 @Component({
   selector: 'jhi-remise-produit-form-modal',
   providers: [MessageService, ConfirmationService],
-  imports: [ReactiveFormsModule, Ripple, ToastModule, MessagesModule, ButtonModule],
+  imports: [ReactiveFormsModule, ToastModule, MessagesModule, ButtonModule],
   templateUrl: './remise-produit-form-modal.component.html',
   styles: ``,
 })

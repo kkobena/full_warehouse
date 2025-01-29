@@ -41,23 +41,23 @@
 
           <p-button
             [routerLink]="['/store-inventory', storeInventory.id, 'edit']"
-            icon="pi pi-pencil" pButton pRipple
+            icon="pi pi-pencil" pButton
             pTooltip="Editer" rounded="true"
             severity="success" size="small">
           </p-button>
           <p-button (click)="confirmSave(storeInventory)"
                     class=" ml-sm-1" icon="pi pi-lock"
-                    pButton pRipple pTooltip="Clôtuer"
+                    pButton pTooltip="Clôtuer"
                     rounded="true" severity="help"
                     size="small"></p-button>
           <p-button (click)="exportPdf(storeInventory)"
                     class="ml-sm-1" icon="pi pi-print"
-                    pButton pRipple pTooltip="Imprimer"
+                    pButton pTooltip="Imprimer"
                     rounded="true"
                     severity="secondary" size="small"></p-button>
           <p-button (click)="confirmDelete(storeInventory)"
                     class=" ml-sm-1"
-                    icon="pi pi-trash" pButton pRipple
+                    icon="pi pi-trash" pButton
                     pTooltip="Supprimer"
                     rounded="true" severity="danger"
                     size="small"

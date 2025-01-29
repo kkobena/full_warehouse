@@ -26,22 +26,23 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-    selector: 'jhi-commande-en-cours',
-    templateUrl: './commande-en-cours.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TableModule,
-        NgxSpinnerModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TooltipModule,
-    ]
+  selector: 'jhi-commande-en-cours',
+  templateUrl: './commande-en-cours.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class CommandeEnCoursComponent implements OnInit {
   @Input() search = '';
@@ -256,6 +257,8 @@ export class CommandeEnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette commande  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.deleteCommande(commande.id),
       key: 'deleteCommande',
     });

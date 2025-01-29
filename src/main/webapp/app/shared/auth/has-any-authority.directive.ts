@@ -1,4 +1,12 @@
-import { Directive, inject, input, TemplateRef, ViewContainerRef, effect, computed } from '@angular/core';
+import {
+  computed,
+  Directive,
+  effect,
+  inject,
+  input,
+  TemplateRef,
+  ViewContainerRef
+} from '@angular/core';
 
 import { AccountService } from 'app/core/auth/account.service';
 
@@ -28,15 +36,12 @@ export default class HasAnyAuthorityDirective {
     const currentAccount = accountService.trackCurrentAccount();
     const hasPermission = computed(() => currentAccount()?.authorities && accountService.hasAnyAuthority(this.authorities()));
 
-    effect(
-      () => {
-        if (hasPermission()) {
-          this.viewContainerRef.createEmbeddedView(this.templateRef);
-        } else {
-          this.viewContainerRef.clear();
-        }
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      if (hasPermission()) {
+        this.viewContainerRef.createEmbeddedView(this.templateRef);
+      } else {
+        this.viewContainerRef.clear();
+      }
+    });
   }
 }

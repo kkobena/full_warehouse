@@ -105,13 +105,13 @@
         <div>
           <p-button (click)="previousState()"
                     icon="pi pi-times" id="cancel-save"
-                    label="Annuler" pRipple raised="true" severity="danger"
+                    label="Annuler" raised="true" severity="danger"
                     type="button">
           </p-button>
 
           <p-button [disabled]="editForm.invalid || isSaving" icon="pi pi-save" id="save-entity"
                     label="Enregistrer"
-                    pRipple raised="true" severity="success" type="submit">
+                    raised="true" severity="success" type="submit">
           </p-button>
         </div>
       </form>

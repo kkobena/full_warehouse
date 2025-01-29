@@ -11,7 +11,7 @@
 
               icon="pi pi-times"
               label="Annuler"
-              pRipple
+
               severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
@@ -106,7 +106,7 @@
         <tr>
           <td>
             <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [pRowToggler]="customer" [rounded]="true" [text]="true" pRipple
+                      [pRowToggler]="customer" [rounded]="true" [text]="true"
                       type="button" />
           </td>
           <td>{{ customer.categorie }}</td>
@@ -160,7 +160,7 @@
 
               }
 
-              <p-button (click)="confirmRemove(customer)" severity="danger" icon="pi pi-times"
+              <p-button (click)="confirmRemove(customer)" severity="danger" icon="pi pi-trash"
                         pTooltip="Supprimer" [rounded]="true" size="small"
                         type="button">
 

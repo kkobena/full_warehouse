@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { ButtonDirective, ButtonModule } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -20,6 +20,7 @@ import { ICustomer } from '../../../shared/model/customer.model';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-complementaire-step',
@@ -27,7 +28,6 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   imports: [
     ReactiveFormsModule,
     DropdownModule,
-    ButtonDirective,
     KeyFilterModule,
     InputTextModule,
     AutoCompleteModule,
@@ -35,6 +35,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     CardModule,
     ConfirmDialogModule,
     ButtonModule,
+    Select,
   ],
   templateUrl: './complementaire-step.component.html',
   styles: ``,
@@ -209,8 +210,8 @@ export class ComplementaireStepComponent {
       message: 'Voulez-vous vraiment ce complémentaire ?',
       header: 'Suppression',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.removeTiersPayant(index);
       },

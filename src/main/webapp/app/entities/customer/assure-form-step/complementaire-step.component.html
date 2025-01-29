@@ -4,11 +4,11 @@
       <span>Formulaire complémentaires</span>
       @if (validSize) {
         <span>
-            <button (click)="addTiersPayant()" severity="success"
-                    size="small"
-                    [rounded]="true"
-                    pButtonIcon="pi pi-plus" pButton
-                    type="button"></button>
+            <p-button (click)="addTiersPayant()" severity="info"
+                      size="small"
+                      [rounded]="true"
+                      icon="pi pi-plus"
+                      type="button"></p-button>
           </span>
 
       }
@@ -23,12 +23,12 @@
           <div formArrayName="tiersPayants" class="col-md-6 card">
             <ng-container [formGroupName]="i">
               <div class="card-header d-flex justify-content-end">
-                <button (click)="confirmRemove(i)"
-                        severity="danger"
-                        pButtonIcon="pi pi-times" pButton
-                        size="small"
-                        [rounded]="true"
-                        type="button"></button>
+                <p-button (click)="confirmRemove(i)"
+                          severity="danger"
+                          icon="pi pi-times"
+                          size="small"
+                          [rounded]="true"
+                          type="button"></p-button>
               </div>
               <div class="card-body">
 
@@ -73,10 +73,10 @@
                     <label class="form-control-label">Ordre <span
                       style="font-weight: 900;color: red;">*</span>
                     </label>
-                    <p-dropdown [options]="catgories" appendTo="body"
-                                class="form-control ngCombo" name="priorite"
-                                formControlName="priorite" optionLabel="label"
-                                optionValue="value"></p-dropdown>
+                    <p-select [options]="catgories" appendTo="body"
+                              class="form-control ngCombo" name="priorite"
+                              formControlName="priorite" optionLabel="label"
+                              optionValue="value"></p-select>
 
                   </div>
 

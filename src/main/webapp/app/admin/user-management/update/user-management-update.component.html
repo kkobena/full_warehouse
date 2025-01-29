@@ -128,13 +128,13 @@
         </div>
         <button (click)="previousState()" class="p-button-raised p-button-secondary"
                 pButton
-                pButtonIcon="pi pi-ban" pRipple type="button">
+                pButtonIcon="pi pi-ban" type="button">
           &nbsp;<span
           jhiTranslate="entity.action.cancel">Annuler</span>
         </button>
 
         <button [disabled]="editForm.invalid || isSaving" class="p-button-raised p-button-success"
-                pButton pButtonIcon="pi pi-save" pRipple type="submit">
+                pButton pButtonIcon="pi pi-save" type="submit">
           &nbsp;<span
           jhiTranslate="entity.action.save">Sauvegarder</span>
         </button>

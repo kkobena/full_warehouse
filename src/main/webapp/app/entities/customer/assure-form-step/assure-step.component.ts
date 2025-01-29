@@ -21,6 +21,7 @@ import { ComplementaireStepComponent } from './complementaire-step.component';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -39,6 +40,7 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
+    ToggleSwitch,
   ],
   templateUrl: './assure-step.component.html',
   styles: ``,

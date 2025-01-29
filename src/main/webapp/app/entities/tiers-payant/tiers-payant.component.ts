@@ -168,6 +168,7 @@ export class TiersPayantComponent implements OnInit {
       data: { entity: null, type: 'ASSURANCE' },
       header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
       width: '80%',
+      maximizable: true,
     });
     this.ref.onClose.subscribe(() => {
       this.loadPage();
@@ -179,6 +180,7 @@ export class TiersPayantComponent implements OnInit {
       data: { entity: null, type: 'CARNET' },
       header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
       width: '80%',
+      maximizable: true,
     });
     this.ref.onClose.subscribe(() => {
       this.loadPage();
@@ -190,6 +192,7 @@ export class TiersPayantComponent implements OnInit {
       data: { entity: null, type: 'DEPOT' },
       header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
       width: '80%',
+      maximizable: true,
     });
     this.ref.onClose.subscribe(() => {
       this.loadPage();
@@ -199,8 +202,9 @@ export class TiersPayantComponent implements OnInit {
   editTiersPayant(tiersPayant: ITiersPayant): void {
     this.ref = this.dialogService.open(FormTiersPayantComponent, {
       data: { entity: tiersPayant, type: tiersPayant.categorie },
-      header: `MODIFICATION DU TIERS-PAYANT ${tiersPayant.fullName}`,
+      header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
       width: '80%',
+      maximizable: true,
     });
     this.ref.onClose.subscribe(() => {
       this.loadPage();

@@ -15,14 +15,13 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { Ripple } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
   selector: 'jhi-ajustement-en-cours',
   templateUrl: './ajustement-en-cours.component.html',
-  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, Ripple, TooltipModule],
+  imports: [WarehouseCommonModule, RouterModule, ConfirmDialogModule, ButtonModule, TableModule, TooltipModule],
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {

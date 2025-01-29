@@ -7,7 +7,6 @@ import { AlertErrorComponent } from '../../shared/alert/alert-error.component';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { Ripple } from 'primeng/ripple';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -23,7 +22,6 @@ import { InputTextModule } from 'primeng/inputtext';
     DialogModule,
     TextareaModule,
     ReactiveFormsModule,
-    Ripple,
     CheckboxModule,
     FormsModule,
     InputTextModule,

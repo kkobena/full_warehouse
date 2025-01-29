@@ -7,24 +7,24 @@
   <div class="form-row">
     <div class="form-group col">
       <label class="form-control-label">Fournisseurs</label>
-      <p-dropdown [(ngModel)]="fournisseurSelectedId" [appendTo]="appendTo"
-                  [filter]="true"
+      <p-select [(ngModel)]="fournisseurSelectedId" [appendTo]="appendTo"
+                [filter]="true"
 
-                  [options]="fournisseurs" [style]="{width: '100%'}"
-                  optionLabel="libelle" optionValue="id" placeholder="Séléctionner un fournisseur "
+                [options]="fournisseurs" [style]="{width: '100%'}"
+                optionLabel="libelle" optionValue="id" placeholder="Séléctionner un fournisseur "
       >
-      </p-dropdown>
+      </p-select>
 
     </div>
   </div>
   <div class="form-row">
     <div class="form-group col">
       <label class="form-control-label">Model de fichier</label>
-      <p-dropdown [(ngModel)]="modelSelected" [appendTo]="appendTo" [filter]="false"
-                  [options]="models"
-                  [style]="{width: '100%'}" optionLabel="label"
-                  optionValue="value" placeholder="Séléctionner un model de fichier ">
-      </p-dropdown>
+      <p-select [(ngModel)]="modelSelected" [appendTo]="appendTo" [filter]="false"
+                [options]="models"
+                [style]="{width: '100%'}" optionLabel="label"
+                optionValue="value" placeholder="Séléctionner un model de fichier ">
+      </p-select>
 
     </div>
   </div>
@@ -41,13 +41,14 @@
 </div>
 
 <div class="modal-footer">
-  <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
-    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-  </button>
+  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" raised="true"
+            severity="danger" type="button">
+  </p-button>
 
-  <button (click)="save()" [disabled]=" isSaving || !isValidForm()" class="btn btn-success"
-          id="save-entity">
-    <fa-icon icon="times"></fa-icon>&nbsp;<span>Valider</span>
-  </button>
+  <p-button (click)="save()" [disabled]=" isSaving || !isValidForm()" icon="pi pi-check"
+            id="save-entity" label="Enregister" raised="true"
+            severity="success">
+
+  </p-button>
 </div>
 

@@ -3,8 +3,8 @@
              size="medium"
              type="timer"></ngx-spinner>
 @if (commande) {
-  <p-card header="  Information sur la commande [{{commande.orderRefernce}}]"
-          styleClass="form-delivery">
+  <p-card
+    styleClass="form-delivery">
 
     <ng-template pTemplate="content">
       <ul class="list-group">
@@ -39,11 +39,11 @@
         <div class="p-field p-col">
           <label class="col-auto col-form-label">Date de livraison<span
             style="font-weight: 900;color: red;">*</span></label>
-          <p-calendar
-            [maxDate]="maxDate"
-            [selectOtherMonths]="true" [showButtonBar]="true" appendTo="body"
-            dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
-          ></p-calendar>
+          <p-datePicker [maxDate]="maxDate" [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true" appendTo="body" class="form-control"
+                        dateFormat="dd/mm/yy" formControlName="receiptDate" name="receiptDate"
+          ></p-datePicker>
           @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty
             || editForm.get('receiptDate')!.touched)) {
             <div>
@@ -144,20 +144,20 @@
 
 
   </form>
-  <ng-template pTemplate="footer">
-    <button (click)="save()" [disabled]="editForm.invalid || isSaving"
-            [raised]="true" class=" mr-2"
-            pButton
-            pButtonIcon="pi pi-check"
-            pButtonLabel="Enregistrer"
-            pRipple severity="success"
-            type="submit"></button>
-    <button (click)="cancel()" [raised]="true" class=" p-mr-2"
-            pButton
-            pButtonIcon="pi pi-times"
-            pButtonLabel="Annuler"
-            pRipple
-            severity="danger" type="button"></button>
+  <ng-template #footer>
+    <p-button (click)="save()" [disabled]="editForm.invalid || isSaving"
+              [raised]="true" class=" mr-2"
+
+              icon="pi pi-check"
+              label="Enregistrer"
+              severity="success"
+              type="submit"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2"
+
+              icon="pi pi-times"
+              label="Annuler"
+
+              severity="danger" type="button"></p-button>
   </ng-template>
 </p-card>
 

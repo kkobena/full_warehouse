@@ -2,7 +2,6 @@ import { AfterViewInit, Component, inject } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import {
   NgbCalendar,
   NgbDateAdapter,
@@ -38,6 +37,7 @@ import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -46,7 +46,6 @@ import { InputIcon } from 'primeng/inputicon';
     TableModule,
     WarehouseCommonModule,
     ToolbarModule,
-    InputSwitchModule,
     FormsModule,
     FloatLabelModule,
     AutoCompleteModule,
@@ -57,6 +56,7 @@ import { InputIcon } from 'primeng/inputicon';
     ConfirmDialogModule,
     IconField,
     InputIcon,
+    ToggleSwitch,
   ],
   providers: [
     ConfirmationService,

@@ -14,13 +14,12 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { Ripple } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-    selector: 'jhi-list-ajustement',
-    templateUrl: './list-ajustement.component.html',
-    imports: [WarehouseCommonModule, ButtonModule, TableModule, Ripple, TooltipModule]
+  selector: 'jhi-list-ajustement',
+  templateUrl: './list-ajustement.component.html',
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule],
 })
 export class ListAjustementComponent implements OnInit {
   protected ajustementStatut: AjustementStatut = AjustementStatut.CLOSED;

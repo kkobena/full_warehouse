@@ -174,9 +174,8 @@ export class CommandeService {
   }
 
   sauvegarderSaisieEntreeStock(commande: ICommande): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(commande);
     return this.http
-      .put<ICommande>(`${this.resourceUrl}/entree-stock/save`, copy, { observe: 'response' })
+      .put<ICommande>(`${this.resourceUrl}/entree-stock/save`, commande, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 

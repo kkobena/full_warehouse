@@ -26,7 +26,7 @@
           <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                   [pRowToggler]="ajust" class="p-button-text p-button-rounded p-button-plain"
                   pButton
-                  pRipple
+
                   type="button"></button>
         </td>
         <td>{{ ajust.userFullName }}</td>
@@ -41,12 +41,12 @@
               [routerLink]="['/ajustement', ajust.id, 'edit']"
               class="p-button-rounded p-button-success p-button-sm"
               icon="pi pi-pencil" pButton
-              pRipple pTooltip="Editer">
+              pTooltip="Editer">
             </button>
             <button (click)="confirmDelete(ajust)"
                     class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
                     icon="pi pi-trash"
-                    pButton pRipple
+                    pButton
                     pTooltip="Supprimer"
                     type="submit"></button>
 

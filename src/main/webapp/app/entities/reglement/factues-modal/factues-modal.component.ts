@@ -12,8 +12,6 @@ import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { RegelementStateService } from '../regelement-state.service';
 import { TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -23,6 +21,8 @@ import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tiers
 import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
 import { SelectedFacture } from '../model/reglement.model';
 import { InputText } from 'primeng/inputtext';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-factues-modal',
@@ -30,12 +30,12 @@ import { InputText } from 'primeng/inputtext';
     ButtonModule,
     TableModule,
     WarehouseCommonModule,
-    ToolbarModule,
-    InputSwitchModule,
     FormsModule,
     FloatLabelModule,
     AutoCompleteModule,
     InputText,
+    ToggleSwitch,
+    Toolbar,
   ],
   providers: [
     I18n,

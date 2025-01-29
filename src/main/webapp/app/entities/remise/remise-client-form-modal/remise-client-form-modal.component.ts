@@ -9,7 +9,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { Ripple } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { IRemise, Remise } from '../../../shared/model/remise.model';
 import { RemiseService } from '../remise.service';
@@ -27,7 +26,6 @@ import { HttpResponse } from '@angular/common/http';
     InputTextModule,
     KeyFilterModule,
     ReactiveFormsModule,
-    Ripple,
     StyleClassModule,
     ButtonModule,
   ],

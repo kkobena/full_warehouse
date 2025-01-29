@@ -16,25 +16,29 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
-    selector: 'jhi-delevery',
-    templateUrl: './delivery.component.html',
-    providers: [ConfirmationService, DialogService, MessageService],
-    imports: [
-        WarehouseCommonModule,
-        BonEnCoursComponent,
-        ListBonsComponent,
-        ButtonModule,
-        CardModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        ToolbarModule,
-        FormsModule,
-        InputTextModule,
-        PanelModule,
-    ]
+  selector: 'jhi-delevery',
+  templateUrl: './delivery.component.html',
+  providers: [ConfirmationService, DialogService, MessageService],
+  imports: [
+    WarehouseCommonModule,
+    BonEnCoursComponent,
+    ListBonsComponent,
+    ButtonModule,
+    CardModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    ToolbarModule,
+    FormsModule,
+    InputTextModule,
+    PanelModule,
+    IconField,
+    InputIcon,
+  ],
 })
 export class DeliveryComponent {
   search = '';

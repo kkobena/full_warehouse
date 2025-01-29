@@ -33,6 +33,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { CommandCommonService } from './command-common.service';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-commande',
@@ -58,6 +60,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
     CommandePassesComponent,
     CommandeRecusComponent,
     PanelModule,
+    IconField,
+    InputIcon,
   ],
   styles: [
     `
@@ -208,12 +212,14 @@ export class CommandeComponent implements OnInit {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer ces commandes  ?',
       header: ' SUPPRESSION',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => {
         if (this.active === 'REQUESTED') {
           this.commandeEnCoursComponent().removeAll();
+        } else if (this.active === 'PASSED') {
+          this.commandePasses().removeAll();
         }
       },
       key: 'deleteCommande',
@@ -225,8 +231,8 @@ export class CommandeComponent implements OnInit {
       message: ' Voullez-vous LES retourner dans commande en cours ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (this.active === 'PASSED') {
           this.commandePasses().rollbackAll();

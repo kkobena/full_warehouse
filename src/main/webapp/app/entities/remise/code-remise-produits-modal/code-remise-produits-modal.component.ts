@@ -16,7 +16,6 @@ import { IRayon } from '../../../shared/model/rayon.model';
 import { CodeRemise } from '../../../shared/model/remise.model';
 import { RayonService } from '../../rayon/rayon.service';
 import { ButtonModule } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -38,7 +37,6 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
     KeyFilterModule,
     ReactiveFormsModule,
     StyleClassModule,
-    Ripple,
     TagModule,
     ToolbarModule,
     TableModule,

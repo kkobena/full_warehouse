@@ -1,6 +1,6 @@
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
              type="timer"><p style="color: white"> Traitement en cours... </p></ngx-spinner>
-<p-confirmDialog #printTicket [baseZIndex]="10000" [style]="{width: '40vw'}" key="printTicket">
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="printTicket">
 </p-confirmDialog>
 
 <div class="commande-entry">
@@ -70,51 +70,57 @@
       <div class="card-header">
 
         <div class="row">
-          <div class="col-md-3">
-               <span class="p-input-icon-left" style="width: 100%;">
-                    <i class="pi pi-search"></i>
-                    <input (input)="onSearch($event)" pInputText placeholder="Taper pour rechercher"
-                           type="text">
-                </span>
-          </div>
-          <div class="col-md-3">
+          <p-toolbar>
+            <ng-template #start>
+              <p-iconfield>
 
-            <ng-select (change)="onFilterReceiptItems()" [(ngModel)]="selectedFilter"
-                       [items]="filtres!"
-                       autofocus="false"
-                       bindLabel="label"
-                       bindValue="value"
+                <p-inputicon styleClass="pi pi-search" />
+                <input (keyup.enter)="onSearch($event)" pInputText
+                       placeholder="Taper pour rechercher"
+                       type="text">
+              </p-iconfield>
+              &nbsp;
+              <p-select (onChange)="onFilterReceiptItems()" [(ngModel)]="selectedFilter"
+                        [options]="filtres!"
+                        [style]="{width:'250px'}"
+                        autofocus="false"
+                        optionLabel="label"
+                        optionValue="value"
 
-            >
-            </ng-select>
-          </div>
-          <div class="col-md-6 text-right">
-            <button (click)="onSave()" [disabled]="disableActionBtn"
-                    [raised]="true"
-                    class=" mr-sm-1"
-                    pButton
-                    pButtonIcon="pi pi-save"
-                    pButtonLabel="Sauvegarder la saisie"
-                    pRipple severity="success" style="display: none;" type="button"></button>
-            <button (click)="onFinalize()" [disabled]="disableActionBtn"
-                    [raised]="true"
-                    class="mr-sm-1"
-                    pButton
-                    pButtonIcon="pi pi-check-circle"
-                    pButtonLabel="Valider l'entrée en stock" pRipple severity="info"
-                    type="button"></button>
-            <button (click)="previousState()"
-                    [raised]="true"
-                    pButton
-                    pButtonIcon="pi pi-arrow-left"
-                    pButtonLabel="Retour"
-                    pRipple severity="secondary" type="button"></button>
-          </div>
+              >
+              </p-select>
+            </ng-template>
+            <ng-template #end>
+              @if (commande) {
+                <p-button (click)="onSave()" [disabled]="disableActionBtn"
+                          [raised]="true"
+                          class=" mr-1"
+                          icon="pi pi-check"
+                          label="Sauvegarder la saisie"
+                          severity="success" type="button"></p-button>
+              }
+
+              <p-button (click)="onFinalize()" [disabled]="disableActionBtn"
+                        [raised]="true"
+                        class="mr-1"
+                        icon="pi pi-check-circle"
+                        label="Valider l'entrée en stock" severity="info"
+                        type="button"></p-button>
+              <p-button (click)="previousState()"
+                        [raised]="true"
+                        icon="pi pi-arrow-left"
+                        label="Retour"
+                        severity="secondary" type="button"></p-button>
+            </ng-template>
+          </p-toolbar>
+
+
         </div>
       </div>
       @if (delivery) {
         <div style="width: 100%; height: 100%;">
           <ag-grid-angular #orderLineGrid (cellValueChanged)="onCellValueChanged($event)"
+
                            (gridReady)="onGridReady($event)"
                            [rowHeight]="rowHeight"
                            [animateRows]="animateRows"

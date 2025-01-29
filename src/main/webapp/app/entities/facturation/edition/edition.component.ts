@@ -8,7 +8,6 @@ import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tiers
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { TiersPayantDossierFacture } from '../tiers-payant-dossier-facture.model';
 import { DossierFacture } from '../dossier-facture.model';
@@ -27,7 +26,6 @@ import {
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
@@ -36,6 +34,7 @@ import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { FactureEditionResponse } from '../facture-edition-response';
 import { ButtonModule } from 'primeng/button';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-edition',
@@ -49,17 +48,16 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   imports: [
     WarehouseCommonModule,
     FormsModule,
-    DropdownModule,
     ReactiveFormsModule,
     TableModule,
     InputTextModule,
     TooltipModule,
     StyleClassModule,
     NgbDatepickerModule,
-    InputSwitchModule,
     AutoCompleteModule,
     ConfirmDialogModule,
     ButtonModule,
+    ToggleSwitch,
   ],
   templateUrl: './edition.component.html',
   styles: ``,

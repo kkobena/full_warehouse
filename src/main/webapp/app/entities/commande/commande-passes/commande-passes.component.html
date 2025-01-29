@@ -32,14 +32,9 @@
   <ng-template let-commande let-expanded="expanded" pTemplate="body">
     <tr>
       <td>
-        <!-- <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                 [pRowToggler]="commande" class="p-button-text p-button-rounded p-button-plain"
-                 pButton
-                 pRipple
-                 type="button"></button>
-         -->
+     
         <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="commande" [rounded]="true" [text]="true" pRipple
+                  [pRowToggler]="commande" [rounded]="true" [text]="true"
                   type="button" />
       </td>
       <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
@@ -55,49 +50,53 @@
       <td class="text-right">
         <div class="btn-group">
 
-          <button (click)="onCreateBon(commande)"
-                  [rounded]="true"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1"
-                  pButton
-                  pButtonIcon="pi pi-upload"
-                  pRipple
-                  pTooltip="Faire l'entréé en  stock"></button>
-          <button (click)="onShowFileDialog(commande)"
-                  [hidden]="true"
-                  [rounded]="true"
-                  class="p-button-rounded p-button-help p-button-sm ml-sm-1"
-                  pButton pButtonIcon="pi pi-upload"
-                  pRipple
-                  pTooltip="Importer la reponse "></button>
+          <p-button (click)="onCreateBon(commande)"
+                    [rounded]="true" class="ml-sm-1" icon="pi pi-upload"
+                    pTooltip="Faire l'entréé en  stock"
+
+                    severity="help"
+
+                    size="small"></p-button>
+          <p-button (click)="onShowFileDialog(commande)"
+                    [hidden]="true"
+                    [rounded]="true" class=" ml-sm-1" icon="pi pi-upload"
+                    pTooltip="Importer la reponse "
+                    severity="contrast"
+
+                    size="small"></p-button>
           <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
                      class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
                      icon="pi pi-shopping-cart" pButton
-                     pRipple
+
                      pTooltip="Envoi par Pharma-ML"></button>-->
 
 
-          <button (click)="exportCSV(commande)"
-                  [rounded]="true"
-                  class="p-button-rounded p-button-warning p-button-sm ml-sm-1"
-                  pButton pButtonIcon="pi pi-file-excel"
-                  pRipple
-                  pTooltip="Exporter en CSV">
+          <p-button (click)="exportCSV(commande)"
+                    [rounded]="true"
+                    class=" ml-sm-1"
+                    icon="pi pi-file-excel"
+                    pTooltip="Exporter en CSV"
+                    severity="warn"
+                    size="small">
 
 
-          </button>
-          <button (click)="exportPdf(commande)"
-                  [rounded]="true"
-                  class="p-button-rounded p-button-secondary p-button-sm ml-sm-1"
-                  pButton
-                  pButtonIcon="pi pi-print"
-                  pRipple pTooltip="Imprimer"></button>
-          <button (click)="confirmRollback(commande)"
-                  [rounded]="true"
-                  class="p-button-rounded p-button-danger p-button-sm ml-sm-1"
-                  pButton pButtonIcon="pi pi-undo"
-                  pRipple
-                  pTooltip="Envoyer dans commande en cours"
-                  type="submit"></button>
+          </p-button>
+          <p-button (click)="exportPdf(commande)"
+                    [rounded]="true"
+                    class="ml-sm-1"
+                    icon="pi pi-print"
+                    pTooltip="Imprimer"
+                    severity="secondary"
+                    size="small"></p-button>
+          <p-button (click)="confirmRollback(commande)"
+                    [rounded]="true"
+                    class=" ml-sm-1"
+                    icon="pi pi-undo"
+                    pTooltip="Envoyer dans commande en cours"
+                    severity="danger"
+
+                    size="small"
+                    type="submit"></p-button>
 
         </div>
       </td>

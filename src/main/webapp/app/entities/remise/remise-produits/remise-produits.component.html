@@ -14,7 +14,7 @@
                 [raised]="true"
                 icon="pi pi-plus"
                 label="Nouveau"
-                pRipple
+
                 severity="success"
                 type="button"></p-button>
     </div>
@@ -47,21 +47,21 @@
           <td class="text-right">{{ getVnoTaux(elRow) }}</td>
           <td class="text-right">{{ getVoTaux(elRow) }}</td>
           <td class="text-right">
-            <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+            <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
 
           <td class="text-right">
             @if (elRow.enable) {
               <p-button (click)="onOpenRemiseForm(elRow)"
                         class=" p-mr-1"
-                        icon="pi pi-pencil" pRipple severity="success" rounded="true"
+                        icon="pi pi-pencil" severity="success" rounded="true"
                         pTooltip="Editer" size="small"
                         type="submit"></p-button>
 
             }
 
             <p-button severity="danger" rounded="true" (click)="delete(elRow)" size="small"
-                      icon="pi pi-trash" pRipple
+                      icon="pi pi-trash"
                       pTooltip="Supprimer" type="button"></p-button>
           </td>
         </tr>

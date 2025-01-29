@@ -29,119 +29,108 @@
 
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row produit-audit-container">
-    <p-panel>
-      <ng-template pTemplate="header">
+  <div class="col-10 col-md-10 col-sm-10 row  produit-audit-toolbar">
+    <p-toolbar>
+      <div [style]="{'width':'100%'}" class="d-flex ">
+        <div class="flex-grow-1 mr-1">
+          <div [style]="{'width':'100%'}" class="input-group">
+            <span class="input-group-text">Produits</span>
+            <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
+                            (onSelect)="onSelect($event)"
+                            [(ngModel)]="produit"
+                            [appendTo]="APPEND_TO"
+                            [autofocus]="true"
+                            [dataKey]="'id'"
+                            [dropdown]="true"
+                            [emptyMessage]="PRODUIT_NOT_FOUND"
+                            [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
+                            [suggestions]="produits"
+                            class="form-control" optionLabel="libelle">
 
-
-        <div class="container-warehouse ">
-          <div class="row">
-            <div class="col-md-8   row">
-              <div class="col-md-6">
-                <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon">Produits</span>
-                  <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                                  (onSelect)="onSelect($event)"
-                                  [(ngModel)]="produit"
-                                  [appendTo]="APPEND_TO"
-                                  [autofocus]="true"
-                                  [dataKey]="'id'"
-                                  [dropdown]="true"
-                                  [emptyMessage]="PRODUIT_NOT_FOUND"
-                                  [inputStyle]="{'width':'100%'}"
-                                  [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
-                                  [style]="{'width':'100%'}" [suggestions]="produits"
-                                  optionLabel="libelle">
-
-                    <ng-template let-item pTemplate="item">
-                      @if (item.totalQuantity > 0) {
-                        <div>
+              <ng-template let-item pTemplate="item">
+                @if (item.totalQuantity > 0) {
+                  <div [style]="{'width':'100%'}">
             <span
               style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
-                          <span
-                            class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
-                        </div>
+                    <span
+                      class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                  </div>
 
-                      } @else {
-                        <div>
+                } @else {
+                  <div [style]="{'width':'100%'}">
                                             <span class="stockless"
                                                   style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
-                          class="stockless"> {{ item.libelle }}</span> <span
-                          class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
-                        </div>
-                      }
+                    class="stockless"> {{ item.libelle }}</span> <span
+                    class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+                  </div>
+                }
 
 
-                    </ng-template>
+              </ng-template>
 
-                  </p-autoComplete>
-
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon">Du</span>
-                  <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                              [showButtonBar]="true"
-                              [showIcon]="true"
-                              class="ml-1"
-                              dateFormat="dd/mm/yy"
-                              id="startDate"></p-calendar>
-                </div>
-
-              </div>
-              <div class="col-md-3">
-                <div class="p-inputgroup">
-                  <span class="p-inputgroup-addon">Au</span>
-                  <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
-                              [showButtonBar]="true"
-                              [showIcon]="true"
-                              dateFormat="dd/mm/yy"
-                              id="endDate"></p-calendar>
-                </div>
-
-
-              </div>
-
-
-            </div>
-            <div class="col-md-1 ">
-              @if (produit) {
-                <p-button styleClass="p-button-warning" label="Stock"
-                          [badge]="produit?.totalQuantity | number"></p-button>
-
-              }
-            </div>
-
-            <div class="col-md-3  ">
-
-              <p-button (click)="load()" icon="pi pi-search" label="Rechercher" size="small"
-                        styleClass="p-button-info"></p-button>
-
-              <p-button (click)="exportPdf()"
-                        pRipple size="small"
-                        styleClass="p-button-raised p-button-danger" type="button">
-                <fa-icon icon="file-pdf"></fa-icon>&nbsp;<span
-                jhiTranslate="entity.action.print">Imprimer</span>
-              </p-button>
-
-              <p-button (click)="previousState()" pRipple
-                        size="small"
-                        styleClass="p-button-raised  p-button-secondary"
-                        type="button">
-                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-                jhiTranslate="entity.action.back">Back</span>
-              </p-button>
-
-
-            </div>
+            </p-autoComplete>
 
           </div>
+        </div>
+        <div class="mr-1">
+          <div class="input-group">
+            <span class="input-group-text">Du</span>
+            <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                          [showButtonBar]="true"
+                          [showIcon]="true"
+                          class="form-control"
 
+                          dateFormat="dd/mm/yy"
+                          id="startDate"></p-datePicker>
+          </div>
 
         </div>
-      </ng-template>
 
+
+        <div class="mr-1">
+          <div class="input-group">
+            <span class="input-group-text">Au</span>
+            <p-datePicker [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+                          [showButtonBar]="true"
+                          [showIcon]="true"
+                          class="form-control"
+                          dateFormat="dd/mm/yy"
+                          id="endDate"></p-datePicker>
+
+          </div>
+        </div>
+        @if (produit) {
+          <div class="mr-1">
+            <p-button [badge]="produit?.totalQuantity | number" badgeSeverity="contrast"
+                      label="Stock" outlined />
+
+          </div>
+        }
+
+        <div class="text-right">
+          <p-button (click)="load()" class="mr-1" icon="pi pi-search" label="Rechercher"
+                    raised="true"
+                    severity="info"></p-button>
+          @if (produit) {
+            <p-button (click)="exportPdf()"
+                      class="mr-1" icon="pi pi-file-pdf" label="Imprimer" raised="true"
+                      severity="danger"
+                      type="button">
+            </p-button>
+          }
+
+
+          <p-button (click)="previousState()"
+                    icon="pi pi-arrow-left"
+                    label="Retour" raised="true" severity="secondary"
+                    type="button">
+          </p-button>
+        </div>
+
+      </div>
+
+    </p-toolbar>
+    <p-panel>
       <div [ngbNavOutlet]="nav">
 
       </div>

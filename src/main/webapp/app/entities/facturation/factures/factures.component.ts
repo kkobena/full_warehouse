@@ -7,7 +7,6 @@ import { NgbCalendar, NgbDate, NgbDateAdapter, NgbDateParserFormatter, NgbDatepi
 import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeIcons } from 'primeng/api';
 import { ToolbarModule } from 'primeng/toolbar';
 import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
@@ -33,6 +32,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { RouterLink } from '@angular/router';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { InputText } from 'primeng/inputtext';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-factures',
@@ -45,7 +45,6 @@ import { InputText } from 'primeng/inputtext';
   ],
   imports: [
     ToolbarModule,
-    InputSwitchModule,
     WarehouseCommonModule,
     FormsModule,
     AutoCompleteModule,
@@ -59,6 +58,7 @@ import { InputText } from 'primeng/inputtext';
     Tooltip,
     RouterLink,
     InputText,
+    ToggleSwitch,
   ],
   templateUrl: './factures.component.html',
   styles: ``,

@@ -34,7 +34,7 @@
 
         <p-button [routerLink]="['/sales', true, 'new']"
                   icon="pi pi-plus" label="Nouvelle pré-vente"
-                  pRipple raised="true" severity="success"
+                  raised="true" severity="success"
                   type="button">
 
         </p-button>
@@ -67,7 +67,7 @@
         <td>
 
           <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="sale" [rounded]="true" [text]="true" pRipple
+                    [pRowToggler]="sale" [rounded]="true" [text]="true"
                     type="button" />
         </td>
         <td>{{ sale.numberTransaction }}</td>
@@ -82,7 +82,7 @@
             <p-button [rounded]="true"
                       [routerLink]="['/sales', sale.id,true, 'edit']"
                       icon="pi pi-pencil"
-                      pRipple
+
                       pTooltip="Editer"
                       severity="success"
                       size="small">
@@ -92,7 +92,7 @@
             <p-button (click)="confirmRemove(sale)"
                       [rounded]="true" class=" ml-2"
                       icon="pi pi-trash" pButton
-                      pRipple
+
                       pTooltip="Supprimer"
                       severity="danger"
                       size="small"></p-button>

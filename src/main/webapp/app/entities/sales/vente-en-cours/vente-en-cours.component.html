@@ -37,7 +37,7 @@
 
         <p-button [routerLink]="['/sales', false, 'new']"
                   class=" mb-2" icon="pi pi-plus" label="Nouvelle vente"
-                  pRipple raised="true" severity="success"
+                  raised="true" severity="success"
                   type="button">
 
         </p-button>
@@ -71,7 +71,7 @@
         <td>
 
           <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="sale" [rounded]="true" [text]="true" pRipple
+                    [pRowToggler]="sale" [rounded]="true" [text]="true"
                     type="button" />
         </td>
         @if (sale.natureVente === 'ASSURANCE') {
@@ -92,14 +92,14 @@
 
             <button [routerLink]="['/sales', sale.id,false, 'edit']"
                     class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
-                    pButton pRipple
+                    pButton
                     pTooltip="Editer">
 
             </button>
 
             <button (click)="confirmRemove(sale)"
                     class="p-button-rounded p-button-danger p-button-sm ml-2" icon="pi pi-trash"
-                    pButton pRipple
+                    pButton
                     pTooltip="Supprimer"></button>
           </div>
         </td>

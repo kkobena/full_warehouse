@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -13,21 +13,23 @@ import { HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../../shared/util/warehouse-util';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'jhi-auditing',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        PanelModule,
-        TableModule,
-        BadgeModule,
-        DividerModule,
-        NgxSpinnerModule,
-    ],
-    templateUrl: './auditing.component.html'
+  selector: 'jhi-auditing',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    PanelModule,
+    TableModule,
+    BadgeModule,
+    DividerModule,
+    NgxSpinnerModule,
+  ],
+  templateUrl: './auditing.component.html',
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
@@ -42,12 +44,18 @@ export class AuditingComponent implements OnInit {
   protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
   protected entites: ProduitAuditingState[] = [];
+  private primeNGConfig = inject(PrimeNG);
+  private translate = inject(TranslateService);
+  private produitStatService = inject(ProduitStatService);
+  private spinner = inject(NgxSpinnerService);
+  private produitAuditingParamService = inject(ProduitAuditingParamService);
 
-  constructor(
-    protected produitStatService: ProduitStatService,
-    private spinner: NgxSpinnerService,
-    private produitAuditingParamService: ProduitAuditingParamService,
-  ) {}
+  constructor() {
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+  }
 
   ngOnInit(): void {
     const param = this.produitAuditingParamService.produitAuditingParam;

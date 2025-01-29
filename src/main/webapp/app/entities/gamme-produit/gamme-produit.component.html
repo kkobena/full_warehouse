@@ -14,7 +14,7 @@
   </div>
   <ng-template #footer>
     <p-button (click)="cancel()" class="p-mr-2 " icon="pi pi-times"
-              label="Annuler" pRipple
+              label="Annuler"
               raised="true"
               severity="danger" type="button"></p-button>
 
@@ -35,10 +35,10 @@
       </div>
       <div class="p-toolbar-group-right">
         <p-button (click)="showFileDialog()" class=" mr-2" icon="pi pi-upload"
-                  label="Importer" pRipple raised="true"
+                  label="Importer" raised="true"
                   severity="help" type="button"></p-button>
         <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau"
-                  pRipple raised="true"
+                  raised="true"
                   severity="success" type="button"></p-button>
       </div>
     </p-toolbar>
@@ -65,11 +65,11 @@
             <td>{{ elRow.libelle }}</td>
             <td style="text-align: right;">
               <p-button (click)="onEdit(elRow)" [rounded]="true" class=" p-mr-2"
-                        icon="pi pi-pencil" pRipple pTooltip="Editer"
+                        icon="pi pi-pencil" pTooltip="Editer"
                         severity="success"
                         type="button"></p-button>
               <p-button (click)="delete(elRow)" [rounded]="true"
-                        icon="pi pi-trash" pRipple pTooltip="Supprimer"
+                        icon="pi pi-trash" pTooltip="Supprimer"
                         severity="danger" type="button"></p-button>
             </td>
           </tr>

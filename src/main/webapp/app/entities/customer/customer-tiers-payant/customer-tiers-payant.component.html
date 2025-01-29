@@ -107,11 +107,11 @@
                pInputText
                pKeyFilter="int" type="text" />
       </div>
-      <div class="form-group col-md-5 pt-3">
+      <div class="form-group">
         <label class="form-control-label" for="plafondAbsolu">Le plofond est-il absolu
           ?</label>
 
-        <p-toggleswitch formControlName="plafondAbsolu" id="plafondAbsolu"
+        <p-toggleswitch class="form-control" formControlName="plafondAbsolu" id="plafondAbsolu"
         ></p-toggleswitch>
       </div>
 
@@ -124,13 +124,13 @@
   <div class="modal-footer">
     <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
               label="Annuler"
-              pRipple
+
               severity="danger"
               type="button"></p-button>
     <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
               icon="pi pi-check" label="Enregistrer"
 
-              pRipple severity="success" type="submit"></p-button>
+              severity="success" type="submit"></p-button>
   </div>
 </form>
 

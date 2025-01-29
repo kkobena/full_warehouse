@@ -11,14 +11,13 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { Ripple } from 'primeng/ripple';
 import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
   providers: [MessageService],
-  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, Ripple, TextareaModule],
+  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule],
 })
 export class FinalyseComponent implements OnInit {
   commentaire = viewChild.required<ElementRef>('commentaire');

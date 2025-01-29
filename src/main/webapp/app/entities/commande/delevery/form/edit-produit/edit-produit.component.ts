@@ -25,6 +25,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-edit-produit',
@@ -43,6 +44,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     ToastModule,
     KeyFilterModule,
     InputMaskModule,
+    Select,
   ],
 })
 export class EditProduitComponent implements OnInit {

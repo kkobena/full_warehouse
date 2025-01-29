@@ -10,16 +10,19 @@ import { PickListModule } from 'primeng/picklist';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { PanelModule } from 'primeng/panel';
+import { Toolbar } from 'primeng/toolbar';
+import { TagModule } from 'primeng/tag';
 
 @Component({
-    selector: 'jhi-menu-detail',
-    templateUrl: './menu-detail.component.html',
-    imports: [WarehouseCommonModule, PickListModule, ButtonModule, RippleModule, PanelModule]
+  selector: 'jhi-menu-detail',
+  templateUrl: './menu-detail.component.html',
+  imports: [WarehouseCommonModule, TagModule, PickListModule, ButtonModule, RippleModule, PanelModule, Toolbar],
 })
 export class MenuDetailComponent implements OnInit {
   entity: IAuthority | null = null;
   associes?: IMenu[];
   others?: IMenu[];
+  protected scrollHeight = 'calc(100vh - 350px)';
 
   constructor(
     protected privillegeService: PrivillegeService,

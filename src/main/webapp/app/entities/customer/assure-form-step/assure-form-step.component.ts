@@ -4,8 +4,6 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { AssureFormStepService } from './assure-form-step.service';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import TranslateDirective from '../../../shared/language/translate.directive';
 import { StepperModule } from 'primeng/stepper';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { Button } from 'primeng/button';
@@ -20,17 +18,7 @@ import { CommonService } from './common.service';
 
 @Component({
   selector: 'jhi-assure-form-step',
-  imports: [
-    WarehouseCommonModule,
-    StepsModule,
-    FaIconComponent,
-    TranslateDirective,
-    StepperModule,
-    Button,
-    ToastModule,
-    AssureStepComponent,
-    AyantDroitStepComponent,
-  ],
+  imports: [WarehouseCommonModule, StepsModule, StepperModule, Button, ToastModule, AssureStepComponent, AyantDroitStepComponent],
   templateUrl: './assure-form-step.component.html',
   providers: [MessageService],
 })
@@ -47,6 +35,7 @@ export class AssureFormStepComponent implements OnInit {
   customerService = inject(CustomerService);
   isSaving = false;
   typeAssure: string | undefined;
+  activeStep: number = 1;
 
   constructor(
     public ref: DynamicDialogRef,
@@ -79,15 +68,15 @@ export class AssureFormStepComponent implements OnInit {
     }
   }
 
-  onGoBackFromAyantDroit(prevCallback: any): void {
+  onGoBackFromAyantDroit(index: number): void {
     this.ayantDroitStepComponent().goBack();
-    prevCallback.emit();
+    this.activeStep = index;
   }
 
   currentCustomerState(): void {
     const currentAssure = this.assureFormStepService.assure();
     const ayantDroits = currentAssure?.ayantDroits;
-    const complementaires = currentAssure?.tiersPayants;
+    // const complementaires = currentAssure?.tiersPayants;
     this.assureFormStepService.setAssure({
       ...this.assureStepComponent().createFromForm(),
       ayantDroits: ayantDroits,
@@ -95,9 +84,10 @@ export class AssureFormStepComponent implements OnInit {
     });
   }
 
-  onGoAyantDroit(nextCallback: any): void {
+  onGoAyantDroit(index: number): void {
     this.currentCustomerState();
-    nextCallback.emit();
+    this.activeStep = index;
+    //  nextCallback.emit();
   }
 
   cancel(): void {

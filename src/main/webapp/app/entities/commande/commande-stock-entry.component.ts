@@ -40,6 +40,10 @@ import { HttpResponse } from '@angular/common/http';
 import { ITva } from '../../shared/model/tva.model';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { AgGridAngular } from 'ag-grid-angular';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { Select } from 'primeng/select';
+import { Toolbar } from 'primeng/toolbar';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 provideGlobalGridOptions({ theme: 'legacy' });
@@ -60,6 +64,10 @@ provideGlobalGridOptions({ theme: 'legacy' });
     ConfirmDialogModule,
     InputTextModule,
     AgGridAngular,
+    IconField,
+    InputIcon,
+    Select,
+    Toolbar,
   ],
 })
 export class CommandeStockEntryComponent implements OnInit {
@@ -67,7 +75,7 @@ export class CommandeStockEntryComponent implements OnInit {
   delivery?: IDelivery | null = null;
   orderLines: IOrderLine[] = [];
   receiptItems: IDeliveryItem[] = [];
-  rowHeight = 30;
+  rowHeight = 46;
   selectedFilter = 'ALL';
   filtres: any[] = [];
   search?: string;
@@ -93,6 +101,8 @@ export class CommandeStockEntryComponent implements OnInit {
   spinner = inject(NgxSpinnerService);
   rowModelType: RowModelType = 'clientSide';
   pagination = true;
+  /*   paginationPageSizeSelector = [5, 10, 20, 50, 100];
+    paginationPageSize = 5; */
   protected themeClass: string = 'ag-theme-quartz';
   protected readonly animateRows: boolean = true;
   private gridApi!: GridApi<IDeliveryItem>;
@@ -556,7 +566,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onSave(): void {
     this.showsPinner();
-
+    console.log('this.delivery', this.commande);
     this.commandeService.sauvegarderSaisieEntreeStock(this.commande).subscribe({
       next: res => {
         this.hidePinner();
@@ -588,8 +598,8 @@ export class CommandeStockEntryComponent implements OnInit {
       message: ' Voullez-vous imprimer les étiquettes ?',
       header: 'IMPRESSION',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.printEtiquette(delivery),
       reject: () => {
         this.previousState();
@@ -635,7 +645,7 @@ export class CommandeStockEntryComponent implements OnInit {
       backdrop: 'static',
       centered: true,
     });
-    modalRef.componentInstance.message = error?.error?.title || 'Une erreur est survenue';
+    modalRef.componentInstance.message = error?.error?.message || 'Une erreur est survenue';
     modalRef.componentInstance.infoClass = infoClass;
   }
 

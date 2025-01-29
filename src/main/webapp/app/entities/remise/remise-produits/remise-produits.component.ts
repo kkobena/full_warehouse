@@ -3,8 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { Ripple } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
@@ -18,21 +16,12 @@ import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-remise-produits',
   providers: [MessageService, ConfirmationService],
-  imports: [
-    FormsModule,
-    ToastModule,
-    ConfirmDialogModule,
-    InputSwitchModule,
-    Ripple,
-    TableModule,
-    ToolbarModule,
-    TooltipModule,
-    ButtonModule,
-  ],
+  imports: [FormsModule, ToastModule, ConfirmDialogModule, TableModule, ToolbarModule, TooltipModule, ButtonModule, ToggleSwitch],
   templateUrl: './remise-produits.component.html',
 })
 export class RemiseProduitsComponent implements OnInit {

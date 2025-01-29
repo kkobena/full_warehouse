@@ -32,13 +32,9 @@
   <ng-template let-expanded="expanded" let-row pTemplate="body">
     <tr>
       <td>
-        <!-- <button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                 [pRowToggler]="row" class="p-button-text p-button-rounded p-button-plain"
-                 pButton
-                 pRipple
-                 type="button"></button>-->
+
         <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="row" [rounded]="true" [text]="true" pRipple
+                  [pRowToggler]="row" [rounded]="true" [text]="true"
                   type="button" />
       </td>
       <td>{{ row.numberTransaction }}</td>
@@ -57,29 +53,29 @@
       <td class="text-right">
         <div class="btn-group">
           @if (row.statut === 'PENDING0') {
-            <button [rounded]="true" severity="success"
-                    pButtonIcon="pi pi-pencil" pButton
-                    pRipple pTooltip="Editer">
+            <p-button [rounded]="true" severity="success"
+                      icon="pi pi-pencil"
+                      pTooltip="Editer">
 
-            </button>
+            </p-button>
           }
 
           @if (row.statut === 'PENDING') {
-            <button [routerLink]="['/commande', row.id, 'stock-entry']"
-                    pButtonIcon="pi pi-upload"
-                    pButton
-                    severity="help"
-                    [rounded]="true"
-                    pRipple
-                    pTooltip="Faire l'entréé en  stock"></button>
+            <p-button [routerLink]="['/commande', row.id, 'stock-entry']"
+                      icon="pi pi-upload"
+
+                      severity="help"
+                      [rounded]="true"
+
+                      pTooltip="Faire l'entréé en  stock"></p-button>
           }
 
-          <button (click)="exportPdf(row)"
-                  [rounded]="true"
-                  pButton
-                  pButtonIcon="pi pi-file-pdf"
-                  pRipple
-                  pTooltip="Imprimer" severity="warn"></button>
+          <p-button (click)="exportPdf(row)"
+                    [rounded]="true"
+
+                    icon="pi pi-file-pdf"
+
+                    pTooltip="Imprimer" severity="warn"></p-button>
 
         </div>
       </td>

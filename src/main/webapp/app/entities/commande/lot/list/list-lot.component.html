@@ -1,15 +1,16 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog #cd [baseZIndex]="10000" [style]="{width: '40vw'}">
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
 </p-confirmDialog>
 
 <div>
   @if (showUgAddNewBtn) {
     <div class="mb-1" style="text-align: right;">
 
-      <button (click)="add()" class="p-button-raised p-button-primary"
-              pButtonIcon="pi pi-check"
-              pButtonLabel="Ajouter un nouveau lot" pButton
-              pRipple type="button"></button>
+      <p-button (click)="add()" severity="info"
+                raised="true"
+                icon="pi pi-check"
+                label="Ajouter un nouveau lot"
+                type="button"></p-button>
     </div>
   }
 
@@ -40,17 +41,17 @@
           <td>{{ elRow.expiryDate |date:'dd/MM/yyyy' }}</td>
 
           <td style="text-align: center;">
-            <button (click)="edit(elRow)" class=" p-mr-2"
-                    pButtonIcon="pi pi-pencil" pButton pRipple
-                    pTooltip="Editer"
-                    severity="success"
-                    [rounded]="true"
-                    type="submit"></button>
-            <button (click)="delete(elRow)"
-                    pButtonIcon="pi pi-trash" pButton
-                    severity="warn"
-                    [rounded]="true"
-                    pRipple type="submit"></button>
+            <p-button (click)="edit(elRow)" class=" p-mr-2"
+                      icon="pi pi-pencil"
+                      pTooltip="Editer"
+                      severity="success"
+                      [rounded]="true"
+                      type="submit"></p-button>
+            <p-button (click)="delete(elRow)"
+                      icon="pi pi-trash"
+                      severity="warn"
+                      [rounded]="true"
+                      type="submit"></p-button>
           </td>
         </tr>
       </ng-template>
@@ -65,9 +66,9 @@
 
 </div>
 <div class="mt-2" style="float: right;">
-  <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised"
-          pButton
-          pButtonIcon="pi pi-times"
-          pButtonLabel="Fermer"
-          pRipple type="button"></button>
+  <p-button (click)="cancel()" class=" p-mr-2 " icon="pi pi-times" label="Fermer"
+
+            raised="true"
+            severity="danger"
+            type="button"></p-button>
 </div>

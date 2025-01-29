@@ -14,10 +14,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-form-lot',
@@ -33,8 +33,8 @@ import { PrimeNG } from 'primeng/config';
     FormsModule,
     ReactiveFormsModule,
     KeyFilterModule,
-    CalendarModule,
     InputTextModule,
+    DatePicker,
   ],
 })
 export class FormLotComponent implements OnInit {

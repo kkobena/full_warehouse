@@ -32,7 +32,7 @@
     <ng-template let-commande let-expanded="expanded" pTemplate="body">
       <tr>
         <td>
-          <p-button type="button" pRipple [pRowToggler]="commande" [text]="true" [rounded]="true"
+          <p-button type="button" [pRowToggler]="commande" [text]="true" [rounded]="true"
                     [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
 
         </td>
@@ -51,57 +51,57 @@
             <p-button
               (click)="onPasserEnCours(commande)"
               severity="info" [rounded]="true"
-              pButtonIcon="pi pi-fast-forward"
-              pRipple
+              icon="pi pi-fast-forward"
+
               pTooltip="Passer en cours">
             </p-button>
             <p-button
               [routerLink]="['/commande', commande.id, 'edit']"
               severity="success"
-              pButtonIcon="pi pi-pencil" [rounded]="true"
-              pRipple
+              icon="pi pi-pencil" [rounded]="true"
+
               pTooltip="Editer">
             </p-button>
 
             <p-button (click)="onCreateBon(commande)"
                       severity="help"
-                      pButtonIcon="pi pi-upload"
+                      icon="pi pi-upload"
                       [rounded]="true"
-                      pRipple
+
                       pTooltip="Faire l'entréé en  stock"></p-button>
             <p-button (click)="onShowFileDialog(commande)"
                       [hidden]="true"
-                      pRipple
-                      [rounded]="true" pButtonIcon="pi pi-upload"
+
+                      [rounded]="true" icon="pi pi-upload"
                       severity="help"
 
                       pTooltip="Importer la reponse "></p-button>
             <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
                        class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
                        icon="pi pi-shopping-cart" pButton
-                       pRipple
+
                        pTooltip="Envoi par Pharma-ML"></button>-->
 
 
             <p-button (click)="exportCSV(commande)"
-                      pButtonIcon="pi pi-file-excel"
+                      icon="pi pi-file-excel"
                       [rounded]="true"
-                      pRipple
+
                       severity="warn"
                       pTooltip="Exporter en CSV" />
 
 
             <p-button (click)="exportPdf(commande)"
-                      pButtonIcon="pi pi-print"
+                      icon="pi pi-print"
                       severity="secondary"
                       [rounded]="true"
-                      pRipple
+
                       pTooltip="Imprimer" />
             <p-button (click)="confirmDelete(commande)"
                       [rounded]="true"
-                      pRipple
+
                       severity="danger"
-                      pButtonIcon="pi pi-trash"
+                      icon="pi pi-trash"
                       pTooltip="Supprimer"
                       type="submit" />
 

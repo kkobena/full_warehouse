@@ -10,7 +10,7 @@
     <div class="p-toolbar-group-right">
       <p-button (click)="addNewEntity()"
                 icon="pi pi-plus" label="Nouveau"
-                pRipple
+
                 raised="true"
                 severity="success"
                 type="button"></p-button>
@@ -40,16 +40,16 @@
 
           <td style="text-align: center;">
             <p-button (click)="onEdit(elRow)" class=" p-mr-1"
-                      icon="pi pi-pencil" pRipple pTooltip="Editer" rounded="true"
+                      icon="pi pi-pencil" pTooltip="Editer" rounded="true"
                       severity="success"
                       type="submit"></p-button>
             <p-button [routerLink]=" ['/tableaux', elRow.id, 'associe']"
                       class=" p-mr-1" icon="pi pi-box"
-                      pRipple pTooltip="Associer des produits"
+                      pTooltip="Associer des produits"
                       rounded="true"
                       severity="help"
                       type="button"></p-button>
-            <p-button (click)="delete(elRow)" icon="pi pi-trash" pRipple
+            <p-button (click)="delete(elRow)" icon="pi pi-trash"
                       pTooltip="Supprimer" rounded="true"
                       severity="danger" type="button"></p-button>
           </td>
@@ -109,10 +109,10 @@
     </ng-template>
     <ng-template #footer>
       <p-button [disabled]="editForm.invalid || isSaving"
-                class=" p-mr-2" icon="pi pi-check" label="Enregistrer" pRipple
+                class=" p-mr-2" icon="pi pi-check" label="Enregistrer"
                 raised="true"
                 severity="success" type="submit"></p-button>
-      <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" pRipple
+      <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
                 raised="true"
                 severity="danger"
                 type="button"></p-button>

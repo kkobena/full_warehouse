@@ -39,6 +39,12 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { ToastModule } from 'primeng/toast';
 import { CommandCommonService } from './command-common.service';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Select } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { SORT } from '../../shared/util/command-item-sort';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -97,6 +103,11 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
     ToolbarModule,
     TooltipModule,
     ToastModule,
+    Select,
+    InputGroup,
+    InputGroupAddon,
+    IconField,
+    InputIcon,
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
@@ -114,29 +125,31 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   quantityBox = viewChild.required<ElementRef>('quantityBox');
   filtres: any[] = [];
   selectedFilter = 'ALL';
+  tris = 'UPDATE';
   fournisseurDisabled = false;
   selectedEl: IOrderLine[];
   commandebuttons: MenuItem[];
+  exportbuttons: MenuItem[];
   fileDialog = false;
   fournisseurBox = viewChild.required<any>('fournisseurBox');
   produitbox = viewChild.required<any>('produitbox');
   commandCommonService = inject(CommandCommonService);
   route = inject(Router);
+  protected readonly sorts = SORT;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly APPEND_TO = APPEND_TO;
+  private commandeService = inject(CommandeService);
+  private produitService = inject(ProduitService);
+  private activatedRoute = inject(ActivatedRoute);
+  private modalService = inject(NgbModal);
+  private fournisseurService = inject(FournisseurService);
+  private confirmationService = inject(ConfirmationService);
+  private errorService = inject(ErrorService);
+  private spinner = inject(NgxSpinnerService);
+  private messageService = inject(MessageService);
 
-  constructor(
-    protected commandeService: CommandeService,
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected modalService: NgbModal,
-    protected fournisseurService: FournisseurService,
-    private confirmationService: ConfirmationService,
-    private errorService: ErrorService,
-    private spinner: NgxSpinnerService,
-    private messageService: MessageService,
-  ) {
+  constructor() {
     this.selectedEl = [];
     this.filtres = [
       { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
@@ -156,6 +169,19 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       {
         label: 'PHARMA-ML',
         icon: 'pi pi-desktop',
+      },
+    ];
+
+    this.exportbuttons = [
+      {
+        label: 'PDF',
+        icon: 'pi pi-file-pdf',
+        command: () => this.exportPdf(),
+      },
+      {
+        label: 'CSV',
+        icon: 'pi pi-file-excel',
+        command: () => this.exportCSV(),
       },
     ];
   }
@@ -351,6 +377,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       commandeId: this.commande.id,
       search: this.search,
       filterCommaneEnCours: this.selectedFilter,
+      orderBy: this.tris,
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
       this.orderLines = res.body!;
@@ -391,13 +418,28 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     return '';
   }
 
+  confirmDeleteAll(): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous supprimer supprimer toutes les lignes ?',
+      header: 'SUPPRESSION ',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => this.deleteSelectedOrderLine(),
+      reject: () => {
+        this.updateProduitQtyBox();
+      },
+      key: 'deleteAll',
+    });
+  }
+
   confirmDeleteItem(item: IOrderLine): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer de la commande  ce produit ?',
       header: 'SUPPRESSION DE PRODUIT ',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.onDeleteOrderLineById(item),
       reject: () => {
         this.updateProduitQtyBox();
@@ -411,8 +453,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       message: ' Voullez-vous rester sur la page ?',
       header: ' INFORMATION',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => this.resetAll(),
       reject: () => {
         this.previousState();

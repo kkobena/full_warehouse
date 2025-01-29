@@ -25,13 +25,14 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-    selector: 'jhi-commande-passes',
-    templateUrl: './commande-passes.component.html',
-    imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule]
+  selector: 'jhi-commande-passes',
+  templateUrl: './commande-passes.component.html',
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule],
 })
 export class CommandePassesComponent implements OnInit {
   @Input() search = '';
@@ -208,6 +209,8 @@ export class CommandePassesComponent implements OnInit {
       message: ' Voullez-vous la retourner dans commande en cours ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.rollbackCommande(commande.id);
       },
@@ -277,6 +280,13 @@ export class CommandePassesComponent implements OnInit {
           error: () => this.onError(),
         });
     }
+  }
+
+  removeAll(): void {
+    this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
+      this.loadPage();
+      this.selections = [];
+    });
   }
 
   protected selectAllClik(): void {

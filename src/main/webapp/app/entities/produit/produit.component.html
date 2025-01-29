@@ -6,7 +6,7 @@
   </p>
   <p-footer>
     <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" pButton
-              pRipple raised="true"
+              raised="true"
               severity="danger" type="button"></p-button>
 
   </p-footer>
@@ -31,7 +31,7 @@
   <p-footer>
     <button (click)="cancel()" class="p-button-danger mr-2 p-button-raised" icon="pi pi-times"
             label="Annuler" pButton
-            pRipple type="button"></button>
+            type="button"></button>
   </p-footer>
 </p-dialog>
 
@@ -105,7 +105,7 @@
                      styleClass=" mr-2 mb-2"></p-splitbutton>
       <button [raised]="true" [routerLink]="['/produit/new']" class=" mb-2 " pButton
               pButtonIcon="pi pi-plus"
-              pButtonLabel="Nouveau produit" pRipple severity="success"
+              pButtonLabel="Nouveau produit" severity="success"
               type="button">
 
       </button>
@@ -146,7 +146,7 @@
           <td>
 
             <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [pRowToggler]="expanded" [rounded]="true" [text]="true" pRipple
+                      [pRowToggler]="expanded" [rounded]="true" [text]="true"
                       type="button" />
           </td>
           <td>{{ produit.codeCip }}</td>
@@ -336,7 +336,7 @@
                           <button size="small" class=" p-mb-3"
                                   pButtonIcon="pi pi-trash" pButton [rounded]="true"
                                   severity="danger"
-                                  pRipple
+
                                   pTooltip="Supprimer"></button>
                         </td>
                       </tr>
@@ -376,13 +376,13 @@
                                   severity="success"
                                   [rounded]="true" size="small"
                                   pButton
-                                  pRipple
+
                           ></button>
                           <button pButtonIcon="pi pi-trash"
                                   severity="danger"
                                   [rounded]="true" size="small"
                                   pButton
-                                  pRipple
+
                           ></button>
                         </td>
                       </tr>
@@ -428,14 +428,14 @@
                                   severity="success"
                                   class="p-mr-2 p-ml-2 p-mb-3"
                                   pButtonIcon="pi pi-pencil"
-                                  pButton pRipple
+                                  pButton
                                   pTooltip="Editer"></button>
 
                           <button (click)="confirmDeleteProduitFournisseur(four,elRow)"
                                   class=" p-mb-3"
                                   pButtonIcon="pi pi-trash"
                                   pButton
-                                  pRipple
+
                                   severity="danger"
                                   [rounded]="true" size="small"
                                   pTooltip="Supprimer"></button>

@@ -121,10 +121,10 @@
             <td class="text-right">
               @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours'
               || cashRegister.statut === 'PENDING' || cashRegister.statut === 'En attente') {
-                <button [routerLink]="['/my-cash-register',cashRegister.id,'billetage']" pRipple
+                <button [routerLink]="['/my-cash-register',cashRegister.id,'billetage']"
                         label="Fermer" class="p-button-secondary" pButton
                 ></button>
-                <!--    <button pRipple (click)="closeCashRegister(cashRegister)"
+                <!--    <button  (click)="closeCashRegister(cashRegister)"
                             label="Fermer sans billetage" class="p-button-warning" pButton
                     ></button>-->
               }

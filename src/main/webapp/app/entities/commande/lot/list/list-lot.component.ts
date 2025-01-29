@@ -115,8 +115,8 @@ export class ListLotComponent implements OnInit {
       message: 'Voulez-vous supprimer ce lot ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.entityService.remove(lot.id).subscribe({
           next: () => {

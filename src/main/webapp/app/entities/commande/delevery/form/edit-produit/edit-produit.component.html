@@ -85,16 +85,16 @@
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label" for="tvaId">Tva</label>
-        <p-dropdown [filter]="false"
-                    [options]="tvas" [style]="{'width':'100%'}"
-                    appendTo="body"
-                    formControlName="tvaId"
-                    id="tvaId"
-                    name="tvaId" optionLabel="tva"
-                    optionValue="id"
-                    placeholder="Sélectionner une Tva"
+        <p-select [filter]="false"
+                  [options]="tvas" [style]="{'width':'100%'}"
+                  appendTo="body"
+                  formControlName="tvaId"
+                  id="tvaId"
+                  name="tvaId" optionLabel="tva"
+                  optionValue="id"
+                  placeholder="Sélectionner une Tva"
         >
-        </p-dropdown>
+        </p-select>
 
       </div>
     </div>
@@ -130,22 +130,22 @@
     <div class="form-row">
       <div class="form-group col-md-6">
         <label class="form-control-label" for="rayonId">Rayon</label>
-        <p-dropdown [filter]="true"
-                    [options]="rayons" [style]="{'width':'100%'}"
-                    [virtualScroll]="false" appendTo="body"
-                    filterBy="libelle"
-                    formControlName="rayonId"
-                    id="rayonId"
-                    name="rayonId" optionLabel="libelle"
-                    optionValue="id"
-                    placeholder="Sélectionner un rayon"
+        <p-select [filter]="true"
+                  [options]="rayons" [style]="{'width':'100%'}"
+                  [virtualScroll]="false" appendTo="body"
+                  filterBy="libelle"
+                  formControlName="rayonId"
+                  id="rayonId"
+                  name="rayonId" optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner un rayon"
         >
-        </p-dropdown>
+        </p-select>
 
       </div>
       <div class="form-group col-md-6">
         <label class="form-control-label" for="typeEtiquetteId">Type etiquette</label>
-        <p-dropdown
+        <p-select
           [options]="etiquettes" [style]="{'width':'100%'}"
           appendTo="body"
           formControlName="typeEtiquetteId"
@@ -154,7 +154,7 @@
           optionValue="id"
           placeholder="Sélectionner une etiquette"
         >
-        </p-dropdown>
+        </p-select>
 
 
       </div>
@@ -164,22 +164,22 @@
   </div>
 
   <div class="modal-footer">
-    <button (click)="cancel()"
-            [raised]="true" class=" p-mr-2 "
-            pButton
-            pButtonIcon="pi pi-times"
-            pRipple severity="danger" type="button">
-      <span jhiTranslate="entity.action.cancel">Cancel</span>
-    </button>
+    <p-button (click)="cancel()"
+              [raised]="true" class=" p-mr-2 "
+              icon="pi pi-times"
+              label="Annuler"
+              severity="danger" type="button">
 
-    <button [disabled]="editForm.invalid || isSaving || !isValid"
-            [raised]="true" class=" mr-2" pButton
-            pButtonIcon="pi pi-check" pButtonLabel="Enregistrer"
-            pRipple
-            severity="success"
-            type="submit">
+    </p-button>
 
-    </button>
+    <p-button [disabled]="editForm.invalid || isSaving || !isValid"
+              [raised]="true" class=" mr-2"
+              icon="pi pi-check" label="Enregistrer"
+
+              severity="success"
+              type="submit">
+
+    </p-button>
   </div>
 </form>
 

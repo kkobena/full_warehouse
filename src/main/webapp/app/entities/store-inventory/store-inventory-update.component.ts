@@ -109,9 +109,9 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected search?: string;
   protected ngbPaginationPage = 1;
   protected readonly showFilterCombox: boolean = true;
+  private storeInventoryService = inject(StoreInventoryService);
 
   constructor(
-    protected storeInventoryService: StoreInventoryService,
     protected storeInventoryLineService: StoreInventoryLineService,
     protected activatedRoute: ActivatedRoute,
     protected rayonService: RayonService,

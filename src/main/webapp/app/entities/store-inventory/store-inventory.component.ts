@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -87,14 +87,13 @@ export class StoreInventoryComponent implements OnInit {
   protected ref?: DynamicDialogRef;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected inventoryCategories?: InventoryCategory[];
+  private storeInventoryService = inject(StoreInventoryService);
+  private modalService = inject(NgbModal);
+  private userService = inject(UserService);
+  private dialogService = inject(DialogService);
+  private router = inject(Router);
 
-  constructor(
-    protected storeInventoryService: StoreInventoryService,
-    protected modalService: NgbModal,
-    protected userService: UserService,
-    private dialogService: DialogService,
-    protected router: Router,
-  ) {
+  constructor() {
     this.inventoryCategories = this.categories;
     this.storeInventories = [];
     this.itemsPerPage = ITEMS_PER_PAGE;

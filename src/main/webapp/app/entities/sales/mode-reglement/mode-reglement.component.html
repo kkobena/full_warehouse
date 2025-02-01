@@ -44,7 +44,7 @@
                          (keydown.enter)="save()" size="large"
                          [(ngModel)]="modePay.amount" [id]="modePay.code"
                          [pKeyFilter]="'int'" [readOnly]="modePay.isReadonly"
-                         class="payment-mode-input0" pInputText />
+                         class="payment-mode-input" pInputText />
                   @if (isShowAddBtn()) {
                     <p-inputgroup-addon [style]="{'padding': '0'}">
                       <p-button [style]="{'height': '50px'}"

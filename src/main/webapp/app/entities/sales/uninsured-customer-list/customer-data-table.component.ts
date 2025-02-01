@@ -12,22 +12,26 @@ import { CustomerService } from '../../customer/customer.service';
 import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectedCustomerService } from '../service/selected-customer.service';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
-    selector: 'jhi-customer-data-table',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        ButtonModule,
-        InputTextModule,
-        ReactiveFormsModule,
-        RippleModule,
-        SharedModule,
-        TableModule,
-        TooltipModule,
-        WarehouseCommonModule,
-        FormsModule,
-    ],
-    templateUrl: './customer-data-table.component.html'
+  selector: 'jhi-customer-data-table',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    ButtonModule,
+    InputTextModule,
+    ReactiveFormsModule,
+    RippleModule,
+    SharedModule,
+    TableModule,
+    TooltipModule,
+    WarehouseCommonModule,
+    FormsModule,
+    IconField,
+    InputIcon,
+  ],
+  templateUrl: './customer-data-table.component.html',
 })
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];

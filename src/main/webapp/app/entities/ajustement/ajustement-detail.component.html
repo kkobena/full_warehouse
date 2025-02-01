@@ -120,19 +120,21 @@
 
               <div class="col-md-9 text-right" style=" padding-left: 3px;padding-right: 3px;">
                 <span class="p-buttonset">
-    <button (click)="onSave()" *ngIf="ajustement" class="p-button-success p-button-raised" pButton
+    <p-button (click)="onSave()" *ngIf="ajustement" raised="true" severity="success"
+              type="button">  <fa-icon
+      icon="lock"></fa-icon>&nbsp;
+      <span>Cloturer</span>
+    </p-button>
 
-            type="button">  <fa-icon
-      icon="lock"></fa-icon>&nbsp;<span>Cloturer</span></button>
-
-                    <button (click)="confirmDeleteItems()" *ngIf="selectedEl!.length>0"
-                            class="p-button-raised p-button-danger" pButton
-
-                            type="button">
+                    <p-button (click)="confirmDeleteItems()" *ngIf="selectedEl!.length>0"
+                              raised="true"
+                              severity="danger"
+                              type="button">
                     <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="entity.action.delete">Supprimer</span>
-                </button>
+                </p-button>
                    <p-button (click)="confirmGoBack()" icon="pi pi-arrow-left" label="Retour"
-                             styleClass="p-button-raised p-button-secondary"></p-button>
+                             raised="true" severity="secondary"
+                   ></p-button>
                 </span>
 
 
@@ -182,11 +184,12 @@
               <td class="text-right"> {{ ajustement.stockAfter |number }}</td>
               <td style="text-align: right;">
 
-                <button (click)="confirmDeleteItem(ajustement)"
-                        class="p-button-rounded p-button-danger p-button-sm  p-mb-3"
-                        icon="pi pi-trash"
-                        pButton
-                        pTooltip="Supprimer"></button>
+                <p-button (click)="confirmDeleteItem(ajustement)"
+                          class="  p-mb-3" icon="pi pi-trash"
+                          pTooltip="Supprimer"
+                          rounded="true"
+
+                          severity="danger"></p-button>
               </td>
               <td class="text-center">
                 <p-tableCheckbox [value]="ajustement"></p-tableCheckbox>

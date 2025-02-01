@@ -9,14 +9,14 @@
   <ng-template pTemplate="caption">
     <div class="row">
       <div class="col-md-8">
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (input)="loadCustomers()" [(ngModel)]="searchString" [autofocus]="true" pInputText
+                 placeholder="Rechercher"
+                 style="width:350px;"
+                 type="text">
+        </p-iconfield>
 
-    <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input (input)="loadCustomers()" [(ngModel)]="searchString" [autofocus]="true" pInputText
-           placeholder="Rechercher"
-           style="width:350px;"
-           type="text">
-</span>
       </div>
       <div class="col-md-4">
         <p-button (click)="addUninsuredCustomer()" icon="pi pi-user"

@@ -128,7 +128,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   assuranceDataComponent = viewChild(AssuranceDataComponent);
   produitbox = viewChild.required<any>('produitbox');
   userBox = viewChild.required<any>('userBox');
-  forcerStockDialogBtn = viewChild.required<ElementRef>('forcerStockDialogBtn');
   typePrescriptionService = inject(TypePrescriptionService);
   userCaissierService = inject(UserCaissierService);
   userVendeurService = inject(UserVendeurService);
@@ -148,7 +147,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);
   modalService = inject(NgbModal);
-  // userService = inject(UserService);
   confirmationService = inject(ConfirmationService);
   errorService = inject(ErrorService);
   decondtionService = inject(DeconditionService);
@@ -318,7 +316,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
 
     this.activatedRoute.data.subscribe(({ sales, mode }) => {
-      console.warn('mode', mode);
       if (sales.id) {
         if (sales.customer) {
           this.customerService
@@ -722,7 +719,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       key: 'forcerStockDialog',
     });
-    this.forcerStockDialogBtn().nativeElement.focus();
+    // this.forcerStockDialogBtn().nativeElement.focus();
   }
 
   resetAll(): void {
@@ -949,9 +946,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.check) {
       this.produitbox().inputEL.nativeElement.focus();
-    } else {
+    } /*else {
       this.forcerStockDialogBtn().nativeElement.focus();
-    }
+    }*/
 
     this.produitSelected = null;
   }
@@ -1177,6 +1174,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       key: 'forcerStockDialog',
     });
-    this.forcerStockDialogBtn().nativeElement.focus();
+    //  this.forcerStockDialogBtn().nativeElement.focus();
   }
 }

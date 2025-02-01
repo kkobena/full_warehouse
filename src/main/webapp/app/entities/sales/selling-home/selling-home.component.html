@@ -27,10 +27,10 @@
           header="Erreur">
   <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
   <ng-template pTemplate="footer">
-    <button #commonDialogModalBtn (click)="cancelCommonDialog()" class="btn btn-danger"
-            data-dismiss="modal"
-            type="button">Fermer
-    </button>
+    <p-button (click)="cancelCommonDialog()" data-dismiss="modal"
+              severity="danger"
+              type="button">Fermer
+    </p-button>
   </ng-template>
 </p-dialog>
 <div class="row selling">
@@ -78,13 +78,12 @@
 
     <p-panel [styleClass]="'sale-panel-header'">
       <ng-template pTemplate="header">
-        <div class="row"
+        <div class="row sale-toolbar-first"
              style="padding-left:10px;width: 100%;padding-right:0;">
           <div class="col-3" style="padding:0;">
             <p-inputgroup>
               <p-inputgroup-addon>
                 Vendeurs
-                <!--<i class="pi pi-user"></i>-->
               </p-inputgroup-addon>
               <p-select #userBox
                         (onChange)="onSelectUser()"
@@ -200,19 +199,19 @@
               @if (showStock) {
 
                 <div class="col-md-1">
-                  <p-button label="Stock" severity="info" variant="outlined"
-                            badge="{{ produitSelected.totalQuantity |number }}"
+                  <p-button badgeSeverity="contrast" label="Stock" variant="outlined"
+                            [badge]="produitSelected.totalQuantity |number "
                   ></p-button>
-
 
                 </div>
               }
               <div class="col-md-3">
                 Rayons:
                 @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
-                  <p-tag severity="info">
-                    {{ rayon.libelleRayon }}
-                  </p-tag>
+                  <p-button badgeSeverity="contrast" label="Rayons" variant="outlined"
+                            [badge]="rayon.libelleRayon"
+                  ></p-button>
+
                 }
 
               </div>

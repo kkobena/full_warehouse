@@ -26,25 +26,7 @@
                     </executions>
                     <groupId>org.springframework.boot</groupId>
                 </plugin>
-                <plugin>
-                    <artifactId>spotless-maven-plugin</artifactId>
-                    <configuration>
-                        <java>
-                            <!-- <removeUnusedImports/> -->
-                        </java>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>apply</goal>
-                            </goals>
-                            <id>spotless</id>
-                            <phase>process-sources</phase>
-                        </execution>
-                    </executions>
-                    <groupId>com.diffplug.spotless</groupId>
-                    <version>${spotless-maven-plugin.version}</version>
-                </plugin>
+
                 <plugin>
                     <artifactId>frontend-maven-plugin</artifactId>
                     <configuration>
@@ -58,45 +40,11 @@
 
 
                 <plugin>
-                    <artifactId>checksum-maven-plugin</artifactId>
-                    <groupId>net.nicoulaj.maven.plugins</groupId>
-                    <version>${checksum-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <groupId>org.apache.maven.plugins</groupId>
                     <version>${maven-antrun-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <configuration>
-                        <configLocation>checkstyle.xml</configLocation>
-                        <excludes>.git/**/*,target/**/*,node_modules/**/*</excludes>
-                        <includes>pom.xml,README.md</includes>
-                        <sourceDirectories>./</sourceDirectories>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <artifactId>checkstyle</artifactId>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <version>${checkstyle.version}</version>
-                        </dependency>
-                        <dependency>
-                            <artifactId>nohttp-checkstyle</artifactId>
-                            <groupId>io.spring.nohttp</groupId>
-                            <version>${nohttp-checkstyle.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <version>${maven-checkstyle-plugin.version}</version>
-                </plugin>
+
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -131,47 +79,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <version>${maven-compiler-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <configuration>
-                        <rules>
-                            <requireJavaVersion>
-                                <message>
-                                    supports 22.
-                                </message>
-                                <version>22</version>
-                            </requireJavaVersion>
-                            <requireMavenVersion>
-                                <message>
-                                    requires at least Maven ${maven.version}
-                                </message>
-                                <version>[${maven.version},)</version>
-                            </requireMavenVersion>
-                        </rules>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <id>enforce-versions</id>
-                        </execution>
-                        <execution>
-                            <configuration>
-                                <fail>false</fail>
-                                <rules>
-                                    <DependencyConvergence/>
-                                </rules>
-                            </configuration>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <id>enforce-dependencyConvergence</id>
-                        </execution>
-                    </executions>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <version>${maven-enforcer-plugin.version}</version>
-                </plugin>
+
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
@@ -359,26 +267,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <groupId>org.springframework.boot</groupId>
             </plugin>
-            <plugin>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <groupId>com.diffplug.spotless</groupId>
-            </plugin>
-            <plugin>
-                <artifactId>jib-maven-plugin</artifactId>
-                <groupId>com.google.cloud.tools</groupId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <groupId>org.apache.maven.plugins</groupId>
-            </plugin>
+
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
             </plugin>
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <groupId>org.apache.maven.plugins</groupId>
-            </plugin>
+
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -452,7 +347,7 @@
         <dependency>
             <artifactId>json</artifactId>
             <groupId>org.json</groupId>
-            <version>20231013</version>
+            <version>20250107</version>
         </dependency>
         <dependency>
             <artifactId>hibernate-envers</artifactId>
@@ -462,12 +357,12 @@
         <dependency>
             <artifactId>flying-saucer-pdf</artifactId>
             <groupId>org.xhtmlrenderer</groupId>
-            <version>9.9.0</version>
+            <version>9.11.3</version>
         </dependency>
         <dependency>
             <artifactId>flying-saucer-core</artifactId>
             <groupId>org.xhtmlrenderer</groupId>
-            <version>9.9.0</version>
+            <version>9.11.3</version>
         </dependency>
         <dependency>
             <artifactId>icu4j</artifactId>
@@ -851,57 +746,7 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>checksum-maven-plugin</artifactId>
-                        <configuration>
-                            <algorithms>
-                                <algorithm>SHA-1</algorithm>
-                            </algorithms>
-                            <failIfNoFiles>false</failIfNoFiles>
-                            <failOnError>false</failOnError>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.basedir}</directory>
-                                    <excludes>
-                                        <exclude>**/app/**/service-worker.js</exclude>
-                                        <exclude>**/app/**/vendor.css</exclude>
-                                    </excludes>
-                                    <includes>
-                                        <include>src/main/webapp/**/*.*</include>
-                                        <include>target/classes/static/**/*.*</include>
-                                        <include>package-lock.json</include>
-                                        <include>package.json</include>
-                                        <include>tsconfig.json</include>
-                                        <include>tsconfig.app.json</include>
-                                        <include>webpack/*.*</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <includeRelativePath>true</includeRelativePath>
-                            <individualFiles>false</individualFiles>
-                            <quiet>true</quiet>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>files</goal>
-                                </goals>
-                                <id>create-pre-compiled-webapp-checksum</id>
-                                <phase>generate-resources</phase>
-                            </execution>
-                            <execution>
-                                <configuration>
-                                    <csvSummaryFile>checksums.csv.old</csvSummaryFile>
-                                </configuration>
-                                <goals>
-                                    <goal>files</goal>
-                                </goals>
-                                <id>create-compiled-webapp-checksum</id>
-                                <phase>compile</phase>
-                            </execution>
-                        </executions>
-                        <groupId>net.nicoulaj.maven.plugins</groupId>
-                    </plugin>
+
 
                     <plugin>
                         <artifactId>frontend-maven-plugin</artifactId>
@@ -951,24 +796,20 @@
         <archunit-junit5.version>1.3.0</archunit-junit5.version>
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
         <checkstyle.version>10.17.0</checkstyle.version>
-        <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
-        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
+
+        <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <java.version>22</java.version>
         <jhipster-framework.version>8.5.0</jhipster-framework.version>
-        <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
-        <jib-maven-plugin.image>eclipse-temurin:21-jre-focal</jib-maven-plugin.image>
-        <jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
+
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
 
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
         <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
@@ -979,7 +820,7 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven.version>3.2.5</maven.version>
+        <maven.version>3.6.3</maven.version>
 
         <node.version>v22.13.0</node.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
@@ -994,7 +835,6 @@
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <run.addResources>false</run.addResources>
         <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
-        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <springdoc-openapi-starter-webmvc-api.version>2.5.0
         </springdoc-openapi-starter-webmvc-api.version>
@@ -1008,5 +848,5 @@
             <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
     </repositories>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 </project>

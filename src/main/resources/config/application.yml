@@ -85,6 +85,20 @@ management:
           enabled: false
 
 spring:
+  flyway:
+    enabled: true
+    create-schemas: false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 2802
+    user: root
+    url: jdbc:mysql://localhost:3306/vide?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}&characterEncoding=UTF-8
+    installed-by: root
+    schemas: vide
+    community-db-support-enabled: true
+    detect-encoding: true
+    baseline-description: 'Baseline for the warehouse database'
+    baseline-on-migrate: true
+    table: warehouse_history
   application:
     name: warehouse
   profiles:

@@ -321,7 +321,11 @@
               <scope>provided</scope>
           </dependency>
   -->
-
+        <dependency>
+            <artifactId>flyway-mysql</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <version>11.3.0</version>
+        </dependency>
         <dependency>
             <artifactId>libphonenumber</artifactId>
             <groupId>com.googlecode.libphonenumber</groupId>
@@ -513,6 +517,7 @@
         <dependency>
             <artifactId>HikariCP</artifactId>
             <groupId>com.zaxxer</groupId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -558,11 +563,15 @@
             <scope>provided</scope>
             <version>${mapstruct.version}</version>
         </dependency>
+        <!--   <dependency>
+               <artifactId>mariadb-java-client</artifactId>
+               <groupId>org.mariadb.jdbc</groupId>
+           </dependency>-->
         <dependency>
-            <artifactId>mariadb-java-client</artifactId>
-            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <groupId>com.mysql</groupId>
+            <version>9.2.0</version>
         </dependency>
-
         <dependency>
             <artifactId>jdbc</artifactId>
             <groupId>org.testcontainers</groupId>

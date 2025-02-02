@@ -125,7 +125,7 @@
                type="text">
       </p-iconfield>
     </p-toolbar>
-    <div class=" row ag-theme-alpine"
+    <div class=" row"
          style="width: 100%; height:65vh;">
 
       @if (storeInventory) {
@@ -142,6 +142,7 @@
                          [readOnlyEdit]="false"
                          [rowData]="storeInventoryLines"
                          [singleClickEdit]="true"
+                         [theme]="theme"
                          [stopEditingWhenCellsLoseFocus]="false"
 
                          style="width: 100%; height: 100%;">

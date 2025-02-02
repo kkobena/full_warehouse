@@ -10,10 +10,10 @@ import moment from 'moment';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { AgGridAngular } from 'ag-grid-angular';
-import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions } from 'ag-grid-community';
+import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions, themeAlpine } from 'ag-grid-community';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
-provideGlobalGridOptions({ theme: 'legacy' });
+provideGlobalGridOptions({ theme: themeAlpine });
 
 @Component({
   selector: 'jhi-inventory-transaction',

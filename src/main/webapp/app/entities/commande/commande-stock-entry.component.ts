@@ -31,8 +31,16 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import { CommandeBtnComponent } from './btn/commande-btn.component';
 import { ReceiptStatusComponent } from './status/receipt-status.component';
-import type { GridApi, GridReadyEvent } from 'ag-grid-community';
-import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions, RowModelType } from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ClientSideRowModelModule,
+  GridApi,
+  GridReadyEvent,
+  ModuleRegistry,
+  provideGlobalGridOptions,
+  RowModelType,
+  themeAlpine,
+} from 'ag-grid-community';
 
 import dayjs from 'dayjs';
 import { TvaService } from '../tva/tva.service';
@@ -46,7 +54,7 @@ import { Select } from 'primeng/select';
 import { Toolbar } from 'primeng/toolbar';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
-provideGlobalGridOptions({ theme: 'legacy' });
+provideGlobalGridOptions({ theme: themeAlpine });
 
 @Component({
   selector: 'jhi-commande-stock-entry',

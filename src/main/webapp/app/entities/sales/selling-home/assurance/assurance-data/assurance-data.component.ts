@@ -25,6 +25,8 @@ import { AssureFormStepComponent } from '../../../../customer/assure-form-step/a
 import { BaseSaleService } from '../../../service/base-sale.service';
 import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
 import { acceptButtonProps, rejectButtonProps } from '../../../../../shared/util/modal-button-props';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-assurance-data',
@@ -40,6 +42,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../../shared/util
     SplitButtonModule,
     ConfirmPopupModule,
     ConfirmDialogModule,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './assurance-data.component.html',
 })

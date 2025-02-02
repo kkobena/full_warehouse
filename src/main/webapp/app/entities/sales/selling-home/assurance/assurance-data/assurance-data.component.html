@@ -8,9 +8,13 @@
             <span style="font-weight: 700;">  <i class="pi pi-user-minus"></i>&nbsp; Changer de client</span>
           </button>
         } @else {
-          <input #searchInput (keydown.enter)="load()" [(ngModel)]="search"
-                 class="form-control border  border-primary"
-                 placeholder="Rechercher client" type="text">
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input [style]="{width: '98%'}" pInputText #searchInput (keydown.enter)="load()"
+                   [(ngModel)]="search"
+                   placeholder="Rechercher client" type="text">
+          </p-iconfield>
+
         }
       </div>
       @if (selectedCustomerService.selectedCustomerSignal()) {

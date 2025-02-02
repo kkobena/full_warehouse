@@ -98,7 +98,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected selectedfiltres: any | null;
   protected page = 0;
   protected loading!: boolean;
-  protected itemsPerPage = 20;
+  protected itemsPerPage = 15;
   protected gridApi!: GridApi;
   protected search?: string;
   protected ngbPaginationPage = 1;
@@ -114,19 +114,18 @@ export class StoreInventoryUpdateComponent implements OnInit {
      /!* Changes the hover color of the row*!/
      rowHoverColor: 'rgb(216, 226, 255)', */
   });
+  protected storeInventoryLineService = inject(StoreInventoryLineService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected rayonService = inject(RayonService);
+  protected modalService = inject(NgbModal);
   private storeInventoryService = inject(StoreInventoryService);
+  private storageService = inject(StorageService);
+  private errorService = inject(ErrorService);
+  private spinner = inject(NgxSpinnerService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
-  constructor(
-    protected storeInventoryLineService: StoreInventoryLineService,
-    protected activatedRoute: ActivatedRoute,
-    protected rayonService: RayonService,
-    private storageService: StorageService,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-    private spinner: NgxSpinnerService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-  ) {
+  constructor() {
     this.columnDefs = [
       {
         headerName: 'Cip',
@@ -188,6 +187,11 @@ export class StoreInventoryUpdateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const width = window.innerWidth;
+    if (width < 1800) {
+      this.itemsPerPage = 10;
+    }
+
     this.activatedRoute.data.subscribe(({ storeInventory }) => {
       this.storeInventory = storeInventory;
       if (this.storeInventory) {
@@ -237,7 +241,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
           this.isSaving = false;
           setTimeout(() => {
             this.previousState();
-          }, 10000);
+          }, 1000);
         },
         error: error => {
           this.onCloseError(error);

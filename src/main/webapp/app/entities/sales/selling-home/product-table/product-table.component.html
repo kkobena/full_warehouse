@@ -140,7 +140,7 @@
                     icon="pi pi-trash" [rounded]="true"
                     severity="danger"
                     size="small"
-                    
+
                     pTooltip="Supprimer"></p-button>
         </td>
       </tr>
@@ -150,9 +150,12 @@
       @if (sale.salesLines.length > 0) {
         <tr>
           <td class="p-text-left" colspan="3">TOTAUX</td>
-          <td style="text-align: right">{{ totalQtyProduit() |number }}</td>
-          <td style="text-align: right">{{ totalQtyServi() |number }}</td>
-          <td colspan="2" style="text-align: right">{{ totalTtc() |number }}</td>
+          <td class="amount-column" style="text-align: right">{{ totalQtyProduit() |number }}
+          </td>
+          <td class="amount-column" style="text-align: right">{{ totalQtyServi() |number }}</td>
+          <td class="amount-column" colspan="2"
+              style="text-align: right">{{ totalTtc() |number }}
+          </td>
           <td></td>
         </tr>
       }
@@ -162,9 +165,9 @@
 
 }
 
-<p-confirmDialog #deleteItem [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
 </p-confirmDialog>
-<p-confirmDialog #forcerStock [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStock">
 
 </p-confirmDialog>

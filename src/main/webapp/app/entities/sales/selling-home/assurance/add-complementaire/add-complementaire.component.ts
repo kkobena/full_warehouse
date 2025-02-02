@@ -11,21 +11,25 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ToastModule } from 'primeng/toast';
 import TranslateDirective from '../../../../../shared/language/translate.directive';
+import { ButtonModule } from 'primeng/button';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
-    selector: 'jhi-add-complementaire',
-    imports: [
-        ReactiveFormsModule,
-        FaIconComponent,
-        InputMaskModule,
-        InputTextModule,
-        KeyFilterModule,
-        RadioButtonModule,
-        ToastModule,
-        TranslateDirective,
-    ],
-    templateUrl: './add-complementaire.component.html',
-    styles: ``
+  selector: 'jhi-add-complementaire',
+  imports: [
+    ReactiveFormsModule,
+    FaIconComponent,
+    InputMaskModule,
+    InputTextModule,
+    KeyFilterModule,
+    RadioButtonModule,
+    ToastModule,
+    TranslateDirective,
+    ButtonModule,
+    DecimalPipe,
+  ],
+  templateUrl: './add-complementaire.component.html',
+  styles: ``,
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
   tiersPayant = viewChild.required<ElementRef>('tiersPayant');
@@ -56,6 +60,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     tiersPayantFullName: new FormControl<string | null>(null),
     num: new FormControl<string | null>(null),
   });
+  protected selectedTiersPayant: IClientTiersPayant | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -92,9 +97,10 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   }
 
   onSelect(evt: any): void {
-    const tiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
-    if (tiersPayant) {
-      this.updateForm(tiersPayant);
+    this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
+    //this.selectedTiersPayant = tiersPayant;
+    if (this.selectedTiersPayant) {
+      this.updateForm(this.selectedTiersPayant);
       this.numBon().nativeElement.focus();
     } else {
       this.editForm.reset();

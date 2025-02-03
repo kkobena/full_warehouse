@@ -3,7 +3,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { NgIf } from '@angular/common';
+
 import { ToastModule } from 'primeng/toast';
 import { ErrorService } from '../../../shared/error.service';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -23,18 +23,17 @@ import { InputNumberModule } from 'primeng/inputnumber';
 @Component({
     selector: 'jhi-form-transaction',
     imports: [
-        FaIconComponent,
-        FormsModule,
-        InputTextModule,
-        KeyFilterModule,
-        NgIf,
-        ReactiveFormsModule,
-        ToastModule,
-        TranslateDirective,
-        DropdownModule,
-        CalendarModule,
-        InputNumberModule,
-    ],
+    FaIconComponent,
+    FormsModule,
+    InputTextModule,
+    KeyFilterModule,
+    ReactiveFormsModule,
+    ToastModule,
+    TranslateDirective,
+    DropdownModule,
+    CalendarModule,
+    InputNumberModule
+],
     templateUrl: './form-transaction.component.html',
     styleUrl: './form-transaction.component.scss'
 })

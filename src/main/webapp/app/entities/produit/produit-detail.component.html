@@ -1,12 +1,12 @@
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-             size="medium"
-             type="timer"></ngx-spinner>
+  size="medium"
+type="timer"></ngx-spinner>
 <p-panel>
 
   <ng-template pTemplate="header">
     @if (produit) {
       <span class="font-bold"><span class="mr-2">{{ produit?.libelle }}</span>
-          <p-badge [value]="produit?.totalQuantity | number " severity="success"></p-badge></span>
+      <p-badge [value]="produit?.totalQuantity | number " severity="success"></p-badge></span>
     }
 
 
@@ -19,170 +19,174 @@
         <div class="p-inputgroup mr-1" style="width: 60%;">
           <span class="p-inputgroup-addon">PRODUITS</span>
           <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                          (onSelect)="onSelect($event)"
-                          [(ngModel)]="produit"
-                          [appendTo]="APPEND_TO"
-                          [autofocus]="true"
-                          [dataKey]="'id'"
-                          [dropdown]="true"
-                          [emptyMessage]="PRODUIT_NOT_FOUND"
-                          [inputStyle]="{'width':'100%'}"
-                          [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
-                          [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
+            (onSelect)="onSelect($event)"
+            [(ngModel)]="produit"
+            [appendTo]="APPEND_TO"
+            [autofocus]="true"
+            [dataKey]="'id'"
+            [dropdown]="true"
+            [emptyMessage]="PRODUIT_NOT_FOUND"
+            [inputStyle]="{'width':'100%'}"
+            [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showEmptyMessage]="true"
+            [style]="{'width':'100%'}" [suggestions]="produits" field="libelle">
 
             <ng-template let-item pTemplate="item">
 
-              <div *ngIf="item.totalQuantity>0">
-            <span
-              style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
-                <span class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
-              </div>
-              <div *ngIf="item.totalQuantity<=0">
-                                            <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
-                class="stockless"> {{ item.libelle }}</span> <span
+              @if (item.totalQuantity>0) {
+                <div>
+                  <span
+                    style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
+                    <span class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                  </div>
+                }
+                @if (item.totalQuantity<=0) {
+                  <div>
+                    <span class="stockless"
+                    style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
+                  class="stockless"> {{ item.libelle }}</span> <span
                 class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
               </div>
-            </ng-template>
+            }
+          </ng-template>
 
-          </p-autoComplete>
-
-        </div>
-        <label class="ml-2" for="startDate">Du&nbsp;</label>
-
-        <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                    [showButtonBar]="true"
-                    [showIcon]="true"
-                    class="ml-1"
-                    dateFormat="dd/mm/yy"
-                    id="startDate"></p-calendar>
-        <label class="ml-1" for="endDate">Au&nbsp;</label>
-        <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
-                    [showButtonBar]="true"
-                    [showIcon]="true"
-                    dateFormat="dd/mm/yy"
-                    id="endDate"></p-calendar>
-
+        </p-autoComplete>
 
       </div>
-      <div class="p-toolbar-group-right">
-        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-                  styleClass="p-button-info"></p-button>
+      <label class="ml-2" for="startDate">Du&nbsp;</label>
 
-        <button (click)="exportPdf()"
-                class="p-button-raised p-button-danger mr-1" pButton
-                type="button">
-          <fa-icon icon="file-pdf"></fa-icon>&nbsp;<span
-          jhiTranslate="entity.action.print">Imprimer</span>
-        </button>
-
-        <button (click)="previousState()" class="p-button-raised  p-button-secondary" pButton
-
-                type="button">
-          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-          jhiTranslate="entity.action.back">Back</span>
-        </button>
-      </div>
-
-    </p-toolbar>
-    <p-divider></p-divider>
-    <p-table
-      [scrollable]="true"
-      [value]="entites"
-      styleClass="p-datatable-gridlines">
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th rowspan="2">Date</th>
-          <th rowspan="2">Qté.init</th>
-          <th class="text-center" colspan="5">Sortie</th>
-          <th class="text-center" colspan="4">Entrée</th>
-          <th rowspan="2">Qté.inv</th>
-          <th rowspan="2">Ecart.inv</th>
-          <th rowspan="2">Stock</th>
-        </tr>
-        <tr>
-          <th>Vente</th>
-          <th>Retour.four</th>
-          <th>Qté.périmée</th>
-          <th>Qté.ajustée</th>
-          <th>Qté.décon</th>
-          <th>Qté.entrée</th>
-          <th>Qté.ajustée</th>
-          <th>Qté.décon</th>
-          <th>Qté.annullée</th>
+      <p-calendar [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+        [showButtonBar]="true"
+        [showIcon]="true"
+        class="ml-1"
+        dateFormat="dd/mm/yy"
+      id="startDate"></p-calendar>
+      <label class="ml-1" for="endDate">Au&nbsp;</label>
+      <p-calendar [(ngModel)]="toDate" [minDate]="fromDate" [selectOtherMonths]="true"
+        [showButtonBar]="true"
+        [showIcon]="true"
+        dateFormat="dd/mm/yy"
+      id="endDate"></p-calendar>
 
 
-        </tr>
-      </ng-template>
-      <ng-template let-columns="columns" let-elRow pTemplate="body">
-        <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-          <td class="text-center">{{ elRow.mvtDate |date: 'dd/MM/yyyy' }}</td>
-          <td class="text-right">{{ elRow.initStock | number }}</td>
-          <td class="text-right">{{ elRow.saleQuantity }}</td>
-          <td class="text-right">{{ elRow.retourFournisseurQuantity | number }}</td>
-          <td class="text-right">{{ elRow.perimeQuantity | number }}</td>
-          <td class="text-right">{{ elRow.ajustementNegatifQuantity | number }}</td>
-          <td class="text-right">{{ elRow.deconNegatifQuantity | number }}</td>
-          <td class="text-right">{{ elRow.deleveryQuantity | number }}</td>
-          <td class="text-right">{{ elRow.ajustementPositifQuantity | number }}</td>
-          <td class="text-right">{{ elRow.deconPositifQuantity | number }}</td>
-          <td class="text-right text-danger">{{ elRow.canceledQuantity | number }}</td>
-          <td class="text-right">{{ elRow.storeInventoryQuantity | number }}</td>
-          <td class="text-right">{{ elRow.inventoryGap | number }}</td>
-          <td class="text-right">{{ elRow.afterStock | number }}</td>
+    </div>
+    <div class="p-toolbar-group-right">
+      <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+      styleClass="p-button-info"></p-button>
+
+      <button (click)="exportPdf()"
+        class="p-button-raised p-button-danger mr-1" pButton
+        type="button">
+        <fa-icon icon="file-pdf"></fa-icon>&nbsp;<span
+      jhiTranslate="entity.action.print">Imprimer</span>
+    </button>
+
+    <button (click)="previousState()" class="p-button-raised  p-button-secondary" pButton
+
+      type="button">
+      <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+    jhiTranslate="entity.action.back">Back</span>
+  </button>
+</div>
+
+</p-toolbar>
+<p-divider></p-divider>
+<p-table
+  [scrollable]="true"
+  [value]="entites"
+  styleClass="p-datatable-gridlines">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th rowspan="2">Date</th>
+      <th rowspan="2">Qté.init</th>
+      <th class="text-center" colspan="5">Sortie</th>
+      <th class="text-center" colspan="4">Entrée</th>
+      <th rowspan="2">Qté.inv</th>
+      <th rowspan="2">Ecart.inv</th>
+      <th rowspan="2">Stock</th>
+    </tr>
+    <tr>
+      <th>Vente</th>
+      <th>Retour.four</th>
+      <th>Qté.périmée</th>
+      <th>Qté.ajustée</th>
+      <th>Qté.décon</th>
+      <th>Qté.entrée</th>
+      <th>Qté.ajustée</th>
+      <th>Qté.décon</th>
+      <th>Qté.annullée</th>
 
 
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="footer">
-        @if (entites && entites.length > 0) {
-          <tr>
-            <td colspan="2">
-              TOTAUX
-            </td>
-            <td class="text-right">
-              {{ saleQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ retourFournisseurQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ perimeQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ ajustementNegatifQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ deconNegatifQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ deleveryQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ ajustementPositifQuantity | number }}
-            </td>
-            <td class="text-right">
-              {{ deconPositifQuantity | number }}
-            </td>
-            <td class="text-right text-danger">
-              {{ canceledQuantity | number }}
-            </td>
-            <td colspan="3"></td>
-          </tr>
-        }
-      </ng-template>
-      <ng-template let-columns pTemplate="emptymessage">
-        <tr>
-          <td [attr.colspan]="14">
-            Aucune donnée trouvée
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </tr>
+  </ng-template>
+  <ng-template let-columns="columns" let-elRow pTemplate="body">
+    <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+      <td class="text-center">{{ elRow.mvtDate |date: 'dd/MM/yyyy' }}</td>
+      <td class="text-right">{{ elRow.initStock | number }}</td>
+      <td class="text-right">{{ elRow.saleQuantity }}</td>
+      <td class="text-right">{{ elRow.retourFournisseurQuantity | number }}</td>
+      <td class="text-right">{{ elRow.perimeQuantity | number }}</td>
+      <td class="text-right">{{ elRow.ajustementNegatifQuantity | number }}</td>
+      <td class="text-right">{{ elRow.deconNegatifQuantity | number }}</td>
+      <td class="text-right">{{ elRow.deleveryQuantity | number }}</td>
+      <td class="text-right">{{ elRow.ajustementPositifQuantity | number }}</td>
+      <td class="text-right">{{ elRow.deconPositifQuantity | number }}</td>
+      <td class="text-right text-danger">{{ elRow.canceledQuantity | number }}</td>
+      <td class="text-right">{{ elRow.storeInventoryQuantity | number }}</td>
+      <td class="text-right">{{ elRow.inventoryGap | number }}</td>
+      <td class="text-right">{{ elRow.afterStock | number }}</td>
 
 
-  </div>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    @if (entites && entites.length > 0) {
+      <tr>
+        <td colspan="2">
+          TOTAUX
+        </td>
+        <td class="text-right">
+          {{ saleQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ retourFournisseurQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ perimeQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ ajustementNegatifQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ deconNegatifQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ deleveryQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ ajustementPositifQuantity | number }}
+        </td>
+        <td class="text-right">
+          {{ deconPositifQuantity | number }}
+        </td>
+        <td class="text-right text-danger">
+          {{ canceledQuantity | number }}
+        </td>
+        <td colspan="3"></td>
+      </tr>
+    }
+  </ng-template>
+  <ng-template let-columns pTemplate="emptymessage">
+    <tr>
+      <td [attr.colspan]="14">
+        Aucune donnée trouvée
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+
+</div>
 
 </p-panel>
 

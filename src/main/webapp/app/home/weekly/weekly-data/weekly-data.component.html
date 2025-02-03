@@ -8,23 +8,23 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           TTC
           <span
-            class="badge bg-primary rounded-pill">{{venteRecord?.salesAmount | number}}</span>
+          class="badge bg-primary rounded-pill">{{venteRecord?.salesAmount | number}}</span>
 
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           HT
           <span
-            class="badge bg-success rounded-pill">{{venteRecord?.htAmount | number}}</span>
+          class="badge bg-success rounded-pill">{{venteRecord?.htAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           TVA
           <span
-            class="badge bg-info rounded-pill">{{venteRecord?.taxAmount | number}}</span>
+          class="badge bg-info rounded-pill">{{venteRecord?.taxAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nbre de ventes
           <span
-            class="badge bg-warning rounded-pill">{{venteRecord?.saleCount | number}}</span>
+          class="badge bg-warning rounded-pill">{{venteRecord?.saleCount | number}}</span>
         </li>
 
       </ul>
@@ -39,23 +39,23 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Remise
           <span
-            class="badge bg-primary rounded-pill">{{venteRecord?.discountAmount | number}}</span>
+          class="badge bg-primary rounded-pill">{{venteRecord?.discountAmount | number}}</span>
 
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Net
           <span
-            class="badge bg-success rounded-pill">{{venteRecord?.netAmount | number}}</span>
+          class="badge bg-success rounded-pill">{{venteRecord?.netAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Comptant
           <span
-            class="badge bg-primary rounded-pill">{{venteRecord?.paidAmount | number}}</span>
+          class="badge bg-primary rounded-pill">{{venteRecord?.paidAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nbre Crédit
           <span
-            class="badge bg-danger rounded-pill">{{venteRecord?.restToPay | number}}</span>
+          class="badge bg-danger rounded-pill">{{venteRecord?.restToPay | number}}</span>
         </li>
 
       </ul>
@@ -67,13 +67,14 @@
     </div>
     <div class="card-body bg-transparent card-item">
       <ul class="list-group">
-        <li *ngFor="let mode of venteModePaiments"
+        @for (mode of venteModePaiments; track mode) {
+          <li
             class="list-group-item d-flex justify-content-between align-items-center">
-          {{mode.libelle}}
-          <span
+            {{mode.libelle}}
+            <span
             class="badge bg-primary rounded-pill">{{mode?.paidAmount | number}}</span>
-
-        </li>
+          </li>
+        }
 
 
       </ul>
@@ -88,23 +89,23 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Comptant
           <span
-            class="badge bg-primary rounded-pill">{{vno?.salesAmount | number}}</span>
+          class="badge bg-primary rounded-pill">{{vno?.salesAmount | number}}</span>
 
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Crédit
           <span
-            class="badge bg-danger rounded-pill">{{assurance?.salesAmount | number}}</span>
+          class="badge bg-danger rounded-pill">{{assurance?.salesAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Annulation
           <span
-            class="badge bg-danger rounded-pill">{{canceled?.salesAmount | number}}</span>
+          class="badge bg-danger rounded-pill">{{canceled?.salesAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nbre annulation
           <span
-            class="badge bg-danger rounded-pill">{{canceled?.saleCount | number}}</span>
+          class="badge bg-danger rounded-pill">{{canceled?.saleCount | number}}</span>
         </li>
 
       </ul>
@@ -119,23 +120,23 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           TTC
           <span
-            class="badge bg-primary rounded-pill">{{achatRecord?.receiptAmount | number}}</span>
+          class="badge bg-primary rounded-pill">{{achatRecord?.receiptAmount | number}}</span>
 
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           HT
           <span
-            class="badge bg-success rounded-pill">{{achatRecord?.netAmount | number}}</span>
+          class="badge bg-success rounded-pill">{{achatRecord?.netAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           TVA
           <span
-            class="badge bg-info rounded-pill">{{achatRecord?.taxAmount | number}}</span>
+          class="badge bg-info rounded-pill">{{achatRecord?.taxAmount | number}}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nbre d'achat
           <span
-            class="badge bg-warning rounded-pill">{{achatRecord?.achatCount | number}}</span>
+          class="badge bg-warning rounded-pill">{{achatRecord?.achatCount | number}}</span>
         </li>
 
       </ul>
@@ -143,17 +144,17 @@
   </div>
 </div>
 <hr>
-<div class="row ca-data">
-  <div class="card col-md-6 ">
-    <div class="card-header bg-primary text-white">
+  <div class="row ca-data">
+    <div class="card col-md-6 ">
+      <div class="card-header bg-primary text-white">
 
-          <span style="font-width:9000;"><span>  <fa-icon
-            [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
-            <p-dropdown (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY"
-                        [options]="tops"
-                        optionLabel="label"></p-dropdown>
-            <span class="card-header-board"> des ventes en quantité</span>
-          </span>
+        <span style="font-width:9000;"><span>  <fa-icon
+        [icon]="faChartArea"></fa-icon>&nbsp;&nbsp;</span>
+        <p-dropdown (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY"
+          [options]="tops"
+        optionLabel="label"></p-dropdown>
+        <span class="card-header-board"> des ventes en quantité</span>
+      </span>
     </div>
     <div class="card-body">
       <p-table [scrollable]="true" [value]="rowQuantity" scrollHeight="400px">
@@ -190,14 +191,14 @@
   <div class="card col col-md-6">
     <div class="card-header bg-warning text-white">
 
-          <span style="font-width:9000;"><span>
-                                <fa-icon
-                                  [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
-                            </span>
-            <p-dropdown (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT"
-                        [options]="tops"
-                        optionLabel="label"></p-dropdown> <span class="card-header-board">des articles en valeur vente</span>
-          </span>
+      <span style="font-width:9000;"><span>
+        <fa-icon
+        [icon]="faChartBar"></fa-icon>&nbsp;&nbsp;
+      </span>
+      <p-dropdown (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT"
+        [options]="tops"
+        optionLabel="label"></p-dropdown> <span class="card-header-board">des articles en valeur vente</span>
+      </span>
     </div>
     <div class="card-body">
       <p-table [scrollable]="true" [value]="rowAmount" scrollHeight="400px">
@@ -234,61 +235,61 @@
 
 </div>
 <hr>
-<div class="row ca-data">
-  <div class="card col-md-7 ag-theme-card-item">
-    <div class="card-header bg-info text-white">
+  <div class="row ca-data">
+    <div class="card col-md-7 ag-theme-card-item">
+      <div class="card-header bg-info text-white">
 
-          <span style="font-width:9000;"><span><fa-icon
-            [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span> <span class="card-header-board">Les 20/80 du chiffre d'affaire</span>
-          </span>
+        <span style="font-width:9000;"><span><fa-icon
+          [icon]="faChartLine"></fa-icon>&nbsp;&nbsp;</span> <span class="card-header-board">Les 20/80 du chiffre d'affaire</span>
+        </span>
+      </div>
+      <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Cip</th>
+            <th>Libellé</th>
+            <th>Quantité</th>
+            <th>%Qté</th>
+            <th>Montant</th>
+            <th>%</th>
+          </tr>
+        </ng-template>
+        <ng-template let-produit pTemplate="body">
+          <tr>
+            <td>{{produit.codeCip}}</td>
+            <td>{{produit.libelle}}</td>
+            <td class="text-right">{{produit.quantitySold | number}}</td>
+            <td class="text-right highlight-col">{{produit.quantityAvg}}</td>
+            <td class="text-right">{{produit.htAmount | number}}</td>
+            <td class="text-right highlight-col">{{produit.amountAvg}}</td>
+
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr>
+
+            <td class="text-right" colspan="3">{{totalQuantity20x80 | number}}</td>
+            <td class="text-right">{{totalQuantityAvg | number}}</td>
+            <td class="text-right">{{totalAmount20x80 | number}}</td>
+            <td class="text-right">{{totalAmountAvg | number}}</td>
+
+          </tr>
+        </ng-template>
+      </p-table>
+
     </div>
-    <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Cip</th>
-          <th>Libellé</th>
-          <th>Quantité</th>
-          <th>%Qté</th>
-          <th>Montant</th>
-          <th>%</th>
-        </tr>
-      </ng-template>
-      <ng-template let-produit pTemplate="body">
-        <tr>
-          <td>{{produit.codeCip}}</td>
-          <td>{{produit.libelle}}</td>
-          <td class="text-right">{{produit.quantitySold | number}}</td>
-          <td class="text-right highlight-col">{{produit.quantityAvg}}</td>
-          <td class="text-right">{{produit.htAmount | number}}</td>
-          <td class="text-right highlight-col">{{produit.amountAvg}}</td>
+    <div class="card col-md-5 ag-theme-card-item">
+      <div class="card-header bg-success text-white">
+        <span style="font-width:9000;"><span> <fa-icon
+        [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;
 
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="footer">
-        <tr>
+        <p-dropdown (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP"
+          [options]="tops"
+          optionLabel="label"></p-dropdown> <span class="card-header-board">Ventes par tiers-payant</span>
 
-          <td class="text-right" colspan="3">{{totalQuantity20x80 | number}}</td>
-          <td class="text-right">{{totalQuantityAvg | number}}</td>
-          <td class="text-right">{{totalAmount20x80 | number}}</td>
-          <td class="text-right">{{totalAmountAvg | number}}</td>
+        </span>
 
-        </tr>
-      </ng-template>
-    </p-table>
-
-  </div>
-  <div class="card col-md-5 ag-theme-card-item">
-    <div class="card-header bg-success text-white">
-          <span style="font-width:9000;"><span> <fa-icon
-            [icon]="faChartPie"></fa-icon>&nbsp;&nbsp;
-
-           <p-dropdown (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP"
-                       [options]="tops"
-                       optionLabel="label"></p-dropdown> <span class="card-header-board">Ventes par tiers-payant</span>
-
-          </span>
-
-          </span>
+      </span>
     </div>
     <div class="card-body ag-theme-alpine" style="min-height:300px;">
 

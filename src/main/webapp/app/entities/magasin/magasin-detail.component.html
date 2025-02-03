@@ -1,8 +1,9 @@
 <div class="row justify-content-center">
   <div class="col-8 magasin-detail">
     <p-panel>
-      <div *ngIf="magasin">
-        <h2><span jhiTranslate="warehouseApp.magasin.detail.title">Magasin</span> {{ magasin.id }}
+      @if (magasin) {
+        <div>
+          <h2><span jhiTranslate="warehouseApp.magasin.detail.title">Magasin</span> {{ magasin.id }}
         </h2>
         <dl class="row-md jh-entity-details">
           <dt><span jhiTranslate="warehouseApp.magasin.name">Name</span></dt>
@@ -30,22 +31,21 @@
             <span>{{ magasin.registre }}</span>
           </dd>
         </dl>
-
         <button (click)="previousState()"
-                class="btn btn-info"
-                type="submit">
+          class="btn btn-info"
+          type="submit">
           <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-          jhiTranslate="entity.action.back">Back</span>
-        </button>
-
-        <button [routerLink]="['/magasin', magasin.id, 'edit']"
-                class="btn btn-primary"
-                type="button">
-          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span
-          jhiTranslate="entity.action.edit">Edit</span>
-        </button>
-      </div>
-    </p-panel>
-
+        jhiTranslate="entity.action.back">Back</span>
+      </button>
+      <button [routerLink]="['/magasin', magasin.id, 'edit']"
+        class="btn btn-primary"
+        type="button">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span
+      jhiTranslate="entity.action.edit">Edit</span>
+    </button>
   </div>
+}
+</p-panel>
+
+</div>
 </div>

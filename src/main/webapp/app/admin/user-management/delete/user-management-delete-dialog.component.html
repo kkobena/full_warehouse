@@ -1,27 +1,24 @@
-<form (ngSubmit)="confirmDelete(user.login!)" *ngIf="user" name="deleteForm">
-  <div class="modal-header">
-    <h4 class="modal-title" jhiTranslate="entity.delete.title">Confirmation de suppression</h4>
-
-    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-            type="button">&times;
-    </button>
-  </div>
-
-  <div class="modal-body">
-    <jhi-alert-error></jhi-alert-error>
-
-    <p [translateValues]="{ login: user.login }" jhiTranslate="userManagement.delete.question">
-      Etes-vous certain de vouloir supprimer l'utilisateur {{ user.login }} ?
-    </p>
-  </div>
-
-  <div class="modal-footer">
-    <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
-      <fa-icon icon="ban"></fa-icon>&nbsp;<span>Annuler</span>
-    </button>
-
-    <button class="btn btn-danger" type="submit">
-      <fa-icon icon="times"></fa-icon>&nbsp;<span>Supprimer</span>
-    </button>
-  </div>
-</form>
+@if (user) {
+  <form (ngSubmit)="confirmDelete(user.login!)" name="deleteForm">
+    <div class="modal-header">
+      <h4 class="modal-title" jhiTranslate="entity.delete.title">Confirmation de suppression</h4>
+      <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+        type="button">&times;
+      </button>
+    </div>
+    <div class="modal-body">
+      <jhi-alert-error></jhi-alert-error>
+      <p [translateValues]="{ login: user.login }" jhiTranslate="userManagement.delete.question">
+        Etes-vous certain de vouloir supprimer l'utilisateur {{ user.login }} ?
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button (click)="cancel()" class="btn btn-secondary" data-dismiss="modal" type="button">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Annuler</span>
+      </button>
+      <button class="btn btn-danger" type="submit">
+        <fa-icon icon="times"></fa-icon>&nbsp;<span>Supprimer</span>
+      </button>
+    </div>
+  </form>
+}

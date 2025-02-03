@@ -10,31 +10,34 @@
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Libellé<span
-          style="font-weight: 900;color: red;">*</span></label>
+        style="font-weight: 900;color: red;">*</span></label>
         <input autocomplete="off" class="form-control" formControlName="libelle" name="libelle"
-               pInputText
-               type="text" />
-        <div
-          *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
-          <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
-            Ce champ est obligatoire.
-          </small>
-
+          pInputText
+          type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+            <div
+              >
+              @if (editForm.get('libelle')?.errors?.required) {
+                <small class="form-text text-danger"
+                  style="color: red;">
+                  Ce champ est obligatoire.
+                </small>
+              }
+            </div>
+          }
         </div>
       </div>
+
+
+    </div>
+    <div style="float: right;margin-top:15px;">
+      <p-button [disabled]="editForm.invalid || isSaving" [raised]="true" class=" p-mr-2 "
+        icon="pi pi-check"
+      label="Enregistrer" severity="success" type="submit"></p-button>
+      <p-button (click)="cancel()" [raised]="true" class="p-mr-2 " icon="pi pi-times" label="Annuler"
+
+      severity="danger" type="button"></p-button>
     </div>
 
-
-  </div>
-  <div style="float: right;margin-top:15px;">
-    <p-button [disabled]="editForm.invalid || isSaving" [raised]="true" class=" p-mr-2 "
-              icon="pi pi-check"
-              label="Enregistrer" severity="success" type="submit"></p-button>
-    <p-button (click)="cancel()" [raised]="true" class="p-mr-2 " icon="pi pi-times" label="Annuler"
-
-              severity="danger" type="button"></p-button>
-  </div>
-
-</form>
+  </form>
 

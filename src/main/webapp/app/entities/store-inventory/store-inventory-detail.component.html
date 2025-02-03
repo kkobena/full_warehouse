@@ -1,6 +1,6 @@
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-             size="medium"
-             type="timer"></ngx-spinner>
+  size="medium"
+type="timer"></ngx-spinner>
 <div class="row justify-content-center">
   <div class="col-3">
     <div class="card">
@@ -16,37 +16,39 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px;">Date</span>
             <span
-              class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
+            class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
-          <li *ngIf="storeInventory.inventoryCategory.name==='RAYON'"
+          @if (storeInventory.inventoryCategory.name==='RAYON') {
+            <li
               class="list-group-item d-flex justify-content-between align-items-center">
-            Rayon
-            <span class="text-primary fw-bold">{{ storeInventory?.rayon?.libelle }}</span>
-          </li>
+              Rayon
+              <span class="text-primary fw-bold">{{ storeInventory?.rayon?.libelle }}</span>
+            </li>
+          }
 
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Avant
             <span
-              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostBegin | number }}</span>
+            class="text-primary fw-bold">{{ storeInventory.inventoryValueCostBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Après
             <span
-              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostAfter | number }}</span>
+            class="text-primary fw-bold">{{ storeInventory.inventoryValueCostAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Avent
             <span
-              class="text-primary fw-bold">{{ storeInventory.inventoryAmountBegin | number }}</span>
+            class="text-primary fw-bold">{{ storeInventory.inventoryAmountBegin | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Après
             <span
-              class="text-primary fw-bold">{{ storeInventory.inventoryAmountAfter | number }}</span>
+            class="text-primary fw-bold">{{ storeInventory.inventoryAmountAfter | number }}</span>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center">
@@ -69,121 +71,125 @@
         Filtre
       </div>
       <div class="card-body">
-        <div *ngIf="storeInventory.inventoryCategory.name==='MAGASIN'" class="row">
-          <label>Emplacements</label>
-          <p-select (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
-                    [appendTo]="APPEND_TO"
-                    [filter]="false"
-                    [options]="storages"
-                    [showClear]="true"
-                    [style]="{'width':'100%'}"
-                    optionLabel="name" placeholder="Séléctionner un emplacement"
-          >
-          </p-select>
-        </div>
-        <div *ngIf="storeInventory.inventoryCategory.name!=='RAYON'" class="row"
-             style="margin-top: 0.5rem;">
-          <label>Rayons</label>
-          <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
-                          (onClear)="onClear()"
-                          (onSelect)="onSelect()"
-                          [(ngModel)]="selectedRayon"
-                          [appendTo]="APPEND_TO"
-                          [dataKey]="'id'"
-                          [dropdown]="true"
-                          [emptyMessage]="NOT_FOUND"
-                          [inputStyle]="{'width':'100%'}"
-                          [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
-                          [showEmptyMessage]="true"
-                          [style]="{'width':'100%'}" [suggestions]="rayons"
-                          optionLabel="libelle"></p-autoComplete>
-        </div>
+        @if (storeInventory.inventoryCategory.name==='MAGASIN') {
+          <div class="row">
+            <label>Emplacements</label>
+            <p-select (onChange)="onSelectStrorage($event)" [(ngModel)]="selectedStorage"
+              [appendTo]="APPEND_TO"
+              [filter]="false"
+              [options]="storages"
+              [showClear]="true"
+              [style]="{'width':'100%'}"
+              optionLabel="name" placeholder="Séléctionner un emplacement"
+              >
+            </p-select>
+          </div>
+        }
+        @if (storeInventory.inventoryCategory.name!=='RAYON') {
+          <div class="row"
+            style="margin-top: 0.5rem;">
+            <label>Rayons</label>
+            <p-autoComplete #rayonbox (completeMethod)="searchFn($event)"
+              (onClear)="onClear()"
+              (onSelect)="onSelect()"
+              [(ngModel)]="selectedRayon"
+              [appendTo]="APPEND_TO"
+              [dataKey]="'id'"
+              [dropdown]="true"
+              [emptyMessage]="NOT_FOUND"
+              [inputStyle]="{'width':'100%'}"
+              [minLength]="PRODUIT_COMBO_MIN_LENGTH" [showClear]="true"
+              [showEmptyMessage]="true"
+              [style]="{'width':'100%'}" [suggestions]="rayons"
+            optionLabel="libelle"></p-autoComplete>
+          </div>
+        }
 
 
         <div class="row" style="margin-top: 0.5rem;">
           <label>Filtrer par</label>
           <p-select (onChange)="onFilter()" [(ngModel)]="selectedfiltres"
-                    [appendTo]="APPEND_TO"
-                    [filter]="false"
-                    [options]="filtres"
-                    [showClear]="true"
-                    [style]="{'width':'100%'}"
-                    optionLabel="label" placeholder="Filtrer par"
-          >
+            [appendTo]="APPEND_TO"
+            [filter]="false"
+            [options]="filtres"
+            [showClear]="true"
+            [style]="{'width':'100%'}"
+            optionLabel="label" placeholder="Filtrer par"
+            >
           </p-select>
         </div>
 
         <div class="row text-center" style="margin-top: 0.5rem;">
-                   <span class="p-buttonset justify-content-center">
+          <span class="p-buttonset justify-content-center">
 
-                  <p-button (click)="exportPdf()" icon="pi pi-file-pdf"
-                            label="Imprimer"
-                            raised="true" severity="warn" />
+            <p-button (click)="exportPdf()" icon="pi pi-file-pdf"
+              label="Imprimer"
+              raised="true" severity="warn" />
 
 
-                   <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                             raised="true"
-                             severity="secondary"
-                   />
-                </span>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-  <div class="col-md-9 row">
-
-    <p-table
-
-      [paginator]="true"
-
-      [rowsPerPageOptions]="[5,10,15,20,30,50]"
-      [rows]="itemsPerPage" [showCurrentPageReport]="false"
-      [totalRecords]="totalItems"
-      [value]="storeInventoryLines"
-      dataKey="id"
-      selectionMode="multiple"
-      styleClass="p-datatable-striped mt-2"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Cip</th>
-          <th>Libellé</th>
-          <th>Prix Achat</th>
-          <th>Prix Unitaire</th>
-          <th>Quantité initiale</th>
-          <th>Quantité saisie</th>
-          <th>Ecart</th>
-          <th>Ecart Achat</th>
-          <th>Ecart Vente</th>
-          <th style="width:5%"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-storeInventory pTemplate="body">
-        <tr>
-          <td>{{ storeInventory.produitCip }}</td>
-          <td>{{ storeInventory.produitLibelle }}</td>
-          <td class="text-right">{{ storeInventory.prixAchat | number }}</td>
-          <td class="text-right">{{ storeInventory.prixUni | number }}</td>
-          <td class="text-right">{{ storeInventory.quantityInit | number }}</td>
-          <td class="text-right">{{ storeInventory.quantityOnHand | number }}</td>
-          <td class="text-right">{{ storeInventory.gap  | number }}</td>
-          <td class="text-right">{{ storeInventory.gap * storeInventory.prixAchat | number }}</td>
-          <td class="text-right">{{ storeInventory.gap * storeInventory.prixUni | number }}</td>
-          <td class="text-right">
-            <div class="btn-group">
-
-              <p-button [routerLink]="['/produit', storeInventory.produitId, 'view']"
-                        icon="pi pi-eye" pTooltip="Voir" rounded="true" severity="info"
-                        size="small" />
-
+              <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
+                raised="true"
+                severity="secondary"
+                />
+              </span>
             </div>
-          </td>
-        </tr>
-      </ng-template>
 
-    </p-table>
+          </div>
 
-  </div>
-</div>
+        </div>
+      </div>
+      <div class="col-md-9 row">
+
+        <p-table
+
+          [paginator]="true"
+
+          [rowsPerPageOptions]="[5,10,15,20,30,50]"
+          [rows]="itemsPerPage" [showCurrentPageReport]="false"
+          [totalRecords]="totalItems"
+          [value]="storeInventoryLines"
+          dataKey="id"
+          selectionMode="multiple"
+          styleClass="p-datatable-striped mt-2"
+          >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Cip</th>
+              <th>Libellé</th>
+              <th>Prix Achat</th>
+              <th>Prix Unitaire</th>
+              <th>Quantité initiale</th>
+              <th>Quantité saisie</th>
+              <th>Ecart</th>
+              <th>Ecart Achat</th>
+              <th>Ecart Vente</th>
+              <th style="width:5%"></th>
+            </tr>
+          </ng-template>
+          <ng-template let-storeInventory pTemplate="body">
+            <tr>
+              <td>{{ storeInventory.produitCip }}</td>
+              <td>{{ storeInventory.produitLibelle }}</td>
+              <td class="text-right">{{ storeInventory.prixAchat | number }}</td>
+              <td class="text-right">{{ storeInventory.prixUni | number }}</td>
+              <td class="text-right">{{ storeInventory.quantityInit | number }}</td>
+              <td class="text-right">{{ storeInventory.quantityOnHand | number }}</td>
+              <td class="text-right">{{ storeInventory.gap  | number }}</td>
+              <td class="text-right">{{ storeInventory.gap * storeInventory.prixAchat | number }}</td>
+              <td class="text-right">{{ storeInventory.gap * storeInventory.prixUni | number }}</td>
+              <td class="text-right">
+                <div class="btn-group">
+
+                  <p-button [routerLink]="['/produit', storeInventory.produitId, 'view']"
+                    icon="pi pi-eye" pTooltip="Voir" rounded="true" severity="info"
+                    size="small" />
+
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+          </p-table>
+
+        </div>
+      </div>

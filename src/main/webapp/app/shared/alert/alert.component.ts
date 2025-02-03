@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AlertService, Alert } from 'app/core/util/alert.service';
@@ -7,7 +7,7 @@ import { AlertService, Alert } from 'app/core/util/alert.service';
 @Component({
     selector: 'jhi-alert',
     templateUrl: './alert.component.html',
-    imports: [CommonModule, NgbModule]
+    imports: [NgbModule]
 })
 export class AlertComponent implements OnInit, OnDestroy {
   alerts = signal<Alert[]>([]);

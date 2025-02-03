@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -12,7 +12,7 @@ import { AlertError } from './alert-error.model';
 @Component({
     selector: 'jhi-alert-error',
     templateUrl: './alert-error.component.html',
-    imports: [CommonModule, NgbModule]
+    imports: [NgbModule]
 })
 export class AlertErrorComponent implements OnDestroy {
   alerts = signal<Alert[]>([]);

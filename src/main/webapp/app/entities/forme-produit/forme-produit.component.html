@@ -7,8 +7,8 @@
     <h2 id="page-heading">
       <span jhiTranslate="warehouseApp.formeProduit.home.title">Liste des formes de produit</span>
       <p-button (click)="addNewEntity()" class="float-right jh-create-entity" icon="pi pi-plus"
-                id="jh-create-entity"
-                label="Nouvelle forme de produit">
+        id="jh-create-entity"
+        label="Nouvelle forme de produit">
 
       </p-button>
     </h2>
@@ -21,14 +21,14 @@
 
     @if (entites && entites.length > 0) {
       <p-table (onLazyLoad)="lazyLoading($event)"
-               [(selection)]="selectedEl" [lazy]="true"
-               [loading]="loading" [paginator]="true" [rows]="itemsPerPage"
-               [totalRecords]="totalItems"
-               [value]="entites"
-               dataKey="id"
-               selectionMode="single"
-               styleClass="ui-table-cars"
-      >
+        [(selection)]="selectedEl" [lazy]="true"
+        [loading]="loading" [paginator]="true" [rows]="itemsPerPage"
+        [totalRecords]="totalItems"
+        [value]="entites"
+        dataKey="id"
+        selectionMode="single"
+        styleClass="ui-table-cars"
+        >
         <ng-template pTemplate="header">
           <tr>
             <th scope="col"><span>Libellé</span></th>
@@ -40,8 +40,8 @@
             <td>{{ elRow.libelle }}</td>
             <td class="text-right">
               <p-button (click)="onEdit(elRow)" size="small"
-                        severity="success" label="Modifier" icon="pi pi-pencil"
-              >
+                severity="success" label="Modifier" icon="pi pi-pencil"
+                >
 
 
               </p-button>
@@ -49,7 +49,7 @@
               <p-button
                 (click)="delete(elRow)"
                 size="small" severity="danger" label="Supprimer" icon="pi pi-times"
-              >
+                >
               </p-button>
             </td>
           </tr>
@@ -74,7 +74,7 @@
     [modal]="true"
     [style]="{width: '400px'}"
     header="Créer ou éditer une de produit"
-  >
+    >
 
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
 
@@ -86,35 +86,38 @@
 
       <label for="field_libelle">Libellé</label>
       <div class="p-field p-col" style="margin-bottom:10px">
-                <textarea class="form-control" formControlName="libelle" id="field_libelle"
-                          name="libelle"
-                          pTextarea style="width: 100%;">
-            </textarea>
+        <textarea class="form-control" formControlName="libelle" id="field_libelle"
+          name="libelle"
+          pTextarea style="width: 100%;">
+        </textarea>
       </div>
-      <div
-        *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
-        <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger"
-               style="color: red;">
-          Ce champ est obligatoire.
-        </small>
-
-      </div>
+      @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+        <div
+          >
+          @if (editForm.get('libelle')?.errors?.required) {
+            <small class="form-text text-danger"
+              style="color: red;">
+              Ce champ est obligatoire.
+            </small>
+          }
+        </div>
+      }
 
     </div>
 
     <ng-template #footer>
 
       <p-button [disabled]="editForm.invalid || isSaving"
-                [raised]="true" icon="pi pi-check"
+        [raised]="true" icon="pi pi-check"
 
-                label="Enregistrer" severity="success"
-                type="submit"></p-button>
+        label="Enregistrer" severity="success"
+      type="submit"></p-button>
       <p-button (click)="cancel()" [raised]="true"
-                class="p-mr-2 "
+        class="p-mr-2 "
 
-                icon="pi pi-times"
-                label="Annuler"
-                severity="danger" type="button"></p-button>
+        icon="pi pi-times"
+        label="Annuler"
+      severity="danger" type="button"></p-button>
 
     </ng-template>
   </p-dialog>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -7,7 +7,7 @@ import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 
 @Component({
-  imports: [CommonModule, FontAwesomeModule, NgbTooltipModule, Button, Tooltip],
+  imports: [FontAwesomeModule, NgbTooltipModule, Button, Tooltip],
   selector: 'jhi-commande-btn',
   template: `
     <div class="btn-group btn-group-sm" role="group">

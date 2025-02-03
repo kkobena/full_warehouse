@@ -15,7 +15,7 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { getTypeVentes, MvtCaisseParams } from '../mvt-caisse-util';
 import { TaxeWrapper } from './taxe-report.model';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { CommonModule } from '@angular/common';
+
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ChartModule } from 'primeng/chart';
 import { DoughnutChart } from '../../../shared/model/doughnut-chart.model';
@@ -34,7 +34,6 @@ import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils
   providers: [MessageService, ConfirmationService],
   imports: [
     Button,
-    CommonModule,
     DropdownModule,
     InputTextModule,
     MultiSelectModule,
@@ -49,8 +48,8 @@ import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils
     FormsModule,
     FloatLabel,
     DatePickerModule,
-    Select,
-  ],
+    Select
+],
   templateUrl: './taxe-report.component.html',
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {

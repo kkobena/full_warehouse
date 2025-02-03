@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
@@ -36,7 +35,6 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
   imports: [
     WarehouseCommonModule,
     Button,
-    DropdownModule,
     InputTextModule,
     MultiSelectModule,
     PaginatorModule,

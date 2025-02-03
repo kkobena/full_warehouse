@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, input, OnInit, Output, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal, viewChild, output } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -69,7 +69,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   errorService = inject(ErrorService);
   reglementService = inject(ReglementService);
   factureService = inject(FactureService);
-  @Output() selectedFacture = new EventEmitter<SelectedFacture>();
+  readonly selectedFacture = output<SelectedFacture>();
   update = computed(() => {
     if (this.montantAPayer()) {
       this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());

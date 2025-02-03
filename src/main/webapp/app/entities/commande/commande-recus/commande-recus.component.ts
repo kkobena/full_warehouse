@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, input } from '@angular/core';
+import { Component, OnInit, input, output } from '@angular/core';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -33,7 +33,7 @@ export type ExpandMode = 'single' | 'multiple';
 export class CommandeRecusComponent implements OnInit {
   readonly search = input('');
   readonly searchByRef = input('');
-  @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
+  readonly selectionLength = output<number>();
   protected deliveries: IDelivery[] = [];
   protected totalItems = 0;
   protected page = 0;

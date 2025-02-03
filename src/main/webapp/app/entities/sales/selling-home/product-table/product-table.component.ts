@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, EventEmitter, inject, Output, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, viewChild, output } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -48,11 +48,11 @@ import { Select } from 'primeng/select';
 })
 export class ProductTableComponent {
   sale: ISales;
-  @Output() itemQtySoldEvent = new EventEmitter<ISalesLine>();
-  @Output() itemPriceEvent = new EventEmitter<ISalesLine>();
-  @Output() deleteItemEvent = new EventEmitter<ISalesLine>();
-  @Output() itemQtyRequestedEvent = new EventEmitter<ISalesLine>();
-  @Output() addRemiseEvent = new EventEmitter<Remise>(null);
+  readonly itemQtySoldEvent = output<ISalesLine>();
+  readonly itemPriceEvent = output<ISalesLine>();
+  readonly deleteItemEvent = output<ISalesLine>();
+  readonly itemQtyRequestedEvent = output<ISalesLine>();
+  readonly addRemiseEvent = output<Remise>();
   forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
   hasAuthorityService = inject(HasAuthorityService);
   canModifiePrice: boolean;

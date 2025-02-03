@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Inject, OnInit, Output, signal, viewChild, input } from '@angular/core';
+import { Component, ElementRef, inject, Inject, OnInit, signal, viewChild, input, output } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -36,9 +36,9 @@ import { InputGroupModule } from 'primeng/inputgroup';
 })
 export class ModeReglementComponent implements OnInit {
   readonly showModeReglementCard = input<boolean>(true);
-  @Output() paymentModeControlEvent = new EventEmitter<PaymentModeControl>();
-  @Output() onSaveEvent = new EventEmitter<boolean>();
-  @Output() onCloseEvent = new EventEmitter<boolean>();
+  readonly paymentModeControlEvent = output<PaymentModeControl>();
+  readonly onSaveEvent = output<boolean>();
+  readonly onCloseEvent = output<boolean>();
   readonly isDiffere = input<boolean>(true);
   showInfosComplementaireReglementCard: boolean = false;
   showInfosBancaire: boolean = false;

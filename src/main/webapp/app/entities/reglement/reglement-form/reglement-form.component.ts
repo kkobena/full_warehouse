@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, input } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, signal, input, output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DossierFactureProjection } from '../model/reglement-facture-dossier.model';
 import { ModeEditionReglement, ReglementParams } from '../model/reglement.model';
@@ -29,8 +29,8 @@ export class ReglementFormComponent implements AfterViewInit {
   readonly dossierIds = input<number[]>([]);
   readonly montantAPayer = input<number | null>(null);
   readonly typeFacture = input<ModeEditionReglement>();
-  @Output() partialPayment = new EventEmitter<boolean>();
-  @Output() reglementParams = new EventEmitter<ReglementParams>(null);
+  readonly partialPayment = output<boolean>();
+  readonly reglementParams = output<ReglementParams>();
   isValid = true;
   appendTo = 'body';
   maxDate = new Date();

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Output, viewChild, input } from '@angular/core';
+import { Component, ElementRef, inject, viewChild, input, output } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -90,9 +90,9 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
 export class ComptantComponent {
   readonly isPresale = input(false);
   readonly appendTo = 'body';
-  @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
-  @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
-  @Output('responseEvent') responseEvent = new EventEmitter<FinalyseSale>();
+  readonly inputToFocusEvent = output<InputToFocus>();
+  readonly saveResponse = output<SaveResponse>({ alias: 'saveResponse' });
+  readonly responseEvent = output<FinalyseSale>({ alias: 'responseEvent' });
   readonly CASH = 'CASH';
   differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');

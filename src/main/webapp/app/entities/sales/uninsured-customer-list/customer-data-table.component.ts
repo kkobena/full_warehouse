@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -36,7 +36,7 @@ import { InputIcon } from 'primeng/inputicon';
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
-  @Output() closeModalEvent = new EventEmitter<boolean>();
+  readonly closeModalEvent = output<boolean>();
   ref!: DynamicDialogRef;
 
   constructor(

@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, input, OnInit, Output, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal, viewChild, output } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
@@ -69,7 +69,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   confirmationService = inject(ConfirmationService);
   errorService = inject(ErrorService);
   factureService = inject(FactureService);
-  @Output() selectedFacture = new EventEmitter<SelectedFacture>();
+  readonly selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected isSaving = false;

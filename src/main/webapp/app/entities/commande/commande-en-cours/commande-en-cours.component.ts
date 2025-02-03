@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, input } from '@angular/core';
+import { Component, OnInit, input, output } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -47,7 +47,7 @@ export type ExpandMode = 'single' | 'multiple';
 export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');
   readonly searchCommande = input('');
-  @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
+  readonly selectionLength = output<number>();
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, input, signal, output } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Facture } from '../../facturation/facture.model';
 import { LazyLoadEvent } from 'primeng/api';
@@ -53,7 +53,7 @@ export class FactuesModalComponent implements AfterViewInit {
   factureGroupWritable = signal(this.factureGroup());
   tiersPayantService = inject(TiersPayantService);
   groupeTiersPayantService = inject(GroupeTiersPayantService);
-  @Output() selectedFacture = new EventEmitter<SelectedFacture>();
+  readonly selectedFacture = output<SelectedFacture>();
   protected loadingBtn = false;
   protected loading!: boolean;
   protected totalItems = 0;

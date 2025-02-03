@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ViewEncapsulation, output } from '@angular/core';
 import { IUser } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
@@ -51,7 +51,7 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
 export class PreventeModalComponent implements OnInit {
   readonly user = input<IUser>();
   userSignal = signal(this.user());
-  @Output() pendingSalesSidebarChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly pendingSalesSidebarChange = output<boolean>();
   salesService = inject(SalesService);
   currentSaleService = inject(CurrentSaleService);
   customerService = inject(CustomerService);

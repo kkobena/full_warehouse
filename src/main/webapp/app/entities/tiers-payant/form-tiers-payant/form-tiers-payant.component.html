@@ -138,13 +138,14 @@
       @if (categorie === 'ASSURANCE') {
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix CMU ?</label>
-          <p-toggleswitch (onChange)="onCmuChange($event)" class="form-control"
+          <p-toggleswitch #toggleSwitch (onChange)="onCmuChange(toggleSwitch)" class="form-control"
                           formControlName="cmu"
                           inputId="cmu"></p-toggleswitch>
         </div>
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix de référence ?</label>
-          <p-toggleswitch (onChange)="onReferencedPriceChange($event)" class="form-control"
+          <p-toggleswitch #cmuToogle (onChange)="onReferencedPriceChange(cmuToogle)"
+                          class="form-control"
                           formControlName="useReferencedPrice" inputId="useReferencedPrice"
                           name="useReferencedPrice"></p-toggleswitch>
         </div>

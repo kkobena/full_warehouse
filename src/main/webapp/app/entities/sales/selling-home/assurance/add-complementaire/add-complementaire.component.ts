@@ -4,13 +4,11 @@ import { ICustomer } from '../../../../../shared/model/customer.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CustomerService } from '../../../../customer/customer.service';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ToastModule } from 'primeng/toast';
-import TranslateDirective from '../../../../../shared/language/translate.directive';
 import { ButtonModule } from 'primeng/button';
 import { DecimalPipe } from '@angular/common';
 
@@ -18,13 +16,11 @@ import { DecimalPipe } from '@angular/common';
   selector: 'jhi-add-complementaire',
   imports: [
     ReactiveFormsModule,
-    FaIconComponent,
     InputMaskModule,
     InputTextModule,
     KeyFilterModule,
     RadioButtonModule,
     ToastModule,
-    TranslateDirective,
     ButtonModule,
     DecimalPipe,
   ],

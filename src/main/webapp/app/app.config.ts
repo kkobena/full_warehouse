@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import {
   NavigationError,
@@ -47,10 +47,10 @@ const routerFeatures: Array<RouterFeatures> = [
 if (DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
-/* ModuleRegistry.registerModules([AllCommunityModule]);
-provideGlobalGridOptions({ theme: 'legacy' }); */
+
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
     provideRouter(routes, ...routerFeatures),
 
     importProvidersFrom(BrowserModule),

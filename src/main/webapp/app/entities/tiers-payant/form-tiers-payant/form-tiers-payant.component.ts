@@ -17,7 +17,6 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { InputSwitchChangeEvent } from 'primeng/inputswitch/inputswitch.interface';
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 
@@ -121,8 +120,8 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onCmuChange(event: InputSwitchChangeEvent): void {
-    if (event.checked) {
+  onCmuChange(event: ToggleSwitch): void {
+    if (event.checked()) {
       if (this.editForm.get('useReferencedPrice')?.value) {
         this.editForm.get('useReferencedPrice')?.setValue(false);
       }
@@ -132,8 +131,8 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onReferencedPriceChange(event: InputSwitchChangeEvent): void {
-    if (event.checked) {
+  onReferencedPriceChange(event: ToggleSwitch): void {
+    if (event.checked()) {
       if (this.editForm.get('cmu')?.value) {
         this.editForm.get('cmu')?.setValue(false);
       }

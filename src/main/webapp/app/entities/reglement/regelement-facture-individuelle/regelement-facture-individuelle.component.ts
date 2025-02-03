@@ -1,4 +1,4 @@
-import { Component, computed, effect, EventEmitter, inject, Input, Output, signal, viewChild } from '@angular/core';
+import { Component, computed, EventEmitter, inject, input, OnInit, Output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -50,9 +50,11 @@ import { InputIcon } from 'primeng/inputicon';
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
 })
-export class RegelementFactureIndividuelleComponent {
-  @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];
-  @Input() dossierFactureProjection: DossierFactureProjection | null = null;
+export class RegelementFactureIndividuelleComponent implements OnInit {
+  readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
+  reglementFactureDossiersSignal = signal(this.reglementFactureDossiers());
+  readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);
+  dossierFactureProjectionSignal = signal(this.dossierFactureProjection());
   checkbox = viewChild<TableHeaderCheckbox>('checkbox');
   factureDossierSelectionnes = signal<ReglementFactureDossier[]>([]);
   montantAPayer = computed(() => {
@@ -68,19 +70,26 @@ export class RegelementFactureIndividuelleComponent {
   reglementService = inject(ReglementService);
   factureService = inject(FactureService);
   @Output() selectedFacture = new EventEmitter<SelectedFacture>();
+  update = computed(() => {
+    if (this.montantAPayer()) {
+      this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
+    } else {
+      this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+    }
+  });
   protected showSidebar = false;
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
   protected isSaving = false;
 
   constructor() {
-    effect(() => {
-      if (this.montantAPayer()) {
-        this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
-      } else {
-        this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
-      }
-    });
+    /*   effect(() => {
+        if (this.montantAPayer()) {
+          this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
+        } else {
+          this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+        }
+      }); */
   }
 
   get totalAmount(): number {
@@ -91,7 +100,8 @@ export class RegelementFactureIndividuelleComponent {
   }
 
   private get montantAttendu(): number {
-    return this.dossierFactureProjection?.montantTotal - this.dossierFactureProjection?.montantDetailRegle;
+    const dossierFactureProjection = this.dossierFactureProjection();
+    return dossierFactureProjection?.montantTotal - dossierFactureProjection?.montantDetailRegle;
   }
 
   openSideBar(): void {
@@ -115,6 +125,11 @@ export class RegelementFactureIndividuelleComponent {
   onSelectFacture(facture: SelectedFacture): void {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
+  }
+
+  ngOnInit(): void {
+    this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
+    this.dossierFactureProjectionSignal.set(this.dossierFactureProjection());
   }
 
   protected onPartielReglement(evt: boolean): void {
@@ -175,12 +190,12 @@ export class RegelementFactureIndividuelleComponent {
     this.factureDossierSelectionnes.set([]);
     this.reglementFormComponent()?.reset();
     if (response.total) {
-      this.dossierFactureProjection = null;
-      this.reglementFactureDossiers = [];
+      this.dossierFactureProjectionSignal.set(null);
+      this.reglementFactureDossiersSignal.set([]);
       this.reglementFormComponent()?.cashInput?.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjection?.id);
+      this.reload(this.dossierFactureProjection()?.id);
     }
   }
 
@@ -192,23 +207,23 @@ export class RegelementFactureIndividuelleComponent {
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
-          this.reglementFactureDossiers = res.body;
+          this.reglementFactureDossiersSignal.set(res.body);
           this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
         },
         error: () => {
-          this.reglementFactureDossiers = [];
-          this.dossierFactureProjection = null;
+          this.reglementFactureDossiersSignal.set([]);
+          this.dossierFactureProjectionSignal.set(null);
         },
       });
   }
 
   private fetchFacture(): void {
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjection?.id, {
+      .findDossierFactureProjection(this.dossierFactureProjection()?.id, {
         isGroup: false,
       })
       .subscribe(res => {
-        this.dossierFactureProjection = res.body;
+        this.dossierFactureProjectionSignal.set(res.body);
       });
   }
 }

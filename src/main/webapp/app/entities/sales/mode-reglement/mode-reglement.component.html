@@ -1,5 +1,5 @@
 <div class="row sale-bottom-card">
-  @if (showModeReglementCard) {
+  @if (showModeReglementCard()) {
     <div
       [ngClass]="currentSaleService.currentSale()?.amountToBePaid > 0?'card col-md-7':'card col-md-10'">
       <div class="card-header sale-card-header">
@@ -78,11 +78,11 @@
 
     </div>
     <!-- TODO revoir la gestion des info diffiere ou paiment par cb/virement/cheque ajouter un modal pour la saisie des info banque ou client differe: afficher plain text sur l'ecran de vente avec option de modification -->
-    @if (showInfosComplementaireReglementCard || isDiffere) {
+    @if (showInfosComplementaireReglementCard || isDiffere()) {
       <div class="card col-md-5">
         <div class="card-header sale-card-header">Informations complementaires</div>
         <div class="card-body sale-card">
-          @if (isDiffere) {
+          @if (isDiffere()) {
             <div class="p-inputgroup mt-1">
               <span class="p-inputgroup-addon">Commentaire</span>
               <input #commentaireInput [(ngModel)]="commentaire" pInputText type="text"

@@ -18,7 +18,7 @@
              [rowsPerPageOptions]="[10,20,30,50,100]"
              [rows]="20"
              [showCurrentPageReport]="true"
-             [value]="reglementFactureDossiers"
+             [value]="reglementFactureDossiersWritable()"
              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
              dataKey="id"
              selectionMode="multiple">
@@ -35,7 +35,7 @@
                      type="text">
             </p-iconfield>
 
-     
+
           </div>
         </div>
       </ng-template>
@@ -119,13 +119,13 @@
                           (reglementParams)="onSaveReglement($event)"
                           [allSelection]="checkbox()?.checked"
                           [dossierIds]="dossierIds()"
-                          [facture]="dossierFactureProjection"
+                          [facture]="dossierFactureProjectionWritable()"
                           [isSaving]="isSaving"
                           [montantAPayer]="montantAPayer()"
                           [typeFacture]="ModeEditionReglement.GROUP">
       </jhi-reglement-form>
     </p-fieldset>
-    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjection"
+    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionWritable()"
                                 [totalApayer]="montantAPayer()"
     >
     </jhi-dossier-reglement-info>
@@ -134,7 +134,7 @@
 
 </div>
 
-<p-confirmDialog #printReceipt [baseZIndex]="10000" [style]="{width: '40vw'}" key="printReceipt">
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="printReceipt">
 
 </p-confirmDialog>
 

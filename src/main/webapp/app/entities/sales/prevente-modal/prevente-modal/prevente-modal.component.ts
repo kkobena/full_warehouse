@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, inject, input, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
 import { IUser } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
@@ -49,7 +49,8 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
   ],
 })
 export class PreventeModalComponent implements OnInit {
-  @Input() user: IUser;
+  readonly user = input<IUser>();
+  userSignal = signal(this.user());
   @Output() pendingSalesSidebarChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   salesService = inject(SalesService);
   currentSaleService = inject(CurrentSaleService);
@@ -68,12 +69,13 @@ export class PreventeModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectedRowIndex = 0;
-    this.userSeller = this.user;
+    this.userSeller = this.user();
+    this.userSignal.set(this.user());
     this.loadPreventes();
   }
 
   onSelectUser(): void {
-    this.user = this.userSeller;
+    this.userSignal.set(this.userSeller);
     this.loadPreventes();
   }
 
@@ -87,7 +89,7 @@ export class PreventeModalComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        userId: this.user.id,
+        userId: this.userSignal().id,
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];

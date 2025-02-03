@@ -1,4 +1,4 @@
-import { Directive, Host, HostListener, Input, contentChild, effect } from '@angular/core';
+import { Directive, Host, HostListener, contentChild, effect, input } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faSort, faSortDown, faSortUp, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,7 +9,7 @@ import { SortDirective } from './sort.directive';
   selector: '[jhiSortBy]',
 })
 export class SortByDirective {
-  @Input() jhiSortBy!: string;
+  readonly jhiSortBy = input.required<string>();
 
   iconComponent = contentChild(FaIconComponent);
 
@@ -21,8 +21,8 @@ export class SortByDirective {
     effect(() => {
       if (this.iconComponent()) {
         let icon: IconDefinition = this.sortIcon;
-        const { predicate, order } = this.sort.sortState();
-        if (predicate === this.jhiSortBy && order !== undefined) {
+        const { predicate, order } = this.sort.sortState()();
+        if (predicate === this.jhiSortBy() && order !== undefined) {
           icon = order === 'asc' ? this.sortAscIcon : this.sortDescIcon;
         }
         this.iconComponent()!.icon = icon.iconName;
@@ -34,7 +34,7 @@ export class SortByDirective {
   @HostListener('click')
   onClick(): void {
     if (this.iconComponent()) {
-      this.sort.sort(this.jhiSortBy);
+      this.sort.sort(this.jhiSortBy());
     }
   }
 }

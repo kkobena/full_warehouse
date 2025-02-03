@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, input } from '@angular/core';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -31,8 +31,8 @@ export type ExpandMode = 'single' | 'multiple';
     ]
 })
 export class CommandeRecusComponent implements OnInit {
-  @Input() search = '';
-  @Input() searchByRef = '';
+  readonly search = input('');
+  readonly searchByRef = input('');
   @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
   protected deliveries: IDelivery[] = [];
   protected totalItems = 0;
@@ -85,9 +85,9 @@ export class CommandeRecusComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
         statut: this.selectedFilter,
-        searchByRef: this.searchByRef,
+        searchByRef: this.searchByRef(),
       })
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
@@ -110,8 +110,8 @@ export class CommandeRecusComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        search: this.search,
-        searchByRef: this.searchByRef,
+        search: this.search(),
+        searchByRef: this.searchByRef(),
       },
     });
     this.deliveries = data || [];

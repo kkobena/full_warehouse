@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Input, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, viewChild, input } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -132,7 +132,7 @@ export class BaseSaleComponent {
   translate = inject(TranslateService);
   baseSaleService = inject(BaseSaleService);
   hasAuthorityService = inject(HasAuthorityService);
-  @Input('isPresale') isPresale = false;
+  readonly isPresale = input(false);
   appendTo = 'body';
   CASH = 'CASH';
   protected entryAmount?: number | null = null;
@@ -173,7 +173,7 @@ export class BaseSaleComponent {
     this.currentSaleService.currentSale().type = 'VO';
     this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();
     this.computExtraInfo();
-    if (this.isPresale || putsOnStandby) {
+    if (this.isPresale() || putsOnStandby) {
       this.putCurrentSaleOnHold();
     } else {
       this.saveSale();

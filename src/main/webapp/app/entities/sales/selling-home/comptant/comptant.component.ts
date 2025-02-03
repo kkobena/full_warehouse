@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Input, Output, viewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Output, viewChild, input } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -88,7 +88,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   templateUrl: './comptant.component.html',
 })
 export class ComptantComponent {
-  @Input('isPresale') isPresale = false;
+  readonly isPresale = input(false);
   readonly appendTo = 'body';
   @Output() inputToFocusEvent = new EventEmitter<InputToFocus>();
   @Output('saveResponse') saveResponse = new EventEmitter<SaveResponse>();
@@ -188,7 +188,7 @@ export class ComptantComponent {
     if (this.currentSaleService.currentSale().avoir && !this.currentSaleService.currentSale().customerId) {
       this.onOpenCustomer(putsOnStandby);
     } else {
-      if (this.isPresale || putsOnStandby) {
+      if (this.isPresale() || putsOnStandby) {
         this.putCurrentCashSaleOnHold();
       } else {
         this.saveCashSale();

@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, Input, Output, signal, viewChild } from '@angular/core';
+import { Component, computed, EventEmitter, inject, input, OnInit, Output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
@@ -50,9 +50,11 @@ import { InputIcon } from 'primeng/inputicon';
   ],
   templateUrl: './faire-groupe-reglement.component.html',
 })
-export class FaireGroupeReglementComponent {
-  @Input() reglementFactureDossiers: ReglementFactureDossier[] = [];
-  @Input() dossierFactureProjection: DossierFactureProjection | null = null;
+export class FaireGroupeReglementComponent implements OnInit {
+  readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
+  readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);
+  dossierFactureProjectionWritable = signal(this.dossierFactureProjection());
+  reglementFactureDossiersWritable = signal(this.reglementFactureDossiers());
   checkbox = viewChild<TableHeaderCheckbox>('checkbox');
   factureDossierSelectionnes = signal<ReglementFactureDossier[]>([]);
   montantAPayer = computed(() => {
@@ -96,10 +98,15 @@ export class FaireGroupeReglementComponent {
     this.showSidebar = false;
   }
 
+  ngOnInit(): void {
+    this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
+    this.reglementFactureDossiersWritable.set(this.reglementFactureDossiers());
+  }
+
   protected onPartielReglement(evt: boolean): void {
     this.partialPayment = evt;
     this.factureDossierSelectionnes().forEach(d => {
-      this.reglementFactureDossiers.find(r => r.id === d.id).montantVerse = d.montantTotal - d.montantDetailRegle;
+      this.reglementFactureDossiersWritable().find(r => r.id === d.id).montantVerse = d.montantTotal - d.montantDetailRegle;
     });
 
     this.factureDossierSelectionnes.set([]);
@@ -114,7 +121,6 @@ export class FaireGroupeReglementComponent {
   }
 
   protected onSaveReglement(params: ReglementParams): void {
-    //  console.error(this.buildReglementParams(params));
     this.reglementService.doReglement(this.buildReglementParams(params)).subscribe({
       next: res => {
         this.isSaving = false;
@@ -169,7 +175,7 @@ export class FaireGroupeReglementComponent {
           id: d.id,
           montantAttendu: d.montantTotal - d.montantPaye,
           montantVerse: d.montantVerse,
-          montantFacture: this.dossierFactureProjection.montantTotal,
+          montantFacture: this.dossierFactureProjectionWritable().montantTotal,
         };
       });
     }
@@ -180,12 +186,12 @@ export class FaireGroupeReglementComponent {
     this.factureDossierSelectionnes.set([]);
     this.reglementFormComponent()?.reset();
     if (response.total) {
-      this.dossierFactureProjection = null;
-      this.reglementFactureDossiers = [];
+      this.dossierFactureProjectionWritable.set(null);
+      this.reglementFactureDossiersWritable.set([]);
       this.reglementFormComponent()?.cashInput?.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjection?.id);
+      this.reload(this.dossierFactureProjectionWritable()?.id);
     }
   }
 
@@ -197,23 +203,23 @@ export class FaireGroupeReglementComponent {
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
-          this.reglementFactureDossiers = res.body;
+          this.reglementFactureDossiersWritable.set(res.body);
           // this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
         },
         error: () => {
-          this.reglementFactureDossiers = [];
-          this.dossierFactureProjection = null;
+          this.reglementFactureDossiersWritable.set([]);
+          this.dossierFactureProjectionWritable.set(null);
         },
       });
   }
 
   private fetchFacture(): void {
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjection?.id, {
+      .findDossierFactureProjection(this.dossierFactureProjectionWritable()?.id, {
         isGroup: true,
       })
       .subscribe(res => {
-        this.dossierFactureProjection = res.body;
+        this.dossierFactureProjectionWritable.set(res.body);
       });
   }
 }

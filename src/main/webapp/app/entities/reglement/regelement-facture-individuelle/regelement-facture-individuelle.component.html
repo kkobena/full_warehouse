@@ -20,7 +20,7 @@
              [rowsPerPageOptions]="[10,20,30,50,100]"
              [rows]="20"
              [showCurrentPageReport]="true"
-             [value]="reglementFactureDossiers"
+             [value]="reglementFactureDossiersSignal()"
              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
              dataKey="id"
              selectionMode="multiple">
@@ -117,7 +117,7 @@
                           (reglementParams)="onSaveReglement($event)"
                           [allSelection]="checkbox()?.checked"
                           [dossierIds]="dossierIds()"
-                          [facture]="dossierFactureProjection"
+                          [facture]="dossierFactureProjectionSignal()"
                           [isSaving]="isSaving"
                           [montantAPayer]="totalAmount"
                           [typeFacture]="ModeEditionReglement.SINGLE">
@@ -125,7 +125,7 @@
       </jhi-reglement-form>
 
     </p-fieldset>
-    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjection"
+    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()"
                                 [totalApayer]="montantAPayer()"
     >
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, input } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -35,8 +35,8 @@ export type ExpandMode = 'single' | 'multiple';
   imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RippleModule, DynamicDialogModule, TooltipModule],
 })
 export class CommandePassesComponent implements OnInit {
-  @Input() search = '';
-  @Input() searchCommande = '';
+  readonly search = input('');
+  readonly searchCommande = input('');
   @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
@@ -78,8 +78,8 @@ export class CommandePassesComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search,
-        searchCommande: this.searchCommande,
+        search: this.search(),
+        searchCommande: this.searchCommande(),
         orderStatut: this.selectedFilter,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
@@ -270,8 +270,8 @@ export class CommandePassesComponent implements OnInit {
         .query({
           page: this.page,
           size: event.rows,
-          search: this.search,
-          searchCommande: this.searchCommande,
+          search: this.search(),
+          searchCommande: this.searchCommande(),
           orderStatut: this.selectedFilter,
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
@@ -330,7 +330,7 @@ export class CommandePassesComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
         orderStatut: this.selectedFilter,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       },

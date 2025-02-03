@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { Facture, FactureItem } from '../facture.model';
 import { SalesLineService } from '../../sales-line/sales-line.service';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
@@ -11,23 +11,28 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'jhi-facture-detail',
-    imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
-    templateUrl: './facture-detail.component.html',
-    styles: ``
+  selector: 'jhi-facture-detail',
+  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
+  templateUrl: './facture-detail.component.html',
+  styles: ``,
 })
-export class FactureDetailComponent implements OnInit, OnChanges {
-  @Input() facture: Facture | null = null;
+export class FactureDetailComponent implements OnInit {
+  readonly facture = input<Facture | null>(null);
   salesLineService = inject(SalesLineService);
   factureService = inject(FactureService);
   salesLines: ISalesLine[] = [];
   selectedFactureItem: FactureItem | null = null;
   searchValue: string | undefined;
+  update = computed(() => {
+    if (this.facture()) {
+      this.selectedFactureItem = null;
+      this.salesLines = [];
+    }
+  });
+  protected factureWritable = signal(this.facture());
 
   // scrollHeight="400px"
-  constructor() {
-    //   this.facture = this.factureStateService.selectedInvoice();
-  }
+  constructor() {}
 
   onRowSelect(factureItem: FactureItem) {
     this.selectedFactureItem = factureItem;
@@ -37,17 +42,12 @@ export class FactureDetailComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    if (this.facture && this.facture.factureId) {
-      this.factureService.find(this.facture?.factureId).subscribe((res: HttpResponse<Facture>) => {
-        this.facture = res.body || null;
+    this.factureWritable.set(this.facture());
+    const facture = this.factureWritable();
+    if (facture && facture.factureId) {
+      this.factureService.find(facture?.factureId).subscribe((res: HttpResponse<Facture>) => {
+        this.factureWritable.set(res.body);
       });
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['facture'] && !changes['facture'].isFirstChange()) {
-      this.selectedFactureItem = null;
-      this.salesLines = [];
     }
   }
 }

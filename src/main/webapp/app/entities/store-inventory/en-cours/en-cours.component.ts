@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import {
   GROUPING_BY,
   InventoryCategory,
@@ -44,8 +44,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
-  @Input() inventoryCategories: InventoryCategory[];
-  @Input() user?: IUser | null;
+  readonly inventoryCategories = input<InventoryCategory[]>();
+  readonly user = input<IUser | null>();
   protected statuts: InventoryStatut[] = ['CREATE', 'PROCESSING'];
   protected page!: number;
   protected predicate!: string;
@@ -193,8 +193,8 @@ export class EnCoursComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user?.id,
-      inventoryCategories: this.inventoryCategories?.map(e => e.name),
+      userId: this.user()?.id,
+      inventoryCategories: this.inventoryCategories()?.map(e => e.name),
       statuts: this.statuts,
     };
   }

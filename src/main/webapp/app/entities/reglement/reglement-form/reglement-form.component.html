@@ -91,9 +91,9 @@
 
   }
   <div class="d-flex justify-content-end">
-    <button [disabled]="!valid || !validMontantSaisi() || isSaving" class="btn btn-danger"
+    <button [disabled]="!valid || !validMontantSaisi() || isSaving()" class="btn btn-danger"
             type="submit">
-      @if (isSaving) {
+      @if (isSaving()) {
         <span aria-hidden="true" class="spinner-border spinner-border-sm"></span>
         <span role="status">Traitement...</span>
       } @else {

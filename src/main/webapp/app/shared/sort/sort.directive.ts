@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Input, Output } from '@angular/core';
+import { Directive, EventEmitter, Output, input } from '@angular/core';
 import { SortOrder, SortState, SortStateSignal } from './sort-state';
 
 export interface SortChangeDirective<T> {
@@ -12,12 +12,12 @@ export interface SortChangeDirective<T> {
   selector: '[jhiSort]',
 })
 export class SortDirective implements SortChangeDirective<string> {
-  @Input() sortState!: SortStateSignal;
+  readonly sortState = input.required<SortStateSignal>();
 
   @Output() sortChange = new EventEmitter<SortState>();
 
   sort(field: string): void {
-    const { predicate, order } = this.sortState();
+    const { predicate, order } = this.sortState()();
     const toggle = (): SortOrder => (order === 'asc' ? 'desc' : 'asc');
     this.sortChange.emit({ predicate: field, order: field !== predicate ? 'asc' : toggle() });
   }

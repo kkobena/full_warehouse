@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Facture } from '../../facturation/facture.model';
 import { LazyLoadEvent } from 'primeng/api';
@@ -49,7 +49,8 @@ export class FactuesModalComponent implements AfterViewInit {
   factureService = inject(FactureService);
   calendar = inject(NgbCalendar);
   regelementStateService = inject(RegelementStateService);
-  @Input() factureGroup: boolean = false;
+  factureGroup = input<boolean>(false);
+  factureGroupWritable = signal(this.factureGroup());
   tiersPayantService = inject(TiersPayantService);
   groupeTiersPayantService = inject(GroupeTiersPayantService);
   @Output() selectedFacture = new EventEmitter<SelectedFacture>();
@@ -154,7 +155,7 @@ export class FactuesModalComponent implements AfterViewInit {
   }
 
   onSelectFacture(facture: Facture): void {
-    this.selectedFacture.emit({ isGroup: this.factureGroup, facture: facture });
+    this.selectedFacture.emit({ isGroup: this.factureGroupWritable(), facture: facture });
   }
 
   ngAfterViewInit(): void {
@@ -170,14 +171,16 @@ export class FactuesModalComponent implements AfterViewInit {
         ? this.groupeTiersPayants.filter(item => previousSearch.groupIds.includes(item.id))
         : undefined;
       this.search = previousSearch.search || '';
-      this.factureGroup = previousSearch.factureGroupees || false;
+      this.factureGroupWritable.set(previousSearch.factureGroupees || false);
       if (this.search) {
-        if (this.factureGroup) {
+        if (previousSearch.factureGroupees && previousSearch.factureGroupees === true) {
           this.loadGroupTiersPayant(this.search);
         } else {
           this.loadTiersPayants(this.search);
         }
       }
+    } else {
+      this.factureGroupWritable.set(this.factureGroup());
     }
 
     this.onSearch();
@@ -200,7 +203,7 @@ export class FactuesModalComponent implements AfterViewInit {
       factureProvisoire: false,
       search: this.search,
       statuts: ['PARTIALLY_PAID', 'NOT_PAID'],
-      factureGroupees: this.factureGroup,
+      factureGroupees: this.factureGroupWritable(),
     };
     this.regelementStateService.setInvoiceSearchParams(params);
     return params;

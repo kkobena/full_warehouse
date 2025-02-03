@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, EventEmitter, inject, Output, signal, input } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DossierFactureProjection } from '../model/reglement-facture-dossier.model';
 import { ModeEditionReglement, ReglementParams } from '../model/reglement.model';
@@ -23,12 +23,12 @@ export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';
   readonly CH = 'CH';
   readonly VIR = 'VIREMENT';
-  @Input() isSaving = false;
-  @Input() facture?: DossierFactureProjection;
-  @Input() allSelection = false;
-  @Input() dossierIds: number[] = [];
-  @Input() montantAPayer: number | null = null;
-  @Input() typeFacture?: ModeEditionReglement;
+  readonly isSaving = input(false);
+  readonly facture = input<DossierFactureProjection>();
+  readonly allSelection = input(false);
+  readonly dossierIds = input<number[]>([]);
+  readonly montantAPayer = input<number | null>(null);
+  readonly typeFacture = input<ModeEditionReglement>();
   @Output() partialPayment = new EventEmitter<boolean>();
   @Output() reglementParams = new EventEmitter<ReglementParams>(null);
   isValid = true;
@@ -40,18 +40,18 @@ export class ReglementFormComponent implements AfterViewInit {
   montantSaisi = signal(0);
   validMontantSaisi = computed(() => {
     if (this.isGroup) {
-      if (this.allSelection) {
+      if (this.allSelection()) {
         return this.montantSaisi() > 0;
       }
-      return this.montantSaisi() >= this.montantAPayer;
-    } else if (this.allSelection) {
+      return this.montantSaisi() >= this.montantAPayer();
+    } else if (this.allSelection()) {
       return this.montantSaisi() > 0;
     }
 
-    return this.montantSaisi() >= this.montantAPayer;
+    return this.montantSaisi() >= this.montantAPayer();
   });
   monnaie = computed(() => {
-    return this.montantAPayer - this.montantVerse;
+    return this.montantAPayer() - this.montantVerse;
   });
 
   protected paymentModes: IPaymentMode[] = [];
@@ -95,16 +95,16 @@ export class ReglementFormComponent implements AfterViewInit {
     if (this.isGroup) {
       return !this.isPartialPayment;
     }
-    return !this.isPartialPayment && this.allSelection;
+    return !this.isPartialPayment && this.allSelection();
   }
 
   get isGroup(): boolean {
-    return this.typeFacture === ModeEditionReglement.GROUP;
+    return this.typeFacture() === ModeEditionReglement.GROUP;
   }
 
   get valid(): boolean {
     if (this.isPartialPayment) {
-      return this.dossierIds.length > 0 && this.reglementForm.valid;
+      return this.dossierIds().length > 0 && this.reglementForm.valid;
     }
 
     return this.reglementForm.valid;
@@ -115,17 +115,18 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get initTotalAmount(): number {
-    return this.facture?.montantTotal - this.facture?.montantDetailRegle;
+    const facture = this.facture();
+    return facture?.montantTotal - facture?.montantDetailRegle;
   }
 
   get defaultDefautInputAmountValue(): number {
     if (!this.isPartialPayment) {
       return this.initTotalAmount;
     } else {
-      if (this.isCash && this.allSelection) {
+      if (this.isCash && this.allSelection()) {
         return this.initTotalAmount;
       } else {
-        return this.montantAPayer || this.initTotalAmount;
+        return this.montantAPayer() || this.initTotalAmount;
       }
     }
   }
@@ -143,10 +144,10 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get montantPayer(): number {
-    if (this.isPartialPayment && this.allSelection) {
+    if (this.isPartialPayment && this.allSelection()) {
       return this.initTotalAmount;
     } else {
-      return this.montantAPayer || this.initTotalAmount;
+      return this.montantAPayer() || this.initTotalAmount;
     }
   }
 
@@ -233,8 +234,8 @@ export class ReglementFormComponent implements AfterViewInit {
       amountToPaid: this.montantPayer,
       paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
       totalAmount: this.initTotalAmount,
-      id: this.facture.id,
-      montantFacture: this.facture.montantTotal,
+      id: this.facture().id,
+      montantFacture: this.facture().montantTotal,
     };
   }
 }

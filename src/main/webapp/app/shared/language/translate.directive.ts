@@ -1,4 +1,4 @@
-import { inject, Input, Directive, ElementRef, OnChanges, OnInit, OnDestroy } from '@angular/core';
+import { inject, Directive, ElementRef, OnChanges, OnInit, OnDestroy, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,8 +13,10 @@ import { translationNotFoundMessage } from 'app/config/translation.config';
   selector: '[jhiTranslate]',
 })
 export default class TranslateDirective implements OnChanges, OnInit, OnDestroy {
-  @Input() jhiTranslate!: string;
-  @Input() translateValues?: { [key: string]: unknown };
+  readonly jhiTranslate = input.required<string>();
+  readonly translateValues = input<{
+    [key: string]: unknown;
+}>();
 
   private readonly directiveDestroyed = new Subject();
 
@@ -41,13 +43,13 @@ export default class TranslateDirective implements OnChanges, OnInit, OnDestroy 
 
   private getTranslation(): void {
     this.translateService
-      .get(this.jhiTranslate, this.translateValues)
+      .get(this.jhiTranslate(), this.translateValues())
       .pipe(takeUntil(this.directiveDestroyed))
       .subscribe({
         next: value => {
           this.el.nativeElement.innerHTML = value;
         },
-        error: () => `${translationNotFoundMessage}[${this.jhiTranslate}]`,
+        error: () => `${translationNotFoundMessage}[${this.jhiTranslate()}]`,
       });
   }
 }

@@ -1,15 +1,15 @@
 <div>
-  @if (isGroupe) {
+  @if (isGroupeSignal()) {
     <jhi-faire-groupe-reglement
 
-      [reglementFactureDossiers]="reglementFactureDossiers"
-      [dossierFactureProjection]="dossierFactureProjection"
+      [reglementFactureDossiers]="reglementFactureDossiersSignal()"
+      [dossierFactureProjection]="dossierFactureProjectionSignal()"
 
     ></jhi-faire-groupe-reglement>
   } @else {
     <jhi-regelement-facture-individuelle
-      [reglementFactureDossiers]="reglementFactureDossiers"
-      [dossierFactureProjection]="dossierFactureProjection"
+      [reglementFactureDossiers]="reglementFactureDossiersSignal()"
+      [dossierFactureProjection]="dossierFactureProjectionSignal()"
       (selectedFacture)="onSelectFacture($event)"
     ></jhi-regelement-facture-individuelle>
   }

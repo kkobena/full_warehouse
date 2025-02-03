@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -31,7 +31,7 @@ export type ExpandMode = 'single' | 'multiple';
     ]
 })
 export class ListBonsComponent implements OnInit {
-  @Input() search = '';
+  readonly search = input('');
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
@@ -61,7 +61,7 @@ export class ListBonsComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
         statut: this.selectedFilter,
       })
       .subscribe({
@@ -82,7 +82,7 @@ export class ListBonsComponent implements OnInit {
         .query({
           page: this.page,
           size: event.rows,
-          search: this.search,
+          search: this.search(),
           statut: this.selectedFilter,
         })
         .subscribe({
@@ -119,7 +119,7 @@ export class ListBonsComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
       },
     });
     this.deliveries = data || [];

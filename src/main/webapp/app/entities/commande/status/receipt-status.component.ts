@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, input } from '@angular/core';
 
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
 import { CommonModule } from '@angular/common';
@@ -15,7 +15,7 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 })
 export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChanges {
   params!: any;
-  @Input() status: boolean = false;
+  readonly status = input<boolean>(false);
 
   refresh(): boolean {
     return false;

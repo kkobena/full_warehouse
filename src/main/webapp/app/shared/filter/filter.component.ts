@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import SharedModule from '../shared.module';
 import { IFilterOptions } from './filter.model';
 
@@ -8,13 +8,13 @@ import { IFilterOptions } from './filter.model';
     templateUrl: './filter.component.html'
 })
 export default class FilterComponent {
-  @Input() filters!: IFilterOptions;
+  readonly filters = input.required<IFilterOptions>();
 
   clearAllFilters(): void {
-    this.filters.clear();
+    this.filters().clear();
   }
 
   clearFilter(filterName: string, value: string): void {
-    this.filters.removeFilter(filterName, value);
+    this.filters().removeFilter(filterName, value);
   }
 }

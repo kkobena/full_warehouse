@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import {
   GROUPING_BY,
   InventoryCategory,
@@ -27,8 +27,8 @@ import { TooltipModule } from 'primeng/tooltip';
     imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
 })
 export class CloturesComponent implements OnInit {
-  @Input() inventoryCategories: InventoryCategory[];
-  @Input() user?: IUser | null;
+  readonly inventoryCategories = input<InventoryCategory[]>();
+  readonly user = input<IUser | null>();
   protected statuts: InventoryStatut[] = ['CLOSED'];
   protected page!: number;
   protected predicate!: string;
@@ -103,8 +103,8 @@ export class CloturesComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user.id,
-      inventoryCategories: this.inventoryCategories.map(e => e.name),
+      userId: this.user().id,
+      inventoryCategories: this.inventoryCategories().map(e => e.name),
       statuts: this.statuts,
     };
   }

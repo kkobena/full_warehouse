@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, input } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -45,8 +45,8 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class CommandeEnCoursComponent implements OnInit {
-  @Input() search = '';
-  @Input() searchCommande = '';
+  readonly search = input('');
+  readonly searchCommande = input('');
   @Output() selectionLength: EventEmitter<number> = new EventEmitter<number>();
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
@@ -91,8 +91,8 @@ export class CommandeEnCoursComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search,
-        searchCommande: this.searchCommande,
+        search: this.search(),
+        searchCommande: this.searchCommande(),
         orderStatut: this.selectedFilter,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
@@ -313,8 +313,8 @@ export class CommandeEnCoursComponent implements OnInit {
         .query({
           page: this.page,
           size: event.rows,
-          search: this.search,
-          searchCommande: this.searchCommande,
+          search: this.search(),
+          searchCommande: this.searchCommande(),
           orderStatut: this.selectedFilter,
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
@@ -366,7 +366,7 @@ export class CommandeEnCoursComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
         orderStatut: this.selectedFilter,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       },

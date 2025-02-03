@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FactureDetailComponent } from '../facture-detail/facture-detail.component';
 import { Facture } from '../facture.model';
 import { CommonModule, DecimalPipe } from '@angular/common';
@@ -12,23 +12,24 @@ import { PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'jhi-groupe-facture-detail',
-    imports: [
-        FactureDetailComponent,
-        DecimalPipe,
-        PanelModule,
-        PrimeTemplate,
-        TableModule,
-        InputTextModule,
-        PaginatorModule,
-        CommonModule,
-        FormsModule,
-    ],
-    templateUrl: './groupe-facture-detail.component.html',
-    styles: ``
+  selector: 'jhi-groupe-facture-detail',
+  imports: [
+    FactureDetailComponent,
+    DecimalPipe,
+    PanelModule,
+    PrimeTemplate,
+    TableModule,
+    InputTextModule,
+    PaginatorModule,
+    CommonModule,
+    FormsModule,
+  ],
+  templateUrl: './groupe-facture-detail.component.html',
+  styles: ``,
 })
 export class GroupeFactureDetailComponent implements OnInit {
-  @Input() groupeFacture: Facture | null = null;
+  readonly groupeFacture = input<Facture | null>(null);
+  groupeFactureSignal = signal(this.groupeFacture());
   selectedFacture: Facture | null = null;
   factureService = inject(FactureService);
   searchValue: string | undefined;
@@ -38,8 +39,9 @@ export class GroupeFactureDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.factureService.find(this.groupeFacture?.factureId).subscribe((res: HttpResponse<Facture>) => {
-      this.groupeFacture = res.body || null;
+    this.groupeFactureSignal.set(this.groupeFacture());
+    this.factureService.find(this.groupeFactureSignal()?.factureId).subscribe((res: HttpResponse<Facture>) => {
+      this.groupeFactureSignal.set(res.body);
     });
   }
 }

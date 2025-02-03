@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -41,7 +41,7 @@ import { ToastModule } from 'primeng/toast';
     templateUrl: './ticketing.component.html'
 })
 export class TicketingComponent implements OnInit, AfterViewInit {
-  @ViewChild('numberOf10Thousand') numberOf10ThousandInput: ElementRef;
+  readonly numberOf10ThousandInput = viewChild<ElementRef>('numberOf10Thousand');
   protected isSaving = false;
   protected display = false;
   protected totalAmount = 0;
@@ -77,7 +77,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.numberOf10ThousandInput.nativeElement.focus();
+    this.numberOf10ThousandInput().nativeElement.focus();
   }
 
   showError() {
@@ -127,7 +127,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
           this.doTicketing();
         },
         reject: () => {
-          this.numberOf10ThousandInput.nativeElement.focus();
+          this.numberOf10ThousandInput().nativeElement.focus();
         },
       });
     } else {
@@ -145,7 +145,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
           this.doTicketing();
         },
         reject: () => {
-          this.numberOf10ThousandInput.nativeElement.focus();
+          this.numberOf10ThousandInput().nativeElement.focus();
         },
       });
     }

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -44,10 +44,8 @@ export class DeliveryComponent {
   search = '';
   ref?: DynamicDialogRef;
   protected active = 'pending';
-  @ViewChild(BonEnCoursComponent)
-  private enCoursComponent: BonEnCoursComponent;
-  @ViewChild(ListBonsComponent)
-  private listBonsComponent: ListBonsComponent;
+  readonly enCoursComponent = viewChild(BonEnCoursComponent);
+  readonly listBonsComponent = viewChild(ListBonsComponent);
 
   constructor(
     protected router: Router,
@@ -57,9 +55,9 @@ export class DeliveryComponent {
 
   onSearch(): void {
     if (this.active === 'pending') {
-      this.enCoursComponent.onSearch();
+      this.enCoursComponent().onSearch();
     } else {
-      this.listBonsComponent.onSearch();
+      this.listBonsComponent().onSearch();
     }
   }
 

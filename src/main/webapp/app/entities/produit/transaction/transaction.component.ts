@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -21,7 +21,6 @@ import { BadgeModule } from 'primeng/badge';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { RippleModule } from 'primeng/ripple';
-import { StatSalesComponent } from '../stat-sales/stat-sales.component';
 import { DatePicker } from 'primeng/datepicker';
 
 @Component({
@@ -47,6 +46,7 @@ import { DatePicker } from 'primeng/datepicker';
   providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit {
+  readonly auditingComponent = viewChild(AuditingComponent);
   protected active = 'auditing';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
@@ -57,10 +57,8 @@ export class TransactionComponent implements OnInit {
   protected readonly APPEND_TO = APPEND_TO;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  @ViewChild(AuditingComponent)
-  private auditingComponent: AuditingComponent;
-  @ViewChild(StatSalesComponent)
-  private statSalesComponent: StatSalesComponent;
+
+  // readonly statSalesComponent = viewChild(StatSalesComponent);
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -88,7 +86,7 @@ export class TransactionComponent implements OnInit {
   exportPdf(): void {
     switch (this.active) {
       case 'auditing':
-        this.auditingComponent.exportPdf(this.buildQuery());
+        this.auditingComponent().exportPdf(this.buildQuery());
         break;
     }
   }
@@ -135,7 +133,7 @@ export class TransactionComponent implements OnInit {
     this.produitAuditingParamService.setParameter(params);
     switch (this.active) {
       case 'auditing':
-        this.auditingComponent.load(this.buildQuery());
+        this.auditingComponent().load(this.buildQuery());
         break;
     }
   }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { IProduit } from '../../shared/model/produit.model';
@@ -69,8 +69,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected produits: IProduit[] = [];
   protected motifs: IMotifAjustement[] = [];
   protected items: IAjustement[] = [];
-  @ViewChild('comment')
-  protected comment?: ElementRef;
+  readonly comment = viewChild<ElementRef>('comment');
   protected search: string;
   protected context: any;
   protected produitbox = viewChild.required<any>('produitbox');
@@ -405,7 +404,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       id: ajustement.id,
       ajustId: ajustement.ajustId,
       qtyMvt: ajustement.qtyMvt,
-      commentaire: this.comment.nativeElement.value,
+      commentaire: this.comment().nativeElement.value,
     };
   }
 }

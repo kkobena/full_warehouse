@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -30,7 +30,15 @@ import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AgGridAngular } from 'ag-grid-angular';
-import { AllCommunityModule, ClientSideRowModelModule, GridApi, GridReadyEvent, ModuleRegistry, themeAlpine } from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ClientSideRowModelModule,
+  GridApi,
+  GridReadyEvent,
+  ModuleRegistry,
+  provideGlobalGridOptions,
+  themeAlpine,
+} from 'ag-grid-community';
 import { InputTextModule } from 'primeng/inputtext';
 import { Authority } from '../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../sales/service/has-authority.service';
@@ -42,7 +50,7 @@ import { InputIcon } from 'primeng/inputicon';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
-//provideGlobalGridOptions({ theme: themeQuartz });
+provideGlobalGridOptions({ theme: themeAlpine });
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -70,7 +78,6 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
-  @ViewChild('itemsGrid') productGrid!: AgGridAngular;
   hasAuthorityService = inject(HasAuthorityService);
   protected isSaving = false;
   protected defaultColDef: any;
@@ -103,17 +110,17 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected search?: string;
   protected ngbPaginationPage = 1;
   protected readonly showFilterCombox: boolean = true;
-  protected readonly theme = themeAlpine.withParams({
-    /*  /!* Low spacing = very compact *!/ spacing: 2,
-     /!* Changes the color of the grid text *!/
-     foregroundColor: 'rgb(14, 68, 145)',
-     /!* Changes the color of the grid background *!/
-     backgroundColor: 'rgb(241, 247, 255)',
-     /!* Changes the header color of the top row *!/
-     headerBackgroundColor: 'rgb(228, 237, 250)',
-     /!* Changes the hover color of the row*!/
-     rowHoverColor: 'rgb(216, 226, 255)', */
-  });
+  /*   protected readonly theme = themeAlpine.withParams({
+       /!* Low spacing = very compact *!/ spacing: 2,
+       /!* Changes the color of the grid text *!/
+       foregroundColor: 'rgb(14, 68, 145)',
+       /!* Changes the color of the grid background *!/
+       backgroundColor: 'rgb(241, 247, 255)',
+       /!* Changes the header color of the top row *!/
+       headerBackgroundColor: 'rgb(228, 237, 250)',
+       /!* Changes the hover color of the row*!/
+       rowHoverColor: 'rgb(216, 226, 255)',
+    }); */
   protected storeInventoryLineService = inject(StoreInventoryLineService);
   protected activatedRoute = inject(ActivatedRoute);
   protected rayonService = inject(RayonService);

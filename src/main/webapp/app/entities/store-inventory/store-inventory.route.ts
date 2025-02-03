@@ -7,9 +7,9 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { IStoreInventory, StoreInventory } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
-import { StoreInventoryComponent } from './store-inventory.component';
-import { StoreInventoryDetailComponent } from './store-inventory-detail.component';
-import { StoreInventoryUpdateComponent } from './store-inventory-update.component';
+
+
+
 
 export const StoreInventoryResolve = (route: ActivatedRouteSnapshot): Observable<null | IStoreInventory> => {
   const id = route.params['id'];
@@ -32,7 +32,7 @@ export const StoreInventoryResolve = (route: ActivatedRouteSnapshot): Observable
 const storeInventoryRoute: Routes = [
   {
     path: '',
-    component: StoreInventoryComponent,
+    loadComponent: () => import('./store-inventory.component').then(m => m.StoreInventoryComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
     },
@@ -40,7 +40,7 @@ const storeInventoryRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: StoreInventoryDetailComponent,
+    loadComponent: () => import('./store-inventory-detail.component').then(m => m.StoreInventoryDetailComponent),
     resolve: {
       storeInventory: StoreInventoryResolve,
     },
@@ -51,7 +51,7 @@ const storeInventoryRoute: Routes = [
   },
   {
     path: 'new',
-    component: StoreInventoryUpdateComponent,
+    loadComponent: () => import('./store-inventory-update.component').then(m => m.StoreInventoryUpdateComponent),
     resolve: {
       storeInventory: StoreInventoryResolve,
     },
@@ -62,7 +62,7 @@ const storeInventoryRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: StoreInventoryUpdateComponent,
+    loadComponent: () => import('./store-inventory-update.component').then(m => m.StoreInventoryUpdateComponent),
     resolve: {
       storeInventory: StoreInventoryResolve,
     },

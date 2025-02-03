@@ -50,7 +50,8 @@ if (DEBUG_INFO_ENABLED) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
+    /* provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }), */
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, ...routerFeatures),
 
     importProvidersFrom(BrowserModule),

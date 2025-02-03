@@ -7,9 +7,9 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { MagasinComponent } from './magasin.component';
-import { MagasinDetailComponent } from './magasin-detail.component';
-import { MagasinUpdateComponent } from './magasin-update.component';
+
+
+
 
 export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null | IMagasin> => {
   const id = route.params['id'];
@@ -32,7 +32,7 @@ export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null |
 const magasinRoute: Routes = [
   {
     path: '',
-    component: MagasinComponent,
+    loadComponent: () => import('./magasin.component').then(m => m.MagasinComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.MAGASIN],
     },
@@ -40,7 +40,7 @@ const magasinRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: MagasinDetailComponent,
+    loadComponent: () => import('./magasin-detail.component').then(m => m.MagasinDetailComponent),
     resolve: {
       magasin: MagasinResolve,
     },
@@ -51,7 +51,7 @@ const magasinRoute: Routes = [
   },
   {
     path: 'new',
-    component: MagasinUpdateComponent,
+    loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
     resolve: {
       magasin: MagasinResolve,
     },
@@ -62,7 +62,7 @@ const magasinRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: MagasinUpdateComponent,
+    loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
     resolve: {
       magasin: MagasinResolve,
     },

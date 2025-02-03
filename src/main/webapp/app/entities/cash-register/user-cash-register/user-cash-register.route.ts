@@ -6,8 +6,8 @@ import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { CashRegisterService } from '../cash-register.service';
 import { CashRegister } from '../model/cash-register.model';
-import { UserCashRegisterComponent } from './user-cash-register.component';
-import { TicketingComponent } from '../ticketing/ticketing.component';
+
+
 
 export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null | CashRegister> => {
   const id = route.params['id'];
@@ -30,7 +30,7 @@ export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null
 const userCahsRoutes: Routes = [
   {
     path: '',
-    component: UserCashRegisterComponent,
+    loadComponent: () => import('./user-cash-register.component').then(m => m.UserCashRegisterComponent),
     /*    data: {
          authorities: [Authority.USER],
        }, */
@@ -38,7 +38,7 @@ const userCahsRoutes: Routes = [
   },
   {
     path: ':id/billetage',
-    component: TicketingComponent,
+    loadComponent: () => import('../ticketing/ticketing.component').then(m => m.TicketingComponent),
     resolve: {
       cashRegister: CategorieResolve,
     },

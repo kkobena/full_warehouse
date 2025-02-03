@@ -6,8 +6,8 @@ import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { AjustementService } from './ajustement.service';
-import { AjustementComponent } from './ajustement.component';
-import { AjustementDetailComponent } from './ajustement-detail.component';
+
+
 import { Ajust, IAjust } from '../../shared/model/ajust.model';
 
 export const AjustementResolve = (route: ActivatedRouteSnapshot): Observable<null | IAjust> => {
@@ -31,7 +31,7 @@ export const AjustementResolve = (route: ActivatedRouteSnapshot): Observable<nul
 const ajustementRoute: Routes = [
   {
     path: '',
-    component: AjustementComponent,
+    loadComponent: () => import('./ajustement.component').then(m => m.AjustementComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
     },
@@ -39,7 +39,7 @@ const ajustementRoute: Routes = [
   },
   {
     path: 'new',
-    component: AjustementDetailComponent,
+    loadComponent: () => import('./ajustement-detail.component').then(m => m.AjustementDetailComponent),
     resolve: {
       ajustement: AjustementResolve,
     },
@@ -50,7 +50,7 @@ const ajustementRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: AjustementDetailComponent,
+    loadComponent: () => import('./ajustement-detail.component').then(m => m.AjustementDetailComponent),
     resolve: {
       ajustement: AjustementResolve,
     },

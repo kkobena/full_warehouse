@@ -7,10 +7,10 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Facture } from './facture.model';
 import { FactureService } from './facture.service';
-import { FacturationComponent } from './facturation.component';
-import { EditionComponent } from './edition/edition.component';
-import { FactureDetailComponent } from './facture-detail/facture-detail.component';
-import { GroupeFactureDetailComponent } from './groupe-facture-detail/groupe-facture-detail.component';
+
+
+
+
 
 export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null | Facture> => {
   const id = route.params['id'];
@@ -34,7 +34,7 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
 const factureRoute: Routes = [
   {
     path: '',
-    component: FacturationComponent,
+    loadComponent: () => import('./facturation.component').then(m => m.FacturationComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
       defaultSort: 'id,asc',
@@ -43,7 +43,7 @@ const factureRoute: Routes = [
   },
   {
     path: 'new',
-    component: EditionComponent,
+    loadComponent: () => import('./edition/edition.component').then(m => m.EditionComponent),
 
     data: {
       authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
@@ -52,7 +52,7 @@ const factureRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: FactureDetailComponent,
+    loadComponent: () => import('./facture-detail/facture-detail.component').then(m => m.FactureDetailComponent),
     resolve: {
       facture: FactureResolve,
     },
@@ -64,7 +64,7 @@ const factureRoute: Routes = [
 
   {
     path: ':id/group-view',
-    component: GroupeFactureDetailComponent,
+    loadComponent: () => import('./groupe-facture-detail/groupe-facture-detail.component').then(m => m.GroupeFactureDetailComponent),
     resolve: {
       facture: FactureResolve,
     },

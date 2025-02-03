@@ -4,9 +4,9 @@ import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-import { MenuComponent } from './menu.component';
-import { MenuDetailComponent } from './menu-detail.component';
-import { MenuUpdateComponent } from './menu-update.component';
+
+
+
 import { IAuthority, Privilege } from '../../shared/model/authority.model';
 import { PrivillegeService } from './privillege.service';
 
@@ -34,7 +34,7 @@ export const MenuResolve = (route: ActivatedRouteSnapshot): Observable<null | IA
 const menuRoute: Routes = [
   {
     path: '',
-    component: MenuComponent,
+    loadComponent: () => import('./menu.component').then(m => m.MenuComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.MENU],
     },
@@ -42,7 +42,7 @@ const menuRoute: Routes = [
   },
   {
     path: ':name/view',
-    component: MenuDetailComponent,
+    loadComponent: () => import('./menu-detail.component').then(m => m.MenuDetailComponent),
     resolve: {
       privilege: MenuResolve,
     },
@@ -53,7 +53,7 @@ const menuRoute: Routes = [
   },
   {
     path: 'new',
-    component: MenuUpdateComponent,
+    loadComponent: () => import('./menu-update.component').then(m => m.MenuUpdateComponent),
     resolve: {
       privilege: MenuResolve,
     },
@@ -64,7 +64,7 @@ const menuRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: MenuUpdateComponent,
+    loadComponent: () => import('./menu-update.component').then(m => m.MenuUpdateComponent),
     resolve: {
       privilege: MenuResolve,
     },

@@ -1,10 +1,9 @@
-import { Component, ElementRef, inject, viewChild, input, output } from '@angular/core';
+import { Component, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -78,7 +77,6 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
     DividerModule,
     KeyFilterModule,
     TagModule,
-    DropdownModule,
     InputSwitchModule,
     OverlayPanelModule,
     ProductTableComponent,

@@ -2,12 +2,12 @@ import { Routes } from '@angular/router';
 
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { MvtCaisseComponent } from './mvt-caisse.component';
+
 
 const mvtCaisseRoute: Routes = [
   {
     path: '',
-    component: MvtCaisseComponent,
+    loadComponent: () => import('./mvt-caisse.component').then(m => m.MvtCaisseComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.MVT_CAISSE, Authority.TABLEAU_PHARMACIEN],
       defaultSort: 'id,asc',

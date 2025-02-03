@@ -7,9 +7,9 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
-import { CommandeComponent } from './commande.component';
-import { CommandeUpdateComponent } from './commande-update.component';
-import { CommandeStockEntryComponent } from './commande-stock-entry.component';
+
+
+
 import DeliveryResolver from './delevery/delivery.resolver';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
@@ -48,7 +48,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
 const commandeRoute: Routes = [
   {
     path: '',
-    component: CommandeComponent,
+    loadComponent: () => import('./commande.component').then(m => m.CommandeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],
       defaultSort: 'id,asc',
@@ -59,7 +59,7 @@ const commandeRoute: Routes = [
 
   {
     path: 'new',
-    component: CommandeUpdateComponent,
+    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     /*
     children: [{ path: ':id', component: ProductDetailComponent }],
     <a [routerLink]="['./', product.id]">{{product.name}}</a>
@@ -76,7 +76,7 @@ const commandeRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: CommandeUpdateComponent,
+    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -100,7 +100,7 @@ const commandeRoute: Routes = [
    },*/
   {
     path: ':id/stock-entry',
-    component: CommandeStockEntryComponent,
+    loadComponent: () => import('./commande-stock-entry.component').then(m => m.CommandeStockEntryComponent),
     resolve: {
       delivery: DeliveryResolver,
     },

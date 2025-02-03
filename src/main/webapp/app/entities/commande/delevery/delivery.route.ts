@@ -3,14 +3,14 @@ import { Routes } from '@angular/router';
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-import { DeliveryComponent } from './delivery.component';
-import { CommandeStockEntryComponent } from '../commande-stock-entry.component';
+
+
 import DeliveryResolver from './delivery.resolver';
 
 const deliveryRoute: Routes = [
   {
     path: '',
-    component: DeliveryComponent,
+    loadComponent: () => import('./delivery.component').then(m => m.DeliveryComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_ENTREE_STOCK, Authority.COMMANDE],
       defaultSort: 'id,asc',
@@ -49,7 +49,7 @@ const deliveryRoute: Routes = [
 
   {
     path: ':id/stock-entry',
-    component: CommandeStockEntryComponent,
+    loadComponent: () => import('../commande-stock-entry.component').then(m => m.CommandeStockEntryComponent),
     resolve: {
       delivery: DeliveryResolver,
     },

@@ -5,9 +5,9 @@ import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { TableauProduitService } from './tableau-produit.service';
-import { TableauProduitComponent } from './tableau-produit.component';
+
 import { ITableau, Tableau } from '../../shared/model/tableau.model';
-import { ProduitAssociesComponent } from './produits/produit-associes.component';
+
 
 export const TableauProduitResolve = (route: ActivatedRouteSnapshot): Observable<null | ITableau> => {
   const id = route.params['id'];
@@ -30,7 +30,7 @@ export const TableauProduitResolve = (route: ActivatedRouteSnapshot): Observable
 const tableauProduitRoute: Routes = [
   {
     path: '',
-    component: TableauProduitComponent,
+    loadComponent: () => import('./tableau-produit.component').then(m => m.TableauProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.REFERENTIEL],
       defaultSort: 'id,asc',
@@ -39,7 +39,7 @@ const tableauProduitRoute: Routes = [
   },
   {
     path: ':id/associe',
-    component: ProduitAssociesComponent,
+    loadComponent: () => import('./produits/produit-associes.component').then(m => m.ProduitAssociesComponent),
     resolve: {
       tableau: TableauProduitResolve,
     },

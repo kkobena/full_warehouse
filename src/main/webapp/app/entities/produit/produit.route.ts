@@ -7,10 +7,10 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { IProduit, Produit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
-import { ProduitComponent } from './produit.component';
-import { ProduitUpdateComponent } from './produit-update.component';
-import { DetailProduitFormComponent } from './detail-produit-form/detail-produit-form.component';
-import { TransactionComponent } from './transaction/transaction.component';
+
+
+
+
 
 export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null | IProduit> => {
   const id = route.params['id'];
@@ -33,7 +33,7 @@ export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null |
 const produitRoute: Routes = [
   {
     path: '',
-    component: ProduitComponent,
+    loadComponent: () => import('./produit.component').then(m => m.ProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
       defaultSort: 'id,asc',
@@ -42,7 +42,7 @@ const produitRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: TransactionComponent,
+    loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),
     resolve: {
       produit: ProduitResolve,
     },
@@ -53,7 +53,7 @@ const produitRoute: Routes = [
   },
   {
     path: 'transaction',
-    component: TransactionComponent,
+    loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),
     resolve: {
       produit: ProduitResolve,
     },
@@ -64,7 +64,7 @@ const produitRoute: Routes = [
   },
   {
     path: 'new',
-    component: ProduitUpdateComponent,
+    loadComponent: () => import('./produit-update.component').then(m => m.ProduitUpdateComponent),
     resolve: {
       produit: ProduitResolve,
     },
@@ -75,7 +75,7 @@ const produitRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: ProduitUpdateComponent,
+    loadComponent: () => import('./produit-update.component').then(m => m.ProduitUpdateComponent),
     resolve: {
       produit: ProduitResolve,
     },
@@ -87,7 +87,7 @@ const produitRoute: Routes = [
 
   {
     path: ':id/detail',
-    component: DetailProduitFormComponent,
+    loadComponent: () => import('./detail-produit-form/detail-produit-form.component').then(m => m.DetailProduitFormComponent),
     resolve: {
       produit: ProduitResolve,
     },

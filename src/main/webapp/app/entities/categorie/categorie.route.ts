@@ -7,9 +7,9 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
-import { CategorieComponent } from './categorie.component';
-import { CategorieDetailComponent } from './categorie-detail.component';
-import { CategorieUpdateComponent } from './categorie-update.component';
+
+
+
 
 export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null | ICategorie> => {
   const id = route.params['id'];
@@ -32,7 +32,7 @@ export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null
 const categorieRoute: Routes = [
   {
     path: '',
-    component: CategorieComponent,
+    loadComponent: () => import('./categorie.component').then(m => m.CategorieComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.CATEGORIE],
     },
@@ -40,7 +40,7 @@ const categorieRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: CategorieDetailComponent,
+    loadComponent: () => import('./categorie-detail.component').then(m => m.CategorieDetailComponent),
     resolve: {
       categorie: CategorieResolve,
     },
@@ -51,7 +51,7 @@ const categorieRoute: Routes = [
   },
   {
     path: 'new',
-    component: CategorieUpdateComponent,
+    loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
     resolve: {
       categorie: CategorieResolve,
     },
@@ -62,7 +62,7 @@ const categorieRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: CategorieUpdateComponent,
+    loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
     resolve: {
       categorie: CategorieResolve,
     },

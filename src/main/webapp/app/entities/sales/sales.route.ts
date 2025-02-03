@@ -7,11 +7,11 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { SalesDetailComponent } from './sales-detail.component';
-import { PresaleComponent } from './presale/presale.component';
-import { VenteEnCoursComponent } from './vente-en-cours/vente-en-cours.component';
-import { SalesHomeComponent } from './sales-home/sales-home.component';
-import { SellingHomeComponent } from './selling-home/selling-home.component';
+
+
+
+
+
 
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
@@ -34,7 +34,7 @@ export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | I
 const salesRoute: Routes = [
   {
     path: '',
-    component: SalesHomeComponent,
+    loadComponent: () => import('./sales-home/sales-home.component').then(m => m.SalesHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       defaultSort: 'id,asc',
@@ -44,7 +44,7 @@ const salesRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: SalesDetailComponent,
+    loadComponent: () => import('./sales-detail.component').then(m => m.SalesDetailComponent),
     resolve: {
       sales: SalesResolve,
     },
@@ -56,7 +56,7 @@ const salesRoute: Routes = [
   },
   {
     path: ':isPresale/new',
-    component: SellingHomeComponent,
+    loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
     resolve: {
       sales: SalesResolve,
     },
@@ -67,7 +67,7 @@ const salesRoute: Routes = [
   },
   {
     path: ':id/:isPresale/edit',
-    component: SellingHomeComponent,
+    loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
     resolve: {
       sales: SalesResolve,
     },
@@ -79,7 +79,7 @@ const salesRoute: Routes = [
   },
   {
     path: 'presale',
-    component: PresaleComponent,
+    loadComponent: () => import('./presale/presale.component').then(m => m.PresaleComponent),
     resolve: {
       sales: SalesResolve,
     },
@@ -91,7 +91,7 @@ const salesRoute: Routes = [
   },
   {
     path: 'ventes-en-cours',
-    component: VenteEnCoursComponent,
+    loadComponent: () => import('./vente-en-cours/vente-en-cours.component').then(m => m.VenteEnCoursComponent),
     resolve: {
       sales: SalesResolve,
     },

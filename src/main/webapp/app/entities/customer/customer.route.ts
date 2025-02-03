@@ -7,9 +7,9 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from './customer.service';
-import { CustomerComponent } from './customer.component';
-import { CustomerDetailComponent } from './customer-detail.component';
-import { CustomerUpdateComponent } from './customer-update.component';
+
+
+
 
 export const CustomerResolve = (route: ActivatedRouteSnapshot): Observable<null | ICustomer> => {
   const id = route.params['id'];
@@ -32,7 +32,7 @@ export const CustomerResolve = (route: ActivatedRouteSnapshot): Observable<null 
 const customerRoute: Routes = [
   {
     path: '',
-    component: CustomerComponent,
+    loadComponent: () => import('./customer.component').then(m => m.CustomerComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
       defaultSort: 'id,asc',
@@ -41,7 +41,7 @@ const customerRoute: Routes = [
   },
   {
     path: ':id/view',
-    component: CustomerDetailComponent,
+    loadComponent: () => import('./customer-detail.component').then(m => m.CustomerDetailComponent),
     resolve: {
       customer: CustomerResolve,
     },
@@ -52,7 +52,7 @@ const customerRoute: Routes = [
   },
   {
     path: 'new',
-    component: CustomerUpdateComponent,
+    loadComponent: () => import('./customer-update.component').then(m => m.CustomerUpdateComponent),
     resolve: {
       customer: CustomerResolve,
     },
@@ -63,7 +63,7 @@ const customerRoute: Routes = [
   },
   {
     path: ':id/edit',
-    component: CustomerUpdateComponent,
+    loadComponent: () => import('./customer-update.component').then(m => m.CustomerUpdateComponent),
     resolve: {
       customer: CustomerResolve,
     },

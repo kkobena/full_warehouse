@@ -6,10 +6,8 @@ import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { ReglementService } from './reglement.service';
-import { FaireReglementComponent } from './faire-reglement/faire-reglement.component';
-import { ReglementDetailComponent } from './reglement-detail/reglement-detail.component';
+
 import { Reglement } from './model/reglement.model';
-import { ReglementComponent } from './reglement.component';
 import { doReglementResolver } from './do-reglement.resolver';
 
 export const ReglementResolve = (route: ActivatedRouteSnapshot): Observable<null | Reglement> => {
@@ -33,7 +31,7 @@ export const ReglementResolve = (route: ActivatedRouteSnapshot): Observable<null
 const reglementRoute: Routes = [
   {
     path: '',
-    component: ReglementComponent,
+    loadComponent: () => import('./reglement.component').then(m => m.ReglementComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE],
       defaultSort: 'id,asc',
@@ -42,7 +40,7 @@ const reglementRoute: Routes = [
   },
   {
     path: 'new',
-    component: FaireReglementComponent,
+    loadComponent: () => import('./faire-reglement/faire-reglement.component').then(m => m.FaireReglementComponent),
 
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE],
@@ -51,7 +49,7 @@ const reglementRoute: Routes = [
   },
   {
     path: ':id/:typeFacture/faire-reglement',
-    component: ReglementComponent,
+    loadComponent: () => import('./reglement.component').then(m => m.ReglementComponent),
     resolve: {
       factureDossiers: doReglementResolver,
     },
@@ -63,7 +61,7 @@ const reglementRoute: Routes = [
 
   {
     path: ':id/view',
-    component: ReglementDetailComponent,
+    loadComponent: () => import('./reglement-detail/reglement-detail.component').then(m => m.ReglementDetailComponent),
     resolve: {
       reglement: ReglementResolve,
     },

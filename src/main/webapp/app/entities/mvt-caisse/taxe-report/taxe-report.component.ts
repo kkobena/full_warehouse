@@ -28,11 +28,13 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-taxe-report',
   providers: [MessageService, ConfirmationService],
   imports: [
+    WarehouseCommonModule,
     Button,
     DropdownModule,
     InputTextModule,
@@ -48,8 +50,8 @@ import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils
     FormsModule,
     FloatLabel,
     DatePickerModule,
-    Select
-],
+    Select,
+  ],
   templateUrl: './taxe-report.component.html',
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {

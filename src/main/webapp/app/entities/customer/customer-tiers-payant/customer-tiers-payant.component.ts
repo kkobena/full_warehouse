@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from '../../../shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -53,6 +53,14 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
   templateUrl: './customer-tiers-payant.component.html',
 })
 export class CustomerTiersPayantComponent implements OnInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected tiersPayantService = inject(TiersPayantService);
+  protected customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   minLength = 3;
   plafonds = [
     { label: 'Non', value: false },
@@ -73,15 +81,10 @@ export class CustomerTiersPayantComponent implements OnInit {
   isValid = true;
   tiersPayants: ITiersPayant[] = [];
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected tiersPayantService: TiersPayantService,
-    protected customerService: CustomerService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

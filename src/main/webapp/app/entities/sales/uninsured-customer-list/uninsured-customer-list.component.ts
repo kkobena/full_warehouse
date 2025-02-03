@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
@@ -26,7 +26,12 @@ import { CustomerDataTableComponent } from './customer-data-table.component';
     ]
 })
 export class UninsuredCustomerListComponent {
-  constructor(public ref: DynamicDialogRef) {}
+  ref = inject(DynamicDialogRef);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   onSelectClose(event: any): void {
     this.ref.close(event);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
@@ -38,15 +38,18 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class VenteEnCoursComponent implements OnInit {
+  protected salesService = inject(SalesService);
+  protected confirmationService = inject(ConfirmationService);
+
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
 
-  constructor(
-    protected salesService: SalesService,
-    protected confirmationService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';

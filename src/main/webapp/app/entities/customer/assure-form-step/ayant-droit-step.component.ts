@@ -30,6 +30,8 @@ import { DividerModule } from 'primeng/divider';
   styles: ``,
 })
 export class AyantDroitStepComponent implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+
   assure?: ICustomer;
   ayantDroit: ICustomer;
   isSaving = false;
@@ -45,7 +47,10 @@ export class AyantDroitStepComponent implements OnInit {
     sexe: [],
   });
 
-  constructor(private fb: UntypedFormBuilder) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     const currentAssure = this.assureFormStepService.assure();

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
@@ -8,10 +8,15 @@ import { CommonModule } from '@angular/common';
     imports: [CommonModule, NgbModule]
 })
 export class AlertInfoComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+
   message?: string;
   infoClass?: string;
 
-  constructor(public activeModal: NgbActiveModal) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {}
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IResponseCommande } from '../../shared/model/response-commande.model';
@@ -11,6 +11,8 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule]
 })
 export class CommandeEnCoursResponseDialogComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+
   responseCommande?: IResponseCommande;
   commande?: ICommande;
   responseCommandeItem: IResponseCommandeItem[] = [];
@@ -19,7 +21,10 @@ export class CommandeEnCoursResponseDialogComponent implements OnInit {
   classCss = 'col-sm-3';
   classCssNon = 'col-sm-9';
 
-  constructor(public activeModal: NgbActiveModal) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.getItem();

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
@@ -48,6 +48,13 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class GroupeFournisseurComponent implements OnInit {
+  protected entityService = inject(GroupeFournisseurService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private messageService = inject(MessageService);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(UntypedFormBuilder);
+
   fileDialog?: boolean;
   responsedto!: IResponseDto;
   responseDialog?: boolean;
@@ -70,14 +77,10 @@ export class GroupeFournisseurComponent implements OnInit {
     odre: [],
   });
 
-  constructor(
-    protected entityService: GroupeFournisseurService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private messageService: MessageService,
-    protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPage();

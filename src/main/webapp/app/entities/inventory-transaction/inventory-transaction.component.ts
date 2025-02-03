@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -37,6 +37,11 @@ provideGlobalGridOptions({ theme: themeAlpine });
   imports: [WarehouseCommonModule, AgGridAngular],
 })
 export class InventoryTransactionComponent implements OnInit {
+  protected inventoryTransactionService = inject(InventoryTransactionService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page!: number;
@@ -46,12 +51,10 @@ export class InventoryTransactionComponent implements OnInit {
   rowData: any = [];
   columnDefs: any[];
 
-  constructor(
-    protected inventoryTransactionService: InventoryTransactionService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.columnDefs = [
       {
         headerName: 'Article',

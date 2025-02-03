@@ -23,6 +23,9 @@ import { CommonService } from './common.service';
   providers: [MessageService],
 })
 export class AssureFormStepComponent implements OnInit {
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+
   ayantDroitStepComponent = viewChild(AyantDroitStepComponent);
   assureStepComponent = viewChild(AssureStepComponent);
   items: MenuItem[];
@@ -37,10 +40,10 @@ export class AssureFormStepComponent implements OnInit {
   typeAssure: string | undefined;
   activeStep: number = 1;
 
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

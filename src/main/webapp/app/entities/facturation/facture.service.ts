@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Facture } from './facture.model';
@@ -18,9 +18,14 @@ type EntityArrayResponseType = HttpResponse<Facture[]>;
   providedIn: 'root',
 })
 export class FactureService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/edition-factures';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Facture>(`${this.resourceUrl}/${id}`, { observe: 'response' });

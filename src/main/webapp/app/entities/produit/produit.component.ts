@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
@@ -123,6 +123,18 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class ProduitComponent implements OnInit {
+  protected produitService = inject(ProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  protected confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
+  private messageService = inject(MessageService);
+  protected rayonService = inject(RayonService);
+  protected familleService = inject(FamilleProduitService);
+  protected errorService = inject(ErrorService);
+  protected configurationService = inject(ConfigurationService);
+
   faCut = faCut;
   faPlusCircle = faPlusCircle;
   produits!: IProduit[];
@@ -157,20 +169,11 @@ export class ProduitComponent implements OnInit {
   rowExpandMode: ExpandMode = 'single';
   protected typeImportation: string | null = null;
 
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
   //            <td><span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span></td>
-  constructor(
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    protected confirmationService: ConfirmationService,
-    private dialogService: DialogService,
-    private messageService: MessageService,
-    protected rayonService: RayonService,
-    protected familleService: FamilleProduitService,
-    protected errorService: ErrorService,
-    protected configurationService: ConfigurationService,
-  ) {
+  constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
     this.splitbuttons = [

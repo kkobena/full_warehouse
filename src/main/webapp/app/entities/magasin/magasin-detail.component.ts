@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { IMagasin } from 'app/shared/model/magasin.model';
@@ -11,9 +11,14 @@ import { PanelModule } from 'primeng/panel';
     imports: [WarehouseCommonModule, PanelModule, RouterModule]
 })
 export class MagasinDetailComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+
   magasin: IMagasin | null = null;
 
-  constructor(protected activatedRoute: ActivatedRoute) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => (this.magasin = magasin));

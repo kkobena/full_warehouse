@@ -41,6 +41,8 @@ import { Select } from 'primeng/select';
   styles: ``,
 })
 export class ComplementaireStepComponent {
+  private fb = inject(UntypedFormBuilder);
+
   catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
@@ -62,7 +64,10 @@ export class ComplementaireStepComponent {
   dialogService = inject(DialogService);
   ref!: DynamicDialogRef;
 
-  constructor(private fb: UntypedFormBuilder) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   get editFormGroups(): FormArray {
     return this.editForm.get('tiersPayants') as FormArray;

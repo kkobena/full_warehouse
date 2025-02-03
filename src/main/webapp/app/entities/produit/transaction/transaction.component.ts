@@ -1,4 +1,4 @@
-import { Component, OnInit, viewChild } from '@angular/core';
+import { Component, OnInit, viewChild, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -46,6 +46,11 @@ import { DatePicker } from 'primeng/datepicker';
   providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected produitService = inject(ProduitService);
+  protected produitAuditingParamService = inject(ProduitAuditingParamService);
+
   readonly auditingComponent = viewChild(AuditingComponent);
   protected active = 'auditing';
   protected fromDate: Date = new Date();
@@ -58,14 +63,12 @@ export class TransactionComponent implements OnInit {
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
 
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
   // readonly statSalesComponent = viewChild(StatSalesComponent);
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected produitService: ProduitService,
-    protected produitAuditingParamService: ProduitAuditingParamService,
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute?.data?.subscribe(({ produit }) => {

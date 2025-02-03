@@ -54,6 +54,11 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
   ],
 })
 export class AjustementComponent implements OnInit {
+  protected userService = inject(UserService);
+  translate = inject(TranslateService);
+  protected router = inject(Router);
+  protected activatedRoute = inject(ActivatedRoute);
+
   ajustementEnCours = viewChild(AjustementEnCoursComponent);
   ajustementList = viewChild(ListAjustementComponent);
   ajustementService = inject(AjustementService);
@@ -65,12 +70,10 @@ export class AjustementComponent implements OnInit {
   protected active = 'CLOSED';
   protected readonly appendTo = APPEND_TO;
 
-  constructor(
-    protected userService: UserService,
-    public translate: TranslateService,
-    protected router: Router,
-    protected activatedRoute: ActivatedRoute,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadAllUsers();

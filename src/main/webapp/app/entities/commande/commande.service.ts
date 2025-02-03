@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,9 +17,14 @@ type EntityArrayResponseType = HttpResponse<ICommande[]>;
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/commandes';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(commande: ICommande): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(commande);

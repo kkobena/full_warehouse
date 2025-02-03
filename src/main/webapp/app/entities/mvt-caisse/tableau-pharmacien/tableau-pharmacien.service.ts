@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SERVER_API_URL } from '../../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,9 +10,14 @@ import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.mod
   providedIn: 'root',
 })
 export class TableauPharmacienService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   query(req?: any): Observable<HttpResponse<TableauPharmacienWrapper>> {
     const options = createRequestOptions(req);

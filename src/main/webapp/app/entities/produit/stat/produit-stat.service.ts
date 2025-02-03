@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -9,9 +9,14 @@ import { ProductStatRecord, ProduitAuditingParam, ProduitAuditingState } from '.
 
 @Injectable({ providedIn: 'root' })
 export class ProduitStatService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/produits/stat';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   fetchPoduitCa(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatRecord[]>> {
     const options = createRequestOptions(venteRecordParam);

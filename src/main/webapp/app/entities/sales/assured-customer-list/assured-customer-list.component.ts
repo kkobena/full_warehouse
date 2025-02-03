@@ -31,6 +31,9 @@ import { ISales } from '../../../shared/model/sales.model';
     ]
 })
 export class AssuredCustomerListComponent implements OnInit {
+  private ref = inject(DynamicDialogRef);
+  private config = inject(DynamicDialogConfig);
+
   customers: ICustomer[] = [];
   searchString?: string | null = '';
   itemsPerPage = ITEMS_PER_PAGE;
@@ -42,10 +45,10 @@ export class AssuredCustomerListComponent implements OnInit {
   dialogService = inject(DialogService);
   loading!: boolean;
 
-  constructor(
-    private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.searchString = this.config.data.searchString;

@@ -1,4 +1,4 @@
-import { Component, OnInit, input, output } from '@angular/core';
+import { Component, OnInit, input, output, inject } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -45,6 +45,17 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class CommandeEnCoursComponent implements OnInit {
+  protected commandeService = inject(CommandeService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  private errorService = inject(ErrorService);
+  protected deliveryService = inject(DeliveryService);
+  protected produitService = inject(ProduitService);
+  private spinner = inject(NgxSpinnerService);
+  private confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
+
   readonly search = input('');
   readonly searchCommande = input('');
   readonly selectionLength = output<number>();
@@ -65,18 +76,10 @@ export class CommandeEnCoursComponent implements OnInit {
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
 
-  constructor(
-    protected commandeService: CommandeService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-    protected deliveryService: DeliveryService,
-    protected produitService: ProduitService,
-    private spinner: NgxSpinnerService,
-    private confirmationService: ConfirmationService,
-    private dialogService: DialogService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.rowExpandMode = 'single';
   }
 

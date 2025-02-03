@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { GROUPING_BY, IStoreInventory, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
@@ -40,6 +40,12 @@ import { Tooltip } from 'primeng/tooltip';
   ],
 })
 export class StoreInventoryDetailComponent implements OnInit {
+  protected rayonService = inject(RayonService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected storeInventoryLineService = inject(StoreInventoryLineService);
+  private spinner = inject(NgxSpinnerService);
+  protected storeInventoryService = inject(StoreInventoryService);
+
   storeInventory: IStoreInventory | null = null;
   protected page = 0;
   protected loading!: boolean;
@@ -63,13 +69,10 @@ export class StoreInventoryDetailComponent implements OnInit {
   protected storages: Storage[];
   protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
 
-  constructor(
-    protected rayonService: RayonService,
-    protected activatedRoute: ActivatedRoute,
-    protected storeInventoryLineService: StoreInventoryLineService,
-    private spinner: NgxSpinnerService,
-    protected storeInventoryService: StoreInventoryService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ storeInventory }) => {

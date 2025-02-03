@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
@@ -36,6 +36,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class TvaComponent implements OnInit {
+  protected tvaService = inject(TvaService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(UntypedFormBuilder);
+
   tvas?: ITva[];
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
@@ -51,13 +57,10 @@ export class TvaComponent implements OnInit {
     taux: [null, [Validators.required]],
   });
 
-  constructor(
-    protected tvaService: TvaService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;

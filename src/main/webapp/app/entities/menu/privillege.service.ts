@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { SERVER_API_URL } from '../../app.constants';
 import { Observable } from 'rxjs';
@@ -13,10 +13,15 @@ type EntityArrayResponseType = HttpResponse<IAuthority[]>;
   providedIn: 'root',
 })
 export class PrivillegeService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/privilleges';
   public resourceAuthorityUrl = SERVER_API_URL + 'api/authorities';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(authority: IAuthority): Observable<HttpResponse<IAuthority>> {
     return this.http.post<IAuthority>(`${this.resourceAuthorityUrl}/save`, authority, { observe: 'response' });

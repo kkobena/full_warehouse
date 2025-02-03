@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ILot } from '../../../../shared/model/lot.model';
@@ -30,6 +30,14 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   ],
 })
 export class ListLotComponent implements OnInit {
+  protected entityService = inject(LotService);
+  ref = inject(DynamicDialogRef);
+  ref2 = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private messageService = inject(MessageService);
+  private dialogService = inject(DialogService);
+  private modalService = inject(ConfirmationService);
+
   lots: ILot[] = [];
   selectedEl!: ILot;
   deliveryItem?: IDeliveryItem;
@@ -37,15 +45,10 @@ export class ListLotComponent implements OnInit {
 
   showUgAddNewBtn = true;
 
-  constructor(
-    protected entityService: LotService,
-    public ref: DynamicDialogRef,
-    public ref2: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private messageService: MessageService,
-    private dialogService: DialogService,
-    private modalService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.deliveryItem = this.config.data.deliveryItem;

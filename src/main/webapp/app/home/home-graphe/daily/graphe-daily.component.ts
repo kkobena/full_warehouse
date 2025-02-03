@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { TOPS } from '../../../shared/constants/pagination.constants';
 import { faChartArea } from '@fortawesome/free-solid-svg-icons';
 import { StatGroupBy } from '../../../shared/model/enumerations/type-vente.model';
@@ -20,6 +20,8 @@ import { ChartModule } from 'primeng/chart';
     imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule]
 })
 export class GrapheDailyComponent implements OnInit {
+  private charBuilderService = inject(CharBuilderService);
+
   protected readonly TOPS = TOPS;
   protected readonly faChartArea = faChartArea;
   protected sales: VentePeriodeRecord[] = [];
@@ -29,7 +31,10 @@ export class GrapheDailyComponent implements OnInit {
   protected options: any;
   protected lineChart: LineChart;
 
-  constructor(private charBuilderService: CharBuilderService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onFetchLineChartSalesData();

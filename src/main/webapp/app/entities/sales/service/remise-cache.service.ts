@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { GroupRemise, Remise } from '../../../shared/model/remise.model';
 import { RemiseService } from '../../remise/remise.service';
@@ -7,9 +7,14 @@ import { RemiseService } from '../../remise/remise.service';
   providedIn: 'root',
 })
 export class RemiseCacheService {
+  private remiseService = inject(RemiseService);
+
   remises: WritableSignal<GroupRemise[]> = signal<GroupRemise[]>([]);
 
-  constructor(private remiseService: RemiseService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     // if (this.remises().length === 0) {
     this.remiseService.query().subscribe((res: HttpResponse<Remise[]>) => {
       const groupRemises = res.body

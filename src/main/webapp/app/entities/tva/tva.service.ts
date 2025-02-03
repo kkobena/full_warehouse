@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {SERVER_API_URL} from '../../app.constants';
 import {firstValueFrom, Observable} from 'rxjs';
@@ -12,9 +12,14 @@ type EntityArrayResponseType = HttpResponse<ITva[]>;
   providedIn: 'root',
 })
 export class TvaService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/tvas';
 
-  constructor(protected http: HttpClient) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   create(tva: ITva): Observable<EntityResponseType> {

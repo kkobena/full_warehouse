@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { HttpResponse, HttpClient } from '@angular/common/http';
 
@@ -14,8 +14,13 @@ type EntityArrayResponseType = HttpResponse<IMotifRetourProduit[]>;
   providedIn: 'root',
 })
 export class ModifRetourProduitService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/modif-retour-produits';
-  constructor(protected http: HttpClient) {}
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() {}
 
   create(modifAjustement: IMotifRetourProduit): Observable<EntityResponseType> {
     return this.http.post<IMotifRetourProduit>(this.resourceUrl, modifAjustement, { observe: 'response' });

@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICustomer } from 'app/shared/model/customer.model';
@@ -18,6 +18,11 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class PackDialogueComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+  private fb = inject(FormBuilder);
+  private salesService = inject(SalesService);
+  private saleItemService = inject(SalesLineService);
+
   produit?: IProduit;
   isSaving = false;
   sale?: ISales;
@@ -28,12 +33,10 @@ export class PackDialogueComponent implements OnInit {
     quantitySold: [null, [Validators.required, Validators.min(1)]],
   });
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private salesService: SalesService,
-    private saleItemService: SalesLineService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {}
 

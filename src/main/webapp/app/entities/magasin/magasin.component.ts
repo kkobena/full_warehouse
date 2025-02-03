@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -17,12 +17,15 @@ import { RippleModule } from 'primeng/ripple';
     imports: [WarehouseCommonModule, PanelModule, RouterModule, ButtonModule, RippleModule]
 })
 export class MagasinComponent implements OnInit {
+  protected magasinService = inject(MagasinService);
+  protected modalService = inject(NgbModal);
+
   magasin?: IMagasin;
 
-  constructor(
-    protected magasinService: MagasinService,
-    protected modalService: NgbModal,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   loadAll(): void {
     this.magasinService.findPromise().then(magasin => {

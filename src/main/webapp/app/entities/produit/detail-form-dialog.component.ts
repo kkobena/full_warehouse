@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ProduitService } from './produit.service';
 import { IProduit, Produit } from '../../shared/model/produit.model';
@@ -16,6 +16,10 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule]
 })
 export class DetailFormDialogComponent implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+  protected produitService = inject(ProduitService);
+  activeModal = inject(NgbActiveModal);
+
   isSaving = false;
   isValid = true;
   produit?: Produit;
@@ -28,11 +32,10 @@ export class DetailFormDialogComponent implements OnInit {
     createdAt: [],
   });
 
-  constructor(
-    private fb: UntypedFormBuilder,
-    protected produitService: ProduitService,
-    public activeModal: NgbActiveModal,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     if (this.entity !== null && this.entity !== undefined) {

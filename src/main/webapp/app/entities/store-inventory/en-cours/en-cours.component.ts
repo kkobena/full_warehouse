@@ -1,4 +1,4 @@
-import { Component, OnInit, input } from '@angular/core';
+import { Component, OnInit, input, inject } from '@angular/core';
 import {
   GROUPING_BY,
   InventoryCategory,
@@ -44,6 +44,14 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
+  private spinner = inject(NgxSpinnerService);
+  private storeInventoryService = inject(StoreInventoryService);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  private errorService = inject(ErrorService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+
   readonly inventoryCategories = input<InventoryCategory[]>();
   readonly user = input<IUser | null>();
   protected statuts: InventoryStatut[] = ['CREATE', 'PROCESSING'];
@@ -55,15 +63,10 @@ export class EnCoursComponent implements OnInit {
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
 
-  constructor(
-    private spinner: NgxSpinnerService,
-    private storeInventoryService: StoreInventoryService,
-    protected router: Router,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

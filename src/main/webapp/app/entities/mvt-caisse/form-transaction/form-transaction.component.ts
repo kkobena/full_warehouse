@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -39,6 +39,14 @@ import { InputNumberModule } from 'primeng/inputnumber';
     styleUrl: './form-transaction.component.scss'
 })
 export class FormTransactionComponent implements OnInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(FormBuilder);
+  private ref = inject(DynamicDialogRef);
+  private config = inject(DynamicDialogConfig);
+  private mvtCaisseService = inject(MvtCaisseServiceService);
+  private messageService = inject(MessageService);
+  private modeService = inject(ModePaymentService);
+
   isSaving = false;
   isValid = true;
   appendTo = 'body';
@@ -69,15 +77,10 @@ export class FormTransactionComponent implements OnInit {
   ];
   protected paymentModes: IPaymentMode[] = [];
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: FormBuilder,
-    private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig,
-    private mvtCaisseService: MvtCaisseServiceService,
-    private messageService: MessageService,
-    private modeService: ModePaymentService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -18,6 +18,10 @@ import { RippleModule } from 'primeng/ripple';
     imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule]
 })
 export class MagasinUpdateComponent implements OnInit {
+  protected magasinService = inject(MagasinService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private fb = inject(UntypedFormBuilder);
+
   isSaving = false;
 
   editForm = this.fb.group({
@@ -31,11 +35,10 @@ export class MagasinUpdateComponent implements OnInit {
     welcomeMessage: [],
   });
 
-  constructor(
-    protected magasinService: MagasinService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => {

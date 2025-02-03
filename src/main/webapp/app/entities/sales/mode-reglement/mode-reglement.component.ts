@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Inject, OnInit, signal, viewChild, input, output } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal, viewChild, input, output } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,6 +35,8 @@ import { InputGroupModule } from 'primeng/inputgroup';
   templateUrl: './mode-reglement.component.html',
 })
 export class ModeReglementComponent implements OnInit {
+  private document = inject<Document>(DOCUMENT);
+
   readonly showModeReglementCard = input<boolean>(true);
   readonly paymentModeControlEvent = output<PaymentModeControl>();
   readonly onSaveEvent = output<boolean>();
@@ -71,7 +73,10 @@ export class ModeReglementComponent implements OnInit {
   protected printInvoice = false;
   protected paymentModeToChange: IPaymentMode | null;
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.updateAvailableMode();
   }
 

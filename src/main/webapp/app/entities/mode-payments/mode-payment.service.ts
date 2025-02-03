@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../app.constants';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<IPaymentMode[]>;
   providedIn: 'root',
 })
 export class ModePaymentService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/payment-modes';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   update(tableau: IPaymentMode): Observable<EntityResponseType> {
     return this.http.put<IPaymentMode>(this.resourceUrl, tableau, { observe: 'response' });

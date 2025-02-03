@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -29,6 +29,12 @@ import { RippleModule } from 'primeng/ripple';
     ]
 })
 export class FormMotifAjustementComponent implements OnInit {
+  protected entityService = inject(ModifAjustementService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(UntypedFormBuilder);
+  private messageService = inject(MessageService);
+
   entity?: IMotifAjustement;
   isSaving = false;
   editForm = this.fb.group({
@@ -36,13 +42,10 @@ export class FormMotifAjustementComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: ModifAjustementService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: UntypedFormBuilder,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

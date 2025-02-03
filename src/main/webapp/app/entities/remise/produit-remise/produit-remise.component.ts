@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { PickListModule } from 'primeng/picklist';
@@ -34,6 +34,10 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     styleUrl: './produit-remise.component.scss'
 })
 export class ProduitRemiseComponent {
+  protected produitService = inject(ProduitService);
+  private remiseService = inject(RemiseService);
+  protected activatedRoute = inject(ActivatedRoute);
+
   produitsSource: IProduit[] = [];
   produitsTarget: IProduit[] = [];
   statut: string = 'ENABLE';
@@ -41,11 +45,10 @@ export class ProduitRemiseComponent {
   searchTarget: string;
   remise: IRemise;
 
-  constructor(
-    protected produitService: ProduitService,
-    private remiseService: RemiseService,
-    protected activatedRoute: ActivatedRoute,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ remise }) => {

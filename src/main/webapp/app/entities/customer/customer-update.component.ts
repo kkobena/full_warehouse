@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -19,6 +19,11 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
 })
 export class CustomerUpdateComponent implements OnInit {
+  protected customerService = inject(CustomerService);
+  protected produitService = inject(ProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private fb = inject(UntypedFormBuilder);
+
   isSaving = false;
   produits: IProduit[] = [];
   editForm = this.fb.group({
@@ -31,12 +36,10 @@ export class CustomerUpdateComponent implements OnInit {
     produits: [],
   });
 
-  constructor(
-    protected customerService: CustomerService,
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => {

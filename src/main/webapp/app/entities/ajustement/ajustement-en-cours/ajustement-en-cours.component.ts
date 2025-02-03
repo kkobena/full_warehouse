@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AjustementStatut } from '../../../shared/model/enumerations/ajustement-statut.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IAjust } from '../../../shared/model/ajust.model';
@@ -25,6 +25,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class AjustementEnCoursComponent implements OnInit {
+  protected userService = inject(UserService);
+  translate = inject(TranslateService);
+  protected ajustementService = inject(AjustementService);
+  private confirmationService = inject(ConfirmationService);
+  protected router = inject(Router);
+
   protected ajustementStatut: AjustementStatut = AjustementStatut.PENDING;
   protected rowData: IAjust[] = [];
   protected totalItems = 0;
@@ -35,13 +41,10 @@ export class AjustementEnCoursComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected ajustements?: IAjustement[];
 
-  constructor(
-    protected userService: UserService,
-    public translate: TranslateService,
-    protected ajustementService: AjustementService,
-    private confirmationService: ConfirmationService,
-    protected router: Router,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

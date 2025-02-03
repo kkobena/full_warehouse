@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<IFournisseur[]>;
   providedIn: 'root',
 })
 export class FournisseurService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/fournisseurs';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(fournisseur: IFournisseur): Observable<EntityResponseType> {
     return this.http.post<IFournisseur>(this.resourceUrl, fournisseur, { observe: 'response' });

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 import { combineLatest, Observable, Subscription } from 'rxjs';
@@ -65,6 +65,17 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class CustomerComponent implements OnInit {
+  protected customerService = inject(CustomerService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  private dialogService = inject(DialogService);
+  protected confirmationService = inject(ConfirmationService);
+  translate = inject(TranslateService);
+  primeNGConfig = inject(PrimeNG);
+  private spinner = inject(NgxSpinnerService);
+  private messageService = inject(MessageService);
+
   customers?: ICustomer[];
   types: string[] = ['TOUT', 'ASSURE', 'STANDARD'];
   statuts: object[] = [
@@ -88,18 +99,10 @@ export class CustomerComponent implements OnInit {
   jsonDialog = false;
   responseDialog = false;
 
-  constructor(
-    protected customerService: CustomerService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    private dialogService: DialogService,
-    protected confirmationService: ConfirmationService,
-    public translate: TranslateService,
-    public primeNGConfig: PrimeNG,
-    private spinner: NgxSpinnerService,
-    private messageService: MessageService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);

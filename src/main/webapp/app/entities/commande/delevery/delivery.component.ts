@@ -1,4 +1,4 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, viewChild, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -41,17 +41,20 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class DeliveryComponent {
+  protected router = inject(Router);
+  protected entityService = inject(DeliveryService);
+  private dialogService = inject(DialogService);
+
   search = '';
   ref?: DynamicDialogRef;
   protected active = 'pending';
   readonly enCoursComponent = viewChild(BonEnCoursComponent);
   readonly listBonsComponent = viewChild(ListBonsComponent);
 
-  constructor(
-    protected router: Router,
-    protected entityService: DeliveryService,
-    private dialogService: DialogService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   onSearch(): void {
     if (this.active === 'pending') {

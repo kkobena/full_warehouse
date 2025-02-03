@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<IFormProduit[]>;
   providedIn: 'root',
 })
 export class FormeProduitService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/form-produits';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(formProduit: IFormProduit): Observable<EntityResponseType> {
     return this.http.post<IFormProduit>(this.resourceUrl, formProduit, { observe: 'response' });

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
@@ -10,9 +10,14 @@ type EntityArrayResponseType = HttpResponse<ILot[]>;
 
 @Injectable({ providedIn: 'root' })
 export class LotService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/lot';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/add-to-commande', lot, { observe: 'response' });

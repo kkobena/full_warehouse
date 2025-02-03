@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CustomerService } from 'app/entities/customer/customer.service';
@@ -17,15 +17,18 @@ import { TableModule } from 'primeng/table';
     imports: [WarehouseCommonModule, ToolbarModule, TableModule, ButtonModule, RippleModule, InputTextModule, TooltipModule]
 })
 export class TiersPayantCustomerListComponent implements OnInit {
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected customerService = inject(CustomerService);
+
   tiersPayants: IClientTiersPayant[] = [];
   assure?: ICustomer | null;
   tiersPayantsExisting: IClientTiersPayant[] = [];
 
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected customerService: CustomerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.assure = this.config.data.assure;

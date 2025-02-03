@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -15,6 +15,10 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
 })
 export class CategorieUpdateComponent implements OnInit {
+  protected categorieService = inject(CategorieService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private fb = inject(UntypedFormBuilder);
+
   isSaving = false;
 
   editForm = this.fb.group({
@@ -22,11 +26,10 @@ export class CategorieUpdateComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected categorieService: CategorieService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ categorie }) => {

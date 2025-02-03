@@ -1,4 +1,4 @@
-import { Component, OnInit, input } from '@angular/core';
+import { Component, OnInit, input, inject } from '@angular/core';
 import {
   GROUPING_BY,
   InventoryCategory,
@@ -27,6 +27,11 @@ import { TooltipModule } from 'primeng/tooltip';
     imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
 })
 export class CloturesComponent implements OnInit {
+  private spinner = inject(NgxSpinnerService);
+  private storeInventoryService = inject(StoreInventoryService);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+
   readonly inventoryCategories = input<InventoryCategory[]>();
   readonly user = input<IUser | null>();
   protected statuts: InventoryStatut[] = ['CLOSED'];
@@ -38,12 +43,10 @@ export class CloturesComponent implements OnInit {
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
 
-  constructor(
-    private spinner: NgxSpinnerService,
-    private storeInventoryService: StoreInventoryService,
-    protected router: Router,
-    protected modalService: NgbModal,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

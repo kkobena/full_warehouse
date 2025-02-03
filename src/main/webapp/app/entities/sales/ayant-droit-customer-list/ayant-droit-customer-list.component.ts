@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
@@ -28,14 +28,17 @@ import { ToolbarModule } from 'primeng/toolbar';
     ]
 })
 export class AyantDroitCustomerListComponent implements OnInit {
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected customerService = inject(CustomerService);
+
   customers: ICustomer[] = [];
   assure?: ICustomer | null;
 
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected customerService: CustomerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.assure = this.config.data.assure;

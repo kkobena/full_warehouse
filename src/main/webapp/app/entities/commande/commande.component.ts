@@ -76,6 +76,16 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class CommandeComponent implements OnInit {
+  protected commandeService = inject(CommandeService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  private errorService = inject(ErrorService);
+  protected produitService = inject(ProduitService);
+  private spinner = inject(NgxSpinnerService);
+  private confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
+
   commandes: ICommande[] = [];
   commandeSelected?: ICommande;
   selectedRowIndex?: number;
@@ -95,17 +105,10 @@ export class CommandeComponent implements OnInit {
   protected search = '';
   protected selectionLength: number = 0;
 
-  constructor(
-    protected commandeService: CommandeService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-    protected produitService: ProduitService,
-    private spinner: NgxSpinnerService,
-    private confirmationService: ConfirmationService,
-    private dialogService: DialogService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.active = this.commandCommonService.commandPreviousActiveNav();

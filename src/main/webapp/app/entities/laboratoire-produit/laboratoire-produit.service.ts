@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {ILaboratoire} from '../../shared/model/laboratoire.model';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<ILaboratoire[]>;
   providedIn: 'root',
 })
 export class LaboratoireProduitService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/laboratoires';
 
-  constructor(protected http: HttpClient) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   create(laboratoire: ILaboratoire): Observable<EntityResponseType> {

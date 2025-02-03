@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
@@ -155,6 +155,11 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule]
 })
 export class CustomerDetailComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected customerService = inject(CustomerService);
+  protected magasinService = inject(MagasinService);
+  protected salesService = inject(SalesService);
+
   customer: ICustomer | null = null;
   sales: ISales[] = [];
   selectedRowIndex?: number;
@@ -163,12 +168,10 @@ export class CustomerDetailComponent implements OnInit {
   invoiceConent?: any;
   magasin?: IMagasin;
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected customerService: CustomerService,
-    protected magasinService: MagasinService,
-    protected salesService: SalesService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => (this.customer = customer));

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -20,6 +20,9 @@ import { RouterModule } from '@angular/router';
   imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule],
 })
 export class CategorieComponent implements OnInit {
+  protected categorieService = inject(CategorieService);
+  protected modalService = inject(NgbModal);
+
   categories: ICategorie[];
   itemsPerPage: number;
   links: any;
@@ -27,10 +30,10 @@ export class CategorieComponent implements OnInit {
   predicate: string;
   ascending: boolean;
 
-  constructor(
-    protected categorieService: CategorieService,
-    protected modalService: NgbModal,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.categories = [];
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;

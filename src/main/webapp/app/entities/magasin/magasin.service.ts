@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 
@@ -11,9 +11,14 @@ type EntityArrayResponseType = HttpResponse<IMagasin[]>;
 
 @Injectable({ providedIn: 'root' })
 export class MagasinService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/magasins';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(magasin: IMagasin): Observable<EntityResponseType> {
     return this.http.post<IMagasin>(this.resourceUrl, magasin, { observe: 'response' });

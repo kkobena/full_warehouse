@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -41,6 +41,14 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
   ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected tiersPayantService = inject(TiersPayantService);
+  protected groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private messageService = inject(MessageService);
+
   name = viewChild.required<ElementRef>('name');
   entity?: ITiersPayant;
   categorie?: string | null = null;
@@ -67,15 +75,10 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     toBeExclude: [],
   });
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected tiersPayantService: TiersPayantService,
-    protected groupeTiersPayantService: GroupeTiersPayantService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

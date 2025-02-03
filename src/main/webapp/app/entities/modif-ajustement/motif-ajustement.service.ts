@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
@@ -15,9 +15,14 @@ type EntityArrayResponseType = HttpResponse<IMotifAjustement[]>;
   providedIn: 'root',
 })
 export class ModifAjustementService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/motif-ajsutements';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(modifAjustement: IMotifAjustement): Observable<EntityResponseType> {
     return this.http.post<IMotifAjustement>(this.resourceUrl, modifAjustement, { observe: 'response' });

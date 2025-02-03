@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { ErrorService } from 'app/shared/error.service';
@@ -35,6 +35,14 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
     ]
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private messageService = inject(MessageService);
+  private tiersPayantService = inject(TiersPayantService);
+
   entity?: IGroupeTiersPayant;
   ordreTrisFacture: OrdreTrisFacture[] = [];
   isSaving = false;
@@ -48,15 +56,10 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     ordreTrisFacture: [],
   });
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected groupeTiersPayantService: GroupeTiersPayantService,
-    private messageService: MessageService,
-    private tiersPayantService: TiersPayantService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

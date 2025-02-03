@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurService } from './fournisseur.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -67,6 +67,15 @@ import { InputIconModule } from 'primeng/inputicon';
   ],
 })
 export class FournisseurComponent implements OnInit {
+  protected entityService = inject(FournisseurService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(UntypedFormBuilder);
+  protected groupeFournisseurService = inject(GroupeFournisseurService);
+  private spinner = inject(NgxSpinnerService);
+  private messageService = inject(MessageService);
+
   fileDialog?: boolean;
   responseDialog?: boolean;
   responsedto!: IResponseDto;
@@ -89,16 +98,10 @@ export class FournisseurComponent implements OnInit {
     groupeFournisseurId: [],
   });
 
-  constructor(
-    protected entityService: FournisseurService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder,
-    protected groupeFournisseurService: GroupeFournisseurService,
-    private spinner: NgxSpinnerService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPage();

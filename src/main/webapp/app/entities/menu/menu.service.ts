@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -11,9 +11,14 @@ type EntityArrayResponseType = HttpResponse<IMenu[]>;
 
 @Injectable({ providedIn: 'root' })
 export class MenuService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/menus';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(menu: IMenu): Observable<EntityResponseType> {
     return this.http.post<IMenu>(this.resourceUrl, menu, { observe: 'response' });

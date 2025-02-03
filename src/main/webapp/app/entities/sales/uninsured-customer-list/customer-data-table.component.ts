@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, output, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -34,16 +34,19 @@ import { InputIcon } from 'primeng/inputicon';
   templateUrl: './customer-data-table.component.html',
 })
 export class CustomerDataTableComponent {
+  protected customerService = inject(CustomerService);
+  private dialogService = inject(DialogService);
+  private selectedCustomerService = inject(SelectedCustomerService);
+
   customers: ICustomer[] = [];
   searchString?: string | null = '';
   readonly closeModalEvent = output<boolean>();
   ref!: DynamicDialogRef;
 
-  constructor(
-    protected customerService: CustomerService,
-    private dialogService: DialogService,
-    private selectedCustomerService: SelectedCustomerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   onSelect(customer: ICustomer): void {
     this.selectedCustomerService.setCustomer(customer);

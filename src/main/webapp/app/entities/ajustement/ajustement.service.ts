@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,6 +14,8 @@ type EntityArrayResponseType = HttpResponse<IAjustement[]>;
 
 @Injectable({ providedIn: 'root' })
 export class AjustementService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/ajustements';
   toolbarParam: WritableSignal<any> = signal<any>({
     fromDate: new Date(),
@@ -22,7 +24,10 @@ export class AjustementService {
     userId: null,
   });
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
     return this.http

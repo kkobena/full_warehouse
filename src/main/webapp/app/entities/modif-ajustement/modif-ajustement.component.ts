@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -44,6 +44,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class ModifAjustementComponent implements OnInit {
+  protected entityService = inject(ModifAjustementService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private dialogService = inject(DialogService);
+  protected modalService = inject(ConfirmationService);
+
   fileDialog?: boolean;
   ref?: DynamicDialogRef;
   responsedto!: IResponseDto;
@@ -56,13 +62,10 @@ export class ModifAjustementComponent implements OnInit {
   loading!: boolean;
   isSaving = false;
 
-  constructor(
-    protected entityService: ModifAjustementService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private dialogService: DialogService,
-    protected modalService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {

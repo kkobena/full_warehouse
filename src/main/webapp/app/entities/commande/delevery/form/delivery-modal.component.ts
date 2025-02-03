@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -47,6 +47,15 @@ import { DatePicker } from 'primeng/datepicker';
   ],
 })
 export class DeliveryModalComponent implements OnInit {
+  protected entityService = inject(DeliveryService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private spinner = inject(NgxSpinnerService);
+  primeNGConfig = inject(PrimeNG);
+  translate = inject(TranslateService);
+
   isSaving = false;
   entity?: IDelivery;
   commande: ICommande;
@@ -73,16 +82,10 @@ export class DeliveryModalComponent implements OnInit {
   });
   protected primngtranslate: Subscription;
 
-  constructor(
-    protected entityService: DeliveryService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private spinner: NgxSpinnerService,
-    public primeNGConfig: PrimeNG,
-    public translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);

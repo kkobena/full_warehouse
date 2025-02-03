@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AjustementStatut } from '../../../shared/model/enumerations/ajustement-statut.model';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { IAjustement } from '../../../shared/model/ajustement.model';
@@ -22,6 +22,12 @@ import { TooltipModule } from 'primeng/tooltip';
   imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule],
 })
 export class ListAjustementComponent implements OnInit {
+  protected userService = inject(UserService);
+  translate = inject(TranslateService);
+  protected ajustementService = inject(AjustementService);
+  protected router = inject(Router);
+  private spinner = inject(NgxSpinnerService);
+
   protected ajustementStatut: AjustementStatut = AjustementStatut.CLOSED;
   protected rowData: IAjust[] = [];
   protected totalItems = 0;
@@ -32,13 +38,10 @@ export class ListAjustementComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected ajustements?: IAjustement[];
 
-  constructor(
-    protected userService: UserService,
-    public translate: TranslateService,
-    protected ajustementService: AjustementService,
-    protected router: Router,
-    private spinner: NgxSpinnerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

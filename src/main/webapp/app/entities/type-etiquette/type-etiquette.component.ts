@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { Observable } from 'rxjs';
@@ -30,6 +30,12 @@ import { TableModule } from 'primeng/table';
     ]
 })
 export class TypeEtiquetteComponent implements OnInit {
+  protected entityService = inject(TypeEtiquetteService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(UntypedFormBuilder);
+
   entites?: ITypeEtiquette[];
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
@@ -44,13 +50,10 @@ export class TypeEtiquetteComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: TypeEtiquetteService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPage();

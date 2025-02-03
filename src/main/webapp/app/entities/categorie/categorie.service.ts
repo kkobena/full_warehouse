@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -12,8 +12,12 @@ type EntityArrayResponseType = HttpResponse<ICategorie[]>;
 @Injectable({ providedIn: 'root' })
 export class CategorieService {
   public resourceUrl = SERVER_API_URL + 'api/categories';
+  protected http = inject(HttpClient);
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(categorie: ICategorie): Observable<EntityResponseType> {
     return this.http.post<ICategorie>(this.resourceUrl, categorie, { observe: 'response' });
@@ -34,10 +38,5 @@ export class CategorieService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  async queryPromise(req?: any): Promise<ICategorie[]> {
-    const options = createRequestOptions(req);
-    return await this.http.get<ICategorie[]>(this.resourceUrl, { params: options }).toPromise();
   }
 }

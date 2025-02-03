@@ -28,6 +28,10 @@ import { DecimalPipe } from '@angular/common';
   styles: ``,
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
+  private fb = inject(FormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+
   tiersPayant = viewChild.required<ElementRef>('tiersPayant');
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
@@ -58,11 +62,10 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   });
   protected selectedTiersPayant: IClientTiersPayant | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   getTiersPayants(): IClientTiersPayant[] {
     if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {

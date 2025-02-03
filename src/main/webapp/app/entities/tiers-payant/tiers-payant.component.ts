@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { TiersPayantService } from './tierspayant.service';
 import { Observable } from 'rxjs';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -59,6 +59,15 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class TiersPayantComponent implements OnInit {
+  protected entityService = inject(TiersPayantService);
+  private messageService = inject(MessageService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private dialogService = inject(DialogService);
+  protected errorService = inject(ErrorService);
+  protected confirmationService = inject(ConfirmationService);
+  protected router = inject(Router);
+  private spinner = inject(NgxSpinnerService);
+
   tiersPayants?: ITiersPayant[] = [];
   jsonDialog = false;
   responseDialog = false;
@@ -81,16 +90,10 @@ export class TiersPayantComponent implements OnInit {
   search = '';
   tiersPayantSplitbuttons: MenuItem[];
 
-  constructor(
-    protected entityService: TiersPayantService,
-    private messageService: MessageService,
-    protected activatedRoute: ActivatedRoute,
-    private dialogService: DialogService,
-    protected errorService: ErrorService,
-    protected confirmationService: ConfirmationService,
-    protected router: Router,
-    private spinner: NgxSpinnerService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.tiersPayantSplitbuttons = [
       {
         label: 'ASSURANCE',

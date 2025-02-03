@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -48,6 +48,16 @@ import { Select } from 'primeng/select';
   ],
 })
 export class EditProduitComponent implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private messageService = inject(MessageService);
+  protected produitService = inject(ProduitService);
+  protected errorService = inject(ErrorService);
+  protected rayonService = inject(RayonService);
+  protected tvaService = inject(TvaService);
+  protected typeEtiquetteService = inject(TypeEtiquetteService);
+
   appendTo = 'body';
   deliveryItem: IDeliveryItem | null;
   delivery: IDelivery | null;
@@ -73,17 +83,10 @@ export class EditProduitComponent implements OnInit {
     principal: [],
   });
 
-  constructor(
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private messageService: MessageService,
-    protected produitService: ProduitService,
-    protected errorService: ErrorService,
-    protected rayonService: RayonService,
-    protected tvaService: TvaService,
-    protected typeEtiquetteService: TypeEtiquetteService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   save(): void {
     this.isSaving = true;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<Storage[]>;
   providedIn: 'root',
 })
 export class StorageService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/storages';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Storage>(`${this.resourceUrl}/${id}`, { observe: 'response' });

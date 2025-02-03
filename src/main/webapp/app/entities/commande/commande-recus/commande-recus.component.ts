@@ -1,4 +1,4 @@
-import { Component, OnInit, input, output } from '@angular/core';
+import { Component, OnInit, input, output, inject } from '@angular/core';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -31,6 +31,11 @@ export type ExpandMode = 'single' | 'multiple';
     ]
 })
 export class CommandeRecusComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  protected entityService = inject(DeliveryService);
+
   readonly search = input('');
   readonly searchByRef = input('');
   readonly selectionLength = output<number>();
@@ -48,12 +53,10 @@ export class CommandeRecusComponent implements OnInit {
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: NgbModal,
-    protected entityService: DeliveryService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
 import {
   faChartArea,
@@ -32,6 +32,9 @@ import { FormsModule } from '@angular/forms';
     imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule]
 })
 export class DailyDataComponent implements OnInit {
+  private dashboardService = inject(DashboardService);
+  private produitStatService = inject(ProduitStatService);
+
   protected faShoppingBasket = faShoppingBasket;
   protected faShippingFast = faShippingFast;
   protected faShoppingCart = faShoppingCart;
@@ -63,10 +66,10 @@ export class DailyDataComponent implements OnInit {
   protected totalAmountAvg: number;
   protected totalQuantity20x80: number;
 
-  constructor(
-    private dashboardService: DashboardService,
-    private produitStatService: ProduitStatService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.TOP_MAX_QUANTITY = this.tops[1];
     this.TOP_MAX_AMOUNT = this.tops[1];
     this.TOP_MAX_TP = this.tops[1];

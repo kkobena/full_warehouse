@@ -1,4 +1,4 @@
-import { Component, effect, output } from '@angular/core';
+import { Component, effect, output, inject } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -29,10 +29,15 @@ import { PopoverModule } from 'primeng/popover';
   templateUrl: './customer-overlay-panel.component.html',
 })
 export class CustomerOverlayPanelComponent {
+  private selectedCustomerService = inject(SelectedCustomerService);
+
   readonly onCloseEvent = output<boolean>();
   protected customer: ICustomer | null;
 
-  constructor(private selectedCustomerService: SelectedCustomerService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     effect(() => {
       this.customer = this.selectedCustomerService.selectedCustomerSignal();
     });

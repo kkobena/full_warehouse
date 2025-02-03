@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IAuthority } from '../../shared/model/authority.model';
 import { PrivillegeService } from './privillege.service';
@@ -10,12 +10,15 @@ import { FormsModule } from '@angular/forms';
     imports: [WarehouseCommonModule, FormsModule]
 })
 export class MenuDeleteDialogComponent {
+  protected privillegeService = inject(PrivillegeService);
+  activeModal = inject(NgbActiveModal);
+
   authority?: IAuthority;
 
-  constructor(
-    protected privillegeService: PrivillegeService,
-    public activeModal: NgbActiveModal,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   cancel(): void {
     this.activeModal.dismiss();

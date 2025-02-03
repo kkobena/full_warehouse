@@ -1,4 +1,4 @@
-import { Directive, ElementRef, NgZone, OnInit, input } from '@angular/core';
+import { Directive, ElementRef, NgZone, OnInit, input, inject } from '@angular/core';
 import { EditableColumn, Table } from 'primeng/table';
 
 @Directive({
@@ -6,12 +6,27 @@ import { EditableColumn, Table } from 'primeng/table';
     standalone: false
 })
 export class TableEditorDirective extends EditableColumn implements OnInit {
+  dt: Table;
+  el: ElementRef;
+  zone: NgZone;
+
   readonly moveToNext = input<boolean>();
   readonly openCurrentCell = input<boolean>();
   readonly moveToPrevious = input<boolean>();
 
-  constructor(public dt: Table, public el: ElementRef, public zone: NgZone) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const dt = inject(Table);
+    const el = inject(ElementRef);
+    const zone = inject(NgZone);
+
     super(dt, el, zone);
+  
+    this.dt = dt;
+    this.el = el;
+    this.zone = zone;
   }
 
   ngOnInit() {}

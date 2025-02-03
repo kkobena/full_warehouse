@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IResponseDto } from 'app/shared/util/response-dto';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
@@ -50,6 +50,14 @@ import { IconField } from 'primeng/iconfield';
   ],
 })
 export class GroupeTiersPayantComponent implements OnInit {
+  protected entityService = inject(GroupeTiersPayantService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private messageService = inject(MessageService);
+  private dialogService = inject(DialogService);
+  protected confirmationService = inject(ConfirmationService);
+  protected errorService = inject(ErrorService);
+
   fileDialog?: boolean;
   responsedto!: IResponseDto;
   responseDialog?: boolean;
@@ -64,15 +72,10 @@ export class GroupeTiersPayantComponent implements OnInit {
   search = '';
   ref!: DynamicDialogRef;
 
-  constructor(
-    protected entityService: GroupeTiersPayantService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private messageService: MessageService,
-    private dialogService: DialogService,
-    protected confirmationService: ConfirmationService,
-    protected errorService: ErrorService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.load();

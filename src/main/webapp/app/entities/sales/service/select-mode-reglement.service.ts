@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal, inject } from '@angular/core';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { HttpResponse } from '@angular/common/http';
@@ -7,12 +7,17 @@ import { HttpResponse } from '@angular/common/http';
   providedIn: 'root',
 })
 export class SelectModeReglementService {
+  private modePaymentService = inject(ModePaymentService);
+
   modeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
   allModeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
   isReadonly: boolean = true;
   paymentModes: IPaymentMode[] = [];
 
-  constructor(private modePaymentService: ModePaymentService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     if (this.allModeReglements().length === 0) {
       this.modePaymentService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
         this.paymentModes = this.convertPaymentModes(res);

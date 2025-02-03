@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
@@ -23,6 +23,14 @@ import { Button } from 'primeng/button';
   imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, Select, Button],
 })
 export class ImportationNewCommandeComponent implements OnInit {
+  protected commandeService = inject(CommandeService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected fournisseurService = inject(FournisseurService);
+  private spinner = inject(NgxSpinnerService);
+  protected modalService = inject(NgbModal);
+  private errorService = inject(ErrorService);
+
   isSaving = false;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
@@ -32,15 +40,10 @@ export class ImportationNewCommandeComponent implements OnInit {
   appendTo = 'body';
   commandeResponse!: ICommandeResponse | null;
 
-  constructor(
-    protected commandeService: CommandeService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected fournisseurService: FournisseurService,
-    private spinner: NgxSpinnerService,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.models = [
       { label: 'LABOREX', value: 'LABOREX' },
       { label: 'COPHARMED', value: 'COPHARMED' },

@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -28,6 +28,12 @@ import { RippleModule } from 'primeng/ripple';
     ]
 })
 export class FormLaboratoireComponent implements OnInit {
+  protected entityService = inject(LaboratoireProduitService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(UntypedFormBuilder);
+  private messageService = inject(MessageService);
+
   laboratoire?: ILaboratoire;
   isSaving = false;
   editForm = this.fb.group({
@@ -35,13 +41,10 @@ export class FormLaboratoireComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: LaboratoireProduitService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: UntypedFormBuilder,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.laboratoire = this.config.data.laboratoire;

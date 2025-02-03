@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { lastValueFrom, Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../app.constants';
 import { IRayon } from '../../shared/model/rayon.model';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<IRayon[]>;
   providedIn: 'root',
 })
 export class RayonService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/rayons';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(rayon: IRayon): Observable<EntityResponseType> {
     return this.http.post<IRayon>(this.resourceUrl, rayon, { observe: 'response' });

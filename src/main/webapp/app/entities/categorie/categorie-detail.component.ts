@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { ICategorie } from 'app/shared/model/categorie.model';
@@ -10,9 +10,14 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     imports: [WarehouseCommonModule, RouterModule]
 })
 export class CategorieDetailComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+
   categorie: ICategorie | null = null;
 
-  constructor(protected activatedRoute: ActivatedRoute) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ categorie }) => (this.categorie = categorie));

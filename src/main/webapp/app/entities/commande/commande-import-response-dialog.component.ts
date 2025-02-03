@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { CommandeService } from './commande.service';
@@ -11,13 +11,16 @@ import { ButtonModule } from 'primeng/button';
     imports: [WarehouseCommonModule, ButtonModule]
 })
 export class CommandeImportResponseDialogComponent {
+  activeModal = inject(NgbActiveModal);
+  protected commandeService = inject(CommandeService);
+
   responseCommande?: ICommandeResponse;
   hiddenInfo = true;
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    protected commandeService: CommandeService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   cancel(): void {
     this.activeModal.dismiss();

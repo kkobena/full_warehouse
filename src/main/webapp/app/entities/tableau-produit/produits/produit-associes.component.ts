@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ProduitService } from '../../produit/produit.service';
 import { TableauProduitService } from '../tableau-produit.service';
 import { IProduit } from '../../../shared/model/produit.model';
@@ -19,6 +19,10 @@ import { DividerModule } from 'primeng/divider';
   imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule, DividerModule],
 })
 export class ProduitAssociesComponent implements OnInit {
+  protected produitService = inject(ProduitService);
+  private tableauProduitService = inject(TableauProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+
   produitsSource: IProduit[] = [];
   produitsTarget: IProduit[] = [];
   statut: string = 'ENABLE';
@@ -27,11 +31,10 @@ export class ProduitAssociesComponent implements OnInit {
   tableau: ITableau;
   protected scrollHeight = 'calc(100vh - 350px)';
 
-  constructor(
-    protected produitService: ProduitService,
-    private tableauProduitService: TableauProduitService,
-    protected activatedRoute: ActivatedRoute,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ tableau }) => {

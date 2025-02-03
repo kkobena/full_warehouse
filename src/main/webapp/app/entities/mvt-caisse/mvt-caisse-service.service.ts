@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { FinancialTransaction, MvtCaisse, MvtCaisseWrapper } from '../cash-register/model/cash-register.model';
 import { SERVER_API_URL } from '../../app.constants';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<FinancialTransaction[]>;
   providedIn: 'root',
 })
 export class MvtCaisseServiceService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/payment-transactions';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<FinancialTransaction>(`${this.resourceUrl}/${id}`, { observe: 'response' });

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IProduit } from 'app/shared/model/produit.model';
@@ -11,12 +11,15 @@ import { FormsModule } from '@angular/forms';
     imports: [WarehouseCommonModule, FormsModule]
 })
 export class ProduitDeleteDialogComponent {
+  protected produitService = inject(ProduitService);
+  activeModal = inject(NgbActiveModal);
+
   produit?: IProduit;
 
-  constructor(
-    protected produitService: ProduitService,
-    public activeModal: NgbActiveModal,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   cancel(): void {
     this.activeModal.dismiss();

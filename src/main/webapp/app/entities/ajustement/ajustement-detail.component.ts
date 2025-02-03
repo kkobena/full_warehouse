@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { IProduit } from '../../shared/model/produit.model';
@@ -61,6 +61,15 @@ import { InputIcon } from 'primeng/inputicon';
   providers: [ConfirmationService, DialogService],
 })
 export class AjustementDetailComponent implements OnInit, AfterViewInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected produitService = inject(ProduitService);
+  protected modalService = inject(NgbModal);
+  private errorService = inject(ErrorService);
+  protected ajustementService = inject(AjustementService);
+  protected modifAjustementService = inject(ModifAjustementService);
+  private confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
+
   quantityBox = viewChild.required<ElementRef>('quantityBox');
   protected ajustement: IAjust | null = null;
   protected produitSelected!: IProduit | null;
@@ -81,16 +90,10 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected ref?: DynamicDialogRef;
   protected readonly appendTo = APPEND_TO;
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected produitService: ProduitService,
-    protected modalService: NgbModal,
-    private errorService: ErrorService,
-    protected ajustementService: AjustementService,
-    protected modifAjustementService: ModifAjustementService,
-    private confirmationService: ConfirmationService,
-    private dialogService: DialogService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.search = '';
     this.selectedEl = [];
   }

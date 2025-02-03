@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -41,6 +41,12 @@ import { ToastModule } from 'primeng/toast';
     templateUrl: './ticketing.component.html'
 })
 export class TicketingComponent implements OnInit, AfterViewInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+  protected entityService = inject(CashRegisterService);
+  private fb = inject(FormBuilder);
+
   readonly numberOf10ThousandInput = viewChild<ElementRef>('numberOf10Thousand');
   protected isSaving = false;
   protected display = false;
@@ -56,13 +62,10 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   });
   protected selectedCashRegister: CashRegister | null = null;
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-    protected entityService: CashRegisterService,
-    private fb: FormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister = cashRegister));

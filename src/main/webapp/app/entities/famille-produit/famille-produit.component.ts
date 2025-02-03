@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FamilleProduitService } from './famille-produit.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
@@ -46,6 +46,13 @@ import { IconField } from 'primeng/iconfield';
   ],
 })
 export class FamilleProduitComponent implements OnInit {
+  protected entityService = inject(FamilleProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private messageService = inject(MessageService);
+  private dialogService = inject(DialogService);
+  protected modalService = inject(ConfirmationService);
+
   fileDialog?: boolean;
   ref?: DynamicDialogRef;
   responsedto!: IResponseDto;
@@ -60,14 +67,10 @@ export class FamilleProduitComponent implements OnInit {
   customUpload = true;
   displayDialog?: boolean;
 
-  constructor(
-    protected entityService: FamilleProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private messageService: MessageService,
-    private dialogService: DialogService,
-    protected modalService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {

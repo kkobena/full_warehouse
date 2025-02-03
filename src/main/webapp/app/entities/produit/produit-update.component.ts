@@ -50,6 +50,18 @@ import { RemiseService } from '../remise/remise.service';
     ]
 })
 export class ProduitUpdateComponent implements OnInit {
+  protected produitService = inject(ProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private fb = inject(UntypedFormBuilder);
+  protected rayonService = inject(RayonService);
+  protected laboratoireService = inject(LaboratoireProduitService);
+  protected formeProduitService = inject(FormeProduitService);
+  protected fournisseurService = inject(FournisseurService);
+  protected familleService = inject(FamilleProduitService);
+  protected gammeProduitService = inject(GammeProduitService);
+  protected tvaService = inject(TvaService);
+  protected typeEtiquetteService = inject(TypeEtiquetteService);
+
   isSaving = false;
   isValid = true;
   isDeconditionnable = false;
@@ -92,19 +104,10 @@ export class ProduitUpdateComponent implements OnInit {
     cmuAmount: [],
   });
 
-  constructor(
-    protected produitService: ProduitService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-    protected rayonService: RayonService,
-    protected laboratoireService: LaboratoireProduitService,
-    protected formeProduitService: FormeProduitService,
-    protected fournisseurService: FournisseurService,
-    protected familleService: FamilleProduitService,
-    protected gammeProduitService: GammeProduitService,
-    protected tvaService: TvaService,
-    protected typeEtiquetteService: TypeEtiquetteService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {

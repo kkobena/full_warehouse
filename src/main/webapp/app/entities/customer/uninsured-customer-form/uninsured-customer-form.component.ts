@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
@@ -30,6 +30,13 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     ]
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   entity?: ICustomer;
   isSaving = false;
   isValid = true;
@@ -42,14 +49,10 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   });
   firstName = viewChild.required<ElementRef>('firstName');
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected customerService: CustomerService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

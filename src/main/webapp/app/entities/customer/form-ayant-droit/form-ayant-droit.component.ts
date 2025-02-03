@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
@@ -37,6 +37,13 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
     ]
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   firstName = viewChild.required<ElementRef>('firstName');
   entity?: ICustomer;
   assure?: ICustomer;
@@ -51,14 +58,10 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
     sexe: [],
   });
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected customerService: CustomerService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

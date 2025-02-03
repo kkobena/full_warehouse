@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -30,6 +30,10 @@ import { InputTextModule } from 'primeng/inputtext';
     ]
 })
 export class MenuUpdateComponent implements OnInit {
+  protected privillegeService = inject(PrivillegeService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private fb = inject(UntypedFormBuilder);
+
   isSaving = false;
   editForm = this.fb.group({
     libelle: [null, [Validators.required]],
@@ -38,11 +42,10 @@ export class MenuUpdateComponent implements OnInit {
   protected entity: IAuthority | null;
   protected readonly BLOCK_SPACE = BLOCK_SPACE;
 
-  constructor(
-    protected privillegeService: PrivillegeService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {

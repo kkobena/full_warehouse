@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -13,9 +13,14 @@ type EntityArrayResponseType = HttpResponse<IPayment[]>;
 
 @Injectable({providedIn: 'root'})
 export class PaymentService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/payments';
 
-  constructor(protected http: HttpClient) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   create(payment: IPayment): Observable<EntityResponseType> {

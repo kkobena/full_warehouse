@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from 'app/shared/constants/pagination.constants';
 import moment from 'moment';
@@ -40,6 +40,12 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     ]
 })
 export class ProduitDetailComponent implements OnInit {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected produitStatService = inject(ProduitStatService);
+  protected produitService = inject(ProduitService);
+  private spinner = inject(NgxSpinnerService);
+
   produit: IProduit | null = null;
   produits: IProduit[] = [];
   event: any;
@@ -62,13 +68,10 @@ export class ProduitDetailComponent implements OnInit {
   protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected produitStatService: ProduitStatService,
-    protected produitService: ProduitService,
-    private spinner: NgxSpinnerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {

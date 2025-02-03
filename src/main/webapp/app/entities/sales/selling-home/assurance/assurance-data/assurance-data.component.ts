@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, ElementRef, Inject, inject, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
+import { AfterViewInit, Component, effect, ElementRef, inject, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
 import { ICustomer } from '../../../../../shared/model/customer.model';
@@ -48,6 +48,8 @@ import { InputIcon } from 'primeng/inputicon';
   templateUrl: './assurance-data.component.html',
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
+  private document = inject<Document>(DOCUMENT);
+
   customerService = inject(CustomerService);
   search: string = null;
   selectedCustomerService = inject(SelectedCustomerService);
@@ -64,7 +66,10 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   messageService = inject(MessageService);
   baseSaleService = inject(BaseSaleService);
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     effect(() => {
       const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
       if (!this.currentSaleService.isEdit()) {

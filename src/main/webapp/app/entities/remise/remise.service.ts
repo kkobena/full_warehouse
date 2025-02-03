@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CodeRemise, GrilleRemise, IRemise } from '../../shared/model/remise.model';
@@ -12,9 +12,14 @@ type EntityArrayResponseType = HttpResponse<IRemise[]>;
   providedIn: 'root',
 })
 export class RemiseService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/remises';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   create(remise: IRemise): Observable<EntityResponseType> {
     return this.http.post<IRemise>(this.resourceUrl, remise, { observe: 'response' });

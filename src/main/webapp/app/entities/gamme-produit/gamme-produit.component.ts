@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -55,6 +55,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class GammeProduitComponent implements OnInit {
+  protected entityService = inject(GammeProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private dialogService = inject(DialogService);
+  protected modalService = inject(ConfirmationService);
+
   fileDialog = false;
   ref?: DynamicDialogRef;
   responsedto!: IResponseDto;
@@ -68,13 +74,10 @@ export class GammeProduitComponent implements OnInit {
   isSaving = false;
   displayDialog = false;
 
-  constructor(
-    protected entityService: GammeProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private dialogService: DialogService,
-    protected modalService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPage();

@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, input, OnInit, inject } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -19,6 +19,10 @@ export type ExpandMode = 'single' | 'multiple';
   imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RouterModule, DynamicDialogModule, TooltipModule],
 })
 export class BonEnCoursComponent implements OnInit {
+  protected router = inject(Router);
+  private spinner = inject(NgxSpinnerService);
+  protected entityService = inject(DeliveryService);
+
   search = input<string>('');
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
@@ -31,11 +35,10 @@ export class BonEnCoursComponent implements OnInit {
   protected ref?: DynamicDialogRef;
   protected selectedFilter = 'PENDING';
 
-  constructor(
-    protected router: Router,
-    private spinner: NgxSpinnerService,
-    protected entityService: DeliveryService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();

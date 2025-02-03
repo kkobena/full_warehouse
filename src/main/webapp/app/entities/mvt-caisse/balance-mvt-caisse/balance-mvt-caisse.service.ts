@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SERVER_API_URL } from '../../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,9 +9,14 @@ import { BalanceCaisseWrapper } from './balance-caisse.model';
   providedIn: 'root',
 })
 export class BalanceMvtCaisseService {
+  protected http = inject(HttpClient);
+
   public resourceUrl = SERVER_API_URL + 'api/balances';
 
-  constructor(protected http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   query(req?: any): Observable<HttpResponse<BalanceCaisseWrapper>> {
     const options = createRequestOptions(req);

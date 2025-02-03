@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { IAuthority } from '../../shared/model/authority.model';
@@ -19,16 +19,19 @@ import { TagModule } from 'primeng/tag';
   imports: [WarehouseCommonModule, TagModule, PickListModule, ButtonModule, RippleModule, PanelModule, Toolbar],
 })
 export class MenuDetailComponent implements OnInit {
+  protected privillegeService = inject(PrivillegeService);
+  protected activatedRoute = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
+
   entity: IAuthority | null = null;
   associes?: IMenu[];
   others?: IMenu[];
   protected scrollHeight = 'calc(100vh - 350px)';
 
-  constructor(
-    protected privillegeService: PrivillegeService,
-    protected activatedRoute: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { IConfiguration } from './model/configuration.model';
@@ -17,12 +17,15 @@ type EntityArrayResponseType = HttpResponse<IConfiguration[]>;
   providedIn: 'root',
 })
 export class ConfigurationService {
+  protected http = inject(HttpClient);
+  private sessionStorageService = inject(SessionStorageService);
+
   public resourceUrl = SERVER_API_URL + 'api/app';
 
-  constructor(
-    protected http: HttpClient,
-    private sessionStorageService: SessionStorageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<IConfiguration>(`${this.resourceUrl}/${id}`, { observe: 'response' });

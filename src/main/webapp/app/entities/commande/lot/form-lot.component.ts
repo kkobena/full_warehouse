@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -38,6 +38,14 @@ import { DatePicker } from 'primeng/datepicker';
   ],
 })
 export class FormLotComponent implements OnInit {
+  protected entityService = inject(LotService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  primeNGConfig = inject(PrimeNG);
+  translate = inject(TranslateService);
+
   primngtranslate: Subscription;
   isSaving = false;
   entity?: ILot;
@@ -68,15 +76,10 @@ export class FormLotComponent implements OnInit {
     manufacturingDate: new FormControl<Date | null>(null),
   });
 
-  constructor(
-    protected entityService: LotService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    public primeNGConfig: PrimeNG,
-    public translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);

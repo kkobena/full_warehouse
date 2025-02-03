@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -17,6 +17,12 @@ import { RippleModule } from 'primeng/ripple';
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule],
 })
 export class FormRayonComponent implements OnInit {
+  protected entityService = inject(RayonService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(UntypedFormBuilder);
+  private messageService = inject(MessageService);
+
   isSaving = false;
   entity?: IRayon;
   editForm = this.fb.group({
@@ -25,13 +31,10 @@ export class FormRayonComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: RayonService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: UntypedFormBuilder,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data;

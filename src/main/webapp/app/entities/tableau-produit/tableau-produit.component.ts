@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -42,6 +42,13 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class TableauProduitComponent implements OnInit {
+  protected entityService = inject(TableauProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private messageService = inject(MessageService);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(FormBuilder);
+
   fileDialog?: boolean;
   responsedto!: IResponseDto;
   responseDialog?: boolean;
@@ -64,14 +71,10 @@ export class TableauProduitComponent implements OnInit {
     }),
   });
 
-  constructor(
-    protected entityService: TableauProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private messageService: MessageService,
-    protected modalService: ConfirmationService,
-    private fb: FormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadPage();

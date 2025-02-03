@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
@@ -40,6 +40,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class FormeProduitComponent implements OnInit {
+  protected entityService = inject(FormeProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected modalService = inject(ConfirmationService);
+  private fb = inject(UntypedFormBuilder);
+
   entites?: IFormProduit[];
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
@@ -54,13 +60,10 @@ export class FormeProduitComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: FormeProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected modalService: ConfirmationService,
-    private fb: UntypedFormBuilder,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {

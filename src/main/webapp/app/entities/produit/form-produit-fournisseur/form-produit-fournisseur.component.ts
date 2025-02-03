@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IProduit } from '../../../shared/model/produit.model';
 import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
 import { ProduitService } from '../produit.service';
@@ -43,6 +43,14 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
   ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
+  protected produitService = inject(ProduitService);
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected fournisseurService = inject(FournisseurService);
+  private messageService = inject(MessageService);
+
   produit?: IProduit;
   entity?: IFournisseurProduit;
   isSaving = false;
@@ -59,15 +67,10 @@ export class FormProduitFournisseurComponent implements OnInit {
     principal: [null, [Validators.required]],
   });
 
-  constructor(
-    protected produitService: ProduitService,
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected fournisseurService: FournisseurService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   save(): void {
     this.isSaving = true;

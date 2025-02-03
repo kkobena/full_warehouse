@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   CATEGORY_INVENTORY,
   InventoryCategory,
@@ -47,6 +47,15 @@ import { Select } from 'primeng/select';
   ],
 })
 export class InventoryFormComponent implements OnInit {
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private storeInventoryService = inject(StoreInventoryService);
+  private storageService = inject(StorageService);
+  private rayonService = inject(RayonService);
+  private spinner = inject(NgxSpinnerService);
+
   protected isSaving: boolean = false;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected storages: Storage[];
@@ -55,16 +64,10 @@ export class InventoryFormComponent implements OnInit {
   protected editForm: FormGroup;
   protected entity: IStoreInventory;
 
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private storeInventoryService: StoreInventoryService,
-    private storageService: StorageService,
-    private rayonService: RayonService,
-    private spinner: NgxSpinnerService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.initForm();

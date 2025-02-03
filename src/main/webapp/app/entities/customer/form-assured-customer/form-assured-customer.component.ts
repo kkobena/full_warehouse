@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ErrorService } from 'app/shared/error.service';
@@ -50,6 +50,14 @@ import { InputMaskModule } from 'primeng/inputmask';
     ]
 })
 export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
+  protected errorService = inject(ErrorService);
+  private fb = inject(UntypedFormBuilder);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  protected tiersPayantService = inject(TiersPayantService);
+  protected customerService = inject(CustomerService);
+  private messageService = inject(MessageService);
+
   entity?: ICustomer;
   catgories = [
     { label: 'RC1', value: 1 },
@@ -87,15 +95,10 @@ export class FormAssuredCustomerComponent implements OnInit, AfterViewInit {
     tiersPayants: this.fb.array([]),
   });
 
-  constructor(
-    protected errorService: ErrorService,
-    private fb: UntypedFormBuilder,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    protected tiersPayantService: TiersPayantService,
-    protected customerService: CustomerService,
-    private messageService: MessageService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   get editFormGroups(): FormArray {
     return this.editForm.get('tiersPayants') as FormArray;

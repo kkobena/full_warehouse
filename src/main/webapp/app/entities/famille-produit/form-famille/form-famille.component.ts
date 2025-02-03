@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MessageService, SelectItem } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -30,6 +30,13 @@ import { ICategorie } from '../../../shared/model/categorie.model';
   ],
 })
 export class FormFamilleComponent implements OnInit {
+  protected entityService = inject(FamilleProduitService);
+  ref = inject(DynamicDialogRef);
+  config = inject(DynamicDialogConfig);
+  private fb = inject(UntypedFormBuilder);
+  private messageService = inject(MessageService);
+  protected categorieProduitService = inject(CategorieService);
+
   isSaving = false;
   familleProduit?: IFamilleProduit;
   categorieproduits: SelectItem[] = [];
@@ -40,14 +47,10 @@ export class FormFamilleComponent implements OnInit {
     categorieId: [null, [Validators.required]],
   });
 
-  constructor(
-    protected entityService: FamilleProduitService,
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig,
-    private fb: UntypedFormBuilder,
-    private messageService: MessageService,
-    protected categorieProduitService: CategorieService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.familleProduit = this.config.data.familleProduit;

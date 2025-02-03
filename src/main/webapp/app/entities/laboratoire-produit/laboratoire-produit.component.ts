@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -57,6 +57,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
   ],
 })
 export class LaboratoireProduitComponent implements OnInit {
+  protected entityService = inject(LaboratoireProduitService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  private dialogService = inject(DialogService);
+  protected modalService = inject(ConfirmationService);
+
   fileDialog = false;
   ref?: DynamicDialogRef;
   responsedto!: IResponseDto;
@@ -70,13 +76,10 @@ export class LaboratoireProduitComponent implements OnInit {
   isSaving = false;
   displayDialog = false;
 
-  constructor(
-    protected entityService: LaboratoireProduitService,
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    private dialogService: DialogService,
-    protected modalService: ConfirmationService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {

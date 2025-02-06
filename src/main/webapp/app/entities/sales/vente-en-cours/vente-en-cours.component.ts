@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
@@ -29,7 +28,6 @@ import { InputIcon } from 'primeng/inputicon';
     TooltipModule,
     ButtonModule,
     InputTextModule,
-    RippleModule,
     TableModule,
     ToolbarModule,
     Select,
@@ -38,13 +36,12 @@ import { InputIcon } from 'primeng/inputicon';
   ],
 })
 export class VenteEnCoursComponent implements OnInit {
-  protected salesService = inject(SalesService);
-  protected confirmationService = inject(ConfirmationService);
-
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
+  protected salesService = inject(SalesService);
+  protected confirmationService = inject(ConfirmationService);
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);

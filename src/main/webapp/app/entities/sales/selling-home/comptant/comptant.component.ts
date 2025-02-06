@@ -1,26 +1,13 @@
 import { Component, ElementRef, inject, input, output, viewChild } from '@angular/core';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { SidebarModule } from 'primeng/sidebar';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
@@ -30,9 +17,7 @@ import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse } from '../../.
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { Observable } from 'rxjs';
 import { SalesService } from '../../sales.service';
-import { CustomerService } from '../../../customer/customer.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
 import { AmountComputingComponent } from './amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
@@ -60,25 +45,12 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   ],
   imports: [
     WarehouseCommonModule,
-    SidebarModule,
     RouterModule,
     NgxSpinnerModule,
-    TableModule,
-    InputTextModule,
     ButtonModule,
-    RippleModule,
     FormsModule,
-    DialogModule,
     ConfirmDialogModule,
-    PanelModule,
-    SelectButtonModule,
-    AutoCompleteModule,
-    TooltipModule,
     DividerModule,
-    KeyFilterModule,
-    TagModule,
-    InputSwitchModule,
-    OverlayPanelModule,
     ProductTableComponent,
     AmountComputingComponent,
     ModeReglementComponent,
@@ -96,22 +68,7 @@ export class ComptantComponent {
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
   amountComputingComponent = viewChild(AmountComputingComponent);
   modeReglementComponent = viewChild(ModeReglementComponent);
-  selectedCustomerService = inject(SelectedCustomerService);
-  typePrescriptionService = inject(TypePrescriptionService);
-  userCaissierService = inject(UserCaissierService);
-  userVendeurService = inject(UserVendeurService);
-  selectModeReglementService = inject(SelectModeReglementService);
-  salesService = inject(SalesService);
   currentSaleService = inject(CurrentSaleService);
-  customerService = inject(CustomerService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  dialogService = inject(DialogService);
-  translate = inject(TranslateService);
-  baseSaleService = inject(BaseSaleService);
-  hasAuthorityService = inject(HasAuthorityService);
   protected isSaving = false;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
@@ -120,6 +77,19 @@ export class ComptantComponent {
   protected entryAmount?: number | null = null;
   protected canRemoveItem: boolean;
   protected canApplyDiscount: boolean;
+  private selectedCustomerService = inject(SelectedCustomerService);
+  private typePrescriptionService = inject(TypePrescriptionService);
+  private userCaissierService = inject(UserCaissierService);
+  private userVendeurService = inject(UserVendeurService);
+  private selectModeReglementService = inject(SelectModeReglementService);
+  private salesService = inject(SalesService);
+
+  private modalService = inject(NgbModal);
+  private confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
+
+  private baseSaleService = inject(BaseSaleService);
+  private hasAuthorityService = inject(HasAuthorityService);
 
   constructor() {
     this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);

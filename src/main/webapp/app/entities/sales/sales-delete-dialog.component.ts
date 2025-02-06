@@ -6,17 +6,13 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    templateUrl: './sales-delete-dialog.component.html',
-    imports: [WarehouseCommonModule, FormsModule]
+  templateUrl: './sales-delete-dialog.component.html',
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class SalesDeleteDialogComponent {
-  protected salesService = inject(SalesService);
   activeModal = inject(NgbActiveModal);
-
   sales?: ISales;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  protected salesService = inject(SalesService);
 
   constructor() {}
 

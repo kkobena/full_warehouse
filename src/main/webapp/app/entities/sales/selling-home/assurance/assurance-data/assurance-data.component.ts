@@ -13,9 +13,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DOCUMENT } from '@angular/common';
 import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
 import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { TableModule } from 'primeng/table';
-import { SpeedDialModule } from 'primeng/speeddial';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
@@ -36,9 +33,6 @@ import { InputIcon } from 'primeng/inputicon';
     KeyFilterModule,
     PanelModule,
     InputTextModule,
-    OverlayPanelModule,
-    TableModule,
-    SpeedDialModule,
     SplitButtonModule,
     ConfirmPopupModule,
     ConfirmDialogModule,
@@ -48,8 +42,6 @@ import { InputIcon } from 'primeng/inputicon';
   templateUrl: './assurance-data.component.html',
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
-  private document = inject<Document>(DOCUMENT);
-
   customerService = inject(CustomerService);
   search: string = null;
   selectedCustomerService = inject(SelectedCustomerService);
@@ -65,6 +57,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   items: MenuItem[] | undefined;
   messageService = inject(MessageService);
   baseSaleService = inject(BaseSaleService);
+  private document = inject<Document>(DOCUMENT);
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);

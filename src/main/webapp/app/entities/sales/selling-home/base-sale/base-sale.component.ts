@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, viewChild, input } from '@angular/core';
+import { Component, ElementRef, inject, input, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -8,13 +8,10 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
 import { SelectModeReglementService } from '../../service/select-mode-reglement.service';
 import { VoSalesService } from '../../service/vo-sales.service';
 import { CurrentSaleService } from '../../service/current-sale.service';
-import { CustomerService } from '../../../customer/customer.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationService } from 'primeng/api';
-import { ErrorService } from '../../../../shared/error.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TranslateService } from '@ngx-translate/core';
 import { BaseSaleService } from '../../service/base-sale.service';
 import { IPayment } from '../../../../shared/model/payment.model';
 import { IRemise } from '../../../../shared/model/remise.model';
@@ -26,23 +23,10 @@ import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { SidebarModule } from 'primeng/sidebar';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TooltipModule } from 'primeng/tooltip';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { TagModule } from 'primeng/tag';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
@@ -54,92 +38,40 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   providers: [ConfirmationService, DialogService],
   imports: [
     ConfirmDialogModule,
-    DialogModule,
-
-    AmountComputingComponent,
-    DividerModule,
-    DropdownModule,
     WarehouseCommonModule,
-    SidebarModule,
-    RouterModule,
-    NgxSpinnerModule,
-    TableModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
     FormsModule,
-    DialogModule,
-    ConfirmDialogModule,
-    PanelModule,
-    SelectButtonModule,
-    TooltipModule,
-    DividerModule,
-    KeyFilterModule,
-    TagModule,
-    DropdownModule,
-    InputSwitchModule,
-    OverlayPanelModule,
     ProductTableComponent,
     ModeReglementComponent,
-    ConfirmDialogModule,
-    DialogModule,
-
     AmountComputingComponent,
     DividerModule,
-    DropdownModule,
-    WarehouseCommonModule,
-    SidebarModule,
     RouterModule,
     NgxSpinnerModule,
-    TableModule,
-    InputTextModule,
     ButtonModule,
-    RippleModule,
-    FormsModule,
-    DialogModule,
-    ConfirmDialogModule,
-    PanelModule,
-    SelectButtonModule,
-    TooltipModule,
-    DividerModule,
-    KeyFilterModule,
-    TagModule,
-    DropdownModule,
-    InputSwitchModule,
-    OverlayPanelModule,
-    ProductTableComponent,
-    ModeReglementComponent,
   ],
 })
 export class BaseSaleComponent {
   differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   modeReglementComponent = viewChild(ModeReglementComponent);
   amountComputingComponent = viewChild(AmountComputingComponent);
-  selectedCustomerService = inject(SelectedCustomerService);
-  typePrescriptionService = inject(TypePrescriptionService);
-  userCaissierService = inject(UserCaissierService);
-  userVendeurService = inject(UserVendeurService);
-  selectModeReglementService = inject(SelectModeReglementService);
-  salesService = inject(VoSalesService);
-  currentSaleService = inject(CurrentSaleService);
-  customerService = inject(CustomerService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
-  dialogService = inject(DialogService);
-  translate = inject(TranslateService);
-  baseSaleService = inject(BaseSaleService);
-  hasAuthorityService = inject(HasAuthorityService);
   readonly isPresale = input(false);
   appendTo = 'body';
   CASH = 'CASH';
+  currentSaleService = inject(CurrentSaleService);
+  selectedCustomerService = inject(SelectedCustomerService);
   protected entryAmount?: number | null = null;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
   protected remise?: IRemise | null;
   protected isSaving = false;
+  private typePrescriptionService = inject(TypePrescriptionService);
+  private userCaissierService = inject(UserCaissierService);
+  private userVendeurService = inject(UserVendeurService);
+  private selectModeReglementService = inject(SelectModeReglementService);
+  private salesService = inject(VoSalesService);
+  private modalService = inject(NgbModal);
+  private confirmationService = inject(ConfirmationService);
+  private baseSaleService = inject(BaseSaleService);
+  private hasAuthorityService = inject(HasAuthorityService);
   private readonly canRemoveItem: boolean;
   private readonly canApplyDiscount: boolean;
 

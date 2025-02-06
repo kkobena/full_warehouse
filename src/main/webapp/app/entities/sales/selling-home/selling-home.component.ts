@@ -3,25 +3,16 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { INatureVente } from '../../../shared/model/nature-vente.model';
 import { IUser } from '../../../core/user/user.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
@@ -80,22 +71,13 @@ import { DrawerModule } from 'primeng/drawer';
     PreventeModalComponent,
     RouterModule,
     NgxSpinnerModule,
-    TableModule,
     InputTextModule,
     ButtonModule,
-    RippleModule,
     FormsModule,
     DialogModule,
     ConfirmDialogModule,
     PanelModule,
-    SelectButtonModule,
     TooltipModule,
-    DividerModule,
-    KeyFilterModule,
-    TagModule,
-    DropdownModule,
-    InputSwitchModule,
-    OverlayPanelModule,
     CardModule,
     ComptantComponent,
     CustomerOverlayPanelComponent,
@@ -112,10 +94,6 @@ import { DrawerModule } from 'primeng/drawer';
   templateUrl: './selling-home.component.html',
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
-  responseEvent: Subscription;
-  saveResponse: Subscription;
-  inputBoxFocus: Subscription;
-  onCompleteSale: Subscription;
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -128,33 +106,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   assuranceDataComponent = viewChild(AssuranceDataComponent);
   produitbox = viewChild.required<any>('produitbox');
   userBox = viewChild.required<any>('userBox');
-  typePrescriptionService = inject(TypePrescriptionService);
-  userCaissierService = inject(UserCaissierService);
-  userVendeurService = inject(UserVendeurService);
-  accountService = inject(AccountService);
-  currentAccount = this.accountService.trackCurrentAccount();
-  hasAuthorityService = inject(HasAuthorityService);
-  messageService = inject(MessageService);
-  voSalesService = inject(VoSalesService);
-  baseSaleService = inject(BaseSaleService);
-  selectModeReglementService = inject(SelectModeReglementService);
-  currentSaleService = inject(CurrentSaleService);
-  selectedCustomerService = inject(SelectedCustomerService);
-  lastCurrencyGivenService = inject(LastCurrencyGivenService);
-  salesService = inject(SalesService);
-  customerService = inject(CustomerService);
-  produitService = inject(ProduitService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
-  decondtionService = inject(DeconditionService);
-  dialogService = inject(DialogService);
-  translate = inject(TranslateService);
-  primeNGConfig = inject(PrimeNG);
-  remiseCacheService = inject(RemiseCacheService);
-  remises: GroupRemise[] = this.remiseCacheService.remises();
   protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];
@@ -185,6 +136,36 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected showStock = true;
   protected printTicket = true;
   protected active = 'comptant';
+  protected currentSaleService = inject(CurrentSaleService);
+  protected userVendeurService = inject(UserVendeurService);
+  private typePrescriptionService = inject(TypePrescriptionService);
+  private userCaissierService = inject(UserCaissierService);
+  private accountService = inject(AccountService);
+  currentAccount = this.accountService.trackCurrentAccount();
+  private hasAuthorityService = inject(HasAuthorityService);
+  private messageService = inject(MessageService);
+  private voSalesService = inject(VoSalesService);
+  private baseSaleService = inject(BaseSaleService);
+  private selectModeReglementService = inject(SelectModeReglementService);
+  private selectedCustomerService = inject(SelectedCustomerService);
+  private lastCurrencyGivenService = inject(LastCurrencyGivenService);
+  private salesService = inject(SalesService);
+  private customerService = inject(CustomerService);
+  private produitService = inject(ProduitService);
+  private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
+  private modalService = inject(NgbModal);
+  private confirmationService = inject(ConfirmationService);
+  private errorService = inject(ErrorService);
+  private decondtionService = inject(DeconditionService);
+  private translate = inject(TranslateService);
+  private primeNGConfig = inject(PrimeNG);
+  private remiseCacheService = inject(RemiseCacheService);
+  remises: GroupRemise[] = this.remiseCacheService.remises();
+  private responseEvent: Subscription;
+  private saveResponse: Subscription;
+  private inputBoxFocus: Subscription;
+  private onCompleteSale: Subscription;
   private readonly saleEventManager = inject(SaleEventManager);
 
   constructor() {

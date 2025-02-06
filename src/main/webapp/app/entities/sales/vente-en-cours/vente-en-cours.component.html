@@ -1,4 +1,4 @@
-<p-confirmDialog #deletePrevente [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  key="deletePrevente">
 
 </p-confirmDialog>
@@ -90,17 +90,18 @@
         <td>
           <div class="btn-group d-flex justify-content-end">
 
-            <button [routerLink]="['/sales', sale.id,false, 'edit']"
-                    class="p-button-rounded p-button-success p-button-sm" icon="pi pi-pencil"
-                    pButton
-                    pTooltip="Editer">
+            <p-button [routerLink]="['/sales', sale.id,false, 'edit']" icon="pi pi-pencil"
+                      pTooltip="Editer" rounded="true"
+                      severity="success"
 
-            </button>
+                      size="small">
 
-            <button (click)="confirmRemove(sale)"
-                    class="p-button-rounded p-button-danger p-button-sm ml-2" icon="pi pi-trash"
-                    pButton
-                    pTooltip="Supprimer"></button>
+            </p-button>
+
+            <p-button (click)="confirmRemove(sale)" class="ml-2" icon="pi pi-trash" pTooltip="Supprimer"
+                      rounded="true" severity="danger"
+
+                      size="small"></p-button>
           </div>
         </td>
       </tr>

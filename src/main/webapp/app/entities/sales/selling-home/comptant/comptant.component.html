@@ -26,13 +26,13 @@
         </jhi-amount-computing>
 
         <li class="list-group-item">
-          <p-button (click)="save()" icon="pi pi-check"
+          <p-button [raised]="true" (click)="save()" icon="pi pi-check"
                     label="Terminer"
-                    styleClass="p-button-danger"></p-button>
+                    severity="success"></p-button>
 
-          <p-button (click)="putCurrentSaleOnStandBy()" icon="pi pi-times"
+          <p-button [raised]="true" (click)="putCurrentSaleOnStandBy()" icon="pi pi-times"
                     label="En attente"
-                    styleClass="p-button-secondary"></p-button>
+                    severity="secondary"></p-button>
 
         </li>
 
@@ -46,13 +46,13 @@
                       (onSaveEvent)="onKeyDown($event)"></jhi-mode-reglement>
 }
 
-<p-confirmDialog #differeConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  appendTo="body"
                  key="differeConfirmDialog">
 
 </p-confirmDialog>
 
-<p-confirmDialog #avoirConfirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
                  appendTo="body"
                  key="avoirConfirmDialog">
 

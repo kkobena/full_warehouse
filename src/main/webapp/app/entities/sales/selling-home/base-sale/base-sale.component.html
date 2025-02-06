@@ -26,13 +26,13 @@
         </jhi-amount-computing>
 
         <li class="list-group-item">
-          <p-button (click)="onCompleteSale()" icon="pi pi-check"
+          <p-button [raised]="true" (click)="onCompleteSale()" icon="pi pi-check"
                     label="Terminer"
-                    styleClass="p-button-danger"></p-button>
+                    severity="success"></p-button>
 
-          <p-button (click)="putCurrentSaleOnStandBy()" icon="pi pi-times"
+          <p-button [raised]="true" (click)="putCurrentSaleOnStandBy()" icon="pi pi-times"
                     label="En attente"
-                    styleClass="p-button-secondary"></p-button>
+                    severity="secondary"></p-button>
 
         </li>
 

@@ -11,7 +11,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
 import { HOURS, ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
@@ -91,7 +91,6 @@ import { DatePickerModule } from 'primeng/datepicker';
     CalendarModule,
     CheckboxModule,
     SplitButtonModule,
-    ConfirmDialog,
     Select,
     IconField,
     InputIcon,

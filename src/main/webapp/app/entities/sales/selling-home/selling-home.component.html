@@ -110,9 +110,11 @@
 
               <p-button (click)="openPindingSide()"
                         [disabled]="currentSaleService.currentSale() || isPresale"
+                        [raised]="true"
                         icon="pi pi-search" label="Ventes en attente" severity="info"
               ></p-button>
-              <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour"
+              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
+                        label="Retour"
                         severity="secondary"></p-button>
             </div>
           </div>
@@ -236,18 +238,18 @@
 
 </div>
 
-<p-confirmDialog #forcerStockDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
+<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
                  key="forcerStockDialog">
 
 </p-confirmDialog>
 <p-toast position="center"></p-toast>
 
-<p-confirmDialog #changeTab key="changeTab">
+<p-confirmDialog key="changeTab">
 
 
 </p-confirmDialog>
 
-<p-confirmDialog #venteSansBon key="venteSansBon">
+<p-confirmDialog key="venteSansBon">
 
 
 </p-confirmDialog>

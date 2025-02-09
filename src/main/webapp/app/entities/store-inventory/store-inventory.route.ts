@@ -8,9 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { IStoreInventory, StoreInventory } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
 
-
-
-
 export const StoreInventoryResolve = (route: ActivatedRouteSnapshot): Observable<null | IStoreInventory> => {
   const id = route.params['id'];
   if (id) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { GROUPING_BY, IStoreInventory, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
@@ -21,6 +21,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { Select } from 'primeng/select';
 import { Tooltip } from 'primeng/tooltip';
+import { LazyLoadEvent } from 'primeng/api';
 
 @Component({
   selector: 'jhi-store-inventory-detail',
@@ -40,13 +41,11 @@ import { Tooltip } from 'primeng/tooltip';
   ],
 })
 export class StoreInventoryDetailComponent implements OnInit {
+  storeInventory: IStoreInventory | null = null;
   protected rayonService = inject(RayonService);
   protected activatedRoute = inject(ActivatedRoute);
   protected storeInventoryLineService = inject(StoreInventoryLineService);
-  private spinner = inject(NgxSpinnerService);
   protected storeInventoryService = inject(StoreInventoryService);
-
-  storeInventory: IStoreInventory | null = null;
   protected page = 0;
   protected loading!: boolean;
   protected itemsPerPage = 10;
@@ -68,9 +67,7 @@ export class StoreInventoryDetailComponent implements OnInit {
   protected rayons: IRayon[] = [];
   protected storages: Storage[];
   protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private spinner = inject(NgxSpinnerService);
 
   constructor() {}
 
@@ -143,6 +140,28 @@ export class StoreInventoryDetailComponent implements OnInit {
       },
       error: () => this.spinner.hide(),
     });
+  }
+
+  lazyLoading(event: LazyLoadEvent): void {
+    if (event) {
+      this.page = event.first / event.rows;
+      this.loading = true;
+      this.storeInventoryLineService
+        .queryItems({
+          page: this.page,
+          size: event.rows,
+
+          ...this.buildQuery(),
+        })
+        .subscribe({
+          next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: (error: any) => this.onError(error),
+        });
+    }
+  }
+
+  onError(error: any): void {
+    this.loading = false;
   }
 
   protected onSelectStrorage(evt: any): void {

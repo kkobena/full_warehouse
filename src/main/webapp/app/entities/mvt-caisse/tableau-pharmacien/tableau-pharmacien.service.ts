@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SERVER_API_URL } from '../../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,12 +10,8 @@ import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.mod
   providedIn: 'root',
 })
 export class TableauPharmacienService {
-  protected http = inject(HttpClient);
-
   public resourceUrl = SERVER_API_URL + 'api/';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  protected http = inject(HttpClient);
 
   constructor() {}
 
@@ -40,6 +36,15 @@ export class TableauPharmacienService {
     return this.http.get<IGroupeFournisseur[]>(this.resourceUrl + 'top-groupe-fournisseurs', {
       params: options,
       observe: 'response',
+    });
+  }
+
+  exportToExcel(req: any): Observable<HttpResponse<Blob>> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/tableau-pharmacien/excel`, {
+      params: options,
+      observe: 'response',
+      responseType: 'blob',
     });
   }
 }

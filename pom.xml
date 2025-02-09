@@ -376,7 +376,7 @@
         <dependency>
             <artifactId>poi</artifactId>
             <groupId>org.apache.poi</groupId>
-            <version>5.2.5</version>
+            <version>5.4.0</version>
         </dependency>
         <dependency>
             <artifactId>jasypt-spring-boot-starter</artifactId>

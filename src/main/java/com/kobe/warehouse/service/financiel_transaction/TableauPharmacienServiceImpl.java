@@ -4,6 +4,8 @@ import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
+import com.kobe.warehouse.service.excel.ExcelExportService;
+import com.kobe.warehouse.service.excel.GenericExcelDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
@@ -12,6 +14,7 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWra
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
@@ -42,15 +45,18 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final GroupeFournisseurRepository groupeFournisseurRepository;
     private final Set<Long> groupeFournisseurs = new HashSet<>();
     private final TableauPharmacienReportReportService reportService;
+    private final ExcelExportService excelExportService;
 
     public TableauPharmacienServiceImpl(
         EntityManager entityManager,
         GroupeFournisseurRepository groupeFournisseurRepository,
-        TableauPharmacienReportReportService reportService
+        TableauPharmacienReportReportService reportService,
+        ExcelExportService excelExportService
     ) {
         this.entityManager = entityManager;
         this.groupeFournisseurRepository = groupeFournisseurRepository;
         this.reportService = reportService;
+        this.excelExportService = excelExportService;
         groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));
     }
 
@@ -79,6 +85,48 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                 new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
                 mvtParam.getGroupeBy()
             );
+    }
+
+    @Override
+    public Resource exportToExcel(MvtParam mvtParam) throws IOException {
+        GenericExcelDTO genericExcel = new GenericExcelDTO();
+        TableauPharmacienWrapper tableauPharmacienWrapper = this.getTableauPharmacien(mvtParam);
+        List<GroupeFournisseurDTO> groupeFournisseurs = this.fetchGroupGrossisteToDisplay();
+        List<String> columns = new ArrayList<>(List.of("Date", "Comptant", "Crédit", "Remise", "Montant Net", "Nbre de Clients"));
+        for (GroupeFournisseurDTO groupeFournisseur : groupeFournisseurs) {
+            columns.add(groupeFournisseur.getLibelle());
+        }
+        columns.addAll(List.of("Avoirs", "Achats Nets", "Ratios V/A", "Ratios A/V"));
+
+        genericExcel.addColumn(columns.toArray(new String[0]));
+        tableauPharmacienWrapper
+            .getTableauPharmaciens()
+            .forEach(t -> {
+                List<Object> row = new ArrayList<>();
+                row.add(t.getMvtDate());
+                row.add(t.getMontantComptant());
+                row.add(t.getMontantCredit());
+                row.add(t.getMontantRemise());
+                row.add(t.getMontantNet());
+                row.add(t.getNombreVente());
+                for (GroupeFournisseurDTO groupeFournisseur : groupeFournisseurs) {
+                    row.add(
+                        t
+                            .getGroupAchats()
+                            .stream()
+                            .filter(f -> f.getId() == groupeFournisseur.getId())
+                            .mapToLong(f -> f.getAchat().getMontantNet())
+                            .sum()
+                    );
+                }
+                row.add(t.getMontantAvoirFournisseur());
+                row.add(t.getMontantBonAchat());
+                row.add(t.getRatioVenteAchat());
+                row.add(t.getRatioAchatVente());
+                genericExcel.addRow(row.toArray());
+            });
+
+        return this.excelExportService.generate(genericExcel, "Tableau pharmacien", "tableau_pharmacien");
     }
 
     private List<Tuple> executeQuery(MvtParam mvtParam) {

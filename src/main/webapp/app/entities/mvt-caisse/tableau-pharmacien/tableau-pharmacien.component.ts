@@ -28,6 +28,8 @@ import { FormsModule } from '@angular/forms';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
+import { saveAs } from 'file-saver';
+import { extractFileName } from '../../../shared/util/file-utils';
 
 @Component({
   selector: 'jhi-tableau-pharmacien',
@@ -90,7 +92,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => {},
+        command: () => this.onExcel(),
       },
     ];
     const params = this.mvtParamServiceService.mvtCaisseParam();
@@ -160,6 +162,29 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         this.loading = false;
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
+      },
+      error: () => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Une erreur est survenue',
+        });
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
+  }
+
+  protected onExcel(): void {
+    this.loading = true;
+    this.updateParam();
+    this.tableauPharmacienService.exportToExcel(this.buildParams()).subscribe({
+      next: resp => {
+        this.loading = false;
+        const blob = resp.body;
+        saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
       },
       error: () => {
         this.loading = false;

@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 import org.springframework.core.io.Resource;
@@ -43,6 +44,8 @@ public interface TableauPharmacienService extends MvtCommonService {
     TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam);
 
     Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException;
+
+    Resource exportToExcel(MvtParam mvtParam) throws IOException;
 
     List<GroupeFournisseurDTO> fetchGroupGrossisteToDisplay();
 

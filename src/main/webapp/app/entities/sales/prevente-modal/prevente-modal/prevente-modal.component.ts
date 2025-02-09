@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal, ViewEncapsulation, output } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal, ViewEncapsulation } from '@angular/core';
 import { IUser } from '../../../../core/user/user.model';
 import { ISales } from '../../../../shared/model/sales.model';
 import { SalesService } from '../../sales.service';
@@ -89,7 +89,7 @@ export class PreventeModalComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        userId: this.userSignal().id,
+        userId: this.userSignal()?.id,
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];

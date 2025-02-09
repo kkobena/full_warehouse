@@ -268,7 +268,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/sales', false, 'new']);
     } else {
       this.currentSaleService.setCurrentSale(sales);
-      this.currentSaleService.setIsEdit(toEdit);
+      this.currentSaleService.setIsEdit(sales.statut === SalesStatut.CLOSED);
       if (sales && sales.type === 'VNO') {
         this.active = 'comptant';
       } else if (sales && sales.type === 'VO') {
@@ -369,7 +369,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       } else {
         this.messageService.add({
-          severity: 'warn',
+          severity: 'error',
           summary: 'Alerte',
           detail: 'Veuillez saisir le numéro de bon pour tous les tiers payants',
         });
@@ -786,7 +786,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   closeSideBar(booleanValue: boolean): void {
     this.pendingSalesSidebar = booleanValue;
     if (this.currentSaleService.currentSale()) {
-      this.onLoadPrevente(this.currentSaleService.currentSale());
+      this.onLoadPrevente(this.currentSaleService.currentSale(), true);
     }
   }
 

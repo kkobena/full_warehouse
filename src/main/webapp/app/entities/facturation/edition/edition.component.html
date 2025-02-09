@@ -128,7 +128,7 @@
                dataKey="id"
                styleClass="p-datatable-sm p-datatable-gridlines"
       >
-        <ng-template pTemplate="caption">
+        <ng-template #caption>
           <div class="d-flex align-items-end justify-content-end">
             <p-button (click)="onEdit()" [loading]="editing"
                       [raised]="true"
@@ -184,17 +184,17 @@
                styleClass="p-datatable-sm p-datatable-gridlines"
 
       >
-        <ng-template pTemplate="caption">
+        <ng-template #caption>
           <div class="d-flex align-items-center justify-content-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                (input)="bonDt.filterGlobal($event.target.value, 'contains')"
+                pInputText
+                placeholder="Rechercher..."
+                type="text" />
+            </p-iconfield>
 
-          <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input
-                  (input)="bonDt.filterGlobal($event.target.value, 'contains')"
-                  pInputText
-                  placeholder="Rechercher..."
-                  type="text" />
-            </span>
             <p-button (click)="onEdit()" [loading]="editing"
                       [raised]="true"
                       icon="pi pi-check" label="Editer"

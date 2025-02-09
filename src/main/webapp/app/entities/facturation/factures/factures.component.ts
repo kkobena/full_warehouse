@@ -221,8 +221,8 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       message: ' Voullez-vous supprimer cette facture ?',
       header: 'SUPPRESSION DE FACTURE ',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.factureService.delete(id).subscribe({
           next: () => {

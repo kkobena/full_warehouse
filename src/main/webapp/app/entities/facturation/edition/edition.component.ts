@@ -35,6 +35,8 @@ import { FactureEditionResponse } from '../facture-edition-response';
 import { ButtonModule } from 'primeng/button';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-edition',
@@ -58,6 +60,8 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     ConfirmDialogModule,
     ButtonModule,
     ToggleSwitch,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './edition.component.html',
   styles: ``,

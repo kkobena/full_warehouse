@@ -9,10 +9,12 @@ import { PanelModule } from 'primeng/panel';
 import { FactureService } from '../facture.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
 
 @Component({
   selector: 'jhi-facture-detail',
-  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule],
+  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule, InputIcon, IconField],
   templateUrl: './facture-detail.component.html',
   styles: ``,
 })

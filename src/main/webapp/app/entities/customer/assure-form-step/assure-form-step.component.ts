@@ -40,9 +40,6 @@ export class AssureFormStepComponent implements OnInit {
   typeAssure: string | undefined;
   activeStep: number = 1;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {}
 
   ngOnInit(): void {

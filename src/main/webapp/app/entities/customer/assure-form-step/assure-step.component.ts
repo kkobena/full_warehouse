@@ -50,13 +50,9 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   ref!: DynamicDialogRef;
   isSaving = false;
   isValid = true;
-  minLength = 3;
+  minLength = 2;
   tiersPayant!: ITiersPayant | null;
   tiersPayants: ITiersPayant[] = [];
-  plafonds = [
-    { label: 'Non', value: false },
-    { label: 'Oui', value: true },
-  ];
   fb = inject(UntypedFormBuilder);
   commonService = inject(CommonService);
   dialogService = inject(DialogService);
@@ -69,7 +65,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     firstName: [null, [Validators.required]],
     lastName: [null, [Validators.required]],
     tiersPayantId: [null, [Validators.required]],
-    taux: [null, [Validators.required, Validators.min(5), Validators.max(100)]],
+    taux: [null, [Validators.required, Validators.min(10), Validators.max(100)]],
     num: [null, [Validators.required]],
     phone: [],
     email: [],

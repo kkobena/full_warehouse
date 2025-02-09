@@ -32,19 +32,19 @@
                  [value]="factureWritable().items" dataKey="saleId"
                  scrollHeight="500px" selectionMode="single"
                  styleClass="p-datatable-striped">
-          <ng-template pTemplate="caption">
+          <ng-template #caption>
             <div class="d-flex">
-
-              <span class="p-input-icon-left ml-auto">
-                <i class="pi pi-search"></i>
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
                 <input (input)="fact.filterGlobal($event.target.value, 'contains')"
                        [(ngModel)]="searchValue" pInputText
                        placeholder="Filtrer"
                        type="text" />
-            </span>
+              </p-iconfield>
+
             </div>
           </ng-template>
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th>Num.Bon</th>
               <th>Assuré</th>

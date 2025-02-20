@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, viewChild } from '@angular/core';
+import { Component, inject, input, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -50,7 +50,6 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   ],
 })
 export class BaseSaleComponent {
-  differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   modeReglementComponent = viewChild(ModeReglementComponent);
   amountComputingComponent = viewChild(AmountComputingComponent);
   readonly isPresale = input(false);
@@ -174,10 +173,6 @@ export class BaseSaleComponent {
       reject: () => {},
       key: 'differeConfirmDialog',
     });
-
-    setTimeout(() => {
-      this.differeConfirmDialogBtn().nativeElement.focus();
-    }, 10);
   }
 
   saveSale(): void {

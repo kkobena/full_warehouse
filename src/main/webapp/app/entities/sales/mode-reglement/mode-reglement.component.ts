@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, signal, viewChild, input, output } from '@angular/core';
+import { Component, ElementRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,15 +35,11 @@ import { InputGroupModule } from 'primeng/inputgroup';
   templateUrl: './mode-reglement.component.html',
 })
 export class ModeReglementComponent implements OnInit {
-  private document = inject<Document>(DOCUMENT);
-
   readonly showModeReglementCard = input<boolean>(true);
   readonly paymentModeControlEvent = output<PaymentModeControl>();
   readonly onSaveEvent = output<boolean>();
   readonly onCloseEvent = output<boolean>();
   readonly isDiffere = input<boolean>(true);
-  showInfosComplementaireReglementCard: boolean = false;
-  showInfosBancaire: boolean = false;
   commentaire: string = null;
   referenceBancaire: string = null;
   banque: string = null;
@@ -60,7 +56,6 @@ export class ModeReglementComponent implements OnInit {
   readonly MOOV = 'MOOV';
   readonly MTN = 'MTN';
   reglementsModes: IPaymentMode[];
-
   commentaireInput = viewChild<ElementRef>('commentaireInput');
   addOverlayPanel = viewChild<any>('addOverlayPanel');
   removeOverlayPanel = viewChild<any>('removeOverlayPanel');
@@ -72,12 +67,15 @@ export class ModeReglementComponent implements OnInit {
   protected sansBon = false;
   protected printInvoice = false;
   protected paymentModeToChange: IPaymentMode | null;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private document = inject<Document>(DOCUMENT);
+  private readonly modes = [this.CB, this.VIREMENT, this.CH];
 
   constructor() {
     this.updateAvailableMode();
+  }
+
+  get manageShowInfosBancaire(): boolean {
+    return this.selectModeReglementService.modeReglements().some((element: IPaymentMode) => this.modes.includes(element.code));
   }
 
   ngOnInit(): void {
@@ -127,11 +125,6 @@ export class ModeReglementComponent implements OnInit {
     );
   }
 
-  manageShowInfosBancaire(): void {
-    const mode = (element: IPaymentMode) => element.code === this.CB || this.VIREMENT || element.code === this.CH;
-    this.showInfosBancaire = this.selectModeReglementService.modeReglements().some(mode);
-  }
-
   buildPreventeReglementInput(): void {
     this.selectModeReglementService.paymentModes.forEach((mode: IPaymentMode) => {
       const el = this.currentSaleService.currentSale().payments.find(payment => payment.paymentMode.code === mode.code);
@@ -142,7 +135,6 @@ export class ModeReglementComponent implements OnInit {
           this.currentSaleService.currentSale().montantVerse = el.montantVerse;
         }
         this.currentSaleService.setCurrentSale(this.currentSaleService.currentSale());
-        // this.selectModeReglementService.update(mode);
         this.updateAvailableMode();
       }
     });

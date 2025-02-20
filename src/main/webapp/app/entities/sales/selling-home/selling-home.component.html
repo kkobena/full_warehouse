@@ -35,43 +35,46 @@
 </p-dialog>
 <div class="row selling">
   <div class=" col-md-2 col-sm-2 selling-menu">
-    <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
-      <p-card>
-        <div #nav="ngbNav" (navChange)="onNavChange($event)"
-             [(activeId)]="active"
-             class="nav flex-column nav-pills "
-             ngbNav orientation="vertical">
-          <ng-container ngbNavItem="comptant">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
-            <ng-template ngbNavContent>
-              <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
-                            (responseEvent)="onFinalyse($event)"
-                            (saveResponse)="onSave($event)" [isPresale]="isPresale"
-              >
+    <div>
+      <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
+        <p-card>
+          <div #nav="ngbNav" (navChange)="onNavChange($event)"
+               [(activeId)]="active"
+               class="nav flex-column nav-pills "
+               ngbNav orientation="vertical">
+            <ng-container ngbNavItem="comptant">
+              <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
+              <ng-template ngbNavContent>
+                <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
+                              (responseEvent)="onFinalyse($event)"
+                              (saveResponse)="onSave($event)" [isPresale]="isPresale"
+                >
 
 
-              </jhi-comptant>
-            </ng-template>
-          </ng-container>
-          <ng-container ngbNavItem="assurance">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
-            <ng-template ngbNavContent>
-              <jhi-assurance [isPresale]="isPresale">
-              </jhi-assurance>
-            </ng-template>
-          </ng-container>
-          <ng-container ngbNavItem="carnet">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Carnet</a>
-            <ng-template ngbNavContent>
-              <jhi-carnet [isPresale]="isPresale">
-              </jhi-carnet>
+                </jhi-comptant>
+              </ng-template>
+            </ng-container>
+            <ng-container ngbNavItem="assurance">
+              <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
+              <ng-template ngbNavContent>
+                <jhi-assurance [isPresale]="isPresale">
+                </jhi-assurance>
+              </ng-template>
+            </ng-container>
+            <ng-container ngbNavItem="carnet">
+              <a class="flex-sm-fill nav-link " ngbNavLink>Carnet</a>
+              <ng-template ngbNavContent>
+                <jhi-carnet [isPresale]="isPresale">
+                </jhi-carnet>
 
-            </ng-template>
-          </ng-container>
-        </div>
+              </ng-template>
+            </ng-container>
+          </div>
 
-      </p-card>
-    </p-panel>
+        </p-card>
+      </p-panel>
+    </div>
+
 
   </div>
   <div class=" col-md-10 col-sm-10 row sale-container">

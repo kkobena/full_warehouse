@@ -64,7 +64,6 @@ export class ComptantComponent {
   readonly saveResponse = output<SaveResponse>({ alias: 'saveResponse' });
   readonly responseEvent = output<FinalyseSale>({ alias: 'responseEvent' });
   readonly CASH = 'CASH';
-  differeConfirmDialogBtn = viewChild<ElementRef>('differeConfirmDialogBtn');
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
   amountComputingComponent = viewChild(AmountComputingComponent);
   modeReglementComponent = viewChild(ModeReglementComponent);
@@ -118,10 +117,6 @@ export class ComptantComponent {
       reject: () => {},
       key: 'differeConfirmDialog',
     });
-
-    setTimeout(() => {
-      this.differeConfirmDialogBtn().nativeElement.focus();
-    }, 10);
   }
 
   onOpenCustomer(putsOnStandby: boolean = false): void {

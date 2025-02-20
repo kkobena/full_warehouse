@@ -78,7 +78,7 @@
 
     </div>
     <!-- TODO revoir la gestion des info diffiere ou paiment par cb/virement/cheque ajouter un modal pour la saisie des info banque ou client differe: afficher plain text sur l'ecran de vente avec option de modification -->
-    @if (showInfosComplementaireReglementCard || isDiffere()) {
+    @if (manageShowInfosBancaire || isDiffere()) {
       <div class="card col-md-5">
         <div class="card-header sale-card-header">Informations complementaires</div>
         <div class="card-body sale-card">
@@ -90,20 +90,27 @@
             </div>
           }
 
-          @if (showInfosBancaire) {
-            <div class="row mt-1">
-              <div class="p-inputgroup col-6">
-                <span class="p-inputgroup-addon">Référence</span>
+          @if (manageShowInfosBancaire) {
+            <div class="mt-1">
+              <p-inputgroup class="mb-1">
+                <p-inputgroup-addon>
+                  Référence
+                </p-inputgroup-addon>
                 <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
-              </div>
-              <div class="p-inputgroup  col-6">
-                <span class="p-inputgroup-addon">Banque</span>
+              </p-inputgroup>
+
+              <p-inputgroup class="mb-1">
+                <p-inputgroup-addon>
+                  Banque
+                </p-inputgroup-addon>
                 <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
-              </div>
-              <div class="p-inputgroup mt-1  col-8">
-                <span class="p-inputgroup-addon">Lieux</span>
+              </p-inputgroup>
+              <p-inputgroup class="mb-1">
+                <p-inputgroup-addon>
+                  Lieux
+                </p-inputgroup-addon>
                 <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
-              </div>
+              </p-inputgroup>
             </div>
           }
         </div>

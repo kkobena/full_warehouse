@@ -831,7 +831,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.6.3</maven.version>
 
-        <node.version>v22.13.0</node.version>
+        <node.version>v22.14.0</node.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
         <npm.version>10.9.2</npm.version>
         <profile.api-docs/>

@@ -16,6 +16,7 @@
           <label class="form-label" for="field_login"
                  jhiTranslate="userManagement.login">Login</label>
           <input class="form-control" formControlName="login" id="field_login" name="login"
+                 pInputText
                  type="text" />
 
           @if (editForm.get('login')!.invalid && (editForm.get('login')!.dirty || editForm.get(
@@ -46,6 +47,7 @@
           <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
           <input class="form-control" formControlName="firstName" id="field_firstName"
                  name="firstName"
+                 pInputText
                  type="text" />
 
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
@@ -65,6 +67,7 @@
           <label class="form-label" for="field_lastName"
                  jhiTranslate="userManagement.lastName">Nom</label>
           <input class="form-control" formControlName="lastName" id="field_lastName" name="lastName"
+                 pInputText
                  type="text" />
 
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
@@ -80,9 +83,10 @@
           }
         </div>
 
-        <div class="mb-3">
+        <div [hidden]="isAdmin" class="mb-3">
           <label class="form-label" for="field_authority" jhiTranslate="userManagement.profiles">Droits</label>
-          <select class="form-control" formControlName="authorities" id="field_authority" multiple
+          <select class="form-control" formControlName="authorities"
+                  id="field_authority" multiple
                   name="authority">
             @for (authority of authorities(); track $index) {
               <option [value]="authority">{{ authority }}</option>
@@ -93,6 +97,7 @@
           <label class="form-label" for="field_email"
                  jhiTranslate="userManagement.email">Email</label>
           <input class="form-control" formControlName="email" id="field_email" name="email"
+                 pInputText
                  type="email" />
 
           @if (editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get(
@@ -126,18 +131,18 @@
             </div>
           }
         </div>
-        <button (click)="previousState()" class="p-button-raised p-button-secondary"
-                pButton
-                pButtonIcon="pi pi-ban" type="button">
-          &nbsp;<span
-          jhiTranslate="entity.action.cancel">Annuler</span>
-        </button>
+        <p-button (click)="previousState()" icon="pi pi-ban" label="Annuler" raised="true"
 
-        <button [disabled]="editForm.invalid || isSaving" class="p-button-raised p-button-success"
-                pButton pButtonIcon="pi pi-save" type="submit">
-          &nbsp;<span
-          jhiTranslate="entity.action.save">Sauvegarder</span>
-        </button>
+                  severity="danger" type="button">
+
+
+        </p-button>
+
+        <p-button [disabled]="editForm.invalid || isSaving" icon="pi pi-save" label="Enregister"
+                  raised="true"
+                  severity="success" type="submit">
+
+        </p-button>
       </form>
     </p-panel>
   </div>

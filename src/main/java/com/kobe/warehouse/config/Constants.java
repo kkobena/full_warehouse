@@ -11,6 +11,7 @@ public final class Constants {
     public static final String SYSTEM = "system";
     public static final String DEFAULT_LANGUAGE = "fr";
     public static final String ANONYMOUS_USER = "Anonymous";
+    public static final String ANONYMOUS_USER_2 = "anonymoususer";
 
     public static final int REFERENCE_TYPE_COMMANDE = 1;
     public static final int REFERENCE_TYPE_VENTE = 0;

@@ -41,6 +41,11 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     default Specification<User> findspecialisation() {
         return (root, query, cb) ->
-            cb.and(cb.notEqual(root.get(User_.login), Constants.SYSTEM), cb.notEqual(root.get(User_.login), Constants.ANONYMOUS_USER));
+            cb.and(
+                cb.notEqual(root.get(User_.login), Constants.SYSTEM),
+                cb.notEqual(root.get(User_.login), Constants.ANONYMOUS_USER),
+                cb.notEqual(root.get(User_.login), Constants.ANONYMOUS_USER_2),
+                cb.isTrue(root.get(User_.activated))
+            );
     }
 }

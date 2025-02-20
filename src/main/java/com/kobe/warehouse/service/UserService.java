@@ -108,7 +108,6 @@ public class UserService {
         user.setLangKey(Constants.DEFAULT_LANGUAGE);
         String encryptedPassword = passwordEncoder.encode(userDTO.getLogin().toLowerCase());
         user.setPassword(encryptedPassword);
-        user.setActionAuthorityKey(DigestUtils.sha256Hex(userDTO.getActionAuthorityKey()));
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(LocalDateTime.now());
         user.setActivated(true);
@@ -220,7 +219,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
+        return userRepository.findAll(userRepository.findspecialisation(), pageable).map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -285,16 +284,15 @@ public class UserService {
     public Optional<AdminUserDTO> getUserConnectedWithAuthorities() {
         return SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneWithAuthoritiesByLogin)
-            .map(
-                user ->
-                    new AdminUserDTO(
-                        user,
-                        user
-                            .getAuthorities()
-                            .stream()
-                            .map(authority -> authorityRepository.findOneByName(authority.getName()))
-                            .collect(Collectors.toSet())
-                    )
+            .map(user ->
+                new AdminUserDTO(
+                    user,
+                    user
+                        .getAuthorities()
+                        .stream()
+                        .map(authority -> authorityRepository.findOneByName(authority.getName()))
+                        .collect(Collectors.toSet())
+                )
             );
     }
 

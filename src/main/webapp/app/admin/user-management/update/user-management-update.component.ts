@@ -1,13 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LANGUAGES } from 'app/config/language.constants';
 import { IUser } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
 
 const userTemplate = {} as IUser;
 
@@ -17,15 +16,13 @@ const newUser: IUser = {
 } as IUser;
 
 @Component({
-    selector: 'jhi-user-mgmt-update',
-    templateUrl: './user-management-update.component.html',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PanelModule, ButtonModule, RippleModule]
+  selector: 'jhi-user-mgmt-update',
+  templateUrl: './user-management-update.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PanelModule, ButtonModule, InputTextModule],
 })
 export default class UserManagementUpdateComponent implements OnInit {
-  languages = LANGUAGES;
   authorities = signal<string[]>([]);
   isSaving = false;
-
   editForm = new FormGroup({
     id: new FormControl(userTemplate.id),
     login: new FormControl(userTemplate.login, {
@@ -53,13 +50,14 @@ export default class UserManagementUpdateComponent implements OnInit {
       validators: [Validators.required],
     }),
   });
-
+  protected isAdmin = false;
   private userService = inject(UserManagementService);
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {
       if (user) {
+        this.isAdmin = user.id === 3;
         this.editForm.reset(user);
       } else {
         this.editForm.reset(newUser);

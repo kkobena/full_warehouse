@@ -60,7 +60,7 @@ export class FactureService {
   }
 
   exportToPdf(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf//${id}`, {
+    return this.http.get(`${this.resourceUrl}/pdf/${id}`, {
       responseType: 'blob',
     });
   }

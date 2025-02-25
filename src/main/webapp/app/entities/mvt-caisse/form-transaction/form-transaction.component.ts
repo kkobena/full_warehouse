@@ -1,55 +1,57 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 
 import { ToastModule } from 'primeng/toast';
 import { ErrorService } from '../../../shared/error.service';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { MvtCaisseServiceService } from '../mvt-caisse-service.service';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { FinancialTransaction, TypeFinancialTransaction } from '../../cash-register/model/cash-register.model';
-import { DropdownModule } from 'primeng/dropdown';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
-import { CalendarModule } from 'primeng/calendar';
 import { getTypeName } from '../mvt-caisse-util';
 import { TranslateDirective } from '../../../shared/language';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { Select } from 'primeng/select';
+import { DatePicker } from 'primeng/datepicker';
+import { Button } from 'primeng/button';
 
 @Component({
-    selector: 'jhi-form-transaction',
-    imports: [
-    FaIconComponent,
+  selector: 'jhi-form-transaction',
+  imports: [
     FormsModule,
     InputTextModule,
     KeyFilterModule,
     ReactiveFormsModule,
     ToastModule,
     TranslateDirective,
-    DropdownModule,
-    CalendarModule,
-    InputNumberModule
-],
-    templateUrl: './form-transaction.component.html',
-    styleUrl: './form-transaction.component.scss'
+    InputNumberModule,
+    Select,
+    DatePicker,
+    Button,
+  ],
+  templateUrl: './form-transaction.component.html',
+  styleUrl: './form-transaction.component.scss',
 })
-export class FormTransactionComponent implements OnInit {
-  protected errorService = inject(ErrorService);
-  private fb = inject(FormBuilder);
-  private ref = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-  private mvtCaisseService = inject(MvtCaisseServiceService);
-  private messageService = inject(MessageService);
-  private modeService = inject(ModePaymentService);
-
+export class FormTransactionComponent implements OnInit, AfterViewInit {
   isSaving = false;
   isValid = true;
   appendTo = 'body';
   maxDate = new Date();
+  protected errorService = inject(ErrorService);
+  protected types: TypeFinancialTransaction[] = [
+    TypeFinancialTransaction.ENTREE_CAISSE,
+    TypeFinancialTransaction.SORTIE_CAISSE,
+    TypeFinancialTransaction.REGLEMENT_DIFFERE,
+    TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
+    TypeFinancialTransaction.REGLMENT_FOURNISSEUR,
+  ];
+  protected paymentModes: IPaymentMode[] = [];
+  private fb = inject(FormBuilder);
   editForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],
@@ -63,21 +65,13 @@ export class FormTransactionComponent implements OnInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
-    transactionDate: new FormControl<Date | null>(null, {}),
+    transactionDate: new FormControl<Date>(new Date()),
     commentaire: new FormControl<string | null>(null, {}),
   });
-
-  protected types: TypeFinancialTransaction[] = [
-    TypeFinancialTransaction.ENTREE_CAISSE,
-    TypeFinancialTransaction.SORTIE_CAISSE,
-    TypeFinancialTransaction.REGLEMENT_DIFFERE,
-    TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
-    TypeFinancialTransaction.REGLMENT_FOURNISSEUR,
-  ];
-  protected paymentModes: IPaymentMode[] = [];
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private ref = inject(DynamicDialogRef);
+  private mvtCaisseService = inject(MvtCaisseServiceService);
+  private messageService = inject(MessageService);
+  private modeService = inject(ModePaymentService);
 
   constructor() {}
 
@@ -103,6 +97,11 @@ export class FormTransactionComponent implements OnInit {
     this.isSaving = true;
     const entity = this.createFromForm();
     this.subscribeToSaveResponse(this.mvtCaisseService.create(entity));
+  }
+
+  ngAfterViewInit(): void {
+    // this.editForm.get(['transactionDate'])!.setValue(new Date());
+    this.editForm.get(['paymentMode'])!.setValue({ code: 'CASH', libelle: 'ESPECE' });
   }
 
   protected createFromForm(): FinancialTransaction {

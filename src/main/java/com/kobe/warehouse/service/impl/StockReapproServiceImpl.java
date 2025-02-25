@@ -5,7 +5,6 @@ import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.service.AppConfigurationService;
-import com.kobe.warehouse.service.stock.StockReapproService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -32,7 +31,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
-public class StockReapproServiceImpl implements StockReapproService {
+public class StockReapproServiceImpl {
 
     private final Logger log = LoggerFactory.getLogger(StockReapproServiceImpl.class);
     private final EntityManager entityManager;
@@ -51,7 +50,6 @@ public class StockReapproServiceImpl implements StockReapproService {
         this.transactionTemplate = transactionTemplate;
     }
 
-    @Override
     // @Scheduled(cron = "0 0 8-19 * * *")
     @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
@@ -133,7 +131,7 @@ public class StockReapproServiceImpl implements StockReapproService {
         int itemQtySold = tuple.get("itemQtySold", BigDecimal.class).intValue();
         int itemQty = tuple.get("item_qty", Integer.class);
         if (itemQtySold > 0) {
-            qtySold = qtySold + ((int) Math.ceil(itemQtySold / Double.valueOf(itemQty)));
+            qtySold = qtySold + ((int) Math.ceil(itemQtySold / (double) itemQty));
         }
         double soldQuantityAvg = qtySold / denominateurReappro;
         int seuilMin = (int) Math.ceil(soldQuantityAvg * dayStock);

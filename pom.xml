@@ -809,7 +809,7 @@
         <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <java.version>22</java.version>
+        <java.version>23</java.version>
         <jhipster-framework.version>8.5.0</jhipster-framework.version>
 
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>

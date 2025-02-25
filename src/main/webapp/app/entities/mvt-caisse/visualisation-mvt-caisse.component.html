@@ -89,7 +89,7 @@
           [value]="mvtCaisses"
           dataKey="id"
           selectionMode="multiple"
-          styleClass="p-datatable-striped mt-2"
+
         >
           <ng-template pTemplate="header">
             <tr>
@@ -103,7 +103,7 @@
               <th>Client</th>
 
 
-              <th style="width:15px"></th>
+              <th [hidden]="true" style="width:15px"></th>
             </tr>
           </ng-template>
           <ng-template let-mvtCaisse pTemplate="body">
@@ -126,7 +126,7 @@
               <td>{{ mvtCaisse.userFullName }}</td>
               <td>{{ mvtCaisse.organisme }}</td>
 
-              <td class="text-right">
+              <td [hidden]="true" class="text-right">
                 <div class="btn-group">
                   <p-button
                     severity="info"
@@ -162,7 +162,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total entrée
                   <span
-                    class="badge bg-success rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
+                    class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
                 </li>
 
               }
@@ -180,7 +180,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total Mobile
                   <span
-                    class="badge bg-warning rounded-pill">{{
+                    class="badge bg-secondary rounded-pill">{{
                       mvtCaisseSum.totalMobileAmount | number
                     }}</span>
                 </li>
@@ -197,7 +197,7 @@
                     class="list-group-item d-flex justify-content-between align-items-center">
                     {{ mode.libelle }}
                     <span
-                      class="badge rounded-pill {{getColorClass(i)}}">{{
+                      class="badge rounded-pill bg-secondary ">{{
                         mode.value | number
                       }}</span>
                   </li>
@@ -218,7 +218,7 @@
                         }}</span>
                     } @else {
                       <span
-                        class="badge rounded-pill {{getColorClassForTypeMvts(i)}}">{{
+                        class="badge rounded-pill bg-secondary ">{{
                           mode.value | number
                         }}</span>
                     }

@@ -43,11 +43,6 @@ a:hover {
   color: $dropdown-link-hover-color;
 }
 
-.p-datatable .p-datatable-tbody > tr > td {
-
-  border: 1px solid #c8c8c8 !important;
-  padding: 2px 2px !important;
-}
 
 /* ==========================================================================
 Browser Upgrade Prompt
@@ -1893,3 +1888,11 @@ menu  de la vente
   }
 
 }
+
+/*
+.p-datatable .p-datatable-tbody > tr > td {
+
+  border: 1px solid #c8c8c8 !important;
+  padding: 2px 2px !important;
+}
+ */

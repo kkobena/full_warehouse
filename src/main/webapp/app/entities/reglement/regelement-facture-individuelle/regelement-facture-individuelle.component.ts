@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit, signal, viewChild, output } from '@angular/core';
+import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -70,26 +70,22 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   reglementService = inject(ReglementService);
   factureService = inject(FactureService);
   readonly selectedFacture = output<SelectedFacture>();
-  update = computed(() => {
-    if (this.montantAPayer()) {
-      this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
-    } else {
-      this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
-    }
-  });
   protected showSidebar = false;
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
   protected isSaving = false;
 
   constructor() {
-    /*   effect(() => {
-        if (this.montantAPayer()) {
-          this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
-        } else {
-          this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
-        }
-      }); */
+    effect(() => {
+      if (this.montantAPayer()) {
+        this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
+      } else {
+        this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+      }
+      if (this.dossierFactureProjection()) {
+        this.dossierFactureProjectionSignal.set(this.dossierFactureProjection());
+      }
+    });
   }
 
   get totalAmount(): number {
@@ -129,7 +125,6 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   ngOnInit(): void {
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
-    this.dossierFactureProjectionSignal.set(this.dossierFactureProjection());
   }
 
   protected onPartielReglement(evt: boolean): void {

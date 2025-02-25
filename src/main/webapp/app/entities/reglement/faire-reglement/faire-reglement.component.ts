@@ -18,10 +18,11 @@ export class FaireReglementComponent implements OnInit {
   readonly isGroupe = input(false);
   readonly isGroupeSignal = signal(this.isGroupe());
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
-  readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);
+  //  readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);
   factureService = inject(FactureService);
   protected reglementFactureDossiersSignal = signal(this.reglementFactureDossiers());
-  protected dossierFactureProjectionSignal = signal(this.dossierFactureProjection());
+  // protected dossierFactureProjectionSignal = signal(this.dossierFactureProjection());
+  protected dossierFactureProjection: DossierFactureProjection | null = null;
 
   constructor() {}
 
@@ -36,8 +37,15 @@ export class FaireReglementComponent implements OnInit {
 
   ngOnInit(): void {
     this.isGroupeSignal.set(this.isGroupe());
-    this.dossierFactureProjectionSignal.set(this.dossierFactureProjection());
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
+    this.factureService
+      .findDossierFactureProjection(this.reglementFactureDossiers()[0].parentId, {
+        isGroup: this.isGroupe(),
+      })
+      .subscribe(res => {
+        this.dossierFactureProjection = res.body;
+        console.log('dossierFactureProjection', this.dossierFactureProjection);
+      });
   }
 
   private fetchFacture(facture: SelectedFacture): void {
@@ -46,7 +54,7 @@ export class FaireReglementComponent implements OnInit {
         isGroup: facture.isGroup,
       })
       .subscribe(res => {
-        this.dossierFactureProjectionSignal.set(res.body);
+        this.dossierFactureProjection = res.body;
       });
   }
 
@@ -62,7 +70,7 @@ export class FaireReglementComponent implements OnInit {
         },
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
-          this.dossierFactureProjectionSignal.set(null);
+          this.dossierFactureProjection = null;
         },
       });
   }

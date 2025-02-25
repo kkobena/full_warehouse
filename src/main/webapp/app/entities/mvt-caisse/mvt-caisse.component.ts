@@ -18,29 +18,33 @@ import { TableauPharmacienComponent } from './tableau-pharmacien/tableau-pharmac
 import { BalanceMvtCaisseComponent } from './balance-mvt-caisse/balance-mvt-caisse.component';
 import { TaxeReportComponent } from './taxe-report/taxe-report.component';
 import { GestionCaisseComponent } from './gestion-caisse/gestion-caisse.component';
+import {
+  RaportActiviteGlobalComponent
+} from './raport-activite-global/raport-activite-global.component';
 
 @Component({
-    selector: 'jhi-mvt-caisse',
-    providers: [ConfirmationService, DialogService],
-    imports: [
-        WarehouseCommonModule,
-        SidebarModule,
-        RouterModule,
-        NgxSpinnerModule,
-        PanelModule,
-        ButtonModule,
-        CardModule,
-        InputTextModule,
-        ReactiveFormsModule,
-        RippleModule,
-        ToolbarModule,
-        VisualisationMvtCaisseComponent,
-        BalanceMvtCaisseComponent,
-        TableauPharmacienComponent,
-        TaxeReportComponent,
-        GestionCaisseComponent,
-    ],
-    templateUrl: './mvt-caisse.component.html'
+  selector: 'jhi-mvt-caisse',
+  providers: [ConfirmationService, DialogService],
+  imports: [
+    WarehouseCommonModule,
+    SidebarModule,
+    RouterModule,
+    NgxSpinnerModule,
+    PanelModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    ReactiveFormsModule,
+    RippleModule,
+    ToolbarModule,
+    VisualisationMvtCaisseComponent,
+    BalanceMvtCaisseComponent,
+    TableauPharmacienComponent,
+    TaxeReportComponent,
+    GestionCaisseComponent,
+    RaportActiviteGlobalComponent,
+  ],
+  templateUrl: './mvt-caisse.component.html',
 })
 export class MvtCaisseComponent {
   protected active = 'mvt-caisse';

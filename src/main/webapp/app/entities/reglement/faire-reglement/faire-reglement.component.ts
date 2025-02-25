@@ -18,10 +18,9 @@ export class FaireReglementComponent implements OnInit {
   readonly isGroupe = input(false);
   readonly isGroupeSignal = signal(this.isGroupe());
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
-  //  readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);
   factureService = inject(FactureService);
   protected reglementFactureDossiersSignal = signal(this.reglementFactureDossiers());
-  // protected dossierFactureProjectionSignal = signal(this.dossierFactureProjection());
+
   protected dossierFactureProjection: DossierFactureProjection | null = null;
 
   constructor() {}
@@ -39,12 +38,11 @@ export class FaireReglementComponent implements OnInit {
     this.isGroupeSignal.set(this.isGroupe());
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
     this.factureService
-      .findDossierFactureProjection(this.reglementFactureDossiers()[0].parentId, {
+      .findDossierFactureProjection(this.reglementFactureDossiers()[0]?.parentId, {
         isGroup: this.isGroupe(),
       })
       .subscribe(res => {
         this.dossierFactureProjection = res.body;
-        console.log('dossierFactureProjection', this.dossierFactureProjection);
       });
   }
 

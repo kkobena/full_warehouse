@@ -60,7 +60,7 @@ public class ProduitServiceImpl implements ProduitService {
       customizedProductService.save(
           produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
     } catch (Exception e) {
-      log.debug("Request to save Produit : {}", e);
+      log.error("Request to save Produit : {}", e);
     }
   }
 
@@ -109,7 +109,7 @@ public class ProduitServiceImpl implements ProduitService {
     try {
       return customizedProductService.findAll(produitCriteria, pageable);
     } catch (Exception e) {
-      log.debug("Request findAll  Produits : {}", e);
+      log.error("Request findAll  Produits : {}", e);
       return Page.empty();
     }
   }
@@ -165,7 +165,7 @@ public class ProduitServiceImpl implements ProduitService {
     try {
       return customizedProductService.findAll(produitCriteria);
     } catch (Exception e) {
-      log.debug("Request findWithCriteria  Produits : {}", e);
+      log.error("Request findWithCriteria  Produits : {}", e);
       return Collections.emptyList();
     }
   }
@@ -176,7 +176,7 @@ public class ProduitServiceImpl implements ProduitService {
     try {
       customizedProductService.update(produitDTO);
     } catch (Exception e) {
-      log.debug("Request to update Produit : {}", e);
+      log.error("Request to update Produit : {}", e);
     }
   }
 
@@ -186,7 +186,7 @@ public class ProduitServiceImpl implements ProduitService {
     try {
       return customizedProductService.lite(produitCriteria, pageable);
     } catch (Exception e) {
-      log.debug("Request lite  Produits : {}", e);
+      log.error("Request lite  Produits : {}", e);
       return Page.empty();
     }
   }
@@ -202,7 +202,7 @@ public class ProduitServiceImpl implements ProduitService {
     try {
       customizedProductService.updateDetail(produitDTO);
     } catch (Exception e) {
-      log.debug("Request to update Produit : {}", e);
+      log.error("Request to update Produit : {}", e);
     }
   }
 

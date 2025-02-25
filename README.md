@@ -359,3 +359,6 @@ AND id.str_STATUT='enable' AND id.bool_DECONDITIONNE=1 AND ds.int_NUMBER_AVAILAB
 WHERE s.lg_EMPLACEMENT_ID='1' AND f.str_STATUT='enable' AND f.bool_DECONDITIONNE=0  GROUP BY TRIM(f.int_CIP), gr.lg_GROSSISTE_ID;
 `
 npm install libphonenumber-js --save
+
+CREATE USER warehouse IDENTIFIED BY 'warehouse2802';
+GRANT ALL privileges ON `warehouse2802`.* TO `warehouse`;

@@ -49,7 +49,6 @@ import { InputIcon } from 'primeng/inputicon';
     TableModule,
     TooltipModule,
     InputTextModule,
-
     MultiSelectModule,
     ButtonGroupModule,
     DividerModule,
@@ -208,9 +207,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
 
   protected addNew(): void {
     this.ref = this.dialogService.open(FormTransactionComponent, {
-      data: { entity: null, type: 'CARNET' },
+      data: { entity: null },
       header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE",
-      width: '500',
+      width: '50%',
     });
     this.ref.onClose.subscribe(() => {
       this.onSearch();
@@ -226,7 +225,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       fromTime: this.fromTime,
       toTime: this.toTime,
       typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
-      paymentModes: this.selectedModes.map(mode => mode.code),
+      paymentModes: this.selectedModes?.map(mode => mode.code),
       userId: this.selectedUser?.id,
       order: this.order,
     };

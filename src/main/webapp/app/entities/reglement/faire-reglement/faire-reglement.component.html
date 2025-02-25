@@ -3,13 +3,13 @@
     <jhi-faire-groupe-reglement
 
       [reglementFactureDossiers]="reglementFactureDossiersSignal()"
-      [dossierFactureProjection]="dossierFactureProjectionSignal()"
+      [dossierFactureProjection]="dossierFactureProjection"
 
     ></jhi-faire-groupe-reglement>
   } @else {
     <jhi-regelement-facture-individuelle
       [reglementFactureDossiers]="reglementFactureDossiersSignal()"
-      [dossierFactureProjection]="dossierFactureProjectionSignal()"
+      [dossierFactureProjection]="dossierFactureProjection"
       (selectedFacture)="onSelectFacture($event)"
     ></jhi-regelement-facture-individuelle>
   }

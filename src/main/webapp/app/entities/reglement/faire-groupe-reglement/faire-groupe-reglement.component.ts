@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit, signal, viewChild, output } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
@@ -75,6 +75,12 @@ export class FaireGroupeReglementComponent implements OnInit {
   protected isSaving = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
 
+  constructor() {
+    if (this.dossierFactureProjection()) {
+      this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
+    }
+  }
+
   openSideBar(): void {
     this.showSidebar = true;
   }
@@ -99,7 +105,6 @@ export class FaireGroupeReglementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
     this.reglementFactureDossiersWritable.set(this.reglementFactureDossiers());
   }
 
@@ -204,7 +209,6 @@ export class FaireGroupeReglementComponent implements OnInit {
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
           this.reglementFactureDossiersWritable.set(res.body);
-          // this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
         },
         error: () => {
           this.reglementFactureDossiersWritable.set([]);

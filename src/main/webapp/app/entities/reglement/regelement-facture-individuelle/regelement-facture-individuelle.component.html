@@ -106,8 +106,11 @@
       <ng-template #header>
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
-          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche" severity="info"
-          ></p-button>
+          @if (!this.dossierFactureProjection()) {
+            <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche" severity="info"
+            ></p-button>
+
+          }
 
         </div>
       </ng-template>

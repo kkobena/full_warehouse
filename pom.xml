@@ -306,21 +306,7 @@
         </plugins>
     </build>
     <dependencies>
-        <!-- <dependency>
-                <groupId>org.dhatim</groupId>
-                <artifactId>fastexcel-reader</artifactId>
-                <version>0.15.7</version>
-            </dependency>-->
-        <!--        <dependency>-->
-        <!--            <artifactId>jackson-module-jaxb-annotations</artifactId>-->
-        <!--            <groupId>com.fasterxml.jackson.module</groupId>-->
-        <!--        </dependency>-->
-        <!--  <dependency>
-              <artifactId>liquibase-core</artifactId>
-              <groupId>org.liquibase</groupId>
-              <scope>provided</scope>
-          </dependency>
-  -->
+
         <dependency>
             <artifactId>flyway-mysql</artifactId>
             <groupId>org.flywaydb</groupId>

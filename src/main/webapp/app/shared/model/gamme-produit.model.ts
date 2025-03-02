@@ -5,5 +5,9 @@ export interface IGammeProduit {
 }
 
 export class GammeProduit implements IGammeProduit {
-  constructor(public id?: number, public code?: string, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public code?: string,
+    public libelle?: string,
+  ) {}
 }

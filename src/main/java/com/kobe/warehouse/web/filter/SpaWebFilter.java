@@ -9,26 +9,27 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class SpaWebFilter extends OncePerRequestFilter {
 
-  /**
-   * Forwards any unmapped paths (except those containing a period) to the client {@code
-   * index.html}.
-   */
-  @Override
-  protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
-    // Request URI includes the contextPath if any, removed it.
-    String path = request.getRequestURI().substring(request.getContextPath().length());
-    if (!path.startsWith("/api")
-        && !path.startsWith("/java-client")
-        && !path.startsWith("/management")
-        && !path.startsWith("/v3/api-docs")
-        && !path.contains(".")
-        && path.matches("/(.*)")) {
-      request.getRequestDispatcher("/index.html").forward(request, response);
-      return;
-    }
+    /**
+     * Forwards any unmapped paths (except those containing a period) to the client {@code
+     * index.html}.
+     */
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+        // Request URI includes the contextPath if any, removed it.
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        if (
+            !path.startsWith("/api") &&
+            !path.startsWith("/java-client") &&
+            !path.startsWith("/management") &&
+            !path.startsWith("/v3/api-docs") &&
+            !path.contains(".") &&
+            path.matches("/(.*)")
+        ) {
+            request.getRequestDispatcher("/index.html").forward(request, response);
+            return;
+        }
 
-    filterChain.doFilter(request, response);
-  }
+        filterChain.doFilter(request, response);
+    }
 }

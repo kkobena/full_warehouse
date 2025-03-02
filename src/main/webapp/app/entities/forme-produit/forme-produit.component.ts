@@ -195,8 +195,8 @@ export class FormeProduitComponent implements OnInit {
   private createFromForm(): IFormProduit {
     return {
       ...new FormProduit(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

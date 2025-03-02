@@ -19,40 +19,39 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class DashboardServiceImpl implements DashboardService {
-  private final Logger LOG = LoggerFactory.getLogger(DashboardServiceImpl.class);
 
-  private final SaleStatService saleStatService;
-  private final AchatStatService achatStatService;
+    private final Logger LOG = LoggerFactory.getLogger(DashboardServiceImpl.class);
 
-  public DashboardServiceImpl(SaleStatService saleStatService, AchatStatService achatStatService) {
+    private final SaleStatService saleStatService;
+    private final AchatStatService achatStatService;
 
-    this.saleStatService = saleStatService;
-    this.achatStatService = achatStatService;
-  }
+    public DashboardServiceImpl(SaleStatService saleStatService, AchatStatService achatStatService) {
+        this.saleStatService = saleStatService;
+        this.achatStatService = achatStatService;
+    }
 
-  @Override
-  public VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO) {
-    return this.saleStatService.getPeridiqueCa(venteRecordParamDTO);
-  }
+    @Override
+    public VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO) {
+        return this.saleStatService.getPeridiqueCa(venteRecordParamDTO);
+    }
 
-  @Override
-  public AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam) {
-    return this.achatStatService.getAchatPeriode(achatRecordParam);
-  }
+    @Override
+    public AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam) {
+        return this.achatStatService.getAchatPeriode(achatRecordParam);
+    }
 
-  @Override
-  public List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {
-    return this.saleStatService.getCaGroupingByPeriode(venteRecordParamDTO);
-  }
+    @Override
+    public List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {
+        return this.saleStatService.getCaGroupingByPeriode(venteRecordParamDTO);
+    }
 
-  @Override
-  public List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO) {
-    return this.saleStatService.getCaGroupingByType(venteRecordParamDTO);
-  }
+    @Override
+    public List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO) {
+        return this.saleStatService.getCaGroupingByType(venteRecordParamDTO);
+    }
 
-  @Override
-  public List<VenteModePaimentRecord> getCaGroupingByPaimentMode(
-      VenteRecordParamDTO venteRecordParamDTO) {
-    return this.saleStatService.getCaGroupingByPaimentMode(venteRecordParamDTO);
-  }
+    @Override
+    public List<VenteModePaimentRecord> getCaGroupingByPaimentMode(VenteRecordParamDTO venteRecordParamDTO) {
+        return this.saleStatService.getCaGroupingByPaimentMode(venteRecordParamDTO);
+    }
 }

@@ -7,8 +7,8 @@ import { ICommande } from '../../shared/model/commande.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    templateUrl: './commande-en-cours-response-dialog.component.html',
-    imports: [WarehouseCommonModule]
+  templateUrl: './commande-en-cours-response-dialog.component.html',
+  imports: [WarehouseCommonModule],
 })
 export class CommandeEnCoursResponseDialogComponent implements OnInit {
   activeModal = inject(NgbActiveModal);

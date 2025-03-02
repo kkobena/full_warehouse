@@ -23,6 +23,6 @@ export class Fournisseur implements IFournisseur {
     public site?: string,
     public code?: string,
     public groupeFournisseurId?: number,
-    public groupeFournisseurLibelle?: string
+    public groupeFournisseurLibelle?: string,
   ) {}
 }

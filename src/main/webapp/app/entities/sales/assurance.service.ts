@@ -20,11 +20,6 @@ export class AssuranceService {
 
   public resourceUrl = SERVER_API_URL + 'api/sales';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http

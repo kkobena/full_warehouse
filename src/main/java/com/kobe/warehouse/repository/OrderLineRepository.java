@@ -12,12 +12,11 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
-  List<OrderLine> findByCommandeIdOrderByFournisseurProduitProduitLibelleAsc(Long commandeId);
+    List<OrderLine> findByCommandeIdOrderByFournisseurProduitProduitLibelleAsc(Long commandeId);
 
-  Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeId(
-      Long fournisseurProduitId, Long commandeId);
+    Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeId(Long fournisseurProduitId, Long commandeId);
 
-  Page<OrderLine> findByCommandeId(Long commandeId, Pageable pageable);
+    Page<OrderLine> findByCommandeId(Long commandeId, Pageable pageable);
 
-  Long countByCommandeId(Long commandeId);
+    Long countByCommandeId(Long commandeId);
 }

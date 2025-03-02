@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.*;
 
 public class RepartitionStockProduitDTO {
+
     private int qtyMvt;
     private long stockProduitSourceId;
     private long storageDestinationId;
@@ -15,8 +16,8 @@ public class RepartitionStockProduitDTO {
     private String produitCip;
     private String storageSourceLibelle;
     private String storageDestLibelle;
-    private  long storageDestId;
-    private  long storageSourceId;
+    private long storageDestId;
+    private long storageSourceId;
     private String user;
 
     public int getQtyMvt() {
@@ -145,8 +146,6 @@ public class RepartitionStockProduitDTO {
         return this;
     }
 
-
-
     public String getUser() {
         return user;
     }
@@ -156,33 +155,32 @@ public class RepartitionStockProduitDTO {
         return this;
     }
 
-    public RepartitionStockProduitDTO() {
-    }
+    public RepartitionStockProduitDTO() {}
 
     public RepartitionStockProduitDTO(RepartitionStockProduit repartitionStockProduit) {
         this.qtyMvt = repartitionStockProduit.getQtyMvt();
-        StockProduit source= repartitionStockProduit.getStockProduitSource();
-        StockProduit dest= repartitionStockProduit.getStockProduitDestination();
+        StockProduit source = repartitionStockProduit.getStockProduitSource();
+        StockProduit dest = repartitionStockProduit.getStockProduitDestination();
         this.stockProduitSourceId = source.getId();
         this.storageDestinationId = dest.getStorage().getId();
         this.destFinalStock = repartitionStockProduit.getDestFinalStock();
         this.destInitStock = repartitionStockProduit.getDestInitStock();
         this.sourceFinalStock = repartitionStockProduit.getSourceFinalStock();
         this.sourceInitStock = repartitionStockProduit.getSourceInitStock();
-        Produit produit=source.getProduit();
+        Produit produit = source.getProduit();
         this.produitId = produit.getId();
         this.produitLibelle = produit.getLibelle();
-        FournisseurProduit fournisseurProduit=produit.getFournisseurProduitPrincipal();
-        if(fournisseurProduit!=null){
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        if (fournisseurProduit != null) {
             this.produitCip = fournisseurProduit.getCodeCip();
         }
-        Storage storageSource=source.getStorage();
-        Storage storageDest=dest.getStorage();
+        Storage storageSource = source.getStorage();
+        Storage storageDest = dest.getStorage();
         this.storageSourceLibelle = storageSource.getName();
         this.storageSourceId = storageSource.getId();
-        this.storageDestId=storageDest.getId();
-        this.storageDestLibelle=storageDest.getName();
-        User oUser= repartitionStockProduit.getUser();
-        this.user = String.format("%s %s",oUser.getFirstName(),oUser.getLastName());
+        this.storageDestId = storageDest.getId();
+        this.storageDestLibelle = storageDest.getName();
+        User oUser = repartitionStockProduit.getUser();
+        this.user = String.format("%s %s", oUser.getFirstName(), oUser.getLastName());
     }
 }

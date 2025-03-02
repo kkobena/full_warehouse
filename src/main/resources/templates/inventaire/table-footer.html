@@ -1,78 +1,57 @@
 <table class="footer-table-summary" th:if="${entity.statut eq 'CLOSED'}">
-
   <tfoot th:with="reportSummary=${reportSummary}">
-  <tr>
-    <td colspan="2" rowspan="4">Total global</td>
+    <tr>
+      <td colspan="2" rowspan="4">Total global</td>
 
-    <td class="text-right" th:text="${achatAvant.libelle}"
-        th:with="achatAvant=${reportSummary.get('achatAvant')}"></td>
-    <td class="text-right" th:text="${venteAvant.libelle}"
-        th:with="venteAvant=${reportSummary.get('venteAvant')}"></td>
-    <td class="text-right" colspan="3" th:text="${achatEcart.libelle}"
-        th:with="achatEcart=${reportSummary.get('achatEcart')}"></td>
-  </tr>
-  <tr>
-    <th:block th:with="achatAvant=${reportSummary.get('achatAvant')}">
-      <td class="unit" th:if="${achatAvant.value ge 1000}"
-          th:text="${#numbers.formatInteger(achatAvant.value,3,'WHITESPACE')}"></td>
-      <td class="unit" th:if="${achatAvant.value lt 1000}"
-          th:text="${achatAvant.value}"></td>
+      <td class="text-right" th:text="${achatAvant.libelle}" th:with="achatAvant=${reportSummary.get('achatAvant')}"></td>
+      <td class="text-right" th:text="${venteAvant.libelle}" th:with="venteAvant=${reportSummary.get('venteAvant')}"></td>
+      <td class="text-right" colspan="3" th:text="${achatEcart.libelle}" th:with="achatEcart=${reportSummary.get('achatEcart')}"></td>
+    </tr>
+    <tr>
+      <th:block th:with="achatAvant=${reportSummary.get('achatAvant')}">
+        <td class="unit" th:if="${achatAvant.value ge 1000}" th:text="${#numbers.formatInteger(achatAvant.value,3,'WHITESPACE')}"></td>
+        <td class="unit" th:if="${achatAvant.value lt 1000}" th:text="${achatAvant.value}"></td>
+      </th:block>
 
-    </th:block>
+      <th:block th:with="venteAvant=${reportSummary.get('venteAvant')}">
+        <td class="unit" th:if="${venteAvant.value ge 1000}" th:text="${#numbers.formatInteger(venteAvant.value,3,'WHITESPACE')}"></td>
+        <td class="unit" th:if="${venteAvant.value lt 1000}" th:text="${venteAvant.value}"></td>
+      </th:block>
+      <th:block th:with="achatEcart=${reportSummary.get('achatEcart')}">
+        <td
+          class="unit"
+          colspan="3"
+          th:if="${achatEcart.value ge 1000}"
+          th:text="${#numbers.formatInteger(achatEcart.value,3,'WHITESPACE')}"
+        ></td>
+        <td class="unit" colspan="3" th:if="${achatEcart.value lt 1000}" th:text="${achatEcart.value}"></td>
+      </th:block>
+    </tr>
 
-    <th:block th:with="venteAvant=${reportSummary.get('venteAvant')}">
-      <td class="unit" th:if="${venteAvant.value ge 1000}"
-          th:text="${#numbers.formatInteger(venteAvant.value,3,'WHITESPACE')}"></td>
-      <td class="unit" th:if="${venteAvant.value lt 1000}"
-          th:text="${venteAvant.value}"></td>
+    <tr>
+      <td class="text-right" th:text="${achatApres.libelle}" th:with="achatApres=${reportSummary.get('achatApres')}"></td>
+      <td class="text-right" th:text="${venteApres.libelle}" th:with="venteApres=${reportSummary.get('venteApres')}"></td>
+      <td class="text-right" colspan="3" th:text="${venteEcart.libelle}" th:with="venteEcart=${reportSummary.get('venteEcart')}"></td>
+    </tr>
+    <tr>
+      <th:block th:with="achatApres=${reportSummary.get('achatApres')}">
+        <td class="unit" th:if="${achatApres.value ge 1000}" th:text="${#numbers.formatInteger(achatApres.value,3,'WHITESPACE')}"></td>
+        <td class="unit" th:if="${achatApres.value lt 1000}" th:text="${achatApres.value}"></td>
+      </th:block>
 
-    </th:block>
-    <th:block th:with="achatEcart=${reportSummary.get('achatEcart')}">
-      <td class="unit" colspan="3" th:if="${achatEcart.value ge 1000}"
-          th:text="${#numbers.formatInteger(achatEcart.value,3,'WHITESPACE')}"></td>
-      <td class="unit" colspan="3" th:if="${achatEcart.value lt 1000}"
-          th:text="${achatEcart.value}"></td>
-
-    </th:block>
-
-  </tr>
-
-  <tr>
-
-    <td class="text-right" th:text="${achatApres.libelle}"
-        th:with="achatApres=${reportSummary.get('achatApres')}"></td>
-    <td class="text-right" th:text="${venteApres.libelle}"
-        th:with="venteApres=${reportSummary.get('venteApres')}"></td>
-    <td class="text-right" colspan="3" th:text="${venteEcart.libelle}"
-        th:with="venteEcart=${reportSummary.get('venteEcart')}"></td>
-  </tr>
-  <tr>
-    <th:block th:with="achatApres=${reportSummary.get('achatApres')}">
-      <td class="unit" th:if="${achatApres.value ge 1000}"
-          th:text="${#numbers.formatInteger(achatApres.value,3,'WHITESPACE')}"></td>
-      <td class="unit" th:if="${achatApres.value lt 1000}"
-          th:text="${achatApres.value}"></td>
-
-    </th:block>
-
-    <th:block th:with="venteApres=${reportSummary.get('venteApres')}">
-      <td class="unit" th:if="${venteApres.value ge 1000}"
-          th:text="${#numbers.formatInteger(venteApres.value,3,'WHITESPACE')}"></td>
-      <td class="unit" th:if="${venteApres.value lt 1000}"
-          th:text="${venteApres.value}"></td>
-
-    </th:block>
-    <th:block th:with="venteEcart=${reportSummary.get('venteEcart')}">
-      <td class="unit" colspan="3" th:if="${venteEcart.value ge 1000}"
-          th:text="${#numbers.formatInteger(venteEcart.value,3,'WHITESPACE')}"></td>
-      <td class="unit" colspan="3" th:if="${venteEcart.value lt 1000}"
-          th:text="${venteEcart.value}"></td>
-
-    </th:block>
-
-
-  </tr>
-
+      <th:block th:with="venteApres=${reportSummary.get('venteApres')}">
+        <td class="unit" th:if="${venteApres.value ge 1000}" th:text="${#numbers.formatInteger(venteApres.value,3,'WHITESPACE')}"></td>
+        <td class="unit" th:if="${venteApres.value lt 1000}" th:text="${venteApres.value}"></td>
+      </th:block>
+      <th:block th:with="venteEcart=${reportSummary.get('venteEcart')}">
+        <td
+          class="unit"
+          colspan="3"
+          th:if="${venteEcart.value ge 1000}"
+          th:text="${#numbers.formatInteger(venteEcart.value,3,'WHITESPACE')}"
+        ></td>
+        <td class="unit" colspan="3" th:if="${venteEcart.value lt 1000}" th:text="${venteEcart.value}"></td>
+      </th:block>
+    </tr>
   </tfoot>
 </table>
-

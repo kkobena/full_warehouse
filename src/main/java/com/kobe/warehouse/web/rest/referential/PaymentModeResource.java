@@ -17,16 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 public class PaymentModeResource {
 
-
     private final PaymentModeService paymentModeService;
-   
-    public PaymentModeResource(PaymentModeService paymentModeService) {
 
+    public PaymentModeResource(PaymentModeService paymentModeService) {
         this.paymentModeService = paymentModeService;
     }
 
-
-   /* @PostMapping("/payment-modes")
+    /* @PostMapping("/payment-modes")
     public ResponseEntity<PaymentMode> createPaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to save PaymentMode : {}", paymentMode);
         if (paymentMode.getCode() != null) {
@@ -39,8 +36,7 @@ public class PaymentModeResource {
             .body(result);
     }*/
 
-
- /*   @PutMapping("/payment-modes")
+    /*   @PutMapping("/payment-modes")
     public ResponseEntity<PaymentMode> updatePaymentMode(@Valid @RequestBody PaymentMode paymentMode) throws URISyntaxException {
         log.debug("REST request to update PaymentMode : {}", paymentMode);
         if (paymentMode.getCode() == null) {
@@ -53,14 +49,11 @@ public class PaymentModeResource {
             .body(result);
     }*/
 
-
     @GetMapping("/payment-modes")
     public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
         return ResponseEntity.ok().body(this.paymentModeService.fetch());
     }
-
-
-/*
+    /*
 
     @DeleteMapping("/payment-modes/{id}")
     public ResponseEntity<Void> deletePaymentMode(@PathVariable String id) {

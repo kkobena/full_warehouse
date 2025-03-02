@@ -16,11 +16,6 @@ export class DashboardService {
 
   public resourceUrl = SERVER_API_URL + 'api/dashboard';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   fetchCa(venteRecordParam: VenteRecordParam): Observable<HttpResponse<VenteRecordWrapper>> {
     const options = createRequestOptions(venteRecordParam);
     return this.http.get<VenteRecordWrapper>(`${this.resourceUrl}/ca`, {

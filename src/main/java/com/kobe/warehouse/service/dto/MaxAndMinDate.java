@@ -1,7 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
 public class MaxAndMinDate {
-    private String minDate,maxDate;
+
+    private String minDate, maxDate;
 
     public String getMinDate() {
         return minDate;

@@ -37,10 +37,8 @@ public class GammeProduitServiceImpl implements GammeProduitService {
 
     private final GammeProduitRepository gammeProduitRepository;
 
-
     public GammeProduitServiceImpl(GammeProduitRepository gammeProduitRepository) {
         this.gammeProduitRepository = gammeProduitRepository;
-
     }
 
     /**
@@ -53,7 +51,8 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     public GammeProduitDTO save(GammeProduitDTO gammeProduitDTO) {
         log.debug("Request to save GammeProduit : {}", gammeProduitDTO);
         GammeProduit gammeProduit = new GammeProduit()
-            .code(gammeProduitDTO.getCode()).libelle(gammeProduitDTO.getLibelle())
+            .code(gammeProduitDTO.getCode())
+            .libelle(gammeProduitDTO.getLibelle())
             .id(gammeProduitDTO.getId());
         gammeProduit = gammeProduitRepository.save(gammeProduit);
         return new GammeProduitDTO(gammeProduit);
@@ -67,23 +66,20 @@ public class GammeProduitServiceImpl implements GammeProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<GammeProduitDTO> findAll(String search,Pageable pageable) {
+    public Page<GammeProduitDTO> findAll(String search, Pageable pageable) {
         log.debug("Request to get all GammeProduits");
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-            Sort.by(Sort.Direction.ASC, "libelle"));
+        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
 
-        if(!StringUtils.isEmpty(search)){
-            SpecificationBuilder<GammeProduit> builder=new SpecificationBuilder<>();
+        if (!StringUtils.isEmpty(search)) {
+            SpecificationBuilder<GammeProduit> builder = new SpecificationBuilder<>();
             Specification<GammeProduit> spec = builder
-                .with(new String[]{"libelle"}, search+"%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.OR)
-                .with(new String[]{"code"}, search+"%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
+                .with(new String[] { "libelle" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.OR)
+                .with(new String[] { "code" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
                 .build();
-            return  gammeProduitRepository.findAll(spec, page).map(GammeProduitDTO::new);
+            return gammeProduitRepository.findAll(spec, page).map(GammeProduitDTO::new);
         }
-        return gammeProduitRepository.findAll(page)
-            .map(GammeProduitDTO::new);
+        return gammeProduitRepository.findAll(page).map(GammeProduitDTO::new);
     }
-
 
     /**
      * Get one gammeProduit by id.
@@ -95,8 +91,7 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     @Transactional(readOnly = true)
     public Optional<GammeProduitDTO> findOne(Long id) {
         log.debug("Request to get GammeProduit : {}", id);
-        return gammeProduitRepository.findById(id)
-            .map(GammeProduitDTO::new);
+        return gammeProduitRepository.findById(id).map(GammeProduitDTO::new);
     }
 
     /**
@@ -111,22 +106,20 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     }
 
     @Override
-	public ResponseDTO importation(InputStream inputStream) {
+    public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
-			records.forEach(record -> {
-				GammeProduit gammeProduit = new GammeProduit();
-				gammeProduit.setLibelle(record.get(0));
-				gammeProduitRepository.save(gammeProduit);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
+            records.forEach(record -> {
+                GammeProduit gammeProduit = new GammeProduit();
+                gammeProduit.setLibelle(record.get(0));
+                gammeProduitRepository.save(gammeProduit);
                 count.incrementAndGet();
-			});
-		} catch (IOException e) {
-			log.debug("importation : {}", e);
-		}
+            });
+        } catch (IOException e) {
+            log.debug("importation : {}", e);
+        }
 
         return new ResponseDTO().size(count.get());
-
-	}
-
+    }
 }

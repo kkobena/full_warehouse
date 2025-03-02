@@ -62,16 +62,11 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   });
   protected selectedTiersPayant: IClientTiersPayant | null = null;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   getTiersPayants(): IClientTiersPayant[] {
     if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
-      return this.assure?.tiersPayants.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
+      return this.assure.tiersPayants.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
     }
-    return this.assure?.tiersPayants;
+    return this.assure.tiersPayants;
   }
 
   ngOnInit(): void {
@@ -97,7 +92,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
 
   onSelect(evt: any): void {
     this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
-    //this.selectedTiersPayant = tiersPayant;
+    // this.selectedTiersPayant = tiersPayant;
     if (this.selectedTiersPayant) {
       this.updateForm(this.selectedTiersPayant);
       this.numBon().nativeElement.focus();
@@ -119,11 +114,11 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   private createFromForm(): IClientTiersPayant {
     return {
       ...new ClientTiersPayant(),
-      id: this.editForm.get(['id'])!.value,
-      numBon: this.editForm.get(['numBon'])!.value,
-      categorie: this.editForm.get(['categorie'])!.value,
-      taux: this.editForm.get(['taux'])!.value,
-      priorite: this.editForm.get(['categorie'])!.value,
+      id: this.editForm.get(['id']).value,
+      numBon: this.editForm.get(['numBon']).value,
+      categorie: this.editForm.get(['categorie']).value,
+      taux: this.editForm.get(['taux']).value,
+      priorite: this.editForm.get(['categorie']).value,
     };
   }
 }

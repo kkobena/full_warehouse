@@ -44,33 +44,27 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     private final CustomizedCommandeService customizedCommandeService;
     private final OrderLineRepository orderLineRepository;
 
-    private final BiPredicate<OrderLine, String> searchPredicate =
-        (orderLine, s) ->
-            StringUtils.isEmpty(s)
-                || (orderLine
-                .getFournisseurProduit()
-                .getProduit()
-                .getLibelle()
-                .contains(s.toUpperCase())
-                || orderLine.getFournisseurProduit().getCodeCip().contains(s));
-    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip =
-        (orderLine, _) -> orderLine.getProvisionalCode();
-    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix =
-        (orderLine, _) ->
-            orderLine.getOrderCostAmount().compareTo(orderLine.getCostAmount()) != 0;
-    private final Comparator<OrderLineDTO> comparingByProduitLibelle =
-        Comparator.comparing(OrderLineDTO::getProduitLibelle);
-    private final Comparator<OrderLineDTO> comparingByProduitCip =
-        Comparator.comparing(OrderLineDTO::getProduitCip);
-    private final Comparator<OrderLineDTO> comparingByDateUpdated =
-        Comparator.comparing(OrderLineDTO::getUpdatedAt, Comparator.reverseOrder());
+    private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
+        StringUtils.isEmpty(s) ||
+        (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase()) ||
+            orderLine.getFournisseurProduit().getCodeCip().contains(s));
+    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip = (orderLine, _) -> orderLine.getProvisionalCode();
+    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) ->
+        orderLine.getOrderCostAmount().compareTo(orderLine.getCostAmount()) != 0;
+    private final Comparator<OrderLineDTO> comparingByProduitLibelle = Comparator.comparing(OrderLineDTO::getProduitLibelle);
+    private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(OrderLineDTO::getProduitCip);
+    private final Comparator<OrderLineDTO> comparingByDateUpdated = Comparator.comparing(
+        OrderLineDTO::getUpdatedAt,
+        Comparator.reverseOrder()
+    );
 
     public CommandeDataServiceImpl(
         CommandeRepository commandeRepository,
         ExportationCsvService exportationCsvService,
         CommandeReportReportService commandeReportService,
         CustomizedCommandeService customizedCommandeService,
-        OrderLineRepository orderLineRepository) {
+        OrderLineRepository orderLineRepository
+    ) {
         this.commandeRepository = commandeRepository;
         this.exportationCsvService = exportationCsvService;
         this.commandeReportService = commandeReportService;
@@ -95,9 +89,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public Resource exportCommandeToCsv(Long id) throws IOException {
-
-        return getResource(
-            exportationCsvService.exportCommandeToCsv(commandeRepository.getReferenceById(id)));
+        return getResource(exportationCsvService.exportCommandeToCsv(commandeRepository.getReferenceById(id)));
     }
 
     @Override
@@ -107,91 +99,72 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        Set<OrderLine> orderLines =
-            commandeRepository.getReferenceById(commandeFilter.getCommandeId()).getOrderLines();
+        Set<OrderLine> orderLines = commandeRepository.getReferenceById(commandeFilter.getCommandeId()).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
-            if (commandeFilter.getFilterCommaneEnCours() != null
-                && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
+            if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
                 switch (commandeFilter.getFilterCommaneEnCours()) {
                     case NOT_EQUAL:
-                        return orderLines.stream()
-                            .filter(
-                                orderLine ->
-                                    searchFilterPrix.test(orderLine,
-                                        commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine,
-                                commandeFilter.getSearch()))
+                        return orderLines
+                            .stream()
+                            .filter(orderLine -> searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                            .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
                             .collect(Collectors.toList());
-
                     case PROVISOL_CIP:
-                        return orderLines.stream()
-                            .filter(
-                                orderLine ->
-                                    searchFilterCip.test(orderLine,
-                                        commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine,
-                                commandeFilter.getSearch()))
+                        return orderLines
+                            .stream()
+                            .filter(orderLine -> searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                            .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
                             .collect(Collectors.toList());
                 }
             }
-            return orderLines.stream()
+            return orderLines
+                .stream()
                 .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                 .map(OrderLineDTO::new)
                 .sorted(getSort(commandeFilter.getOrderBy()))
                 .collect(Collectors.toList());
         }
-        if (commandeFilter.getFilterCommaneEnCours() != null
-            && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
-
+        if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
             switch (commandeFilter.getFilterCommaneEnCours()) {
                 case NOT_EQUAL:
-                    return orderLines.stream()
-                        .filter(
-                            orderLine ->
-                                searchFilterPrix.test(orderLine,
-                                    commandeFilter.getFilterCommaneEnCours()))
+                    return orderLines
+                        .stream()
+                        .filter(orderLine -> searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
                         .collect(Collectors.toList());
-
                 case PROVISOL_CIP:
-                    return orderLines.stream()
-                        .filter(
-                            orderLine ->
-                                searchFilterCip.test(orderLine,
-                                    commandeFilter.getFilterCommaneEnCours()))
+                    return orderLines
+                        .stream()
+                        .filter(orderLine -> searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
                         .collect(Collectors.toList());
             }
         }
-        return orderLines.stream()
-            .map(OrderLineDTO::new)
-            .sorted(getSort(commandeFilter.getOrderBy()))
-            .collect(Collectors.toList());
+        return orderLines.stream().map(OrderLineDTO::new).sorted(getSort(commandeFilter.getOrderBy())).collect(Collectors.toList());
     }
 
     @Override
-    public Page<CommandeLiteDTO> fetchCommandes(
-        CommandeFilterDTO commandeFilterDTO, Pageable pageable) {
+    public Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable) {
         long count = customizedCommandeService.countfetchCommandes(commandeFilterDTO);
         if (count == 0) {
             new PageImpl<>(Collections.emptyList(), pageable, count);
         }
         return new PageImpl<>(
-            customizedCommandeService.fetchCommandes(commandeFilterDTO, pageable).stream()
-                .map(
-                    commande ->
-                        new CommandeLiteDTO(
-                            commande, orderLineRepository.countByCommandeId(commande.getId())))
+            customizedCommandeService
+                .fetchCommandes(commandeFilterDTO, pageable)
+                .stream()
+                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommandeId(commande.getId())))
                 .collect(Collectors.toList()),
             pageable,
-            count);
+            count
+        );
     }
 
     @Override
@@ -206,8 +179,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public Optional<CommandeDTO> findOneByOrderReference(String orderReference) {
-        return this.commandeRepository.getFirstByOrderRefernce(orderReference)
-            .map(CommandeDTO::new);
+        return this.commandeRepository.getFirstByOrderRefernce(orderReference).map(CommandeDTO::new);
     }
 
     private Resource getResource(String path) throws MalformedURLException {
@@ -215,7 +187,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     }
 
     private Comparator<OrderLineDTO> getSort(Sort sort) {
-
         return switch (sort) {
             case PRODUIT_LIBELLE -> comparingByProduitLibelle;
             case PRODUIT_CIP -> comparingByProduitCip;

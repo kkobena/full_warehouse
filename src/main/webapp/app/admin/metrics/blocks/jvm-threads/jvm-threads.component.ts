@@ -6,9 +6,9 @@ import { Thread, ThreadState } from 'app/admin/metrics/metrics.model';
 import { MetricsModalThreadsComponent } from '../metrics-modal-threads/metrics-modal-threads.component';
 
 @Component({
-    selector: 'jhi-jvm-threads',
-    templateUrl: './jvm-threads.component.html',
-    imports: [SharedModule]
+  selector: 'jhi-jvm-threads',
+  templateUrl: './jvm-threads.component.html',
+  imports: [SharedModule],
 })
 export class JvmThreadsComponent {
   threadStats = {
@@ -23,7 +23,7 @@ export class JvmThreadsComponent {
   set threads(threads: Thread[] | undefined) {
     this._threads = threads;
 
-    threads?.forEach(thread => {
+    threads.forEach(thread => {
       if (thread.threadState === ThreadState.Runnable) {
         this.threadStats.threadDumpRunnable += 1;
       } else if (thread.threadState === ThreadState.Waiting) {

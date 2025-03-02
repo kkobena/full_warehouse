@@ -139,14 +139,14 @@ export class CustomerTiersPayantComponent implements OnInit {
   protected createFromForm(): IClientTiersPayant {
     return {
       ...new ClientTiersPayant(),
-      customerId: this.customer?.id,
-      id: this.editForm.get(['id'])!.value,
-      num: this.editForm.get(['num'])!.value,
-      tiersPayantId: this.editForm.get(['tiersPayant'])!.value.id,
-      plafondConso: this.editForm.get(['plafondConso'])!.value,
-      plafondJournalier: this.editForm.get(['plafondJournalier'])!.value,
-      plafondAbsolu: this.editForm.get(['plafondAbsolu'])!.value,
-      taux: this.editForm.get(['taux'])!.value,
+      customerId: this.customer.id,
+      id: this.editForm.get(['id']).value,
+      num: this.editForm.get(['num']).value,
+      tiersPayantId: this.editForm.get(['tiersPayant']).value.id,
+      plafondConso: this.editForm.get(['plafondConso']).value,
+      plafondJournalier: this.editForm.get(['plafondJournalier']).value,
+      plafondAbsolu: this.editForm.get(['plafondAbsolu']).value,
+      taux: this.editForm.get(['taux']).value,
       priorite: this.computePriorite(),
     };
   }
@@ -183,7 +183,7 @@ export class CustomerTiersPayantComponent implements OnInit {
   }
 
   private computePriorite(): number {
-    if (this.customer.tiersPayants?.length > 0) {
+    if (this.customer.tiersPayants.length > 0) {
       return this.customer.tiersPayants.length++;
     }
     return 0;

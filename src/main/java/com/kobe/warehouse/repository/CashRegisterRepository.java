@@ -18,9 +18,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CashRegisterRepository extends JpaRepository<CashRegister, Long>,
-    JpaSpecificationExecutor<CashRegister> {
-
+public interface CashRegisterRepository extends JpaRepository<CashRegister, Long>, JpaSpecificationExecutor<CashRegister> {
     List<CashRegister> findOneByUserIdAndStatut(Long id, CashRegisterStatut statut);
 
     @Query("SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
@@ -42,10 +40,8 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
     );
 
     @Query(
-        value =
-            "SELECT SUM(p.amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id"
-                +
-                " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle",
+        value = "SELECT SUM(p.amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id" +
+        " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle",
         nativeQuery = true
     )
     List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(
@@ -65,8 +61,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
         };
     }
 
-    default Specification<CashRegister> specialisation(LocalDateTime fromDate,
-        LocalDateTime toDate) {
+    default Specification<CashRegister> specialisation(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(CashRegister_.created), fromDate, toDate);
     }
 

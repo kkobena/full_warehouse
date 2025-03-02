@@ -4,5 +4,8 @@ export interface ITypePrescription {
 }
 
 export class TypePrescription implements ITypePrescription {
-  constructor(public code?: string, public name?: string) {}
+  constructor(
+    public code?: string,
+    public name?: string,
+  ) {}
 }

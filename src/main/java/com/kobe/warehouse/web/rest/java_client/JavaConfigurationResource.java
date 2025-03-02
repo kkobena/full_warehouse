@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaConfigurationResource extends ConfigurationResourceProxy {
 
-  public JavaConfigurationResource(AppConfigurationService appConfigurationService) {
-    super(appConfigurationService);
-  }
+    public JavaConfigurationResource(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
+    }
 
-  @GetMapping("/app/{id}")
-  public ResponseEntity<AppConfiguration> getParam(@PathVariable String id) {
-    return super.getParam(id);
-  }
+    @GetMapping("/app/{id}")
+    public ResponseEntity<AppConfiguration> getParam(@PathVariable String id) {
+        return super.getParam(id);
+    }
 
-  @GetMapping("/app/param-gestion-stock")
-  public ResponseEntity<AppConfiguration> getParamGestionStock() {
-    return super.getParamGestionStock();
-  }
+    @GetMapping("/app/param-gestion-stock")
+    public ResponseEntity<AppConfiguration> getParamGestionStock() {
+        return super.getParamGestionStock();
+    }
 }

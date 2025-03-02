@@ -16,4 +16,5 @@ public record TicketingDTO(
     int numberOf5,
     int numberOf1,
     int otherAmount,
-    long totalAmount) {}
+    long totalAmount
+) {}

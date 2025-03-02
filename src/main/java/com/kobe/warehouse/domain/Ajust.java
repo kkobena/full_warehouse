@@ -12,107 +12,106 @@ import java.util.List;
 @Entity
 @Table(name = "ajust")
 public class Ajust implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private User user;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "statut", nullable = false)
-  private AjustementStatut statut = AjustementStatut.PENDING;
+    @ManyToOne(optional = false)
+    @NotNull
+    private User user;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private Storage storage;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private AjustementStatut statut = AjustementStatut.PENDING;
 
-  @Column(name = "commentaire")
-  private String commentaire;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Storage storage;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private WarehouseCalendar calendar;
+    @Column(name = "commentaire")
+    private String commentaire;
 
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
-  @OneToMany(
-      mappedBy = "ajust",
-      cascade = {CascadeType.REMOVE})
-  private List<Ajustement> ajustements = new ArrayList<>();
+    @OneToMany(mappedBy = "ajust", cascade = { CascadeType.REMOVE })
+    private List<Ajustement> ajustements = new ArrayList<>();
 
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
-    this.id = id;
-  }
+        this.id = id;
+    }
 
     public List<Ajustement> getAjustements() {
         return ajustements;
     }
 
-  public Ajust setAjustements(List<Ajustement> ajustements) {
-    this.ajustements = ajustements;
-    return this;
-  }
+    public Ajust setAjustements(List<Ajustement> ajustements) {
+        this.ajustements = ajustements;
+        return this;
+    }
 
     public @NotNull WarehouseCalendar getCalendar() {
         return calendar;
     }
 
-  public Ajust setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
+    public Ajust setCalendar(WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 
     public String getCommentaire() {
         return commentaire;
     }
 
-  public Ajust setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
+    public Ajust setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 
     public @NotNull Storage getStorage() {
         return storage;
     }
 
-  public Ajust setStorage(Storage storage) {
-    this.storage = storage;
-    return this;
-  }
+    public Ajust setStorage(Storage storage) {
+        this.storage = storage;
+        return this;
+    }
 
     public @NotNull AjustementStatut getStatut() {
         return statut;
     }
 
-  public void setStatut(AjustementStatut statut) {
-    this.statut = statut;
-  }
+    public void setStatut(AjustementStatut statut) {
+        this.statut = statut;
+    }
 
     public @NotNull User getUser() {
         return user;
     }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public @NotNull LocalDateTime getDateMtv() {
         return dateMtv;
     }
 
-  public void setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-  }
+    public void setDateMtv(LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+    }
 }

@@ -5,6 +5,4 @@ export const enum Params {
   APP_SANS_NUM_BON = 'APP_SANS_NUM_BON',
   APP_GESTION_LOT = 'APP_GESTION_LOT',
   APP_MODE_REGL_NUMBER = 'APP_MODE_REGL_NUMBER',
-
-
 }

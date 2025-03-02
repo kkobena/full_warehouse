@@ -17,14 +17,12 @@ public class ReferenceService {
     private final ReferenceRepository referenceRepository;
 
     public ReferenceService(ReferenceRepository referenceRepository) {
-
         this.referenceRepository = referenceRepository;
     }
 
     public String buildNumCommande() {
         Reference reference;
-        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(),
-            Constants.REFERENCE_TYPE_COMMANDE);
+        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(), Constants.REFERENCE_TYPE_COMMANDE);
         if (op.isPresent()) {
             reference = op.get();
             reference.setNumberTransac(reference.getNumberTransac() + 1);
@@ -33,63 +31,48 @@ public class ReferenceService {
             reference.setType(Constants.REFERENCE_TYPE_COMMANDE);
             reference.setMvtDate(LocalDate.now());
             reference.setNumberTransac(1);
-
         }
-        String ref =
-            reference.getMvtDate()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        reference.setNum(
-            ref.concat(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0')));
+        String ref = reference.getMvtDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        reference.setNum(ref.concat(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0')));
         referenceRepository.save(reference);
         return reference.getNum();
-
     }
 
     public String buildNumSale() {
-        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(),
-            Constants.REFERENCE_TYPE_VENTE);
+        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(), Constants.REFERENCE_TYPE_VENTE);
         if (op.isPresent()) {
             Reference reference = op.get();
             reference.setNumberTransac(reference.getNumberTransac() + 1);
-            reference.setNum(
-                StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
             referenceRepository.save(reference);
             return reference.getNum();
-
         } else {
             Reference reference = new Reference();
             reference.setType(Constants.REFERENCE_TYPE_VENTE);
             reference.setMvtDate(LocalDate.now());
             reference.setNumberTransac(1);
-            reference.setNum(
-                StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
             referenceRepository.save(reference);
             return reference.getNum();
         }
     }
 
     public String buildNumPreventeSale() {
-        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(),
-            Constants.REFERENCE_PREVENTE_VENTE);
+        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(), Constants.REFERENCE_PREVENTE_VENTE);
         if (op.isPresent()) {
             Reference reference = op.get();
             reference.setNumberTransac(reference.getNumberTransac() + 1);
-            reference.setNum(
-                StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
             referenceRepository.save(reference);
             return reference.getNum();
-
         } else {
             Reference reference = new Reference();
             reference.setType(Constants.REFERENCE_PREVENTE_VENTE);
             reference.setMvtDate(LocalDate.now());
             reference.setNumberTransac(1);
-            reference.setNum(
-                StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
+            reference.setNum(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0'));
             referenceRepository.save(reference);
             return reference.getNum();
         }
     }
-
-
 }

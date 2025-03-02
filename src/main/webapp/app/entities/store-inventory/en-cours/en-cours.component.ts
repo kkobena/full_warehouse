@@ -63,11 +63,6 @@ export class EnCoursComponent implements OnInit {
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.onSearch();
   }

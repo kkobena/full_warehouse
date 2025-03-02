@@ -1,43 +1,33 @@
 <div class="row customer-overlay-panel">
-  <div class="col-2 ">
+  <div class="col-2">
     <p-popover #op [style]="{ width: '650px' }">
-
       <ng-template pTemplate="content">
         <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
       </ng-template>
-
-
     </p-popover>
     @if (customer) {
-      <p-button (click)="remove()" pTooltip="Supprimer" icon="pi pi-user"
-                severity="danger" size="small"
-                styleClass="customer"></p-button>
+      <p-button (click)="remove()" pTooltip="Supprimer" icon="pi pi-user" severity="danger" size="small" styleClass="customer"></p-button>
     } @else {
-      <p-button (click)="op.toggle($event)" [pTooltip]="getLabele()" icon="pi pi-user"
-                severity="success" size="small"
-                styleClass="customer"></p-button>
+      <p-button
+        (click)="op.toggle($event)"
+        [pTooltip]="getLabele()"
+        icon="pi pi-user"
+        severity="success"
+        size="small"
+        styleClass="customer"
+      ></p-button>
     }
-
   </div>
   @if (customer) {
     <div class="col-10 row">
       <div class="row">
         <div class="col-md-7 row infos-cust">
-          <span>Client: &nbsp;<p-tag severity="contrast"
-                                     value="{{ customer.fullName }}" /></span>
+          <span>Client: &nbsp;<p-tag severity="contrast" value="{{ customer.fullName }}" /></span>
         </div>
         <div class="col-md-5 row infos-cust">
-
-          <span>Mobile:&nbsp;<p-tag severity="contrast"
-                                    value="{{ customer.phone }}" /></span>
-
-
+          <span>Mobile:&nbsp;<p-tag severity="contrast" value="{{ customer.phone }}" /></span>
         </div>
       </div>
-
     </div>
   }
-
-
 </div>
-

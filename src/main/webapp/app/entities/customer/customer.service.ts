@@ -104,7 +104,7 @@ export class CustomerService {
   uploadJsonData(file: any): Observable<HttpResponse<void>> {
     return this.http.post<void>(`${this.resourceUrl}/importjson`, file, {
       observe: 'response',
-      headers: new HttpHeaders({ timeout: `${7600000}` }),
+      headers: new HttpHeaders({ timeout: `7600000` }),
     });
   }
 

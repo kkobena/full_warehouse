@@ -133,7 +133,7 @@ export class RayonComponent implements OnInit {
           page: this.page,
           size: event.rows,
           search: '',
-          magasinId: this.magasin?.id,
+          magasinId: this.magasin.id,
         })
         .subscribe({
           next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
@@ -203,7 +203,7 @@ export class RayonComponent implements OnInit {
   }
 
   onCloneChange(event: any): void {
-    if (this.clone.id === this.magasin?.id) {
+    if (this.clone.id === this.magasin.id) {
       this.clone = undefined;
       this.messageService.add({
         severity: 'error',

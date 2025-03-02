@@ -2,20 +2,11 @@ import { AfterViewInit, Component, inject } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import {
-  NgbCalendar,
-  NgbDateAdapter,
-  NgbDateParserFormatter,
-  NgbDatepickerI18n,
-  NgbDatepickerModule,
-  NgbDateStruct,
-  NgbModal,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
-import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { HttpResponse } from '@angular/common/http';
@@ -23,7 +14,7 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { InvoicePaymentParam, Reglement } from '../model/reglement.model';
-import { dateIsoFormatFom, getNgbDateStruct } from '../../../shared/util/warehouse-util';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { RegelementStateService } from '../regelement-state.service';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
@@ -38,6 +29,10 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { DatePicker } from 'primeng/datepicker';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -49,7 +44,6 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     FormsModule,
     FloatLabelModule,
     AutoCompleteModule,
-    NgbDatepickerModule,
     InputTextModule,
     DividerModule,
     RippleModule,
@@ -57,29 +51,25 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     IconField,
     InputIcon,
     ToggleSwitch,
+    DatePicker,
   ],
-  providers: [
-    ConfirmationService,
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
+  providers: [ConfirmationService],
   templateUrl: './factures-reglees.component.html',
 })
 export class FacturesRegleesComponent implements AfterViewInit {
-  tiersPayantService = inject(TiersPayantService);
-  groupeTiersPayantService = inject(GroupeTiersPayantService);
-  regelementStateService = inject(RegelementStateService);
-  reglementService = inject(ReglementService);
-  confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
-  modalService = inject(NgbModal);
+  protected readonly tiersPayantService = inject(TiersPayantService);
+  protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  protected readonly regelementStateService = inject(RegelementStateService);
+  protected readonly reglementService = inject(ReglementService);
+  protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly errorService = inject(ErrorService);
+  protected readonly modalService = inject(NgbModal);
   protected expandedRows = {};
-  protected calendar = inject(NgbCalendar);
-  protected today = this.calendar.getToday();
-  protected modelStartDate: NgbDateStruct;
-  protected modelEndDate: NgbDateStruct;
+  protected readonly translate = inject(TranslateService);
+  protected readonly primeNGConfig = inject(PrimeNG);
+  protected today = new Date();
+  protected modelStartDate: Date = null;
+  protected modelEndDate: Date = new Date();
   protected search: string | null = null;
   protected factureGroup = false;
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
@@ -93,7 +83,17 @@ export class FacturesRegleesComponent implements AfterViewInit {
   protected datas: Reglement[] = [];
   protected selectedDatas: Reglement[] = [];
   protected scrollHeight = 'calc(100vh - 350px)';
+  private primngtranslate: Subscription;
+  private toDateMinus1Month = this.today;
+  constructor() {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
 
+    this.toDateMinus1Month.setMonth(this.toDateMinus1Month.getMonth() - 1);
+    this.modelStartDate = this.toDateMinus1Month;
+  }
   onSearch(): void {
     this.fetchData();
   }
@@ -249,19 +249,11 @@ export class FacturesRegleesComponent implements AfterViewInit {
       } else {
         this.selectedTiersPayant = this.tiersPayants.find(t => t.id === previousSearch.organismeId);
       }
-      this.modelStartDate = getNgbDateStruct(previousSearch.fromDate);
-      this.modelEndDate = getNgbDateStruct(previousSearch.toDate);
+      this.modelStartDate = previousSearch.fromDate ? new Date(previousSearch.fromDate) : this.toDateMinus1Month;
+      this.modelEndDate = previousSearch.toDate ? new Date(previousSearch.toDate) : new Date();
     } else {
-      this.modelStartDate = {
-        year: this.today.year,
-        month: this.today.month,
-        day: this.today.day,
-      };
-      this.modelEndDate = {
-        year: this.today.year,
-        month: this.today.month,
-        day: this.today.day,
-      };
+      this.modelStartDate = this.toDateMinus1Month;
+      this.modelEndDate = new Date();
     }
     this.fetchData();
   }
@@ -274,8 +266,8 @@ export class FacturesRegleesComponent implements AfterViewInit {
     const params = {
       search: this.search,
       organismeId: this.factureGroup ? this.selectedGroupeTiersPayant?.id : this.selectedTiersPayant?.id,
-      fromDate: dateIsoFormatFom(this.modelStartDate),
-      toDate: dateIsoFormatFom(this.modelEndDate),
+      fromDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
+      toDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
       grouped: this.factureGroup,
     };
 

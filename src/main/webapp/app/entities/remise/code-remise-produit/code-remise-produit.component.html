@@ -1,14 +1,13 @@
 <div>
   <table class="table table-striped table-hover">
     <thead>
-    <tr>
-      <th scope="col">Code</th>
-      <th scope="col">Remise associé</th>
-      <th scope="col">Remise VNO</th>
-      <th scope="col">Remise VO</th>
-      <th scope="col"></th>
-
-    </tr>
+      <tr>
+        <th scope="col">Code</th>
+        <th scope="col">Remise associé</th>
+        <th scope="col">Remise VNO</th>
+        <th scope="col">Remise VO</th>
+        <th scope="col"></th>
+      </tr>
     </thead>
     <tbody class="table-group-divider">
       @for (code of entites; track code.value; let i = $index) {
@@ -24,16 +23,11 @@
             <td>0%</td>
           }
 
-
           <td class="text-right">
-
-            <button (click)="onOpenModal(code)" type="button" class="btn  btn-success btn-sm"
-            >
+            <button (click)="onOpenModal(code)" type="button" class="btn btn-success btn-sm">
               <fa-icon icon="pencil-alt"></fa-icon>
               Assosier des produits
             </button>
-
-
           </td>
         </tr>
       }

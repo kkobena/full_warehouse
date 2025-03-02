@@ -23,11 +23,6 @@ export class ProduitService {
   public fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
   public rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(produit: IProduit): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(produit);
     return this.http

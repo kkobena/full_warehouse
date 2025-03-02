@@ -21,6 +21,6 @@ export class Payment implements IPayment {
     public createdAt?: Moment,
     public updatedAt?: Moment,
     public paymentMode?: IPaymentMode,
-    public montantVerse?: number
+    public montantVerse?: number,
   ) {}
 }

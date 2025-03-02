@@ -1,11 +1,11 @@
-import { ApplicationConfig, importProvidersFrom, inject, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import {
   NavigationError,
-  provideRouter,
   Router,
   RouterFeatures,
   TitleStrategy,
+  provideRouter,
   withComponentInputBinding,
   withDebugTracing,
   withNavigationErrorHandler,
@@ -13,15 +13,12 @@ import {
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
-
-import { DEBUG_INFO_ENABLED } from 'app/app.constants';
 import './config/dayjs';
 import { TranslationModule } from 'app/shared/language/translation.module';
+import { environment } from 'environments/environment';
 import { httpInterceptorProviders } from './core/interceptor';
 import routes from './app.routes';
 
-import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
@@ -29,7 +26,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
-const routerFeatures: Array<RouterFeatures> = [
+const routerFeatures: RouterFeatures[] = [
   withComponentInputBinding(),
   withNavigationErrorHandler((e: NavigationError) => {
     const router = inject(Router);
@@ -44,7 +41,7 @@ const routerFeatures: Array<RouterFeatures> = [
     }
   }),
 ];
-if (DEBUG_INFO_ENABLED) {
+if (environment.DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
 
@@ -56,15 +53,12 @@ export const appConfig: ApplicationConfig = {
 
     importProvidersFrom(BrowserModule),
     importProvidersFrom(BrowserAnimationsModule),
-    // importProvidersFrom(ModuleRegistry.registerModules([ClientSideRowModelModule])),
-    // Set this to true to enable service worker (PWA)
     importProvidersFrom(ServiceWorkerModule.register('ngsw-worker.js', { enabled: false })),
     importProvidersFrom(TranslationModule),
     provideHttpClient(withInterceptorsFromDi()),
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
     Title,
     { provide: LOCALE_ID, useValue: 'fr' },
-    { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     httpInterceptorProviders,
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
     provideAnimationsAsync(),

@@ -10,9 +10,9 @@ import { CategorieService } from './categorie.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    selector: 'jhi-categorie-update',
-    templateUrl: './categorie-update.component.html',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
+  selector: 'jhi-categorie-update',
+  templateUrl: './categorie-update.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CategorieUpdateComponent implements OnInit {
   protected categorieService = inject(CategorieService);
@@ -77,8 +77,8 @@ export class CategorieUpdateComponent implements OnInit {
   private createFromForm(): ICategorie {
     return {
       ...new Categorie(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

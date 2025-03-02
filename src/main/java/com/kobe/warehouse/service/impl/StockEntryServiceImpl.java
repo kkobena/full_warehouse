@@ -166,17 +166,16 @@ public class StockEntryServiceImpl implements StockEntryService {
     private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
         Optional<Commande> commandeOp = commandeRepository.getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference());
         return commandeOp
-            .map(
-                commande ->
-                    commande
-                        .setReceiptDate(deliveryReceiptLite.getReceiptDate())
-                        .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
-                        .taxAmount(deliveryReceiptLite.getTaxAmount())
-                        .setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce())
-                        .setSequenceBon(deliveryReceiptLite.getSequenceBon())
-                        .setLastUserEdit(storageService.getUser())
-                        .orderStatus(OrderStatut.CLOSED)
-                        .updatedAt(LocalDateTime.now())
+            .map(commande ->
+                commande
+                    .setReceiptDate(deliveryReceiptLite.getReceiptDate())
+                    .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
+                    .taxAmount(deliveryReceiptLite.getTaxAmount())
+                    .setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce())
+                    .setSequenceBon(deliveryReceiptLite.getSequenceBon())
+                    .setLastUserEdit(storageService.getUser())
+                    .orderStatus(OrderStatut.CLOSED)
+                    .updatedAt(LocalDateTime.now())
             )
             .orElse(null);
     }
@@ -1133,8 +1132,8 @@ public class StockEntryServiceImpl implements StockEntryService {
             }
 
             DeliveryReceiptItem deliveryReceiptItem = addItem(orderLine, deliveryReceipt);
-            getLotByOrderLine(orderLine, commande).forEach(
-                lotJsonValue -> lotService.addLot(lotJsonValue, deliveryReceiptItem, deliveryReceipt.getReceiptRefernce())
+            getLotByOrderLine(orderLine, commande).forEach(lotJsonValue ->
+                lotService.addLot(lotJsonValue, deliveryReceiptItem, deliveryReceipt.getReceiptRefernce())
             );
             FournisseurProduit fournisseurProduit = updateFournisseurProduit(deliveryReceiptItem);
             StockProduit stockProduit = produitService.updateTotalStock(

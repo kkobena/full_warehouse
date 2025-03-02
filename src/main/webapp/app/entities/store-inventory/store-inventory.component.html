@@ -1,21 +1,19 @@
 <div class="row inventory">
   <div class="col-2 col-md-2 col-sm-2">
     <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
-           orientation="vertical">
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
         <ng-container ngbNavItem="CREATE">
-          <a class="flex-sm-fill nav-link " ngbNavLink>En cours</a>
+          <a class="flex-sm-fill nav-link" ngbNavLink>En cours</a>
           <ng-template ngbNavContent>
             <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
           </ng-template>
         </ng-container>
         <ng-container ngbNavItem="CLOSED">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Cloturés</a>
+          <a class="flex-sm-fill nav-link" ngbNavLink>Cloturés</a>
           <ng-template ngbNavContent>
             <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
           </ng-template>
         </ng-container>
-
       </div>
     </p-card>
   </div>
@@ -25,41 +23,28 @@
       <ng-template #start>
         <p-inputgroup [hidden]="true">
           <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
-          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
-                    [showClear]="true"
-                    optionLabel="fullName"></p-select>
+          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users" [showClear]="true" optionLabel="fullName"></p-select>
         </p-inputgroup>
         <p-inputgroup>
           <p-inputgroup-addon>Types</p-inputgroup-addon>
-          <p-multiSelect [(ngModel)]="inventoryCategories"
-                         [filter]="false" [options]="categories"
-                         [showClear]="true"
-                         [showToggleAll]="false" optionLabel="label"
-                         placeholder="Filter par type" />
+          <p-multiSelect
+            [(ngModel)]="inventoryCategories"
+            [filter]="false"
+            [options]="categories"
+            [showClear]="true"
+            [showToggleAll]="false"
+            optionLabel="label"
+            placeholder="Filter par type"
+          />
         </p-inputgroup>
       </ng-template>
       <ng-template #end>
-        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                  raised="true"
-                  severity="info"
-        ></p-button>
+        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
 
-        <p-button (click)="onCreateNew()"
-                  icon="pi pi-plus"
-                  label="Nouveau"
-                  raised="true"
-                  severity="success"
-
-        >
-        </p-button>
+        <p-button (click)="onCreateNew()" icon="pi pi-plus" label="Nouveau" raised="true" severity="success"> </p-button>
       </ng-template>
-
     </p-toolbar>
 
-
-    <div [ngbNavOutlet]="nav">
-
-    </div>
+    <div [ngbNavOutlet]="nav"></div>
   </div>
-
 </div>

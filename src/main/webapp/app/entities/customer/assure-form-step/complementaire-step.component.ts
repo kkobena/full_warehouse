@@ -74,7 +74,7 @@ export class ComplementaireStepComponent {
   }
 
   initForm(current: ICustomer): void {
-    if (current?.tiersPayants?.length > 0) {
+    if (current.tiersPayants.length > 0) {
       this.buildTiersPayant(current.tiersPayants);
     }
   }
@@ -122,7 +122,7 @@ export class ComplementaireStepComponent {
     this.ref.onClose.subscribe((tiersPayant: ITiersPayant) => {
       if (tiersPayant) {
         this.tiersPayants.push(tiersPayant);
-        this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: tiersPayant });
+        this.convertFormAsFormArray().at(index).patchValue({ tiersPayant });
       }
     });
   }
@@ -149,7 +149,7 @@ export class ComplementaireStepComponent {
   }
 
   createFromForm(): IClientTiersPayant[] {
-    return this.editForm.get(['tiersPayants'])!.value.flatMap((tiersPayant: any) => [
+    return this.editForm.get(['tiersPayants']).value.flatMap((tiersPayant: any) => [
       {
         id: tiersPayant.id,
         taux: tiersPayant.taux,

@@ -1,10 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-
+import { environment } from 'environments/environment';
 import { StateStorageService } from 'app/core/auth/state-storage.service';
 import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
-import { VERSION } from 'app/app.constants';
 import { LANGUAGES } from 'app/config/language.constants';
 import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
@@ -46,7 +45,7 @@ export default class NavbarComponent implements OnInit {
   protected readonly faShippingFast = faShippingFast;
   protected readonly faShoppingBasket = faShoppingBasket;
   protected readonly faStore = faStore;
-  protected menuStock: string[];
+  protected menuStock: string[] = [];
   protected readonly faSackDollar = faSackDollar;
   protected faCoins = faCoins;
   private loginService = inject(LoginService);
@@ -57,6 +56,7 @@ export default class NavbarComponent implements OnInit {
 
   constructor() {
     this.menuStock = ['gestion-entree', 'commande', 'gestion-stock', 'produit'];
+    const { VERSION } = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }

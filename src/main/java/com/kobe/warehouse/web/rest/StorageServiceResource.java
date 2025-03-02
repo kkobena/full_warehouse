@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class StorageServiceResource {
-  private final StorageService storageService;
 
-  public StorageServiceResource(StorageService storageService) {
-    this.storageService = storageService;
-  }
+    private final StorageService storageService;
 
-  @GetMapping("/storages")
-  public ResponseEntity<List<StorageDTO>> getAll() {
+    public StorageServiceResource(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
-    return ResponseEntity.ok().body(this.storageService.fetchAllByConnectedUser());
-  }
+    @GetMapping("/storages")
+    public ResponseEntity<List<StorageDTO>> getAll() {
+        return ResponseEntity.ok().body(this.storageService.fetchAllByConnectedUser());
+    }
 }

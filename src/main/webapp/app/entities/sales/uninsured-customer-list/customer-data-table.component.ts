@@ -43,11 +43,6 @@ export class CustomerDataTableComponent {
   readonly closeModalEvent = output<boolean>();
   ref!: DynamicDialogRef;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   onSelect(customer: ICustomer): void {
     this.selectedCustomerService.setCustomer(customer);
     this.closeModalEvent.emit(true);

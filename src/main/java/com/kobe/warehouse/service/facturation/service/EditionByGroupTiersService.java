@@ -46,13 +46,13 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
     @Override
     protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
-            return super.buildFetchSpecification(editionSearchParams).and(
-                this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.ids())
-            );
+            return super
+                .buildFetchSpecification(editionSearchParams)
+                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.ids()));
         } else if (!CollectionUtils.isEmpty(editionSearchParams.groupIds())) {
-            return super.buildFetchSpecification(editionSearchParams).and(
-                this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds())
-            );
+            return super
+                .buildFetchSpecification(editionSearchParams)
+                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

@@ -30,9 +30,9 @@ public class EditionBySelectionBonsService extends AbstractEditionFactureService
     @Override
     protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
-            return super.buildFetchSpecification(editionSearchParams).and(
-                this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids())
-            );
+            return super
+                .buildFetchSpecification(editionSearchParams)
+                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

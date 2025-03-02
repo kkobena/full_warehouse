@@ -7,8 +7,8 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    templateUrl: './store-inventory-delete-dialog.component.html',
-    imports: [WarehouseCommonModule, FormsModule]
+  templateUrl: './store-inventory-delete-dialog.component.html',
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class StoreInventoryDeleteDialogComponent {
   protected storeInventoryService = inject(StoreInventoryService);
@@ -16,17 +16,12 @@ export class StoreInventoryDeleteDialogComponent {
 
   storeInventory?: IStoreInventory;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   cancel(): void {
     this.activeModal.dismiss();
   }
 
   confirmDelete(): void {
-    this.storeInventoryService.delete(this.storeInventory?.id).subscribe(() => {
+    this.storeInventoryService.delete(this.storeInventory.id).subscribe(() => {
       this.activeModal.close();
     });
   }

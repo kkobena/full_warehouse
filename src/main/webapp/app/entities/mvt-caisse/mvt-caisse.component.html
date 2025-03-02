@@ -1,42 +1,40 @@
 <p-panel header="Menu rapport" styleClass="main-panel">
   <div class="row mvts-caisse-gestion">
     <div class="col-2 col-md-2 col-sm-2">
-
       <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills " ngbNav
-             orientation="vertical">
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
           <ng-container ngbNavItem="mvt-caisse">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Mouvements de caisse</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Mouvements de caisse</a>
             <ng-template ngbNavContent>
               <jhi-visualisation-mvt-caisse></jhi-visualisation-mvt-caisse>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="balance">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Balance caisse</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Balance caisse</a>
             <ng-template ngbNavContent>
               <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="taxe-report">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Rapport Tva</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Rapport Tva</a>
             <ng-template ngbNavContent>
               <jhi-taxe-report></jhi-taxe-report>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="tableau-pharmacien">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Tableau pharmacien</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Tableau pharmacien</a>
             <ng-template ngbNavContent>
               <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="raport-activite">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Raport d'activité</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Raport d'activité</a>
             <ng-template ngbNavContent>
               <jhi-raport-activite-global></jhi-raport-activite-global>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="gestion-caisse">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Gestion de caisse</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Gestion de caisse</a>
             <ng-template ngbNavContent>
               <jhi-gestion-caisse></jhi-gestion-caisse>
             </ng-template>
@@ -45,10 +43,7 @@
       </p-card>
     </div>
     <div class="col-10 col-md-10 col-sm-10 row">
-
-      <div [ngbNavOutlet]="nav">
-
-      </div>
+      <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
 </p-panel>

@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DeliveryReceiptRepository extends JpaRepository<DeliveryReceipt, Long> {
-
     Optional<DeliveryReceipt> getFirstByOrderReference(String orderRefernce);
 }

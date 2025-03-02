@@ -1,13 +1,10 @@
-<div class="col-xl-6 col-sm-8 col-md-7 justify-content-end" style="margin-bottom:0.5rem;">
+<div class="col-xl-6 col-sm-8 col-md-7 justify-content-end" style="margin-bottom: 0.5rem">
   <div class="col-12 text-right">
     <button class="btn btn-info btn-sm" routerLink="../../" type="submit">
-      <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
-      jhiTranslate="entity.action.back">Retour</span>
+      <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
     </button>
   </div>
-
 </div>
-
 
 <div class="d-flex justify-content-center">
   <div class="col-xl-6 col-sm-8 col-md-7 card">
@@ -16,7 +13,7 @@
         <h2>
           <span jhiTranslate="userManagement.detail.title">Utilisateur</span>
           [<strong>{{ user()!.login }}</strong
-        >]
+          >]
         </h2>
 
         <dl class="row-md jh-entity-details">
@@ -26,8 +23,7 @@
             @if (user()!.activated) {
               <span class="badge bg-success" jhiTranslate="userManagement.activated">Activé</span>
             } @else {
-              <span class="badge bg-danger"
-                    jhiTranslate="userManagement.deactivated">Désactivé</span>
+              <span class="badge bg-danger" jhiTranslate="userManagement.deactivated">Désactivé</span>
             }
           </dd>
 
@@ -62,8 +58,6 @@
             </ul>
           </dd>
         </dl>
-
-
       </div>
     }
   </div>

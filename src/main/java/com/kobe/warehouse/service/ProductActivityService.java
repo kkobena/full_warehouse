@@ -5,6 +5,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ProductActivityService {
-
-  List<ProductActivityDTO> getProductActivity(Long produitId, LocalDate fromDate, LocalDate toDate);
+    List<ProductActivityDTO> getProductActivity(Long produitId, LocalDate fromDate, LocalDate toDate);
 }

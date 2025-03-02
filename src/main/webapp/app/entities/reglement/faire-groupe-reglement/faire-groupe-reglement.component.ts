@@ -64,11 +64,11 @@ export class FaireGroupeReglementComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  reglementService = inject(ReglementService);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
-  factureService = inject(FactureService);
+  protected readonly reglementService = inject(ReglementService);
+  protected readonly modalService = inject(NgbModal);
+  protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly errorService = inject(ErrorService);
+  protected readonly factureService = inject(FactureService);
   readonly selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
@@ -80,7 +80,9 @@ export class FaireGroupeReglementComponent implements OnInit {
       this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
     }
   }
-
+  get drawerWidth(): {} {
+    return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
+  }
   openSideBar(): void {
     this.showSidebar = true;
   }
@@ -138,7 +140,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   }
 
   protected isInputEditable(item: ReglementFactureDossier): boolean {
-    return this.partialPayment && this.factureDossierSelectionnes()?.some(r => r.id === item.id);
+    return this.partialPayment && this.factureDossierSelectionnes().some(r => r.id === item.id);
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
@@ -189,14 +191,14 @@ export class FaireGroupeReglementComponent implements OnInit {
 
   private reset(response: ResponseReglement): void {
     this.factureDossierSelectionnes.set([]);
-    this.reglementFormComponent()?.reset();
+    this.reglementFormComponent().reset();
     if (response.total) {
       this.dossierFactureProjectionWritable.set(null);
       this.reglementFactureDossiersWritable.set([]);
-      this.reglementFormComponent()?.cashInput?.setValue(null);
+      this.reglementFormComponent().cashInput.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjectionWritable()?.id);
+      this.reload(this.dossierFactureProjectionWritable().id);
     }
   }
 
@@ -219,7 +221,7 @@ export class FaireGroupeReglementComponent implements OnInit {
 
   private fetchFacture(): void {
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjectionWritable()?.id, {
+      .findDossierFactureProjection(this.dossierFactureProjectionWritable().id, {
         isGroup: true,
       })
       .subscribe(res => {

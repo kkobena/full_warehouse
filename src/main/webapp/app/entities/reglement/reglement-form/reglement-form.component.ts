@@ -111,7 +111,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get modePaimentCode(): string {
-    return this.reglementForm.get('modePaimentCode')?.value;
+    return this.reglementForm.get('modePaimentCode').value;
   }
 
   get initTotalAmount(): number {
@@ -140,7 +140,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get isPartialPayment(): boolean {
-    return !this.reglementForm.get('partialPayment')?.value;
+    return !this.reglementForm.get('partialPayment').value;
   }
 
   get montantPayer(): number {
@@ -153,7 +153,7 @@ export class ReglementFormComponent implements AfterViewInit {
 
   get montantVerse(): number {
     if (this.isCash) {
-      return this.reglementForm.get('amount')?.value;
+      return this.reglementForm.get('amount').value;
     }
     return 0;
   }
@@ -174,37 +174,37 @@ export class ReglementFormComponent implements AfterViewInit {
         this.setDefaultModeReglement();
       }
     });
-    this.reglementForm.get('amount')?.valueChanges.subscribe(value => {
+    this.reglementForm.get('amount').valueChanges.subscribe(value => {
       this.montantSaisi.set(value);
     });
     setTimeout(() => {
-      this.reglementForm.get('amount')?.setValue(this.initTotalAmount);
+      this.reglementForm.get('amount').setValue(this.initTotalAmount);
     }, 30);
 
-    this.reglementForm.get('partialPayment')?.valueChanges.subscribe(value => {
+    this.reglementForm.get('partialPayment').valueChanges.subscribe(value => {
       this.partialPayment.emit(!value);
       /* if (value) {
         this.reglementForm.get('amount')?.setValue(this.initTotalAmount);
       } */
     });
-    this.reglementForm.get('modePaimentCode')?.valueChanges.subscribe(value => {
-      this.reglementForm.get('amount')?.setValue(this.defaultDefautInputAmountValue);
+    this.reglementForm.get('modePaimentCode').valueChanges.subscribe(value => {
+      this.reglementForm.get('amount').setValue(this.defaultDefautInputAmountValue);
       if (this.showBanqueInfo) {
-        this.banqueInfo?.get('nom')?.setValidators([Validators.required]);
-        this.banqueInfo?.get('nom')!.updateValueAndValidity();
+        this.banqueInfo.get('nom').setValidators([Validators.required]);
+        this.banqueInfo.get('nom').updateValueAndValidity();
         if (value === this.CH) {
-          this.banqueInfo?.get('code')?.setValidators([Validators.required]);
-          this.banqueInfo?.get('code')!.updateValueAndValidity();
+          this.banqueInfo.get('code').setValidators([Validators.required]);
+          this.banqueInfo.get('code').updateValueAndValidity();
         } else {
-          this.banqueInfo?.get('code')?.clearValidators();
-          this.banqueInfo?.get('code')!.updateValueAndValidity();
+          this.banqueInfo.get('code').clearValidators();
+          this.banqueInfo.get('code').updateValueAndValidity();
         }
       } else {
-        this.banqueInfo?.reset();
-        this.banqueInfo?.get('nom')?.clearValidators();
-        this.banqueInfo?.get('nom')!.updateValueAndValidity();
-        this.banqueInfo?.get('code')?.clearValidators();
-        this.banqueInfo?.get('code')!.updateValueAndValidity();
+        this.banqueInfo.reset();
+        this.banqueInfo.get('nom').clearValidators();
+        this.banqueInfo.get('nom').updateValueAndValidity();
+        this.banqueInfo.get('code').clearValidators();
+        this.banqueInfo.get('code').updateValueAndValidity();
       }
     });
   }
@@ -212,7 +212,7 @@ export class ReglementFormComponent implements AfterViewInit {
   reset(): void {
     this.reglementForm.reset();
     this.setDefaultModeReglement();
-    this.reglementForm.get('partialPayment')?.setValue(true);
+    this.reglementForm.get('partialPayment').setValue(true);
   }
 
   protected save(): void {
@@ -220,17 +220,17 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   private setDefaultModeReglement(): void {
-    this.reglementForm.get('modePaimentCode')?.setValue(this.paymentModes?.find(mode => mode.code === this.CH)?.code);
+    this.reglementForm.get('modePaimentCode').setValue(this.paymentModes.find(mode => mode.code === this.CH).code);
   }
 
   private createFromForm(): ReglementParams {
-    const paymentDate = this.reglementForm.get('paymentDate')?.value;
-    const allMode = this.reglementForm.get('partialPayment')?.value;
+    const paymentDate = this.reglementForm.get('paymentDate').value;
+    const allMode = this.reglementForm.get('partialPayment').value;
     return {
-      amount: this.reglementForm.get('amount')?.value,
-      modePaimentCode: this.reglementForm.get('modePaimentCode')?.value,
+      amount: this.reglementForm.get('amount').value,
+      modePaimentCode: this.reglementForm.get('modePaimentCode').value,
       partialPayment: !allMode,
-      banqueInfo: this.showBanqueInfo ? this.banqueInfo?.getRawValue() : null,
+      banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
       amountToPaid: this.montantPayer,
       paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
       totalAmount: this.initTotalAmount,

@@ -4,5 +4,8 @@ export interface ILaboratoire {
 }
 
 export class Laboratoire implements ILaboratoire {
-  constructor(public id?: number, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+  ) {}
 }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GammeProduit;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -9,14 +8,15 @@ import java.io.Serializable;
  * A DTO for the {@link com.kobe.warehouse.domain.GammeProduit} entity.
  */
 public class GammeProduitDTO implements Serializable {
+
     private static final long serialVersionUID = -605218151933409039L;
     private Long id;
     private String code;
+
     @NotNull
     private String libelle;
 
-    public GammeProduitDTO() {
-    }
+    public GammeProduitDTO() {}
 
     public GammeProduitDTO(GammeProduit g) {
         id = g.getId();

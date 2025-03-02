@@ -15,19 +15,19 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'jhi-type-etiquette',
-    templateUrl: './type-etiquette.component.html',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        DialogModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        RouterModule,
-        TableModule,
-    ]
+  selector: 'jhi-type-etiquette',
+  templateUrl: './type-etiquette.component.html',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    DialogModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    RouterModule,
+    TableModule,
+  ],
 })
 export class TypeEtiquetteComponent implements OnInit {
   protected entityService = inject(TypeEtiquetteService);
@@ -50,11 +50,6 @@ export class TypeEtiquetteComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.loadPage();
   }
@@ -67,10 +62,10 @@ export class TypeEtiquetteComponent implements OnInit {
         page: pageToLoad,
         size: this.itemsPerPage,
       })
-      .subscribe(
-        (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        () => this.onError(),
-      );
+      .subscribe({
+        next: (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        error: () => this.onError,
+      });
   }
 
   lazyLoading(event: LazyLoadEvent): void {
@@ -81,10 +76,10 @@ export class TypeEtiquetteComponent implements OnInit {
         page: this.page,
         size: event.rows,
       })
-      .subscribe(
-        (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, this.page),
-        () => this.onError(),
-      );
+      .subscribe({
+        next: (res: HttpResponse<ITypeEtiquette[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError,
+      });
   }
 
   confirmDialog(id: number): void {
@@ -168,17 +163,17 @@ export class TypeEtiquetteComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITypeEtiquette>>): void {
-    result.subscribe(
-      () => this.onSaveSuccess(),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError(),
+    });
   }
 
   private createFromForm(): ITypeEtiquette {
     return {
       ...new TypeEtiquette(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

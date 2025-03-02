@@ -1,44 +1,47 @@
 <div class="row">
   <div class="col-md-4 col-xl-4 col-lg-4 col-sm-12">
-
     <div class="d-flex flex-row">
-
-      <div class="p-2">Montant facture: <span
-        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
+      <div class="p-2">
+        Montant facture: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
       </div>
-      <div class="p-2">Montant payé: <span
-        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
+      <div class="p-2">
+        Montant payé: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
       </div>
-
     </div>
     <div>
       <p-panel>
         <ng-template pTemplate="header">
-          <span>Détail groupe de  facture : <span
-            class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }}
-            [ {{ groupeFactureSignal().numFacture }}]</span> </span>
+          <span
+            >Détail groupe de facture :
+            <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }} [ {{ groupeFactureSignal().numFacture }}]</span>
+          </span>
         </ng-template>
 
-
-        <p-table #fact
-                 [globalFilterFields]="['numFacture', 'tiersPayantName']"
-                 [paginator]="true"
-                 [rowsPerPageOptions]="[ 10, 20,30,50,100]"
-                 [rows]="20"
-                 [scrollable]="true"
-                 [value]="groupeFactureSignal().factures"
-                 dataKey="saleId"
-                 scrollHeight="500px" selectionMode="single" styleClass="p-datatable-striped">
+        <p-table
+          #fact
+          [globalFilterFields]="['numFacture', 'tiersPayantName']"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
+          [rows]="20"
+          [scrollable]="true"
+          [value]="groupeFactureSignal().factures"
+          dataKey="saleId"
+          scrollHeight="500px"
+          selectionMode="single"
+          styleClass="p-datatable-striped"
+        >
           <ng-template pTemplate="caption">
             <div class="d-flex">
-
               <span class="p-input-icon-left ml-auto">
                 <i class="pi pi-search"></i>
-                <input (input)="fact.filterGlobal($event.target.value, 'contains')"
-                       [(ngModel)]="searchValue" pInputText
-                       placeholder="Filtrer"
-                       type="text" />
-            </span>
+                <input
+                  (input)="fact.filterGlobal($event.target.value, 'contains')"
+                  [(ngModel)]="searchValue"
+                  pInputText
+                  placeholder="Filtrer"
+                  type="text"
+                />
+              </span>
             </div>
           </ng-template>
           <ng-template pTemplate="header">
@@ -55,16 +58,13 @@
               <td>{{ factureDetail.tiersPayantName }}</td>
               <td class="text-right">{{ factureDetail.montant | number }}</td>
               <td class="text-right">{{ factureDetail.montantRegle | number }}</td>
-
             </tr>
           </ng-template>
         </p-table>
       </p-panel>
     </div>
-
   </div>
   <div class="col-md-8 col-xl-48 col-lg-8 col-sm-12">
-
     <jhi-facture-detail [facture]="selectedFacture"></jhi-facture-detail>
   </div>
 </div>

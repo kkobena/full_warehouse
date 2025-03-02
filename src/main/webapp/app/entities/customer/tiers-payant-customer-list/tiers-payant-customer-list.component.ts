@@ -12,9 +12,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'jhi-tiers-payant-customer-list',
-    templateUrl: './tiers-payant-customer-list.component.html',
-    imports: [WarehouseCommonModule, ToolbarModule, TableModule, ButtonModule, RippleModule, InputTextModule, TooltipModule]
+  selector: 'jhi-tiers-payant-customer-list',
+  templateUrl: './tiers-payant-customer-list.component.html',
+  imports: [WarehouseCommonModule, ToolbarModule, TableModule, ButtonModule, RippleModule, InputTextModule, TooltipModule],
 })
 export class TiersPayantCustomerListComponent implements OnInit {
   ref = inject(DynamicDialogRef);

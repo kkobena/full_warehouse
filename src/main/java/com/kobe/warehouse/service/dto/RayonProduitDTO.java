@@ -5,8 +5,8 @@ import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.Storage;
 
-
 public class RayonProduitDTO {
+
     private String codeRayon;
     private String libelleRayon;
     private String libelleStorage;
@@ -16,7 +16,6 @@ public class RayonProduitDTO {
     private Long rayonId;
     private Long id;
     private Long produitId;
-
 
     public RayonProduitDTO(RayonProduit produit) {
         Rayon rayon = produit.getRayon();
@@ -31,7 +30,6 @@ public class RayonProduitDTO {
         this.rayonId = rayon.getId();
         this.id = produit.getId();
         this.produitId = produit.getProduit().getId();
-
     }
 
     public Long getProduitId() {
@@ -69,7 +67,6 @@ public class RayonProduitDTO {
         this.magasinId = magasinId;
         return this;
     }
-
 
     public String getStorageType() {
         return storageType;

@@ -19,22 +19,22 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 
 @Component({
-    selector: 'jhi-form-ayant-droit',
-    templateUrl: './form-ayant-droit.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        ToastModule,
-        FormsModule,
-        ButtonModule,
-        RippleModule,
-        InputTextModule,
-        RadioButtonModule,
-        ReactiveFormsModule,
-        CalendarModule,
-        KeyFilterModule,
-        InputMaskModule,
-    ]
+  selector: 'jhi-form-ayant-droit',
+  templateUrl: './form-ayant-droit.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    ToastModule,
+    FormsModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    RadioButtonModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    KeyFilterModule,
+    InputMaskModule,
+  ],
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   protected errorService = inject(ErrorService);
@@ -106,12 +106,12 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   protected createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id'])!.value,
-      firstName: this.editForm.get(['firstName'])!.value,
-      lastName: this.editForm.get(['lastName'])!.value,
-      numAyantDroit: this.editForm.get(['numAyantDroit'])!.value,
-      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss'])!.value),
-      sexe: this.editForm.get(['sexe'])!.value,
+      id: this.editForm.get(['id']).value,
+      firstName: this.editForm.get(['firstName']).value,
+      lastName: this.editForm.get(['lastName']).value,
+      numAyantDroit: this.editForm.get(['numAyantDroit']).value,
+      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
+      sexe: this.editForm.get(['sexe']).value,
       type: 'ASSURE',
       assureId: this.assure.id,
     };

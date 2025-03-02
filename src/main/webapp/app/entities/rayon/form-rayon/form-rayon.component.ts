@@ -31,11 +31,6 @@ export class FormRayonComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.entity = this.config.data;
     if (this.entity) {
@@ -93,9 +88,9 @@ export class FormRayonComponent implements OnInit {
   private createFromForm(): IRayon {
     return {
       ...new Rayon(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

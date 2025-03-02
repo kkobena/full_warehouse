@@ -27,11 +27,6 @@ export class DeconditionDialogComponent implements OnInit {
     qtyMvt: [null, [Validators.required, Validators.min(1)]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {}
 
   save(): void {
@@ -69,7 +64,7 @@ export class DeconditionDialogComponent implements OnInit {
   private createFromForm(): IDecondition {
     return {
       ...new Decondition(),
-      qtyMvt: this.editForm.get(['qtyMvt'])!.value,
+      qtyMvt: this.editForm.get(['qtyMvt']).value,
       produitId: this.produit.id,
     };
   }

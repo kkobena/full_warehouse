@@ -22,9 +22,9 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-    selector: 'jhi-clotures',
-    templateUrl: './clotures.component.html',
-    imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
+  selector: 'jhi-clotures',
+  templateUrl: './clotures.component.html',
+  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
 })
 export class CloturesComponent implements OnInit {
   private spinner = inject(NgxSpinnerService);
@@ -42,11 +42,6 @@ export class CloturesComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.onSearch();
@@ -106,8 +101,8 @@ export class CloturesComponent implements OnInit {
     return {
       page: pageToLoad - 1,
       size: this.itemsPerPage,
-      userId: this.user().id,
-      inventoryCategories: this.inventoryCategories().map(e => e.name),
+      userId: this.user()?.id,
+      inventoryCategories: this.inventoryCategories()?.map(e => e.name),
       statuts: this.statuts,
     };
   }

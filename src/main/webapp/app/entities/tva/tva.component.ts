@@ -57,11 +57,6 @@ export class TvaComponent implements OnInit {
     taux: [null, [Validators.required]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
     this.loading = true;
@@ -190,8 +185,8 @@ export class TvaComponent implements OnInit {
   private createFromForm(): ITva {
     return {
       ...new Tva(),
-      id: this.editForm.get(['id'])!.value,
-      taux: this.editForm.get(['taux'])!.value,
+      id: this.editForm.get(['id']).value,
+      taux: this.editForm.get(['taux']).value,
     };
   }
 }

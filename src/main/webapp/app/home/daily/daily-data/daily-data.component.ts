@@ -26,10 +26,10 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'jhi-daily-data',
-    templateUrl: './daily-data.component.html',
-    styleUrls: ['./daily-data.component.scss'],
-    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule]
+  selector: 'jhi-daily-data',
+  templateUrl: './daily-data.component.html',
+  styleUrls: ['./daily-data.component.scss'],
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
 })
 export class DailyDataComponent implements OnInit {
   private dashboardService = inject(DashboardService);
@@ -65,9 +65,6 @@ export class DailyDataComponent implements OnInit {
   protected totalQuantityAvg: number;
   protected totalAmountAvg: number;
   protected totalQuantity20x80: number;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
 
   constructor() {
     this.TOP_MAX_QUANTITY = this.tops[1];
@@ -164,8 +161,8 @@ export class DailyDataComponent implements OnInit {
   }
 
   protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
-    this.vno = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VNO')?.venteRecord;
-    this.assurance = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VO')?.venteRecord;
+    this.vno = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
+    this.assurance = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
   }
 
   protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {
@@ -204,8 +201,8 @@ export class DailyDataComponent implements OnInit {
   }
 
   private computeAmountTopQuantity(): void {
-    let quantity: number = 0;
-    let amount: number = 0;
+    let quantity = 0;
+    let amount = 0;
     for (const produit of this.rowQuantity) {
       quantity += produit.quantitySold;
       amount += produit.htAmount;
@@ -215,8 +212,8 @@ export class DailyDataComponent implements OnInit {
   }
 
   private computeAmountTopAmount(): void {
-    let quantity: number = 0;
-    let amount: number = 0;
+    let quantity = 0;
+    let amount = 0;
     for (const produit of this.rowAmount) {
       quantity += produit.quantitySold;
       amount += produit.htAmount;
@@ -226,10 +223,10 @@ export class DailyDataComponent implements OnInit {
   }
 
   private computeAmountrow20x80(): void {
-    let quantity: number = 0;
-    let amount: number = 0;
-    let quantityAvg: number = 0;
-    let amountAvg: number = 0;
+    let quantity = 0;
+    let amount = 0;
+    let quantityAvg = 0;
+    let amountAvg = 0;
     for (const produit of this.row20x80) {
       quantity += produit.quantitySold;
       amount += produit.htAmount;

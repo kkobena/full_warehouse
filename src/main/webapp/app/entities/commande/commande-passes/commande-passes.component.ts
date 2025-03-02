@@ -145,7 +145,7 @@ export class CommandePassesComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected?.id!, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
       next: res => {
         this.cancel();
         this.spinner.hide('gestion-commande-spinner');

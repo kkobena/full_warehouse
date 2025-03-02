@@ -1,166 +1,163 @@
 <table class="main-table">
   <thead>
-  <tr>
-    <th rowspan="2">Date</th>
-    <th rowspan="2">Qté.init</th>
-    <th class="text-center" colspan="5">Sortie</th>
-    <th class="text-center" colspan="4">Entrée</th>
-    <th rowspan="2">Qté.inv</th>
-    <th rowspan="2">Ecart.inv</th>
-    <th rowspan="2">Stock</th>
-  </tr>
-  <tr>
-    <th>Vente</th>
-    <th>Retour.four</th>
-    <th>Qté.périmée</th>
-    <th>Qté.ajustée</th>
-    <th>Qté.décon</th>
-    <th>Qté.entrée</th>
-    <th>Qté.ajustée</th>
-    <th>Qté.décon</th>
-    <th>Qté.annullée</th>
-  </tr>
+    <tr>
+      <th rowspan="2">Date</th>
+      <th rowspan="2">Qté.init</th>
+      <th class="text-center" colspan="5">Sortie</th>
+      <th class="text-center" colspan="4">Entrée</th>
+      <th rowspan="2">Qté.inv</th>
+      <th rowspan="2">Ecart.inv</th>
+      <th rowspan="2">Stock</th>
+    </tr>
+    <tr>
+      <th>Vente</th>
+      <th>Retour.four</th>
+      <th>Qté.périmée</th>
+      <th>Qté.ajustée</th>
+      <th>Qté.décon</th>
+      <th>Qté.entrée</th>
+      <th>Qté.ajustée</th>
+      <th>Qté.décon</th>
+      <th>Qté.annullée</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
-    <td class="text-left" th:text=" ${#temporals.format(itm.mvtDate, 'dd/MM/yyyy')}"></td>
-    <td class="unit" th:if="${itm.initStock ge 1000}"
-        th:text="${#numbers.formatInteger(itm.initStock,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.initStock lt 1000}" th:text="${itm.initStock}"></td>
-    <td class="unit" th:if="${itm.saleQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.saleQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.saleQuantity lt 1000}" th:text="${itm.saleQuantity}"></td>
+    <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text=" ${#temporals.format(itm.mvtDate, 'dd/MM/yyyy')}"></td>
+      <td class="unit" th:if="${itm.initStock ge 1000}" th:text="${#numbers.formatInteger(itm.initStock,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.initStock lt 1000}" th:text="${itm.initStock}"></td>
+      <td class="unit" th:if="${itm.saleQuantity ge 1000}" th:text="${#numbers.formatInteger(itm.saleQuantity,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.saleQuantity lt 1000}" th:text="${itm.saleQuantity}"></td>
 
-    <td class="unit" th:if="${itm.retourFournisseurQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.retourFournisseurQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.retourFournisseurQuantity lt 1000}"
-        th:text="${itm.retourFournisseurQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.retourFournisseurQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.retourFournisseurQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.retourFournisseurQuantity lt 1000}" th:text="${itm.retourFournisseurQuantity}"></td>
 
-    <td class="unit" th:if="${itm.perimeQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.perimeQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.perimeQuantity lt 1000}" th:text="${itm.perimeQuantity}"></td>
+      <td class="unit" th:if="${itm.perimeQuantity ge 1000}" th:text="${#numbers.formatInteger(itm.perimeQuantity,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.perimeQuantity lt 1000}" th:text="${itm.perimeQuantity}"></td>
 
+      <td
+        class="unit"
+        th:if="${itm.ajustementNegatifQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.ajustementNegatifQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.ajustementNegatifQuantity lt 1000}" th:text="${itm.ajustementNegatifQuantity}"></td>
 
-    <td class="unit" th:if="${itm.ajustementNegatifQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.ajustementNegatifQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.ajustementNegatifQuantity lt 1000}"
-        th:text="${itm.ajustementNegatifQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.deconNegatifQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.deconNegatifQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.deconNegatifQuantity lt 1000}" th:text="${itm.deconNegatifQuantity}"></td>
 
-    <td class="unit" th:if="${itm.deconNegatifQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.deconNegatifQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.deconNegatifQuantity lt 1000}"
-        th:text="${itm.deconNegatifQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.deleveryQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.deleveryQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.deleveryQuantity lt 1000}" th:text="${itm.deleveryQuantity}"></td>
 
-    <td class="unit" th:if="${itm.deleveryQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.deleveryQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.deleveryQuantity lt 1000}" th:text="${itm.deleveryQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.ajustementPositifQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.ajustementPositifQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.ajustementPositifQuantity lt 1000}" th:text="${itm.ajustementPositifQuantity}"></td>
 
-    <td class="unit" th:if="${itm.ajustementPositifQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.ajustementPositifQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.ajustementPositifQuantity lt 1000}"
-        th:text="${itm.ajustementPositifQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.deconPositifQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.deconPositifQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.deconPositifQuantity lt 1000}" th:text="${itm.deconPositifQuantity}"></td>
 
-    <td class="unit" th:if="${itm.deconPositifQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.deconPositifQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.deconPositifQuantity lt 1000}"
-        th:text="${itm.deconPositifQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.canceledQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.canceledQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.canceledQuantity lt 1000}" th:text="${itm.canceledQuantity}"></td>
 
-    <td class="unit" th:if="${itm.canceledQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.canceledQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.canceledQuantity lt 1000}" th:text="${itm.canceledQuantity}"></td>
+      <td
+        class="unit"
+        th:if="${itm.storeInventoryQuantity ge 1000}"
+        th:text="${#numbers.formatInteger(itm.storeInventoryQuantity,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.storeInventoryQuantity lt 1000}" th:text="${itm.storeInventoryQuantity}"></td>
 
+      <td class="unit" th:if="${itm.inventoryGap ge 1000}" th:text="${#numbers.formatInteger(itm.inventoryGap,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.inventoryGap lt 1000}" th:text="${itm.inventoryGap}"></td>
 
-    <td class="unit" th:if="${itm.storeInventoryQuantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.storeInventoryQuantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.storeInventoryQuantity lt 1000}"
-        th:text="${itm.storeInventoryQuantity}"></td>
-
-    <td class="unit" th:if="${itm.inventoryGap ge 1000}"
-        th:text="${#numbers.formatInteger(itm.inventoryGap,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.inventoryGap lt 1000}" th:text="${itm.inventoryGap}"></td>
-
-    <td class="unit" th:if="${itm.afterStock ge 1000}"
-        th:text="${#numbers.formatInteger(itm.afterStock,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.afterStock lt 1000}" th:text="${itm.afterStock}"></td>
-  </tr>
-
+      <td class="unit" th:if="${itm.afterStock ge 1000}" th:text="${#numbers.formatInteger(itm.afterStock,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.afterStock lt 1000}" th:text="${itm.afterStock}"></td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
-    <td colspan="2">
-      TOTAUX
-    </td>
-    <td class="unit"
-        th:with="saleQuantity=${#aggregates.sum(items.?[saleQuantity ne null].![saleQuantity])}">
-      <span th:if="${saleQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(saleQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${saleQuantity lt 1000}" th:text="${saleQuantity}"></span>
-    </td>
-    <td class="unit"
-        th:with="retourFournisseurQuantity=${#aggregates.sum(items.?[retourFournisseurQuantity ne null].![retourFournisseurQuantity])}">
-      <span th:if="${retourFournisseurQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(retourFournisseurQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${retourFournisseurQuantity lt 1000}"
-            th:text="${retourFournisseurQuantity}"></span>
-    </td>
+    <tr class="tr-footer">
+      <td colspan="2">TOTAUX</td>
+      <td class="unit" th:with="saleQuantity=${#aggregates.sum(items.?[saleQuantity ne null].![saleQuantity])}">
+        <span th:if="${saleQuantity ge 1000}" th:text="${#numbers.formatInteger(saleQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${saleQuantity lt 1000}" th:text="${saleQuantity}"></span>
+      </td>
+      <td
+        class="unit"
+        th:with="retourFournisseurQuantity=${#aggregates.sum(items.?[retourFournisseurQuantity ne null].![retourFournisseurQuantity])}"
+      >
+        <span
+          th:if="${retourFournisseurQuantity ge 1000}"
+          th:text="${#numbers.formatInteger(retourFournisseurQuantity,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${retourFournisseurQuantity lt 1000}" th:text="${retourFournisseurQuantity}"></span>
+      </td>
 
-    <td class="unit"
-        th:with="perimeQuantity=${#aggregates.sum(items.?[perimeQuantity ne null].![perimeQuantity])}">
-      <span th:if="${perimeQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(perimeQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${perimeQuantity lt 1000}" th:text="${perimeQuantity}"></span>
-    </td>
+      <td class="unit" th:with="perimeQuantity=${#aggregates.sum(items.?[perimeQuantity ne null].![perimeQuantity])}">
+        <span th:if="${perimeQuantity ge 1000}" th:text="${#numbers.formatInteger(perimeQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${perimeQuantity lt 1000}" th:text="${perimeQuantity}"></span>
+      </td>
 
+      <td
+        class="unit"
+        th:with="ajustementNegatifQuantity=${#aggregates.sum(items.?[ajustementNegatifQuantity ne null].![ajustementNegatifQuantity])}"
+      >
+        <span
+          th:if="${ajustementNegatifQuantity ge 1000}"
+          th:text="${#numbers.formatInteger(ajustementNegatifQuantity,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${ajustementNegatifQuantity lt 1000}" th:text="${ajustementNegatifQuantity}"></span>
+      </td>
 
-    <td class="unit"
-        th:with="ajustementNegatifQuantity=${#aggregates.sum(items.?[ajustementNegatifQuantity ne null].![ajustementNegatifQuantity])}">
-      <span th:if="${ajustementNegatifQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(ajustementNegatifQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${ajustementNegatifQuantity lt 1000}"
-            th:text="${ajustementNegatifQuantity}"></span>
-    </td>
+      <td class="unit" th:with="deconNegatifQuantity=${#aggregates.sum(items.?[deconNegatifQuantity ne null].![deconNegatifQuantity])}">
+        <span th:if="${deconNegatifQuantity ge 1000}" th:text="${#numbers.formatInteger(deconNegatifQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${deconNegatifQuantity lt 1000}" th:text="${deconNegatifQuantity}"></span>
+      </td>
 
+      <td class="unit" th:with="deleveryQuantity=${#aggregates.sum(items.?[deleveryQuantity ne null].![deleveryQuantity])}">
+        <span th:if="${deleveryQuantity ge 1000}" th:text="${#numbers.formatInteger(deleveryQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${deleveryQuantity lt 1000}" th:text="${deleveryQuantity}"></span>
+      </td>
+      <td
+        class="unit"
+        th:with="ajustementPositifQuantity=${#aggregates.sum(items.?[ajustementPositifQuantity ne null].![ajustementPositifQuantity])}"
+      >
+        <span
+          th:if="${ajustementPositifQuantity ge 1000}"
+          th:text="${#numbers.formatInteger(ajustementPositifQuantity,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${ajustementPositifQuantity lt 1000}" th:text="${ajustementPositifQuantity}"></span>
+      </td>
+      <td class="unit" th:with="deconPositifQuantity=${#aggregates.sum(items.?[deconPositifQuantity ne null].![deconPositifQuantity])}">
+        <span th:if="${deconPositifQuantity ge 1000}" th:text="${#numbers.formatInteger(deconPositifQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${deconPositifQuantity lt 1000}" th:text="${deconPositifQuantity}"></span>
+      </td>
 
-    <td class="unit"
-        th:with="deconNegatifQuantity=${#aggregates.sum(items.?[deconNegatifQuantity ne null].![deconNegatifQuantity])}">
-      <span th:if="${deconNegatifQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(deconNegatifQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${deconNegatifQuantity lt 1000}" th:text="${deconNegatifQuantity}"></span>
-    </td>
-
-    <td class="unit"
-        th:with="deleveryQuantity=${#aggregates.sum(items.?[deleveryQuantity ne null].![deleveryQuantity])}">
-      <span th:if="${deleveryQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(deleveryQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${deleveryQuantity lt 1000}" th:text="${deleveryQuantity}"></span>
-    </td>
-    <td class="unit"
-        th:with="ajustementPositifQuantity=${#aggregates.sum(items.?[ajustementPositifQuantity ne null].![ajustementPositifQuantity])}">
-      <span th:if="${ajustementPositifQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(ajustementPositifQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${ajustementPositifQuantity lt 1000}"
-            th:text="${ajustementPositifQuantity}"></span>
-    </td>
-    <td class="unit"
-        th:with="deconPositifQuantity=${#aggregates.sum(items.?[deconPositifQuantity ne null].![deconPositifQuantity])}">
-      <span th:if="${deconPositifQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(deconPositifQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${deconPositifQuantity lt 1000}" th:text="${deconPositifQuantity}"></span>
-    </td>
-
-    <td class="unit"
-        th:with="canceledQuantity=${#aggregates.sum(items.?[canceledQuantity ne null].![canceledQuantity])}">
-      <span th:if="${canceledQuantity ge 1000}"
-            th:text="${#numbers.formatInteger(canceledQuantity,3,'WHITESPACE')}"></span>
-      <span th:if="${canceledQuantity lt 1000}" th:text="${canceledQuantity}"></span>
-    </td>
-    <td colspan="3"></td>
-  </tr>
+      <td class="unit" th:with="canceledQuantity=${#aggregates.sum(items.?[canceledQuantity ne null].![canceledQuantity])}">
+        <span th:if="${canceledQuantity ge 1000}" th:text="${#numbers.formatInteger(canceledQuantity,3,'WHITESPACE')}"></span>
+        <span th:if="${canceledQuantity lt 1000}" th:text="${canceledQuantity}"></span>
+      </td>
+      <td colspan="3"></td>
+    </tr>
   </tfoot>
-
 </table>
-
-
-
-
-

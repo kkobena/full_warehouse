@@ -2,13 +2,9 @@
   <h2 id="page-heading">
     <span jhiTranslate="warehouseApp.categorie.home.title">Categories</span>
 
-    <button [routerLink]="['/categorie/new']"
-      class="btn btn-primary float-right jh-create-entity create-categorie"
-      id="jh-create-entity">
+    <button [routerLink]="['/categorie/new']" class="btn btn-primary float-right jh-create-entity create-categorie" id="jh-create-entity">
       <fa-icon icon="plus"></fa-icon>
-      <span jhiTranslate="warehouseApp.categorie.home.createLabel">
-        Create a new Categorie
-      </span>
+      <span jhiTranslate="warehouseApp.categorie.home.createLabel"> Create a new Categorie </span>
     </button>
   </h2>
 
@@ -27,44 +23,45 @@
       <table aria-describedby="page-heading" class="table table-striped">
         <thead>
           <tr>
-            <th scope="col"><span jhiTranslate="global.field.id">ID</span>
-            <fa-icon icon="sort"></fa-icon>
-          </th>
-          <th scope="col"><span
-          jhiTranslate="warehouseApp.categorie.libelle">Libelle</span>
-          <fa-icon icon="sort"></fa-icon>
-        </th>
-        <th scope="col"><span
-        jhiTranslate="warehouseApp.categorie.code">Code</span>
-        <fa-icon icon="sort"></fa-icon>
-      </th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (categorie of categories ; track trackId($index, categorie)) {
-      <tr>
-        <td><a [routerLink]="['/categorie', categorie.id, 'view']">{{ categorie.id }}</a></td>
-        <td>{{ categorie.libelle }}</td>
-        <td>{{ categorie.code }}</td>
-        <td class="text-right">
-          <div class="btn-group">
-            <button [routerLink]="['/categorie', categorie.id, 'edit']"
-              class="btn btn-primary btn-sm"
-              type="submit">
-              <fa-icon icon="pencil-alt"></fa-icon>
-              <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-            </button>
-            <button (click)="delete(categorie)" class="btn btn-danger btn-sm" type="submit">
-              <fa-icon icon="times"></fa-icon>
-              <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
-            </button>
-          </div>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
-</div>
-}
+            <th scope="col">
+              <span jhiTranslate="global.field.id">ID</span>
+              <fa-icon icon="sort"></fa-icon>
+            </th>
+            <th scope="col">
+              <span jhiTranslate="warehouseApp.categorie.libelle">Libelle</span>
+              <fa-icon icon="sort"></fa-icon>
+            </th>
+            <th scope="col">
+              <span jhiTranslate="warehouseApp.categorie.code">Code</span>
+              <fa-icon icon="sort"></fa-icon>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (categorie of categories; track trackId($index, categorie)) {
+            <tr>
+              <td>
+                <a [routerLink]="['/categorie', categorie.id, 'view']">{{ categorie.id }}</a>
+              </td>
+              <td>{{ categorie.libelle }}</td>
+              <td>{{ categorie.code }}</td>
+              <td class="text-right">
+                <div class="btn-group">
+                  <button [routerLink]="['/categorie', categorie.id, 'edit']" class="btn btn-primary btn-sm" type="submit">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                  </button>
+                  <button (click)="delete(categorie)" class="btn btn-danger btn-sm" type="submit">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>

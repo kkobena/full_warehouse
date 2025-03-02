@@ -8,14 +8,13 @@ import org.springframework.http.ResponseEntity;
 /** REST controller for managing {@link PaymentMode}. */
 public class PaymentModeResourceProxy {
 
-  private final PaymentModeService paymentModeService;
+    private final PaymentModeService paymentModeService;
 
-  public PaymentModeResourceProxy(PaymentModeService paymentModeService) {
+    public PaymentModeResourceProxy(PaymentModeService paymentModeService) {
+        this.paymentModeService = paymentModeService;
+    }
 
-    this.paymentModeService = paymentModeService;
-  }
-
-  public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
-    return ResponseEntity.ok().body(this.paymentModeService.fetch());
-  }
+    public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
+        return ResponseEntity.ok().body(this.paymentModeService.fetch());
+    }
 }

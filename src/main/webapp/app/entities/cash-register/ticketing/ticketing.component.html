@@ -1,100 +1,117 @@
-<p-card
-  [style]="{width: '50vw',marginLeft:'auto',marginRight:'auto' ,marginTop:'15px'}"
-  styleClass="billetage">
+<p-card [style]="{ width: '50vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '15px' }" styleClass="billetage">
   <ng-template pTemplate="header">
-    <span
-      class="badge rounded-pill bg-secondary">Billetage de la caisse du {{ selectedCashRegister?.created | date : 'dd/MM/yyyy HH:mm' }}</span>
+    <span class="badge rounded-pill bg-secondary"
+      >Billetage de la caisse du {{ selectedCashRegister?.created | date: 'dd/MM/yyyy HH:mm' }}</span
+    >
   </ng-template>
-
 
   <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
     <div class="form-group row">
-      <label class="col-sm-6 col-form-label"><label>Nbre
-        de billets</label>
+      <label class="col-sm-6 col-form-label"
+        ><label>Nbre de billets</label>
         <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="10 000" />
-
       </label>
 
       <div class="col-sm-3">
-        <input #numberOf10Thousand (input)="onInputChange()" class="form-control"
-               formControlName="numberOf10Thousand" id="field_numberOf10Thousand"
-               name="numberOf10Thousand" pKeyFilter="int" type="text" />
-
+        <input
+          #numberOf10Thousand
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="numberOf10Thousand"
+          id="field_numberOf10Thousand"
+          name="numberOf10Thousand"
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf10Thousand'])!.value * 10000 | number
-          }}</span>
-
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['numberOf10Thousand'])!.value * 10000 | number }}</span>
       </div>
     </div>
     <div class="form-group row">
-      <label class="col-sm-6 col-form-label"><label>Nbre de billets</label>
+      <label class="col-sm-6 col-form-label"
+        ><label>Nbre de billets</label>
         <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="5 000" />
       </label>
 
       <div class="col-sm-3">
-        <input (input)="onInputChange()" class="form-control"
-               formControlName="numberOf5Thousand" id="field_numberOf5Thousand"
-               name="numberOf5Thousand" pKeyFilter="int" type="text" />
-
+        <input
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="numberOf5Thousand"
+          id="field_numberOf5Thousand"
+          name="numberOf5Thousand"
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf5Thousand'])!.value * 5000 | number
-          }}</span>
-
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['numberOf5Thousand'])!.value * 5000 | number }}</span>
       </div>
     </div>
     <div class="form-group row">
-      <label class="col-sm-6 col-form-label"><label>Nbre de billets</label>
+      <label class="col-sm-6 col-form-label"
+        ><label>Nbre de billets</label>
 
         <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="2 000" />
       </label>
 
       <div class="col-sm-3">
-        <input (input)="onInputChange()" class="form-control"
-               formControlName="numberOf2Thousand" id="field_numberOf2Thousand"
-               name="numberOf2Thousand" pKeyFilter="int" type="text" />
-
+        <input
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="numberOf2Thousand"
+          id="field_numberOf2Thousand"
+          name="numberOf2Thousand"
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf2Thousand'])!.value * 2000 | number
-          }}</span>
-
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['numberOf2Thousand'])!.value * 2000 | number }}</span>
       </div>
     </div>
     <div class="form-group row">
-      <label class="col-sm-6 col-form-label"><label>Nbre de billets</label>
+      <label class="col-sm-6 col-form-label"
+        ><label>Nbre de billets</label>
         <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="1 000" />
       </label>
 
       <div class="col-sm-3">
-        <input (input)="onInputChange()" class="form-control"
-               formControlName="numberOf1Thousand" id="field_numberOf1Thousand"
-               name="numberOf1Thousand" pKeyFilter="int" type="text" />
-
+        <input
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="numberOf1Thousand"
+          id="field_numberOf1Thousand"
+          name="numberOf1Thousand"
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf1Thousand'])!.value * 1000 | number
-          }}</span>
-
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['numberOf1Thousand'])!.value * 1000 | number }}</span>
       </div>
     </div>
-    <div class="form-group row"><label class="col-sm-6 col-form-label"><label>Nbre
-      de billets/pièces</label>
+    <div class="form-group row">
+      <label class="col-sm-6 col-form-label"
+        ><label>Nbre de billets/pièces</label>
 
-      <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="500" />
-    </label>
-      <div class="col-sm-3"><input (input)="onInputChange()" class="form-control"
-                                   formControlName="numberOf500Hundred" id="field_numberOf500"
-                                   name="numberOf500Hundred"
-                                   pKeyFilter="int" type="text" /></div>
-      <div class="col-sm-3">      <span class="badge rounded-pill bg-secondary">{{
-          this.editForm.get(['numberOf500Hundred'])!.value * 500 | number
-        }}</span></div>
+        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="500" />
+      </label>
+      <div class="col-sm-3">
+        <input
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="numberOf500Hundred"
+          id="field_numberOf500"
+          name="numberOf500Hundred"
+          pKeyFilter="int"
+          type="text"
+        />
+      </div>
+      <div class="col-sm-3">
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['numberOf500Hundred'])!.value * 500 | number }}</span>
+      </div>
     </div>
 
     <!--    <div class="form-group row"><label class="col-sm-5 col-form-label"><label style="width: 120px">Nbre-->
@@ -110,7 +127,6 @@
     <!--          this.editForm.get(['numberOf200Hundred'])!.value * 200 | number-->
     <!--        }}</span></div>-->
     <!--    </div>-->
-
 
     <!--    @if (display) {-->
 
@@ -165,47 +181,48 @@
     <!--      </div>-->
     <!--    }-->
 
-
     <div class="form-group row">
       <label class="col-sm-6 col-form-label">Autre montant</label>
       <div class="col-sm-3">
-        <input (input)="onInputChange()" class="form-control"
-               formControlName="otherAmount" id="field_otherAmount"
-               name="otherAmount"
-               pKeyFilter="int" type="text" /></div>
-      <div class="col-sm-3">      <span class="badge rounded-pill bg-secondary">{{
-          this.editForm.get(['otherAmount'])!.value * 1 | number
-        }}</span></div>
+        <input
+          (input)="onInputChange()"
+          class="form-control"
+          formControlName="otherAmount"
+          id="field_otherAmount"
+          name="otherAmount"
+          pKeyFilter="int"
+          type="text"
+        />
+      </div>
+      <div class="col-sm-3">
+        <span class="badge rounded-pill bg-secondary">{{ this.editForm.get(['otherAmount'])!.value * 1 | number }}</span>
+      </div>
     </div>
-    <div class="form-group row"><label class="col-sm-6 col-form-label"
-                                       style="font-weight: 700;font-size: 1.3rem;">Total</label>
+    <div class="form-group row">
+      <label class="col-sm-6 col-form-label" style="font-weight: 700; font-size: 1.3rem">Total</label>
 
       <div class="col-sm-6">
-        <span class="badge rounded-pill bg-warning">
-          {{
-            totalAmount | number
-          }}</span></div>
+        <span class="badge rounded-pill bg-warning"> {{ totalAmount | number }}</span>
+      </div>
     </div>
-
-
   </form>
   <ng-template pTemplate="footer">
-    <div class=" gap-2 mt-1 d-flex justify-content-center">
-      <p-button (click)="save()" [disabled]="editForm.invalid || isSaving " icon="pi pi-check"
-                id="save-entity"
-                label="Enregistrer" raised="true"
-                severity="primary"
-                type="submit">
-
+    <div class="gap-2 mt-1 d-flex justify-content-center">
+      <p-button
+        (click)="save()"
+        [disabled]="editForm.invalid || isSaving"
+        icon="pi pi-check"
+        id="save-entity"
+        label="Enregistrer"
+        raised="true"
+        severity="primary"
+        type="submit"
+      >
       </p-button>
-      <p-button (click)="previousState()" icon="pi pi-times" label="Annuler"
-                raised="true" severity="danger" type="button">
-      </p-button>
+      <p-button (click)="previousState()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"> </p-button>
     </div>
-
   </ng-template>
 </p-card>
-
 
 <p-confirmDialog />
 <p-toast position="center"></p-toast>

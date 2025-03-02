@@ -17,18 +17,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-    selector: 'jhi-list-bons',
-    templateUrl: './list-bons.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TableModule,
-        NgxSpinnerModule,
-        TooltipModule,
-    ]
+  selector: 'jhi-list-bons',
+  templateUrl: './list-bons.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TableModule,
+    NgxSpinnerModule,
+    TooltipModule,
+  ],
 })
 export class ListBonsComponent implements OnInit {
   protected router = inject(Router);

@@ -7,8 +7,6 @@ import { Observable } from 'rxjs';
 
 import { createRequestOption } from './util/request-util';
 import { SessionStorageService } from 'ngx-webstorage';
-import { ISales } from './model/sales.model';
-import { map } from 'rxjs/operators';
 
 type EntityResponseType = HttpResponse<IConfiguration>;
 type EntityArrayResponseType = HttpResponse<IConfiguration[]>;
@@ -21,11 +19,6 @@ export class ConfigurationService {
   private sessionStorageService = inject(SessionStorageService);
 
   public resourceUrl = SERVER_API_URL + 'api/app';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<IConfiguration>(`${this.resourceUrl}/${id}`, { observe: 'response' });
@@ -61,6 +54,6 @@ export class ConfigurationService {
   }
 
   update(app: IConfiguration): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}`, app, { observe: 'response' });
+    return this.http.put(this.resourceUrl, app, { observe: 'response' });
   }
 }

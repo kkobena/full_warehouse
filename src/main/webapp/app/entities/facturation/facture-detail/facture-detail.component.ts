@@ -47,7 +47,7 @@ export class FactureDetailComponent implements OnInit {
     this.factureWritable.set(this.facture());
     const facture = this.factureWritable();
     if (facture && facture.factureId) {
-      this.factureService.find(facture?.factureId).subscribe((res: HttpResponse<Facture>) => {
+      this.factureService.find(facture.factureId).subscribe((res: HttpResponse<Facture>) => {
         this.factureWritable.set(res.body);
       });
     }

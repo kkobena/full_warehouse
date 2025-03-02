@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaTaxeResource extends TaxeProxy {
 
-  public JavaTaxeResource(TaxeService taxeService) {
-    super(taxeService);
-  }
+    public JavaTaxeResource(TaxeService taxeService) {
+        super(taxeService);
+    }
 }

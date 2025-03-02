@@ -1,8 +1,9 @@
+
+
 @import 'bootstrap/scss/functions';
 @import 'bootstrap-icons/font/bootstrap-icons';
-@import 'bootswatch/dist/spacelab/variables';
+@import 'bootswatch/dist/yeti/variables';
 @import 'bootstrap/scss/variables';
-
 
 /* ==============================================================
 Bootstrap tweaks
@@ -42,7 +43,6 @@ a:hover {
 .dropdown-item:hover {
   color: $dropdown-link-hover-color;
 }
-
 
 /* ==========================================================================
 Browser Upgrade Prompt
@@ -117,7 +117,6 @@ Custom alerts for notification
 .alerts {
   .alert {
     text-overflow: ellipsis;
-
     pre {
       background: none;
       border: none;
@@ -126,28 +125,22 @@ Custom alerts for notification
       padding: 0;
       margin: 0;
     }
-
     .popover pre {
       font-size: 10px;
     }
   }
-
   .jhi-toast {
     position: fixed;
     width: 100%;
-
     &.left {
       left: 5px;
     }
-
     &.right {
       right: 5px;
     }
-
     &.top {
       top: 55px;
     }
-
     &.bottom {
       bottom: 55px;
     }
@@ -171,12 +164,6 @@ entity list page css
 /* ==========================================================================
 entity detail page css
 ========================================================================== */
-.row.jh-entity-details > {
-  dd {
-    margin-bottom: 15px;
-  }
-}
-
 .row-md.jh-entity-details {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -190,11 +177,11 @@ entity detail page css
       float: left;
       overflow: hidden;
       clear: left;
+      text-align: right;
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 0.5em 0;
     }
-
     dd {
       border-bottom: 1px solid #eee;
       padding: 0.5em 0;
@@ -221,7 +208,7 @@ ui bootstrap tweaks
 }
 
 .dropdown-menu {
-  padding-left: 0px;
+  padding-left: 0;
 }
 
 /* ==========================================================================
@@ -249,7 +236,6 @@ angular-cli removes postcss-rtl processed inline css, processed rules must be ad
 .p-datatable .p-datatable-tbody > tr > td {
   padding: 0.2rem 1rem;
 }
-
 
 .p-autocomplete {
   width: 100%;
@@ -281,7 +267,6 @@ body .ui-dropdown {
   width: 58.3333%;
   margin: 0.5px;
 }
-
 
 .form-switch {
   padding-left: 2.5em;
@@ -391,8 +376,6 @@ body .ui-dropdown {
   .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
     width: 115px;
   }*/
-
-
 }
 
 @media (max-width: 1500px) {
@@ -493,7 +476,6 @@ input[type='number'] {
   padding: 0 1rem;
 }
 
-
 .p-divider.p-divider-vertical {
   margin: 0 0.4rem;
   padding: 1rem 0;
@@ -574,11 +556,11 @@ body {
   padding: 1rem;
 }
 
-.form-row > .col, .form-row > [class*=col-] {
+.form-row > .col,
+.form-row > [class*='col-'] {
   padding-right: 5px;
   padding-left: 5px;
 }
-
 
 .form-group {
   margin-bottom: 1rem;
@@ -597,7 +579,6 @@ label {
   margin-right: 0.5rem !important;
 }
 
-
 .ag-cell-label-container {
   /* Necessary to allow for text to grow vertically */
   height: 100%;
@@ -613,16 +594,15 @@ label {
   display: inline-block;
 }
 
-.commande-entry .card, .commande-entry .card-body {
+.commande-entry .card,
+.commande-entry .card-body {
   padding: 0 !important;
 }
-
 
 .jh-card {
   padding: 0.2%;
   margin-top: 5px;
   border: none;
-
 }
 
 .text-right {
@@ -703,10 +683,8 @@ label {
 
     .ag-header-cell-text {
       white-space: break-spaces;
-
     }
   }
-
 }
 
 .ag-theme-alpine .ag-cell .btn-group {
@@ -753,12 +731,11 @@ label {
 
 .sale-bottom-card .mode-reglement {
   margin-top: 15px;
-
 }
 
 li .icon-holder .icon i {
   font-size: 3em;
-  color: #34A835;
+  color: #34a835;
 }
 
 //content/images/selected.png
@@ -893,12 +870,8 @@ li .icon-holder .icon i {
     span:first-child {
       width: 130px;
       display: inline-flex;
-
     }
-
-
   }
-
 }
 
 .p-datatable .p-datatable-tbody > tr > td {
@@ -907,7 +880,6 @@ li .icon-holder .icon i {
 
 .highlight-col {
   font-weight: bold;
-
 }
 
 .card-header-board {
@@ -916,13 +888,12 @@ li .icon-holder .icon i {
 
 .home-ca .nav-home .p-card .p-card-body {
   padding: 0;
-
 }
 
-.home-ca .container-home .p-card .p-card-body, .graphe-content .p-card .p-card-body {
+.home-ca .container-home .p-card .p-card-body,
+.graphe-content .p-card .p-card-body {
   padding-top: 0;
   padding-bottom: 0;
-
 }
 
 .graphe-content {
@@ -930,7 +901,7 @@ li .icon-holder .icon i {
 }
 
 .graphe-content .time-based {
-  margin-top: 0.4rem
+  margin-top: 0.4rem;
 }
 
 .graphe-content .card {
@@ -983,7 +954,6 @@ li .icon-holder .icon i {
 }
 
 .ajustement .p-card-header {
-
   margin-top: 0;
   margin-left: 3rem;
   margin-bottom: 0;
@@ -1001,7 +971,6 @@ li .icon-holder .icon i {
   .ag-theme-alpine {
     /* --ag-borders: none;*/
 
-
     .ag-cell {
       border-left: solid 0.3px rgb(150, 150, 200);
     }
@@ -1011,7 +980,6 @@ li .icon-holder .icon i {
 .sale-panel-header {
   .p-panel-header {
     padding: 0.1rem 0.2rem;
-
   }
 
   .sale-action-toolbar {
@@ -1039,7 +1007,6 @@ li .icon-holder .icon i {
       padding: 0;
     }
   }
-
 }
 
 .mr-1 {
@@ -1062,7 +1029,8 @@ li .icon-holder .icon i {
   border: 1px solid #c8c8c8 !important;
 }
 
-.p-autocomplete-panel .p-autocomplete-items, .p-dropdown-items {
+.p-autocomplete-panel .p-autocomplete-items,
+.p-dropdown-items {
   padding: 0 !important;
 }
 
@@ -1079,7 +1047,6 @@ li .icon-holder .icon i {
   .p-datatable .p-datatable-tbody > tr > td {
     font-size: 1rem;
   }
-
 }
 
 .produit-audit-transaction {
@@ -1091,8 +1058,6 @@ li .icon-holder .icon i {
 
 @media (min-width: 1601px) {
   .produit-audit-transaction {
-
-
     padding-left: 0;
     padding-right: 0;
 
@@ -1110,8 +1075,9 @@ li .icon-holder .icon i {
           }
         }
 
-
-        .col-md-8, .col-md-6, .col-md-3 {
+        .col-md-8,
+        .col-md-6,
+        .col-md-3 {
           padding-left: 0.1rem;
           padding-right: 0.1rem;
           margin-left: 0;
@@ -1143,8 +1109,6 @@ li .icon-holder .icon i {
 
 @media (max-width: 1600px) {
   .produit-audit-transaction {
-
-
     padding-left: 0;
     padding-right: 0;
 
@@ -1162,8 +1126,9 @@ li .icon-holder .icon i {
           }
         }
 
-
-        .col-md-8, .col-md-6, .col-md-3 {
+        .col-md-8,
+        .col-md-6,
+        .col-md-3 {
           padding-left: 0.1rem;
           padding-right: 0.1rem;
           margin-left: 0;
@@ -1224,20 +1189,15 @@ menu  de la vente
 
         div:first-child {
           //padding: 0;
-
         }
       }
-
     }
-
   }
 
   .selling-menu {
     margin: 0;
 
     p-panel {
-
-
       .p-panel-content {
         padding: 0;
 
@@ -1247,13 +1207,10 @@ menu  de la vente
           .p-card-body {
             padding: 0 0.3rem;
           }
-
         }
-
       }
     }
   }
-
 }
 
 .customer-overlay-panel {
@@ -1266,7 +1223,6 @@ menu  de la vente
   }
 
   .customer {
-
     padding: 0.375375rem 0.3rem;
 
     .p-button-label {
@@ -1285,14 +1241,11 @@ menu  de la vente
 
   .infos-cust {
     font-weight: bold;
-
-
   }
 }
 
 .billetage {
   .bielletage-label {
-
     font-weight: bold;
     float: right;
   }
@@ -1306,10 +1259,7 @@ menu  de la vente
     font-size: 1.4rem;
     font-weight: bold;
   }
-
-
 }
-
 
 .font-size-lg {
   font-size: 1.4rem;
@@ -1324,21 +1274,18 @@ menu  de la vente
       font-weight: 700;
     }
   }
-
 }
 
 .main-panel {
   .p-panel-content {
     padding-left: 5px;
     padding-right: 3px;
-
   }
 
   .p-panel-header {
     padding: 0.4rem 0.5rem;
     background-color: #f7f7f7;
   }
-
 
   .mvts-caisse-gestion {
     padding: 0;
@@ -1348,7 +1295,6 @@ menu  de la vente
     }
 
     .col-md-10:first-child {
-
       margin-right: 0;
       margin-left: 0;
       padding-right: 0;
@@ -1370,19 +1316,15 @@ menu  de la vente
         padding: 0;
         background-color: #f7f;
       }
-
     }
 
     .col-2:first-child {
       margin-right: 0;
-
     }
 
     .mvt-caisse {
       .p-toolbar {
         margin: 0;
-
-
       }
 
       .container {
@@ -1402,12 +1344,9 @@ menu  de la vente
           padding: 0;
           margin: 0;
         }
-
       }
     }
   }
-
-
 }
 
 .p-card-header-h3 {
@@ -1432,18 +1371,21 @@ menu  de la vente
     padding-left: 0.5rem;
     padding-top: 0.2rem;
 
-    .col-md-9, .col-lg-9, .col-xl-9 {
+    .col-md-9,
+    .col-lg-9,
+    .col-xl-9 {
       padding-left: 0.1rem;
       padding-right: 0.1rem;
     }
 
-    .col-md-3, .col-lg-3, .col-xl-3 {
+    .col-md-3,
+    .col-lg-3,
+    .col-xl-3 {
       padding-left: 0.2rem;
       padding-right: 0.1rem;
     }
 
     .p-card {
-
       margin-bottom: 0.5rem;
 
       .p-card-body {
@@ -1454,11 +1396,9 @@ menu  de la vente
             font-weight: 600;
 
             span {
-
               font-weight: 700;
             }
           }
-
         }
 
         .p-card-title {
@@ -1469,14 +1409,11 @@ menu  de la vente
       }
     }
   }
-
-
 }
 
 .form-group {
   .p-inputnumber-input {
     width: 100%;
-
   }
 
   .p-inputwrapper {
@@ -1485,7 +1422,7 @@ menu  de la vente
 
   .p-inputnumber {
     width: 100%;
-    background-color: #4D4D4D;
+    background-color: #4d4d4d;
   }
 }
 
@@ -1505,16 +1442,13 @@ menu  de la vente
   padding-right: 0.5rem;
 
   .tva-radio-label {
-
     margin-bottom: 3px;
 
     span {
       padding-top: 0.5rem !important;
     }
-
   }
 }
-
 
 .mvt-balance-card {
   .list-group {
@@ -1523,7 +1457,7 @@ menu  de la vente
 
       .badge {
         font-weight: 900;
-        font-size: 12px
+        font-size: 12px;
       }
     }
   }
@@ -1576,7 +1510,6 @@ menu  de la vente
       span {
         font-weight: 700;
       }
-
     }
   }
 }
@@ -1590,11 +1523,10 @@ menu  de la vente
   .p-panel-header {
     padding: 0.4rem;
   }
-
 }
 
 .sale-tab-container {
-  background-color: #EFF3F8;
+  background-color: #eff3f8;
   padding: 0;
   margin: 0.3rem 0;
 }
@@ -1605,7 +1537,7 @@ menu  de la vente
 }
 
 .sale-body {
-  background-color: #EFF3F8;
+  background-color: #eff3f8;
 }
 
 .inline-flex {
@@ -1617,40 +1549,37 @@ menu  de la vente
 
   .p-stepper {
     .card-body {
-      background-color: #EFF3F8;
+      background-color: #eff3f8;
     }
 
     .p-stepper-header {
-
       padding: 0.4rem 0.3rem;
-
     }
 
     .p-stepper-panels {
-      background-color: #EFF3F8;
+      background-color: #eff3f8;
       padding: 0;
       color: #333333;
 
       .p-card {
         padding: 0;
         margin: 0;
-        background-color: #EFF3F8;
+        background-color: #eff3f8;
 
         .p-card-body {
           margin: 0;
-          background-color: #EFF3F8;
+          background-color: #eff3f8;
           padding: 0.4rem;
 
           .p-card-content {
             padding: 0.4rem;
             margin: 0;
-            background-color: #EFF3F8;
+            background-color: #eff3f8;
           }
         }
       }
     }
   }
-
 }
 
 .modal-header {
@@ -1663,7 +1592,6 @@ menu  de la vente
     label {
       vertical-align: top;
     }
-
   }
 }
 
@@ -1676,9 +1604,10 @@ menu  de la vente
 }
 
 .sales-detail {
-  .col-md-3, .col-md-2, .col-md-5 {
+  .col-md-3,
+  .col-md-2,
+  .col-md-5 {
     padding: 3px;
-
   }
 
   .card {
@@ -1730,7 +1659,6 @@ menu  de la vente
 .gestion-facture {
   padding: 0;
 
-
   .tab-content {
     padding: 0;
   }
@@ -1752,8 +1680,6 @@ menu  de la vente
   ul {
     margin-bottom: 0.1rem;
   }
-
-
 }
 
 .facture-modal-dialog {
@@ -1770,7 +1696,6 @@ menu  de la vente
 
     .p-panel {
       .p-panel-header {
-
         padding: 0.357rem 1rem;
       }
 
@@ -1779,13 +1704,11 @@ menu  de la vente
       }
     }
 
-
     tr {
       cursor: pointer;
     }
 
     .row {
-
     }
   }
 }
@@ -1795,7 +1718,6 @@ menu  de la vente
   margin: 0;
 }
 
-
 .form-reglement-toolbar {
   font-size: 1rem;
 }
@@ -1803,7 +1725,7 @@ menu  de la vente
 .facture-reglees {
   .p-row-toggler {
     vertical-align: middle;
-    margin-right: .25rem;
+    margin-right: 0.25rem;
   }
 
   .total-group {
@@ -1861,7 +1783,7 @@ menu  de la vente
 
 .p-toolbar {
   padding: 0.2rem !important;
-  background-color: #F1F5F9 !important;
+  background-color: #f1f5f9 !important;
 }
 
 .ajustement-toolbar {
@@ -1881,12 +1803,11 @@ menu  de la vente
 }
 
 .sale-montant-block {
-  background-color: #EFF3F8;
+  background-color: #eff3f8;
 
   .list-group-item {
     padding: 0.25rem 0.25rem;
   }
-
 }
 
 /*

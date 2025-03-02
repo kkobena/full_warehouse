@@ -8,10 +8,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/code-remise-produits-modal.component';
 
 @Component({
-    selector: 'jhi-code-remise-produit',
-    providers: [MessageService, ConfirmationService],
-    imports: [FaIconComponent],
-    templateUrl: './code-remise-produit.component.html'
+  selector: 'jhi-code-remise-produit',
+  providers: [MessageService, ConfirmationService],
+  imports: [FaIconComponent],
+  templateUrl: './code-remise-produit.component.html',
 })
 export class CodeRemiseProduitComponent implements OnInit {
   entityService = inject(RemiseService);
@@ -45,7 +45,7 @@ export class CodeRemiseProduitComponent implements OnInit {
   }
 
   protected getVnoTaux(entity: IRemise): string {
-    const taut = entity?.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
+    const taut = entity.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }
@@ -53,7 +53,7 @@ export class CodeRemiseProduitComponent implements OnInit {
   }
 
   protected getVoTaux(entity: IRemise): string {
-    const taut = entity?.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
+    const taut = entity.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }

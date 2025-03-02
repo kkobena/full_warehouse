@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-
 import com.kobe.warehouse.domain.MotifAjustement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

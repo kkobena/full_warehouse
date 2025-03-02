@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 
@@ -7,12 +7,11 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { PasswordService } from './password.service';
 import PasswordStrengthBarComponent from './password-strength-bar/password-strength-bar.component';
-import { CardModule } from 'primeng/card';
 
 @Component({
-    selector: 'jhi-password',
-    imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, CardModule],
-    templateUrl: './password.component.html'
+  selector: 'jhi-password',
+  imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
+  templateUrl: './password.component.html',
 })
 export default class PasswordComponent implements OnInit {
   doNotMatch = signal(false);
@@ -31,8 +30,8 @@ export default class PasswordComponent implements OnInit {
     }),
   });
 
-  private passwordService = inject(PasswordService);
-  private accountService = inject(AccountService);
+  private readonly passwordService = inject(PasswordService);
+  private readonly accountService = inject(AccountService);
 
   ngOnInit(): void {
     this.account$ = this.accountService.identity();

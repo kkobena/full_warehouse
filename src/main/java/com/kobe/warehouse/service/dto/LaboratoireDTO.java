@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Laboratoire;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -15,8 +14,7 @@ public class LaboratoireDTO implements Serializable {
     @NotNull
     private String libelle;
 
-    public LaboratoireDTO() {
-    }
+    public LaboratoireDTO() {}
 
     public LaboratoireDTO(Laboratoire laboratoire) {
         id = laboratoire.getId();
@@ -60,9 +58,6 @@ public class LaboratoireDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "LaboratoireDTO{" +
-            "id=" + getId() +
-            ", libelle='" + getLibelle() + "'" +
-            "}";
+        return "LaboratoireDTO{" + "id=" + getId() + ", libelle='" + getLibelle() + "'" + "}";
     }
 }

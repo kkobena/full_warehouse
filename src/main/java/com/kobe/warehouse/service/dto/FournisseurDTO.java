@@ -2,9 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.GroupeFournisseur;
-
 import java.io.Serializable;
-
 
 public class FournisseurDTO implements Serializable {
 
@@ -25,13 +23,11 @@ public class FournisseurDTO implements Serializable {
     private String site;
     private String code;
 
-
     private Long groupeFournisseurId;
 
     private String groupeFournisseurLibelle;
 
-    public FournisseurDTO() {
-    }
+    public FournisseurDTO() {}
 
     public FournisseurDTO(Fournisseur fournisseur) {
         id = fournisseur.getId();
@@ -48,7 +44,6 @@ public class FournisseurDTO implements Serializable {
             groupeFournisseurId = groupeFournisseur.getId();
             groupeFournisseurLibelle = groupeFournisseur.getLibelle();
         }
-
     }
 
     public Long getId() {

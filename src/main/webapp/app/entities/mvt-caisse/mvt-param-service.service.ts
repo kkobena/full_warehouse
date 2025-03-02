@@ -7,8 +7,6 @@ import { MvtCaisseParams } from './mvt-caisse-util';
 export class MvtParamServiceService {
   mvtCaisseParam: WritableSignal<MvtCaisseParams> = signal<MvtCaisseParams>(null);
 
-  constructor() {}
-
   setMvtCaisseParam(mvtCaisseParams: MvtCaisseParams): void {
     this.mvtCaisseParam.set(mvtCaisseParams);
   }

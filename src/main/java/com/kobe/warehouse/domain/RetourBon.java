@@ -1,11 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,124 +12,131 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "retour_bon")
 public class RetourBon implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private User user;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "statut", nullable = false, length = 1)
-  private RetourBonStatut statut = RetourBonStatut.PROCESSING;
+    @ManyToOne(optional = false)
+    @NotNull
+    private User user;
 
-  @Column(name = "commentaire", length = 150)
-  private String commentaire;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false, length = 1)
+    private RetourBonStatut statut = RetourBonStatut.PROCESSING;
 
-  @OneToMany(mappedBy = "retourBon")
-  private List<RetourBonItem> retourBonItems = new ArrayList<>();
+    @Column(name = "commentaire", length = 150)
+    private String commentaire;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private DeliveryReceipt deliveryReceipt;
+    @OneToMany(mappedBy = "retourBon")
+    private List<RetourBonItem> retourBonItems = new ArrayList<>();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private WarehouseCalendar calendar;
+    @ManyToOne(optional = false)
+    @NotNull
+    private DeliveryReceipt deliveryReceipt;
 
-  @OneToMany(mappedBy = "retourBon")
-  private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
-  public Long getId() {
-    return id;
-  }
+    @OneToMany(mappedBy = "retourBon")
+    private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
 
-  public RetourBon setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public @NotNull LocalDateTime getDateMtv() {
-    return dateMtv;
-  }
+    public RetourBon setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public RetourBon setDateMtv(@NotNull LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-    return this;
-  }
+    public @NotNull LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-  public @NotNull User getUser() {
-    return user;
-  }
+    public RetourBon setDateMtv(@NotNull LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+        return this;
+    }
 
-  public RetourBon setUser(@NotNull User user) {
-    this.user = user;
-    return this;
-  }
+    public @NotNull User getUser() {
+        return user;
+    }
 
-  public @NotNull RetourBonStatut getStatut() {
-    return statut;
-  }
+    public RetourBon setUser(@NotNull User user) {
+        this.user = user;
+        return this;
+    }
 
-  public RetourBon setStatut(@NotNull RetourBonStatut statut) {
-    this.statut = statut;
-    return this;
-  }
+    public @NotNull RetourBonStatut getStatut() {
+        return statut;
+    }
 
-  public String getCommentaire() {
-    return commentaire;
-  }
+    public RetourBon setStatut(@NotNull RetourBonStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-  public RetourBon setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
-  public List<RetourBonItem> getRetourBonItems() {
-    return retourBonItems;
-  }
+    public RetourBon setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 
-  public RetourBon setRetourBonItems(List<RetourBonItem> retourBonItems) {
-    this.retourBonItems = retourBonItems;
-    return this;
-  }
+    public List<RetourBonItem> getRetourBonItems() {
+        return retourBonItems;
+    }
 
-  public @NotNull DeliveryReceipt getDeliveryReceipt() {
-    return deliveryReceipt;
-  }
+    public RetourBon setRetourBonItems(List<RetourBonItem> retourBonItems) {
+        this.retourBonItems = retourBonItems;
+        return this;
+    }
 
-  public RetourBon setDeliveryReceipt(@NotNull DeliveryReceipt deliveryReceipt) {
-    this.deliveryReceipt = deliveryReceipt;
-    return this;
-  }
+    public @NotNull DeliveryReceipt getDeliveryReceipt() {
+        return deliveryReceipt;
+    }
 
-  public @NotNull WarehouseCalendar getCalendar() {
-    return calendar;
-  }
+    public RetourBon setDeliveryReceipt(@NotNull DeliveryReceipt deliveryReceipt) {
+        this.deliveryReceipt = deliveryReceipt;
+        return this;
+    }
 
-  public RetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
 
-  public List<ReponseRetourBon> getReponseRetourBons() {
-    return reponseRetourBons;
-  }
+    public RetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 
-  public RetourBon setReponseRetourBons(List<ReponseRetourBon> reponseRetourBons) {
-    this.reponseRetourBons = reponseRetourBons;
-    return this;
-  }
+    public List<ReponseRetourBon> getReponseRetourBons() {
+        return reponseRetourBons;
+    }
+
+    public RetourBon setReponseRetourBons(List<ReponseRetourBon> reponseRetourBons) {
+        this.reponseRetourBons = reponseRetourBons;
+        return this;
+    }
 }

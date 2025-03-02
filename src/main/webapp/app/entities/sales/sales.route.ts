@@ -8,11 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { ISales, Sales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 
-
-
-
-
-
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
   if (id) {

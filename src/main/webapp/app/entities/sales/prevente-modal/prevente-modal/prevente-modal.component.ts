@@ -65,8 +65,6 @@ export class PreventeModalComponent implements OnInit {
   protected selectedRowIndex?: number;
   protected userVendeurService = inject(UserVendeurService);
 
-  constructor() {}
-
   ngOnInit(): void {
     this.selectedRowIndex = 0;
     this.userSeller = this.user();
@@ -89,7 +87,7 @@ export class PreventeModalComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        userId: this.userSignal()?.id,
+        userId: this.userSignal().id,
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];

@@ -107,8 +107,8 @@ export class ParametreComponent implements OnInit {
   private createFromForm(): IConfiguration {
     return {
       ...this.entity,
-      description: this.editForm.get(['description'])!.value,
-      value: this.editForm.get(['value'])!.value,
+      description: this.editForm.get(['description']).value,
+      value: this.editForm.get(['value']).value,
     };
   }
 }

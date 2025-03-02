@@ -22,6 +22,6 @@ export class PaymentFournisseur implements IPaymentFournisseur {
     public createdAt?: Moment,
     public updatedAt?: Moment,
     public commande?: ICommande,
-    public paymentMode?: IPaymentMode
+    public paymentMode?: IPaymentMode,
   ) {}
 }

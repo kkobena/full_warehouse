@@ -25,16 +25,11 @@ export class ProduitAssociesComponent implements OnInit {
 
   produitsSource: IProduit[] = [];
   produitsTarget: IProduit[] = [];
-  statut: string = 'ENABLE';
+  statut = 'ENABLE';
   searchSource: string;
   searchTarget: string;
   tableau: ITableau;
   protected scrollHeight = 'calc(100vh - 350px)';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ tableau }) => {
@@ -73,7 +68,6 @@ export class ProduitAssociesComponent implements OnInit {
   }
 
   trackId(index: number, item: IProduit): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id;
   }
 

@@ -8,9 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
 
-
-
-
 export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null | IMagasin> => {
   const id = route.params['id'];
   if (id) {

@@ -5,5 +5,9 @@ export interface IFormProduit {
 }
 
 export class FormProduit implements IFormProduit {
-  constructor(public id?: number, public code?: string, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public code?: string,
+    public libelle?: string,
+  ) {}
 }

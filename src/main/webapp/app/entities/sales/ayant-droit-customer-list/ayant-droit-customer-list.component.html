@@ -1,41 +1,32 @@
 <div class="modal-body">
   <p-toolbar styleClass="mb-1">
     <ng-template pTemplate="left">
-      <button (click)="addAyantDroit()" class="btn  btn-sm btn-primary"
-
-      >
-        <i class="pi pi-user-plus"></i> Ajouter un ayant droit
-      </button>
-
+      <button (click)="addAyantDroit()" class="btn btn-sm btn-primary"><i class="pi pi-user-plus"></i> Ajouter un ayant droit</button>
     </ng-template>
-
   </p-toolbar>
   @if (customers.length > 0) {
     <div class="table-responsive">
       <table class="table table-striped table-bordered table-hover">
         <thead>
-        <tr>
-          <th style="width:3%">
-            #
-          </th>
-          <th>Nom</th>
-          <th>Prénom(s)</th>
-          <th>Matricule</th>
-          <th>Date de naissance</th>
-          <th style="width:8%">Actions</th>
-        </tr>
+          <tr>
+            <th style="width: 3%">#</th>
+            <th>Nom</th>
+            <th>Prénom(s)</th>
+            <th>Matricule</th>
+            <th>Date de naissance</th>
+            <th style="width: 8%">Actions</th>
+          </tr>
         </thead>
         <tbody>
           @for (ayantDroit of customers; track ayantDroit.id; let i = $index) {
-            <tr (dblclick)="onDbleClick(ayantDroit)" style="cursor: pointer;">
-              <td style="text-align: left;">{{ i + 1 }}</td>
+            <tr (dblclick)="onDbleClick(ayantDroit)" style="cursor: pointer">
+              <td style="text-align: left">{{ i + 1 }}</td>
               <td>{{ ayantDroit.firstName }}</td>
               <td>{{ ayantDroit.lastName }}</td>
               <td>{{ ayantDroit.num }}</td>
-              <td>{{ ayantDroit.datNaiss | date :'dd/MM/yyyy' }}</td>
+              <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
               <td class="text-center">
-                <button type="button" class="btn  btn-success btn-sm"
-                        (click)="onSelect(ayantDroit)">
+                <button type="button" class="btn btn-success btn-sm" (click)="onSelect(ayantDroit)">
                   <i class="pi pi-check"></i>
                 </button>
               </td>
@@ -49,7 +40,6 @@
       <strong>Aucun ayant droit trouvé.</strong>
     </div>
   }
-
 </div>
 
 <div class="modal-footer">
@@ -57,4 +47,3 @@
     <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
   </button>
 </div>
-

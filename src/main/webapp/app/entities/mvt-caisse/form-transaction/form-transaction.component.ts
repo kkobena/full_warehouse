@@ -73,8 +73,6 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
   private messageService = inject(MessageService);
   private modeService = inject(ModePaymentService);
 
-  constructor() {}
-
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
@@ -101,17 +99,17 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // this.editForm.get(['transactionDate'])!.setValue(new Date());
-    this.editForm.get(['paymentMode'])!.setValue({ code: 'CASH', libelle: 'ESPECE' });
+    this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
   }
 
   protected createFromForm(): FinancialTransaction {
     return {
       ...new FinancialTransaction(),
-      amount: this.editForm.get(['amount'])!.value,
-      paymentMode: this.editForm.get(['paymentMode'])!.value,
-      typeTransaction: getTypeName(this.editForm.get(['typeFinancialTransaction'])!.value),
-      transactionDate: this.editForm.get(['transactionDate'])!.value,
-      commentaire: this.editForm.get(['commentaire'])!.value,
+      amount: this.editForm.get(['amount']).value,
+      paymentMode: this.editForm.get(['paymentMode']).value,
+      typeTransaction: getTypeName(this.editForm.get(['typeFinancialTransaction']).value),
+      transactionDate: this.editForm.get(['transactionDate']).value,
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 

@@ -10,10 +10,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'jhi-detail-group-reglement',
-    imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule],
-    templateUrl: './detail-group-reglement.component.html',
-    styles: ``
+  selector: 'jhi-detail-group-reglement',
+  imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule],
+  templateUrl: './detail-group-reglement.component.html',
+  styles: ``,
 })
 export class DetailGroupReglementComponent implements OnInit {
   modalService = inject(NgbModal);
@@ -32,7 +32,7 @@ export class DetailGroupReglementComponent implements OnInit {
   ngOnInit(): void {
     if (this.reglement && this.reglement.id) {
       this.reglementService.getGroupItems(this.reglement.id).subscribe((res: HttpResponse<Reglement[]>) => {
-        this.reglements = res?.body || [];
+        this.reglements = res.body || [];
       });
     }
   }
@@ -40,7 +40,7 @@ export class DetailGroupReglementComponent implements OnInit {
   onRowSelect(re: Reglement) {
     this.selectedItem = re;
     this.reglementService.getItems(re.id).subscribe((res: HttpResponse<InvoicePaymentItem[]>) => {
-      this.datas = res?.body || [];
+      this.datas = res.body || [];
     });
   }
 }

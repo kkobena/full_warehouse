@@ -3,78 +3,86 @@
     <ng-template #start>
       <div class="d-flex justify-content-between">
         <p-floatlabel variant="on">
-          <p-datePicker [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                        dateFormat="dd/mm/yy"
-
-                        id="dateDebut"
-                        inputId="dateDebut"
-                        selectOtherMonths="true" showIcon="true"></p-datePicker>&nbsp;
+          <p-datePicker
+            [(ngModel)]="fromDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            id="dateDebut"
+            inputId="dateDebut"
+            selectOtherMonths="true"
+            showIcon="true"
+          ></p-datePicker
+          >&nbsp;
           <label for="dateDebut">Date début</label>
         </p-floatlabel>
         <p-floatlabel variant="on">
-          <p-datePicker [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                        dateFormat="dd/mm/yy"
-                        id="dateFin"
-                        inputId="dateFin"
-                        selectOtherMonths="true"
-                        showIcon="true"></p-datePicker>&nbsp;
+          <p-datePicker
+            [(ngModel)]="toDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            id="dateFin"
+            inputId="dateFin"
+            selectOtherMonths="true"
+            showIcon="true"
+          ></p-datePicker
+          >&nbsp;
           <label for="dateFin">Date fin</label>
         </p-floatlabel>
 
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch()" pInputText
-                 placeholder="Taper pour rechercher"
-
-                 type="text">&nbsp;
-
+          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />&nbsp;
         </p-iconfield>
 
-        <p-multiSelect [(ngModel)]="selectedTypes" [filter]="true" [options]="types"
-                       [showClear]="true"
-                       display="chip" id="typeMvr"
-                       placeholder="Type de mouvement"
-        ></p-multiSelect>&nbsp;
+        <p-multiSelect
+          [(ngModel)]="selectedTypes"
+          [filter]="true"
+          [options]="types"
+          [showClear]="true"
+          display="chip"
+          id="typeMvr"
+          placeholder="Type de mouvement"
+        ></p-multiSelect
+        >&nbsp;
 
+        <p-multiSelect
+          [(ngModel)]="selectedModes"
+          [options]="paymentModes"
+          [showClear]="true"
+          display="chip"
+          id="modeR"
+          optionLabel="libelle"
+          placeholder="Mode de règlement"
+        ></p-multiSelect
+        >&nbsp;
 
-        <p-multiSelect [(ngModel)]="selectedModes" [options]="paymentModes"
-                       [showClear]="true"
-                       display="chip" id="modeR"
-                       optionLabel="libelle"
-                       placeholder="Mode de règlement"
-        ></p-multiSelect>&nbsp;
-
-
-        <p-select [(ngModel)]="selectedUser" [options]="users" [showClear]="true"
-                  id="op"
-                  optionLabel="abbrName"
-                  placeholder="Opérateur"
+        <p-select
+          [(ngModel)]="selectedUser"
+          [options]="users"
+          [showClear]="true"
+          id="op"
+          optionLabel="abbrName"
+          placeholder="Opérateur"
         ></p-select>
-
-
       </div>
     </ng-template>
     <ng-template #end>
       <div class="input-group">
-        <p-button (click)="onSearch()"
-                  [loading]="btnLoading"
-                  icon="pi pi-search"
-                  pTooltip="Rechercher"
-                  severity="info"
-                  tooltipPosition="top"
-        ></p-button>&nbsp;
-        <p-button (click)="addNew()" icon="pi pi-plus" pTooltip="Nouveau mouvement"
-                  severity="success"
-                  tooltipPosition="top"
-        >
-        </p-button>&nbsp;
-        <p-button (click)="onPrint()" [loading]="btnLoading" icon="pi pi-print" pTooltip="Imprimer"
-                  severity="warn"
-                  tooltipPosition="top"
-        />
-
+        <p-button
+          (click)="onSearch()"
+          [loading]="btnLoading"
+          icon="pi pi-search"
+          pTooltip="Rechercher"
+          severity="info"
+          tooltipPosition="top"
+        ></p-button
+        >&nbsp;
+        <p-button (click)="addNew()" icon="pi pi-plus" pTooltip="Nouveau mouvement" severity="success" tooltipPosition="top"> </p-button
+        >&nbsp;
+        <p-button (click)="onPrint()" [loading]="btnLoading" icon="pi pi-print" pTooltip="Imprimer" severity="warn" tooltipPosition="top" />
       </div>
-
     </ng-template>
   </p-toolbar>
   <div class="row mvt-caisse-data-section">
@@ -82,18 +90,18 @@
       <div class="col-md-9 col-lg-9 col-xl-9">
         <p-table
           [lazy]="true"
-          [loading]="loading" [paginator]="true"
-          [rowsPerPageOptions]="[5,10,15,20,30,50]"
-          [rows]="itemsPerPage" [showCurrentPageReport]="false"
+          [loading]="loading"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="false"
           [totalRecords]="totalItems"
           [value]="mvtCaisses"
           dataKey="id"
           selectionMode="multiple"
-
         >
           <ng-template pTemplate="header">
             <tr>
-
               <th>Type</th>
               <th>Référence</th>
               <th>Date</th>
@@ -102,8 +110,7 @@
               <th>Opérateur</th>
               <th>Client</th>
 
-
-              <th [hidden]="true" style="width:15px"></th>
+              <th [hidden]="true" style="width: 15px"></th>
             </tr>
           </ng-template>
           <ng-template let-mvtCaisse pTemplate="body">
@@ -116,10 +123,9 @@
               </td>
               <td>{{ mvtCaisse.date }}</td>
               @if (mvtCaisse.type === 'SORTIE_CAISSE') {
-                <td class="text-right text-danger amount-column">{{ mvtCaisse.montant |number }}
-                </td>
+                <td class="text-right text-danger amount-column">{{ mvtCaisse.montant | number }}</td>
               } @else {
-                <td class="text-right amount-column">{{ mvtCaisse.montant |number }}</td>
+                <td class="text-right amount-column">{{ mvtCaisse.montant | number }}</td>
               }
 
               <td>{{ mvtCaisse.paymentModeLibelle }}</td>
@@ -128,117 +134,78 @@
 
               <td [hidden]="true" class="text-right">
                 <div class="btn-group">
-                  <p-button
-                    severity="info"
-                    size="small"
-                    [rounded]="true"
-                    icon="pi pi-eye"
-                    pTooltip="Voir">
-                  </p-button>
-
-
+                  <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye" pTooltip="Voir"> </p-button>
                 </div>
               </td>
             </tr>
           </ng-template>
-
         </p-table>
       </div>
       @if (mvtCaisseSum) {
-
         <div class="col-md-3 col-lg-3 col-xl-3 mvt-caisse">
-
           <p-card header="Totaux">
             <ul class="list-group">
-
               @if (mvtCaisseSum.totalPaymentAmount > 0) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total ventes
-                  <span
-                    class="badge bg-primary rounded-pill">{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
+                  <span class="badge bg-primary rounded-pill">{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
                 </li>
               }
               @if (mvtCaisseSum.creditedAmount) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total entrée
-                  <span
-                    class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
+                  <span class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
                 </li>
-
               }
               @if (mvtCaisseSum.debitedAmount) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total sortie
-                  <span
-                    class="badge bg-danger rounded-pill">{{
-                      mvtCaisseSum.debitedAmount * (-1) | number
-                    }}</span>
+                  <span class="badge bg-danger rounded-pill">{{ mvtCaisseSum.debitedAmount * -1 | number }}</span>
                 </li>
               }
               @if (mvtCaisseSum.totalMobileAmount) {
-
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total Mobile
-                  <span
-                    class="badge bg-secondary rounded-pill">{{
-                      mvtCaisseSum.totalMobileAmount | number
-                    }}</span>
+                  <span class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.totalMobileAmount | number }}</span>
                 </li>
               }
-
-
             </ul>
           </p-card>
           @if (mvtCaisseSum.modesPaiementAmounts.length > 0) {
             <p-card header="Modes règlements">
               <ul class="list-group">
                 @for (mode of mvtCaisseSum.modesPaiementAmounts; track trackModeId; let i = $index) {
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
                     {{ mode.libelle }}
-                    <span
-                      class="badge rounded-pill bg-secondary ">{{
-                        mode.value | number
-                      }}</span>
+                    <span class="badge rounded-pill bg-secondary">{{ mode.value | number }}</span>
                   </li>
-                }</ul>
+                }
+              </ul>
             </p-card>
           }
           @if (mvtCaisseSum.typeTransactionAmounts.length > 0) {
             <p-card header="Types mouvements">
               <ul class="list-group">
                 @for (mode of mvtCaisseSum.typeTransactionAmounts; track trackModeId; let i = $index) {
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
                     {{ mode.libelle }}
                     @if (mode.key === 'SORTIE_CAISSE') {
-                      <span
-                        class="badge rounded-pill bg-danger">{{
-                          mode.value * (-1) | number
-                        }}</span>
+                      <span class="badge rounded-pill bg-danger">{{ mode.value * -1 | number }}</span>
                     } @else {
-                      <span
-                        class="badge rounded-pill bg-secondary ">{{
-                          mode.value | number
-                        }}</span>
+                      <span class="badge rounded-pill bg-secondary">{{ mode.value | number }}</span>
                     }
-
                   </li>
-                }</ul>
+                }
+              </ul>
             </p-card>
           }
         </div>
-
       }
-
     } @else {
       <div class="alert alert-warning" role="alert">
         <span>Aucune donnée trouvée</span>
       </div>
     }
-
   </div>
-
-
 </div>
 <p-toast position="center"></p-toast>

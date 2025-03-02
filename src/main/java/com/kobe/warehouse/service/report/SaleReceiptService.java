@@ -261,8 +261,8 @@ public class SaleReceiptService {
     }
 
     public int getMaxiRowCount() {
-        this.appConfigurationRepository.findById(EntityConstant.RECEIPT_MAXI_ROW).ifPresent(
-                appConfiguration -> this.maxiRowCount = Integer.parseInt(appConfiguration.getValue())
+        this.appConfigurationRepository.findById(EntityConstant.RECEIPT_MAXI_ROW).ifPresent(appConfiguration ->
+                this.maxiRowCount = Integer.parseInt(appConfiguration.getValue())
             );
         return this.maxiRowCount;
     }

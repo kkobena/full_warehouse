@@ -16,34 +16,36 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reponse_retour_bon_item")
 public class ReponseRetourBonItem implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private ReponseRetourBon reponseRetourBon;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private RetourBonItem retourBonItem;
+    @ManyToOne(optional = false)
+    @NotNull
+    private ReponseRetourBon reponseRetourBon;
 
-  @NotNull
-  @Min(0)
-  @Column(name = "qty_mvt", nullable = false, length = 5)
-  private Integer qtyMvt;
+    @ManyToOne(optional = false)
+    @NotNull
+    private RetourBonItem retourBonItem;
 
-  @Column(name = "init_stock", nullable = false, length = 8)
-  private Integer initStock;
+    @NotNull
+    @Min(0)
+    @Column(name = "qty_mvt", nullable = false, length = 5)
+    private Integer qtyMvt;
 
-  @Column(name = "after_stock", length = 8)
-  private Integer afterStock;
+    @Column(name = "init_stock", nullable = false, length = 8)
+    private Integer initStock;
+
+    @Column(name = "after_stock", length = 8)
+    private Integer afterStock;
 
     public Long getId() {
         return id;

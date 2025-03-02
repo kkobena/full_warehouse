@@ -14,18 +14,9 @@ import { DossierFacture } from '../dossier-facture.model';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { EditionSearchParams } from '../edition-search-params.model';
-import { DATE_FORMAT_ISO_FROM_NGB_DATE } from '../../../shared/util/warehouse-util';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { StyleClassModule } from 'primeng/styleclass';
-import {
-  NgbCalendar,
-  NgbDate,
-  NgbDateAdapter,
-  NgbDateParserFormatter,
-  NgbDatepickerI18n,
-  NgbDatepickerModule,
-  NgbModal,
-} from '@ng-bootstrap/ng-bootstrap';
-import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
+import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
@@ -37,16 +28,14 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { Subscription } from 'rxjs';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-edition',
-  providers: [
-    ConfirmationService,
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
+  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -62,26 +51,28 @@ import { InputIcon } from 'primeng/inputicon';
     ToggleSwitch,
     IconField,
     InputIcon,
+    DatePicker,
   ],
   templateUrl: './edition.component.html',
   styles: ``,
 })
 export class EditionComponent implements OnInit {
-  errorService = inject(ErrorService);
-  factureService = inject(FactureService);
-  tiersPayantService = inject(TiersPayantService);
-  groupeTiersPayantService = inject(GroupeTiersPayantService);
-  calendar = inject(NgbCalendar);
-  modalService = inject(NgbModal);
-  minLength = 2;
-  confirmationService = inject(ConfirmationService);
+  protected readonly translate = inject(TranslateService);
+  protected readonly primeNGConfig = inject(PrimeNG);
+  protected readonly errorService = inject(ErrorService);
+  protected readonly factureService = inject(FactureService);
+  protected readonly tiersPayantService = inject(TiersPayantService);
+  protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  protected readonly modalService = inject(NgbModal);
+  protected minLength = 2;
+  protected readonly confirmationService = inject(ConfirmationService);
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] | undefined;
   protected ids: number[] = [];
-  protected all: boolean = false;
-  protected factureProvisoire: boolean = false;
+  protected all = false;
+  protected factureProvisoire = false;
   protected modeEdition: string;
   protected typeTiersPayant: string;
   protected modeEditions = MODE_EDITIONS_FACTURE;
@@ -95,14 +86,19 @@ export class EditionComponent implements OnInit {
   protected page = 0;
   protected totalItemsTp = 0;
   protected pageTp = 0;
-  protected modelStartDate: NgbDate | null = this.calendar.getToday();
-  protected modelEndDate: NgbDate | null = this.calendar.getToday();
+  protected modelStartDate: Date = new Date();
+  protected modelEndDate: Date = new Date();
   protected searching = false;
   protected editing = false;
   protected loading!: boolean;
   protected exporting = false;
-
-  constructor() {}
+  private primngtranslate: Subscription;
+  constructor() {
+    this.translate.use('fr');
+    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+  }
 
   ngOnInit(): void {
     this.loadGroupTiersPayant();
@@ -272,8 +268,8 @@ export class EditionComponent implements OnInit {
 
   private buildSearchParams(): EditionSearchParams {
     return {
-      startDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelStartDate),
-      endDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelEndDate),
+      startDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
+      endDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
       groupIds: this.selectedGroupeTiersPayants?.map(item => item.id),
       tiersPayantIds: this.selectedTiersPayants?.map(item => item.id),
       all: this.all,
@@ -287,9 +283,9 @@ export class EditionComponent implements OnInit {
     let selectedIds: number[] = [];
     if (this.modeEdition === 'SELECTION_BON' || this.modeEdition === 'SELECTED' || this.modeEdition === 'GROUP') {
       if (this.modeEdition === 'SELECTION_BON') {
-        selectedIds = this.selectedDossiers.map(item => item.id);
+        selectedIds = this.selectedDossiers?.map(item => item.id);
       } else {
-        selectedIds = this.selectedTiersPayantDossiers.map(item => item.id);
+        selectedIds = this.selectedTiersPayantDossiers?.map(item => item.id);
       }
     }
     return {
@@ -310,7 +306,7 @@ export class EditionComponent implements OnInit {
         this.factureService.exportAllInvoices(response).subscribe({
           next: (res: Blob) => {
             this.exporting = false;
-            //const file = new Blob([res], { type: 'application/pdf' });
+            // const file = new Blob([res], { type: 'application/pdf' });
             const fileURL = URL.createObjectURL(res);
             window.open(fileURL);
           },

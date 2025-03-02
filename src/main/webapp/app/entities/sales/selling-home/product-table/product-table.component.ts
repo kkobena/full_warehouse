@@ -77,7 +77,7 @@ export class ProductTableComponent {
   }
 
   get remiseTaux(): string {
-    if (this.currentSaleService.currentSale()?.remise) {
+    if (this.currentSaleService.currentSale().remise) {
       const sale = this.currentSaleService.currentSale();
       const remise = sale.remise;
       if (remise.type === 'remiseProduit') {
@@ -93,15 +93,15 @@ export class ProductTableComponent {
   }
 
   totalQtyProduit(): number {
-    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
   }
 
   totalQtyServi(): number {
-    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 
   totalTtc(): number {
-    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
+    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
   }
 
   updateItemQtySold(salesLine: ISalesLine, event: any): void {

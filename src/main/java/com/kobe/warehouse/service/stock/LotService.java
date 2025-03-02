@@ -5,16 +5,15 @@ import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 
 public interface LotService {
-  void addLot(LotJsonValue lotJsonValue, DeliveryReceiptItem receiptItem, String receiptRefernce);
+    void addLot(LotJsonValue lotJsonValue, DeliveryReceiptItem receiptItem, String receiptRefernce);
 
-  LotJsonValue addLot(LotJsonValue lot);
+    LotJsonValue addLot(LotJsonValue lot);
 
-  LotDTO addLot(LotDTO lot);
+    LotDTO addLot(LotDTO lot);
 
-  LotDTO editLot(LotDTO lot);
+    LotDTO editLot(LotDTO lot);
 
-  void remove(LotJsonValue lot);
+    void remove(LotJsonValue lot);
 
-  void remove(Long lotId);
-
+    void remove(Long lotId);
 }

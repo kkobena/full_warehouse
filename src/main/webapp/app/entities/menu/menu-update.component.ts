@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -16,18 +16,18 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-    selector: 'jhi-menu-update',
-    templateUrl: './menu-update.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        PanelModule,
-        FormsModule,
-        KeyFilterModule,
-        ReactiveFormsModule,
-        InputTextModule,
-    ]
+  selector: 'jhi-menu-update',
+  templateUrl: './menu-update.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    PanelModule,
+    FormsModule,
+    KeyFilterModule,
+    ReactiveFormsModule,
+    InputTextModule,
+  ],
 })
 export class MenuUpdateComponent implements OnInit {
   protected privillegeService = inject(PrivillegeService);
@@ -41,11 +41,6 @@ export class MenuUpdateComponent implements OnInit {
   });
   protected entity: IAuthority | null;
   protected readonly BLOCK_SPACE = BLOCK_SPACE;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {
@@ -97,8 +92,8 @@ export class MenuUpdateComponent implements OnInit {
   private createFromForm(): IAuthority {
     return {
       ...new Privilege(),
-      libelle: this.editForm.get(['libelle'])!.value,
-      name: this.editForm.get(['name'])!.value,
+      libelle: this.editForm.get(['libelle']).value,
+      name: this.editForm.get(['name']).value,
     };
   }
 }

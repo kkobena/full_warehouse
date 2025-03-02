@@ -8,4 +8,5 @@ public record StoreInventorySummaryRecord(
     BigDecimal amountValueBegin,
     BigDecimal amountValueAfter,
     BigDecimal gapCost,
-    BigDecimal gapAmount) {}
+    BigDecimal gapAmount
+) {}

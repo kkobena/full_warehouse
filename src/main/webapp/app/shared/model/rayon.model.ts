@@ -20,7 +20,7 @@ export class Rayon implements IRayon {
     public libelle?: string,
     public storageLibelle?: string,
     public storageId?: number,
-    public exclude?: boolean
+    public exclude?: boolean,
   ) {
     this.exclude = this.exclude || false;
   }

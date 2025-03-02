@@ -4,65 +4,66 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
 
 public class StorageDTO {
-  private String name;
-  private Long id;
-  private String storageType;
-  private String magasinName;
-  private Long magasinId;
 
-  public StorageDTO() {}
+    private String name;
+    private Long id;
+    private String storageType;
+    private String magasinName;
+    private Long magasinId;
 
-  public StorageDTO(Storage storage) {
-    this.name = storage.getName();
-    this.id = storage.getId();
-    this.storageType = storage.getStorageType().getValue();
-    Magasin magasin = storage.getMagasin();
-    this.magasinName = magasin.getName();
-    this.magasinId = magasin.getId();
-  }
+    public StorageDTO() {}
 
-  public String getName() {
-    return name;
-  }
+    public StorageDTO(Storage storage) {
+        this.name = storage.getName();
+        this.id = storage.getId();
+        this.storageType = storage.getStorageType().getValue();
+        Magasin magasin = storage.getMagasin();
+        this.magasinName = magasin.getName();
+        this.magasinId = magasin.getId();
+    }
 
-  public StorageDTO setName(String name) {
-    this.name = name;
-    return this;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public StorageDTO setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-  public StorageDTO setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public String getStorageType() {
-    return storageType;
-  }
+    public StorageDTO setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public StorageDTO setStorageType(String storageType) {
-    this.storageType = storageType;
-    return this;
-  }
+    public String getStorageType() {
+        return storageType;
+    }
 
-  public String getMagasinName() {
-    return magasinName;
-  }
+    public StorageDTO setStorageType(String storageType) {
+        this.storageType = storageType;
+        return this;
+    }
 
-  public StorageDTO setMagasinName(String magasinName) {
-    this.magasinName = magasinName;
-    return this;
-  }
+    public String getMagasinName() {
+        return magasinName;
+    }
 
-  public Long getMagasinId() {
-    return magasinId;
-  }
+    public StorageDTO setMagasinName(String magasinName) {
+        this.magasinName = magasinName;
+        return this;
+    }
 
-  public StorageDTO setMagasinId(Long magasinId) {
-    this.magasinId = magasinId;
-    return this;
-  }
+    public Long getMagasinId() {
+        return magasinId;
+    }
+
+    public StorageDTO setMagasinId(Long magasinId) {
+        this.magasinId = magasinId;
+        return this;
+    }
 }

@@ -23,14 +23,12 @@ export class FaireReglementComponent implements OnInit {
 
   protected dossierFactureProjection: DossierFactureProjection | null = null;
 
-  constructor() {}
-
   onSelectFacture(facture: SelectedFacture) {
     if (facture) {
       this.isGroupeSignal.set(facture.isGroup);
       this.fetchFacture(facture);
       const path = this.isGroupe() ? 'groupes' : 'individuelle';
-      this.reload(facture.facture?.factureId, path);
+      this.reload(facture.facture.factureId, path);
     }
   }
 
@@ -48,7 +46,7 @@ export class FaireReglementComponent implements OnInit {
 
   private fetchFacture(facture: SelectedFacture): void {
     this.factureService
-      .findDossierFactureProjection(facture?.facture?.factureId, {
+      .findDossierFactureProjection(facture.facture.factureId, {
         isGroup: facture.isGroup,
       })
       .subscribe(res => {

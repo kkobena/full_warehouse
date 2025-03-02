@@ -106,8 +106,8 @@ public class RemiseServiceImpl implements RemiseService {
                     .stream()
                     .collect(Collectors.groupingBy(GrilleRemise::getRemiseProduit, Collectors.toList()));
 
-                remises.forEach(
-                    (remiseProduit, grilleRemises) -> codeRemiseDTO.setRemise(new RemiseProduitDTO(remiseProduit, grilleRemises))
+                remises.forEach((remiseProduit, grilleRemises) ->
+                    codeRemiseDTO.setRemise(new RemiseProduitDTO(remiseProduit, grilleRemises))
                 );
                 return codeRemiseDTO;
             })
@@ -164,14 +164,13 @@ public class RemiseServiceImpl implements RemiseService {
         }
         return grilleRemises
             .stream()
-            .map(
-                grilleRemiseDTO ->
-                    new GrilleRemise()
-                        .setEnable(remise.isEnable())
-                        .setId(grilleRemiseDTO.getId())
-                        .setRemiseValue(grilleRemiseDTO.getRemiseValue())
-                        .setRemiseProduit(remise)
-                        .setCode(CodeGrilleRemise.fromValue(grilleRemiseDTO.getCode()))
+            .map(grilleRemiseDTO ->
+                new GrilleRemise()
+                    .setEnable(remise.isEnable())
+                    .setId(grilleRemiseDTO.getId())
+                    .setRemiseValue(grilleRemiseDTO.getRemiseValue())
+                    .setRemiseProduit(remise)
+                    .setCode(CodeGrilleRemise.fromValue(grilleRemiseDTO.getCode()))
             )
             .toList();
     }

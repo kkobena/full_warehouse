@@ -19,11 +19,6 @@ export class ModifAjustementService {
 
   public resourceUrl = SERVER_API_URL + 'api/motif-ajsutements';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(modifAjustement: IMotifAjustement): Observable<EntityResponseType> {
     return this.http.post<IMotifAjustement>(this.resourceUrl, modifAjustement, { observe: 'response' });
   }

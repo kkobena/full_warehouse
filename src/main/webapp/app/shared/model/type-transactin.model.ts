@@ -4,5 +4,8 @@ export interface ITypeTransaction {
 }
 
 export class TypeTransaction implements ITypeTransaction {
-  constructor(public value?: number, public name?: string) {}
+  constructor(
+    public value?: number,
+    public name?: string,
+  ) {}
 }

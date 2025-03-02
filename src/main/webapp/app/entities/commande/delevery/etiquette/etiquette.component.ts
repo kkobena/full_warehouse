@@ -29,7 +29,7 @@ import { InputTextModule } from 'primeng/inputtext';
 export class EtiquetteComponent implements OnInit {
   isSaving = false;
   entity?: IDelivery;
-  startAt: number = 1;
+  startAt = 1;
   entityService = inject(DeliveryService);
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);

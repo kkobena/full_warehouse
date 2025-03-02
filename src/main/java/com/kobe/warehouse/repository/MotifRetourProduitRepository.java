@@ -1,7 +1,5 @@
 package com.kobe.warehouse.repository;
 
-
-
 import com.kobe.warehouse.domain.MotifRetourProduit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

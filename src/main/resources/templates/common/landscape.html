@@ -1,26 +1,22 @@
 <style th:inline="css">
-
   header {
     position: running(header);
     border-bottom: 0.5px solid #3989c6;
     font-size: 9px;
-
   }
 
   div.page-footer {
-
   }
 
   #page-data:before {
-    content: counter(page) "/" counter(pages);
+    content: counter(page) '/' counter(pages);
   }
 
   @page {
     size: A4 landscape;
 
     @bottom-center {
-
-      content: [(${footer})] ;
+      content: [(${footer})];
       border-top: 0.5px solid #3989c6;
       text-align: center;
       white-space: pre-wrap;
@@ -32,25 +28,20 @@
     }
     @top-left {
       content: element(header);
-
     }
     margin-top: 30mm;
     margin-right: 15px;
     margin-left: 15px;
   }
 
-
   .invoice {
     padding: 0;
-
   }
 
   header .row {
     padding: 3px 0;
     margin-bottom: 5px;
-
   }
-
 
   .invoice .company-details {
     text-align: left;
@@ -58,28 +49,27 @@
 
   .invoice .company-details .name {
     margin-top: 0;
-    margin-bottom: 0
+    margin-bottom: 0;
   }
 
-
   .invoice-details {
-    text-align: right
+    text-align: right;
   }
 
   .invoice-details .invoice-id {
-    color: #3989c6
+    color: #3989c6;
   }
 
   main {
     display: block;
   }
 
-
   main .notices .notice {
-    font-size: 1.2em
+    font-size: 1.2em;
   }
 
-  table.page-header, table.main-table {
+  table.page-header,
+  table.main-table {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
@@ -101,11 +91,11 @@
 
   table.main-table tr td {
     padding: 0.2rem 1rem;
-    border: 0.5px solid #4D4D4D;
+    border: 0.5px solid #4d4d4d;
   }
 
   table thead tr th {
-    border: 0.5px solid #4D4D4D;
+    border: 0.5px solid #4d4d4d;
     padding: 0.2rem 1rem;
     font-weight: 700;
   }
@@ -117,36 +107,35 @@
   table.page-header tr th {
     white-space: nowrap;
     font-weight: 400;
-    font-size: 9px
+    font-size: 9px;
   }
 
   table.main-table tr th {
     white-space: nowrap;
     font-weight: 400;
-    font-size: 10px
+    font-size: 10px;
   }
 
-  table .qty, table .total, table .unit {
+  table .qty,
+  table .total,
+  table .unit {
     text-align: right;
-
   }
-
 
   table.main-table tfoot tr td {
     white-space: nowrap;
     font-weight: bold;
     font-size: 10px;
-    border: 0.5px solid #4D4D4D;
+    border: 0.5px solid #4d4d4d;
   }
 
-
-  .invoice footer, .invoice footer div {
+  .invoice footer,
+  .invoice footer div {
     width: 100%;
     text-align: center;
     color: #777;
     border-top: 1px solid #aaa;
     padding: 9px 0;
-
   }
 
   .invoice {
@@ -164,7 +153,8 @@
     text-decoration: none;
   }
 
-  tr, tfoot {
+  tr,
+  tfoot {
     page-break-inside: avoid;
   }
 
@@ -187,16 +177,13 @@
     margin-left: 15px;
   }
 
-
   table.main-table tbody tr td {
     font-size: 9px;
-
   }
 
   .tbody-footer tr td {
     font-weight: bold;
   }
-
 
   .tbody-footer tr td:last-child {
     text-align: right;
@@ -206,12 +193,13 @@
     width: 100%;
   }
 
-  .footer-table, .footer-table-tr {
+  .footer-table,
+  .footer-table-tr {
     width: 100%;
   }
 
   .footer-table-tr .footer-table-td {
-    border: 0.5px solid #4D4D4D;
+    border: 0.5px solid #4d4d4d;
   }
 
   .footer-table-td table {
@@ -219,8 +207,7 @@
   }
 
   .footer-table thead tr th {
-    border: 0.5px solid #4D4D4D;
-
+    border: 0.5px solid #4d4d4d;
   }
 
   .sub-table-totaux tbody tr td:last-child {
@@ -250,5 +237,4 @@
   td.report-title {
     font-size: 11px;
   }
-
 </style>

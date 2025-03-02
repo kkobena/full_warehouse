@@ -11,47 +11,49 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
-@Table(
-    name = "privilege")
+@Table(name = "privilege")
 public class Privilege implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Size(max = 100)
-  @Id
-  @Column(length = 100)
-  private String name;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull private String libelle;
+    @NotNull
+    @Size(max = 100)
+    @Id
+    @Column(length = 100)
+    private String name;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private Menu menu;
+    @NotNull
+    private String libelle;
 
-  public @NotNull @Size(max = 100) String getName() {
-    return name;
-  }
+    @ManyToOne(optional = false)
+    @NotNull
+    private Menu menu;
 
-  public Privilege setName(@NotNull @Size(max = 100) String name) {
-    this.name = name;
-    return this;
-  }
+    public @NotNull @Size(max = 100) String getName() {
+        return name;
+    }
 
-  public @NotNull String getLibelle() {
-    return libelle;
-  }
+    public Privilege setName(@NotNull @Size(max = 100) String name) {
+        this.name = name;
+        return this;
+    }
 
-  public Privilege setLibelle(@NotNull String libelle) {
-    this.libelle = libelle;
-    return this;
-  }
+    public @NotNull String getLibelle() {
+        return libelle;
+    }
 
-  public @NotNull Menu getMenu() {
-    return menu;
-  }
+    public Privilege setLibelle(@NotNull String libelle) {
+        this.libelle = libelle;
+        return this;
+    }
 
-  public Privilege setMenu(@NotNull Menu menu) {
-    this.menu = menu;
-    return this;
-  }
+    public @NotNull Menu getMenu() {
+        return menu;
+    }
+
+    public Privilege setMenu(@NotNull Menu menu) {
+        this.menu = menu;
+        return this;
+    }
 }

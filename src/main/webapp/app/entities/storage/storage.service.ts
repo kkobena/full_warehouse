@@ -17,11 +17,6 @@ export class StorageService {
 
   public resourceUrl = SERVER_API_URL + 'api/storages';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Storage>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

@@ -63,16 +63,9 @@ export class TransactionComponent implements OnInit {
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  // readonly statSalesComponent = viewChild(StatSalesComponent);
-
-  constructor() {}
-
   ngOnInit(): void {
-    this.activatedRoute?.data?.subscribe(({ produit }) => {
-      if (produit && produit.id) {
+    this.activatedRoute.data.subscribe(({ produit }) => {
+      if (produit?.id) {
         this.produit = produit;
         const params: ProduitAuditingParam = this.buildQuery();
         this.produitAuditingParamService.setParameter(params);
@@ -125,7 +118,7 @@ export class TransactionComponent implements OnInit {
 
   protected buildQuery(): ProduitAuditingParam {
     return {
-      produitId: this.produit?.id,
+      produitId: this.produit.id,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
       toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
     };

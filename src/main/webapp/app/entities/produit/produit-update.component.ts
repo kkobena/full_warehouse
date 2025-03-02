@@ -35,19 +35,19 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { RemiseService } from '../remise/remise.service';
 
 @Component({
-    selector: 'jhi-produit-update',
-    templateUrl: './produit-update.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        DropdownModule,
-        RippleModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        KeyFilterModule,
-        InputMaskModule,
-    ]
+  selector: 'jhi-produit-update',
+  templateUrl: './produit-update.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    DropdownModule,
+    RippleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    KeyFilterModule,
+    InputMaskModule,
+  ],
 })
 export class ProduitUpdateComponent implements OnInit {
   protected produitService = inject(ProduitService);
@@ -103,11 +103,6 @@ export class ProduitUpdateComponent implements OnInit {
     typeEtiquetteId: [],
     cmuAmount: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
@@ -242,70 +237,70 @@ export class ProduitUpdateComponent implements OnInit {
 
   handleCostInput(event: any): void {
     const value = Number(event.target.value);
-    const unitPrice = Number(this.editForm.get(['regularUnitPrice'])!.value);
+    const unitPrice = Number(this.editForm.get(['regularUnitPrice']).value);
     this.isValid = value < unitPrice;
   }
 
   handleUnitPriceInput(event: any): void {
     const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(['costAmount'])!.value);
+    const costAmount = Number(this.editForm.get(['costAmount']).value);
     this.isValid = costAmount < value;
   }
 
   handleItemQty(event: any): void {
     const itemQty = event.target.value;
     if (Number(itemQty) > 0) {
-      const costAmount = Number(this.editForm.get(['costAmount'])!.value);
-      const regularUnitPrice = Number(this.editForm.get(['regularUnitPrice'])!.value);
+      const costAmount = Number(this.editForm.get(['costAmount']).value);
+      const regularUnitPrice = Number(this.editForm.get(['regularUnitPrice']).value);
       const itemCostAmount = costAmount / itemQty;
       const itemRegularUnitPrice = regularUnitPrice / itemQty;
-      this.editForm.get(['itemCostAmount'])!.setValue(itemCostAmount.toFixed());
-      this.editForm.get(['itemRegularUnitPrice'])!.setValue(itemRegularUnitPrice.toFixed());
+      this.editForm.get(['itemCostAmount']).setValue(itemCostAmount.toFixed());
+      this.editForm.get(['itemRegularUnitPrice']).setValue(itemRegularUnitPrice.toFixed());
     } else {
-      this.editForm.get(['itemCostAmount'])!.setValue(null);
-      this.editForm.get(['itemRegularUnitPrice'])!.setValue(null);
+      this.editForm.get(['itemCostAmount']).setValue(null);
+      this.editForm.get(['itemRegularUnitPrice']).setValue(null);
     }
   }
 
   handleItemCost(event: any): void {
     const value = Number(event.target.value);
-    const itemRegularUnitPrice = Number(this.editForm.get(['itemRegularUnitPrice'])!.value);
+    const itemRegularUnitPrice = Number(this.editForm.get(['itemRegularUnitPrice']).value);
     this.isValid = value < itemRegularUnitPrice;
   }
 
   handleItemPrice(event: any): void {
     const value = event.target.value;
-    const itemCostAmount = Number(this.editForm.get(['itemCostAmount'])!.value);
+    const itemCostAmount = Number(this.editForm.get(['itemCostAmount']).value);
     this.isValid = itemCostAmount < Number(value);
   }
 
   onDatePeremtionCheck(value: any): void {
     this.isDatePeremptionChecked = value.currentTarget.checked;
     if (this.isDatePeremptionChecked) {
-      this.editForm.get('perimeAt')!.setValidators([Validators.required, Validators.min(1)]);
-      this.editForm.get('perimeAt')!.updateValueAndValidity();
+      this.editForm.get('perimeAt').setValidators([Validators.required, Validators.min(1)]);
+      this.editForm.get('perimeAt').updateValueAndValidity();
     } else {
-      this.editForm.get('perimeAt')!.clearValidators();
-      this.editForm.get('perimeAt')!.updateValueAndValidity();
+      this.editForm.get('perimeAt').clearValidators();
+      this.editForm.get('perimeAt').updateValueAndValidity();
     }
   }
 
   onDeconditionnable(value: any): void {
     this.isDeconditionnable = value.currentTarget.checked;
     if (this.isDeconditionnable) {
-      this.editForm.get('itemRegularUnitPrice')!.setValidators([Validators.required, Validators.min(1)]);
-      this.editForm.get('itemRegularUnitPrice')!.updateValueAndValidity();
-      this.editForm.get('itemCostAmount')!.setValidators([Validators.required, Validators.min(1)]);
-      this.editForm.get('itemCostAmount')!.updateValueAndValidity();
-      this.editForm.get('itemQty')!.setValidators([Validators.required, Validators.min(1)]);
-      this.editForm.get('itemQty')!.updateValueAndValidity();
+      this.editForm.get('itemRegularUnitPrice').setValidators([Validators.required, Validators.min(1)]);
+      this.editForm.get('itemRegularUnitPrice').updateValueAndValidity();
+      this.editForm.get('itemCostAmount').setValidators([Validators.required, Validators.min(1)]);
+      this.editForm.get('itemCostAmount').updateValueAndValidity();
+      this.editForm.get('itemQty').setValidators([Validators.required, Validators.min(1)]);
+      this.editForm.get('itemQty').updateValueAndValidity();
     } else {
-      this.editForm.get('itemRegularUnitPrice')!.clearValidators();
-      this.editForm.get('itemRegularUnitPrice')!.updateValueAndValidity();
-      this.editForm.get('itemQty')!.clearValidators();
-      this.editForm.get('itemQty')!.updateValueAndValidity();
-      this.editForm.get('itemCostAmount')!.clearValidators();
-      this.editForm.get('itemCostAmount')!.updateValueAndValidity();
+      this.editForm.get('itemRegularUnitPrice').clearValidators();
+      this.editForm.get('itemRegularUnitPrice').updateValueAndValidity();
+      this.editForm.get('itemQty').clearValidators();
+      this.editForm.get('itemQty').updateValueAndValidity();
+      this.editForm.get('itemCostAmount').clearValidators();
+      this.editForm.get('itemCostAmount').updateValueAndValidity();
     }
   }
 
@@ -328,32 +323,32 @@ export class ProduitUpdateComponent implements OnInit {
   private createFromForm(): IProduit {
     return {
       ...new Produit(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      costAmount: this.editForm.get(['costAmount'])!.value,
-      cmuAmount: this.editForm.get(['cmuAmount'])!.value,
-      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
-      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
-      itemQty: this.editForm.get(['itemQty'])!.value,
-      itemCostAmount: this.editForm.get(['itemCostAmount'])!.value,
-      itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      costAmount: this.editForm.get(['costAmount']).value,
+      cmuAmount: this.editForm.get(['cmuAmount']).value,
+      regularUnitPrice: this.editForm.get(['regularUnitPrice']).value,
+      createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
+      itemQty: this.editForm.get(['itemQty']).value,
+      itemCostAmount: this.editForm.get(['itemCostAmount']).value,
+      itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice']).value,
       typeProduit: TypeProduit.PACKAGE,
-      typeEtiquetteId: this.editForm.get(['typeEtiquetteId'])!.value,
-      tvaId: this.editForm.get(['tvaId'])!.value,
-      familleId: this.editForm.get(['familleId'])!.value,
-      codeCip: this.editForm.get(['codeCip'])!.value,
-      rayonId: this.editForm.get(['rayonId'])!.value,
-      codeEan: this.editForm.get(['codeEan'])!.value,
-      qtyAppro: this.editForm.get(['qtyAppro'])!.value,
-      qtySeuilMini: this.editForm.get(['qtySeuilMini'])!.value,
-      remiseCode: this.editForm.get(['remiseCode'])!.value,
-      gammeId: this.editForm.get(['gammeId'])!.value,
-      fournisseurId: this.editForm.get(['fournisseurId'])!.value,
-      laboratoireId: this.editForm.get(['laboratoireId'])!.value,
-      deconditionnable: this.editForm.get(['deconditionnable'])!.value,
-      dateperemption: this.editForm.get(['dateperemption'])!.value,
-      expirationDate: this.editForm.get(['expirationDate'])!.value,
-      formeId: this.editForm.get(['formeId'])!.value,
+      typeEtiquetteId: this.editForm.get(['typeEtiquetteId']).value,
+      tvaId: this.editForm.get(['tvaId']).value,
+      familleId: this.editForm.get(['familleId']).value,
+      codeCip: this.editForm.get(['codeCip']).value,
+      rayonId: this.editForm.get(['rayonId']).value,
+      codeEan: this.editForm.get(['codeEan']).value,
+      qtyAppro: this.editForm.get(['qtyAppro']).value,
+      qtySeuilMini: this.editForm.get(['qtySeuilMini']).value,
+      remiseCode: this.editForm.get(['remiseCode']).value,
+      gammeId: this.editForm.get(['gammeId']).value,
+      fournisseurId: this.editForm.get(['fournisseurId']).value,
+      laboratoireId: this.editForm.get(['laboratoireId']).value,
+      deconditionnable: this.editForm.get(['deconditionnable']).value,
+      dateperemption: this.editForm.get(['dateperemption']).value,
+      expirationDate: this.editForm.get(['expirationDate']).value,
+      formeId: this.editForm.get(['formeId']).value,
     };
   }
 }

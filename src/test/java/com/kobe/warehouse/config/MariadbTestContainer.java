@@ -23,12 +23,11 @@ public class MariadbTestContainer implements SqlTestContainer {
     @Override
     public void afterPropertiesSet() {
         if (null == mariaDBContainer) {
-            mariaDBContainer =
-                new MariaDBContainer<>("mariadb:11.2.2")
-                    .withDatabaseName("warehouse")
-                    .withTmpFs(Collections.singletonMap("/testtmpfs", "rw"))
-                    .withLogConsumer(new Slf4jLogConsumer(log))
-                    .withReuse(true);
+            mariaDBContainer = new MariaDBContainer<>("mariadb:11.2.2")
+                .withDatabaseName("warehouse")
+                .withTmpFs(Collections.singletonMap("/testtmpfs", "rw"))
+                .withLogConsumer(new Slf4jLogConsumer(log))
+                .withReuse(true);
         }
         if (!mariaDBContainer.isRunning()) {
             mariaDBContainer.start();

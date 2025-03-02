@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ProductStateRepository extends JpaRepository<ProductState, Long> {
-  List<ProductState> findProductStateByProduitId(Long produitId);
+    List<ProductState> findProductStateByProduitId(Long produitId);
 
-  List<ProductState> findProductStateByStateAndProduitId(
-      ProductStateEnum productStateEnum, Long produitId);
+    List<ProductState> findProductStateByStateAndProduitId(ProductStateEnum productStateEnum, Long produitId);
 }

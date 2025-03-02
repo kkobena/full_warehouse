@@ -17,4 +17,5 @@ public record TransactionFilterDTO(
     Set<String> paymentModes,
     Order order,
     LocalTime fromTime,
-    LocalTime toTime) {}
+    LocalTime toTime
+) {}

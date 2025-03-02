@@ -78,7 +78,7 @@ export class AuditingComponent implements OnInit {
     this.produitStatService.exportToPdf(produitAuditingParam).subscribe({
       next: blod => {
         const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-        //saveAs(blod, 'suivi_mvt_article_' + fileName);
+        // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
         this.spinner.hide();
@@ -113,7 +113,7 @@ export class AuditingComponent implements OnInit {
 
   private computeTotaux(): void {
     this.resetTotaux();
-    if (this.entites?.length > 0) {
+    if (this.entites.length > 0) {
       for (const e of this.entites) {
         console.warn(e);
         if (e.saleQuantity) {

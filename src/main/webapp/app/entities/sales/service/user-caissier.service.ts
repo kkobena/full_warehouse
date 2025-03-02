@@ -7,8 +7,6 @@ import { IUser } from '../../../core/user/user.model';
 export class UserCaissierService {
   caissier: WritableSignal<IUser> = signal<IUser>(null);
 
-  constructor() {}
-
   setCaissier(user: IUser): void {
     this.caissier.set(user);
   }

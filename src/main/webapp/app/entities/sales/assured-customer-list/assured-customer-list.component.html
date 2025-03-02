@@ -1,45 +1,43 @@
 <div class="modal-body">
-  <p-table (onLazyLoad)="lazyLoading($event)"
-           [globalFilterFields]="['firstName','lastName','fullName','numAyantDroit','code','num']"
-           [lazy]="true" [loading]="loading" [paginator]="true"
-           [rowsPerPageOptions]="[10,15,20]"
-           [rows]="itemsPerPage"
-           [showCurrentPageReport]="true"
-           [totalRecords]="totalItems"
-           [value]="customers"
-           dataKey="id"
-           selectionMode="single">
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [globalFilterFields]="['firstName', 'lastName', 'fullName', 'numAyantDroit', 'code', 'num']"
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20]"
+    [rows]="itemsPerPage"
+    [showCurrentPageReport]="true"
+    [totalRecords]="totalItems"
+    [value]="customers"
+    dataKey="id"
+    selectionMode="single"
+  >
     <ng-template pTemplate="caption">
       <div class="d-flex justify-content-between">
-                <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input (input)="loadPage()" [(ngModel)]="searchString" pInputText
-           placeholder="TAPEZ POUR FILTRER"
-           type="text">
-</span>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText placeholder="TAPEZ POUR FILTRER" type="text" />
+        </span>
         <!--<button (click)="addAssureCustomer()" class="btn btn-success" type="button"><i
           class="pi pi-user-plus">&nbsp;</i>Nouveau
         </button>-->
       </div>
-
-
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:3%">
-          #
-        </th>
-        <th style="width:7%">CODE</th>
-        <th style="width:13%">NOM</th>
-        <th style="width:25%">PRENOM(S)</th>
-        <th style="width:13%">Numéro de securité</th>
-        <th style="width:34%">Tiers-payant</th>
-        <th style="width:5%"></th>
+        <th style="width: 3%">#</th>
+        <th style="width: 7%">CODE</th>
+        <th style="width: 13%">NOM</th>
+        <th style="width: 25%">PRENOM(S)</th>
+        <th style="width: 13%">Numéro de securité</th>
+        <th style="width: 34%">Tiers-payant</th>
+        <th style="width: 5%"></th>
       </tr>
     </ng-template>
     <ng-template let-customer let-rowIndex="rowIndex" pTemplate="body">
-      <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer;">
-        <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+      <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer">
+        <td style="text-align: left">{{ rowIndex + 1 }}</td>
         <td>{{ customer.code }}</td>
         <td>{{ customer.firstName }}</td>
         <td>{{ customer.lastName }}</td>
@@ -52,30 +50,27 @@
                 <span class="badge text-bg-primary rounded-pill">{{ tiersPayant.taux }}</span>
               </li>
             }
-
           </ol>
-
         </td>
 
-        <td style="text-align: right;">
-          <p-button (click)="onSelect(customer)"
-                    [rounded]="true" class=" p-mb-3"
-                    icon="pi pi-check" pTooltip="Séléctionner"
-                    severity="info"
-                    size="small"></p-button>
+        <td style="text-align: right">
+          <p-button
+            (click)="onSelect(customer)"
+            [rounded]="true"
+            class="p-mb-3"
+            icon="pi pi-check"
+            pTooltip="Séléctionner"
+            severity="info"
+            size="small"
+          ></p-button>
         </td>
       </tr>
-
     </ng-template>
-
   </p-table>
-
 </div>
 
 <div class="modal-footer">
   <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
     <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
   </button>
-
-
 </div>

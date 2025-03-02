@@ -103,9 +103,9 @@ export class DeliveryModalComponent implements OnInit {
     }
     this.minDate = new Date(moment(this.commande.createdAt).format(DATE_FORMAT));
     this.editForm
-      .get('receiptAmount')!
+      .get('receiptAmount')
       .setValidators([Validators.min(this.commande.grossAmount), Validators.max(this.commande.grossAmount)]);
-    this.editForm.get('receiptAmount')!.updateValueAndValidity();
+    this.editForm.get('receiptAmount').updateValueAndValidity();
   }
 
   updateForm(entity: IDelivery): void {
@@ -159,12 +159,12 @@ export class DeliveryModalComponent implements OnInit {
   private createFrom(): IDelivery {
     return {
       ...new Delivery(),
-      id: this.editForm.get(['id'])!.value,
-      receiptRefernce: this.editForm.get(['receiptRefernce'])!.value,
-      receiptFullDate: this.buildDate(this.editForm.get(['receiptDate'])!.value),
-      sequenceBon: this.editForm.get(['sequenceBon'])!.value,
-      receiptAmount: this.editForm.get(['receiptAmount'])!.value,
-      taxAmount: this.editForm.get(['taxAmount'])!.value,
+      id: this.editForm.get(['id']).value,
+      receiptRefernce: this.editForm.get(['receiptRefernce']).value,
+      receiptFullDate: this.buildDate(this.editForm.get(['receiptDate']).value),
+      sequenceBon: this.editForm.get(['sequenceBon']).value,
+      receiptAmount: this.editForm.get(['receiptAmount']).value,
+      taxAmount: this.editForm.get(['taxAmount']).value,
       orderReference: this.commande.orderRefernce,
     };
   }

@@ -1,39 +1,36 @@
-<div class="row home-graphe ">
-  <div #nav="ngbNav" [(activeId)]="active" class="nav nav-tabs " ngbNav
-       orientation="horizontal">
+<div class="row home-graphe">
+  <div #nav="ngbNav" [(activeId)]="active" class="nav nav-tabs" ngbNav orientation="horizontal">
     <ng-container ngbNavItem="graphe-daily">
-      <a class=" nav-link " ngbNavLink>Journalier</a>
+      <a class="nav-link" ngbNavLink>Journalier</a>
       <ng-template ngbNavContent>
         <jhi-graphe-daily></jhi-graphe-daily>
       </ng-template>
     </ng-container>
     <ng-container ngbNavItem="graphe-weekly">
-      <a class=" nav-link " ngbNavLink>Hebdomadaire</a>
+      <a class="nav-link" ngbNavLink>Hebdomadaire</a>
       <ng-template ngbNavContent>
         <jhi-graphe-weekly></jhi-graphe-weekly>
       </ng-template>
     </ng-container>
 
     <ng-container ngbNavItem="graphe-monthly">
-      <a class=" nav-link " ngbNavLink>Mensuel</a>
+      <a class="nav-link" ngbNavLink>Mensuel</a>
       <ng-template ngbNavContent>
         <jhi-graphe-monthly></jhi-graphe-monthly>
       </ng-template>
     </ng-container>
     <ng-container ngbNavItem="graphe-halfyearly">
-      <a class=" nav-link " ngbNavLink>Semestriel</a>
+      <a class="nav-link" ngbNavLink>Semestriel</a>
       <ng-template ngbNavContent>
         <jhi-graphe-halfyearly></jhi-graphe-halfyearly>
       </ng-template>
     </ng-container>
     <ng-container ngbNavItem="graphe-yearly">
-      <a class=" nav-link " ngbNavLink>Annuel</a>
+      <a class="nav-link" ngbNavLink>Annuel</a>
       <ng-template ngbNavContent>
         <jhi-graphe-yearly></jhi-graphe-yearly>
       </ng-template>
     </ng-container>
   </div>
 </div>
-<div [ngbNavOutlet]="nav" class="row">
-</div>
-
+<div [ngbNavOutlet]="nav" class="row"></div>

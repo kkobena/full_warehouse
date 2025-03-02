@@ -1,106 +1,128 @@
 <table>
   <tbody>
-
-
-  <tr>
-    <td colspan="2">TOTAL TTC</td>
-    <td class="total-to-pay" colspan="2" th:if="${sale.salesAmount ge 1000}"
+    <tr>
+      <td colspan="2">TOTAL TTC</td>
+      <td
+        class="total-to-pay"
+        colspan="2"
+        th:if="${sale.salesAmount ge 1000}"
         th:text="${ #numbers.formatInteger(sale.salesAmount,3,'WHITESPACE') }"
-    ></td>
-    <td class="total-to-pay" colspan="2" th:if="${sale.salesAmount lt 1000}"
-        th:text="${ sale.salesAmount }"></td>
-  </tr>
+      ></td>
+      <td class="total-to-pay" colspan="2" th:if="${sale.salesAmount lt 1000}" th:text="${ sale.salesAmount }"></td>
+    </tr>
 
-
-  <tr th:if="${sale.discountAmount gt 0}">
-    <td colspan="2">REMISE</td>
-    <td class="total-to-pay" colspan="2" th:if="${sale.discountAmount ge 1000}"
+    <tr th:if="${sale.discountAmount gt 0}">
+      <td colspan="2">REMISE</td>
+      <td
+        class="total-to-pay"
+        colspan="2"
+        th:if="${sale.discountAmount ge 1000}"
         th:text="${ #numbers.formatInteger((-1)*sale.discountAmount,3,'WHITESPACE') }"
-    ></td>
-    <td class="total-to-pay" colspan="2" th:if="${sale.discountAmount lt 1000}"
-        th:text="${ sale.discountAmount *(-1)}"></td>
-  </tr>
+      ></td>
+      <td class="total-to-pay" colspan="2" th:if="${sale.discountAmount lt 1000}" th:text="${ sale.discountAmount *(-1)}"></td>
+    </tr>
 
+    <tr th:if="${sale.taxAmount gt 0}">
+      <td colspan="2">TOTAL TAXE</td>
+      <td
+        class="total"
+        colspan="2"
+        th:if="${sale.taxAmount ge 1000}"
+        th:text="${ #numbers.formatInteger(sale.taxAmount,3,'WHITESPACE') }"
+      ></td>
+      <td class="total" colspan="2" th:if="${sale.taxAmount lt 1000}" th:text="${ sale.taxAmount }"></td>
+    </tr>
+    <tr th:if="${sale.amountToBePaid gt 0}">
+      <td class="total-libelle" colspan="2">
+        <span>TOTAL A PAYER</span>
+        <span
+          style="float: right"
+          th:if="${#aggregates.sum(sale.salesLines.![quantiyAvoir]) gt 0}"
+          th:text="${'(Avoir '+  #aggregates.sum(sale.salesLines.![quantiyAvoir])}+' )'"
+        >
+        </span>
+      </td>
+      <td
+        class="amount-to-pay"
+        colspan="2"
+        th:if="${sale.amountToBePaid ge 1000}"
+        th:text="${ #numbers.formatInteger(sale.amountToBePaid,3,'WHITESPACE') }"
+      ></td>
+      <td class="amount-to-pay" colspan="2" th:if="${sale.amountToBePaid lt 1000}" th:text="${ sale.amountToBePaid }"></td>
+    </tr>
 
-  <tr th:if="${sale.taxAmount gt 0}">
+    <tr th:if="${!sale.payments.isEmpty()}">
+      <td class="text-center reglement" colspan="4">REGLEMENT</td>
+    </tr>
+    <tr th:each="payment: ${sale.payments}">
+      <td colspan="2" th:text="${payment.paymentMode.libelle}"></td>
+      <td
+        class="total"
+        colspan="2"
+        th:if="${payment.paidAmount ge 1000}"
+        th:text="${ #strings.equals(payment.paymentMode.code,'CASH')?  #numbers.formatInteger(payment.montantVerse,3,'WHITESPACE'): #numbers.formatInteger(payment.paidAmount,3,'WHITESPACE') }"
+      ></td>
+      <td
+        class="total"
+        colspan="2"
+        th:if="${payment.paidAmount lt 1000}"
+        th:text="${ #strings.equals(payment.paymentMode.code,'CASH')? payment.montantVerse:payment.paidAmount }"
+      ></td>
+    </tr>
+    <tr th:if="${sale.montantRendu gt 0}">
+      <td colspan="2">MONNAIE</td>
+      <td
+        class="total"
+        colspan="2"
+        th:if="${sale.montantRendu ge 1000}"
+        th:text="${ #numbers.formatInteger((-1)*sale.montantRendu,3,'WHITESPACE') }"
+      ></td>
+      <td class="total" colspan="2" th:if="${sale.montantRendu lt 1000}" th:text="${ sale.montantRendu*(-1) }"></td>
+    </tr>
+    <tr th:if="${sale.restToPay gt 0}">
+      <td colspan="2">RESTE A PAYER</td>
+      <td
+        class="total"
+        colspan="2"
+        th:if="${sale.restToPay ge 1000}"
+        th:text="${ #numbers.formatInteger(sale.restToPay,3,'WHITESPACE') }"
+      ></td>
+      <td class="total" colspan="2" th:if="${sale.restToPay lt 1000}" th:text="${ sale.restToPay }"></td>
+    </tr>
 
-    <td colspan="2">TOTAL TAXE</td>
-    <td class="total" colspan="2" th:if="${sale.taxAmount ge 1000}"
-        th:text="${ #numbers.formatInteger(sale.taxAmount,3,'WHITESPACE') }"></td>
-    <td class="total" colspan="2" th:if="${sale.taxAmount lt 1000}"
-        th:text="${ sale.taxAmount }"></td>
-  </tr>
-  <tr th:if="${sale.amountToBePaid gt 0}">
-    <td class="total-libelle" colspan="2"><span>TOTAL A PAYER</span> <span style="float: right;"
-                                                                           th:if="${#aggregates.sum(sale.salesLines.![quantiyAvoir]) gt 0}"
-                                                                           th:text="${'(Avoir '+  #aggregates.sum(sale.salesLines.![quantiyAvoir])}+' )'">  </span>
-    </td>
-    <td class="amount-to-pay" colspan="2" th:if="${sale.amountToBePaid ge 1000}"
-        th:text="${ #numbers.formatInteger(sale.amountToBePaid,3,'WHITESPACE') }"></td>
-    <td class="amount-to-pay" colspan="2" th:if="${sale.amountToBePaid lt 1000}"
-        th:text="${ sale.amountToBePaid }"></td>
-  </tr>
+    <tr class="tva" th:each="tva : ${sale.tvaEmbededs}">
+      <td colspan="2">
+        TVA
+        <th:block th:text="${' '+tva.tva+' %'}"></th:block>
+      </td>
+      <td class="unit" colspan="2" th:if="${tva.amount ge 1000}" th:text="${ #numbers.formatInteger(tva.amount,3,'WHITESPACE')  }"></td>
+      <td class="unit" colspan="2" th:if="${tva.amount lt 1000}" th:text="${ tva.amount }"></td>
+    </tr>
+    <tr th:each="thirdPartySaleLine : ${sale.thirdPartySaleLines}">
+      <td colspan="2" th:text="${thirdPartySaleLine.tiersPayantFullName}"></td>
+      <td th:text="${thirdPartySaleLine.taux+'%'}"></td>
+      <td
+        class="total"
+        th:if="${thirdPartySaleLine.montant ge 1000}"
+        th:text="${ #numbers.formatInteger(thirdPartySaleLine.montant,3,'WHITESPACE') }"
+      ></td>
+      <td class="total" th:if="${thirdPartySaleLine.montant lt 1000}" th:text="${ thirdPartySaleLine.montant }"></td>
+    </tr>
+    <!--  <tr>-->
+    <!--    <td colspan="3">PART ASSURE</td>-->
+    <!--    <td class="total-to-pay" th:if="${sale.partAssure ge 1000}"-->
+    <!--        th:text="${  #numbers.formatInteger(sale.partAssure,3,'WHITESPACE')}"></td>-->
+    <!--    <td class="total-to-pay" th:if="${sale.partAssure lt 1000}"-->
+    <!--        th:text="${ sale.partAssure}"></td>-->
 
-  <tr th:if="${!sale.payments.isEmpty()}">
-    <td class="text-center reglement" colspan="4">REGLEMENT</td>
-  </tr>
-  <tr th:each="payment: ${sale.payments}">
-    <td colspan="2" th:text="${payment.paymentMode.libelle}">
-    </td>
-    <td class="total" colspan="2" th:if="${payment.paidAmount ge 1000}"
-        th:text="${ #strings.equals(payment.paymentMode.code,'CASH')?  #numbers.formatInteger(payment.montantVerse,3,'WHITESPACE'): #numbers.formatInteger(payment.paidAmount,3,'WHITESPACE') }"></td>
-    <td class="total" colspan="2" th:if="${payment.paidAmount lt 1000}"
-        th:text="${ #strings.equals(payment.paymentMode.code,'CASH')? payment.montantVerse:payment.paidAmount }"></td>
-  </tr>
-  <tr th:if="${sale.montantRendu gt 0}">
-    <td colspan="2">MONNAIE</td>
-    <td class="total" colspan="2" th:if="${sale.montantRendu ge 1000}"
-        th:text="${ #numbers.formatInteger((-1)*sale.montantRendu,3,'WHITESPACE') }"></td>
-    <td class="total" colspan="2" th:if="${sale.montantRendu lt 1000}"
-        th:text="${ sale.montantRendu*(-1) }"></td>
-  </tr>
-  <tr th:if="${sale.restToPay gt 0}">
-    <td colspan="2">RESTE A PAYER</td>
-    <td class="total" colspan="2" th:if="${sale.restToPay ge 1000}"
-        th:text="${ #numbers.formatInteger(sale.restToPay,3,'WHITESPACE') }"></td>
-    <td class="total" colspan="2" th:if="${sale.restToPay lt 1000}"
-        th:text="${ sale.restToPay }"></td>
-  </tr>
+    <!--  </tr>-->
+    <!--  <tr>-->
 
-
-  <tr class="tva" th:each="tva : ${sale.tvaEmbededs}">
-    <td colspan="2">TVA
-      <th:block th:text="${' '+tva.tva+' %'}"></th:block>
-
-    </td>
-    <td class="unit" colspan="2" th:if="${tva.amount ge 1000}"
-        th:text="${ #numbers.formatInteger(tva.amount,3,'WHITESPACE')  }"></td>
-    <td class="unit" colspan="2" th:if="${tva.amount lt 1000}" th:text="${ tva.amount }"></td>
-  </tr>
-  <tr th:each="thirdPartySaleLine : ${sale.thirdPartySaleLines}">
-    <td colspan="2" th:text="${thirdPartySaleLine.tiersPayantFullName}"></td>
-    <td th:text="${thirdPartySaleLine.taux+'%'}"></td>
-    <td class="total" th:if="${thirdPartySaleLine.montant ge 1000}"
-        th:text="${ #numbers.formatInteger(thirdPartySaleLine.montant,3,'WHITESPACE') }"></td>
-    <td class="total" th:if="${thirdPartySaleLine.montant lt 1000}"
-        th:text="${ thirdPartySaleLine.montant }"></td>
-  </tr>
-  <!--  <tr>-->
-  <!--    <td colspan="3">PART ASSURE</td>-->
-  <!--    <td class="total-to-pay" th:if="${sale.partAssure ge 1000}"-->
-  <!--        th:text="${  #numbers.formatInteger(sale.partAssure,3,'WHITESPACE')}"></td>-->
-  <!--    <td class="total-to-pay" th:if="${sale.partAssure lt 1000}"-->
-  <!--        th:text="${ sale.partAssure}"></td>-->
-
-  <!--  </tr>-->
-  <!--  <tr>-->
-
-  <!--    <td colspan="3">PART ASSURANCE</td>-->
-  <!--    <td class="total-to-pay" th:if="${sale.partTiersPayant ge 1000}"-->
-  <!--        th:text="${  #numbers.formatInteger(sale.partTiersPayant,3,'WHITESPACE')}"></td>-->
-  <!--    <td class="total-to-pay" th:if="${sale.partTiersPayant lt 1000}"-->
-  <!--        th:text="${ sale.partTiersPayant}"></td>-->
-  <!--  </tr>-->
-
+    <!--    <td colspan="3">PART ASSURANCE</td>-->
+    <!--    <td class="total-to-pay" th:if="${sale.partTiersPayant ge 1000}"-->
+    <!--        th:text="${  #numbers.formatInteger(sale.partTiersPayant,3,'WHITESPACE')}"></td>-->
+    <!--    <td class="total-to-pay" th:if="${sale.partTiersPayant lt 1000}"-->
+    <!--        th:text="${ sale.partTiersPayant}"></td>-->
+    <!--  </tr>-->
   </tbody>
 </table>

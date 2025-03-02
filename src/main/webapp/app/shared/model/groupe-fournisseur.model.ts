@@ -16,6 +16,6 @@ export class GroupeFournisseur implements IGroupeFournisseur {
     public numFaxe?: string,
     public email?: string,
     public tel?: string,
-    public odre?: number
+    public odre?: number,
   ) {}
 }

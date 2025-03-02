@@ -66,11 +66,11 @@ export class BaseSaleService {
   }
 
   getTotalQtyProduit(): number {
-    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
+    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
   }
 
   getTotalQtyServi(): number {
-    return this.currentSaleService.currentSale()?.salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
   }
 
   getCashAmount(entryAmount: number): number {
@@ -141,7 +141,7 @@ export class BaseSaleService {
     });
   }
 
-  onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {
+  onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
     this.saleEventManager.broadcast({
       name: 'responseEvent',
       content: new FinalyseSale(true, null, response.saleId, putOnStandBy),

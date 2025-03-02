@@ -15,11 +15,6 @@ export class MagasinService {
 
   public resourceUrl = SERVER_API_URL + 'api/magasins';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(magasin: IMagasin): Observable<EntityResponseType> {
     return this.http.post<IMagasin>(this.resourceUrl, magasin, { observe: 'response' });
   }

@@ -50,7 +50,7 @@ export class SalesLine implements ISalesLine {
     public quantityStock?: number,
     public quantityRequested?: number,
     public code?: string,
-    public forceStock?: boolean
+    public forceStock?: boolean,
   ) {
     this.forceStock = this.forceStock || false;
   }

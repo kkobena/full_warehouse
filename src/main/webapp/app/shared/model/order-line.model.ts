@@ -68,6 +68,6 @@ export class OrderLine implements IOrderLine {
     public quantityReceivedTmp?: number,
     public quantityUG?: number,
     public ugQuantity?: number,
-    public lots?: ILot[]
+    public lots?: ILot[],
   ) {}
 }

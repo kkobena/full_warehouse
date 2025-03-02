@@ -18,81 +18,85 @@ import java.util.Objects;
 @Entity
 @Table(
     name = "poste",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})},
-    indexes = {@Index(columnList = "name", name = "poste_name_index")})
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
+    indexes = { @Index(columnList = "name", name = "poste_name_index") }
+)
 public class Poste implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @Column(name = "name", nullable = false)
-  private String name;
-  private String posteNumber;
-  @NotNull
-  @Column(name = "address", nullable = false)
-  private String address;
-  @OneToMany(mappedBy = "poste")
-  private List<Printer> printers = new ArrayList<>();
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  public String getPosteNumber() {
-    return posteNumber;
-  }
+    private String posteNumber;
 
-  public Poste setPosteNumber(String posteNumber) {
-    this.posteNumber = posteNumber;
-    return this;
-  }
+    @NotNull
+    @Column(name = "address", nullable = false)
+    private String address;
 
-  public Long getId() {
-    return id;
-  }
+    @OneToMany(mappedBy = "poste")
+    private List<Printer> printers = new ArrayList<>();
 
-  public Poste setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public String getPosteNumber() {
+        return posteNumber;
+    }
 
-  public List<Printer> getPrinters() {
-    return printers;
-  }
+    public Poste setPosteNumber(String posteNumber) {
+        this.posteNumber = posteNumber;
+        return this;
+    }
 
-  public Poste setPrinters(List<Printer> printers) {
-    this.printers = printers;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public Poste setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public Poste setName(String name) {
-    this.name = name;
-    return this;
-  }
+    public List<Printer> getPrinters() {
+        return printers;
+    }
 
-  public String getAddress() {
-    return address;
-  }
+    public Poste setPrinters(List<Printer> printers) {
+        this.printers = printers;
+        return this;
+    }
 
-  public Poste setAddress(String address) {
-    this.address = address;
-    return this;
-  }
+    public String getName() {
+        return name;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Poste printer = (Poste) o;
-    return Objects.equals(id, printer.id);
-  }
+    public Poste setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
+    public String getAddress() {
+        return address;
+    }
+
+    public Poste setAddress(String address) {
+        this.address = address;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Poste printer = (Poste) o;
+        return Objects.equals(id, printer.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

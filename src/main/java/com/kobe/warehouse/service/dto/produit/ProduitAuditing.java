@@ -15,4 +15,5 @@ public record ProduitAuditing(
     Boolean canceled,
     String saleType,
     TypeDeconditionnement typeDeconditionnement,
-    AjustType ajustType) {}
+    AjustType ajustType
+) {}

@@ -17,11 +17,6 @@ export class TableauProduitService {
 
   public resourceUrl = SERVER_API_URL + 'api/tableaux';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(tableau: ITableau): Observable<EntityResponseType> {
     return this.http.post<ITableau>(this.resourceUrl, tableau, { observe: 'response' });
   }

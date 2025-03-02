@@ -5,5 +5,5 @@ public enum ImportationType {
     VENTE,
     FICHE_ARTICLE,
     TIERS_PAYANT,
-    CLIENTS
+    CLIENTS,
 }

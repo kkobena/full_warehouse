@@ -278,16 +278,15 @@ public class EditionDataServiceImpl implements EditionDataService {
         Pageable pageable
     ) {
         List<TiersPayantDossierFactureDto> factureDtos = new ArrayList<>();
-        getEditionDatas(editionSearchParams, pageable).forEach(
-            t ->
-                factureDtos.add(
-                    new TiersPayantDossierFactureDto(
-                        t.get("tiersPayantId", Long.class),
-                        t.get("tiersPayantName", String.class),
-                        t.get("totalAmount", BigDecimal.class),
-                        t.get("factureItemCount", Long.class).intValue()
-                    )
+        getEditionDatas(editionSearchParams, pageable).forEach(t ->
+            factureDtos.add(
+                new TiersPayantDossierFactureDto(
+                    t.get("tiersPayantId", Long.class),
+                    t.get("tiersPayantName", String.class),
+                    t.get("totalAmount", BigDecimal.class),
+                    t.get("factureItemCount", Long.class).intValue()
                 )
+            )
         );
         return factureDtos;
     }

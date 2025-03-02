@@ -79,7 +79,7 @@ export class FinalyseComponent implements OnInit {
   private createFromForm(): IAjust {
     return {
       ...this.entity,
-      commentaire: this.editForm.get(['commentaire'])!.value,
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 }

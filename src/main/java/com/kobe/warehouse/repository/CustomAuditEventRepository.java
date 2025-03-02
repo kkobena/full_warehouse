@@ -30,9 +30,10 @@ public class CustomAuditEventRepository implements AuditEventRepository {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    public CustomAuditEventRepository(PersistenceAuditEventRepository persistenceAuditEventRepository,
-            AuditEventConverter auditEventConverter) {
-
+    public CustomAuditEventRepository(
+        PersistenceAuditEventRepository persistenceAuditEventRepository,
+        AuditEventConverter auditEventConverter
+    ) {
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
     }
@@ -47,9 +48,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {
-        if (!AUTHORIZATION_FAILURE.equals(event.getType()) &&
-            !Constants.SYSTEM.equals(event.getPrincipal())) {
-
+        if (!AUTHORIZATION_FAILURE.equals(event.getType()) && !Constants.SYSTEM.equals(event.getPrincipal())) {
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
             persistentAuditEvent.setPrincipal(event.getPrincipal());
             persistentAuditEvent.setAuditEventType(event.getType());
@@ -73,8 +72,12 @@ public class CustomAuditEventRepository implements AuditEventRepository {
                     int length = value.length();
                     if (length > EVENT_DATA_COLUMN_MAX_LENGTH) {
                         value = value.substring(0, EVENT_DATA_COLUMN_MAX_LENGTH);
-                        log.warn("Event data for {} too long ({}) has been truncated to {}. Consider increasing column width.",
-                                 entry.getKey(), length, EVENT_DATA_COLUMN_MAX_LENGTH);
+                        log.warn(
+                            "Event data for {} too long ({}) has been truncated to {}. Consider increasing column width.",
+                            entry.getKey(),
+                            length,
+                            EVENT_DATA_COLUMN_MAX_LENGTH
+                        );
                     }
                 }
                 results.put(entry.getKey(), value);

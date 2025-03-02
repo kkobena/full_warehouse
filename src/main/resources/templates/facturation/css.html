@@ -1,24 +1,21 @@
 <style th:inline="css">
-
   header {
-   /* position: absolute;*/
+    /* position: absolute;*/
     position: running(header);
     border-bottom: 0.5px solid #3989c6;
     font-size: 9px;
-
   }
   .header-counter:before {
-    content: counter(page) "/" counter(pages);
+    content: counter(page) '/' counter(pages);
   }
   #page-data:before {
-    content: counter(page) "/" counter(pages);
+    content: counter(page) '/' counter(pages);
   }
 
   @page {
     size: A4;
     @bottom-center {
-
-      content: [(${footer})] ;
+      content: [(${footer})];
       border-top: 0.5px solid #3989c6;
       text-align: center;
       white-space: pre-wrap;
@@ -27,12 +24,9 @@
       padding-top: 2px;
       margin-bottom: 10mm;
       vertical-align: top;
-
-
     }
     @top-left {
       content: element(header);
-
     }
 
     margin-top: 30mm;
@@ -40,17 +34,13 @@
     margin-left: 20px;
   }
 
-
   .invoice {
-
     padding: 0;
-
   }
 
   header .row {
     padding: 3px 0;
     margin-bottom: 5px;
-
   }
 
   .invoice .company-details {
@@ -59,23 +49,20 @@
 
   .invoice .company-details .name {
     margin-top: 0;
-    margin-bottom: 0
+    margin-bottom: 0;
   }
 
-
   .invoice-details {
-    text-align: right
+    text-align: right;
   }
 
   .invoice-details .invoice-id {
-
-    color: #3989c6
+    color: #3989c6;
   }
 
   main {
     display: block;
   }
-
 
   .invoice main .notices {
     padding-left: 6px;
@@ -85,7 +72,7 @@
   }
 
   main .notices .notice {
-    font-size: 1.2em
+    font-size: 1.2em;
   }
 
   table {
@@ -96,32 +83,32 @@
     -fs-table-paginate: paginate;
   }
 
-  table.main-table tr td, table.main-table tr th {
+  table.main-table tr td,
+  table.main-table tr th {
     padding: 0.2rem 1rem;
-    border-bottom: 0.5px solid #4D4D4D;
+    border-bottom: 0.5px solid #4d4d4d;
   }
 
   table thead tr th {
-    border-top: 0.5px solid #4D4D4D;
+    border-top: 0.5px solid #4d4d4d;
     font-weight: 600;
   }
 
   table tr th {
     white-space: nowrap;
     font-weight: 400;
-    font-size: 9px
+    font-size: 9px;
   }
 
-
-  table .qty, table .total, table .unit {
+  table .qty,
+  table .total,
+  table .unit {
     text-align: right;
-
   }
 
   .item-size {
     text-align: left !important;
   }
-
 
   table.main-table tfoot tr td {
     background: 0 0;
@@ -130,27 +117,25 @@
     text-align: right;
     padding-top: 10px;
     font-size: 9px;
-    border-top: 1px solid #aaa
+    border-top: 1px solid #aaa;
   }
-
 
   table.main-table tfoot tr td {
     font-weight: bold;
     font-size: 9px;
-
   }
 
   table.main-table tfoot tr td:first-child {
-    border: none
+    border: none;
   }
 
-  .invoice footer, .invoice footer div {
+  .invoice footer,
+  .invoice footer div {
     width: 100%;
     text-align: center;
     color: #777;
     border-top: 1px solid #aaa;
     padding: 8px 0;
-
   }
 
   .invoice {
@@ -172,13 +157,12 @@
   }
   tr {
     page-break-inside: avoid;
-
   }
-  tfoot{
+  tfoot {
     page-break-inside: avoid;
     -fs-page-break-inside: avoid;
     white-space: nowrap;
-   /* display: table-footer-group;*/
+    /* display: table-footer-group;*/
   }
 
   div.logo-container {
@@ -200,27 +184,24 @@
     margin-left: 15px;
   }
 
-
-  .tiers-payant-info ,.invoice-num{
+  .tiers-payant-info,
+  .invoice-num {
     font-weight: bold;
   }
 
   table.main-table tbody tr td {
     font-size: 8px;
-
   }
 
   .signature {
     text-align: right;
     padding-right: 50px;
-
   }
-  .text-center{
+  .text-center {
     text-align: center;
   }
 
-td.datatable-footer-total-label{
-  text-align: left;
-
-}
+  td.datatable-footer-total-label {
+    text-align: left;
+  }
 </style>

@@ -5,5 +5,9 @@ export interface IModeReglment {
 }
 
 export class ModeReglment implements IModeReglment {
-  constructor(public id?: number, public libelle?: string, public code?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+    public code?: string,
+  ) {}
 }

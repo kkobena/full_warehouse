@@ -11,39 +11,38 @@ import org.springframework.data.domain.Pageable;
 
 /** Service Interface for managing {@link com.kobe.warehouse.domain.GroupeFournisseur}. */
 public interface GroupeFournisseurService {
+    /**
+     * Save a groupeFournisseur.
+     *
+     * @param groupeFournisseurDTO the entity to save.
+     * @return the persisted entity.
+     */
+    GroupeFournisseurDTO save(GroupeFournisseurDTO groupeFournisseurDTO);
 
-  /**
-   * Save a groupeFournisseur.
-   *
-   * @param groupeFournisseurDTO the entity to save.
-   * @return the persisted entity.
-   */
-  GroupeFournisseurDTO save(GroupeFournisseurDTO groupeFournisseurDTO);
+    /**
+     * Get all the groupeFournisseurs.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<GroupeFournisseurDTO> findAll(String search, Pageable pageable);
 
-  /**
-   * Get all the groupeFournisseurs.
-   *
-   * @param pageable the pagination information.
-   * @return the list of entities.
-   */
-  Page<GroupeFournisseurDTO> findAll(String search, Pageable pageable);
+    /**
+     * Get the "id" groupeFournisseur.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    Optional<GroupeFournisseurDTO> findOne(Long id);
 
-  /**
-   * Get the "id" groupeFournisseur.
-   *
-   * @param id the id of the entity.
-   * @return the entity.
-   */
-  Optional<GroupeFournisseurDTO> findOne(Long id);
+    /**
+     * Delete the "id" groupeFournisseur.
+     *
+     * @param id the id of the entity.
+     */
+    void delete(Long id);
 
-  /**
-   * Delete the "id" groupeFournisseur.
-   *
-   * @param id the id of the entity.
-   */
-  void delete(Long id);
+    ResponseDTO importation(InputStream inputStream) throws IOException;
 
-  ResponseDTO importation(InputStream inputStream) throws IOException;
-
-  List<GroupeFournisseurDTO> findTopNToDisplay();
+    List<GroupeFournisseurDTO> findTopNToDisplay();
 }

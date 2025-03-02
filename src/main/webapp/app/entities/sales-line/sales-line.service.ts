@@ -18,11 +18,6 @@ export class SalesLineService {
   public resourceUrl = SERVER_API_URL + 'api/sales-lines';
   public saleUrl = SERVER_API_URL + 'api/sales';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(salesLine: ISalesLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(salesLine);
     return this.http

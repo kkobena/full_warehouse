@@ -1,190 +1,217 @@
 <p-toast position="center"></p-toast>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
-             type="hidden" />
+      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly type="hidden" />
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
-        <label class="form-control-label"
-               for="field_libelle">Nom abrégé </label> <span
-        style="font-weight: 900;color: red;">*</span>
-        <input #name autocomplete="off" class="form-control" formControlName="name"
-               id="field_libelle"
-               name="name"
-               pInputText type="text" />
-        @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
-          'name')!.touched)) {
+        <label class="form-control-label" for="field_libelle">Nom abrégé </label> <span style="font-weight: 900; color: red">*</span>
+        <input #name autocomplete="off" class="form-control" formControlName="name" id="field_libelle" name="name" pInputText type="text" />
+        @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
           <div>
             @if (editForm.get('name')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
-
       </div>
       <div class="form-group col-md-5">
-        <label class="form-control-label"
-               for="field_fullName">Nom long <span style="font-weight: 900;color: red;">*</span>
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="fullName"
-               id="field_fullName"
-               name="fullName"
-               pInputText type="text" />
-        @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get(
-          'fullName')!.touched)) {
+        <label class="form-control-label" for="field_fullName">Nom long <span style="font-weight: 900; color: red">*</span> </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="fullName"
+          id="field_fullName"
+          name="fullName"
+          pInputText
+          type="text"
+        />
+        @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)) {
           <div>
             @if (editForm.get('fullName')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
-
       </div>
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="codeOrganisme">Code organisme
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="codeOrganisme"
-               id="codeOrganisme"
-               name="codeOrganisme"
-               pInputText type="text" />
+        <label class="form-control-label" for="codeOrganisme">Code organisme </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="codeOrganisme"
+          id="codeOrganisme"
+          name="codeOrganisme"
+          pInputText
+          type="text"
+        />
       </div>
-
     </div>
     <div class="form-row">
-
       <div class="form-group col-md-3">
         <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
-        <p-select [filter]="false"
-                  [options]="groupeTiersPayants"
-                  appendTo="body"
-                  formControlName="groupeTiersPayantId"
-                  id="groupeTiersPayantId"
-                  name="groupeTiersPayantId" optionLabel="name"
-                  optionValue="id"
-                  placeholder="Sélectionner un groupe"
+        <p-select
+          [filter]="false"
+          [options]="groupeTiersPayants"
+          appendTo="body"
+          formControlName="groupeTiersPayantId"
+          id="groupeTiersPayantId"
+          name="groupeTiersPayantId"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionner un groupe"
         >
         </p-select>
       </div>
 
-
       <div class="form-group col-md-3">
-        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par
-          facture</label>
-        <input autocomplete="off" class="form-control" formControlName="nbreBordereaux"
-               id="nbreBordereaux" name="nbreBordereaux"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="nbreBordereaux"
+          id="nbreBordereaux"
+          name="nbreBordereaux"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label" for="montantMaxParFcture">Montant maxi par facture</label>
-        <input autocomplete="off" class="form-control" formControlName="montantMaxParFcture"
-               id="montantMaxParFcture" name="montantMaxParFcture"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="montantMaxParFcture"
+          id="montantMaxParFcture"
+          name="montantMaxParFcture"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="remiseForfaitaire">Remise forfaitaire
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="remiseForfaitaire"
-               id="remiseForfaitaire"
-               name="remiseForfaitaire"
-               pInputText pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="remiseForfaitaire">Remise forfaitaire </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="remiseForfaitaire"
+          id="remiseForfaitaire"
+          name="remiseForfaitaire"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="plafondConso">Plafond consommation
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="plafondConso"
-               id="plafondConso"
-               name="plafondConso"
-               pInputText pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="plafondConso">Plafond consommation </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="plafondConso"
+          id="plafondConso"
+          name="plafondConso"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="form-group col-md-3">
         <label class="form-control-label">Le plafond est-il absolu ?</label>
-        <p-toggleswitch class="form-control" formControlName="plafondAbsolu"
-                        inputId="plafondAbsolu"></p-toggleswitch>
+        <p-toggleswitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-toggleswitch>
       </div>
 
       <div class="form-group col-md-3">
         <label class="form-control-label" for="groupeTiersPayantId">Modèle de facture</label>
-        <p-select [filter]="false"
-                  [options]="modelFacture"
-                  appendTo="body"
-                  formControlName="modelFacture"
-                  id="modelFacture"
-                  name="modelFacture" optionLabel="value"
-                  optionValue="key"
-                  placeholder="Sélectionner un groupe"
+        <p-select
+          [filter]="false"
+          [options]="modelFacture"
+          appendTo="body"
+          formControlName="modelFacture"
+          id="modelFacture"
+          name="modelFacture"
+          optionLabel="value"
+          optionValue="key"
+          placeholder="Sélectionner un groupe"
         >
         </p-select>
-
       </div>
     </div>
     <div class="form-row">
       @if (categorie === 'ASSURANCE') {
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix CMU ?</label>
-          <p-toggleswitch #toggleSwitch (onChange)="onCmuChange(toggleSwitch)" class="form-control"
-                          formControlName="cmu"
-                          inputId="cmu"></p-toggleswitch>
+          <p-toggleswitch
+            #toggleSwitch
+            (onChange)="onCmuChange(toggleSwitch)"
+            class="form-control"
+            formControlName="cmu"
+            inputId="cmu"
+          ></p-toggleswitch>
         </div>
         <div class="form-group col-md-3">
           <label class="form-control-label">Utlise les prix de référence ?</label>
-          <p-toggleswitch #cmuToogle (onChange)="onReferencedPriceChange(cmuToogle)"
-                          class="form-control"
-                          formControlName="useReferencedPrice" inputId="useReferencedPrice"
-                          name="useReferencedPrice"></p-toggleswitch>
+          <p-toggleswitch
+            #cmuToogle
+            (onChange)="onReferencedPriceChange(cmuToogle)"
+            class="form-control"
+            formControlName="useReferencedPrice"
+            inputId="useReferencedPrice"
+            name="useReferencedPrice"
+          ></p-toggleswitch>
         </div>
       }
 
       @if (categorie !== 'DEPOT') {
         <div class="form-group col-md-3">
           <label class="form-control-label" for="toBeExclude">Exclure du CA</label>
-          <p-toggleswitch class="form-control" formControlName="toBeExclude"
-                          inputId="toBeExclude" id="toBeExclude"
-                          name="toBeExclude"></p-toggleswitch>
+          <p-toggleswitch
+            class="form-control"
+            formControlName="toBeExclude"
+            inputId="toBeExclude"
+            id="toBeExclude"
+            name="toBeExclude"
+          ></p-toggleswitch>
         </div>
       }
 
       <div class="form-group col-md-3">
-        <label class="form-control-label"
-               for="telephone">Téléphone
-        </label>
-        <input autocomplete="off" class="form-control" formControlName="telephone" id="telephone"
-               name="telephone"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="telephone">Téléphone </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="telephone"
+          id="telephone"
+          name="telephone"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
     </div>
-
-
   </div>
 
   <div class="modal-footer">
-
-    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
-              label="Annuler"
-
-              severity="danger"
-              type="button"></p-button>
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
-              icon="pi pi-check" label="Enregistrer"
-
-              severity="success" type="submit"></p-button>
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="danger"
+      type="button"
+    ></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
   </div>
-
 </form>

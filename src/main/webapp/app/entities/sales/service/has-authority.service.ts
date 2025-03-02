@@ -7,8 +7,6 @@ import { AccountService } from '../../../core/auth/account.service';
 export class HasAuthorityService {
   private accountService = inject(AccountService);
 
-  constructor() {}
-
   hasAuthorities(authorities: string | string[]): boolean {
     return this.accountService.hasAnyAuthority(authorities);
   }

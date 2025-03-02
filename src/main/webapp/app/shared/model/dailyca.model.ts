@@ -4,5 +4,8 @@ export interface IDailyca {
 }
 
 export class Dailyca implements IDailyca {
-  constructor(public amount?: number, public numberTransaction?: number) {}
+  constructor(
+    public amount?: number,
+    public numberTransaction?: number,
+  ) {}
 }

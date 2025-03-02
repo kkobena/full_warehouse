@@ -14,11 +14,6 @@ export class TaxeReportService {
 
   public resourceUrl = SERVER_API_URL + 'api/taxe-report';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   query(req?: any): Observable<HttpResponse<TaxeWrapper>> {
     const options = createRequestOptions(req);
     return this.http.get<TaxeWrapper>(this.resourceUrl, {

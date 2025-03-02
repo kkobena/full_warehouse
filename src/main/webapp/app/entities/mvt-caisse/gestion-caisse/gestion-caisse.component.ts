@@ -187,7 +187,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
       size: this.itemsPerPage,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
-      userId: this.selectedUser?.id,
+      userId: this.selectedUser.id,
     };
   }
 }

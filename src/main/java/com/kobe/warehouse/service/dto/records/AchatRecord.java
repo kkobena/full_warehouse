@@ -7,4 +7,5 @@ public record AchatRecord(
     BigDecimal discountAmount,
     BigDecimal netAmount,
     BigDecimal taxAmount,
-    Long achatCount) {}
+    Long achatCount
+) {}

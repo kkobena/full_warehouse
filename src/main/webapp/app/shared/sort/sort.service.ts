@@ -3,7 +3,7 @@ import { SortState } from './sort-state';
 
 @Injectable({ providedIn: 'root' })
 export class SortService {
-  private collator = new Intl.Collator(undefined, {
+  private readonly collator = new Intl.Collator(undefined, {
     numeric: true,
     sensitivity: 'base',
   });
@@ -20,13 +20,13 @@ export class SortService {
   }
 
   public parseSortParam(sortParam: string | undefined): SortState {
-    if (sortParam?.includes(',')) {
+    if (sortParam.includes(',')) {
       const split = sortParam.split(',');
       if (split[0]) {
         return { predicate: split[0], order: split[1] as any };
       }
     }
-    return { predicate: sortParam?.length ? sortParam : undefined };
+    return { predicate: sortParam.length ? sortParam : undefined };
   }
 
   public buildSortParam({ predicate, order }: SortState, fallback?: string): string[] {

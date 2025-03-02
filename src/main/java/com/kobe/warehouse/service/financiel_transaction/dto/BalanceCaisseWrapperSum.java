@@ -1,64 +1,65 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
 public class BalanceCaisseWrapperSum {
-  private long montantCash;
-  private long montantCard;
-  private long montantMobileMoney;
-  private long montantCheck;
-  private long montantVirement;
-  private long totalVente;
 
-  public long getMontantCash() {
-    return montantCash;
-  }
+    private long montantCash;
+    private long montantCard;
+    private long montantMobileMoney;
+    private long montantCheck;
+    private long montantVirement;
+    private long totalVente;
 
-  public BalanceCaisseWrapperSum setMontantCash(long montantCash) {
-    this.montantCash = montantCash;
-    return this;
-  }
+    public long getMontantCash() {
+        return montantCash;
+    }
 
-  public long getMontantCard() {
-    return montantCard;
-  }
+    public BalanceCaisseWrapperSum setMontantCash(long montantCash) {
+        this.montantCash = montantCash;
+        return this;
+    }
 
-  public BalanceCaisseWrapperSum setMontantCard(long montantCard) {
-    this.montantCard = montantCard;
-    return this;
-  }
+    public long getMontantCard() {
+        return montantCard;
+    }
 
-  public long getMontantMobileMoney() {
-    return montantMobileMoney;
-  }
+    public BalanceCaisseWrapperSum setMontantCard(long montantCard) {
+        this.montantCard = montantCard;
+        return this;
+    }
 
-  public BalanceCaisseWrapperSum setMontantMobileMoney(long montantMobileMoney) {
-    this.montantMobileMoney = montantMobileMoney;
-    return this;
-  }
+    public long getMontantMobileMoney() {
+        return montantMobileMoney;
+    }
 
-  public long getMontantCheck() {
-    return montantCheck;
-  }
+    public BalanceCaisseWrapperSum setMontantMobileMoney(long montantMobileMoney) {
+        this.montantMobileMoney = montantMobileMoney;
+        return this;
+    }
 
-  public BalanceCaisseWrapperSum setMontantCheck(long montantCheck) {
-    this.montantCheck = montantCheck;
-    return this;
-  }
+    public long getMontantCheck() {
+        return montantCheck;
+    }
 
-  public long getMontantVirement() {
-    return montantVirement;
-  }
+    public BalanceCaisseWrapperSum setMontantCheck(long montantCheck) {
+        this.montantCheck = montantCheck;
+        return this;
+    }
 
-  public BalanceCaisseWrapperSum setMontantVirement(long montantVirement) {
-    this.montantVirement = montantVirement;
-    return this;
-  }
+    public long getMontantVirement() {
+        return montantVirement;
+    }
 
-  public long getTotalVente() {
-    return totalVente;
-  }
+    public BalanceCaisseWrapperSum setMontantVirement(long montantVirement) {
+        this.montantVirement = montantVirement;
+        return this;
+    }
 
-  public BalanceCaisseWrapperSum setTotalVente(long totalVente) {
-    this.totalVente = totalVente;
-    return this;
-  }
+    public long getTotalVente() {
+        return totalVente;
+    }
+
+    public BalanceCaisseWrapperSum setTotalVente(long totalVente) {
+        this.totalVente = totalVente;
+        return this;
+    }
 }

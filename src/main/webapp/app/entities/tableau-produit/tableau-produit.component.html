@@ -1,130 +1,146 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
 
-</p-confirmDialog>
+<div class="card" style="padding-left: 15%; padding-right: 15%; padding-bottom: 15px">
+  <h3>Liste des tableaux de produits</h3>
+  <p-toolbar>
+    <div class="p-toolbar-group-left"></div>
+    <div class="p-toolbar-group-right">
+      <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouveau" raised="true" severity="success" type="button"></p-button>
+    </div>
+  </p-toolbar>
 
-<div class="card" style="padding-left:15%;padding-right:15%;padding-bottom:15px;"><h3>Liste des
-tableaux de produits</h3>
-<p-toolbar>
-  <div class="p-toolbar-group-left"></div>
-  <div class="p-toolbar-group-right">
-    <p-button (click)="addNewEntity()"
-      icon="pi pi-plus" label="Nouveau"
+  @if (entites && entites.length > 0) {
+    <p-table
+      (onLazyLoad)="lazyLoading()"
+      [(selection)]="selectedEl"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="false"
+      [value]="entites"
+      dataKey="id"
+      selectionMode="single"
+      styleClass="ui-table-cars"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col" style="width: 30px">#</th>
+          <th scope="col"><span>Code</span></th>
+          <th scope="col"><span>Valeur</span></th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
+        <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+          <td>{{ rowIndex + 1 }}</td>
+          <td>{{ elRow.code }}</td>
+          <td style="text-align: right">{{ elRow.value }}</td>
 
-      raised="true"
-      severity="success"
-    type="button"></p-button>
-  </div>
-
-
-</p-toolbar>
-
-@if (entites && entites.length > 0) {
-  <p-table (onLazyLoad)="lazyLoading()"
-    [(selection)]="selectedEl"
-    [lazy]="true" [loading]="loading" [paginator]="false" [value]="entites"
-    dataKey="id" selectionMode="single" styleClass="ui-table-cars">
-    <ng-template pTemplate="header">
-      <tr>
-        <th scope="col" style="width:30px;">#</th>
-        <th scope="col"><span>Code</span></th>
-        <th scope="col"><span>Valeur</span></th>
-        <th scope="col"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" pTemplate="body">
-      <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-        <td>{{ rowIndex + 1 }}</td>
-        <td>{{ elRow.code }}</td>
-        <td style="text-align: right;">{{ elRow.value }}</td>
-
-        <td style="text-align: center;">
-          <p-button (click)="onEdit(elRow)" class=" p-mr-1"
-            icon="pi pi-pencil" pTooltip="Editer" rounded="true"
-            severity="success"
-          type="submit"></p-button>
-          <p-button [routerLink]=" ['/tableaux', elRow.id, 'associe']"
-            class=" p-mr-1" icon="pi pi-box"
-            pTooltip="Associer des produits"
-            rounded="true"
-            severity="help"
-          type="button"></p-button>
-          <p-button (click)="delete(elRow)" icon="pi pi-trash"
-            pTooltip="Supprimer" rounded="true"
-          severity="danger" type="button"></p-button>
-        </td>
-      </tr>
-    </ng-template>
-
-  </p-table>
-} @else {
-  <div class="alert alert-warning" id="no-result">
-    <span>Aucune donnée trouvée</span>
-  </div>
-}
+          <td style="text-align: center">
+            <p-button
+              (click)="onEdit(elRow)"
+              class="p-mr-1"
+              icon="pi pi-pencil"
+              pTooltip="Editer"
+              rounded="true"
+              severity="success"
+              type="submit"
+            ></p-button>
+            <p-button
+              [routerLink]="['/tableaux', elRow.id, 'associe']"
+              class="p-mr-1"
+              icon="pi pi-box"
+              pTooltip="Associer des produits"
+              rounded="true"
+              severity="help"
+              type="button"
+            ></p-button>
+            <p-button
+              (click)="delete(elRow)"
+              icon="pi pi-trash"
+              pTooltip="Supprimer"
+              rounded="true"
+              severity="danger"
+              type="button"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="alert alert-warning" id="no-result">
+      <span>Aucune donnée trouvée</span>
+    </div>
+  }
 </div>
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
-    [style]="{width: '600px'}"
+  <p-dialog
+    [(visible)]="displayDialog"
+    [focusOnShow]="false"
+    [modal]="true"
+    [style]="{ width: '600px' }"
     header="Créer ou éditer un tableau de produit"
-    >
+  >
     <ng-template #content>
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
-
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
       <div class="ui-g form-group">
         <label for="code">Code tableau</label>
-        <div class="ui-g-12" style="margin-bottom:10px">
-          <input autocomplete="off" class="form-control" formControlName="code"
-            id="code"
-            name="code"
-            pInputText style="width: 100%;" />
-          </div>
-          @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
-            <div
-              >
-              @if (editForm.get('code')?.errors?.required) {
-                <small class="form-text text-danger"
-                  style="color: red;">
-                  Ce champ est obligatoire.
-                </small>
-              }
-            </div>
-          }
+        <div class="ui-g-12" style="margin-bottom: 10px">
+          <input autocomplete="off" class="form-control" formControlName="code" id="code" name="code" pInputText style="width: 100%" />
         </div>
-        <div class="ui-g form-group">
-          <label for="field_value">Montant tableau</label>
-          <div class="ui-g-12">
-
-            <input autocomplete="off" formControlName="value" id="field_value" name="value" pInputText
-              pKeyFilter="int" style="width: 100%;" type="text">
-            </div>
-            @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get('value')!.touched)) {
-              <div
-                >
-                @if (editForm.get('value')?.errors?.required) {
-                  <small class="form-text text-danger"
-                    style="color: red;">
-                    Ce champ est obligatoire.
-                  </small>
-                }
-              </div>
+        @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
+          <div>
+            @if (editForm.get('code')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
-
-        </ng-template>
-        <ng-template #footer>
-          <p-button [disabled]="editForm.invalid || isSaving"
-            class=" p-mr-2" icon="pi pi-check" label="Enregistrer"
-            raised="true"
-          severity="success" type="submit"></p-button>
-          <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
-            raised="true"
-            severity="danger"
-          type="button"></p-button>
-
-        </ng-template>
-      </p-dialog>
-    </form>
+        }
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_value">Montant tableau</label>
+        <div class="ui-g-12">
+          <input
+            autocomplete="off"
+            formControlName="value"
+            id="field_value"
+            name="value"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
+        </div>
+        @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get('value')!.touched)) {
+          <div>
+            @if (editForm.get('value')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+            }
+          </div>
+        }
+      </div>
+    </ng-template>
+    <ng-template #footer>
+      <p-button
+        [disabled]="editForm.invalid || isSaving"
+        class="p-mr-2"
+        icon="pi pi-check"
+        label="Enregistrer"
+        raised="true"
+        severity="success"
+        type="submit"
+      ></p-button>
+      <p-button
+        (click)="cancel()"
+        class="p-mr-2"
+        icon="pi pi-times"
+        label="Annuler"
+        raised="true"
+        severity="danger"
+        type="button"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+</form>

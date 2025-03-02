@@ -23,33 +23,36 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class InventoryTransactionResource {
 
-  private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);
-  private final InventoryTransactionService inventoryTransactionService;
+    private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);
+    private final InventoryTransactionService inventoryTransactionService;
 
-  public InventoryTransactionResource(InventoryTransactionService inventoryTransactionService) {
-    this.inventoryTransactionService = inventoryTransactionService;
-  }
+    public InventoryTransactionResource(InventoryTransactionService inventoryTransactionService) {
+        this.inventoryTransactionService = inventoryTransactionService;
+    }
 
-  @GetMapping("/inventory-transactions")
-  public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
-      @RequestParam(name = "produitId", required = false) Long produitId,
-      @RequestParam(name = "endDate", required = false) String endDate,
-      @RequestParam(name = "startDate", required = false) String startDate,
-      @RequestParam(name = "type", required = false) Integer type,
-      Pageable pageable) {
-    Page<InventoryTransactionDTO> page =
-        inventoryTransactionService.getAllInventoryTransactions(
-            pageable, produitId, startDate, endDate, type);
-    HttpHeaders headers =
-        PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
-    return ResponseEntity.ok().headers(headers).body(page.getContent());
-  }
+    @GetMapping("/inventory-transactions")
+    public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
+        @RequestParam(name = "produitId", required = false) Long produitId,
+        @RequestParam(name = "endDate", required = false) String endDate,
+        @RequestParam(name = "startDate", required = false) String startDate,
+        @RequestParam(name = "type", required = false) Integer type,
+        Pageable pageable
+    ) {
+        Page<InventoryTransactionDTO> page = inventoryTransactionService.getAllInventoryTransactions(
+            pageable,
+            produitId,
+            startDate,
+            endDate,
+            type
+        );
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
 
-  @GetMapping("/inventory-transactions/{id}")
-  public ResponseEntity<InventoryTransaction> getInventoryTransaction(@PathVariable Long id) {
-    log.debug("REST request to get InventoryTransaction : {}", id);
-    Optional<InventoryTransaction> inventoryTransaction = inventoryTransactionService.findById(id);
-    return ResponseUtil.wrapOrNotFound(inventoryTransaction);
-  }
+    @GetMapping("/inventory-transactions/{id}")
+    public ResponseEntity<InventoryTransaction> getInventoryTransaction(@PathVariable Long id) {
+        log.debug("REST request to get InventoryTransaction : {}", id);
+        Optional<InventoryTransaction> inventoryTransaction = inventoryTransactionService.findById(id);
+        return ResponseUtil.wrapOrNotFound(inventoryTransaction);
+    }
 }

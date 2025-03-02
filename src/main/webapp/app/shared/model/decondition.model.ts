@@ -22,6 +22,6 @@ export class Decondition implements IDecondition {
     public stockAfter?: number,
     public user?: IUser,
     public produit?: IProduit,
-    public produitId?: number
+    public produitId?: number,
   ) {}
 }

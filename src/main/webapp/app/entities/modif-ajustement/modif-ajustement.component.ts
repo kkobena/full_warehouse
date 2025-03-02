@@ -62,11 +62,6 @@ export class ModifAjustementComponent implements OnInit {
   loading!: boolean;
   isSaving = false;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(() => {
       this.loadPage();

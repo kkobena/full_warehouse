@@ -1,8 +1,9 @@
 package com.kobe.warehouse.service.dto;
 
 public class TypeMvtProduitDTO {
-    private  int value;
-    private  String name;
+
+    private int value;
+    private String name;
 
     public TypeMvtProduitDTO(int value, String name) {
         this.value = value;

@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaPaymentModeResource extends PaymentModeResourceProxy {
 
-  public JavaPaymentModeResource(PaymentModeService paymentModeService) {
-    super(paymentModeService);
-  }
+    public JavaPaymentModeResource(PaymentModeService paymentModeService) {
+        super(paymentModeService);
+    }
 
-  @GetMapping("/payment-modes")
-  public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
-    return super.getAllPaymentModes();
-  }
+    @GetMapping("/payment-modes")
+    public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
+        return super.getAllPaymentModes();
+    }
 }

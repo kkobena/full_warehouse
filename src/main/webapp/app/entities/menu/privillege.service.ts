@@ -18,11 +18,6 @@ export class PrivillegeService {
   public resourceUrl = SERVER_API_URL + 'api/privilleges';
   public resourceAuthorityUrl = SERVER_API_URL + 'api/authorities';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(authority: IAuthority): Observable<HttpResponse<IAuthority>> {
     return this.http.post<IAuthority>(`${this.resourceAuthorityUrl}/save`, authority, { observe: 'response' });
   }

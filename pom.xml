@@ -724,17 +724,7 @@
                 <profile.tls>,tls</profile.tls>
             </properties>
         </profile>
-        <profile>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <groupId>org.apache.maven.plugins</groupId>
-                    </plugin>
-                </plugins>
-            </build>
-            <id>war</id>
-        </profile>
+
         <profile>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -779,10 +769,7 @@
                 </plugins>
             </build>
             <id>webapp</id>
-            <properties>
-                <!-- default Spring profiles -->
-                <spring.profiles.active>dev</spring.profiles.active>
-            </properties>
+
         </profile>
     </profiles>
 
@@ -796,22 +783,23 @@
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <java.version>23</java.version>
-        <jhipster-framework.version>8.5.0</jhipster-framework.version>
+      <jhipster-framework.version>8.9.0</jhipster-framework.version>
 
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
 
-        <m2e.apt.activation>jdt_apt</m2e.apt.activation>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
+      <mapstruct.version>1.6.3</mapstruct.version>
+      <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+      <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+      <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
+      <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+      <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+      <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
+      <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+      <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+      <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+      <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+      <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+      <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -829,11 +817,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <run.addResources>false</run.addResources>
-        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
+      <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
-        <springdoc-openapi-starter-webmvc-api.version>2.5.0
+        <springdoc-openapi-starter-webmvc-api.version>2.7.0
         </springdoc-openapi-starter-webmvc-api.version>
         <start-class>com.kobe.warehouse.WarehouseApp</start-class>
+      <spring.profiles.active>dev</spring.profiles.active>
     </properties>
 
     <repositories>

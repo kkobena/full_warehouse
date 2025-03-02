@@ -69,6 +69,7 @@ export class ModeReglementComponent implements OnInit {
   protected paymentModeToChange: IPaymentMode | null;
   private document = inject<Document>(DOCUMENT);
   private readonly modes = [this.CB, this.VIREMENT, this.CH];
+  protected isSmallScreen = false;
 
   constructor() {
     this.updateAvailableMode();
@@ -79,6 +80,7 @@ export class ModeReglementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isSmallScreen = window.innerWidth <= 1280;
     this.selectModeReglementService.resetAmounts();
     this.buildReglementInput();
   }
@@ -121,7 +123,7 @@ export class ModeReglementComponent implements OnInit {
     this.isShowAddBtn.set(
       this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber() &&
         inputAmount > 0 &&
-        inputAmount < this.currentSaleService.currentSale()?.amountToBePaid,
+        inputAmount < this.currentSaleService.currentSale().amountToBePaid,
     );
   }
 

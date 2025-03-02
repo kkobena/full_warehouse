@@ -9,14 +9,14 @@ import { fontAwesomeIcons } from './config/font-awesome-icons';
 import MainComponent from './layouts/main/main.component';
 
 @Component({
-    selector: 'jhi-app',
-    template: '<jhi-main></jhi-main>',
-    imports: [MainComponent]
+  selector: 'jhi-app',
+  template: '<jhi-main></jhi-main>',
+  imports: [MainComponent],
 })
 export default class AppComponent {
-  private applicationConfigService = inject(ApplicationConfigService);
-  private iconLibrary = inject(FaIconLibrary);
-  private dpConfig = inject(NgbDatepickerConfig);
+  private readonly applicationConfigService = inject(ApplicationConfigService);
+  private readonly iconLibrary = inject(FaIconLibrary);
+  private readonly dpConfig = inject(NgbDatepickerConfig);
 
   constructor() {
     this.applicationConfigService.setEndpointPrefix(SERVER_API_URL);

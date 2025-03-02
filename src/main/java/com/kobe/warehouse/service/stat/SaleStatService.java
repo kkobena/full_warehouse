@@ -8,11 +8,11 @@ import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import java.util.List;
 
 public interface SaleStatService extends CommonStatService {
-  VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO);
+    VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO);
 
-  List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO);
+    List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO);
 
-  List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO);
+    List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO);
 
-  List<VenteModePaimentRecord> getCaGroupingByPaimentMode(VenteRecordParamDTO venteRecordParamDTO);
+    List<VenteModePaimentRecord> getCaGroupingByPaimentMode(VenteRecordParamDTO venteRecordParamDTO);
 }

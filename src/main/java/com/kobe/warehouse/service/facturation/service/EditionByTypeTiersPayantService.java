@@ -30,9 +30,9 @@ public class EditionByTypeTiersPayantService extends AbstractEditionFactureServi
     @Override
     protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.categorieTiersPayants())) {
-            return super.buildFetchSpecification(editionSearchParams).and(
-                this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(editionSearchParams.categorieTiersPayants())
-            );
+            return super
+                .buildFetchSpecification(editionSearchParams)
+                .and(this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(editionSearchParams.categorieTiersPayants()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

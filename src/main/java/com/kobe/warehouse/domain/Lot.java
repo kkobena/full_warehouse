@@ -1,11 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,13 +11,20 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "lot", uniqueConstraints = {@UniqueConstraint(columnNames = {"num_lot", "receipt_item_id"})},
+@Table(
+    name = "lot",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "receipt_item_id" }) },
     indexes = {
         @Index(columnList = "num_lot", name = "num_lot_index"),
-        @Index(columnList = "receipt_refernce", name = "lot_receipt_refernce_index")
-
+        @Index(columnList = "receipt_refernce", name = "lot_receipt_refernce_index"),
     }
 )
 public class Lot implements Serializable {
@@ -33,28 +34,37 @@ public class Lot implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(name = "num_lot", nullable = false)
     private String numLot;
+
     @NotNull
     @Column(name = "receipt_refernce", nullable = false)
     private String receiptRefernce;
 
     @ManyToOne(optional = false)
     private DeliveryReceiptItem receiptItem;
+
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+
     @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int default '0'")
     private Integer ugQuantityReceived = 0;
+
     @Column(name = "quantity_received", nullable = false)
     private Integer quantityReceived;
+
     @NotNull
     @Column(name = "created_date", nullable = false)
-    private LocalDateTime createdDate=LocalDateTime.now();
+    private LocalDateTime createdDate = LocalDateTime.now();
+
     @Column(name = "manufacturing_date")
     private LocalDate manufacturingDate;
+
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
+
     @OneToMany(mappedBy = "lot")
     private List<LotSold> lotSolds = new ArrayList<>();
 

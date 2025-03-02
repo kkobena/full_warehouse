@@ -5,5 +5,5 @@ public enum ImportationStatus {
     INTERRUPTED,
     COMPLETED_ERRORS,
     FAIL,
-    COMPLETED
+    COMPLETED,
 }

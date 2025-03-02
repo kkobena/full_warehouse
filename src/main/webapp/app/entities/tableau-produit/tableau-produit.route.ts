@@ -8,7 +8,6 @@ import { TableauProduitService } from './tableau-produit.service';
 
 import { ITableau, Tableau } from '../../shared/model/tableau.model';
 
-
 export const TableauProduitResolve = (route: ActivatedRouteSnapshot): Observable<null | ITableau> => {
   const id = route.params['id'];
   if (id) {

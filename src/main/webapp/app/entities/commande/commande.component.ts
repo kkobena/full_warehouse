@@ -103,7 +103,7 @@ export class CommandeComponent implements OnInit {
   protected searchCommande = '';
   protected active = 'REQUESTED';
   protected search = '';
-  protected selectionLength: number = 0;
+  protected selectionLength = 0;
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);

@@ -7,193 +7,194 @@ import com.kobe.warehouse.domain.User;
 import java.time.LocalDateTime;
 
 public class PaymentDTO {
-  private Long id;
-  private Integer netAmount;
-  private Integer paidAmount;
-  private Integer restToPay;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private PaymentModeDTO paymentMode;
-  private Long userId;
-  private Customer customer;
-  private String saleNumberTransaction;
-  private Long customerId;
-  private Long salesId;
-  private Integer salesAmount;
-  private Integer salesNetAmount;
-  private String userFullName;
-  private Integer reelPaidAmount;
-  private String paymentCode;
-  private Integer montantVerse = 0;
 
-  public PaymentDTO(Payment payment) {
-    super();
-    this.id = payment.getId();
-    this.netAmount = payment.getNetAmount();
-    this.paidAmount = payment.getPaidAmount();
-    this.createdAt = payment.getCreatedAt();
-    this.updatedAt = payment.getUpdatedAt();
-    this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
-    User user = payment.getUser();
-    this.userId = user.getId();
-    this.userFullName = user.getFirstName() + " " + user.getLastName();
-    Customer customer = payment.getCustomer();
-    this.customer = customer;
-    Sales sales = payment.getSales();
-    this.saleNumberTransaction = sales.getNumberTransaction();
-    this.salesId = sales.getId();
-    this.salesAmount = sales.getSalesAmount();
-    this.salesNetAmount = sales.getNetAmount();
-    this.montantVerse = payment.getMontantVerse();
-  }
+    private Long id;
+    private Integer netAmount;
+    private Integer paidAmount;
+    private Integer restToPay;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private PaymentModeDTO paymentMode;
+    private Long userId;
+    private Customer customer;
+    private String saleNumberTransaction;
+    private Long customerId;
+    private Long salesId;
+    private Integer salesAmount;
+    private Integer salesNetAmount;
+    private String userFullName;
+    private Integer reelPaidAmount;
+    private String paymentCode;
+    private Integer montantVerse = 0;
 
-  public PaymentDTO() {}
+    public PaymentDTO(Payment payment) {
+        super();
+        this.id = payment.getId();
+        this.netAmount = payment.getNetAmount();
+        this.paidAmount = payment.getPaidAmount();
+        this.createdAt = payment.getCreatedAt();
+        this.updatedAt = payment.getUpdatedAt();
+        this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
+        User user = payment.getUser();
+        this.userId = user.getId();
+        this.userFullName = user.getFirstName() + " " + user.getLastName();
+        Customer customer = payment.getCustomer();
+        this.customer = customer;
+        Sales sales = payment.getSales();
+        this.saleNumberTransaction = sales.getNumberTransaction();
+        this.salesId = sales.getId();
+        this.salesAmount = sales.getSalesAmount();
+        this.salesNetAmount = sales.getNetAmount();
+        this.montantVerse = payment.getMontantVerse();
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public PaymentDTO() {}
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public Integer getNetAmount() {
-    return netAmount;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public void setNetAmount(Integer netAmount) {
-    this.netAmount = netAmount;
-  }
+    public Integer getNetAmount() {
+        return netAmount;
+    }
 
-  public Integer getPaidAmount() {
-    return paidAmount;
-  }
+    public void setNetAmount(Integer netAmount) {
+        this.netAmount = netAmount;
+    }
 
-  public void setPaidAmount(Integer paidAmount) {
-    this.paidAmount = paidAmount;
-  }
+    public Integer getPaidAmount() {
+        return paidAmount;
+    }
 
-  public Integer getRestToPay() {
-    return restToPay;
-  }
+    public void setPaidAmount(Integer paidAmount) {
+        this.paidAmount = paidAmount;
+    }
 
-  public void setRestToPay(Integer restToPay) {
-    this.restToPay = restToPay;
-  }
+    public Integer getRestToPay() {
+        return restToPay;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
+    public void setRestToPay(Integer restToPay) {
+        this.restToPay = restToPay;
+    }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public PaymentModeDTO getPaymentMode() {
-    return paymentMode;
-  }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-  public PaymentDTO setPaymentMode(PaymentModeDTO paymentMode) {
-    this.paymentMode = paymentMode;
-    return this;
-  }
+    public PaymentModeDTO getPaymentMode() {
+        return paymentMode;
+    }
 
-  public Long getUserId() {
-    return userId;
-  }
+    public PaymentDTO setPaymentMode(PaymentModeDTO paymentMode) {
+        this.paymentMode = paymentMode;
+        return this;
+    }
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public Customer getCustomer() {
-    return customer;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public void setCustomer(Customer customer) {
-    this.customer = customer;
-  }
+    public Customer getCustomer() {
+        return customer;
+    }
 
-  public String getSaleNumberTransaction() {
-    return saleNumberTransaction;
-  }
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
-  public void setSaleNumberTransaction(String saleNumberTransaction) {
-    this.saleNumberTransaction = saleNumberTransaction;
-  }
+    public String getSaleNumberTransaction() {
+        return saleNumberTransaction;
+    }
 
-  public Long getCustomerId() {
-    return customerId;
-  }
+    public void setSaleNumberTransaction(String saleNumberTransaction) {
+        this.saleNumberTransaction = saleNumberTransaction;
+    }
 
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
-  }
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-  public Long getSalesId() {
-    return salesId;
-  }
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-  public void setSalesId(Long salesId) {
-    this.salesId = salesId;
-  }
+    public Long getSalesId() {
+        return salesId;
+    }
 
-  public Integer getSalesAmount() {
-    return salesAmount;
-  }
+    public void setSalesId(Long salesId) {
+        this.salesId = salesId;
+    }
 
-  public void setSalesAmount(Integer salesAmount) {
-    this.salesAmount = salesAmount;
-  }
+    public Integer getSalesAmount() {
+        return salesAmount;
+    }
 
-  public Integer getSalesNetAmount() {
-    return salesNetAmount;
-  }
+    public void setSalesAmount(Integer salesAmount) {
+        this.salesAmount = salesAmount;
+    }
 
-  public void setSalesNetAmount(Integer salesNetAmount) {
-    this.salesNetAmount = salesNetAmount;
-  }
+    public Integer getSalesNetAmount() {
+        return salesNetAmount;
+    }
 
-  public String getUserFullName() {
-    return userFullName;
-  }
+    public void setSalesNetAmount(Integer salesNetAmount) {
+        this.salesNetAmount = salesNetAmount;
+    }
 
-  public void setUserFullName(String userFullName) {
-    this.userFullName = userFullName;
-  }
+    public String getUserFullName() {
+        return userFullName;
+    }
 
-  public Integer getReelPaidAmount() {
-    return reelPaidAmount;
-  }
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+    }
 
-  public PaymentDTO setReelPaidAmount(Integer reelPaidAmount) {
-    this.reelPaidAmount = reelPaidAmount;
-    return this;
-  }
+    public Integer getReelPaidAmount() {
+        return reelPaidAmount;
+    }
 
-  public String getPaymentCode() {
-    return paymentCode;
-  }
+    public PaymentDTO setReelPaidAmount(Integer reelPaidAmount) {
+        this.reelPaidAmount = reelPaidAmount;
+        return this;
+    }
 
-  public PaymentDTO setPaymentCode(String paymentCode) {
-    this.paymentCode = paymentCode;
-    return this;
-  }
+    public String getPaymentCode() {
+        return paymentCode;
+    }
 
-  public Integer getMontantVerse() {
-    return montantVerse;
-  }
+    public PaymentDTO setPaymentCode(String paymentCode) {
+        this.paymentCode = paymentCode;
+        return this;
+    }
 
-  public PaymentDTO setMontantVerse(Integer montantVerse) {
-    this.montantVerse = montantVerse;
-    return this;
-  }
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public PaymentDTO setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
+    }
 }

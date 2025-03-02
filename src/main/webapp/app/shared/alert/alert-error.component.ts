@@ -1,7 +1,7 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-
+import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -10,19 +10,19 @@ import { EventManager, EventWithContent } from 'app/core/util/event-manager.serv
 import { AlertError } from './alert-error.model';
 
 @Component({
-    selector: 'jhi-alert-error',
-    templateUrl: './alert-error.component.html',
-    imports: [NgbModule]
+  selector: 'jhi-alert-error',
+  templateUrl: './alert-error.component.html',
+  imports: [CommonModule, NgbModule],
 })
 export class AlertErrorComponent implements OnDestroy {
   alerts = signal<Alert[]>([]);
   errorListener: Subscription;
   httpErrorListener: Subscription;
 
-  private alertService = inject(AlertService);
-  private eventManager = inject(EventManager);
+  private readonly alertService = inject(AlertService);
+  private readonly eventManager = inject(EventManager);
 
-  private translateService = inject(TranslateService);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     this.errorListener = this.eventManager.subscribe('warehouseApp.error', (response: EventWithContent<unknown> | string) => {
@@ -35,7 +35,7 @@ export class AlertErrorComponent implements OnDestroy {
     });
   }
 
-  setClasses(alert: Alert): { [key: string]: boolean } {
+  setClasses(alert: Alert): Record<string, boolean> {
     const classes = { 'jhi-toast': Boolean(alert.toast) };
     if (alert.position) {
       return { ...classes, [alert.position]: true };
@@ -49,10 +49,10 @@ export class AlertErrorComponent implements OnDestroy {
   }
 
   close(alert: Alert): void {
-    alert.close?.(this.alerts());
+    alert.close(this.alerts());
   }
 
-  private addErrorAlert(message?: string, translationKey?: string, translationParams?: { [key: string]: unknown }): void {
+  private addErrorAlert(message?: string, translationKey?: string, translationParams?: Record<string, unknown>): void {
     this.alertService.addAlert({ type: 'danger', message, translationKey, translationParams }, this.alerts());
   }
 
@@ -118,7 +118,7 @@ export class AlertErrorComponent implements OnDestroy {
   }
 
   private handleFieldsError(httpErrorResponse: HttpErrorResponse): void {
-    const fieldErrors = httpErrorResponse.error.fieldErrors;
+    const { fieldErrors } = httpErrorResponse.error;
     for (const fieldError of fieldErrors) {
       if (['Min', 'Max', 'DecimalMin', 'DecimalMax'].includes(fieldError.message)) {
         fieldError.message = 'Size';

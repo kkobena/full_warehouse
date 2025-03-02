@@ -13,19 +13,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'jhi-form-laboratoire',
-    templateUrl: './form-laboratoire.component.html',
-    styles: [],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        DynamicDialogModule,
-    ]
+  selector: 'jhi-form-laboratoire',
+  templateUrl: './form-laboratoire.component.html',
+  styles: [],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormLaboratoireComponent implements OnInit {
   protected entityService = inject(LaboratoireProduitService);
@@ -102,8 +102,8 @@ export class FormLaboratoireComponent implements OnInit {
   private createFromForm(): ILaboratoire {
     return {
       ...new Laboratoire(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

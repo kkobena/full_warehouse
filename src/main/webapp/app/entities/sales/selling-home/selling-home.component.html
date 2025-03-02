@@ -1,258 +1,206 @@
-<p-drawer [(visible)]="pendingSalesSidebar" [style]="{width: '70vw'}" position="right">
+<p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
   <ng-template #header>
     <span class="font-semibold text-xl">VENTES EN ATTENTES</span>
   </ng-template>
   <ng-template #content>
-    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
-                        [user]="userCaissier">
-
-    </jhi-prevente-modal>
+    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)" [user]="userCaissier"> </jhi-prevente-modal>
   </ng-template>
 </p-drawer>
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
-             size="medium"
-             type="timer">
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner" size="medium" type="timer">
 </ngx-spinner>
 
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteItem"> </p-confirmDialog>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
-
-
-</p-confirmDialog>
-
-
-<p-dialog (onHide)="onHideHideDialog()" [(visible)]="commonDialog" [draggable]="false"
-          [focusOnShow]="true"
-          [modal]="true" [resizable]="false" [showHeader]="true" [style]="{width: '30vw'}"
-          header="Erreur">
-  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i> <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
+<p-dialog
+  (onHide)="onHideHideDialog()"
+  [(visible)]="commonDialog"
+  [draggable]="false"
+  [focusOnShow]="true"
+  [modal]="true"
+  [resizable]="false"
+  [showHeader]="true"
+  [style]="{ width: '30vw' }"
+  header="Erreur"
+>
+  <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>
+  <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
   <ng-template pTemplate="footer">
-    <p-button (click)="cancelCommonDialog()" data-dismiss="modal"
-              severity="danger"
-              type="button">Fermer
-    </p-button>
+    <p-button (click)="cancelCommonDialog()" data-dismiss="modal" severity="danger" type="button">Fermer </p-button>
   </ng-template>
 </p-dialog>
 <div class="row selling">
-  <div class=" col-md-2 col-sm-2 selling-menu">
+  <div class="col-md-2 col-sm-2 selling-menu">
     <div>
       <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
         <p-card>
-          <div #nav="ngbNav" (navChange)="onNavChange($event)"
-               [(activeId)]="active"
-               class="nav flex-column nav-pills "
-               ngbNav orientation="vertical">
+          <div
+            #nav="ngbNav"
+            (navChange)="onNavChange($event)"
+            [(activeId)]="active"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical"
+          >
             <ng-container ngbNavItem="comptant">
-              <a class="flex-sm-fill nav-link " ngbNavLink>Comptant</a>
+              <a class="flex-sm-fill nav-link" ngbNavLink>Comptant</a>
               <ng-template ngbNavContent>
-                <jhi-comptant (inputToFocusEvent)="getControlToFocus($event)"
-                              (responseEvent)="onFinalyse($event)"
-                              (saveResponse)="onSave($event)" [isPresale]="isPresale"
+                <jhi-comptant
+                  (inputToFocusEvent)="getControlToFocus($event)"
+                  (responseEvent)="onFinalyse($event)"
+                  (saveResponse)="onSave($event)"
+                  [isPresale]="isPresale"
                 >
-
-
                 </jhi-comptant>
               </ng-template>
             </ng-container>
             <ng-container ngbNavItem="assurance">
-              <a class="flex-sm-fill nav-link " ngbNavLink>Assurance</a>
+              <a class="flex-sm-fill nav-link" ngbNavLink>Assurance</a>
               <ng-template ngbNavContent>
-                <jhi-assurance [isPresale]="isPresale">
-                </jhi-assurance>
+                <jhi-assurance [isPresale]="isPresale"> </jhi-assurance>
               </ng-template>
             </ng-container>
             <ng-container ngbNavItem="carnet">
-              <a class="flex-sm-fill nav-link " ngbNavLink>Carnet</a>
+              <a class="flex-sm-fill nav-link" ngbNavLink>Carnet</a>
               <ng-template ngbNavContent>
-                <jhi-carnet [isPresale]="isPresale">
-                </jhi-carnet>
-
+                <jhi-carnet [isPresale]="isPresale"> </jhi-carnet>
               </ng-template>
             </ng-container>
           </div>
-
         </p-card>
       </p-panel>
     </div>
-
-
   </div>
-  <div class=" col-md-10 col-sm-10 row sale-container">
-
+  <div class="col-md-10 col-sm-10 row sale-container">
     <p-panel [styleClass]="'sale-panel-header'">
       <ng-template pTemplate="header">
-        <div class="row sale-toolbar-first"
-             style="padding-left:10px;width: 100%;padding-right:0;">
-          <div class="col-3" style="padding:0;">
+        <div class="row sale-toolbar-first" style="padding-left: 10px; width: 100%; padding-right: 0">
+          <div class="col-3" style="padding: 0">
             <p-inputgroup>
-              <p-inputgroup-addon>
-                Vendeurs
-              </p-inputgroup-addon>
-              <p-select #userBox
-                        (onChange)="onSelectUser()"
-                        [(ngModel)]="userSeller"
-                        [appendTo]="appendTo"
-                        [autofocus]="true"
-                        [dataKey]="'id'"
-                        [options]="this.userVendeurService.vendeurs()"
-                        optionLabel="abbrName"></p-select>
+              <p-inputgroup-addon> Vendeurs </p-inputgroup-addon>
+              <p-select
+                #userBox
+                (onChange)="onSelectUser()"
+                [(ngModel)]="userSeller"
+                [appendTo]="appendTo"
+                [autofocus]="true"
+                [dataKey]="'id'"
+                [options]="this.userVendeurService.vendeurs()"
+                optionLabel="abbrName"
+              ></p-select>
             </p-inputgroup>
-
-
           </div>
-          <div class="col-9 row text-right" style="padding:0;">
+          <div class="col-9 row text-right" style="padding: 0">
             <div class="col-8">
               @if (active === 'comptant' && currentSaleService.currentSale()) {
-
-                <jhi-customer-overlay-panel
-                  (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
-
+                <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
               }
             </div>
             <div class="col-4">
-
-              <p-button (click)="openPindingSide()"
-                        [disabled]="currentSaleService.currentSale() || isPresale"
-                        [raised]="true"
-                        icon="pi pi-search" label="Ventes en attente" severity="info"
+              <p-button
+                (click)="openPindingSide()"
+                [disabled]="currentSaleService.currentSale() || isPresale"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Ventes en attente"
+                severity="info"
               ></p-button>
-              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
-                        label="Retour"
-                        severity="secondary"></p-button>
+              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"></p-button>
             </div>
           </div>
-
-
         </div>
-
       </ng-template>
 
       <ng-template #content>
         <div class="sale-body">
-
           @if (active === 'assurance' || active === 'carnet') {
             <jhi-assurance-data></jhi-assurance-data>
           }
 
           <div class="row">
             <div class="col-md-6 sale-product-div">
-              <div class="d-flex ">
-                <div class=" p-inputgroupaddon ">
-                  Produits
-                </div>
+              <div class="d-flex">
+                <div class="p-inputgroupaddon">Produits</div>
                 <div class="flex-fill">
-                  <p-autoComplete #produitbox (completeMethod)="searchFn($event)"
-                                  (keydown)="onSelectKeyDow($event)"
-                                  (onSelect)="onSelect()"
-                                  [(ngModel)]="produitSelected"
-                                  [appendTo]="appendTo"
-                                  [autofocus]="true"
-                                  [dataKey]="'id'"
-                                  [dropdown]="true"
-                                  [emptyMessage]="notFoundText"
-                                  [inputStyle]="{'width':'100%'}"
-                                  [minLength]="minLength"
-                                  [showClear]="true" [showEmptyMessage]="true"
-                                  [style]="{'width':'100%'}"
-                                  [suggestions]="produits"
-                                  optionLabel="libelle">
+                  <p-autoComplete
+                    #produitbox
+                    (completeMethod)="searchFn($event)"
+                    (keydown)="onSelectKeyDow($event)"
+                    (onSelect)="onSelect()"
+                    [(ngModel)]="produitSelected"
+                    [appendTo]="appendTo"
+                    [autofocus]="true"
+                    [dataKey]="'id'"
+                    [dropdown]="true"
+                    [emptyMessage]="notFoundText"
+                    [inputStyle]="{ width: '100%' }"
+                    [minLength]="minLength"
+                    [showClear]="true"
+                    [showEmptyMessage]="true"
+                    [style]="{ width: '100%' }"
+                    [suggestions]="produits"
+                    optionLabel="libelle"
+                  >
                     <ng-template #item let-item>
                       @if (item.totalQuantity > 0) {
-                        <div [style]="{'width':'100%'}">
-            <span
-              style="width:20%; display:inline-block">{{ item.codeCip }}</span><span> {{ item.libelle }}</span>
-                          <span
-                            class="float-right font-bold">{{ item.regularUnitPrice |number }}</span>
+                        <div [style]="{ width: '100%' }">
+                          <span style="width: 20%; display: inline-block">{{ item.codeCip }}</span
+                          ><span> {{ item.libelle }}</span>
+                          <span class="float-right font-bold">{{ item.regularUnitPrice | number }}</span>
                         </div>
                       }
                       @if (item.totalQuantity <= 0) {
-                        <div [style]="{'width':'100%'}">
-                                            <span class="stockless"
-                                                  style="width:20%; display:inline-block">{{ item.codeCip }}</span><span
-                          class="stockless"> {{ item.libelle }}</span> <span
-                          class="float-right stockless font-bold">{{ item.regularUnitPrice |number }}</span>
+                        <div [style]="{ width: '100%' }">
+                          <span class="stockless" style="width: 20%; display: inline-block">{{ item.codeCip }}</span
+                          ><span class="stockless"> {{ item.libelle }}</span>
+                          <span class="float-right stockless font-bold">{{ item.regularUnitPrice | number }}</span>
                         </div>
                       }
-
                     </ng-template>
-
                   </p-autoComplete>
                 </div>
               </div>
-
             </div>
             <div class="col-md-2">
               <p-inputgroup>
-                <p-inputgroup-addon>
-                  Qté
-                </p-inputgroup-addon>
-                <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
-                       [(ngModel)]="quantiteSaisie"
-                       pInputText
-                       type="number" />
+                <p-inputgroup-addon> Qté </p-inputgroup-addon>
+                <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)" [(ngModel)]="quantiteSaisie" pInputText type="number" />
 
                 <p-inputgroup-addon>
-                  <p-button (click)="onQtyBntClickEvent()" icon="pi pi-plus" severity="success"
-
-                            type="button"></p-button>
+                  <p-button (click)="onQtyBntClickEvent()" icon="pi pi-plus" severity="success" type="button"></p-button>
                 </p-inputgroup-addon>
-
               </p-inputgroup>
             </div>
 
             @if (produitSelected) {
               @if (showStock) {
-
                 <div class="col-md-1">
-                  <p-button badgeSeverity="contrast" label="Stock" variant="outlined"
-                            [badge]="produitSelected.totalQuantity |number "
+                  <p-button
+                    badgeSeverity="contrast"
+                    label="Stock"
+                    variant="outlined"
+                    [badge]="produitSelected.totalQuantity | number"
                   ></p-button>
-
                 </div>
               }
               <div class="col-md-3">
                 Rayons:
                 @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
-                  <p-button badgeSeverity="contrast" label="Rayons" variant="outlined"
-                            [badge]="rayon.libelleRayon"
-                  ></p-button>
-
+                  <p-button badgeSeverity="contrast" label="Rayons" variant="outlined" [badge]="rayon.libelleRayon"></p-button>
                 }
-
               </div>
-
-
             }
           </div>
 
-
-          <div [ngbNavOutlet]="nav" class="row sale-tab-container">
-
-          </div>
-
+          <div [ngbNavOutlet]="nav" class="row sale-tab-container"></div>
         </div>
-
       </ng-template>
-
-
     </p-panel>
   </div>
-
-
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
-                 key="forcerStockDialog">
-
-</p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" appendTo="body" key="forcerStockDialog"> </p-confirmDialog>
 <p-toast position="center"></p-toast>
 
-<p-confirmDialog key="changeTab">
+<p-confirmDialog key="changeTab"> </p-confirmDialog>
 
-
-</p-confirmDialog>
-
-<p-confirmDialog key="venteSansBon">
-
-
-</p-confirmDialog>
+<p-confirmDialog key="venteSansBon"> </p-confirmDialog>

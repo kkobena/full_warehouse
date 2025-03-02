@@ -13,24 +13,19 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, Long>,
-    JpaSpecificationExecutor<InvoicePayment> {
-
-
+public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, Long>, JpaSpecificationExecutor<InvoicePayment> {
     List<InvoicePayment> findInvoicePaymentByParentId(long parentId);
 
     default Specification<InvoicePayment> specialisationQueryString(String queryValue) {
         return (root, _, cb) ->
             cb.or(
                 cb.like(
-                    cb.upper(root.get(InvoicePayment_.factureTiersPayant)
-                        .get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.name)),
+                    cb.upper(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.name)),
                     queryValue
                 ),
                 cb.like(
                     cb.upper(
-                        root.get(InvoicePayment_.factureTiersPayant)
-                            .get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name)
+                        root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name)
                     ),
                     queryValue
                 )
@@ -39,40 +34,28 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
 
     default Specification<InvoicePayment> filterByOrganismeId(long id) {
         return (root, _, cb) ->
-
-            cb.equal(root.get(InvoicePayment_.factureTiersPayant)
-                .get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), id);
-
+            cb.equal(
+                root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id),
+                id
+            );
     }
-
 
     default Specification<InvoicePayment> filterByTiersPayantId(long id) {
         return (root, _, cb) ->
-
-            cb.equal(root.get(InvoicePayment_.factureTiersPayant)
-                .get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id), id);
-
+            cb.equal(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id), id);
     }
 
-    default Specification<InvoicePayment> periodeCriteria(LocalDate startDate,
-        LocalDate endDate) {
+    default Specification<InvoicePayment> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) ->
-            cb.between(
-                cb.function("DATE", LocalDate.class,
-                    root.get(InvoicePayment_.created)),
-                cb.literal(startDate),
-                cb.literal(endDate)
-            );
+            cb.between(cb.function("DATE", LocalDate.class, root.get(InvoicePayment_.created)), cb.literal(startDate), cb.literal(endDate));
     }
 
     default Specification<InvoicePayment> invoicesTypePredicats(boolean grouped) {
         return (root, _, cb) -> {
             if (grouped) {
-                return cb.isNotNull(root.get(InvoicePayment_.factureTiersPayant)
-                    .get(FactureTiersPayant_.groupeTiersPayant));
+                return cb.isNotNull(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.groupeTiersPayant));
             } else {
-                return cb.isNotNull(root.get(InvoicePayment_.factureTiersPayant)
-                    .get(FactureTiersPayant_.tiersPayant));
+                return cb.isNotNull(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.tiersPayant));
             }
         };
     }

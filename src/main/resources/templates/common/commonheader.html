@@ -1,47 +1,37 @@
 <header>
-  <div class="row" style="padding-bottom: 0;">
-    <table class="page-header" style="padding: 0;margin: 0;">
+  <div class="row" style="padding-bottom: 0">
+    <table class="page-header" style="padding: 0; margin: 0">
       <tbody>
-      <tr>
-        <td>
-          <div class="col-6 company-details">
-            <h2 class="name">
-              <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
-            </h2>
-            <div th:if="${magasin.phone ne null}">
-              <span th:text="${magasin.phone}"></span>
+        <tr>
+          <td>
+            <div class="col-6 company-details">
+              <h2 class="name">
+                <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
+              </h2>
+              <div th:if="${magasin.phone ne null}">
+                <span th:text="${magasin.phone}"></span>
+              </div>
+              <div th:if="${magasin.address ne null}">
+                <span th:text="${magasin.address}"></span>
+              </div>
             </div>
-            <div th:if="${magasin.address ne null}">
-              <span th:text="${magasin.address}"></span>
-            </div>
-
-          </div>
-        </td>
-        <td style="text-align: right;padding:0">
-          <span style="text-align: right;font-weight: 600;" th:text="${page_count}"></span>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
-
-  </div>
-  <div class="row"
-       style="padding-top: 0;padding-bottom: 0;margin: 0;padding-left: 10px;padding-right: 10px;">
-    <table class="report-title" style="margin: 0;">
-      <tbody>
-
-      <tr>
-
-        <td class="report-title" style="text-align: center;">
-          <span
-            th:text="${reportTitle}"></span>
-
-        </td>
-      </tr>
+          </td>
+          <td style="text-align: right; padding: 0">
+            <span style="text-align: right; font-weight: 600" th:text="${page_count}"></span>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
-
-
+  <div class="row" style="padding-top: 0; padding-bottom: 0; margin: 0; padding-left: 10px; padding-right: 10px">
+    <table class="report-title" style="margin: 0">
+      <tbody>
+        <tr>
+          <td class="report-title" style="text-align: center">
+            <span th:text="${reportTitle}"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </header>

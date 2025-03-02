@@ -17,11 +17,6 @@ export class ReglementService {
 
   public resourceUrl = SERVER_API_URL + 'api/reglements';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Reglement>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

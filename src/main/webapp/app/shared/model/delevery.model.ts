@@ -45,6 +45,6 @@ export class Delivery implements IDelivery {
     public receiptItems?: IDeliveryItem[],
     public orderReference?: string,
     public receiptFullDate?: Moment,
-    public statut?: string
+    public statut?: string,
   ) {}
 }

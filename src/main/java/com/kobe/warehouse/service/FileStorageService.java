@@ -19,74 +19,29 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileStorageService {
-    private final Logger LOG = LoggerFactory.getLogger(FileStorageService.class);
-	private final   Path fileStorageLocation;
-    private final   Path fileImageStorageLocation;
 
+    private final Logger LOG = LoggerFactory.getLogger(FileStorageService.class);
+    private final Path fileStorageLocation;
+    private final Path fileImageStorageLocation;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir())
-            .toAbsolutePath().normalize();
-        this.fileImageStorageLocation=Paths.get(fileStorageProperties.getImagesDir())
-            .toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+        this.fileImageStorageLocation = Paths.get(fileStorageProperties.getImagesDir()).toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (IOException ex) {
-            LOG.debug("Imposile de créer le repertoire ",ex);
+            LOG.debug("Imposile de créer le repertoire ", ex);
         }
         try {
             Files.createDirectories(this.fileImageStorageLocation);
         } catch (IOException ex) {
-            LOG.debug("Imposile de créer le repertoire ",ex);
+            LOG.debug("Imposile de créer le repertoire ", ex);
         }
     }
-	public String storeFile(MultipartFile file) throws  FileNotFoundException{
-		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-		try {
-			// Check if the file's name contains invalid characters
-			if (fileName.contains("..")) {
-				throw new FileNotFoundException("Sorry! Filename contains invalid path sequence " + fileName);
-			}
 
-			// Copy file to the target location (Replacing existing file with the same name)
-
-			Path targetLocation =    this.fileStorageLocation.resolve(fileName).normalize();
-			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-			return fileName;
-		} catch (IOException ex) {
-			throw new FileNotFoundException("Could not store file " + fileName + ". Please try again!");
-		}
-	}
-
-	public Resource loadFileAsResource(String fileName)  throws  FileNotFoundException{
-		try {
-
-            Path targetLocation =     this.fileStorageLocation.resolve(fileName).normalize();
-			Resource resource = new UrlResource(targetLocation.toUri());
-			if (resource.exists()) {
-				return resource;
-			} else {
-				throw new FileNotFoundException("File not found " + fileName);
-			}
-		} catch (IOException ex) {
-            throw new FileNotFoundException("Fichier existant");
-		}
-	}
-
-	public File loadFile(String fileName) throws IOException {
-
-        Path targetLocation =     this.fileStorageLocation.resolve(fileName).normalize();
-		File resource = targetLocation.toFile();
-		if (resource.exists()) {
-			return resource;
-		} else {
-			throw new FileNotFoundException("Fichier existant");
-		}
-	}
-
-    public String storeImage(MultipartFile file) throws  FileNotFoundException{
+    public String storeFile(MultipartFile file) throws FileNotFoundException {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             // Check if the file's name contains invalid characters
@@ -96,12 +51,53 @@ public class FileStorageService {
 
             // Copy file to the target location (Replacing existing file with the same name)
 
-            Path targetLocation =    this.fileImageStorageLocation.resolve(fileName).normalize();
+            Path targetLocation = this.fileStorageLocation.resolve(fileName).normalize();
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            return fileName;
+        } catch (IOException ex) {
+            throw new FileNotFoundException("Could not store file " + fileName + ". Please try again!");
+        }
+    }
+
+    public Resource loadFileAsResource(String fileName) throws FileNotFoundException {
+        try {
+            Path targetLocation = this.fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(targetLocation.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new FileNotFoundException("File not found " + fileName);
+            }
+        } catch (IOException ex) {
+            throw new FileNotFoundException("Fichier existant");
+        }
+    }
+
+    public File loadFile(String fileName) throws IOException {
+        Path targetLocation = this.fileStorageLocation.resolve(fileName).normalize();
+        File resource = targetLocation.toFile();
+        if (resource.exists()) {
+            return resource;
+        } else {
+            throw new FileNotFoundException("Fichier existant");
+        }
+    }
+
+    public String storeImage(MultipartFile file) throws FileNotFoundException {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new FileNotFoundException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+
+            Path targetLocation = this.fileImageStorageLocation.resolve(fileName).normalize();
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return targetLocation.toFile().getAbsolutePath();
         } catch (IOException ex) {
             throw new FileNotFoundException("Could not store file " + fileName + ". Please try again!");
         }
     }
-
 }

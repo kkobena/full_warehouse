@@ -1,18 +1,19 @@
 package com.kobe.warehouse.service.dto;
 
-
 import com.kobe.warehouse.domain.Tableau;
 import jakarta.validation.constraints.NotNull;
 
 public class TableauDTO {
+
     private Long id;
+
     @NotNull
     private String code;
+
     @NotNull
     private Integer value;
 
-    public TableauDTO() {
-    }
+    public TableauDTO() {}
 
     public TableauDTO(Tableau tableau) {
         this.id = tableau.getId();

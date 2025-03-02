@@ -11,9 +11,9 @@ import { TypeProduit } from '../../shared/model/enumerations/type-produit.model'
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    selector: 'jhi-detail-form-dialog',
-    templateUrl: './detail-form-dialog.component.html',
-    imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule]
+  selector: 'jhi-detail-form-dialog',
+  templateUrl: './detail-form-dialog.component.html',
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule],
 })
 export class DetailFormDialogComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);
@@ -31,11 +31,6 @@ export class DetailFormDialogComponent implements OnInit {
     regularUnitPrice: [null, [Validators.required]],
     createdAt: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     if (this.entity !== null && this.entity !== undefined) {
@@ -96,11 +91,11 @@ export class DetailFormDialogComponent implements OnInit {
   private createFromForm(): IProduit {
     return {
       ...new Produit(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      costAmount: this.editForm.get(['costAmount'])!.value,
-      regularUnitPrice: this.editForm.get(['regularUnitPrice'])!.value,
-      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      costAmount: this.editForm.get(['costAmount']).value,
+      regularUnitPrice: this.editForm.get(['regularUnitPrice']).value,
+      createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
       produitId: this.produit.id,
       typeProduit: TypeProduit.DETAIL,
       quantity: 0,

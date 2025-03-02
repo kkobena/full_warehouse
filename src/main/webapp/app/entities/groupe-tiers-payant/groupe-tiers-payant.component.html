@@ -1,65 +1,69 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteGroupe">
-</p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteGroupe"> </p-confirmDialog>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onUpload($event)" [customUpload]="true"
-                  accept=".txt,.csv,.xls,.xlsx"
-                  cancelLabel="Annuler"
-                  cancelStyleClass="p-button-danger"
-                  chooseLabel="Importer un fichier"
-                  name="importcsv" uploadLabel="Enrégistrer"
-                  uploadStyleClass="p-button-info">
+    <p-fileupload
+      (uploadHandler)="onUpload($event)"
+      [customUpload]="true"
+      accept=".txt,.csv,.xls,.xlsx"
+      cancelLabel="Annuler"
+      cancelStyleClass="p-button-danger"
+      chooseLabel="Importer un fichier"
+      name="importcsv"
+      uploadLabel="Enrégistrer"
+      uploadStyleClass="p-button-info"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler"
-              raised="true"
-
-              severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
-
 </p-dialog>
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '500px'}"
-          header="Message">
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '500px' }" header="Message">
   <div class="ui-g form-group">
-    <p>Le nombre de lignes insérées <span
-      style="font-weight: 900; margin-left: 10px;"> {{ responsedto?.size }}</span>
+    <p>
+      Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px"> {{ responsedto?.size }}</span>
     </p>
   </div>
 </p-dialog>
 <div>
-  <h3>Liste des groupes de tiers-payants </h3>
+  <h3>Liste des groupes de tiers-payants</h3>
   <p-toolbar>
     <ng-template #start>
       <p-iconfield>
-
         <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-               placeholder="Taper pour rechercher"
-               style="width:98%;"
-               type="text">
+        <input
+          (keyup.enter)="onSearch()"
+          [(ngModel)]="search"
+          pInputText
+          placeholder="Taper pour rechercher"
+          style="width: 98%"
+          type="text"
+        />
       </p-iconfield>
-
     </ng-template>
     <ng-template #end>
-      <p-button (click)="showFileDialog()" class="mr-2" icon="pi pi-upload" label="Importer"
-                raised="true"
-                severity="help"
-                type="button"></p-button>
-      <p-button (click)="addGroupeTiersPayant()" icon="pi pi-check"
-                label="Nouveau" raised="true"
-                severity="success"
-                type="button"></p-button>
+      <p-button
+        (click)="showFileDialog()"
+        class="mr-2"
+        icon="pi pi-upload"
+        label="Importer"
+        raised="true"
+        severity="help"
+        type="button"
+      ></p-button>
+      <p-button
+        (click)="addGroupeTiersPayant()"
+        icon="pi pi-check"
+        label="Nouveau"
+        raised="true"
+        severity="success"
+        type="button"
+      ></p-button>
     </ng-template>
-
   </p-toolbar>
 
-
   @if (entites && entites.length > 0) {
-    <p-table [paginator]="true" [rows]="10"
-             [value]="entites" styleClass="mt-2">
+    <p-table [paginator]="true" [rows]="10" [value]="entites" styleClass="mt-2">
       <ng-template pTemplate="header">
         <tr>
           <th scope="col"><span>Libellé</span></th>
@@ -78,17 +82,26 @@
           <td>{{ groupeTiersPayant.telephone }}</td>
           <td>{{ groupeTiersPayant.telephoneFixe }}</td>
 
-          <td style="text-align: center;">
-            <p-button severity="success"
-                      (click)="editGroupeTiersPayant(groupeTiersPayant)"
-                      class=" p-mr-2" icon="pi pi-pencil"
-                      [rounded]="true" size="small"
-                      pTooltip="Modifier"
-                      type="button"></p-button>
-            <p-button (click)="onConfirmDelete(groupeTiersPayant)"
-                      severity="danger" icon="pi pi-trash" size="small"
-                      [rounded]="true" pTooltip="Supprimer"
-                      type="button"></p-button>
+          <td style="text-align: center">
+            <p-button
+              severity="success"
+              (click)="editGroupeTiersPayant(groupeTiersPayant)"
+              class="p-mr-2"
+              icon="pi pi-pencil"
+              [rounded]="true"
+              size="small"
+              pTooltip="Modifier"
+              type="button"
+            ></p-button>
+            <p-button
+              (click)="onConfirmDelete(groupeTiersPayant)"
+              severity="danger"
+              icon="pi pi-trash"
+              size="small"
+              [rounded]="true"
+              pTooltip="Supprimer"
+              type="button"
+            ></p-button>
           </td>
         </tr>
       </ng-template>
@@ -98,7 +111,4 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
-
-
 </div>
-

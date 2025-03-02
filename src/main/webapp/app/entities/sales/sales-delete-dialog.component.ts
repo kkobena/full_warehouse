@@ -14,8 +14,6 @@ export class SalesDeleteDialogComponent {
   sales?: ISales;
   protected salesService = inject(SalesService);
 
-  constructor() {}
-
   cancel(): void {
     this.activeModal.dismiss();
   }

@@ -23,6 +23,8 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
 import { TextareaModule } from 'primeng/textarea';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
@@ -45,6 +47,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
     InputTextModule,
     KeyFilterModule,
     TooltipModule,
+    IconField,
+    InputIcon,
   ],
 })
 export class GroupeFournisseurComponent implements OnInit {
@@ -253,13 +257,13 @@ export class GroupeFournisseurComponent implements OnInit {
   private createFromForm(): IGroupeFournisseur {
     return {
       ...new GroupeFournisseur(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      addresspostale: this.editForm.get(['addresspostale'])!.value,
-      numFaxe: this.editForm.get(['numFaxe'])!.value,
-      email: this.editForm.get(['email'])!.value,
-      tel: this.editForm.get(['tel'])!.value,
-      odre: this.editForm.get(['odre'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      addresspostale: this.editForm.get(['addresspostale']).value,
+      numFaxe: this.editForm.get(['numFaxe']).value,
+      email: this.editForm.get(['email']).value,
+      tel: this.editForm.get(['tel']).value,
+      odre: this.editForm.get(['odre']).value,
     };
   }
 }

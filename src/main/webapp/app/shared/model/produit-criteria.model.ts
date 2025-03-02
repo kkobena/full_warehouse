@@ -48,6 +48,6 @@ export class ProduitCriteria implements IProduitCriteria {
     public storageId?: number,
     public rayonId?: number,
     public deconditionne?: boolean,
-    public remiseId?: number
+    public remiseId?: number,
   ) {}
 }

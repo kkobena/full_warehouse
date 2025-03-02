@@ -18,11 +18,6 @@ export class StoreInventoryService {
 
   public resourceUrl = SERVER_API_URL + 'api/store-inventories';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(storeInventory: IStoreInventory): Observable<EntityResponseType> {
     return this.http.post<IStoreInventory>(this.resourceUrl, storeInventory, { observe: 'response' });
   }

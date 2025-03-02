@@ -8,4 +8,5 @@ public record StoreInventoryLineFilterRecord(
     String search,
     Long storageId,
     Long rayonId,
-    StoreInventoryLineEnum selectedFilter) {}
+    StoreInventoryLineEnum selectedFilter
+) {}

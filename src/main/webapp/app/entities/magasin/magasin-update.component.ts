@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -13,9 +13,9 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'jhi-magasin-update',
-    templateUrl: './magasin-update.component.html',
-    imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule]
+  selector: 'jhi-magasin-update',
+  templateUrl: './magasin-update.component.html',
+  imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule],
 })
 export class MagasinUpdateComponent implements OnInit {
   protected magasinService = inject(MagasinService);
@@ -34,11 +34,6 @@ export class MagasinUpdateComponent implements OnInit {
     registre: [],
     welcomeMessage: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => {
@@ -92,14 +87,14 @@ export class MagasinUpdateComponent implements OnInit {
   private createFromForm(): IMagasin {
     return {
       ...new Magasin(),
-      id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
-      fullName: this.editForm.get(['fullName'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
-      address: this.editForm.get(['address'])!.value,
-      note: this.editForm.get(['note'])!.value,
-      registre: this.editForm.get(['registre'])!.value,
-      welcomeMessage: this.editForm.get(['welcomeMessage'])!.value,
+      id: this.editForm.get(['id']).value,
+      name: this.editForm.get(['name']).value,
+      fullName: this.editForm.get(['fullName']).value,
+      phone: this.editForm.get(['phone']).value,
+      address: this.editForm.get(['address']).value,
+      note: this.editForm.get(['note']).value,
+      registre: this.editForm.get(['registre']).value,
+      welcomeMessage: this.editForm.get(['welcomeMessage']).value,
     };
   }
 }

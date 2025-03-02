@@ -13,19 +13,19 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-    selector: 'jhi-ayant-droit-customer-list',
-    templateUrl: './ayant-droit-customer-list.component.html',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        DynamicDialogModule,
-        TableModule,
-        ToolbarModule,
-    ]
+  selector: 'jhi-ayant-droit-customer-list',
+  templateUrl: './ayant-droit-customer-list.component.html',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+    TableModule,
+    ToolbarModule,
+  ],
 })
 export class AyantDroitCustomerListComponent implements OnInit {
   ref = inject(DynamicDialogRef);
@@ -34,11 +34,6 @@ export class AyantDroitCustomerListComponent implements OnInit {
 
   customers: ICustomer[] = [];
   assure?: ICustomer | null;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.assure = this.config.data.assure;

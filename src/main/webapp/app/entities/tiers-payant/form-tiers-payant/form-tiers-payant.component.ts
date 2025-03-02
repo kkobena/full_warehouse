@@ -75,11 +75,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     toBeExclude: [],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.entity = this.config.data.entity;
     this.categorie = this.config.data.type;
@@ -125,23 +120,23 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
 
   onCmuChange(event: ToggleSwitch): void {
     if (event.checked()) {
-      if (this.editForm.get('useReferencedPrice')?.value) {
-        this.editForm.get('useReferencedPrice')?.setValue(false);
+      if (this.editForm.get('useReferencedPrice').value) {
+        this.editForm.get('useReferencedPrice').setValue(false);
       }
-      this.editForm.get('useReferencedPrice')?.disable();
+      this.editForm.get('useReferencedPrice').disable();
     } else {
-      this.editForm.get('useReferencedPrice')?.enable();
+      this.editForm.get('useReferencedPrice').enable();
     }
   }
 
   onReferencedPriceChange(event: ToggleSwitch): void {
     if (event.checked()) {
-      if (this.editForm.get('cmu')?.value) {
-        this.editForm.get('cmu')?.setValue(false);
+      if (this.editForm.get('cmu').value) {
+        this.editForm.get('cmu').setValue(false);
       }
-      this.editForm.get('cmu')?.disable();
+      this.editForm.get('cmu').disable();
     } else {
-      this.editForm.get('cmu')?.enable();
+      this.editForm.get('cmu').enable();
     }
   }
 
@@ -171,7 +166,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       id: tiersPayant.id,
       name: tiersPayant.name,
       fullName: tiersPayant.fullName,
-      groupeTiersPayantId: tiersPayant.groupeTiersPayant?.id,
+      groupeTiersPayantId: tiersPayant.groupeTiersPayant.id,
       codeOrganisme: tiersPayant.codeOrganisme,
       telephone: tiersPayant.telephone,
       montantMaxParFcture: tiersPayant.montantMaxParFcture,
@@ -192,32 +187,32 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   private createFromForm(): ITiersPayant {
     return {
       ...new TiersPayant(),
-      id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
-      fullName: this.editForm.get(['fullName'])!.value,
-      nbreBordereaux: this.editForm.get(['nbreBordereaux'])!.value,
-      remiseForfaitaire: this.editForm.get(['remiseForfaitaire'])!.value,
-      email: this.editForm.get(['email'])!.value,
+      id: this.editForm.get(['id']).value,
+      name: this.editForm.get(['name']).value,
+      fullName: this.editForm.get(['fullName']).value,
+      nbreBordereaux: this.editForm.get(['nbreBordereaux']).value,
+      remiseForfaitaire: this.editForm.get(['remiseForfaitaire']).value,
+      email: this.editForm.get(['email']).value,
       categorie: this.categorie,
-      plafondAbsolu: this.editForm.get(['plafondAbsolu'])!.value,
-      plafondConso: this.editForm.get(['plafondConso'])!.value,
-      montantMaxParFcture: this.editForm.get(['montantMaxParFcture'])!.value,
-      codeOrganisme: this.editForm.get(['codeOrganisme'])!.value,
-      telephone: this.editForm.get(['telephone'])!.value,
-      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId'])!.value,
-      useReferencedPrice: this.editForm.get(['useReferencedPrice'])!.value,
-      cmu: this.editForm.get(['cmu'])!.value,
-      modelFacture: this.editForm.get(['modelFacture'])!.value,
-      toBeExclude: this.editForm.get(['toBeExclude'])!.value,
+      plafondAbsolu: this.editForm.get(['plafondAbsolu']).value,
+      plafondConso: this.editForm.get(['plafondConso']).value,
+      montantMaxParFcture: this.editForm.get(['montantMaxParFcture']).value,
+      codeOrganisme: this.editForm.get(['codeOrganisme']).value,
+      telephone: this.editForm.get(['telephone']).value,
+      groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId']).value,
+      useReferencedPrice: this.editForm.get(['useReferencedPrice']).value,
+      cmu: this.editForm.get(['cmu']).value,
+      modelFacture: this.editForm.get(['modelFacture']).value,
+      toBeExclude: this.editForm.get(['toBeExclude']).value,
     };
   }
 
   private displayDisplayCmu(): void {
-    if (this.editForm.get('useReferencedPrice')?.value) {
-      this.editForm.get('cmu')?.disable();
+    if (this.editForm.get('useReferencedPrice').value) {
+      this.editForm.get('cmu').disable();
     }
-    if (this.editForm.get('cmu')?.value) {
-      this.editForm.get('useReferencedPrice')?.disable();
+    if (this.editForm.get('cmu').value) {
+      this.editForm.get('useReferencedPrice').disable();
     }
   }
 }

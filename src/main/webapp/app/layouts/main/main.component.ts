@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Renderer2, RendererFactory2 } from '@angular/core';
+import { Component, OnInit, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs/esm';
@@ -8,19 +8,19 @@ import { AppPageTitleStrategy } from 'app/app-page-title-strategy';
 import '@angular/common/locales/global/fr';
 
 @Component({
-    selector: 'jhi-main',
-    templateUrl: './main.component.html',
-    providers: [AppPageTitleStrategy],
-    imports: [RouterOutlet]
+  selector: 'jhi-main',
+  templateUrl: './main.component.html',
+  providers: [AppPageTitleStrategy],
+  imports: [RouterOutlet],
 })
 export default class MainComponent implements OnInit {
-  private renderer: Renderer2;
+  private readonly renderer: Renderer2;
 
-  private router = inject(Router);
-  private appPageTitleStrategy = inject(AppPageTitleStrategy);
-  private accountService = inject(AccountService);
-  private translateService = inject(TranslateService);
-  private rootRenderer = inject(RendererFactory2);
+  private readonly router = inject(Router);
+  private readonly appPageTitleStrategy = inject(AppPageTitleStrategy);
+  private readonly accountService = inject(AccountService);
+  private readonly translateService = inject(TranslateService);
+  private readonly rootRenderer = inject(RendererFactory2);
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector('html'), null);

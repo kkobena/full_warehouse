@@ -4,5 +4,8 @@ export interface IMotifRetourProduit {
 }
 
 export class MotifRetourProduit implements IMotifRetourProduit {
-  constructor(public id?: number, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+  ) {}
 }

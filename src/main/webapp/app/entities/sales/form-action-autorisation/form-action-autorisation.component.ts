@@ -12,10 +12,10 @@ import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 
 @Component({
-    selector: 'jhi-form-action-autorisation',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
-    templateUrl: './form-action-autorisation.component.html',
-    styles: ``
+  selector: 'jhi-form-action-autorisation',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './form-action-autorisation.component.html',
+  styles: ``,
 })
 export class FormActionAutorisationComponent implements AfterViewInit {
   entity: ISales;
@@ -42,7 +42,7 @@ export class FormActionAutorisationComponent implements AfterViewInit {
   autorize(): void {
     this.isSaving = true;
     const utilisationCleSecurite = this.createFrom();
-    if (this.entity?.type === 'VO') {
+    if (this.entity.type === 'VO') {
       this.subscribeToAuthorizeActionResponse(this.voSalesService.authorizeAction(utilisationCleSecurite));
     } else {
       this.subscribeToAuthorizeActionResponse(this.salesService.authorizeAction(utilisationCleSecurite));
@@ -77,10 +77,10 @@ export class FormActionAutorisationComponent implements AfterViewInit {
   protected createFrom(): UtilisationCleSecurite {
     return {
       ...new UtilisationCleSecurite(),
-      entityId: this.entity?.id,
+      entityId: this.entity.id,
       privilege: this.privilege,
-      actionAuthorityKey: this.editForm.get(['actionAuthorityKey'])!.value,
-      commentaire: this.editForm.get(['commentaire'])!.value,
+      actionAuthorityKey: this.editForm.get(['actionAuthorityKey']).value,
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 

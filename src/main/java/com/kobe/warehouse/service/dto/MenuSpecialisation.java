@@ -3,19 +3,19 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.enumeration.TypeMenu;
 
 public interface MenuSpecialisation {
-  Long getId();
+    Long getId();
 
-  Long getParent();
+    Long getParent();
 
-  TypeMenu getTypeMenu();
+    TypeMenu getTypeMenu();
 
-  String getLibelle();
+    String getLibelle();
 
-  String getName();
+    String getName();
 
-  boolean isRoot();
+    boolean isRoot();
 
-  String getIconWeb();
+    String getIconWeb();
 
-  String getIconJavaClient();
+    String getIconJavaClient();
 }

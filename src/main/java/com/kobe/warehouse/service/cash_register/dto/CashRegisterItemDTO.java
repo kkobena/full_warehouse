@@ -5,54 +5,55 @@ import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 
 public class CashRegisterItemDTO {
-  private long amount;
-  private String paymentModeCode;
-  private String paymentModeLibelle;
-  private TypeFinancialTransaction typeTransaction;
 
-  public CashRegisterItemDTO() {}
+    private long amount;
+    private String paymentModeCode;
+    private String paymentModeLibelle;
+    private TypeFinancialTransaction typeTransaction;
 
-  public CashRegisterItemDTO(CashRegisterItem cashRegisterItem) {
-    this.amount = cashRegisterItem.getAmount();
-    PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
-    this.paymentModeCode = paymentMode.getCode();
-    this.paymentModeLibelle = paymentMode.getLibelle();
-    this.typeTransaction = cashRegisterItem.getTypeFinancialTransaction();
-  }
+    public CashRegisterItemDTO() {}
 
-  public TypeFinancialTransaction getTypeTransaction() {
-    return typeTransaction;
-  }
+    public CashRegisterItemDTO(CashRegisterItem cashRegisterItem) {
+        this.amount = cashRegisterItem.getAmount();
+        PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
+        this.paymentModeCode = paymentMode.getCode();
+        this.paymentModeLibelle = paymentMode.getLibelle();
+        this.typeTransaction = cashRegisterItem.getTypeFinancialTransaction();
+    }
 
-  public CashRegisterItemDTO setTypeTransaction(TypeFinancialTransaction typeTransaction) {
-    this.typeTransaction = typeTransaction;
-    return this;
-  }
+    public TypeFinancialTransaction getTypeTransaction() {
+        return typeTransaction;
+    }
 
-  public long getAmount() {
-    return amount;
-  }
+    public CashRegisterItemDTO setTypeTransaction(TypeFinancialTransaction typeTransaction) {
+        this.typeTransaction = typeTransaction;
+        return this;
+    }
 
-  public CashRegisterItemDTO setAmount(long amount) {
-    this.amount = amount;
-    return this;
-  }
+    public long getAmount() {
+        return amount;
+    }
 
-  public String getPaymentModeCode() {
-    return paymentModeCode;
-  }
+    public CashRegisterItemDTO setAmount(long amount) {
+        this.amount = amount;
+        return this;
+    }
 
-  public CashRegisterItemDTO setPaymentModeCode(String paymentModeCode) {
-    this.paymentModeCode = paymentModeCode;
-    return this;
-  }
+    public String getPaymentModeCode() {
+        return paymentModeCode;
+    }
 
-  public String getPaymentModeLibelle() {
-    return paymentModeLibelle;
-  }
+    public CashRegisterItemDTO setPaymentModeCode(String paymentModeCode) {
+        this.paymentModeCode = paymentModeCode;
+        return this;
+    }
 
-  public CashRegisterItemDTO setPaymentModeLibelle(String paymentModeLibelle) {
-    this.paymentModeLibelle = paymentModeLibelle;
-    return this;
-  }
+    public String getPaymentModeLibelle() {
+        return paymentModeLibelle;
+    }
+
+    public CashRegisterItemDTO setPaymentModeLibelle(String paymentModeLibelle) {
+        this.paymentModeLibelle = paymentModeLibelle;
+        return this;
+    }
 }

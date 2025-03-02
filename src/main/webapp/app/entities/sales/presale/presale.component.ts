@@ -45,11 +45,6 @@ export class PresaleComponent implements OnInit {
   sales: ISales[] = [];
   search = '';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();

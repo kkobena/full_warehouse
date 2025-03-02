@@ -1,34 +1,24 @@
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier json">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
-                  cancelLabel="Annuler"
-                  chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
+    <p-fileupload
+      (uploadHandler)="onUploadJson($event)"
+      [customUpload]="true"
+      accept=".json"
+      cancelLabel="Annuler"
+      chooseLabel="Importer un fichier"
+      name="importjson"
+      uploadLabel="Enrégistrer"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" [raised]="true" class="mr-2"
-
-              icon="pi pi-times"
-              label="Annuler"
-
-              severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class="mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
-
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 key="deleteCustomer">
-
-</p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 key="desactiverCustomer">
-
-</p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 key="deleteTiersPayant">
-
-</p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteCustomer"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="desactiverCustomer"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteTiersPayant"> </p-confirmDialog>
 
 <div>
   <h4 id="page-heading">
@@ -36,112 +26,131 @@
   </h4>
   <p-toolbar>
     <ng-template #start>
-
-      <p-select (onChange)="onTypeChange()" [(ngModel)]="typeSelected" [filter]="false"
-                [options]="types" placeholder="Filtrer par type"
-                styleClass=" mr-1">
+      <p-select
+        (onChange)="onTypeChange()"
+        [(ngModel)]="typeSelected"
+        [filter]="false"
+        [options]="types"
+        placeholder="Filtrer par type"
+        styleClass=" mr-1"
+      >
       </p-select>
       <p-divider layout="vertical"></p-divider>
-      <p-select (onChange)="onTypeChange()" [(ngModel)]="statutSelected" [filter]="false"
-                [options]="statuts"
-                optionLabel="label"
-                optionValue="value"
+      <p-select
+        (onChange)="onTypeChange()"
+        [(ngModel)]="statutSelected"
+        [filter]="false"
+        [options]="statuts"
+        optionLabel="label"
+        optionValue="value"
       >
       </p-select>
 
       <p-divider layout="vertical"></p-divider>
       <p-iconfield>
-
         <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-               placeholder="Taper pour rechercher"
-               type="text">
+        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
       </p-iconfield>
     </ng-template>
     <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                raised="true" severity="info"></p-button>
+      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
 
-      <p-splitbutton [model]="newCustomerbuttons" icon="pi pi-user-plus"
-                     label="Nouveau client" raised="true"
-                     severity="success"></p-splitbutton>
+      <p-splitbutton
+        [model]="newCustomerbuttons"
+        icon="pi pi-user-plus"
+        label="Nouveau client"
+        raised="true"
+        severity="success"
+      ></p-splitbutton>
     </ng-template>
-
-
   </p-toolbar>
 
-  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-               name="importation"
-               size="medium"
-               type="timer">
+  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation" size="medium" type="timer">
   </ngx-spinner>
   @if (customers && customers.length > 0) {
-    <p-table (onLazyLoad)="lazyLoading($event)"
-             [lazy]="true"
-             [loading]="loading"
-             [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
-             [rows]="itemsPerPage"
-             [showCurrentPageReport]="true"
-             [totalRecords]="totalItems"
-             [value]="customers"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-             dataKey="id"
-             selectionMode="single"
-             styleClass="p-datatable-gridlines mt-2"
+    <p-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="true"
+      [totalRecords]="totalItems"
+      [value]="customers"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+      dataKey="id"
+      selectionMode="single"
+      styleClass="p-datatable-gridlines mt-2"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:3%"></th>
-          <th style="width:10%">Catégorie</th>
-          <th style="width:30%">Nom et Prénom(s)</th>
-          <th style="width:10%">Identifiant</th>
-          <th style="width:12%">Numéro assuré</th>
-          <th style="width:10%">Téléphone</th>
-          <th style="width:10%">Encours</th>
+          <th style="width: 3%"></th>
+          <th style="width: 10%">Catégorie</th>
+          <th style="width: 30%">Nom et Prénom(s)</th>
+          <th style="width: 10%">Identifiant</th>
+          <th style="width: 12%">Numéro assuré</th>
+          <th style="width: 10%">Téléphone</th>
+          <th style="width: 10%">Encours</th>
 
-          <th style="width:15%"></th>
+          <th style="width: 15%"></th>
         </tr>
       </ng-template>
       <ng-template let-customer let-expanded="expanded" pTemplate="body">
         <tr>
           <td>
-            <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [pRowToggler]="customer" [rounded]="true" [text]="true"
-                      type="button" />
+            <p-button
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [pRowToggler]="customer"
+              [rounded]="true"
+              [text]="true"
+              type="button"
+            />
           </td>
           <td>{{ customer.categorie }}</td>
           <td>{{ customer.fullName }}</td>
           <td>{{ customer.code }}</td>
           <td>{{ customer.num }}</td>
           <td>{{ customer.phone }}</td>
-          <td class="text-right">{{ customer.encours |number }}</td>
+          <td class="text-right">{{ customer.encours | number }}</td>
           <td class="text-right">
             <div class="btn-group">
-              <p-button [routerLink]="['/customer', customer.id, 'view']" severity="info"
-                        [rounded]="true" size="small" icon="pi pi-eye"
-                        pTooltip="Voir détails" type="submit">
-
-
+              <p-button
+                [routerLink]="['/customer', customer.id, 'view']"
+                severity="info"
+                [rounded]="true"
+                size="small"
+                icon="pi pi-eye"
+                pTooltip="Voir détails"
+                type="submit"
+              >
               </p-button>
 
-
               @if (customer.categorie === 'ASSURE') {
-                <p-button (click)="editAssureCustomer(customer)" [rounded]="true" size="small"
-                          severity="primary" icon="pi pi-pencil"
-                          data-placement="left"
-                          pTooltip="Editer" type="button">
-
-
+                <p-button
+                  (click)="editAssureCustomer(customer)"
+                  [rounded]="true"
+                  size="small"
+                  severity="primary"
+                  icon="pi pi-pencil"
+                  data-placement="left"
+                  pTooltip="Editer"
+                  type="button"
+                >
                 </p-button>
                 @if (customer.typeTiersPayant === 'ASSURANCE') {
-                  <p-button (click)="addAyantDroit(customer)" [rounded]="true" size="small"
-                            data-placement="left"
-                            severity="contrast" icon="pi pi-users"
-                            pTooltip="Ajouter un ayant droit" type="button">
-
+                  <p-button
+                    (click)="addAyantDroit(customer)"
+                    [rounded]="true"
+                    size="small"
+                    data-placement="left"
+                    severity="contrast"
+                    icon="pi pi-users"
+                    pTooltip="Ajouter un ayant droit"
+                    type="button"
+                  >
                   </p-button>
                 }
-
               }
 
               <!--   <button *ngIf="customer.categorie==='ASSURE'" type="button"
@@ -150,73 +159,66 @@
                      <fa-icon icon="hospital-user"></fa-icon>
                  </button>-->
               @if (customer.categorie === 'STANDARD') {
-                <p-button (click)="editUninsuredCustomer(customer)" severity="primary"
-                          icon="pi pi-pencil"
-                          [rounded]="true" size="small"
-                          data-placement="left" pTooltip="Editer" type="button"
+                <p-button
+                  (click)="editUninsuredCustomer(customer)"
+                  severity="primary"
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  size="small"
+                  data-placement="left"
+                  pTooltip="Editer"
+                  type="button"
                 >
-
                 </p-button>
-
               }
 
-              <p-button (click)="confirmRemove(customer)" severity="danger" icon="pi pi-trash"
-                        pTooltip="Supprimer" [rounded]="true" size="small"
-                        type="button">
-
+              <p-button
+                (click)="confirmRemove(customer)"
+                severity="danger"
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                [rounded]="true"
+                size="small"
+                type="button"
+              >
               </p-button>
-              <p-button (click)="confirmDesactivation(customer)"
-                        pTooltip="Désativer" [rounded]="true" size="small"
-                        severity="warn" icon="pi pi-lock"
-                        type="button">
-
+              <p-button
+                (click)="confirmDesactivation(customer)"
+                pTooltip="Désativer"
+                [rounded]="true"
+                size="small"
+                severity="warn"
+                icon="pi pi-lock"
+                type="button"
+              >
               </p-button>
             </div>
           </td>
         </tr>
-
       </ng-template>
       <ng-template let-customer #expandedrow>
         <tr>
           <td colspan="8">
             @if (customer.type === 'ASSURE') {
               <div class="row">
-
                 <div class="card col-md-5 mr-2">
-                  <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
-                    CLIENTS
-                  </div>
+                  <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
                   <div class="card-body">
                     <table class="invoice-table table table-striped">
                       <tbody>
-                      <tr>
-                        <td class="firstColumn">
-                          Date de naissance
-                        </td>
-                        <td class="secondColumn">{{ customer?.datNaiss |date:'dd/MM/yyyy' }}
-                        </td>
-                        <td class="firstColumn">
-                          Date de création
-                        </td>
-                        <td class="secondColumn">{{ customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
-                        </td>
-
-                      </tr>
-                      <tr>
-                        <td class="firstColumn">
-                          Dernière modification
-                        </td>
-                        <td class="secondColumn">{{ customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
-                        </td>
-                        <td class="firstColumn">
-                          Sexe
-                        </td>
-                        <td class="secondColumn">{{ customer?.sexe }}
-                        </td>
-
-                      </tr>
+                        <tr>
+                          <td class="firstColumn">Date de naissance</td>
+                          <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                          <td class="firstColumn">Date de création</td>
+                          <td class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                        </tr>
+                        <tr>
+                          <td class="firstColumn">Dernière modification</td>
+                          <td class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                          <td class="firstColumn">Sexe</td>
+                          <td class="secondColumn">{{ customer?.sexe }}</td>
+                        </tr>
                       </tbody>
-
                     </table>
                   </div>
                 </div>
@@ -228,51 +230,54 @@
                       <div class="card-body">
                         <table class="table table-striped">
                           <thead>
-                          <tr>
-                            <th style="width:40%;">Nom et prenom(s)</th>
-                            <th style="width: 20%;">N° Sécu</th>
-                            <th style="width:17%;">Date de naissance</th>
-                            <th style="width:8%;">Sexe</th>
-                            <th style="width:15%; text-align:right;">
-                              <p-button (click)="addAyantDroit(customer)"
-                                        size="small"
-                                        severity="info"
-                                        [rounded]="true"
-                                        icon="pi pi-plus"
-
-                                        pTooltip="Ajouter un ayant droit"></p-button>
-                            </th>
-                          </tr>
+                            <tr>
+                              <th style="width: 40%">Nom et prenom(s)</th>
+                              <th style="width: 20%">N° Sécu</th>
+                              <th style="width: 17%">Date de naissance</th>
+                              <th style="width: 8%">Sexe</th>
+                              <th style="width: 15%; text-align: right">
+                                <p-button
+                                  (click)="addAyantDroit(customer)"
+                                  size="small"
+                                  severity="info"
+                                  [rounded]="true"
+                                  icon="pi pi-plus"
+                                  pTooltip="Ajouter un ayant droit"
+                                ></p-button>
+                              </th>
+                            </tr>
                           </thead>
                           <tbody>
                             @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
                               <tr>
                                 <td>{{ ayantDroit?.fullName }}</td>
                                 <td>{{ ayantDroit?.numAyantDroit }}</td>
-                                <td>{{ ayantDroit?.datNaiss |date:'dd/MM/yyyy' }}</td>
+                                <td>{{ ayantDroit?.datNaiss | date: 'dd/MM/yyyy' }}</td>
                                 <td>{{ ayantDroit?.sexe }}</td>
                                 <td class="text-right">
                                   <div class="btn-group">
-                                    <p-button (click)="editAyantDroit(customer,ayantDroit)"
-                                              class="p-mb-3 mr-1"
-                                              icon="pi pi-pencil"
-                                              size="small"
-                                              severity="success"
-                                              [rounded]="true"
-                                              pTooltip="Editer"></p-button>
-                                    <p-button (click)="confirmRemoveAyantDroit(ayantDroit)"
-                                              class="p-mb-3 "
-                                              size="small"
-                                              severity="danger"
-                                              [rounded]="true"
-                                              icon="pi pi-trash"
-                                              pTooltip="Supprimer"></p-button>
+                                    <p-button
+                                      (click)="editAyantDroit(customer, ayantDroit)"
+                                      class="p-mb-3 mr-1"
+                                      icon="pi pi-pencil"
+                                      size="small"
+                                      severity="success"
+                                      [rounded]="true"
+                                      pTooltip="Editer"
+                                    ></p-button>
+                                    <p-button
+                                      (click)="confirmRemoveAyantDroit(ayantDroit)"
+                                      class="p-mb-3"
+                                      size="small"
+                                      severity="danger"
+                                      [rounded]="true"
+                                      icon="pi pi-trash"
+                                      pTooltip="Supprimer"
+                                    ></p-button>
                                   </div>
                                 </td>
                               </tr>
                             }
-
-
                           </tbody>
                         </table>
                       </div>
@@ -284,27 +289,27 @@
                     <div class="card-body">
                       <table class="table table-striped">
                         <thead>
-                        <tr>
-                          <th style="width:28%;">Tiers-payant</th>
-                          <th style="width: 14%;">N° Sécu</th>
-                          <th style="width: 7%;">Taux</th>
-                          <th style="width:8%;">Catégorie</th>
-                          <th style="width:13%;">Plafond encours</th>
-                          <th style="width:13%;">Plafond vente</th>
-                          <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                          @if (displayTiersPayantAddBtn(customer)) {
-                            <th style="width:11%; text-align:right;">
-                              <p-button (click)="onAddNewTiersPayant(customer)"
-
-                                        severity="info"
-                                        [rounded]="true"
-                                        size="small"
-                                        icon="pi pi-plus"
-                                        pTooltip="Ajouter un tiers-payant"></p-button>
-                            </th>
-                          }
-
-                        </tr>
+                          <tr>
+                            <th style="width: 28%">Tiers-payant</th>
+                            <th style="width: 14%">N° Sécu</th>
+                            <th style="width: 7%">Taux</th>
+                            <th style="width: 8%">Catégorie</th>
+                            <th style="width: 13%">Plafond encours</th>
+                            <th style="width: 13%">Plafond vente</th>
+                            <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                            @if (displayTiersPayantAddBtn(customer)) {
+                              <th style="width: 11%; text-align: right">
+                                <p-button
+                                  (click)="onAddNewTiersPayant(customer)"
+                                  severity="info"
+                                  [rounded]="true"
+                                  size="small"
+                                  icon="pi pi-plus"
+                                  pTooltip="Ajouter un tiers-payant"
+                                ></p-button>
+                              </th>
+                            }
+                          </tr>
                         </thead>
                         <tbody>
                           @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
@@ -313,102 +318,73 @@
                               <td>{{ tierspayant?.num }}</td>
                               <td>{{ tierspayant?.taux }}</td>
                               <td>{{ tierspayant?.priorite }}</td>
-                              <td>{{ tierspayant?.plafondConso |number }}</td>
-                              <td>{{ tierspayant?.plafondJournalier |number }}</td>
+                              <td>{{ tierspayant?.plafondConso | number }}</td>
+                              <td>{{ tierspayant?.plafondJournalier | number }}</td>
                               <!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
                               @if (displayTiersPayantAction) {
                                 <td class="text-right">
                                   <div class="btn-group">
                                     <p-button
-                                      class=" p-mb-3 mr-1"
-                                      (click)="onEditTiersPayant(customer,tierspayant)"
+                                      class="p-mb-3 mr-1"
+                                      (click)="onEditTiersPayant(customer, tierspayant)"
                                       icon="pi pi-pencil"
-
                                       severity="success"
                                       [rounded]="true"
                                       size="small"
-                                      pTooltip="Editer les infos du tierspayant"></p-button>
-                                    @if (customer.typeTiersPayant === 'ASSURANCE'
-                                    && customer.tiersPayants.length > 1) {
+                                      pTooltip="Editer les infos du tierspayant"
+                                    ></p-button>
+                                    @if (customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants.length > 1) {
                                       <p-button
-                                        class="p-mb-3 "
+                                        class="p-mb-3"
                                         icon="pi pi-trash"
                                         severity="danger"
                                         [rounded]="true"
                                         size="small"
-
                                         pTooltip="Supprimer"
-                                        (click)="onRemoveTiersPayant(tierspayant)"></p-button>
+                                        (click)="onRemoveTiersPayant(tierspayant)"
+                                      ></p-button>
                                     }
-
                                   </div>
                                 </td>
                               }
-
                             </tr>
                           }
-
                         </tbody>
                       </table>
                     </div>
                   </div>
                 </div>
-
-
               </div>
             } @else {
               <div class="card">
-                <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
-                  CLIENTS
-                </div>
+                <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
                 <div class="card-body">
                   <table class="invoice-table table table-striped">
                     <tbody>
-                    <tr>
-                      <td class="firstColumn">
-                        Date de naissance
-                      </td>
-                      <td class="secondColumn">{{ customer?.datNaiss |date:'dd/MM/yyyy' }}
-                      </td>
-                      <td class="firstColumn">
-                        Date de création
-                      </td>
-                      <td class="secondColumn">{{ customer?.createdAt |date:'dd/MM/yyyy HH:mm' }}
-                      </td>
-
-                    </tr>
-                    <tr>
-                      <td class="firstColumn">
-                        Dernière modification
-                      </td>
-                      <td class="secondColumn">{{ customer?.updatedAt |date:'dd/MM/yyyy HH:mm' }}
-                      </td>
-                      <td class="firstColumn">
-                        Sexe
-                      </td>
-                      <td class="secondColumn">{{ customer?.sexe }}
-                      </td>
-
-                    </tr>
+                      <tr>
+                        <td class="firstColumn">Date de naissance</td>
+                        <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                        <td class="firstColumn">Date de création</td>
+                        <td class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">Dernière modification</td>
+                        <td class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                        <td class="firstColumn">Sexe</td>
+                        <td class="secondColumn">{{ customer?.sexe }}</td>
+                      </tr>
                     </tbody>
-
                   </table>
                 </div>
               </div>
-
-
             }
-
-
           </td>
         </tr>
       </ng-template>
-
     </p-table>
   } @else {
     <div class="alert alert-warning mt-2">
       <span>Aucune donnée trouvée</span>
     </div>
   }
-
 </div>

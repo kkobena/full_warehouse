@@ -13,11 +13,6 @@ export class BalanceMvtCaisseService {
 
   public resourceUrl = SERVER_API_URL + 'api/balances';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   query(req?: any): Observable<HttpResponse<BalanceCaisseWrapper>> {
     const options = createRequestOptions(req);
     return this.http.get<BalanceCaisseWrapper>(this.resourceUrl, {

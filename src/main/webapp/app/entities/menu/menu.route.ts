@@ -4,9 +4,6 @@ import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-
-
-
 import { IAuthority, Privilege } from '../../shared/model/authority.model';
 import { PrivillegeService } from './privillege.service';
 

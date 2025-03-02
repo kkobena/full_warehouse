@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentModeRepository extends JpaRepository<PaymentMode, String> {
-  List<PaymentMode> findAllByEnableTrue();
+    List<PaymentMode> findAllByEnableTrue();
 }

@@ -32,6 +32,6 @@ export class StoreInventoryLine implements IStoreInventoryLine {
     public produit?: IProduit,
     public gap?: number,
     public updated?: boolean,
-    public storeInventoryId?: number
+    public storeInventoryId?: number,
   ) {}
 }

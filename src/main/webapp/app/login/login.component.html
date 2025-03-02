@@ -1,19 +1,16 @@
 <div>
-  <div class="d-flex justify-content-center " style="padding-top: 2rem;">
+  <div class="d-flex justify-content-center" style="padding-top: 2rem">
     <div class="col-lg-4 col-md-5 col-sm-8">
       <p-card header="Authentification">
         <h1 data-cy="loginTitle" jhiTranslate="login.title">Authentification</h1>
         @if (authenticationError()) {
-          <div class="alert alert-danger" data-cy="loginError"
-               jhiTranslate="login.messages.error.authentication">
-            <strong>Erreur d&apos;authentification !</strong> Veuillez vérifier vos identifiants de
-            connexion.
+          <div class="alert alert-danger" data-cy="loginError" jhiTranslate="login.messages.error.authentication">
+            <strong>Erreur d&apos;authentification !</strong> Veuillez vérifier vos identifiants de connexion.
           </div>
         }
         <form (ngSubmit)="login()" [formGroup]="loginForm" class="form">
           <div class="mb-3">
-            <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom
-              d&apos;utilisateur</label>
+            <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom d&apos;utilisateur</label>
             <input
               #username
               class="form-control"
@@ -41,19 +38,14 @@
 
           <div class="form-check">
             <label class="form-check-label" for="rememberMe">
-              <input class="form-check-input" formControlName="rememberMe" id="rememberMe"
-                     name="rememberMe"
-                     type="checkbox" />
+              <input class="form-check-input" formControlName="rememberMe" id="rememberMe" name="rememberMe" type="checkbox" />
               <span jhiTranslate="login.form.rememberme">Garder la session ouverte</span>
             </label>
           </div>
 
-          <button class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button"
-                  type="submit">Connexion
-          </button>
+          <button class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button" type="submit">Connexion</button>
         </form>
       </p-card>
     </div>
-
   </div>
 </div>

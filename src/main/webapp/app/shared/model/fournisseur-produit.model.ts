@@ -24,6 +24,6 @@ export class FournisseurProduit implements IFournisseurProduit {
     public produitId?: number,
     public fournisseurId?: number,
     public principal?: boolean,
-    public produit?: IProduit
+    public produit?: IProduit,
   ) {}
 }

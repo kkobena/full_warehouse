@@ -30,6 +30,6 @@ export class Ajustement implements IAjustement {
     public stockAfter?: number,
     public codeCip?: string,
     public motifAjustementId?: number,
-    public motifAjustementLibelle?: string
+    public motifAjustementLibelle?: string,
   ) {}
 }

@@ -21,14 +21,14 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction> {
-
+public interface InventoryTransactionRepository
+    extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction> {
     List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
 
     default InventoryTransaction buildInventoryTransaction(OrderLine orderLine, User user) {
         InventoryTransaction inventoryTransaction = new InventoryTransaction();
         inventoryTransaction.setCreatedAt(orderLine.getCreatedAt());
-    inventoryTransaction.setProduit(orderLine.getFournisseurProduit().getProduit());
+        inventoryTransaction.setProduit(orderLine.getFournisseurProduit().getProduit());
         inventoryTransaction.setUser(user);
         inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
         inventoryTransaction.setTransactionType(TransactionType.COMMANDE);

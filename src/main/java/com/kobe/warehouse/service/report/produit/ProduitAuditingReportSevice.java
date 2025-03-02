@@ -8,9 +8,6 @@ import java.util.List;
 import org.springframework.core.io.Resource;
 
 public interface ProduitAuditingReportSevice {
-  Resource printToPdf(
-      List<ProduitAuditingState> datas,
-      FournisseurProduit fournisseurProduit,
-      ReportPeriode reportPeriode)
-      throws MalformedURLException;
+    Resource printToPdf(List<ProduitAuditingState> datas, FournisseurProduit fournisseurProduit, ReportPeriode reportPeriode)
+        throws MalformedURLException;
 }

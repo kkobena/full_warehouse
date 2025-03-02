@@ -1,8 +1,7 @@
 <div>
-  <h4>ARRETE LA PRESENTE FACTURE A LA SOMME DE (en lettres) : <span class="total-facture"
-                                                                    th:text="${invoiceTotalAmountLetters}"></span>
-    <span
-      th:text="${' ('+#numbers.formatInteger(grandTotal.e2,3,'WHITESPACE') +')'}"></span>
+  <h4>
+    ARRETE LA PRESENTE FACTURE A LA SOMME DE (en lettres) : <span class="total-facture" th:text="${invoiceTotalAmountLetters}"></span>
+    <span th:text="${' ('+#numbers.formatInteger(grandTotal.e2,3,'WHITESPACE') +')'}"></span>
   </h4>
 </div>
 <div class="signature">

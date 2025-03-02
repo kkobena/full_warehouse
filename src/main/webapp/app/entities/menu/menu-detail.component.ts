@@ -28,11 +28,6 @@ export class MenuDetailComponent implements OnInit {
   others?: IMenu[];
   protected scrollHeight = 'calc(100vh - 350px)';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ privilege }) => {
       this.entity = privilege;

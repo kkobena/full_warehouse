@@ -20,25 +20,25 @@ import { CashRegisterService } from '../cash-register.service';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-    selector: 'jhi-ticketing',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        TableModule,
-        ToolbarModule,
-        ReactiveFormsModule,
-        CardModule,
-        BadgeModule,
-        KeyFilterModule,
-        ConfirmDialogModule,
-        ToastModule,
-    ],
-    providers: [ConfirmationService, MessageService],
-    templateUrl: './ticketing.component.html'
+  selector: 'jhi-ticketing',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TableModule,
+    ToolbarModule,
+    ReactiveFormsModule,
+    CardModule,
+    BadgeModule,
+    KeyFilterModule,
+    ConfirmDialogModule,
+    ToastModule,
+  ],
+  providers: [ConfirmationService, MessageService],
+  templateUrl: './ticketing.component.html',
 })
 export class TicketingComponent implements OnInit, AfterViewInit {
   protected activatedRoute = inject(ActivatedRoute);
@@ -107,14 +107,14 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   protected createFromForm(): Ticketing {
     return {
       ...new Ticketing(),
-      cashRegisterId: this.selectedCashRegister!.id,
-      id: this.editForm.get(['id'])!.value,
-      numberOf10Thousand: this.editForm.get(['numberOf10Thousand'])!.value ? this.editForm.get(['numberOf10Thousand'])!.value : 0,
-      numberOf5Thousand: this.editForm.get(['numberOf5Thousand'])!.value ? this.editForm.get(['numberOf5Thousand'])!.value : 0,
-      numberOf2Thousand: this.editForm.get(['numberOf2Thousand'])!.value ? this.editForm.get(['numberOf2Thousand'])!.value : 0,
-      numberOf1Thousand: this.editForm.get(['numberOf1Thousand'])!.value ? this.editForm.get(['numberOf1Thousand'])!.value : 0,
-      numberOf500Hundred: this.editForm.get(['numberOf500Hundred'])!.value ? this.editForm.get(['numberOf500Hundred'])!.value : 0,
-      otherAmount: this.editForm.get(['otherAmount'])!.value ? this.editForm.get(['otherAmount'])!.value : 0,
+      cashRegisterId: this.selectedCashRegister.id,
+      id: this.editForm.get(['id']).value,
+      numberOf10Thousand: this.editForm.get(['numberOf10Thousand']).value ? this.editForm.get(['numberOf10Thousand']).value : 0,
+      numberOf5Thousand: this.editForm.get(['numberOf5Thousand']).value ? this.editForm.get(['numberOf5Thousand']).value : 0,
+      numberOf2Thousand: this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0,
+      numberOf1Thousand: this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0,
+      numberOf500Hundred: this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0,
+      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0,
     };
   }
 
@@ -179,11 +179,11 @@ export class TicketingComponent implements OnInit, AfterViewInit {
 
   private computeTotalAmount(): void {
     this.totalAmount =
-      parseInt(this.editForm.get(['numberOf10Thousand'])!.value ? this.editForm.get(['numberOf10Thousand'])!.value : 0) * 10000 +
-      parseInt(this.editForm.get(['numberOf5Thousand'])!.value ? this.editForm.get(['numberOf5Thousand'])!.value : 0) * 5000 +
-      parseInt(this.editForm.get(['numberOf2Thousand'])!.value ? this.editForm.get(['numberOf2Thousand'])!.value : 0) * 2000 +
-      parseInt(this.editForm.get(['numberOf1Thousand'])!.value ? this.editForm.get(['numberOf1Thousand'])!.value : 0) * 1000 +
-      parseInt(this.editForm.get(['numberOf500Hundred'])!.value ? this.editForm.get(['numberOf500Hundred'])!.value : 0) * 500 +
-      parseInt(this.editForm.get(['otherAmount'])!.value ? this.editForm.get(['otherAmount'])!.value : 0);
+      parseInt(this.editForm.get(['numberOf10Thousand']).value ? this.editForm.get(['numberOf10Thousand']).value : 0) * 10000 +
+      parseInt(this.editForm.get(['numberOf5Thousand']).value ? this.editForm.get(['numberOf5Thousand']).value : 0) * 5000 +
+      parseInt(this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0) * 2000 +
+      parseInt(this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0) * 1000 +
+      parseInt(this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0) * 500 +
+      parseInt(this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0);
   }
 }

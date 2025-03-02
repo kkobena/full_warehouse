@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from 'app/login/login.service';
@@ -9,9 +9,9 @@ import { RippleModule } from 'primeng/ripple';
 import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    selector: 'jhi-login',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, RouterModule, CardModule, ButtonModule, RippleModule],
-    templateUrl: './login.component.html'
+  selector: 'jhi-login',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, RouterModule, CardModule, ButtonModule, RippleModule],
+  templateUrl: './login.component.html',
 })
 export default class LoginComponent implements OnInit, AfterViewInit {
   username = viewChild.required<ElementRef>('username');
@@ -24,9 +24,9 @@ export default class LoginComponent implements OnInit, AfterViewInit {
     rememberMe: new FormControl(false, { nonNullable: true, validators: [Validators.required] }),
   });
 
-  private accountService = inject(AccountService);
-  private loginService = inject(LoginService);
-  private router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly loginService = inject(LoginService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     // if already authenticated then navigate to home page

@@ -5,9 +5,9 @@ import SharedModule from 'app/shared/shared.module';
 import { PasswordResetInitService } from './password-reset-init.service';
 
 @Component({
-    selector: 'jhi-password-reset-init',
-    imports: [SharedModule, FormsModule, ReactiveFormsModule],
-    templateUrl: './password-reset-init.component.html'
+  selector: 'jhi-password-reset-init',
+  imports: [SharedModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './password-reset-init.component.html',
 })
 export default class PasswordResetInitComponent implements AfterViewInit {
   email = viewChild.required<ElementRef>('email');
@@ -15,8 +15,8 @@ export default class PasswordResetInitComponent implements AfterViewInit {
   success = signal(false);
   resetRequestForm;
 
-  private passwordResetInitService = inject(PasswordResetInitService);
-  private fb = inject(FormBuilder);
+  private readonly passwordResetInitService = inject(PasswordResetInitService);
+  private readonly fb = inject(FormBuilder);
 
   constructor() {
     this.resetRequestForm = this.fb.group({
@@ -29,6 +29,6 @@ export default class PasswordResetInitComponent implements AfterViewInit {
   }
 
   requestReset(): void {
-    this.passwordResetInitService.save(this.resetRequestForm.get(['email'])!.value).subscribe(() => this.success.set(true));
+    this.passwordResetInitService.save(this.resetRequestForm.get(['email']).value).subscribe(() => this.success.set(true));
   }
 }

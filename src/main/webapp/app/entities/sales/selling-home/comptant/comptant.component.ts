@@ -61,8 +61,8 @@ export class ComptantComponent {
   readonly isPresale = input(false);
   readonly appendTo = 'body';
   readonly inputToFocusEvent = output<InputToFocus>();
-  readonly saveResponse = output<SaveResponse>({ alias: 'saveResponse' });
-  readonly responseEvent = output<FinalyseSale>({ alias: 'responseEvent' });
+  readonly saveResponse = output<SaveResponse>();
+  readonly responseEvent = output<FinalyseSale>();
   readonly CASH = 'CASH';
   avoirConfirmDialogBtn = viewChild<ElementRef>('avoirConfirmDialogBtn');
   amountComputingComponent = viewChild(AmountComputingComponent);
@@ -114,12 +114,12 @@ export class ComptantComponent {
           this.finalyseSale();
         }
       },
-      reject: () => {},
+      reject() {},
       key: 'differeConfirmDialog',
     });
   }
 
-  onOpenCustomer(putsOnStandby: boolean = false): void {
+  onOpenCustomer(putsOnStandby = false): void {
     this.confirmationService.confirm({
       message: 'Vous devez ajouter un client à la vente ?',
       header: 'Vente en avoir',
@@ -142,7 +142,7 @@ export class ComptantComponent {
     this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire;
   }
 
-  finalyseSale(putsOnStandby: boolean = false): void {
+  finalyseSale(putsOnStandby = false): void {
     const entryAmount = this.getEntryAmount();
     this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
     this.currentSaleService.currentSale().type = 'VNO';
@@ -187,7 +187,7 @@ export class ComptantComponent {
   }
 
   isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale().differe /*&& !this.sale.customerId*/;
+    return this.currentSaleService.currentSale().differe /* && !this.sale.customerId*/;
   }
 
   save(): void {
@@ -278,7 +278,7 @@ export class ComptantComponent {
 
   printInvoice(): void {
     if (this.selectedCustomerService.selectedCustomerSignal()) {
-      this.salesService.printInvoice(this.currentSaleService.currentSale()?.id).subscribe(blod => {
+      this.salesService.printInvoice(this.currentSaleService.currentSale().id).subscribe(blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       });
@@ -311,7 +311,7 @@ export class ComptantComponent {
     }
   }
 
-  openUninsuredCustomer(isVenteDefferee: boolean, putsOnStandby: boolean = false): void {
+  openUninsuredCustomer(isVenteDefferee: boolean, putsOnStandby = false): void {
     this.ref = this.dialogService.open(UninsuredCustomerListComponent, {
       header: 'CLIENTS NON ASSURES',
       width: '60%',
@@ -330,7 +330,7 @@ export class ComptantComponent {
   }
 
   onLoadPrevente(): void {
-    this.modeReglementComponent()?.buildPreventeReglementInput();
+    this.modeReglementComponent().buildPreventeReglementInput();
   }
 
   print(sale: ISales | null): void {
@@ -365,7 +365,7 @@ export class ComptantComponent {
       if (remise) {
         this.onAddRmiseOpenActionAutorisationDialog(remise);
       } else {
-        if (this.currentSaleService.currentSale()?.remise) {
+        if (this.currentSaleService.currentSale().remise) {
           this.onAddRmiseOpenActionAutorisationDialog(remise);
         }
       }
@@ -384,7 +384,7 @@ export class ComptantComponent {
           error: (err: any) => this.onSaveError(err),
         });
     } else {
-      if (this.currentSaleService.currentSale()?.remise) {
+      if (this.currentSaleService.currentSale().remise) {
         this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
           next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
           error: (err: any) => this.onSaveError(err),
@@ -417,7 +417,7 @@ export class ComptantComponent {
     this.responseEvent.emit({ error: err, success: false });
   }
 
-  protected onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy: boolean = false): void {
+  protected onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
     this.isSaving = false;
     this.responseEvent.emit({ saleId: response.saleId, success: true, putOnStandBy });
   }
@@ -457,11 +457,11 @@ export class ComptantComponent {
     return {
       ...new Sales(),
       salesLines: [salesLine],
-      customerId: currentCustomer?.id,
+      customerId: currentCustomer.id,
       natureVente: 'COMPTANT',
-      typePrescription: this.typePrescriptionService.typePrescription()?.code,
-      cassierId: this.userCaissierService.caissier()?.id,
-      sellerId: this.userVendeurService.vendeur()?.id,
+      typePrescription: this.typePrescriptionService.typePrescription().code,
+      cassierId: this.userCaissierService.caissier().id,
+      sellerId: this.userVendeurService.vendeur().id,
       type: 'VNO',
       categorie: 'VNO',
     };

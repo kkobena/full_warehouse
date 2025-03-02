@@ -5,170 +5,174 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.User;
-import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 public class AjustementDTO {
-  private Long id;
-  private int qtyMvt;
-  @NotNull private Long produitId;
-  private Long ajustId;
-  private Long storageId;
-  private LocalDateTime dateMtv;
-  private int stockBefore;
-  private int stockAfter;
-  private String produitLibelle;
-  private String codeCip;
-  private String userFullName;
-  private Long motifAjustementId;
-  private String motifAjustementLibelle;
-  private String commentaire;
 
-  public AjustementDTO(Ajustement ajustement) {
-    id = ajustement.getId();
-    qtyMvt = ajustement.getQtyMvt();
-    Produit produit = ajustement.getProduit();
-    produitId = produit.getId();
-    ajustId = ajustement.getAjust().getId();
-    dateMtv = ajustement.getDateMtv();
-    stockBefore = ajustement.getStockBefore();
-    stockAfter = ajustement.getStockAfter();
-    produitLibelle = produit.getLibelle();
-    FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+    private Long id;
+    private int qtyMvt;
 
-    if (fournisseurProduit != null) {
-      codeCip = fournisseurProduit.getCodeCip();
+    @NotNull
+    private Long produitId;
+
+    private Long ajustId;
+    private Long storageId;
+    private LocalDateTime dateMtv;
+    private int stockBefore;
+    private int stockAfter;
+    private String produitLibelle;
+    private String codeCip;
+    private String userFullName;
+    private Long motifAjustementId;
+    private String motifAjustementLibelle;
+    private String commentaire;
+
+    public AjustementDTO(Ajustement ajustement) {
+        id = ajustement.getId();
+        qtyMvt = ajustement.getQtyMvt();
+        Produit produit = ajustement.getProduit();
+        produitId = produit.getId();
+        ajustId = ajustement.getAjust().getId();
+        dateMtv = ajustement.getDateMtv();
+        stockBefore = ajustement.getStockBefore();
+        stockAfter = ajustement.getStockAfter();
+        produitLibelle = produit.getLibelle();
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+
+        if (fournisseurProduit != null) {
+            codeCip = fournisseurProduit.getCodeCip();
+        }
+        User user = ajustement.getAjust().getUser();
+        userFullName = user.getFirstName() + " " + user.getLastName();
+        MotifAjustement motifAjustement = ajustement.getMotifAjustement();
+        if (motifAjustement != null) {
+            motifAjustementId = motifAjustement.getId();
+            motifAjustementLibelle = motifAjustement.getLibelle();
+        }
     }
-    User user = ajustement.getAjust().getUser();
-    userFullName = user.getFirstName() + " " + user.getLastName();
-    MotifAjustement motifAjustement = ajustement.getMotifAjustement();
-    if (motifAjustement != null) {
-      motifAjustementId = motifAjustement.getId();
-      motifAjustementLibelle = motifAjustement.getLibelle();
+
+    public AjustementDTO() {}
+
+    public void setProduitlibelle(String produitlibelle) {
+        produitLibelle = produitlibelle;
     }
-  }
 
-  public AjustementDTO() {}
+    public Long getId() {
+        return id;
+    }
 
-  public void setProduitlibelle(String produitlibelle) {
-    produitLibelle = produitlibelle;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public int getQtyMvt() {
+        return qtyMvt;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public void setQtyMvt(int qtyMvt) {
+        this.qtyMvt = qtyMvt;
+    }
 
-  public int getQtyMvt() {
-    return qtyMvt;
-  }
+    public Long getProduitId() {
+        return produitId;
+    }
 
-  public void setQtyMvt(int qtyMvt) {
-    this.qtyMvt = qtyMvt;
-  }
+    public void setProduitId(Long produitId) {
+        this.produitId = produitId;
+    }
 
-  public Long getProduitId() {
-    return produitId;
-  }
+    public Long getAjustId() {
+        return ajustId;
+    }
 
-  public void setProduitId(Long produitId) {
-    this.produitId = produitId;
-  }
+    public void setAjustId(Long ajustId) {
+        this.ajustId = ajustId;
+    }
 
-  public Long getAjustId() {
-    return ajustId;
-  }
+    public Long getStorageId() {
+        return storageId;
+    }
 
-  public void setAjustId(Long ajustId) {
-    this.ajustId = ajustId;
-  }
+    public AjustementDTO setStorageId(Long storageId) {
+        this.storageId = storageId;
+        return this;
+    }
 
-  public Long getStorageId() {
-    return storageId;
-  }
+    public LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-  public AjustementDTO setStorageId(Long storageId) {
-    this.storageId = storageId;
-    return this;
-  }
+    public void setDateMtv(LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+    }
 
-  public LocalDateTime getDateMtv() {
-    return dateMtv;
-  }
+    public int getStockBefore() {
+        return stockBefore;
+    }
 
-  public void setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-  }
+    public void setStockBefore(int stockBefore) {
+        this.stockBefore = stockBefore;
+    }
 
-  public int getStockBefore() {
-    return stockBefore;
-  }
+    public int getStockAfter() {
+        return stockAfter;
+    }
 
-  public void setStockBefore(int stockBefore) {
-    this.stockBefore = stockBefore;
-  }
+    public void setStockAfter(int stockAfter) {
+        this.stockAfter = stockAfter;
+    }
 
-  public int getStockAfter() {
-    return stockAfter;
-  }
+    public String getProduitLibelle() {
+        return produitLibelle;
+    }
 
-  public void setStockAfter(int stockAfter) {
-    this.stockAfter = stockAfter;
-  }
+    public AjustementDTO setProduitLibelle(String produitLibelle) {
+        this.produitLibelle = produitLibelle;
+        return this;
+    }
 
-  public String getProduitLibelle() {
-    return produitLibelle;
-  }
+    public String getCodeCip() {
+        return codeCip;
+    }
 
-  public AjustementDTO setProduitLibelle(String produitLibelle) {
-    this.produitLibelle = produitLibelle;
-    return this;
-  }
+    public AjustementDTO setCodeCip(String codeCip) {
+        this.codeCip = codeCip;
+        return this;
+    }
 
-  public String getCodeCip() {
-    return codeCip;
-  }
+    public String getUserFullName() {
+        return userFullName;
+    }
 
-  public AjustementDTO setCodeCip(String codeCip) {
-    this.codeCip = codeCip;
-    return this;
-  }
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+    }
 
-  public String getUserFullName() {
-    return userFullName;
-  }
+    public Long getMotifAjustementId() {
+        return motifAjustementId;
+    }
 
-  public void setUserFullName(String userFullName) {
-    this.userFullName = userFullName;
-  }
+    public AjustementDTO setMotifAjustementId(Long motifAjustementId) {
+        this.motifAjustementId = motifAjustementId;
+        return this;
+    }
 
-  public Long getMotifAjustementId() {
-    return motifAjustementId;
-  }
+    public String getMotifAjustementLibelle() {
+        return motifAjustementLibelle;
+    }
 
-  public AjustementDTO setMotifAjustementId(Long motifAjustementId) {
-    this.motifAjustementId = motifAjustementId;
-    return this;
-  }
+    public AjustementDTO setMotifAjustementLibelle(String motifAjustementLibelle) {
+        this.motifAjustementLibelle = motifAjustementLibelle;
+        return this;
+    }
 
-  public String getMotifAjustementLibelle() {
-    return motifAjustementLibelle;
-  }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
-  public AjustementDTO setMotifAjustementLibelle(String motifAjustementLibelle) {
-    this.motifAjustementLibelle = motifAjustementLibelle;
-    return this;
-  }
-
-  public String getCommentaire() {
-    return commentaire;
-  }
-
-  public AjustementDTO setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
+    public AjustementDTO setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 }

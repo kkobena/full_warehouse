@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'jhi-raport-activite-global',
   imports: [],
   templateUrl: './raport-activite-global.component.html',
-  styleUrl: './raport-activite-global.component.scss'
+  styleUrl: './raport-activite-global.component.scss',
 })
-export class RaportActiviteGlobalComponent {
-
-}
+export class RaportActiviteGlobalComponent {}

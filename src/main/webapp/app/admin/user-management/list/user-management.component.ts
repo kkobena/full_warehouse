@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { combineLatest } from 'rxjs';
@@ -42,11 +42,11 @@ export default class UserManagementComponent implements OnInit {
   page!: number;
   sortState = sortStateSignal({});
 
-  private userService = inject(UserManagementService);
-  private activatedRoute = inject(ActivatedRoute);
-  private router = inject(Router);
-  private sortService = inject(SortService);
-  private modalService = inject(NgbModal);
+  private readonly userService = inject(UserManagementService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly sortService = inject(SortService);
+  private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     this.handleNavigation();
@@ -56,15 +56,12 @@ export default class UserManagementComponent implements OnInit {
     this.userService.update({ ...user, activated: isActivated }).subscribe(() => this.loadAll());
   }
 
-  trackIdentity(_index: number, item: User): number {
-    return item.id!;
+  trackIdentity(item: User): number {
+    return item.id;
   }
 
   deleteUser(user: User): void {
-    const modalRef = this.modalService.open(UserManagementDeleteDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
-    });
+    const modalRef = this.modalService.open(UserManagementDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.user = user;
     // unsubscribe not needed because closed completes on modal close
     modalRef.closed.subscribe(reason => {
@@ -105,7 +102,7 @@ export default class UserManagementComponent implements OnInit {
     combineLatest([this.activatedRoute.data, this.activatedRoute.queryParamMap]).subscribe(([data, params]) => {
       const page = params.get('page');
       this.page = +(page ?? 1);
-      this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data['defaultSort']));
+      this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data.defaultSort));
       this.loadAll();
     });
   }

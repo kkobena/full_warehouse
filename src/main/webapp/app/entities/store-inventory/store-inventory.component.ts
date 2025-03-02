@@ -78,7 +78,7 @@ export class StoreInventoryComponent implements OnInit {
   protected rowData: any = [];
   protected event: any;
   protected searchValue?: string;
-  protected search: string = '';
+  protected search = '';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected users: IUser[] = [];
@@ -170,11 +170,6 @@ export class StoreInventoryComponent implements OnInit {
   ngOnInit(): void {
     this.loadAllUsers();
     this.loadAll();
-  }
-
-  trackId(index: number, item: IStoreInventory): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
   }
 
   delete(storeInventory: IStoreInventory): void {

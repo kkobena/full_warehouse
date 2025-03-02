@@ -1,14 +1,11 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.service.dto.TvaDTO;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
-
-
 public interface TvaService {
-
     /**
      * Save a tva.
      *
@@ -24,7 +21,6 @@ public interface TvaService {
      * @return the list of entities.
      */
     Page<TvaDTO> findAll(Pageable pageable);
-
 
     /**
      * Get the "id" tva.

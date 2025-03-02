@@ -7,8 +7,8 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    templateUrl: './categorie-delete-dialog.component.html',
-    imports: [WarehouseCommonModule, FormsModule]
+  templateUrl: './categorie-delete-dialog.component.html',
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class CategorieDeleteDialogComponent {
   protected categorieService = inject(CategorieService);

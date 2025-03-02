@@ -13,8 +13,6 @@ export class TableauPharmacienService {
   public resourceUrl = SERVER_API_URL + 'api/';
   protected http = inject(HttpClient);
 
-  constructor() {}
-
   query(req?: any): Observable<HttpResponse<TableauPharmacienWrapper>> {
     const options = createRequestOptions(req);
     return this.http.get<TableauPharmacienWrapper>(this.resourceUrl + 'tableau-pharmacien', {

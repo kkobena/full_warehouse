@@ -8,9 +8,9 @@ import { LogsService } from './logs.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'jhi-logs',
-    templateUrl: './logs.component.html',
-    imports: [SharedModule, FormsModule, SortDirective, SortByDirective]
+  selector: 'jhi-logs',
+  templateUrl: './logs.component.html',
+  imports: [SharedModule, FormsModule, SortDirective, SortByDirective],
 })
 export default class LogsComponent implements OnInit {
   loggers = signal<Log[] | undefined>(undefined);

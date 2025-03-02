@@ -20,6 +20,6 @@ export class RayonProduit implements IRayonProduit {
     public storageType?: string,
     public magasin?: string,
     public magasinId?: number,
-    public produitId?: number
+    public produitId?: number,
   ) {}
 }

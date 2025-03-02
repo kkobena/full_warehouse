@@ -17,11 +17,6 @@ export class RayonService {
 
   public resourceUrl = SERVER_API_URL + 'api/rayons';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(rayon: IRayon): Observable<EntityResponseType> {
     return this.http.post<IRayon>(this.resourceUrl, rayon, { observe: 'response' });
   }

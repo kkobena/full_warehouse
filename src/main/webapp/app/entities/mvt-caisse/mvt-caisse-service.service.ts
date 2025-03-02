@@ -17,11 +17,6 @@ export class MvtCaisseServiceService {
 
   public resourceUrl = SERVER_API_URL + 'api/payment-transactions';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<FinancialTransaction>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

@@ -1,4 +1,3 @@
 package com.kobe.warehouse.service.dto;
 
-public class GenericDTO {
-}
+public class GenericDTO {}

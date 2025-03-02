@@ -22,22 +22,22 @@ import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-uti
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
-    selector: 'jhi-produit-detail',
-    templateUrl: './produit-detail.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        RippleModule,
-        FormsModule,
-        PanelModule,
-        AutoCompleteModule,
-        ToolbarModule,
-        CalendarModule,
-        TableModule,
-        BadgeModule,
-        DividerModule,
-        NgxSpinnerModule,
-    ]
+  selector: 'jhi-produit-detail',
+  templateUrl: './produit-detail.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    RippleModule,
+    FormsModule,
+    PanelModule,
+    AutoCompleteModule,
+    ToolbarModule,
+    CalendarModule,
+    TableModule,
+    BadgeModule,
+    DividerModule,
+    NgxSpinnerModule,
+  ],
 })
 export class ProduitDetailComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);
@@ -68,14 +68,9 @@ export class ProduitDetailComponent implements OnInit {
   protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
-      if (produit && produit.id) {
+      if (produit?.id) {
         this.produit = produit;
         this.loadPage();
       }
@@ -148,7 +143,7 @@ export class ProduitDetailComponent implements OnInit {
 
   private buildQuery(): ProduitAuditingParam {
     return {
-      produitId: this.produit?.id,
+      produitId: this.produit.id,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
       toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
     };
@@ -170,7 +165,7 @@ export class ProduitDetailComponent implements OnInit {
 
   private computeTotaux(): void {
     this.resetTotaux();
-    if (this.entites?.length > 0) {
+    if (this.entites.length > 0) {
       for (const e of this.entites) {
         console.warn(e);
         if (e.saleQuantity) {

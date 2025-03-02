@@ -199,7 +199,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         this.fournisseurDisabled = true;
         this.selectedProvider = this.commande.fournisseurId;
         //   this.commandCommonService.updateCommand(commande);
-      } else if (this.commandCommonService.currentCommand()?.id) {
+      } else if (this.commandCommonService.currentCommand().id) {
         this.commande = this.commandCommonService.currentCommand();
         this.orderLines = this.commande.orderLines;
         this.fournisseurDisabled = true;
@@ -236,7 +236,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
       if (this.selectedProvider) {
-        if (this.commande?.id !== undefined) {
+        if (this.commande.id !== undefined) {
           this.subscribeToSaveOrderLineResponse(
             this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
           );
@@ -334,7 +334,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   exportCSV(): void {
-    this.commandeService.exportToCsv(this.commande?.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
   }
 
   searchFn(event: any): void {
@@ -474,7 +474,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     formData.append('commande', file, file.name);
 
     this.showsPinner('commandeEnCourspinner');
-    this.commandeService.importerReponseCommande(this.commande?.id, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commande.id, formData).subscribe({
       next: res => {
         this.hidePinner('commandeEnCourspinner');
         this.refreshCommande();
@@ -522,7 +522,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected refreshCommande(): void {
-    this.commandeService.find(this.commande?.id).subscribe(res => {
+    this.commandeService.find(this.commande.id).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande.orderLines;
       this.focusPrdoduitBox();
@@ -548,7 +548,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     if (commande) {
       this.commandeService.find(commande.id).subscribe(res => {
         this.commande = res.body;
-        this.orderLines = this.commande?.orderLines;
+        this.orderLines = this.commande.orderLines;
         this.updateProduitQtyBox();
       });
     }
@@ -600,7 +600,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       produitId: produit.id,
       totalQuantity: produit.totalQuantity,
       commande:
-        this.commande?.id !== undefined
+        this.commande.id !== undefined
           ? this.commande
           : {
               ...new Commande(),

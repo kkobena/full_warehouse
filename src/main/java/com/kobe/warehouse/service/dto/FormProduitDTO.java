@@ -1,9 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.FormProduit;
-
 import java.io.Serializable;
-
 
 public class FormProduitDTO implements Serializable {
 
@@ -32,8 +30,7 @@ public class FormProduitDTO implements Serializable {
         this.libelle = formProduit.getLibelle();
     }
 
-    public FormProduitDTO() {
-    }
+    public FormProduitDTO() {}
 
     @Override
     public boolean equals(Object o) {

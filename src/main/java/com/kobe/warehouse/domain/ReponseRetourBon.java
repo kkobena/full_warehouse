@@ -21,122 +21,123 @@ import java.util.List;
 @Entity
 @Table(name = "reponse_retour_bon")
 public class ReponseRetourBon implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @Column(name = "modified_date", nullable = false)
-  private LocalDateTime modifiedDate;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private User user;
+    @NotNull
+    @Column(name = "modified_date", nullable = false)
+    private LocalDateTime modifiedDate;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private RetourBon retourBon;
+    @ManyToOne(optional = false)
+    @NotNull
+    private User user;
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "statut", nullable = false, length = 1)
-  private RetourBonStatut statut = RetourBonStatut.PROCESSING;
+    @ManyToOne(optional = false)
+    @NotNull
+    private RetourBon retourBon;
 
-  @Column(name = "commentaire", length = 150)
-  private String commentaire;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false, length = 1)
+    private RetourBonStatut statut = RetourBonStatut.PROCESSING;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private WarehouseCalendar calendar;
+    @Column(name = "commentaire", length = 150)
+    private String commentaire;
 
-  @OneToMany(mappedBy = "reponseRetourBon")
-  private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
-  public Long getId() {
-    return id;
-  }
+    @OneToMany(mappedBy = "reponseRetourBon")
+    private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
 
-  public ReponseRetourBon setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public @NotNull LocalDateTime getDateMtv() {
-    return dateMtv;
-  }
+    public ReponseRetourBon setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public ReponseRetourBon setDateMtv(@NotNull LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-    return this;
-  }
+    public @NotNull LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-  public @NotNull LocalDateTime getModifiedDate() {
-    return modifiedDate;
-  }
+    public ReponseRetourBon setDateMtv(@NotNull LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+        return this;
+    }
 
-  public ReponseRetourBon setModifiedDate(@NotNull LocalDateTime modifiedDate) {
-    this.modifiedDate = modifiedDate;
-    return this;
-  }
+    public @NotNull LocalDateTime getModifiedDate() {
+        return modifiedDate;
+    }
 
-  public @NotNull User getUser() {
-    return user;
-  }
+    public ReponseRetourBon setModifiedDate(@NotNull LocalDateTime modifiedDate) {
+        this.modifiedDate = modifiedDate;
+        return this;
+    }
 
-  public ReponseRetourBon setUser(@NotNull User user) {
-    this.user = user;
-    return this;
-  }
+    public @NotNull User getUser() {
+        return user;
+    }
 
-  public @NotNull RetourBon getRetourBon() {
-    return retourBon;
-  }
+    public ReponseRetourBon setUser(@NotNull User user) {
+        this.user = user;
+        return this;
+    }
 
-  public ReponseRetourBon setRetourBon(@NotNull RetourBon retourBon) {
-    this.retourBon = retourBon;
-    return this;
-  }
+    public @NotNull RetourBon getRetourBon() {
+        return retourBon;
+    }
 
-  public @NotNull RetourBonStatut getStatut() {
-    return statut;
-  }
+    public ReponseRetourBon setRetourBon(@NotNull RetourBon retourBon) {
+        this.retourBon = retourBon;
+        return this;
+    }
 
-  public ReponseRetourBon setStatut(@NotNull RetourBonStatut statut) {
-    this.statut = statut;
-    return this;
-  }
+    public @NotNull RetourBonStatut getStatut() {
+        return statut;
+    }
 
-  public String getCommentaire() {
-    return commentaire;
-  }
+    public ReponseRetourBon setStatut(@NotNull RetourBonStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-  public ReponseRetourBon setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
-  public @NotNull WarehouseCalendar getCalendar() {
-    return calendar;
-  }
+    public ReponseRetourBon setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 
-  public ReponseRetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
+    public @NotNull WarehouseCalendar getCalendar() {
+        return calendar;
+    }
 
-  public List<ReponseRetourBonItem> getReponseRetourBonItems() {
-    return reponseRetourBonItems;
-  }
+    public ReponseRetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 
-  public ReponseRetourBon setReponseRetourBonItems(
-      List<ReponseRetourBonItem> reponseRetourBonItems) {
-    this.reponseRetourBonItems = reponseRetourBonItems;
-    return this;
-  }
+    public List<ReponseRetourBonItem> getReponseRetourBonItems() {
+        return reponseRetourBonItems;
+    }
+
+    public ReponseRetourBon setReponseRetourBonItems(List<ReponseRetourBonItem> reponseRetourBonItems) {
+        this.reponseRetourBonItems = reponseRetourBonItems;
+        return this;
+    }
 }

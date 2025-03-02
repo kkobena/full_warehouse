@@ -1,232 +1,205 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="fr">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Receipt</title>
     <style th:inline="css">
-        @media print {
-            header {
-                position: absolute;
-                position: running(header);
-
-            }
+      @media print {
+        header {
+          position: absolute;
+          position: running(header);
         }
+      }
 
-
-        @page {
-
-            size: [(${size})]  ;
-            margin-right: 2px;
-            margin-left: 2px;
-            margin-bottom: 1px;
-            @top-center {
-                content: element(header);
-                padding-right: 2px;
-                margin-bottom: 2px;
-            }
-
-
+      @page {
+        size: [(${size})];
+        margin-right: 2px;
+        margin-left: 2px;
+        margin-bottom: 1px;
+        @top-center {
+          content: element(header);
+          padding-right: 2px;
+          margin-bottom: 2px;
         }
+      }
 
-        body {
-            font-size: 8px;
-        }
+      body {
+        font-size: 8px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-spacing: 0;
-            -fs-table-paginate: paginate;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        -fs-table-paginate: paginate;
+      }
 
-        }
+      table .total,
+      table .unit {
+        text-align: right;
+      }
 
-        table .total, table .unit {
-            text-align: right;
+      table .total {
+        font-weight: bold;
+      }
 
-        }
+      .text-right {
+        text-align: right;
+      }
 
-        table .total {
-            font-weight: bold;
+      .text-left {
+        text-align: left;
+      }
 
-        }
+      .total-to-pay {
+        text-align: right;
+        font-weight: bold;
+      }
 
-        .text-right {
-            text-align: right;
-        }
+      .amount-to-pay {
+        text-align: right;
+        font-weight: bold;
+      }
 
-        .text-left {
-            text-align: left;
-        }
+      .text-center {
+        text-align: center;
+      }
 
-        .total-to-pay {
-            text-align: right;
-            font-weight: bold;
+      .compagnie-name,
+      .compagnie-name h4 {
+        padding: 0;
+        margin: 0;
+      }
 
-        }
+      .company-details {
+        padding: 0;
+      }
 
-        .amount-to-pay {
-            text-align: right;
-            font-weight: bold;
-        }
+      main {
+        display: block;
+      }
 
+      footer div {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        border-top: solid 0.5px #4d4d4d;
+      }
 
-        .text-center {
-            text-align: center;
-        }
+      .message-bienvenu {
+        margin-bottom: 0.5px;
+        padding: 0;
+      }
 
-        .compagnie-name, .compagnie-name h4 {
-            padding: 0;
-            margin: 0;
-        }
+      .barcode {
+        border-top: dotted 0 #2c1e30;
+      }
 
-        .company-details {
-            padding: 0;
-        }
+      .last-item td {
+        border-bottom: solid 0.5px #2c1e30;
+      }
 
-        main {
-            display: block;
-        }
+      .total-libelle {
+        font-weight: bold;
+      }
 
-        footer div {
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            border-top: solid 0.5px #4D4D4D;
-        }
+      .reglement {
+        border-bottom: solid 0.5px #2c1e30;
+        border-top: solid 0.5px #2c1e30;
+      }
 
-        .message-bienvenu {
-            margin-bottom: 0.5px;
-            padding: 0;
-        }
+      .receipt-info {
+        margin: 0;
+        padding: 0;
+        margin-bottom: 1px;
+      }
 
-        .barcode {
-            border-top: dotted 0 #2c1e30;
-        }
+      .receipt-info p {
+        margin: 1px;
+      }
 
-        .last-item td {
-            border-bottom: solid 0.5px #2c1e30;
-        }
+      table thead tr:first-child th {
+        font-weight: normal !important;
+      }
 
-        .total-libelle {
-            font-weight: bold;
-        }
+      .tva:first-child td {
+        margin-top: 5px;
+      }
 
-        .reglement {
-            border-bottom: solid 0.5px #2c1e30;
-            border-top: solid 0.5px #2c1e30
-        }
+      table:last-child {
+        margin-bottom: 5px;
+      }
 
-        .receipt-info {
-            margin: 0;
-            padding: 0;
-            margin-bottom: 1px;
-        }
+      .barcode img {
+        margin-bottom: 0;
+        height: 30px;
+        width: 80%;
+      }
 
-        .receipt-info p {
-            margin: 1px;
+      .barcode .barcode-code-data {
+        margin-bottom: 0;
+        margin-top: 0;
+        margin-left: 45px;
+        text-align: left;
+      }
 
-        }
+      .row div.barcode {
+        width: 60%;
+      }
 
-        table thead tr:first-child th {
-            font-weight: normal !important;
-
-        }
-
-        .tva:first-child td {
-            margin-top: 5px;
-
-        }
-
-        table:last-child {
-            margin-bottom: 5px;
-        }
-
-        .barcode img {
-            margin-bottom: 0;
-            height: 30px;
-            width: 80%;
-        }
-
-        .barcode .barcode-code-data {
-            margin-bottom: 0;
-            margin-top: 0;
-            margin-left: 45px;
-            text-align: left;
-        }
-
-        .row div.barcode {
-            width: 60%;
-        }
-
-        .row div.current-date {
-            width: 40%;
-            float: right;
-            text-align: right;
-            margin-top: -30px;
-            font-weight: 700;
-            padding-right: 3px;
-
-        }
-        .today {
-          width: 100%;
-          text-align: right;
-          font-weight: 700;
-          padding-right: 3px;
-        }
-        .itm-header td {
-            border-top: solid 0.5px #2c1e30
-        }
+      .row div.current-date {
+        width: 40%;
+        float: right;
+        text-align: right;
+        margin-top: -30px;
+        font-weight: 700;
+        padding-right: 3px;
+      }
+      .today {
+        width: 100%;
+        text-align: right;
+        font-weight: 700;
+        padding-right: 3px;
+      }
+      .itm-header td {
+        border-top: solid 0.5px #2c1e30;
+      }
     </style>
+  </head>
+  <body>
+    <div id="main-container">
+      <header th:insert="~{receipt/header}"></header>
 
-</head>
-<body>
-
-
-<div id="main-container">
-    <header th:insert="~{receipt/header}">
-    </header>
-
-    <main>
+      <main>
         <table>
-            <thead>
+          <thead>
             <tr>
-                <th colspan="4">
-                    <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
-                        <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
-                    </div>
-                    <div class="receipt-info">
-                        <p th:if="${sale.customer ne null}" th:text="${'Client: '+sale.customer.fullName}">
-
-                        </p>
-                        <span th:if="${sale.cassier.id eq sale.seller.id}"
-                              th:text="${'Ticket: '+sale.numberTransaction +' Op: '+sale.cassier.abbrName}"></span>
-                        <div th:if="${sale.cassier.id ne sale.seller.id}">
-                            <p th:text="${'Ticket: '+sale.numberTransaction}"></p>
-                            <p th:text="${'Op: '+sale.cassier.abbrName +' | Vendeur: '+sale.seller.abbrName }"></p>
-                        </div>
-                    </div>
-                </th>
+              <th colspan="4">
+                <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
+                  <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
+                </div>
+                <div class="receipt-info">
+                  <p th:if="${sale.customer ne null}" th:text="${'Client: '+sale.customer.fullName}"></p>
+                  <span
+                    th:if="${sale.cassier.id eq sale.seller.id}"
+                    th:text="${'Ticket: '+sale.numberTransaction +' Op: '+sale.cassier.abbrName}"
+                  ></span>
+                  <div th:if="${sale.cassier.id ne sale.seller.id}">
+                    <p th:text="${'Ticket: '+sale.numberTransaction}"></p>
+                    <p th:text="${'Op: '+sale.cassier.abbrName +' | Vendeur: '+sale.seller.abbrName }"></p>
+                  </div>
+                </div>
+              </th>
             </tr>
-            <tr th:replace="~{receipt/tableHeader}">
-
-            </tr>
-            </thead>
-            <tbody th:replace="~{receipt/tableBody}">
-
-            </tbody>
-
+            <tr th:replace="~{receipt/tableHeader}"></tr>
+          </thead>
+          <tbody th:replace="~{receipt/tableBody}"></tbody>
         </table>
-        <div class="totaux" th:if="${isLastPage}" th:insert="~{receipt/totaux}">
-
-        </div>
-        <div class="row" th:if="${isLastPage}" >
+        <div class="totaux" th:if="${isLastPage}" th:insert="~{receipt/totaux}"></div>
+        <div class="row" th:if="${isLastPage}">
           <div class="today"><span th:text="${currentDate}"></span></div>
         </div>
-
-
-    </main>
-    <footer th:if="${isLastPage}" th:insert="~{receipt/footer}">
-
-    </footer>
-</div>
-</body>
+      </main>
+      <footer th:if="${isLastPage}" th:insert="~{receipt/footer}"></footer>
+    </div>
+  </body>
 </html>

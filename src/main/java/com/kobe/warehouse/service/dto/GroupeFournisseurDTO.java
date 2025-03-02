@@ -26,9 +26,7 @@ public class GroupeFournisseurDTO implements Serializable {
 
     private Integer odre = 100;
 
-
-    public GroupeFournisseurDTO() {
-    }
+    public GroupeFournisseurDTO() {}
 
     public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {
         id = groupeFournisseur.getId();

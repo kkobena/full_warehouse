@@ -5,5 +5,9 @@ export interface ITva {
 }
 
 export class Tva implements ITva {
-  constructor(public id?: number, public taux?: number, public tva?: string) {}
+  constructor(
+    public id?: number,
+    public taux?: number,
+    public tva?: string,
+  ) {}
 }

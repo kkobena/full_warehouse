@@ -4,5 +4,11 @@ package com.kobe.warehouse.domain.enumeration;
  * The OrderStatut enumeration.
  */
 public enum OrderStatut {
-    REQUESTED, RECEIVED, PAID, UNPAID,CLOSED,SUGGESTION,PASSED
+    REQUESTED,
+    RECEIVED,
+    PAID,
+    UNPAID,
+    CLOSED,
+    SUGGESTION,
+    PASSED,
 }

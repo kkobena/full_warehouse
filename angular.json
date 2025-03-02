@@ -20,20 +20,14 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "allowedCommonJsDependencies": [
-              "file-saver",
-              "dayjs",
-              "moment"
-            ],
+            "allowedCommonJsDependencies": ["file-saver", "dayjs", "moment"],
             "customWebpackConfig": {
               "path": "./webpack/webpack.custom.js"
             },
             "outputPath": "target/classes/static/",
             "index": "src/main/webapp/index.html",
             "main": "src/main/webapp/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -57,7 +51,7 @@
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": false,
+              "buildOptimizer": true,
               "serviceWorker": true,
               "ngswConfigPath": "ngsw-config.json",
               "budgets": [
@@ -79,7 +73,13 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/main/webapp/environments/environment.ts",
+                  "with": "src/main/webapp/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -117,6 +117,6 @@
       "environment": "all"
     },
     "packageManager": "npm",
-    "analytics": "bba4d3b3-68aa-4053-a1ff-f15de8f071af"
+    "analytics": false
   }
 }

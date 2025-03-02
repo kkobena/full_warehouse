@@ -3,94 +3,95 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 import java.time.LocalDate;
 
 public class AchatDTO {
-  private long montantNet;
-  private long montantTtc;
-  private long montantHt;
-  private long montantTaxe;
-  private Long groupeGrossisteId;
-  private String groupeGrossiste;
-  private long montantRemise;
-  private int ordreAffichage;
-  private LocalDate mvtDate;
 
-  public long getMontantNet() {
-    return montantNet;
-  }
+    private long montantNet;
+    private long montantTtc;
+    private long montantHt;
+    private long montantTaxe;
+    private Long groupeGrossisteId;
+    private String groupeGrossiste;
+    private long montantRemise;
+    private int ordreAffichage;
+    private LocalDate mvtDate;
 
-  public AchatDTO setMontantNet(long montantNet) {
-    this.montantNet = montantNet;
-    return this;
-  }
+    public long getMontantNet() {
+        return montantNet;
+    }
 
-  public LocalDate getMvtDate() {
-    return mvtDate;
-  }
+    public AchatDTO setMontantNet(long montantNet) {
+        this.montantNet = montantNet;
+        return this;
+    }
 
-  public AchatDTO setMvtDate(LocalDate mvtDate) {
-    this.mvtDate = mvtDate;
-    return this;
-  }
+    public LocalDate getMvtDate() {
+        return mvtDate;
+    }
 
-  public int getOrdreAffichage() {
-    return ordreAffichage;
-  }
+    public AchatDTO setMvtDate(LocalDate mvtDate) {
+        this.mvtDate = mvtDate;
+        return this;
+    }
 
-  public AchatDTO setOrdreAffichage(int ordreAffichage) {
-    this.ordreAffichage = ordreAffichage;
-    return this;
-  }
+    public int getOrdreAffichage() {
+        return ordreAffichage;
+    }
 
-  public long getMontantRemise() {
-    return montantRemise;
-  }
+    public AchatDTO setOrdreAffichage(int ordreAffichage) {
+        this.ordreAffichage = ordreAffichage;
+        return this;
+    }
 
-  public AchatDTO setMontantRemise(long montantRemise) {
-    this.montantRemise = montantRemise;
-    return this;
-  }
+    public long getMontantRemise() {
+        return montantRemise;
+    }
 
-  public long getMontantTtc() {
-    return montantTtc;
-  }
+    public AchatDTO setMontantRemise(long montantRemise) {
+        this.montantRemise = montantRemise;
+        return this;
+    }
 
-  public AchatDTO setMontantTtc(long montantTtc) {
-    this.montantTtc = montantTtc;
-    return this;
-  }
+    public long getMontantTtc() {
+        return montantTtc;
+    }
 
-  public long getMontantHt() {
-    return montantHt;
-  }
+    public AchatDTO setMontantTtc(long montantTtc) {
+        this.montantTtc = montantTtc;
+        return this;
+    }
 
-  public AchatDTO setMontantHt(long montantHt) {
-    this.montantHt = montantHt;
-    return this;
-  }
+    public long getMontantHt() {
+        return montantHt;
+    }
 
-  public long getMontantTaxe() {
-    return montantTaxe;
-  }
+    public AchatDTO setMontantHt(long montantHt) {
+        this.montantHt = montantHt;
+        return this;
+    }
 
-  public AchatDTO setMontantTaxe(long montantTaxe) {
-    this.montantTaxe = montantTaxe;
-    return this;
-  }
+    public long getMontantTaxe() {
+        return montantTaxe;
+    }
 
-  public Long getGroupeGrossisteId() {
-    return groupeGrossisteId;
-  }
+    public AchatDTO setMontantTaxe(long montantTaxe) {
+        this.montantTaxe = montantTaxe;
+        return this;
+    }
 
-  public AchatDTO setGroupeGrossisteId(Long groupeGrossisteId) {
-    this.groupeGrossisteId = groupeGrossisteId;
-    return this;
-  }
+    public Long getGroupeGrossisteId() {
+        return groupeGrossisteId;
+    }
 
-  public String getGroupeGrossiste() {
-    return groupeGrossiste;
-  }
+    public AchatDTO setGroupeGrossisteId(Long groupeGrossisteId) {
+        this.groupeGrossisteId = groupeGrossisteId;
+        return this;
+    }
 
-  public AchatDTO setGroupeGrossiste(String groupeGrossiste) {
-    this.groupeGrossiste = groupeGrossiste;
-    return this;
-  }
+    public String getGroupeGrossiste() {
+        return groupeGrossiste;
+    }
+
+    public AchatDTO setGroupeGrossiste(String groupeGrossiste) {
+        this.groupeGrossiste = groupeGrossiste;
+        return this;
+    }
 }

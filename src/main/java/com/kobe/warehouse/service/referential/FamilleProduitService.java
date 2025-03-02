@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.referential;
 
-
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import java.io.InputStream;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
  * Service Interface for managing {@link com.kobe.warehouse.domain.FamilleProduit}.
  */
 public interface FamilleProduitService {
-
     /**
      * Save a familleProduit.
      *
@@ -27,8 +25,7 @@ public interface FamilleProduitService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<FamilleProduitDTO> findAll(String search,Pageable pageable);
-
+    Page<FamilleProduitDTO> findAll(String search, Pageable pageable);
 
     /**
      * Get the "id" familleProduit.

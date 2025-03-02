@@ -67,11 +67,6 @@ export class FormProduitFournisseurComponent implements OnInit {
     principal: [null, [Validators.required]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   save(): void {
     this.isSaving = true;
     const produitFournisseur = this.createFrom();
@@ -95,11 +90,11 @@ export class FormProduitFournisseurComponent implements OnInit {
 
     this.populate();
     if (!this.hasPrincipal() && !this.entity) {
-      this.editForm.get('principal')!.setValue(true);
+      this.editForm.get('principal').setValue(true);
     } else if (this.entity) {
-      this.editForm.get('principal')!.setValue(this.entity.principal);
+      this.editForm.get('principal').setValue(this.entity.principal);
     } else {
-      this.editForm.get('principal')!.setValue(false);
+      this.editForm.get('principal').setValue(false);
     }
   }
 
@@ -156,13 +151,13 @@ export class FormProduitFournisseurComponent implements OnInit {
 
   handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
-    const unitPrice = Number(this.editForm.get(['prixUni'])!.value);
+    const unitPrice = Number(this.editForm.get(['prixUni']).value);
     this.isValid = value < unitPrice;
   }
 
   handlePrixUnitaireInput(event: any): void {
     const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(['prixAchat'])!.value);
+    const costAmount = Number(this.editForm.get(['prixAchat']).value);
     this.isValid = costAmount < value;
   }
 
@@ -198,12 +193,12 @@ export class FormProduitFournisseurComponent implements OnInit {
   protected createFrom(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
-      id: this.editForm.get(['id'])!.value,
-      prixUni: this.editForm.get(['prixUni'])!.value,
-      prixAchat: this.editForm.get(['prixAchat'])!.value,
-      codeCip: this.editForm.get(['codeCip'])!.value,
-      fournisseurId: this.editForm.get(['fournisseurId'])!.value,
-      principal: this.editForm.get(['principal'])!.value,
+      id: this.editForm.get(['id']).value,
+      prixUni: this.editForm.get(['prixUni']).value,
+      prixAchat: this.editForm.get(['prixAchat']).value,
+      codeCip: this.editForm.get(['codeCip']).value,
+      fournisseurId: this.editForm.get(['fournisseurId']).value,
+      principal: this.editForm.get(['principal']).value,
       produitId: this.produit.id,
     };
   }

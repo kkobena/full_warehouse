@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TicketServiceImpl implements TicketService {
+
     private final TicketRepository ticketRepository;
 
     public TicketServiceImpl(TicketRepository ticketRepository) {
@@ -46,11 +47,12 @@ public class TicketServiceImpl implements TicketService {
         this.ticketRepository.save(ticket);
         return ticketCopy;
     }
-  public   List<Ticket> findAllBySaleId(Long id){
+
+    public List<Ticket> findAllBySaleId(Long id) {
         return ticketRepository.findAllBySaleId(id);
     }
 
-  public   Ticket buildTicket(ThirdPartySales thirdPartySales, ThirdPartySaleDTO thirdPartySaleDTO, User user,String tvaDatas) {
+    public Ticket buildTicket(ThirdPartySales thirdPartySales, ThirdPartySaleDTO thirdPartySaleDTO, User user, String tvaDatas) {
         Ticket ticket = new Ticket();
         ticket.setCode(RandomStringUtils.randomNumeric(8));
         ticket.setCreated(LocalDateTime.now());
@@ -68,7 +70,8 @@ public class TicketServiceImpl implements TicketService {
         ticket = ticketRepository.save(ticket);
         return ticket;
     }
-    public Ticket buildTicket(SaleDTO saleDTO, Sales sales,User user,String tvaDatas) {
+
+    public Ticket buildTicket(SaleDTO saleDTO, Sales sales, User user, String tvaDatas) {
         Ticket ticket = new Ticket();
         ticket.setCode(RandomStringUtils.randomNumeric(8));
         ticket.setCreated(LocalDateTime.now());
@@ -84,7 +87,6 @@ public class TicketServiceImpl implements TicketService {
         ticket.setCustomer(cashSale.getCustomer());
         ticket = ticketRepository.save(ticket);
         return ticket;
-
     }
 
     @Override

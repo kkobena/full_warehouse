@@ -1,98 +1,65 @@
 <p-toolbar>
   <ng-template #start>
-    <div class="d-flex justify-content-between">
-
+    <div class="d-flex justify-content-start">
       <div class="row">
         <div class="pt-1 col-md-6"><label class="input-label">Groupés</label></div>
         <div class="p-1 col-md-6">
           <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureGroup" />
         </div>
-
       </div>
-      <div>
-        <input [(ngModel)]="search" pInputText placeholder="Taper pour rechercher"
-        >
+      <div class="pt-1">
+        <input [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" />
       </div>
 
-      <div class="row">
-        <div class="pt-1 col-md-1"><label>Du</label></div>
-        <div class="col-md-11">
-          <div class="input-group  ">
-            <input #d="ngbDatepicker"
-                   [(ngModel)]="modelStartDate"
-                   [footerTemplate]="footerTemplate"
-                   class="form-control"
-                   ngbDatepicker
-                   placeholder="dd/mm/yyyy"
-            />
-            <button (click)="d.toggle()" class="btn btn-outline-secondary bi bi-calendar3"
-                    type="button"></button>
-          </div>
-        </div>
 
-
-        <ng-template #footerTemplate>
-          <hr class="my-0" />
-          <button (click)="modelStartDate = today; d.close()"
-                  class="btn btn-primary btn-sm m-2 float-start">Aujourd'hui
-          </button>
-          <button (click)="d.close()" class="btn btn-secondary btn-sm m-2 float-end">Fermer</button>
-        </ng-template>
+        <div class="pt-1 ml-1">
+          <p-floatlabel variant="on">
+            <p-datePicker   dateFormat="dd/mm/yy" [iconDisplay]="'input'" id="du" [(ngModel)]="modelStartDate" [showIcon]="true" inputId="du"  [selectOtherMonths]="true"
+                          [showButtonBar]="true" />
+            <label for="du">Du</label>
+          </p-floatlabel>
       </div>
+        <div class="pt-1 ml-1">
+          <p-floatlabel variant="on">
+            <p-datePicker   dateFormat="dd/mm/yy" [iconDisplay]="'input'" id="au" [(ngModel)]="modelEndDate" inputId="au"  [selectOtherMonths]="true"
+                          [showButtonBar]="true" [showIcon]="true" />
+            <label for="au">Au</label>
+          </p-floatlabel>
 
-      <div class="row">
-        <div class="pt-1 col-md-1"><label>Au</label></div>
-        <div class="col-md-11">
-          <div class="input-group  ">
-            <input
-              #dtEnd="ngbDatepicker"
-              [(ngModel)]="modelEndDate"
-              [footerTemplate]="dateEndFooter"
-              class="form-control"
-              ngbDatepicker
-              placeholder="dd/mm/yyyy"
-            />
-            <button (click)="dtEnd.toggle()" class="btn btn-outline-secondary bi bi-calendar3"
-                    type="button"></button>
-          </div>
-        </div>
-
-
-        <ng-template #dateEndFooter>
-          <hr class="my-0" />
-          <button (click)="modelEndDate = today; dtEnd.close()"
-                  class="btn btn-primary btn-sm m-2 float-start">Aujourd'hui
-          </button>
-          <button (click)="dtEnd.close()" class="btn btn-secondary btn-sm m-2 float-end">Fermer
-          </button>
-        </ng-template>
       </div>
-
 
       @if (factureGroup) {
-        <div class="p-1">
+        <div class="pt-1 ml-1">
           <p-floatlabel>
-            <p-autoComplete id="groupeTiersPayants" inputId="groupeTiersPayants"
-                            (completeMethod)="searchGroupTiersPayant($event)"
-                            [(ngModel)]="selectedGroupeTiersPayant"
-                            [forceSelection]="true"
-                            [multiple]="false" [suggestions]="groupeTiersPayants"
-                            appendTo="body"
-                            optionLabel="name">
+            <p-autoComplete
+              id="groupeTiersPayants"
+              inputId="groupeTiersPayants"
+              (completeMethod)="searchGroupTiersPayant($event)"
+              [(ngModel)]="selectedGroupeTiersPayant"
+              [forceSelection]="true"
+              [multiple]="false"
+              [suggestions]="groupeTiersPayants"
+              appendTo="body"
+              optionLabel="name"
+            >
             </p-autoComplete>
             <label for="groupeTiersPayants">Rechercher un groupe</label>
           </p-floatlabel>
         </div>
       } @else {
-        <div class="pr-1">
+        <div class="pt-1 ml-1">
           <p-floatlabel>
-            <p-autoComplete id="tiersPayantId" inputId="tiersPayantId"
-                            (completeMethod)="searchTiersPayant($event)"
-                            [(ngModel)]="selectedTiersPayant"
-                            [forceSelection]="true"
-                            [minLength]="minLength"
-                            [multiple]="false" [suggestions]="tiersPayants"
-                            optionLabel="fullName">
+            <p-autoComplete
+              id="tiersPayantId"
+              inputId="tiersPayantId"
+              (completeMethod)="searchTiersPayant($event)"
+              [(ngModel)]="selectedTiersPayant"
+              [forceSelection]="true"
+              [minLength]="minLength"
+              [multiple]="false"
+              [suggestions]="tiersPayants"
+              optionLabel="fullName"
+            >
             </p-autoComplete>
             <label for="tiersPayantId">Rechercher tiers-payants</label>
           </p-floatlabel>
@@ -102,71 +69,64 @@
   </ng-template>
   <ng-template #end>
     <div>
-      <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
-                label="Rechercher" severity="info"
-      />
-      <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true"
-                icon="pi pi-file-pdf"
-                label="Imprimer"
-                severity="warn"
-      />
+      <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+      <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
     </div>
   </ng-template>
-
 </p-toolbar>
 <p-divider></p-divider>
 <div class="facture-reglees">
-  <p-table #factureDossierTable [(selection)]="selectedDatas"
-           [expandedRowKeys]="expandedRows"
-           [globalFilterFields]="['organisme','codeFacture']"
-           [paginator]="true"
-           [rowsPerPageOptions]="[10,15,20,25,30,100]"
-           [rows]="15"
-           [scrollHeight]="scrollHeight"
-           [scrollable]="true"
-           [showCurrentPageReport]="true"
-           [value]="datas"
-           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
-           dataKey="id"
-           groupRowsBy="organismeId"
-           rowGroupMode="subheader"
-           selectionMode="multiple"
-           sortField="organisme"
-           sortMode="single">
+  <p-table
+    #factureDossierTable
+    [(selection)]="selectedDatas"
+    [expandedRowKeys]="expandedRows"
+    [globalFilterFields]="['organisme', 'codeFacture']"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
+    [rows]="15"
+    [scrollHeight]="scrollHeight"
+    [scrollable]="true"
+    [showCurrentPageReport]="true"
+    [value]="datas"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
+    dataKey="id"
+    groupRowsBy="organismeId"
+    rowGroupMode="subheader"
+    selectionMode="multiple"
+    sortField="organisme"
+    sortMode="single"
+  >
     <ng-template #caption>
       <div class="d-flex justify-content-between">
         <div class="p-0">
           <p-iconfield>
             <p-inputicon styleClass="pi pi-search" />
-            <input (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
-                   [style]="{'width': '300px'}"
-                   pInputText
-                   placeholder="Taper pour filter "
-                   type="text">
+            <input
+              (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
+              [style]="{ width: '300px' }"
+              pInputText
+              placeholder="Taper pour filter "
+              type="text"
+            />
           </p-iconfield>
-
-
         </div>
 
         <div class="p-0">
           @if (selectedDatas?.length > 0) {
-            <p-button (click)="onRemoveAll()" [loading]="removeAll" [raised]="true"
-                      icon="pi pi-trash"
-                      label="Tout supprimer"
-                      severity="danger"
+            <p-button
+              (click)="onRemoveAll()"
+              [loading]="removeAll"
+              [raised]="true"
+              icon="pi pi-trash"
+              label="Tout supprimer"
+              severity="danger"
             />
           }
-
-
         </div>
-
       </div>
-
-
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-
         <th>Organisme</th>
         <th>Code facture</th>
         <th>Mode règlement</th>
@@ -178,79 +138,65 @@
         <th></th>
         <ng-container>
           <th class="table-all-checkbos">
-            <p-tableHeaderCheckbox #checkbox
-            ></p-tableHeaderCheckbox>
+            <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
           </th>
         </ng-container>
-
       </tr>
     </ng-template>
-    <ng-template #groupheader let-expanded="expanded" let-reglement
-                 let-rowIndex="rowIndex">
+    <ng-template #groupheader let-expanded="expanded" let-reglement let-rowIndex="rowIndex">
       <tr>
         <td colspan="4">
-
-          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="reglement" [rounded]="true" [text]="true"
-                    type="button" />
+          <p-button
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            [pRowToggler]="reglement"
+            [rounded]="true"
+            [text]="true"
+            type="button"
+          />
           <span class="font-bold ml-2 group-title">{{ reglement.organisme }}</span>
         </td>
         <td class="text-right">
           <span class="font-bold ml-2 group-title total-group text-right">{{
-              'Total: ' +
-              getTotalAmountByGroup(reglement.organismeId)
-            }}</span>
+            'Total: ' + getTotalAmountByGroup(reglement.organismeId)
+          }}</span>
         </td>
         <td colspan="5"></td>
-
       </tr>
     </ng-template>
 
-
     <ng-template #expandedrow let-reglement>
       <tr>
-
         <td class="text-center" colspan="2">{{ reglement.codeFacture }}</td>
         <td>{{ reglement.paymentMode }}</td>
 
         <td class="amount-column">
           {{ reglement.montantAttendu }}
-
         </td>
         <td class="amount-column">
           {{ reglement.paidAmount }}
-
         </td>
         <td class="amount-column">
           {{ reglement.montantRestant }}
-
         </td>
         <td class="text-center">{{ reglement.created }}</td>
         <td>{{ reglement.user }}</td>
         <td class="text-right">
-          <p-button (click)="onView(reglement)" [rounded]="true" icon="pi pi-eye" severity="info"
-                    size="small"></p-button>
-          <p-button (click)="onPrint(reglement)" [rounded]="true" icon="pi pi-print"
-                    severity="secondary"
-                    size="small"></p-button>
-          <p-button (click)="onDelete(reglement)" [rounded]="true" icon="pi pi-trash"
-                    severity="danger"
-                    size="small"
-                    styleClass="p-button-danger"></p-button>
+          <p-button (click)="onView(reglement)" [rounded]="true" icon="pi pi-eye" severity="info" size="small"></p-button>
+          <p-button (click)="onPrint(reglement)" [rounded]="true" icon="pi pi-print" severity="secondary" size="small"></p-button>
+          <p-button
+            (click)="onDelete(reglement)"
+            [rounded]="true"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            styleClass="p-button-danger"
+          ></p-button>
         </td>
         <td class="text-center">
-          <p-tableCheckbox
-            [value]="reglement"></p-tableCheckbox>
+          <p-tableCheckbox [value]="reglement"></p-tableCheckbox>
         </td>
-
-
       </tr>
-
     </ng-template>
-
   </p-table>
 </div>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="delete">
-
-
-</p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="delete"> </p-confirmDialog>

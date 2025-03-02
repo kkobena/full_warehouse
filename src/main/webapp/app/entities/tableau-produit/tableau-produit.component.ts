@@ -71,11 +71,6 @@ export class TableauProduitComponent implements OnInit {
     }),
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.loadPage();
   }
@@ -190,9 +185,9 @@ export class TableauProduitComponent implements OnInit {
   private createFromForm(): ITableau {
     return {
       ...new Tableau(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      value: this.editForm.get(['value'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      value: this.editForm.get(['value']).value,
     };
   }
 }

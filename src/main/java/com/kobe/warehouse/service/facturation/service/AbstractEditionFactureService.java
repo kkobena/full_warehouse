@@ -33,7 +33,9 @@ public abstract class AbstractEditionFactureService implements EditionService {
     protected AbstractEditionFactureService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
-        AppConfigurationService appConfigurationService, UserService userService) {
+        AppConfigurationService appConfigurationService,
+        UserService userService
+    ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationRepository = facturationRepository;
         this.appConfigurationService = appConfigurationService;
@@ -48,78 +50,76 @@ public abstract class AbstractEditionFactureService implements EditionService {
         return new FactureEditionResponse(dateCreation, false);
     }
 
-    protected abstract Specification<ThirdPartySaleLine> buildCriteria(
-        EditionSearchParams editionSearchParams);
+    protected abstract Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams);
 
     protected List<ThirdPartySaleLine> getDatas(EditionSearchParams editionSearchParams) {
         return this.thirdPartySaleLineRepository.findAll(this.buildCriteria(editionSearchParams));
     }
 
-    protected Specification<ThirdPartySaleLine> buildFetchSpecification(
-        EditionSearchParams editionSearchParams) {
+    protected Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
         Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = Specification.where(
-            this.thirdPartySaleLineRepository.canceledCriteria());
+            this.thirdPartySaleLineRepository.canceledCriteria()
+        );
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED)));
+            this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
+        );
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(),
-                editionSearchParams.endDate()));
+            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(), editionSearchParams.endDate())
+        );
         if (editionSearchParams.factureProvisoire()) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.factureProvisoireCriteria());
+                this.thirdPartySaleLineRepository.factureProvisoireCriteria()
+            );
         } else {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.notBilledCriteria());
+            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.notBilledCriteria());
         }
 
         return thirdPartySaleLineSpecification;
     }
 
-
-    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(
-        List<ThirdPartySaleLine> thirdPartySaleLines) {
-        return thirdPartySaleLines.stream()
-            .collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
+    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(List<ThirdPartySaleLine> thirdPartySaleLines) {
+        return thirdPartySaleLines.stream().collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
     }
 
-    private void saveAll(EditionSearchParams editionSearchParams,
-        LocalDateTime dateCreation) {
+    private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation) {
         var year = dateCreation.getYear();
         var lastFactureNumero = getLastFactureNumero();
         AtomicInteger numero = new AtomicInteger(lastFactureNumero);
         List<ThirdPartySaleLine> thirdPartySaleLines = this.getDatas(editionSearchParams);
 
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(
-            thirdPartySaleLines);
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) ->
-
-            this.buildAndSaveFacture(null, tiersPayant, saleLines, dateCreation, year,
-                numero.incrementAndGet(),
-                editionSearchParams));
-
+            this.buildAndSaveFacture(null, tiersPayant, saleLines, dateCreation, year, numero.incrementAndGet(), editionSearchParams)
+        );
     }
 
     protected String getFactureNumber(int year, int count) {
         return year + "_" + StringUtils.leftPad(count + "", 4, "0");
     }
 
-    protected void buildAndSaveFacture(FactureTiersPayant factureGroup,
+    protected void buildAndSaveFacture(
+        FactureTiersPayant factureGroup,
         TiersPayant tiersPayant,
-        List<ThirdPartySaleLine> saleLines, LocalDateTime dateCreation, int year,
-        int lastFactureNumero, EditionSearchParams editionSearchParams) {
-        FactureTiersPayant factureTiersPayant = new FactureTiersPayant().setCreated(dateCreation)
+        List<ThirdPartySaleLine> saleLines,
+        LocalDateTime dateCreation,
+        int year,
+        int lastFactureNumero,
+        EditionSearchParams editionSearchParams
+    ) {
+        FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
+            .setCreated(dateCreation)
             .setRemiseForfetaire(tiersPayant.getRemiseForfaitaire())
             .setUpdated(dateCreation)
             .setGroupeFactureTiersPayant(factureGroup)
             .setDebutPeriode(editionSearchParams.startDate())
             .setFinPeriode(editionSearchParams.endDate())
             .setFactureProvisoire(editionSearchParams.factureProvisoire())
-            .setUser(this.userService.getUser()).setGroupeFactureTiersPayant(null)
-            .setTiersPayant(tiersPayant).setNumFacture(getFactureNumber(year, lastFactureNumero));
+            .setUser(this.userService.getUser())
+            .setGroupeFactureTiersPayant(null)
+            .setTiersPayant(tiersPayant)
+            .setNumFacture(getFactureNumber(year, lastFactureNumero));
         if (factureGroup != null) {
-            factureTiersPayant.setGroupeFactureTiersPayant(
-                this.facturationRepository.saveAndFlush(factureGroup));
-
+            factureTiersPayant.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
         }
         factureTiersPayant = this.facturationRepository.saveAndFlush(factureTiersPayant);
         for (ThirdPartySaleLine saleLine : saleLines) {
@@ -127,8 +127,6 @@ public abstract class AbstractEditionFactureService implements EditionService {
             factureTiersPayant.getFacturesDetails().add(saleLine);
             thirdPartySaleLineRepository.saveAndFlush(saleLine);
         }
-
-
     }
 
     protected int getLastFactureNumero() {
@@ -141,16 +139,12 @@ public abstract class AbstractEditionFactureService implements EditionService {
 
         return 0;
     }
-
-
 }
-
 // est-ce qu'on n'a des endpoint côte ROD pour recuper les informations zone de chanladises
 // le pacte
 // administrateur
 // pour les missions 0:: n le pacte
 // modification des droits de type de structure
-
 // les pactes ==> ROD
 // les missions ==> appel à l'API rod avec id clavis
 // impact exportation des données  avec l'id clavis,inditification des structures

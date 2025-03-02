@@ -72,7 +72,7 @@ export class FormFamilleComponent implements OnInit {
   populateAssurrance(): void {
     this.categorieProduitService.query({ search: '' }).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
-        this.categorieproduits = res.body!.map((item: ICategorie) => {
+        this.categorieproduits = res.body.map((item: ICategorie) => {
           return {
             label: item.libelle,
             value: item.id,
@@ -124,10 +124,10 @@ export class FormFamilleComponent implements OnInit {
   private createFromForm(): IFamilleProduit {
     return {
       ...new FamilleProduit(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      categorieId: this.editForm.get(['categorieId'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      categorieId: this.editForm.get(['categorieId']).value,
     };
   }
 }

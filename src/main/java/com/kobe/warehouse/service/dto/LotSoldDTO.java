@@ -4,16 +4,16 @@ import com.kobe.warehouse.domain.LotSold;
 import java.time.LocalDateTime;
 
 public class LotSoldDTO {
-    private  Long id;
+
+    private Long id;
 
     private LocalDateTime createdDate;
 
-    private  String saleReference;
+    private String saleReference;
 
-    private  Integer quantity;
+    private Integer quantity;
 
-    public LotSoldDTO() {
-    }
+    public LotSoldDTO() {}
 
     public LotSoldDTO(LotSold lotSold) {
         id = lotSold.getId();

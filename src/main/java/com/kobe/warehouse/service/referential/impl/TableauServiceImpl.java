@@ -17,93 +17,84 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class TableauServiceImpl implements TableauService {
-  private final TableauRepository tableauRepository;
-  private final ProduitRepository produitRepository;
-  private final LogsService logsService;
 
-  public TableauServiceImpl(
-      TableauRepository tableauRepository,
-      ProduitRepository produitRepository,
-      LogsService logsService) {
-    this.tableauRepository = tableauRepository;
-    this.produitRepository = produitRepository;
-    this.logsService = logsService;
+    private final TableauRepository tableauRepository;
+    private final ProduitRepository produitRepository;
+    private final LogsService logsService;
 
-  }
+    public TableauServiceImpl(TableauRepository tableauRepository, ProduitRepository produitRepository, LogsService logsService) {
+        this.tableauRepository = tableauRepository;
+        this.produitRepository = produitRepository;
+        this.logsService = logsService;
+    }
 
-  @Override
-  @Transactional
-  public TableauDTO save(TableauDTO tableauDTO) {
-    return Optional.of(
+    @Override
+    @Transactional
+    public TableauDTO save(TableauDTO tableauDTO) {
+        return Optional.of(
             this.tableauRepository.saveAndFlush(
-                new Tableau()
-                    .setId(tableauDTO.getId())
-                    .setCode(tableauDTO.getCode())
-                    .setValue(tableauDTO.getValue())))
-        .map(TableauDTO::new)
-        .orElseThrow();
-  }
+                    new Tableau().setId(tableauDTO.getId()).setCode(tableauDTO.getCode()).setValue(tableauDTO.getValue())
+                )
+        )
+            .map(TableauDTO::new)
+            .orElseThrow();
+    }
 
-  @Override
-  public List<TableauDTO> findAll() {
-    return this.tableauRepository.findAll().stream().map(TableauDTO::new).toList();
-  }
+    @Override
+    public List<TableauDTO> findAll() {
+        return this.tableauRepository.findAll().stream().map(TableauDTO::new).toList();
+    }
 
-  @Override
-  public Optional<TableauDTO> findOne(Long id) {
-    return this.tableauRepository.findById(id).map(TableauDTO::new);
-  }
+    @Override
+    public Optional<TableauDTO> findOne(Long id) {
+        return this.tableauRepository.findById(id).map(TableauDTO::new);
+    }
 
-  @Override
-  @Transactional
-  public void delete(Long id) {
-    this.tableauRepository.deleteById(id);
-  }
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        this.tableauRepository.deleteById(id);
+    }
 
-  @Override
-  @Transactional
-  public void associer(Long id, List<Long> produitIds) {
-    Tableau tableau = this.tableauRepository.getReferenceById(id);
+    @Override
+    @Transactional
+    public void associer(Long id, List<Long> produitIds) {
+        Tableau tableau = this.tableauRepository.getReferenceById(id);
 
-      produitIds.forEach(
-        p -> {
-          Produit produit = this.produitRepository.getReferenceById(p);
-          try {
-            produit.setTableau(tableau);
-            produit.setUpdatedAt(LocalDateTime.now());
-            this.produitRepository.save(produit);
-            logsService.create(
-                TransactionType.UPDATE_PRODUCT,
-                String.format("Modification du produit %s", produit.getLibelle()),
-                produit.getId().toString()
-
+        produitIds.forEach(p -> {
+            Produit produit = this.produitRepository.getReferenceById(p);
+            try {
+                produit.setTableau(tableau);
+                produit.setUpdatedAt(LocalDateTime.now());
+                this.produitRepository.save(produit);
+                logsService.create(
+                    TransactionType.UPDATE_PRODUCT,
+                    String.format("Modification du produit %s", produit.getLibelle()),
+                    produit.getId().toString()
                 );
-          } catch (Exception e) {
-
-            throw new RuntimeException(e);
-          }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
-  }
+    }
 
-  @Override
-  @Transactional
-  public void dissocier(List<Long> produitIds) {
-      produitIds.forEach(
-        p -> {
-          Produit produit = this.produitRepository.getReferenceById(p);
-          try {
-            produit.setTableau(null);
-            produit.setUpdatedAt(LocalDateTime.now());
-            this.produitRepository.save(produit);
-            logsService.create(
-                TransactionType.UPDATE_PRODUCT,
-                String.format("Modification du produit %s", produit.getLibelle()),
-                produit.getId().toString()
-              );
-          } catch (Exception e) {
-
-            throw new RuntimeException(e);
-          }
+    @Override
+    @Transactional
+    public void dissocier(List<Long> produitIds) {
+        produitIds.forEach(p -> {
+            Produit produit = this.produitRepository.getReferenceById(p);
+            try {
+                produit.setTableau(null);
+                produit.setUpdatedAt(LocalDateTime.now());
+                this.produitRepository.save(produit);
+                logsService.create(
+                    TransactionType.UPDATE_PRODUCT,
+                    String.format("Modification du produit %s", produit.getLibelle()),
+                    produit.getId().toString()
+                );
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
-  }
+    }
 }

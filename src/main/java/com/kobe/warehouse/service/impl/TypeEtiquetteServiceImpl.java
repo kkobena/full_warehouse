@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.TypeEtiquette;
 import com.kobe.warehouse.repository.TypeEtiquetteRepository;
 import com.kobe.warehouse.service.dto.TypeEtiquetteDTO;
@@ -19,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class TypeEtiquetteServiceImpl implements TypeEtiquetteService {
+
     private final Logger log = LoggerFactory.getLogger(TypeEtiquetteServiceImpl.class);
     private final TypeEtiquetteRepository typeEtiquetteRepository;
 
     public TypeEtiquetteServiceImpl(TypeEtiquetteRepository typeEtiquetteRepository) {
         this.typeEtiquetteRepository = typeEtiquetteRepository;
-
     }
 
     /**
@@ -36,8 +35,7 @@ public class TypeEtiquetteServiceImpl implements TypeEtiquetteService {
     @Override
     public TypeEtiquetteDTO save(TypeEtiquetteDTO typeEtiquetteDTO) {
         log.debug("Request to save TypeEtiquette : {}", typeEtiquetteDTO);
-        TypeEtiquette typeEtiquette = new TypeEtiquette().setId(typeEtiquetteDTO.getId())
-            .setLibelle(typeEtiquetteDTO.getLibelle());
+        TypeEtiquette typeEtiquette = new TypeEtiquette().setId(typeEtiquetteDTO.getId()).setLibelle(typeEtiquetteDTO.getLibelle());
         typeEtiquette = typeEtiquetteRepository.save(typeEtiquette);
         return new TypeEtiquetteDTO(typeEtiquette);
     }
@@ -52,10 +50,8 @@ public class TypeEtiquetteServiceImpl implements TypeEtiquetteService {
     @Transactional(readOnly = true)
     public Page<TypeEtiquetteDTO> findAll(Pageable pageable) {
         log.debug("Request to get all TypeEtiquettes");
-        return typeEtiquetteRepository.findAll(pageable)
-            .map(TypeEtiquetteDTO::new);
+        return typeEtiquetteRepository.findAll(pageable).map(TypeEtiquetteDTO::new);
     }
-
 
     /**
      * Get one typeEtiquette by id.
@@ -67,8 +63,7 @@ public class TypeEtiquetteServiceImpl implements TypeEtiquetteService {
     @Transactional(readOnly = true)
     public Optional<TypeEtiquetteDTO> findOne(Long id) {
         log.debug("Request to get TypeEtiquette : {}", id);
-        return typeEtiquetteRepository.findById(id)
-            .map(TypeEtiquetteDTO::new);
+        return typeEtiquetteRepository.findById(id).map(TypeEtiquetteDTO::new);
     }
 
     /**

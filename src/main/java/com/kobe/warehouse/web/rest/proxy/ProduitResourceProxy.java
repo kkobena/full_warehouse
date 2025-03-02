@@ -8,14 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public class ProduitResourceProxy {
-  private final ProduitService produitService;
 
-  public ProduitResourceProxy(ProduitService produitService) {
-    this.produitService = produitService;
-  }
+    private final ProduitService produitService;
 
-  public ResponseEntity<List<ProduitDTO>> getAllLite(
-      ProduitCriteria produitCriteria, Pageable pageable) {
-    return ResponseEntity.ok().body(produitService.productsLiteList(produitCriteria, pageable));
-  }
+    public ProduitResourceProxy(ProduitService produitService) {
+        this.produitService = produitService;
+    }
+
+    public ResponseEntity<List<ProduitDTO>> getAllLite(ProduitCriteria produitCriteria, Pageable pageable) {
+        return ResponseEntity.ok().body(produitService.productsLiteList(produitCriteria, pageable));
+    }
 }

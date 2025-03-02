@@ -5,5 +5,5 @@ package com.kobe.warehouse.domain.enumeration;
  */
 public enum TypeProduit {
     DETAIL,
-    PACKAGE;
+    PACKAGE,
 }

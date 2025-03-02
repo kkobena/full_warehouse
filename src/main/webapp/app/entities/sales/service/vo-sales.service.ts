@@ -20,11 +20,6 @@ export class VoSalesService {
 
   public resourceUrl = SERVER_API_URL + 'api/sales';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   find(id: number): Observable<EntityResponseType> {
     return this.http
       .get<ISales>(`${this.resourceUrl}/${id}`, { observe: 'response' })

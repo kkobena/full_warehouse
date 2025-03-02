@@ -1,156 +1,159 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-             name="gestion-commande-spinner" size="medium"
-             type="timer"></ngx-spinner>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}"
-                 key="deleteCommande">
-</p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier">
+<ngx-spinner
+  [fullScreen]="false"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#f13151"
+  name="gestion-commande-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteCommande"> </p-confirmDialog>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onImporterReponseCommande($event)" [customUpload]="true"
-                  accept=".csv,.xls,.xlsx"
-                  cancelLabel="Annuler"
-                  chooseLabel="Importer un fichier" name="importcsv"
-                  uploadLabel="Enrégistrer">
+    <p-fileupload
+      (uploadHandler)="onImporterReponseCommande($event)"
+      [customUpload]="true"
+      accept=".csv,.xls,.xlsx"
+      cancelLabel="Annuler"
+      chooseLabel="Importer un fichier"
+      name="importcsv"
+      uploadLabel="Enrégistrer"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" class="mr-2 " icon="pi pi-times" label="Annuler"
-              raised="true"
-
-              severity="danger" type="button"></p-button>
-
+    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
 <p-panel header="Menu commandes" styleClass="main-panel">
   <div class="row commande-gestion">
     <div class="col-2 col-md-2 col-sm-2">
-
       <p-card>
-        <div #nav="ngbNav" (navChange)="onNavChange($event)" [(activeId)]="active"
-             class="nav flex-column nav-pills " ngbNav
-             orientation="vertical">
+        <div
+          #nav="ngbNav"
+          (navChange)="onNavChange($event)"
+          [(activeId)]="active"
+          class="nav flex-column nav-pills"
+          ngbNav
+          orientation="vertical"
+        >
           <ng-container ngbNavItem="REQUESTED">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Commande en cours</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Commande en cours</a>
             <ng-template ngbNavContent>
-              <jhi-commande-en-cours (selectionLength)="updateSelectionLength($event)"
-                                     [searchCommande]="searchCommande"
-                                     [search]="search"></jhi-commande-en-cours>
+              <jhi-commande-en-cours
+                (selectionLength)="updateSelectionLength($event)"
+                [searchCommande]="searchCommande"
+                [search]="search"
+              ></jhi-commande-en-cours>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="PASSED">
-            <a class="flex-sm-fill nav-link " ngbNavLink>Commande passées</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Commande passées</a>
             <ng-template ngbNavContent>
-              <jhi-commande-passes (selectionLength)="updateSelectionLength($event)"
-                                   [searchCommande]="searchCommande"
-                                   [search]="search"></jhi-commande-passes>
+              <jhi-commande-passes
+                (selectionLength)="updateSelectionLength($event)"
+                [searchCommande]="searchCommande"
+                [search]="search"
+              ></jhi-commande-passes>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="RECEIVED">
             <a class="flex-sm-fill nav-link" ngbNavLink>Commande reçues</a>
             <ng-template ngbNavContent>
-              <jhi-commande-recus [searchByRef]="searchCommande"
-                                  [search]="search"></jhi-commande-recus>
+              <jhi-commande-recus [searchByRef]="searchCommande" [search]="search"></jhi-commande-recus>
             </ng-template>
           </ng-container>
         </div>
       </p-card>
-
     </div>
 
     <div class="col-10 col-md-10 col-sm-10 row">
       <div>
         <p-toolbar>
           <ng-template #start>
-            <div class="row" style="width: 100%;">
-
+            <div class="row" style="width: 100%">
               <div class="col-md-6">
                 <p-iconfield>
                   <p-inputicon styleClass="pi pi-search" />
-                  <input (keyup.enter)="onSearch()" [(ngModel)]="searchCommande" pInputText
-                         placeholder="Recherche sur la commande"
-                         style="width: 100%;" type="text">
+                  <input
+                    (keyup.enter)="onSearch()"
+                    [(ngModel)]="searchCommande"
+                    pInputText
+                    placeholder="Recherche sur la commande"
+                    style="width: 100%"
+                    type="text"
+                  />
                 </p-iconfield>
-
-
               </div>
               <div class="col-md-6">
                 <p-iconfield>
                   <p-inputicon styleClass="pi pi-search" />
-                  <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-                         placeholder="Recherche sur les produits"
-                         style="width: 100%;" type="text">
+                  <input
+                    (keyup.enter)="onSearch()"
+                    [(ngModel)]="search"
+                    pInputText
+                    placeholder="Recherche sur les produits"
+                    style="width: 100%"
+                    type="text"
+                  />
                 </p-iconfield>
-
-
               </div>
-
-
             </div>
-
-
           </ng-template>
           <ng-template #end>
-                 <span class="p-buttonset">
-                <p-button (click)="onSearch()"
-                          [raised]="true"
-                          icon="pi pi-search"
-                          label="Rechercher"
-
-                          severity="info"
-                          type="button"></p-button>
-                <p-button (click)="onShowNewCommandeDialog()"
-                          [raised]="true" icon="pi pi-upload"
-                          label="Importation"
-
-                          severity="help" type="button"></p-button>
-   <p-button (click)="onCreatNewCommande()"
-             [raised]="true"
-
-             icon="pi pi-plus"
-             label="Nouvelle commande"
-
-             severity="success" type="button"></p-button>
-                   @if (active === 'REQUESTED' && selectionLength > 1) {
-                     <button (click)="fusionner()"
-                             pButtonIcon="pi pi-copy"
-                             pButtonLabel="Fusionner"
-                             [raised]="true"
-                             severity="warn"
-                             pButton
-                             type="button">
-
-                </button>
-
-                   }
-                   @if (selectionLength > 0 && active !== 'RECEIVED') {
-                     <p-button
-                       (click)="confirmDeleteSelectedRows()"
-                       icon="pi pi-times"
-                       label="Supprimer"
-                       [raised]="true"
-                       severity="danger"
-                       type="button">
-
+            <span class="p-buttonset">
+              <p-button
+                (click)="onSearch()"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                severity="info"
+                type="button"
+              ></p-button>
+              <p-button
+                (click)="onShowNewCommandeDialog()"
+                [raised]="true"
+                icon="pi pi-upload"
+                label="Importation"
+                severity="help"
+                type="button"
+              ></p-button>
+              <p-button
+                (click)="onCreatNewCommande()"
+                [raised]="true"
+                icon="pi pi-plus"
+                label="Nouvelle commande"
+                severity="success"
+                type="button"
+              ></p-button>
+              @if (active === 'REQUESTED' && selectionLength > 1) {
+                <button
+                  (click)="fusionner()"
+                  pButtonIcon="pi pi-copy"
+                  pButtonLabel="Fusionner"
+                  [raised]="true"
+                  severity="warn"
+                  pButton
+                  type="button"
+                ></button>
+              }
+              @if (selectionLength > 0 && active !== 'RECEIVED') {
+                <p-button
+                  (click)="confirmDeleteSelectedRows()"
+                  icon="pi pi-times"
+                  label="Supprimer"
+                  [raised]="true"
+                  severity="danger"
+                  type="button"
+                >
                 </p-button>
-                   }
-
-                 </span>
-
+              }
+            </span>
           </ng-template>
         </p-toolbar>
       </div>
 
-
-      <div [ngbNavOutlet]="nav">
-
-      </div>
-
+      <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
 </p-panel>
-
-
-
-

@@ -1,208 +1,210 @@
 package com.kobe.warehouse.service.dto;
 
 public class StoreInventoryLineExport {
-  private Integer gap;
-  private Integer inventoryValueCost;
-  private Integer quantityInit;
-  private Integer quantityOnHand;
-  private String produitCip;
-  private String produitEan;
-  private String produitLibelle;
-  private String rayonLibelle;
-  private String storageLibelle;
-  private Integer prixAchat;
-  private Integer prixUni;
-  private Integer lastUnitPrice;
-  private Long rayonId;
-  private Long storageId;
-  private String rayonCode;
-  private String famillyCode;
-  private String famillyLibelle;
-  private Long famillyId;
 
-  public StoreInventoryLineExport(
-      Integer gap,
-      Integer inventoryValueCost,
-      Integer quantityInit,
-      Integer quantityOnHand,
-      String produitCip,
-      String produitEan,
-      String produitLibelle,
-      String rayonLibelle,
-      String storageLibelle,
-      Integer prixAchat,
-      Integer prixUni,
-      Integer lastUnitPrice,
-      Long rayonId,
-      Long storageId,
-      String rayonCode,
-      String famillyCode,
-      String famillyLibelle,
-      Long famillyId) {
-    this.gap = gap;
-    this.inventoryValueCost = inventoryValueCost;
-    this.quantityInit = quantityInit;
-    this.quantityOnHand = quantityOnHand;
-    this.produitCip = produitCip;
-    this.produitEan = produitEan;
-    this.produitLibelle = produitLibelle;
-    this.rayonLibelle = rayonLibelle;
-    this.storageLibelle = storageLibelle;
-    this.prixAchat = prixAchat;
-    this.prixUni = prixUni;
-    this.lastUnitPrice = lastUnitPrice;
-    this.rayonId = rayonId;
-    this.storageId = storageId;
-    this.rayonCode = rayonCode;
-    this.famillyCode = famillyCode;
-    this.famillyLibelle = famillyLibelle;
-    this.famillyId = famillyId;
-  }
+    private Integer gap;
+    private Integer inventoryValueCost;
+    private Integer quantityInit;
+    private Integer quantityOnHand;
+    private String produitCip;
+    private String produitEan;
+    private String produitLibelle;
+    private String rayonLibelle;
+    private String storageLibelle;
+    private Integer prixAchat;
+    private Integer prixUni;
+    private Integer lastUnitPrice;
+    private Long rayonId;
+    private Long storageId;
+    private String rayonCode;
+    private String famillyCode;
+    private String famillyLibelle;
+    private Long famillyId;
 
-  public Long getFamillyId() {
-    return famillyId;
-  }
+    public StoreInventoryLineExport(
+        Integer gap,
+        Integer inventoryValueCost,
+        Integer quantityInit,
+        Integer quantityOnHand,
+        String produitCip,
+        String produitEan,
+        String produitLibelle,
+        String rayonLibelle,
+        String storageLibelle,
+        Integer prixAchat,
+        Integer prixUni,
+        Integer lastUnitPrice,
+        Long rayonId,
+        Long storageId,
+        String rayonCode,
+        String famillyCode,
+        String famillyLibelle,
+        Long famillyId
+    ) {
+        this.gap = gap;
+        this.inventoryValueCost = inventoryValueCost;
+        this.quantityInit = quantityInit;
+        this.quantityOnHand = quantityOnHand;
+        this.produitCip = produitCip;
+        this.produitEan = produitEan;
+        this.produitLibelle = produitLibelle;
+        this.rayonLibelle = rayonLibelle;
+        this.storageLibelle = storageLibelle;
+        this.prixAchat = prixAchat;
+        this.prixUni = prixUni;
+        this.lastUnitPrice = lastUnitPrice;
+        this.rayonId = rayonId;
+        this.storageId = storageId;
+        this.rayonCode = rayonCode;
+        this.famillyCode = famillyCode;
+        this.famillyLibelle = famillyLibelle;
+        this.famillyId = famillyId;
+    }
 
-  public StoreInventoryLineExport setFamillyId(Long famillyId) {
-    this.famillyId = famillyId;
-    return this;
-  }
+    public Long getFamillyId() {
+        return famillyId;
+    }
 
-  public String getFamillyCode() {
-    return famillyCode;
-  }
+    public StoreInventoryLineExport setFamillyId(Long famillyId) {
+        this.famillyId = famillyId;
+        return this;
+    }
 
-  public StoreInventoryLineExport setFamillyCode(String famillyCode) {
-    this.famillyCode = famillyCode;
-    return this;
-  }
+    public String getFamillyCode() {
+        return famillyCode;
+    }
 
-  public String getFamillyLibelle() {
-    return famillyLibelle;
-  }
+    public StoreInventoryLineExport setFamillyCode(String famillyCode) {
+        this.famillyCode = famillyCode;
+        return this;
+    }
 
-  public StoreInventoryLineExport setFamillyLibelle(String famillyLibelle) {
-    this.famillyLibelle = famillyLibelle;
-    return this;
-  }
+    public String getFamillyLibelle() {
+        return famillyLibelle;
+    }
 
-  public Integer getGap() {
-    return gap;
-  }
+    public StoreInventoryLineExport setFamillyLibelle(String famillyLibelle) {
+        this.famillyLibelle = famillyLibelle;
+        return this;
+    }
 
-  public void setGap(Integer gap) {
-    this.gap = gap;
-  }
+    public Integer getGap() {
+        return gap;
+    }
 
-  public Integer getInventoryValueCost() {
-    return inventoryValueCost;
-  }
+    public void setGap(Integer gap) {
+        this.gap = gap;
+    }
 
-  public void setInventoryValueCost(Integer inventoryValueCost) {
-    this.inventoryValueCost = inventoryValueCost;
-  }
+    public Integer getInventoryValueCost() {
+        return inventoryValueCost;
+    }
 
-  public Integer getQuantityInit() {
-    return quantityInit;
-  }
+    public void setInventoryValueCost(Integer inventoryValueCost) {
+        this.inventoryValueCost = inventoryValueCost;
+    }
 
-  public void setQuantityInit(Integer quantityInit) {
-    this.quantityInit = quantityInit;
-  }
+    public Integer getQuantityInit() {
+        return quantityInit;
+    }
 
-  public Integer getQuantityOnHand() {
-    return quantityOnHand;
-  }
+    public void setQuantityInit(Integer quantityInit) {
+        this.quantityInit = quantityInit;
+    }
 
-  public void setQuantityOnHand(Integer quantityOnHand) {
-    this.quantityOnHand = quantityOnHand;
-  }
+    public Integer getQuantityOnHand() {
+        return quantityOnHand;
+    }
 
-  public String getProduitCip() {
-    return produitCip;
-  }
+    public void setQuantityOnHand(Integer quantityOnHand) {
+        this.quantityOnHand = quantityOnHand;
+    }
 
-  public void setProduitCip(String produitCip) {
-    this.produitCip = produitCip;
-  }
+    public String getProduitCip() {
+        return produitCip;
+    }
 
-  public String getProduitEan() {
-    return produitEan;
-  }
+    public void setProduitCip(String produitCip) {
+        this.produitCip = produitCip;
+    }
 
-  public void setProduitEan(String produitEan) {
-    this.produitEan = produitEan;
-  }
+    public String getProduitEan() {
+        return produitEan;
+    }
 
-  public String getProduitLibelle() {
-    return produitLibelle;
-  }
+    public void setProduitEan(String produitEan) {
+        this.produitEan = produitEan;
+    }
 
-  public void setProduitLibelle(String produitLibelle) {
-    this.produitLibelle = produitLibelle;
-  }
+    public String getProduitLibelle() {
+        return produitLibelle;
+    }
 
-  public String getRayonLibelle() {
-    return rayonLibelle;
-  }
+    public void setProduitLibelle(String produitLibelle) {
+        this.produitLibelle = produitLibelle;
+    }
 
-  public void setRayonLibelle(String rayonLibelle) {
-    this.rayonLibelle = rayonLibelle;
-  }
+    public String getRayonLibelle() {
+        return rayonLibelle;
+    }
 
-  public String getStorageLibelle() {
-    return storageLibelle;
-  }
+    public void setRayonLibelle(String rayonLibelle) {
+        this.rayonLibelle = rayonLibelle;
+    }
 
-  public void setStorageLibelle(String storageLibelle) {
-    this.storageLibelle = storageLibelle;
-  }
+    public String getStorageLibelle() {
+        return storageLibelle;
+    }
 
-  public Integer getPrixAchat() {
-    return prixAchat;
-  }
+    public void setStorageLibelle(String storageLibelle) {
+        this.storageLibelle = storageLibelle;
+    }
 
-  public void setPrixAchat(Integer prixAchat) {
-    this.prixAchat = prixAchat;
-  }
+    public Integer getPrixAchat() {
+        return prixAchat;
+    }
 
-  public Integer getPrixUni() {
-    return prixUni;
-  }
+    public void setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
+    }
 
-  public void setPrixUni(Integer prixUni) {
-    this.prixUni = prixUni;
-  }
+    public Integer getPrixUni() {
+        return prixUni;
+    }
 
-  public Integer getLastUnitPrice() {
-    return lastUnitPrice;
-  }
+    public void setPrixUni(Integer prixUni) {
+        this.prixUni = prixUni;
+    }
 
-  public void setLastUnitPrice(Integer lastUnitPrice) {
-    this.lastUnitPrice = lastUnitPrice;
-  }
+    public Integer getLastUnitPrice() {
+        return lastUnitPrice;
+    }
 
-  public Long getRayonId() {
-    return rayonId;
-  }
+    public void setLastUnitPrice(Integer lastUnitPrice) {
+        this.lastUnitPrice = lastUnitPrice;
+    }
 
-  public void setRayonId(Long rayonId) {
-    this.rayonId = rayonId;
-  }
+    public Long getRayonId() {
+        return rayonId;
+    }
 
-  public Long getStorageId() {
-    return storageId;
-  }
+    public void setRayonId(Long rayonId) {
+        this.rayonId = rayonId;
+    }
 
-  public void setStorageId(Long storageId) {
-    this.storageId = storageId;
-  }
+    public Long getStorageId() {
+        return storageId;
+    }
 
-  public String getRayonCode() {
-    return rayonCode;
-  }
+    public void setStorageId(Long storageId) {
+        this.storageId = storageId;
+    }
 
-  public void setRayonCode(String rayonCode) {
-    this.rayonCode = rayonCode;
-  }
+    public String getRayonCode() {
+        return rayonCode;
+    }
+
+    public void setRayonCode(String rayonCode) {
+        this.rayonCode = rayonCode;
+    }
 }

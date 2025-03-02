@@ -16,39 +16,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class LotResource {
-  private final LotService lotService;
 
-  public LotResource(LotService lotService) {
-    this.lotService = lotService;
-  }
+    private final LotService lotService;
 
-  @PostMapping("/lot/add-to-commande")
-  public ResponseEntity<LotJsonValue> addLotToCommande(@Valid @RequestBody LotJsonValue lot) {
+    public LotResource(LotService lotService) {
+        this.lotService = lotService;
+    }
 
-    return ResponseEntity.ok(lotService.addLot(lot));
-  }
+    @PostMapping("/lot/add-to-commande")
+    public ResponseEntity<LotJsonValue> addLotToCommande(@Valid @RequestBody LotJsonValue lot) {
+        return ResponseEntity.ok(lotService.addLot(lot));
+    }
 
-  @PutMapping("/lot/remove-to-commande")
-  public ResponseEntity<Void> removeLotToCommande(@RequestBody LotJsonValue lot) {
-    lotService.remove(lot);
-    return ResponseEntity.ok().build();
-  }
+    @PutMapping("/lot/remove-to-commande")
+    public ResponseEntity<Void> removeLotToCommande(@RequestBody LotJsonValue lot) {
+        lotService.remove(lot);
+        return ResponseEntity.ok().build();
+    }
 
-  @PostMapping("/lot/add")
-  public ResponseEntity<LotDTO> add(@Valid @RequestBody LotDTO lot) {
+    @PostMapping("/lot/add")
+    public ResponseEntity<LotDTO> add(@Valid @RequestBody LotDTO lot) {
+        return ResponseEntity.ok().body(lotService.addLot(lot));
+    }
 
-    return ResponseEntity.ok().body(lotService.addLot(lot));
-  }
+    @PostMapping("/lot/edit")
+    public ResponseEntity<LotDTO> edit(@Valid @RequestBody LotDTO lot) {
+        return ResponseEntity.ok().body(lotService.editLot(lot));
+    }
 
-  @PostMapping("/lot/edit")
-  public ResponseEntity<LotDTO> edit(@Valid @RequestBody LotDTO lot) {
-
-    return ResponseEntity.ok().body(lotService.editLot(lot));
-  }
-
-  @DeleteMapping("/lot/{id}")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
-    lotService.remove(id);
-    return ResponseEntity.ok().build();
-  }
+    @DeleteMapping("/lot/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        lotService.remove(id);
+        return ResponseEntity.ok().build();
+    }
 }

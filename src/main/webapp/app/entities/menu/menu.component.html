@@ -1,36 +1,31 @@
-<div class="col-lg-9 col-xl-9 col-md-10 col-sm-10 d-flex row justify-content-center"
-     style="margin:auto;">
+<div class="col-lg-9 col-xl-9 col-md-10 col-sm-10 d-flex row justify-content-center" style="margin: auto">
   <div>
     <p-panel>
       <ng-template pTemplate="header">
-        <div class="float-right" style="width: 100%;">
+        <div class="float-right" style="width: 100%">
           <span jhiTranslate="warehouseApp.menu.home.title">Menus</span>
-          <p-button [routerLink]="['/menu/new']" class="float-right"
-                    icon="pi pi-plus"
-                    label=" Ajouter un nouveau rôle"
-                    raised="true" severity="success"
-                    type="button"></p-button>
+          <p-button
+            [routerLink]="['/menu/new']"
+            class="float-right"
+            icon="pi pi-plus"
+            label=" Ajouter un nouveau rôle"
+            raised="true"
+            severity="success"
+            type="button"
+          ></p-button>
         </div>
-
       </ng-template>
-
 
       <jhi-alert-error></jhi-alert-error>
 
       <jhi-alert></jhi-alert>
 
-
-      <p-table
-        [paginator]="false"
-        [value]="authorities"
-        dataKey="id"
-        styleClass="p-datatable-striped">
+      <p-table [paginator]="false" [value]="authorities" dataKey="id" styleClass="p-datatable-striped">
         <ng-template pTemplate="header">
           <tr>
-
-            <th style="width:20%">Nom</th>
+            <th style="width: 20%">Nom</th>
             <th>Description</th>
-            <th style="width:15%"></th>
+            <th style="width: 15%"></th>
           </tr>
         </ng-template>
         <ng-template let-row let-rowIndex="rowIndex" pTemplate="body">
@@ -39,9 +34,14 @@
             <td [pEditableColumn]="row.libelle" pEditableColumn pEditableColumnField="libelle">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input (keydown.enter)="onEdit(row,$event)"
-                         [ngModel]="row.libelle"
-                         [style]="{'width':'100%'}" pInputText required type="text">
+                  <input
+                    (keydown.enter)="onEdit(row, $event)"
+                    [ngModel]="row.libelle"
+                    [style]="{ width: '100%' }"
+                    pInputText
+                    required
+                    type="text"
+                  />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ row.libelle }}
@@ -49,32 +49,33 @@
               </p-cellEditor>
             </td>
 
-
             <td class="text-right">
               <div class="btn-group">
-                <p-button [routerLink]=" ['/menu', row.name, 'view']"
-                          class=" p-mr-1" icon="pi pi-box" pTooltip="Gérer les privilèges"
-                          rounded="true"
-                          severity="info"
-                          type="button"></p-button>
+                <p-button
+                  [routerLink]="['/menu', row.name, 'view']"
+                  class="p-mr-1"
+                  icon="pi pi-box"
+                  pTooltip="Gérer les privilèges"
+                  rounded="true"
+                  severity="info"
+                  type="button"
+                ></p-button>
                 @if (isNotPredefined(row)) {
-                  <p-button (click)="delete(row)"
-                            rounded="true" severity="danger"
-                            icon="pi pi-trash"
-                            pTooltip="Supprimer" type="button"></p-button>
+                  <p-button
+                    (click)="delete(row)"
+                    rounded="true"
+                    severity="danger"
+                    icon="pi pi-trash"
+                    pTooltip="Supprimer"
+                    type="button"
+                  ></p-button>
                 }
-
-
               </div>
             </td>
           </tr>
         </ng-template>
-
       </p-table>
-
     </p-panel>
   </div>
-
-
 </div>
 <p-toast position="center"></p-toast>

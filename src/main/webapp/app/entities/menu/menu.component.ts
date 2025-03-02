@@ -18,21 +18,21 @@ import { PanelModule } from 'primeng/panel';
 import { Authority } from '../../shared/constants/authority.constants';
 
 @Component({
-    selector: 'jhi-menu',
-    templateUrl: './menu.component.html',
-    providers: [MessageService],
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        ToastModule,
-        RippleModule,
-        TableModule,
-        RouterModule,
-        InputTextModule,
-        TooltipModule,
-        FormsModule,
-        PanelModule,
-    ]
+  selector: 'jhi-menu',
+  templateUrl: './menu.component.html',
+  providers: [MessageService],
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    ToastModule,
+    RippleModule,
+    TableModule,
+    RouterModule,
+    InputTextModule,
+    TooltipModule,
+    FormsModule,
+    PanelModule,
+  ],
 })
 export class MenuComponent implements OnInit {
   protected authorities?: IAuthority[];
@@ -45,8 +45,6 @@ export class MenuComponent implements OnInit {
     Authority.ROLE_VENDEUR,
     Authority.ROLE_RESPONSABLE_COMMANDE,
   ];
-
-  constructor() {}
 
   loadAll(): void {
     this.privillegeService.queryAuthorities().subscribe((res: HttpResponse<IAuthority[]>) => (this.authorities = res.body || []));

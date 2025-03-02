@@ -56,18 +56,13 @@ export class InventoryFormComponent implements OnInit {
   private rayonService = inject(RayonService);
   private spinner = inject(NgxSpinnerService);
 
-  protected isSaving: boolean = false;
+  protected isSaving = false;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected storages: Storage[];
   protected rayons: Rayon[];
   protected readonly appendTo = APPEND_TO;
   protected editForm: FormGroup;
   protected entity: IStoreInventory;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.initForm();
@@ -152,28 +147,28 @@ export class InventoryFormComponent implements OnInit {
   }
 
   private createFromForm(): IStoreInventory {
-    const inventoryCategory = this.editForm.get(['inventoryCategory'])!.value.name;
+    const inventoryCategory = this.editForm.get(['inventoryCategory']).value.name;
     if (inventoryCategory === 'MAGASIN') {
       return {
         ...new StoreInventory(),
-        id: this.editForm.get(['id'])!.value,
-        inventoryCategory: inventoryCategory,
+        id: this.editForm.get(['id']).value,
+        inventoryCategory,
       };
     }
     return {
       ...new StoreInventory(),
-      id: this.editForm.get(['id'])!.value,
-      storage: this.editForm.get(['storage'])?.value?.id,
-      rayon: this.editForm.get(['rayon'])!.value?.id,
-      inventoryCategory: inventoryCategory,
+      id: this.editForm.get(['id']).value,
+      storage: this.editForm.get(['storage']).value?.id,
+      rayon: this.editForm.get(['rayon']).value?.id,
+      inventoryCategory,
     };
   }
 
   private updateForm(entity: IStoreInventory): void {
     this.editForm.patchValue({
       id: entity.id,
-      storage: entity.storage?.id,
-      rayon: entity.rayon?.id,
+      storage: entity.storage.id,
+      rayon: entity.rayon.id,
       inventoryCategory: entity.inventoryCategory.name,
     });
   }

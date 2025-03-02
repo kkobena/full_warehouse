@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { PickListModule } from 'primeng/picklist';
@@ -17,38 +17,33 @@ import { DialogModule } from 'primeng/dialog';
 import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
-    selector: 'jhi-produit-remise',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        PickListModule,
-        ToolbarModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        ConfirmDialogModule,
-        DialogModule,
-        KeyFilterModule,
-    ],
-    templateUrl: './produit-remise.component.html',
-    styleUrl: './produit-remise.component.scss'
+  selector: 'jhi-produit-remise',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    PickListModule,
+    ToolbarModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    ConfirmDialogModule,
+    DialogModule,
+    KeyFilterModule,
+  ],
+  templateUrl: './produit-remise.component.html',
+  styleUrl: './produit-remise.component.scss',
 })
-export class ProduitRemiseComponent {
+export class ProduitRemiseComponent implements OnInit {
   protected produitService = inject(ProduitService);
   private remiseService = inject(RemiseService);
   protected activatedRoute = inject(ActivatedRoute);
 
   produitsSource: IProduit[] = [];
   produitsTarget: IProduit[] = [];
-  statut: string = 'ENABLE';
+  statut = 'ENABLE';
   searchSource: string;
   searchTarget: string;
   remise: IRemise;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ remise }) => {
@@ -87,7 +82,6 @@ export class ProduitRemiseComponent {
   }
 
   trackId(index: number, item: IProduit): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id;
   }
 

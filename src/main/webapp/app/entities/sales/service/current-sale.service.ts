@@ -14,8 +14,6 @@ export class CurrentSaleService {
   printInvoice: WritableSignal<boolean> = signal<boolean>(false);
   printReceipt: WritableSignal<boolean> = signal<boolean>(true);
 
-  constructor() {}
-
   setCurrentSale(sales: ISales): void {
     this.currentSale.set(sales);
   }

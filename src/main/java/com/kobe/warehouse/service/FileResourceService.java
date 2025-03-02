@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FileResourceService {
-  public Resource getResource(String path) throws MalformedURLException {
-    return new UrlResource(Paths.get(path).toUri());
-  }
+
+    public Resource getResource(String path) throws MalformedURLException {
+        return new UrlResource(Paths.get(path).toUri());
+    }
 }

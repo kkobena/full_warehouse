@@ -30,6 +30,6 @@ export class InventoryTransaction implements IInventoryTransaction {
     public quantityAfter?: number,
     public produit?: IProduit,
     public user?: User,
-    public abbrName?: string
+    public abbrName?: string,
   ) {}
 }

@@ -5,5 +5,9 @@ export interface IAuthority {
 }
 
 export class Privilege implements IAuthority {
-  constructor(public name?: string, public libelle?: string, public privilleges?: string[]) {}
+  constructor(
+    public name?: string,
+    public libelle?: string,
+    public privilleges?: string[],
+  ) {}
 }

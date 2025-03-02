@@ -80,8 +80,6 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   private mvtParamServiceService = inject(MvtParamServiceService);
   private chartColorsUtilsService = inject(ChartColorsUtilsService);
 
-  constructor() {}
-
   ngOnInit(): void {
     this.exportMenus = [
       {
@@ -278,7 +276,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       }
     });
 
-    const finalData: Map<string, any> = new Map();
+    const finalData = new Map<string, any>();
     let i = 0;
     this.groupeFournisseurs.forEach(groupe => {
       const montantAchats: number[] = [];

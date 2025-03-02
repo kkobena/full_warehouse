@@ -17,8 +17,6 @@ export class SaleToolBarService {
     activeTab: 'ventes-terminees',
   });
 
-  constructor() {}
-
   updateToolBarParam(param: ToolBarParam): void {
     this.toolBarParam.set(param);
   }

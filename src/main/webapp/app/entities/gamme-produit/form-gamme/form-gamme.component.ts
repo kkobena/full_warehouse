@@ -14,18 +14,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'jhi-form-gamme',
-    templateUrl: './form-gamme.component.html',
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        DropdownModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-    ]
+  selector: 'jhi-form-gamme',
+  templateUrl: './form-gamme.component.html',
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+  ],
 })
 export class FormGammeComponent implements OnInit {
   protected entityService = inject(GammeProduitService);
@@ -104,9 +104,9 @@ export class FormGammeComponent implements OnInit {
   private createFromForm(): IGammeProduit {
     return {
       ...new GammeProduit(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

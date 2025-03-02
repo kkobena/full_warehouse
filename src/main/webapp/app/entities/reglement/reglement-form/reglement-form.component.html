@@ -3,21 +3,21 @@
     <div class="col-2 col-sm-4 col-md-2">
       <label class="form-check-label" for="partialPayment">Tout</label>
       <div class="form-check form-switch form-check-reverse">
-
-        <input class="form-check-input"
-               formControlName="partialPayment" id="partialPayment"
-               role="switch" type="checkbox">
-
+        <input class="form-check-input" formControlName="partialPayment" id="partialPayment" role="switch" type="checkbox" />
       </div>
     </div>
-    <div class=" col-10 col-sm-8 col-md-10">
+    <div class="col-10 col-sm-8 col-md-10">
       <div class="input-group input-group-sm mb-1">
         <span class="input-group-text">Date</span>
-        <p-datePicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
-                      appendTo="body" dateFormat="dd/mm/yy"
-                      formControlName="paymentDate"
-                      id="datePaiement"
-                      selectOtherMonths="true"
+        <p-datePicker
+          [defaultDate]="maxDate"
+          [maxDate]="maxDate"
+          [showButtonBar]="true"
+          appendTo="body"
+          dateFormat="dd/mm/yy"
+          formControlName="paymentDate"
+          id="datePaiement"
+          selectOtherMonths="true"
         />
       </div>
     </div>
@@ -29,18 +29,11 @@
       @for (mode of paymentModes; track mode.code) {
         <option [ngValue]="mode.code">{{ mode.libelle }}</option>
       }
-
     </select>
-
-
   </div>
   <div class="input-group input-group-sm mb-1">
     <span class="input-group-text">Montant</span>
-    <input [readonly]="isReadOnly"
-           autocomplete="off"
-           class="form-control"
-           formControlName="amount" id="amount"
-           type="number">
+    <input [readonly]="isReadOnly" autocomplete="off" class="form-control" formControlName="amount" id="amount" type="number" />
   </div>
   @if (showBanqueInfo) {
     <div formGroupName="banqueInfo">
@@ -48,51 +41,45 @@
         <b>Infos sur la banque</b>
       </p-divider>
       <div class="input-group input-group-sm mb-1">
-        <span class="input-group-text">Nom<span style="color:red;">*</span></span>
+        <span class="input-group-text">Nom<span style="color: red">*</span></span>
         <input autocomplete="off" class="form-control" formControlName="nom" id="nom" />
       </div>
-      @if (reglementForm.get('banqueInfo').get('nom')!.invalid && (reglementForm.get(
-        'banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
+      @if (
+        reglementForm.get('banqueInfo').get('nom')!.invalid &&
+        (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)
+      ) {
         <div>
           @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
-            <small class="form-text text-danger" style="color: red;">
-              Ce champ est obligatoire.
-            </small>
+            <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
           }
         </div>
       }
 
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
         <div class="input-group input-group-sm mb-1">
-          <span class="input-group-text">Numéro<span style="color:red;">*</span></span>
+          <span class="input-group-text">Numéro<span style="color: red">*</span></span>
           <input autocomplete="off" class="form-control" formControlName="code" id="code" />
         </div>
-        @if (reglementForm.get('banqueInfo').get('code')!.invalid && (reglementForm.get(
-          'banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get(
-          'code')!.touched)) {
+        @if (
+          reglementForm.get('banqueInfo').get('code')!.invalid &&
+          (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)
+        ) {
           <div>
             @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
         }
       }
 
-
       <div class="input-group input-group-sm mb-1">
         <span class="input-group-text">Bénéficiare</span>
-        <input autocomplete="off" class="form-control" formControlName="beneficiaire"
-               id="beneficiaire" />
+        <input autocomplete="off" class="form-control" formControlName="beneficiaire" id="beneficiaire" />
       </div>
-
     </div>
-
   }
   <div class="d-flex justify-content-end">
-    <button [disabled]="!valid || !validMontantSaisi() || isSaving()" class="btn btn-danger"
-            type="submit">
+    <button [disabled]="!valid || !validMontantSaisi() || isSaving()" class="btn btn-danger" type="submit">
       @if (isSaving()) {
         <span aria-hidden="true" class="spinner-border spinner-border-sm"></span>
         <span role="status">Traitement...</span>
@@ -100,11 +87,6 @@
         <fa-icon icon="check"></fa-icon>
         Valider
       }
-
-
     </button>
-
   </div>
-
-
 </form>

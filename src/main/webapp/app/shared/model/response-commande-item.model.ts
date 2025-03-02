@@ -12,6 +12,6 @@ export class ResponseCommandeItem implements IResponseCommandeItem {
     public codeEan?: string,
     public produitLibelle?: string,
     public quantitePriseEnCompte?: number,
-    public quantite?: number
+    public quantite?: number,
   ) {}
 }

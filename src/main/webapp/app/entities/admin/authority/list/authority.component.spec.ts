@@ -84,7 +84,7 @@ describe('Authority Management Component', () => {
 
     // THEN
     expect(service.query).toHaveBeenCalled();
-    expect(comp.authorities?.[0]).toEqual(expect.objectContaining({ name: 'ABC' }));
+    expect(comp.authorities[0]).toEqual(expect.objectContaining({ name: 'ABC' }));
   });
 
   describe('trackName', () => {

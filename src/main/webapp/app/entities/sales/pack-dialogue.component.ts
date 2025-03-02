@@ -33,11 +33,6 @@ export class PackDialogueComponent implements OnInit {
     quantitySold: [null, [Validators.required, Validators.min(1)]],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {}
 
   cancel(): void {
@@ -93,7 +88,7 @@ export class PackDialogueComponent implements OnInit {
       produitId: this.produit.id,
       regularUnitPrice: this.produit.regularUnitPrice,
       costAmount: this.produit.costAmount,
-      quantitySold: this.editForm.get(['quantitySold'])!.value,
+      quantitySold: this.editForm.get(['quantitySold']).value,
       saleId: this.sale.id,
     };
   }

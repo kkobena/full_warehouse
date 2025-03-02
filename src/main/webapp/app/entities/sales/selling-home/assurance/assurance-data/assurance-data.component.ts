@@ -58,27 +58,24 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   messageService = inject(MessageService);
   baseSaleService = inject(BaseSaleService);
   private document = inject<Document>(DOCUMENT);
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     effect(() => {
       const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
-      if (!this.currentSaleService.isEdit()) {
-        if (this.currentSaleService.typeVo() === 'ASSURANCE') {
-          this.selectedTiersPayants.set(assuredCustomer?.tiersPayants || []);
-          this.ayantDroit = assuredCustomer?.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
-          if (!this.ayantDroit) {
-            this.ayantDroit = assuredCustomer;
+      if (assuredCustomer) {
+        if (!this.currentSaleService.isEdit()) {
+          if (this.currentSaleService.typeVo() === 'ASSURANCE') {
+            this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
+            this.ayantDroit =
+              assuredCustomer.ayantDroits.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || null;
+            if (!this.ayantDroit) {
+              this.ayantDroit = assuredCustomer;
+            }
+          } else if (this.currentSaleService.typeVo() === 'CARNET') {
+            this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
           }
-        } else if (this.currentSaleService.typeVo() === 'CARNET') {
-          this.selectedTiersPayants.set([assuredCustomer?.tiersPayants[0]]);
         }
       }
-    });
-    effect(() => {
-      const tpSize = this.selectedTiersPayants()?.length || 0;
+      const tpSize = this.selectedTiersPayants().length || 0;
       if (tpSize === 2) {
         this.divClass = 'col-md-3 col-sm-3 col-3 bon';
         this.divCustomer = 'col-md-3 col-sm-3 col-3';
@@ -144,7 +141,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
               this.search = null;
             }
           },
-          error: () => {},
+          error() {},
         });
     }
   }
@@ -165,7 +162,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.searchInput()?.nativeElement.focus();
+    this.searchInput().nativeElement.focus();
   }
 
   addComplementaire(): void {

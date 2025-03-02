@@ -6,19 +6,14 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    templateUrl: './menu-delete-dialog.component.html',
-    imports: [WarehouseCommonModule, FormsModule]
+  templateUrl: './menu-delete-dialog.component.html',
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class MenuDeleteDialogComponent {
   protected privillegeService = inject(PrivillegeService);
   activeModal = inject(NgbActiveModal);
 
   authority?: IAuthority;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   cancel(): void {
     this.activeModal.dismiss();

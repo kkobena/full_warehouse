@@ -54,7 +54,7 @@ export class AyantDroitStepComponent implements OnInit {
 
   ngOnInit(): void {
     const currentAssure = this.assureFormStepService.assure();
-    if (currentAssure?.ayantDroits?.length > 0) {
+    if (currentAssure.ayantDroits.length > 0) {
       this.updateForm(currentAssure.ayantDroits[0]);
     }
   }
@@ -82,12 +82,12 @@ export class AyantDroitStepComponent implements OnInit {
   createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id'])!.value,
-      firstName: this.editForm.get(['firstName'])!.value,
-      lastName: this.editForm.get(['lastName'])!.value,
-      numAyantDroit: this.editForm.get(['numAyantDroit'])!.value,
-      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss'])!.value),
-      sexe: this.editForm.get(['sexe'])!.value,
+      id: this.editForm.get(['id']).value,
+      firstName: this.editForm.get(['firstName']).value,
+      lastName: this.editForm.get(['lastName']).value,
+      numAyantDroit: this.editForm.get(['numAyantDroit']).value,
+      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
+      sexe: this.editForm.get(['sexe']).value,
       type: 'ASSURE',
     };
   }

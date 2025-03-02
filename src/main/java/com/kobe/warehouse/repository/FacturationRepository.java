@@ -21,17 +21,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FacturationRepository extends JpaRepository<FactureTiersPayant, Long>,
-    JpaSpecificationExecutor<FactureTiersPayant> {
-
-
+public interface FacturationRepository extends JpaRepository<FactureTiersPayant, Long>, JpaSpecificationExecutor<FactureTiersPayant> {
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
     List<FactureTiersPayant> findAllByCreatedEquals(LocalDateTime created, Sort sort);
 
-    List<FactureTiersPayant> findAllByCreatedEqualsAndGroupeFactureTiersPayantIsNull(
-        LocalDateTime created, Sort sort);
+    List<FactureTiersPayant> findAllByCreatedEqualsAndGroupeFactureTiersPayantIsNull(LocalDateTime created, Sort sort);
 
     default Specification<FactureTiersPayant> fetchByIs(Set<Long> ids) {
         return (root, _, cb) -> {
@@ -41,28 +37,35 @@ public interface FacturationRepository extends JpaRepository<FactureTiersPayant,
         };
     }
 
-    @Query(value =
-        "SELECT f.groupe_facture_tiers_payant_id AS parentId, f.id AS id,f.num_facture  AS numFacture,f.debut_periode  AS debutPeriode,f.fin_periode AS finPeriode,tp.full_name AS organismeName,  f.montant_regle as montantPaye,items.montantTotal AS montantTotal,items.montantDetailRegle AS montantDetailRegle,COUNT(items.facture_tiers_payant_id) AS itemsCount FROM  facture_tiers_payant f JOIN (SELECT s.facture_tiers_payant_id,  SUM(s.montant) AS montantTotal,SUM(s.montant_regle) as montantDetailRegle FROM third_party_sale_line s WHERE s.statut NOT IN('PAID') group by s.facture_tiers_payant_id) AS items ON f.id=items.facture_tiers_payant_id JOIN tiers_payant tp ON f.tiers_payant_id = tp.id "
-            + " WHERE f.groupe_facture_tiers_payant_id =:id AND f.statut NOT IN ('PAID') group by f.id ORDER BY  f.id  ", countQuery = "SELECT COUNT(f.id) FROM  facture_tiers_payant f WHERE f.groupe_facture_tiers_payant_id =:id AND f.statut NOT IN ('PAID')", nativeQuery = true)
+    @Query(
+        value = "SELECT f.groupe_facture_tiers_payant_id AS parentId, f.id AS id,f.num_facture  AS numFacture,f.debut_periode  AS debutPeriode,f.fin_periode AS finPeriode,tp.full_name AS organismeName,  f.montant_regle as montantPaye,items.montantTotal AS montantTotal,items.montantDetailRegle AS montantDetailRegle,COUNT(items.facture_tiers_payant_id) AS itemsCount FROM  facture_tiers_payant f JOIN (SELECT s.facture_tiers_payant_id,  SUM(s.montant) AS montantTotal,SUM(s.montant_regle) as montantDetailRegle FROM third_party_sale_line s WHERE s.statut NOT IN('PAID') group by s.facture_tiers_payant_id) AS items ON f.id=items.facture_tiers_payant_id JOIN tiers_payant tp ON f.tiers_payant_id = tp.id " +
+        " WHERE f.groupe_facture_tiers_payant_id =:id AND f.statut NOT IN ('PAID') group by f.id ORDER BY  f.id  ",
+        countQuery = "SELECT COUNT(f.id) FROM  facture_tiers_payant f WHERE f.groupe_facture_tiers_payant_id =:id AND f.statut NOT IN ('PAID')",
+        nativeQuery = true
+    )
     Page<FacturationGroupeDossier> findGroupeFactureById(@Param("id") Long id, Pageable pageable);
 
-    @Query(value =
-        "SELECT s.created_at AS saleDate, t.id AS id, s.num_bon AS bonNumber ,CONCAT(cu.first_name,' ',cu.last_name) AS customerFullName,c.num AS matricule,f.created  AS facturationDate,t.montant_regle  AS montantPaye,t.montant  AS montantTotal,t.facture_tiers_payant_id as parentId FROM third_party_sale_line t  JOIN  client_tiers_payant c ON c.id=t.client_tiers_payant_id"
-            + " JOIN customer cu ON c.assured_customer_id = cu.id JOIN sales s ON s.id=t.sale_id  JOIN facture_tiers_payant f ON f.id=t.facture_tiers_payant_id  WHERE t.statut NOT IN ('PAID') AND f.id =:id  ", countQuery = "SELECT COUNT(t.id)  FROM third_party_sale_line t WHERE t.statut NOT IN ('PAID') AND t.facture_tiers_payant_id =:id", nativeQuery = true)
-    Page<FacturationDossier> findFacturationDossierByFactureId(@Param("id") Long id,
-        Pageable pageable);
+    @Query(
+        value = "SELECT s.created_at AS saleDate, t.id AS id, s.num_bon AS bonNumber ,CONCAT(cu.first_name,' ',cu.last_name) AS customerFullName,c.num AS matricule,f.created  AS facturationDate,t.montant_regle  AS montantPaye,t.montant  AS montantTotal,t.facture_tiers_payant_id as parentId FROM third_party_sale_line t  JOIN  client_tiers_payant c ON c.id=t.client_tiers_payant_id" +
+        " JOIN customer cu ON c.assured_customer_id = cu.id JOIN sales s ON s.id=t.sale_id  JOIN facture_tiers_payant f ON f.id=t.facture_tiers_payant_id  WHERE t.statut NOT IN ('PAID') AND f.id =:id  ",
+        countQuery = "SELECT COUNT(t.id)  FROM third_party_sale_line t WHERE t.statut NOT IN ('PAID') AND t.facture_tiers_payant_id =:id",
+        nativeQuery = true
+    )
+    Page<FacturationDossier> findFacturationDossierByFactureId(@Param("id") Long id, Pageable pageable);
 
-
-    @Query(value =
-        "SELECT f.id AS id, f.created AS facturationDate, g.name AS name,f.num_facture AS numFacture,SUM(singleFacture.montantDetailRegle) AS montantDetailRegle,SUM(singleFacture.montantPaye) AS montantPaye,SUM(singleFacture.montantTotal) AS montantTotal,COUNT(singleFacture.id) as itemCount FROM  facture_tiers_payant f JOIN groupe_tiers_payant g ON f.groupe_tiers_payant_id = g.id "
-            + " JOIN (SELECT f.groupe_facture_tiers_payant_id , f.id,f.montant_regle as montantPaye,items.montantTotal AS montantTotal,items.montantDetailRegle AS montantDetailRegle FROM  facture_tiers_payant f JOIN (SELECT s.facture_tiers_payant_id,"
-            + "SUM(s.montant) AS montantTotal,SUM(s.montant_regle) as montantDetailRegle FROM third_party_sale_line s WHERE s.statut NOT IN('PAID') group by s.facture_tiers_payant_id) AS items ON f.id=items.facture_tiers_payant_id JOIN tiers_payant tp ON f.tiers_payant_id = tp.id "
-            + " WHERE   f.statut NOT IN ('PAID') group by f.id ORDER BY  f.id) as singleFacture ON f.id=singleFacture.groupe_facture_tiers_payant_id where f.id=:id", nativeQuery = true)
+    @Query(
+        value = "SELECT f.id AS id, f.created AS facturationDate, g.name AS name,f.num_facture AS numFacture,SUM(singleFacture.montantDetailRegle) AS montantDetailRegle,SUM(singleFacture.montantPaye) AS montantPaye,SUM(singleFacture.montantTotal) AS montantTotal,COUNT(singleFacture.id) as itemCount FROM  facture_tiers_payant f JOIN groupe_tiers_payant g ON f.groupe_tiers_payant_id = g.id " +
+        " JOIN (SELECT f.groupe_facture_tiers_payant_id , f.id,f.montant_regle as montantPaye,items.montantTotal AS montantTotal,items.montantDetailRegle AS montantDetailRegle FROM  facture_tiers_payant f JOIN (SELECT s.facture_tiers_payant_id," +
+        "SUM(s.montant) AS montantTotal,SUM(s.montant_regle) as montantDetailRegle FROM third_party_sale_line s WHERE s.statut NOT IN('PAID') group by s.facture_tiers_payant_id) AS items ON f.id=items.facture_tiers_payant_id JOIN tiers_payant tp ON f.tiers_payant_id = tp.id " +
+        " WHERE   f.statut NOT IN ('PAID') group by f.id ORDER BY  f.id) as singleFacture ON f.id=singleFacture.groupe_facture_tiers_payant_id where f.id=:id",
+        nativeQuery = true
+    )
     DossierFactureGroupProjection findGroupDossierFacture(@Param("id") Long id);
 
-    @Query(value =
-        " SELECT f.id AS id,f.created AS facturationDate,  COUNT(items.id) as itemCount, f.montant_regle AS montantPaye, SUM(items.montantTotal) AS montantTotal, SUM(items.montantPaye) AS montantDetailRegle,tp.categorie AS categorie,tp.name  AS name,f.num_facture AS numFacture from  facture_tiers_payant f JOIN  tiers_payant tp ON f.tiers_payant_id = tp.id"
-            + " JOIN (SELECT t.id, t.facture_tiers_payant_id,t.montant_regle  AS montantPaye,t.montant  AS montantTotal FROM third_party_sale_line t   WHERE  t.facture_tiers_payant_id  IS NOT NULL ) as items ON f.id=items.facture_tiers_payant_id   WHERE f.statut NOT IN ('PAID') AND  f.id =:id  ", nativeQuery = true)
-    DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id
-    );
+    @Query(
+        value = " SELECT f.id AS id,f.created AS facturationDate,  COUNT(items.id) as itemCount, f.montant_regle AS montantPaye, SUM(items.montantTotal) AS montantTotal, SUM(items.montantPaye) AS montantDetailRegle,tp.categorie AS categorie,tp.name  AS name,f.num_facture AS numFacture from  facture_tiers_payant f JOIN  tiers_payant tp ON f.tiers_payant_id = tp.id" +
+        " JOIN (SELECT t.id, t.facture_tiers_payant_id,t.montant_regle  AS montantPaye,t.montant  AS montantTotal FROM third_party_sale_line t   WHERE  t.facture_tiers_payant_id  IS NOT NULL ) as items ON f.id=items.facture_tiers_payant_id   WHERE f.statut NOT IN ('PAID') AND  f.id =:id  ",
+        nativeQuery = true
+    )
+    DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id);
 }

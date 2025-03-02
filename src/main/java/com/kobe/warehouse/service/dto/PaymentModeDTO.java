@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.PaymentMode;
 
 public class PaymentModeDTO {
+
     private String code;
     private String libelle;
     private String group;
@@ -34,8 +35,7 @@ public class PaymentModeDTO {
         return this;
     }
 
-    public PaymentModeDTO() {
-    }
+    public PaymentModeDTO() {}
 
     public PaymentModeDTO(PaymentMode paymentMode) {
         this.code = paymentMode.getCode();

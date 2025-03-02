@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaTableauPharmatienResource extends TableauPharmacienProxy {
 
-  public JavaTableauPharmatienResource(TableauPharmacienService tableauPharmacienService) {
-    super(tableauPharmacienService);
-  }
+    public JavaTableauPharmatienResource(TableauPharmacienService tableauPharmacienService) {
+        super(tableauPharmacienService);
+    }
 }

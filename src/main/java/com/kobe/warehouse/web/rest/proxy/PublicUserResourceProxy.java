@@ -16,49 +16,52 @@ import tech.jhipster.web.util.PaginationUtil;
 
 public class PublicUserResourceProxy {
 
-  private static final List<String> ALLOWED_ORDERED_PROPERTIES =
-      List.of("id", "login", "firstName", "lastName", "email", "activated", "langKey");
+    private static final List<String> ALLOWED_ORDERED_PROPERTIES = List.of(
+        "id",
+        "login",
+        "firstName",
+        "lastName",
+        "email",
+        "activated",
+        "langKey"
+    );
 
-  private final Logger log = LoggerFactory.getLogger(PublicUserResourceProxy.class);
+    private final Logger log = LoggerFactory.getLogger(PublicUserResourceProxy.class);
 
-  private final UserService userService;
+    private final UserService userService;
 
-  public PublicUserResourceProxy(UserService userService) {
-    this.userService = userService;
-  }
-
-  /**
-   * {@code GET /users} : get all users with only public information - calling this method is
-   * allowed for anyone.
-   *
-   * @param pageable the pagination information.
-   * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
-   */
-  public ResponseEntity<List<UserDTO>> getAllPublicUsers(Pageable pageable) {
-    log.debug("REST request to get all public User names");
-    if (!onlyContainsAllowedProperties(pageable)) {
-      return ResponseEntity.badRequest().build();
+    public PublicUserResourceProxy(UserService userService) {
+        this.userService = userService;
     }
 
-    final Page<UserDTO> page = userService.getAllPublicUsers(pageable);
-    HttpHeaders headers =
-        PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
-    return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-  }
+    /**
+     * {@code GET /users} : get all users with only public information - calling this method is
+     * allowed for anyone.
+     *
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
+     */
+    public ResponseEntity<List<UserDTO>> getAllPublicUsers(Pageable pageable) {
+        log.debug("REST request to get all public User names");
+        if (!onlyContainsAllowedProperties(pageable)) {
+            return ResponseEntity.badRequest().build();
+        }
 
-  private boolean onlyContainsAllowedProperties(Pageable pageable) {
-    return pageable.getSort().stream()
-        .map(Sort.Order::getProperty)
-        .allMatch(ALLOWED_ORDERED_PROPERTIES::contains);
-  }
+        final Page<UserDTO> page = userService.getAllPublicUsers(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 
-  /**
-   * Gets a list of all roles.
-   *
-   * @return a string list of all roles.
-   */
-  public List<String> getAuthorities() {
-    return userService.getAuthorities();
-  }
+    private boolean onlyContainsAllowedProperties(Pageable pageable) {
+        return pageable.getSort().stream().map(Sort.Order::getProperty).allMatch(ALLOWED_ORDERED_PROPERTIES::contains);
+    }
+
+    /**
+     * Gets a list of all roles.
+     *
+     * @return a string list of all roles.
+     */
+    public List<String> getAuthorities() {
+        return userService.getAuthorities();
+    }
 }

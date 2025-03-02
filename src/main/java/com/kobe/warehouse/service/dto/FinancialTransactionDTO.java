@@ -6,135 +6,143 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class FinancialTransactionDTO {
-  @NotNull private int amount;
-  private Long id;
-  private LocalDateTime createdAt;
-  @NotNull private PaymentMode paymentMode;
-  private Long organismeId;
-  private String ticketCode;
-  private LocalDateTime transactionDate;
-  private boolean credit;
-  private TypeFinancialTransaction typeFinancialTransaction;
-  @NotNull private TypeFinancialTransaction typeTransaction;
-  private String organismeName;
-  private String userFullName;
-  private String commentaire;
 
-  public String getUserFullName() {
-    return userFullName;
-  }
+    @NotNull
+    private int amount;
 
-  public FinancialTransactionDTO setUserFullName(String userFullName) {
-    this.userFullName = userFullName;
-    return this;
-  }
+    private Long id;
+    private LocalDateTime createdAt;
 
-  public TypeFinancialTransaction getTypeTransaction() {
-    return typeTransaction;
-  }
+    @NotNull
+    private PaymentMode paymentMode;
 
-  public FinancialTransactionDTO setTypeTransaction(TypeFinancialTransaction typeTransaction) {
-    this.typeTransaction = typeTransaction;
-    return this;
-  }
+    private Long organismeId;
+    private String ticketCode;
+    private LocalDateTime transactionDate;
+    private boolean credit;
+    private TypeFinancialTransaction typeFinancialTransaction;
 
-  public String getCommentaire() {
-    return commentaire;
-  }
+    @NotNull
+    private TypeFinancialTransaction typeTransaction;
 
-  public FinancialTransactionDTO setCommentaire(String commentaire) {
-    this.commentaire = commentaire;
-    return this;
-  }
+    private String organismeName;
+    private String userFullName;
+    private String commentaire;
 
-  public String getOrganismeName() {
-    return organismeName;
-  }
+    public String getUserFullName() {
+        return userFullName;
+    }
 
-  public FinancialTransactionDTO setOrganismeName(String organismeName) {
-    this.organismeName = organismeName;
-    return this;
-  }
+    public FinancialTransactionDTO setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+        return this;
+    }
 
-  public int getAmount() {
-    return amount;
-  }
+    public TypeFinancialTransaction getTypeTransaction() {
+        return typeTransaction;
+    }
 
-  public FinancialTransactionDTO setAmount(int amount) {
-    this.amount = amount;
-    return this;
-  }
+    public FinancialTransactionDTO setTypeTransaction(TypeFinancialTransaction typeTransaction) {
+        this.typeTransaction = typeTransaction;
+        return this;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
-  public FinancialTransactionDTO setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public FinancialTransactionDTO setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
+    public String getOrganismeName() {
+        return organismeName;
+    }
 
-  public FinancialTransactionDTO setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
+    public FinancialTransactionDTO setOrganismeName(String organismeName) {
+        this.organismeName = organismeName;
+        return this;
+    }
 
-  public PaymentMode getPaymentMode() {
-    return paymentMode;
-  }
+    public int getAmount() {
+        return amount;
+    }
 
-  public FinancialTransactionDTO setPaymentMode(PaymentMode paymentMode) {
-    this.paymentMode = paymentMode;
-    return this;
-  }
+    public FinancialTransactionDTO setAmount(int amount) {
+        this.amount = amount;
+        return this;
+    }
 
-  public Long getOrganismeId() {
-    return organismeId;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public FinancialTransactionDTO setOrganismeId(Long organismeId) {
-    this.organismeId = organismeId;
-    return this;
-  }
+    public FinancialTransactionDTO setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public String getTicketCode() {
-    return ticketCode;
-  }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-  public FinancialTransactionDTO setTicketCode(String ticketCode) {
-    this.ticketCode = ticketCode;
-    return this;
-  }
+    public FinancialTransactionDTO setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 
-  public LocalDateTime getTransactionDate() {
-    return transactionDate;
-  }
+    public PaymentMode getPaymentMode() {
+        return paymentMode;
+    }
 
-  public FinancialTransactionDTO setTransactionDate(LocalDateTime transactionDate) {
-    this.transactionDate = transactionDate;
-    return this;
-  }
+    public FinancialTransactionDTO setPaymentMode(PaymentMode paymentMode) {
+        this.paymentMode = paymentMode;
+        return this;
+    }
 
-  public boolean isCredit() {
-    return credit;
-  }
+    public Long getOrganismeId() {
+        return organismeId;
+    }
 
-  public FinancialTransactionDTO setCredit(boolean credit) {
-    this.credit = credit;
-    return this;
-  }
+    public FinancialTransactionDTO setOrganismeId(Long organismeId) {
+        this.organismeId = organismeId;
+        return this;
+    }
 
-  public TypeFinancialTransaction getTypeFinancialTransaction() {
-    return typeFinancialTransaction;
-  }
+    public String getTicketCode() {
+        return ticketCode;
+    }
 
-  public FinancialTransactionDTO setTypeFinancialTransaction(
-      TypeFinancialTransaction typeFinancialTransaction) {
-    this.typeFinancialTransaction = typeFinancialTransaction;
-    return this;
-  }
+    public FinancialTransactionDTO setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
+        return this;
+    }
+
+    public LocalDateTime getTransactionDate() {
+        return transactionDate;
+    }
+
+    public FinancialTransactionDTO setTransactionDate(LocalDateTime transactionDate) {
+        this.transactionDate = transactionDate;
+        return this;
+    }
+
+    public boolean isCredit() {
+        return credit;
+    }
+
+    public FinancialTransactionDTO setCredit(boolean credit) {
+        this.credit = credit;
+        return this;
+    }
+
+    public TypeFinancialTransaction getTypeFinancialTransaction() {
+        return typeFinancialTransaction;
+    }
+
+    public FinancialTransactionDTO setTypeFinancialTransaction(TypeFinancialTransaction typeFinancialTransaction) {
+        this.typeFinancialTransaction = typeFinancialTransaction;
+        return this;
+    }
 }

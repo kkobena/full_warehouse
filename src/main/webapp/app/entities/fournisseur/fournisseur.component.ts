@@ -303,14 +303,14 @@ export class FournisseurComponent implements OnInit {
   private createFromForm(): IFournisseur {
     return {
       ...new Fournisseur(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      groupeFournisseurId: this.editForm.get(['groupeFournisseurId'])!.value,
-      addressePostal: this.editForm.get(['addresspostale'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      groupeFournisseurId: this.editForm.get(['groupeFournisseurId']).value,
+      addressePostal: this.editForm.get(['addresspostale']).value,
       // numFaxe: this.editForm.get(['numFaxe'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
-      mobile: this.editForm.get(['mobile'])!.value,
+      phone: this.editForm.get(['phone']).value,
+      mobile: this.editForm.get(['mobile']).value,
       // site: this.editForm.get(['site'])!.value
     };
   }

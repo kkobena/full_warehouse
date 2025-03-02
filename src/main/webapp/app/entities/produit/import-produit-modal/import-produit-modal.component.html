@@ -1,58 +1,56 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-             size="medium"
-             type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
 
 <div class="modal-header">
   <h6 class="modal-title">{{ title }}</h6>
 
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
 </div>
-<div class="modal-body" style="padding:15px;">
+<div class="modal-body" style="padding: 15px">
   <div class="ui-g form-group">
-
-    <label class="form-control-label" for="fournisseurId">Fournisseurs<span
-      style="font-weight: 900;color: red;">*</span></label>
-    <p-select #fournisseur [filter]="true"
-              [options]="fournisseurs" [style]="{'width':'100%'}"
-              [virtualScroll]="false"
-              filterBy="libelle"
-              id="fournisseurId"
-              optionLabel="libelle"
-              optionValue="id"
-              placeholder="Sélectionner un fournisseur"
+    <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
+    <p-select
+      #fournisseur
+      [filter]="true"
+      [options]="fournisseurs"
+      [style]="{ width: '100%' }"
+      [virtualScroll]="false"
+      filterBy="libelle"
+      id="fournisseurId"
+      optionLabel="libelle"
+      optionValue="id"
+      placeholder="Sélectionner un fournisseur"
     >
     </p-select>
-
   </div>
   <div class="text-center ui-g form-group">
-    <p-fileupload #fileUpload [accept]="accept"
-                  [customUpload]="true"
-                  [showUploadButton]="false"
-                  cancelLabel="Annuler"
-                  cancelStyleClass="p-button-danger"
-                  chooseIcon="pi pi-download"
-                  chooseLabel="Chargez votre fichier"
-                  chooseStyleClass="p-button-help"
-                  mode="advanced" name="importcsv">
+    <p-fileupload
+      #fileUpload
+      [accept]="accept"
+      [customUpload]="true"
+      [showUploadButton]="false"
+      cancelLabel="Annuler"
+      cancelStyleClass="p-button-danger"
+      chooseIcon="pi pi-download"
+      chooseLabel="Chargez votre fichier"
+      chooseStyleClass="p-button-help"
+      mode="advanced"
+      name="importcsv"
+    >
     </p-fileupload>
   </div>
-
-
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times"
-            label="Fermer" severity="danger" type="button">
-  </p-button>
+  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Fermer" severity="danger" type="button"> </p-button>
 
-  <p-button (click)="onUpload()" [disabled]="!isFileUploadValid || isSaving "
-
-            icon="pi pi-upload" label="Enrégistrer"
-            severity="success"
-            type="submit">
-
+  <p-button
+    (click)="onUpload()"
+    [disabled]="!isFileUploadValid || isSaving"
+    icon="pi pi-upload"
+    label="Enrégistrer"
+    severity="success"
+    type="submit"
+  >
   </p-button>
 </div>
 

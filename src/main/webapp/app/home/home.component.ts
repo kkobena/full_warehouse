@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -14,28 +14,28 @@ import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component'
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
 
 @Component({
-    selector: 'jhi-home',
-    templateUrl: './home.component.html',
-    styleUrl: './home.component.scss',
-    imports: [
-        WarehouseCommonModule,
-        RouterModule,
-        CardModule,
-        HomeGrapheComponent,
-        HalfyearlyDataComponent,
-        YearlyDataComponent,
-        MonthlyDataComponent,
-        WeeklyDataComponent,
-        DailyDataComponent,
-    ]
+  selector: 'jhi-home',
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    CardModule,
+    HomeGrapheComponent,
+    HalfyearlyDataComponent,
+    YearlyDataComponent,
+    MonthlyDataComponent,
+    WeeklyDataComponent,
+    DailyDataComponent,
+  ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);
   active = 'daily';
   private readonly destroy$ = new Subject<void>();
 
-  private accountService = inject(AccountService);
-  private router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.accountService

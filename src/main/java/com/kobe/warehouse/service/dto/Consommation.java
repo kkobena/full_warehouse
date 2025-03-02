@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import java.util.Objects;
 
 public class Consommation {
+
     private int id;
     private short month;
     private int year;
@@ -61,7 +62,5 @@ public class Consommation {
         return this;
     }
 
-    public Consommation() {
-
-    }
+    public Consommation() {}
 }

@@ -1,33 +1,31 @@
 <table class="main-table">
   <thead>
-  <tr>
-    <th>Date règlement</th>
-    <th>N° Facture</th>
-    <th class="text-right">Nbre Dossiers</th>
-    <th class="text-right">Montant Attendu</th>
-    <th class="text-right">Montant Règlé</th>
-    <th class="text-right">Montant Restant</th>
-  </tr>
+    <tr>
+      <th>Date règlement</th>
+      <th>N° Facture</th>
+      <th class="text-right">Nbre Dossiers</th>
+      <th class="text-right">Montant Attendu</th>
+      <th class="text-right">Montant Règlé</th>
+      <th class="text-right">Montant Restant</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:each="item : ${entity.invoicePayments}">
-    <td th:text="${item.created}"></td>
-    <td th:text="${item.codeFacture}"></td>
-    <td class="unit" th:text="${item.invoicePaymentItemsCount}"></td>
-    <td class="unit" th:text="${item.montantAttendu}"></td>
-    <td class="unit" th:text="${item.paidAmount}"></td>
-    <td class="unit" th:text="${item.montantRestant}"></td>
-  </tr>
+    <tr th:each="item : ${entity.invoicePayments}">
+      <td th:text="${item.created}"></td>
+      <td th:text="${item.codeFacture}"></td>
+      <td class="unit" th:text="${item.invoicePaymentItemsCount}"></td>
+      <td class="unit" th:text="${item.montantAttendu}"></td>
+      <td class="unit" th:text="${item.paidAmount}"></td>
+      <td class="unit" th:text="${item.montantRestant}"></td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
-    <td class="datatable-footer-total-label" colspan="2"
-        th:text="${'TOTAL DE: '+entity.organisme.name }"></td>
-    <td class="unit"
-        th:text="${' (NOMBRE DE DOSSIERS= '+totalDossier +' )'}"></td>
-    <td></td>
-    <td class="unit" th:text="${paidAmount}"></td>
-    <td></td>
-  </tr>
+    <tr class="tr-footer">
+      <td class="datatable-footer-total-label" colspan="2" th:text="${'TOTAL DE: '+entity.organisme.name }"></td>
+      <td class="unit" th:text="${' (NOMBRE DE DOSSIERS= '+totalDossier +' )'}"></td>
+      <td></td>
+      <td class="unit" th:text="${paidAmount}"></td>
+      <td></td>
+    </tr>
   </tfoot>
 </table>

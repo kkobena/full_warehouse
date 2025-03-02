@@ -656,8 +656,15 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             }
             var isLast = counter == (tiersPayantSize - 1);
             ClientTiersPayant clientTiersPayant = tiersPayants.get(tp.getId()).getFirst();
-            totalMontantTiersPayant +=
-            processTiersPayantAmount(totalMontantTiersPayant, sb, tp, thirdPartySales, isLast, isPourcentageGreather100, clientTiersPayant);
+            totalMontantTiersPayant += processTiersPayantAmount(
+                totalMontantTiersPayant,
+                sb,
+                tp,
+                thirdPartySales,
+                isLast,
+                isPourcentageGreather100,
+                clientTiersPayant
+            );
             counter++;
         }
 
@@ -745,8 +752,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         for (ThirdPartySaleLine tp : thirdPartySaleLines) {
             var isLast = counter == (tiersPayantSize - 1);
             ClientTiersPayant clientTiersPayant = tp.getClientTiersPayant();
-            totalMontantTiersPayant +=
-            processTiersPayantAmount(
+            totalMontantTiersPayant += processTiersPayantAmount(
                 totalMontantTiersPayant,
                 sb,
                 null,

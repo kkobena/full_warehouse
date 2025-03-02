@@ -7,6 +7,12 @@ import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.LaboratoireService;
 import com.kobe.warehouse.service.dto.LaboratoireDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -20,13 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Service Implementation for managing {@link Laboratoire}.
  */
@@ -38,10 +37,8 @@ public class LaboratoireServiceImpl implements LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
 
-
     public LaboratoireServiceImpl(LaboratoireRepository laboratoireRepository) {
         this.laboratoireRepository = laboratoireRepository;
-
     }
 
     /**
@@ -53,8 +50,7 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     @Override
     public LaboratoireDTO save(LaboratoireDTO laboratoireDTO) {
         log.debug("Request to save Laboratoire : {}", laboratoireDTO);
-        Laboratoire laboratoire = new Laboratoire().id(laboratoireDTO.getId())
-            .libelle(laboratoireDTO.getLibelle());
+        Laboratoire laboratoire = new Laboratoire().id(laboratoireDTO.getId()).libelle(laboratoireDTO.getLibelle());
         laboratoire = laboratoireRepository.save(laboratoire);
         return new LaboratoireDTO(laboratoire);
     }
@@ -69,12 +65,12 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     @Transactional(readOnly = true)
     public Page<LaboratoireDTO> findAll(String libelle, Pageable pageable) {
         log.debug("Request to get all Laboratoires");
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-            Sort.by(Sort.Direction.ASC, "libelle"));
+        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
         if (!StringUtils.isEmpty(libelle)) {
             SpecificationBuilder<Laboratoire> builder = new SpecificationBuilder<>();
-            Specification<Laboratoire> spec = builder.with(new String[]{"libelle"}, libelle + "%",
-                Condition.OperationType.LIKE, Condition.LogicalOperatorType.END).build();
+            Specification<Laboratoire> spec = builder
+                .with(new String[] { "libelle" }, libelle + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
+                .build();
             return laboratoireRepository.findAll(spec, page).map(LaboratoireDTO::new);
         }
         return laboratoireRepository.findAll(page).map(LaboratoireDTO::new);

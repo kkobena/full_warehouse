@@ -23,98 +23,98 @@ import java.util.Objects;
 @Entity
 @Table(name = "avoir")
 public class Avoir implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotNull
-  @Enumerated(EnumType.ORDINAL)
-  @Column(name = "statut", nullable = false)
-  private StatutAvoir statut = StatutAvoir.EN_COURS;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private User user;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "statut", nullable = false)
+    private StatutAvoir statut = StatutAvoir.EN_COURS;
 
-  @OneToMany(
-      mappedBy = "avoir",
-      cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-  private List<LigneAvoir> ligneAvoirs = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @NotNull
+    private User user;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private WarehouseCalendar calendar;
+    @OneToMany(mappedBy = "avoir", cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    private List<LigneAvoir> ligneAvoirs = new ArrayList<>();
 
-  public WarehouseCalendar getCalendar() {
-    return calendar;
-  }
+    @ManyToOne(optional = false)
+    @NotNull
+    private WarehouseCalendar calendar;
 
-  public Avoir setCalendar(WarehouseCalendar calendar) {
-    this.calendar = calendar;
-    return this;
-  }
+    public WarehouseCalendar getCalendar() {
+        return calendar;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public Avoir setCalendar(WarehouseCalendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
 
-  public Avoir setId(Long id) {
-    this.id = id;
-    return this;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public LocalDateTime getDateMtv() {
-    return dateMtv;
-  }
+    public Avoir setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-  public Avoir setDateMtv(LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-    return this;
-  }
+    public LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-  public StatutAvoir getStatut() {
-    return statut;
-  }
+    public Avoir setDateMtv(LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+        return this;
+    }
 
-  public Avoir setStatut(StatutAvoir statut) {
-    this.statut = statut;
-    return this;
-  }
+    public StatutAvoir getStatut() {
+        return statut;
+    }
 
-  public User getUser() {
-    return user;
-  }
+    public Avoir setStatut(StatutAvoir statut) {
+        this.statut = statut;
+        return this;
+    }
 
-  public Avoir setUser(User user) {
-    this.user = user;
-    return this;
-  }
+    public User getUser() {
+        return user;
+    }
 
-  public List<LigneAvoir> getLigneAvoirs() {
-    return ligneAvoirs;
-  }
+    public Avoir setUser(User user) {
+        this.user = user;
+        return this;
+    }
 
-  public Avoir setLigneAvoirs(List<LigneAvoir> ligneAvoirs) {
-    this.ligneAvoirs = ligneAvoirs;
-    return this;
-  }
+    public List<LigneAvoir> getLigneAvoirs() {
+        return ligneAvoirs;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Avoir avoir = (Avoir) o;
-    return Objects.equals(id, avoir.id);
-  }
+    public Avoir setLigneAvoirs(List<LigneAvoir> ligneAvoirs) {
+        this.ligneAvoirs = ligneAvoirs;
+        return this;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Avoir avoir = (Avoir) o;
+        return Objects.equals(id, avoir.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

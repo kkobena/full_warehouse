@@ -1,53 +1,49 @@
 <div class="modal-header">
-  <h6 class="modal-title">Code facture <span
-    class="badge rounded-pill text-bg-light"> {{ reglement.codeFacture }}</span></h6>
+  <h6 class="modal-title">
+    Code facture <span class="badge rounded-pill text-bg-light"> {{ reglement.codeFacture }}</span>
+  </h6>
 
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
 </div>
 
 <div class="modal-body">
   <div class="row">
     <div class="row">
       <div class="d-flex flex-row">
-        <div class="p-2">Date règlement: <span
-          class="badge rounded-pill text-bg-light">{{ reglement.created }}</span>
+        <div class="p-2">
+          Date règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.created }}</span>
         </div>
-        <div class="p-2">Montant attendu: <span
-          class="badge rounded-pill text-bg-light">{{ reglement.montantAttendu }}</span>
+        <div class="p-2">
+          Montant attendu: <span class="badge rounded-pill text-bg-light">{{ reglement.montantAttendu }}</span>
         </div>
 
-        <div class="p-2">Montant règlé: <span
-          class="badge rounded-pill text-bg-light">{{ reglement.paidAmount }}</span>
+        <div class="p-2">
+          Montant règlé: <span class="badge rounded-pill text-bg-light">{{ reglement.paidAmount }}</span>
         </div>
-        <div class="p-2">Montant restant: <span
-          class="badge rounded-pill text-bg-light">{{ reglement.montantRestant }}</span>
+        <div class="p-2">
+          Montant restant: <span class="badge rounded-pill text-bg-light">{{ reglement.montantRestant }}</span>
         </div>
-        <div class="p-2">Mode règlement: <span
-          class="badge rounded-pill text-bg-light">{{ reglement.paymentMode }}</span>
+        <div class="p-2">
+          Mode règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.paymentMode }}</span>
         </div>
       </div>
     </div>
 
     <div class="row">
       <p-panel header="Dossiers">
-
-        <p-table #fact
-                 [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
-                 [scrollHeight]="scrollHeight"
-                 [scrollable]="true"
-                 [value]="datas"
-                 styleClass="p-datatable-striped">
+        <p-table
+          #fact
+          [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
+          [scrollHeight]="scrollHeight"
+          [scrollable]="true"
+          [value]="datas"
+          styleClass="p-datatable-striped"
+        >
           <ng-template pTemplate="caption">
             <div class="d-flex">
-
-                <span class="p-input-icon-left ml-auto">
-                  <i class="pi pi-search"></i>
-                  <input (input)="fact.filterGlobal($event.target.value, 'contains')"
-                         pInputText
-                         placeholder="Filtrer"
-                         type="text" />
+              <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer" type="text" />
               </span>
             </div>
           </ng-template>
@@ -62,7 +58,6 @@
               <th>Montant attendu</th>
               <th>Montant règlé</th>
               <th>Montant restant</th>
-
             </tr>
           </ng-template>
           <ng-template let-factureDetail pTemplate="body">
@@ -76,14 +71,10 @@
               <td class="text-right">{{ factureDetail.montantAttendu }}</td>
               <td class="text-right">{{ factureDetail.montant }}</td>
               <td class="text-right">{{ factureDetail.montantRestant }}</td>
-
             </tr>
           </ng-template>
         </p-table>
       </p-panel>
     </div>
   </div>
-
-
 </div>
-

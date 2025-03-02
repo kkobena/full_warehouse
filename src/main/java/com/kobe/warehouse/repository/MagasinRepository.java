@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Magasin;
-
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +9,4 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface MagasinRepository extends JpaRepository<Magasin, Long> {
-}
+public interface MagasinRepository extends JpaRepository<Magasin, Long> {}

@@ -1,45 +1,45 @@
 @if (sale) {
-  <p-table #produitTable [globalFilterFields]="['code','produitLibelle']" [paginator]="true"
-           [rowsPerPageOptions]="[5,8,10,20]" [rows]="5"
-           [showCurrentPageReport]="true"
-           [value]="sale.salesLines"
-           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-           dataKey="id"
-           selectionMode="single">
+  <p-table
+    #produitTable
+    [globalFilterFields]="['code', 'produitLibelle']"
+    [paginator]="true"
+    [rowsPerPageOptions]="[5, 8, 10, 20]"
+    [rows]="5"
+    [showCurrentPageReport]="true"
+    [value]="sale.salesLines"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+    dataKey="id"
+    selectionMode="single"
+  >
     <ng-template pTemplate="caption">
       <div class="d-flex produit-vente-table-tb justify-content-between">
-
         <div class="p-0">
           <p-inputgroup>
-            <p-inputgroup-addon>
-              Produits
-            </p-inputgroup-addon>
-            <input (input)="produitTable.filterGlobal($event.target.value, 'contains')" pInputText
-                   [style]="{'width': '300px'}"
-                   placeholder="Taper pour filter les produits"
-                   type="text">
+            <p-inputgroup-addon> Produits </p-inputgroup-addon>
+            <input
+              (input)="produitTable.filterGlobal($event.target.value, 'contains')"
+              pInputText
+              [style]="{ width: '300px' }"
+              placeholder="Taper pour filter les produits"
+              type="text"
+            />
           </p-inputgroup>
-
         </div>
 
         <div class="p-0">
           @if (currentSaleService.currentSale()?.remise) {
             <ngb-alert [type]="typeAlert" [dismissible]="false">
-              <b> Remise appliquée:
-                <span
-                  class="taux-remise"> {{ remiseTaux }}
-            </span></b>
+              <b>
+                Remise appliquée: <span class="taux-remise"> {{ remiseTaux }} </span></b
+              >
             </ngb-alert>
           }
-
         </div>
         @let remises = remiseCacheService.remises();
         @if (remises?.length > 0) {
-          <div class=" p-0 remises-select0">
+          <div class="p-0 remises-select0">
             <p-inputgroup>
-              <p-inputgroup-addon>
-                Remises
-              </p-inputgroup-addon>
+              <p-inputgroup-addon> Remises </p-inputgroup-addon>
               <p-select
                 (onChange)="onSelectRemise()"
                 [options]="remises"
@@ -47,127 +47,119 @@
                 placeholder="Choisir une remise"
                 optionLabel="valeur"
                 [showClear]="true"
-                [group]="true">
+                [group]="true"
+              >
                 <ng-template let-group #group>
                   <div class="flex align-items-center">
-
-                    <span style="font-size: 1.2rem;">{{ group.typeLibelle }}</span>
+                    <span style="font-size: 1.2rem">{{ group.typeLibelle }}</span>
                   </div>
                 </ng-template>
               </p-select>
             </p-inputgroup>
-
-
           </div>
         }
-
-
       </div>
-
-
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:5%">
-          #
-        </th>
-        <th style="width:10%">CODE</th>
-        <th style="width:44%">LIBELLE</th>
-        <th style="width:8%">QTE.D</th>
-        <th style="width:8%">QTE.S</th>
-        <th style="width:9%">PU</th>
-        <th style="width:10%">TOTAL</th>
-        <th style="width:6%"></th>
+        <th style="width: 5%">#</th>
+        <th style="width: 10%">CODE</th>
+        <th style="width: 44%">LIBELLE</th>
+        <th style="width: 8%">QTE.D</th>
+        <th style="width: 8%">QTE.S</th>
+        <th style="width: 9%">PU</th>
+        <th style="width: 10%">TOTAL</th>
+        <th style="width: 6%"></th>
       </tr>
     </ng-template>
     <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-      <tr [ngClass]="{'table-danger':saleLine.quantitySold<saleLine.quantityRequested}">
-        <td style="text-align: center;">{{ rowIndex + 1 }}</td>
+      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+        <td style="text-align: center">{{ rowIndex + 1 }}</td>
         <td>{{ saleLine.code }}</td>
         <td>{{ saleLine.produitLibelle }}</td>
-        <td pEditableColumn style="text-align: right;">
+        <td pEditableColumn style="text-align: right">
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <input (focus)="$event.target.select()"
-                     (keydown.enter)="updateItemQtyRequested(saleLine,$event)" pInputText
-                     required style="width: 100px;"
-                     type="number">
+              <input
+                (focus)="$event.target.select()"
+                (keydown.enter)="updateItemQtyRequested(saleLine, $event)"
+                pInputText
+                required
+                style="width: 100px"
+                type="number"
+              />
             </ng-template>
             <ng-template pTemplate="output">
-              {{ saleLine.quantityRequested |number }}
+              {{ saleLine.quantityRequested | number }}
             </ng-template>
           </p-cellEditor>
-
         </td>
-        <td pEditableColumn style="text-align: right;">
+        <td pEditableColumn style="text-align: right">
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <input (focus)="$event.target.select()"
-                     (keydown.enter)="updateItemQtySold(saleLine,$event)" pInputText
-                     required style="width: 100px;"
-                     type="number">
+              <input
+                (focus)="$event.target.select()"
+                (keydown.enter)="updateItemQtySold(saleLine, $event)"
+                pInputText
+                required
+                style="width: 100px"
+                type="number"
+              />
             </ng-template>
             <ng-template pTemplate="output">
-              {{ saleLine.quantitySold |number }}
+              {{ saleLine.quantitySold | number }}
             </ng-template>
           </p-cellEditor>
         </td>
         @if (canModifiePrice) {
-          <td pEditableColumn
-              style="text-align: right;">
+          <td pEditableColumn style="text-align: right">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input (focus)="$event.target.select()"
-                       (keydown.enter)="updateItemPrice(saleLine,$event)" pInputText
-                       required
-                       style="width: 100px;"
-                       type="number">
+                <input
+                  (focus)="$event.target.select()"
+                  (keydown.enter)="updateItemPrice(saleLine, $event)"
+                  pInputText
+                  required
+                  style="width: 100px"
+                  type="number"
+                />
               </ng-template>
               <ng-template pTemplate="output">
-                {{ saleLine.regularUnitPrice |number }}
+                {{ saleLine.regularUnitPrice | number }}
               </ng-template>
             </p-cellEditor>
           </td>
         } @else {
-          <td style="text-align: right;">{{ saleLine.regularUnitPrice |number }}</td>
+          <td style="text-align: right">{{ saleLine.regularUnitPrice | number }}</td>
         }
 
-        <td style="text-align: right; font-weight: bold;">{{ saleLine.salesAmount |number }}
-        </td>
-        <td style="text-align: right;">
-          <p-button (click)="onDeleteItem(saleLine)"
-                    class=" p-mb-3"
-                    icon="pi pi-trash" [rounded]="true"
-                    severity="danger"
-                    size="small"
-
-                    pTooltip="Supprimer"></p-button>
+        <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
+        <td style="text-align: right">
+          <p-button
+            (click)="onDeleteItem(saleLine)"
+            class="p-mb-3"
+            icon="pi pi-trash"
+            [rounded]="true"
+            severity="danger"
+            size="small"
+            pTooltip="Supprimer"
+          ></p-button>
         </td>
       </tr>
-
     </ng-template>
     <ng-template pTemplate="footer">
       @if (sale.salesLines.length > 0) {
         <tr>
           <td class="p-text-left" colspan="3">TOTAUX</td>
-          <td class="amount-column" style="text-align: right">{{ totalQtyProduit() |number }}
-          </td>
-          <td class="amount-column" style="text-align: right">{{ totalQtyServi() |number }}</td>
-          <td class="amount-column" colspan="2"
-              style="text-align: right">{{ totalTtc() |number }}
-          </td>
+          <td class="amount-column" style="text-align: right">{{ totalQtyProduit() | number }}</td>
+          <td class="amount-column" style="text-align: right">{{ totalQtyServi() | number }}</td>
+          <td class="amount-column" colspan="2" style="text-align: right">{{ totalTtc() | number }}</td>
           <td></td>
         </tr>
       }
-
     </ng-template>
   </p-table>
-
 }
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="deleteItem">
-</p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" appendTo="body"
-                 key="forcerStock">
-
-</p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteItem"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" appendTo="body" key="forcerStock"> </p-confirmDialog>

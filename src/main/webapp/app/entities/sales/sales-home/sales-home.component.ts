@@ -19,8 +19,6 @@ export class SalesHomeComponent implements OnInit {
   saleToolBarService = inject(SaleToolBarService);
   protected active = 'ventes-terminees';
 
-  constructor() {}
-
   ngOnInit(): void {
     if (this.saleToolBarService.toolBarParam()) {
       if (this.saleToolBarService.toolBarParam().activeTab !== this.active) {

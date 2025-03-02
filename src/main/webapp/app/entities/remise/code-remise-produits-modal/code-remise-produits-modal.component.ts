@@ -161,14 +161,14 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
 
   private buildParams(): any {
     const params: any = {};
-    params.codeRemise = this.codeRemise?.value;
+    params.codeRemise = this.codeRemise.value;
     if (this.selectedRayon) {
       params.rayonId = this.selectedRayon;
     }
     if (this.search) {
       params.search = this.search;
     }
-    const all = this.checkbox()?.checked;
+    const all = this.checkbox().checked;
     params.all = all;
     if (!all) {
       params.produitIds = this.selectedProduits.map(produit => produit.id);

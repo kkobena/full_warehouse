@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.repository.FormProduitRepository;
 import com.kobe.warehouse.service.dto.FormProduitDTO;
@@ -21,12 +20,8 @@ public class FormProduitServiceImpl implements FormProduitService {
 
     private final FormProduitRepository formProduitRepository;
 
-
-
-    public FormProduitServiceImpl(FormProduitRepository formProduitRepository
-                                  ) {
+    public FormProduitServiceImpl(FormProduitRepository formProduitRepository) {
         this.formProduitRepository = formProduitRepository;
-
     }
 
     /**
@@ -38,8 +33,7 @@ public class FormProduitServiceImpl implements FormProduitService {
     @Override
     public FormProduitDTO save(FormProduitDTO formProduitDTO) {
         log.debug("Request to save FormProduit : {}", formProduitDTO);
-        FormProduit formProduit = new FormProduit().
-            libelle(formProduitDTO.getLibelle())   ;
+        FormProduit formProduit = new FormProduit().libelle(formProduitDTO.getLibelle());
         formProduit.setId(formProduitDTO.getId());
         formProduit = formProduitRepository.save(formProduit);
         return new FormProduitDTO(formProduit);
@@ -55,10 +49,8 @@ public class FormProduitServiceImpl implements FormProduitService {
     @Transactional(readOnly = true)
     public Page<FormProduitDTO> findAll(Pageable pageable) {
         log.debug("Request to get all FormProduits");
-        return formProduitRepository.findAll(pageable)
-            .map(FormProduitDTO::new);
+        return formProduitRepository.findAll(pageable).map(FormProduitDTO::new);
     }
-
 
     /**
      * Get one formProduit by id.
@@ -70,8 +62,7 @@ public class FormProduitServiceImpl implements FormProduitService {
     @Transactional(readOnly = true)
     public Optional<FormProduitDTO> findOne(Long id) {
         log.debug("Request to get FormProduit : {}", id);
-        return formProduitRepository.findById(id)
-            .map(FormProduitDTO::new);
+        return formProduitRepository.findById(id).map(FormProduitDTO::new);
     }
 
     /**

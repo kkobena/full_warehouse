@@ -14,10 +14,10 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 
 @Component({
-    selector: 'jhi-graphe-daily',
-    templateUrl: './graphe-daily.component.html',
-    styleUrls: ['./graphe-daily.component.scss'],
-    imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule]
+  selector: 'jhi-graphe-daily',
+  templateUrl: './graphe-daily.component.html',
+  styleUrls: ['./graphe-daily.component.scss'],
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule],
 })
 export class GrapheDailyComponent implements OnInit {
   private charBuilderService = inject(CharBuilderService);
@@ -30,11 +30,6 @@ export class GrapheDailyComponent implements OnInit {
   protected data: any;
   protected options: any;
   protected lineChart: LineChart;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.onFetchLineChartSalesData();

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -7,8 +7,8 @@ import { Session } from './session.model';
 
 @Injectable({ providedIn: 'root' })
 export class SessionsService {
-  private http = inject(HttpClient);
-  private applicationConfigService = inject(ApplicationConfigService);
+  private readonly http = inject(HttpClient);
+  private readonly applicationConfigService = inject(ApplicationConfigService);
 
   private resourceUrl = this.applicationConfigService.getEndpointFor('api/account/sessions');
 

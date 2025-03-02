@@ -142,13 +142,13 @@ export class EditProduitComponent implements OnInit {
 
   handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
-    const unitPrice = Number(this.editForm.get(['prixUni'])!.value);
+    const unitPrice = Number(this.editForm.get(['prixUni']).value);
     this.isValid = value < unitPrice;
   }
 
   handlePrixUnitaireInput(event: any): void {
     const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(['prixAchat'])!.value);
+    const costAmount = Number(this.editForm.get(['prixAchat']).value);
     this.isValid = costAmount < value;
   }
 
@@ -200,20 +200,20 @@ export class EditProduitComponent implements OnInit {
   protected createFromForm(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
-      id: this.editForm.get(['id'])!.value,
-      prixUni: this.editForm.get(['prixUni'])!.value,
-      prixAchat: this.editForm.get(['prixAchat'])!.value,
-      codeCip: this.editForm.get(['codeCip'])!.value,
+      id: this.editForm.get(['id']).value,
+      prixUni: this.editForm.get(['prixUni']).value,
+      prixAchat: this.editForm.get(['prixAchat']).value,
+      codeCip: this.editForm.get(['codeCip']).value,
       fournisseurId: this.delivery.fournisseurId,
-      principal: this.editForm.get(['principal'])!.value,
+      principal: this.editForm.get(['principal']).value,
       produitId: this.produit.id,
       produit: {
-        codeEan: this.editForm.get(['codeEan'])!.value,
-        expirationDate: this.editForm.get(['expirationDate'])!.value,
-        cmuAmount: this.editForm.get(['cmuAmount'])!.value,
-        tvaId: this.editForm.get(['tvaId'])!.value,
-        rayonId: this.editForm.get(['rayonId'])!.value,
-        typeEtiquetteId: this.editForm.get(['typeEtiquetteId'])!.value,
+        codeEan: this.editForm.get(['codeEan']).value,
+        expirationDate: this.editForm.get(['expirationDate']).value,
+        cmuAmount: this.editForm.get(['cmuAmount']).value,
+        tvaId: this.editForm.get(['tvaId']).value,
+        rayonId: this.editForm.get(['rayonId']).value,
+        typeEtiquetteId: this.editForm.get(['typeEtiquetteId']).value,
         id: this.produit.id,
       },
     };

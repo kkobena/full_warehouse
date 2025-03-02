@@ -54,6 +54,6 @@ export class Commande implements ICommande {
     public receiptRefernce?: string,
     public itemSize?: number,
     public sequenceBon?: string,
-    public receiptAmount?: number
+    public receiptAmount?: number,
   ) {}
 }

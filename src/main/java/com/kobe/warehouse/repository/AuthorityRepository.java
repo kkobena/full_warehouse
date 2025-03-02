@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 /** Spring Data JPA repository for the {@link Authority} entity. */
 @Repository
 public interface AuthorityRepository extends JpaRepository<Authority, String> {
-  @EntityGraph(attributePaths = "menus")
-  Authority findOneByName(String name);
+    @EntityGraph(attributePaths = "menus")
+    Authority findOneByName(String name);
 
-  @EntityGraph(attributePaths = "menus")
-  List<Authority> findAll();
+    @EntityGraph(attributePaths = "menus")
+    List<Authority> findAll();
 }

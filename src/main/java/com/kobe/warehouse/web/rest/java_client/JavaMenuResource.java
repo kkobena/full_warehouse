@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 @Transactional
 public class JavaMenuResource {
-  final MenuService menuService;
 
-  public JavaMenuResource(MenuService menuService) {
-    this.menuService = menuService;
-  }
+    final MenuService menuService;
 
-  /**
-   * {@code GET /menus} : get all the menus.
-   *
-   * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of menus in body.
-   */
-  @GetMapping("/menus/users")
-  public Set<MenuDTO> getConnectedUserMenus() {
+    public JavaMenuResource(MenuService menuService) {
+        this.menuService = menuService;
+    }
 
-    return menuService.getConnectedUserMenus();
-  }
+    /**
+     * {@code GET /menus} : get all the menus.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of menus in body.
+     */
+    @GetMapping("/menus/users")
+    public Set<MenuDTO> getConnectedUserMenus() {
+        return menuService.getConnectedUserMenus();
+    }
 }

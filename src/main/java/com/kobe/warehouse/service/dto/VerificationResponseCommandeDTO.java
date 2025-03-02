@@ -3,10 +3,10 @@ package com.kobe.warehouse.service.dto;
 import java.util.List;
 import java.util.Objects;
 
-
 public class VerificationResponseCommandeDTO {
-private List<Item> items;
-private List<Item> extraItems;
+
+    private List<Item> items;
+    private List<Item> extraItems;
 
     public List<Item> getItems() {
         return items;
@@ -27,11 +27,12 @@ private List<Item> extraItems;
     }
 
     public static class Item {
-    private String codeCip;
-    private String codeEan;
-    private String produitLibelle;
-    private int quantitePriseEnCompte;
-    private int quantite;
+
+        private String codeCip;
+        private String codeEan;
+        private String produitLibelle;
+        private int quantitePriseEnCompte;
+        private int quantite;
 
         @Override
         public boolean equals(Object o) {

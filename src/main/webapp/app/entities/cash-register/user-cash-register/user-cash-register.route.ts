@@ -7,8 +7,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { CashRegisterService } from '../cash-register.service';
 import { CashRegister } from '../model/cash-register.model';
 
-
-
 export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null | CashRegister> => {
   const id = route.params['id'];
   if (id) {

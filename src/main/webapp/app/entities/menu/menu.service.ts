@@ -15,11 +15,6 @@ export class MenuService {
 
   public resourceUrl = SERVER_API_URL + 'api/menus';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(menu: IMenu): Observable<EntityResponseType> {
     return this.http.post<IMenu>(this.resourceUrl, menu, { observe: 'response' });
   }

@@ -29,205 +29,201 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProduitServiceImpl implements ProduitService {
 
-  private final Logger log = LoggerFactory.getLogger(ProduitServiceImpl.class);
-  private final MagasinRepository magasinRepository;
-  private final ProduitRepository produitRepository;
-  private final CustomizedProductService customizedProductService;
-  private final RayonRepository rayonRepository;
+    private final Logger log = LoggerFactory.getLogger(ProduitServiceImpl.class);
+    private final MagasinRepository magasinRepository;
+    private final ProduitRepository produitRepository;
+    private final CustomizedProductService customizedProductService;
+    private final RayonRepository rayonRepository;
 
-  public ProduitServiceImpl(
-      MagasinRepository magasinRepository,
-      ProduitRepository produitRepository,
-      CustomizedProductService customizedProductService,
-      RayonRepository rayonRepository) {
-    this.magasinRepository = magasinRepository;
-    this.produitRepository = produitRepository;
-    this.customizedProductService = customizedProductService;
-    this.rayonRepository = rayonRepository;
-  }
-
-  /**
-   * Save a produit.
-   *
-   * @param produitDTO the entity to save.
-   * @return the persisted entity.
-   */
-  @Override
-  public void save(ProduitDTO produitDTO) {
-    log.debug("Request to save Produit : {}", produitDTO);
-    try {
-
-      customizedProductService.save(
-          produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
-    } catch (Exception e) {
-      log.error("Request to save Produit : {}", e);
-    }
-  }
-
-  /**
-   * Get all the produits.
-   *
-   * @param pageable the pagination information.
-   * @return the list of entities.
-   */
-  @Override
-  @Transactional(readOnly = true)
-  public Page<ProduitDTO> findAll(Pageable pageable) {
-    log.debug("Request to get all Produits");
-    return produitRepository.findAll(pageable).map(ProduitBuilder::fromProduit);
-  }
-
-  /**
-   * Get one produit by id.
-   *
-   * @param id the id of the entity.
-   * @return the entity.
-   */
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<ProduitDTO> findOne(Long id) {
-    log.debug("Request to get Produit : {}", id);
-    return customizedProductService.findOneById(id);
-  }
-
-  /**
-   * Delete the produit by id.
-   *
-   * @param id the id of the entity.
-   */
-  @Override
-  public void delete(Long id) {
-    log.debug("Request to delete Produit : {}", id);
-
-    produitRepository.deleteById(id);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) {
-    log.debug("Request to get all Produits {} ", produitCriteria);
-    try {
-      return customizedProductService.findAll(produitCriteria, pageable);
-    } catch (Exception e) {
-      log.error("Request findAll  Produits : {}", e);
-      return Page.empty();
-    }
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public ProduitDTO findOne(ProduitCriteria produitCriteria) {
-    log.debug("Request to get Produit : {}", produitCriteria);
-    Optional<ProduitDTO> produit =
-        produitRepository.findById(produitCriteria.getId()).map(ProduitBuilder::fromProduit);
-    ProduitDTO dto = null;
-    if (produit.isPresent()) {
-      dto = produit.get();
-      SalesLine lignesVente = lastSale(produitCriteria);
-      if (lignesVente != null) {
-        dto.setLastDateOfSale(lignesVente.getUpdatedAt());
-      }
-      StoreInventoryLine detailsInventaire = lastInventory(produitCriteria);
-      if (detailsInventaire != null) {
-        dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
-      }
-      DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
-      if (deliveryReceiptItem != null) {
-        dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
-      }
+    public ProduitServiceImpl(
+        MagasinRepository magasinRepository,
+        ProduitRepository produitRepository,
+        CustomizedProductService customizedProductService,
+        RayonRepository rayonRepository
+    ) {
+        this.magasinRepository = magasinRepository;
+        this.produitRepository = produitRepository;
+        this.customizedProductService = customizedProductService;
+        this.rayonRepository = rayonRepository;
     }
 
-    return dto;
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public SalesLine lastSale(ProduitCriteria produitCriteria) {
-    return customizedProductService.lastSale(produitCriteria);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public StoreInventoryLine lastInventory(ProduitCriteria produitCriteria) {
-    return customizedProductService.lastInventory(produitCriteria);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
-    return customizedProductService.lastOrder(produitCriteria);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<ProduitDTO> findWithCriteria(ProduitCriteria produitCriteria) {
-    log.debug("Request to  findWithCriteria {} ", produitCriteria);
-    try {
-      return customizedProductService.findAll(produitCriteria);
-    } catch (Exception e) {
-      log.error("Request findWithCriteria  Produits : {}", e);
-      return Collections.emptyList();
+    /**
+     * Save a produit.
+     *
+     * @param produitDTO the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public void save(ProduitDTO produitDTO) {
+        log.debug("Request to save Produit : {}", produitDTO);
+        try {
+            customizedProductService.save(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
+        } catch (Exception e) {
+            log.error("Request to save Produit : {}", e);
+        }
     }
-  }
 
-  @Override
-  public void update(ProduitDTO produitDTO) {
-    log.debug("Request to update Produit : {}", produitDTO);
-    try {
-      customizedProductService.update(produitDTO);
-    } catch (Exception e) {
-      log.error("Request to update Produit : {}", e);
+    /**
+     * Get all the produits.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProduitDTO> findAll(Pageable pageable) {
+        log.debug("Request to get all Produits");
+        return produitRepository.findAll(pageable).map(ProduitBuilder::fromProduit);
     }
-  }
 
-  @Override
-  public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
-
-    try {
-      return customizedProductService.lite(produitCriteria, pageable);
-    } catch (Exception e) {
-      log.error("Request lite  Produits : {}", e);
-      return Page.empty();
+    /**
+     * Get one produit by id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProduitDTO> findOne(Long id) {
+        log.debug("Request to get Produit : {}", id);
+        return customizedProductService.findOneById(id);
     }
-  }
 
-  @Override
-  public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
-    return customizedProductService.productsLiteList(produitCriteria, pageable);
-  }
+    /**
+     * Delete the produit by id.
+     *
+     * @param id the id of the entity.
+     */
+    @Override
+    public void delete(Long id) {
+        log.debug("Request to delete Produit : {}", id);
 
-  @Override
-  public void updateDetail(ProduitDTO produitDTO) {
-    log.debug("Request to updateDetail Produit : {}", produitDTO);
-    try {
-      customizedProductService.updateDetail(produitDTO);
-    } catch (Exception e) {
-      log.error("Request to update Produit : {}", e);
+        produitRepository.deleteById(id);
     }
-  }
 
-  @Override
-  public int getProductTotalStock(Long productId) {
-    return customizedProductService.produitTotalStockWithQantityUg(
-        produitRepository.getReferenceById(productId));
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) {
+        log.debug("Request to get all Produits {} ", produitCriteria);
+        try {
+            return customizedProductService.findAll(produitCriteria, pageable);
+        } catch (Exception e) {
+            log.error("Request findAll  Produits : {}", e);
+            return Page.empty();
+        }
+    }
 
-  @Override
-  public StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg) {
-    return customizedProductService.updateTotalStock(produit, stockIn, stockUg);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public ProduitDTO findOne(ProduitCriteria produitCriteria) {
+        log.debug("Request to get Produit : {}", produitCriteria);
+        Optional<ProduitDTO> produit = produitRepository.findById(produitCriteria.getId()).map(ProduitBuilder::fromProduit);
+        ProduitDTO dto = null;
+        if (produit.isPresent()) {
+            dto = produit.get();
+            SalesLine lignesVente = lastSale(produitCriteria);
+            if (lignesVente != null) {
+                dto.setLastDateOfSale(lignesVente.getUpdatedAt());
+            }
+            StoreInventoryLine detailsInventaire = lastInventory(produitCriteria);
+            if (detailsInventaire != null) {
+                dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
+            }
+            DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
+            if (deliveryReceiptItem != null) {
+                dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
+            }
+        }
 
-  @Override
-  public void update(Produit produit) {
-    produitRepository.save(produit);
-  }
+        return dto;
+    }
 
-  @Override
-  public void updateFromCommande(ProduitDTO produitDTO, Produit produit) {
-    this.customizedProductService.updateFromCommande(produitDTO,produit);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public SalesLine lastSale(ProduitCriteria produitCriteria) {
+        return customizedProductService.lastSale(produitCriteria);
+    }
 
-  private Storage getPointOfSale() {
-    return magasinRepository.getReferenceById(1L).getPointOfSale();
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public StoreInventoryLine lastInventory(ProduitCriteria produitCriteria) {
+        return customizedProductService.lastInventory(produitCriteria);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
+        return customizedProductService.lastOrder(produitCriteria);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProduitDTO> findWithCriteria(ProduitCriteria produitCriteria) {
+        log.debug("Request to  findWithCriteria {} ", produitCriteria);
+        try {
+            return customizedProductService.findAll(produitCriteria);
+        } catch (Exception e) {
+            log.error("Request findWithCriteria  Produits : {}", e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void update(ProduitDTO produitDTO) {
+        log.debug("Request to update Produit : {}", produitDTO);
+        try {
+            customizedProductService.update(produitDTO);
+        } catch (Exception e) {
+            log.error("Request to update Produit : {}", e);
+        }
+    }
+
+    @Override
+    public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
+        try {
+            return customizedProductService.lite(produitCriteria, pageable);
+        } catch (Exception e) {
+            log.error("Request lite  Produits : {}", e);
+            return Page.empty();
+        }
+    }
+
+    @Override
+    public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
+        return customizedProductService.productsLiteList(produitCriteria, pageable);
+    }
+
+    @Override
+    public void updateDetail(ProduitDTO produitDTO) {
+        log.debug("Request to updateDetail Produit : {}", produitDTO);
+        try {
+            customizedProductService.updateDetail(produitDTO);
+        } catch (Exception e) {
+            log.error("Request to update Produit : {}", e);
+        }
+    }
+
+    @Override
+    public int getProductTotalStock(Long productId) {
+        return customizedProductService.produitTotalStockWithQantityUg(produitRepository.getReferenceById(productId));
+    }
+
+    @Override
+    public StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg) {
+        return customizedProductService.updateTotalStock(produit, stockIn, stockUg);
+    }
+
+    @Override
+    public void update(Produit produit) {
+        produitRepository.save(produit);
+    }
+
+    @Override
+    public void updateFromCommande(ProduitDTO produitDTO, Produit produit) {
+        this.customizedProductService.updateFromCommande(produitDTO, produit);
+    }
+
+    private Storage getPointOfSale() {
+        return magasinRepository.getReferenceById(1L).getPointOfSale();
+    }
 }

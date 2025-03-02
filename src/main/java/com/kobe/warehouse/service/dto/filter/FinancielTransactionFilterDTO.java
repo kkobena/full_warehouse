@@ -12,4 +12,5 @@ public record FinancielTransactionFilterDTO(
     TypeFinancialTransaction typeFinancialTransaction,
     CategorieChiffreAffaire categorieChiffreAffaire,
     String paymentMode,
-    String organismeId) {}
+    String organismeId
+) {}

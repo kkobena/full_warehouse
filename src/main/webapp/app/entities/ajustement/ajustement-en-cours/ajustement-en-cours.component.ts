@@ -67,8 +67,8 @@ export class AjustementEnCoursComponent implements OnInit {
       message: ' Voullez-vous supprimer cette ligne  ?',
       header: ' SUPPRESSION',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps,
-      acceptButtonProps: acceptButtonProps,
+      rejectButtonProps,
+      acceptButtonProps,
       accept: () => this.delete(ajust.id),
       key: 'delete',
     });

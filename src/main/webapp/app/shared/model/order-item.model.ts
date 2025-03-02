@@ -30,6 +30,6 @@ export class OrderItem implements IOrderItem {
     public ligne?: number,
     public prixAchat?: number,
     public quantityReceived?: number,
-    public quantityRequested?: number
+    public quantityRequested?: number,
   ) {}
 }

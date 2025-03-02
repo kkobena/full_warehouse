@@ -18,4 +18,5 @@ public record ProductStatRecord(
     BigDecimal discountAmountHorsUg,
     BigDecimal amountToBeTakenIntoAaccount,
     BigDecimal taxAmount,
-    BigDecimal htAmount) {}
+    BigDecimal htAmount
+) {}

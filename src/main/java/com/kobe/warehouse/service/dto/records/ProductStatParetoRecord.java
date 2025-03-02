@@ -13,4 +13,5 @@ public record ProductStatParetoRecord(
     BigDecimal netAmount,
     BigDecimal salesAmount,
     BigDecimal htAmount,
-    BigDecimal taxAmount) {}
+    BigDecimal taxAmount
+) {}

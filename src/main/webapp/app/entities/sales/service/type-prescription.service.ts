@@ -14,8 +14,6 @@ export class TypePrescriptionService {
     name: 'Prescription',
   });
 
-  constructor() {}
-
   setTypePrescription(typePrescription: ITypePrescription): void {
     this.typePrescription.set(typePrescription);
   }

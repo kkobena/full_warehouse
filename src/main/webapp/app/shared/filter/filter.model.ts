@@ -26,7 +26,7 @@ export class FilterOption implements IFilterOption {
   }
 
   nameAsQueryParam(): string {
-    return 'filter[' + this.name + ']';
+    return `filter[${this.name}]`;
   }
 
   isSet(): boolean {
@@ -67,7 +67,7 @@ export class FilterOption implements IFilterOption {
 }
 
 export class FilterOptions implements IFilterOptions {
-  readonly filterChanges: Subject<FilterOption[]> = new Subject();
+  readonly filterChanges = new Subject<FilterOption[]>();
   private _filterOptions: FilterOption[];
 
   constructor(filterOptions: FilterOption[] = []) {
@@ -121,7 +121,7 @@ export class FilterOptions implements IFilterOptions {
   }
 
   removeFilter(name: string, value: string): boolean {
-    if (this.getFilterOptionByName(name)?.removeValue(value)) {
+    if (this.getFilterOptionByName(name).removeValue(value)) {
       this.changed();
       return true;
     }
@@ -138,7 +138,7 @@ export class FilterOptions implements IFilterOptions {
     if (thisFilters.length !== otherFilters.length) {
       return false;
     }
-    return thisFilters.every(option => other.getFilterOptionByName(option.name)?.equals(option));
+    return thisFilters.every(option => other.getFilterOptionByName(option.name).equals(option));
   }
 
   protected clone(): FilterOptions {
@@ -146,8 +146,7 @@ export class FilterOptions implements IFilterOptions {
   }
 
   protected getFilterOptionByName(name: string, add: true): FilterOption;
-  protected getFilterOptionByName(name: string, add: false): FilterOption | null;
-  protected getFilterOptionByName(name: string): FilterOption | null;
+  protected getFilterOptionByName(name: string, add?: false): FilterOption | null;
   protected getFilterOptionByName(name: string, add = false): FilterOption | null {
     const addOption = (option: FilterOption): FilterOption => {
       this._filterOptions.push(option);

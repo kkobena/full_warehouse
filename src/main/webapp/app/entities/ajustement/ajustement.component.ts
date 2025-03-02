@@ -62,7 +62,7 @@ export class AjustementComponent implements OnInit {
   ajustementEnCours = viewChild(AjustementEnCoursComponent);
   ajustementList = viewChild(ListAjustementComponent);
   ajustementService = inject(AjustementService);
-  protected search: string = '';
+  protected search = '';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected users: IUser[] = [];

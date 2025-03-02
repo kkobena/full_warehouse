@@ -368,13 +368,12 @@ public class CustomizedProductRepository implements CustomizedProductService {
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
         return produitRepository
             .findById(produitId)
-            .map(
-                p ->
-                    ProduitBuilder.buildFromProduit(
-                        p,
-                        magasin,
-                        p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
-                    )
+            .map(p ->
+                ProduitBuilder.buildFromProduit(
+                    p,
+                    magasin,
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
+                )
             );
     }
 
@@ -400,9 +399,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         } else {
             Optional<RayonProduit> optionalRayonProduit = rayonProduits
                 .stream()
-                .filter(
-                    rayonProduit ->
-                        rayonProduit.getRayon().getStorage().getStorageType().name().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
+                .filter(rayonProduit ->
+                    rayonProduit.getRayon().getStorage().getStorageType().name().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
                 )
                 .findFirst();
             if (optionalRayonProduit.isPresent()) {
@@ -631,13 +629,12 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return q
             .getResultList()
             .stream()
-            .map(
-                e ->
-                    ProduitBuilder.fromProductLiteList(
-                        e,
-                        e.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null),
-                        magasin
-                    )
+            .map(e ->
+                ProduitBuilder.fromProductLiteList(
+                    e,
+                    e.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null),
+                    magasin
+                )
             )
             .toList();
     }

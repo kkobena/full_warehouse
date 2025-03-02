@@ -1,52 +1,42 @@
-<table class="main-table" >
-    <thead>
+<table class="main-table">
+  <thead>
     <tr>
-
-        <th style="width:12%;" class="text-left">CODE</th>
-        <th style="width:44%;" class="text-left">DESCRIPTION</th>
-        <th style="width:8%;" class="text-right">PRIX.U</th>
-        <th style="width:8%;" class="text-right">PRIX.A</th>
-        <th style="width:6%;" class="text-right">QTE</th>
-        <th style="width:6%;" class="text-right">STOCK</th>
-        <th style="width:8%;" class="text-right">TOTAL.A</th>
-        <th style="width:8%;" class="text-right">TOTAL.V</th>
+      <th style="width: 12%" class="text-left">CODE</th>
+      <th style="width: 44%" class="text-left">DESCRIPTION</th>
+      <th style="width: 8%" class="text-right">PRIX.U</th>
+      <th style="width: 8%" class="text-right">PRIX.A</th>
+      <th style="width: 6%" class="text-right">QTE</th>
+      <th style="width: 6%" class="text-right">STOCK</th>
+      <th style="width: 8%" class="text-right">TOTAL.A</th>
+      <th style="width: 8%" class="text-right">TOTAL.V</th>
     </tr>
-    </thead>
-    <tbody>
+  </thead>
+  <tbody>
     <tr th:each="itm : ${commande_items}" th:class="${itmStat.last}?'last-item':''">
-        <td  th:if="${#strings.isEmpty(itm.produitCodeEan)}"  class="text-left" th:text="${itm.produitCip}"></td>
-        <td  th:if="${!#strings.isEmpty(itm.produitCodeEan)}"  class="text-left" th:text="${itm.produitCodeEan}"></td>
-        <td class="text-left" th:text="${itm.produitLibelle}"></td>
-        <td th:if="${itm.orderUnitPrice ge 1000}" class="unit"
-            th:text="${#numbers.formatInteger(itm.orderUnitPrice,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.orderUnitPrice lt 1000}" class="unit" th:text="${itm.orderUnitPrice}"></td>
-        <td th:if="${itm.orderCostAmount ge 1000}" class="unit"
-            th:text="${#numbers.formatInteger(itm.orderCostAmount,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.orderCostAmount lt 1000}" class="unit" th:text="${itm.orderCostAmount}"></td>
+      <td th:if="${#strings.isEmpty(itm.produitCodeEan)}" class="text-left" th:text="${itm.produitCip}"></td>
+      <td th:if="${!#strings.isEmpty(itm.produitCodeEan)}" class="text-left" th:text="${itm.produitCodeEan}"></td>
+      <td class="text-left" th:text="${itm.produitLibelle}"></td>
+      <td th:if="${itm.orderUnitPrice ge 1000}" class="unit" th:text="${#numbers.formatInteger(itm.orderUnitPrice,3,'WHITESPACE')}"></td>
+      <td th:if="${itm.orderUnitPrice lt 1000}" class="unit" th:text="${itm.orderUnitPrice}"></td>
+      <td th:if="${itm.orderCostAmount ge 1000}" class="unit" th:text="${#numbers.formatInteger(itm.orderCostAmount,3,'WHITESPACE')}"></td>
+      <td th:if="${itm.orderCostAmount lt 1000}" class="unit" th:text="${itm.orderCostAmount}"></td>
 
+      <td
+        th:if="${itm.quantityRequested ge 1000}"
+        class="qty"
+        th:text="${#numbers.formatInteger(itm.quantityRequested,3,'WHITESPACE')}"
+      ></td>
+      <td th:if="${itm.quantityRequested lt 1000}" class="qty" th:text="${itm.quantityRequested}"></td>
 
-        <td th:if="${itm.quantityRequested ge 1000}" class="qty"
-            th:text="${#numbers.formatInteger(itm.quantityRequested,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.quantityRequested lt 1000}" class="qty"
-            th:text="${itm.quantityRequested}"></td>
+      <td th:if="${itm.initStock ge 1000}" class="qty" th:text="${#numbers.formatInteger(itm.initStock,3,'WHITESPACE')}"></td>
+      <td th:if="${itm.initStock lt 1000}" class="qty" th:text="${itm.initStock}"></td>
 
-        <td th:if="${itm.initStock ge 1000}" class="qty"
-            th:text="${#numbers.formatInteger(itm.initStock,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.initStock lt 1000}" class="qty"
-            th:text="${itm.initStock}"></td>
+      <td th:if="${itm.grossAmount ge 1000}" class="total" th:text="${#numbers.formatInteger(itm.grossAmount,3,'WHITESPACE')}"></td>
+      <td th:if="${itm.grossAmount lt 1000}" class="total" th:text="${itm.grossAmount}"></td>
 
-        <td th:if="${itm.grossAmount ge 1000}" class="total"
-            th:text="${#numbers.formatInteger(itm.grossAmount,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.grossAmount lt 1000}" class="total" th:text="${itm.grossAmount}"></td>
-
-
-        <td th:if="${itm.orderAmount ge 1000}" class="total"
-            th:text="${#numbers.formatInteger(itm.orderAmount,3,'WHITESPACE')}"></td>
-        <td th:if="${itm.orderAmount lt 1000}" class="total" th:text="${itm.orderAmount}"></td>
+      <td th:if="${itm.orderAmount ge 1000}" class="total" th:text="${#numbers.formatInteger(itm.orderAmount,3,'WHITESPACE')}"></td>
+      <td th:if="${itm.orderAmount lt 1000}" class="total" th:text="${itm.orderAmount}"></td>
     </tr>
-
-    </tbody>
-    <tfoot th:replace="~{commande/table-footer}">
-
-    </tfoot>
+  </tbody>
+  <tfoot th:replace="~{commande/table-footer}"></tfoot>
 </table>

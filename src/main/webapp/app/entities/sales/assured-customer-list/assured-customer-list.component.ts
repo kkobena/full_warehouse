@@ -16,19 +16,19 @@ import { CurrentSaleService } from '../service/current-sale.service';
 import { ISales } from '../../../shared/model/sales.model';
 
 @Component({
-    selector: 'jhi-assured-customer-list',
-    templateUrl: './assured-customer-list.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        TooltipModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        DynamicDialogModule,
-        TableModule,
-    ]
+  selector: 'jhi-assured-customer-list',
+  templateUrl: './assured-customer-list.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    TooltipModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+    TableModule,
+  ],
 })
 export class AssuredCustomerListComponent implements OnInit {
   private ref = inject(DynamicDialogRef);
@@ -44,11 +44,6 @@ export class AssuredCustomerListComponent implements OnInit {
   customerService = inject(CustomerService);
   dialogService = inject(DialogService);
   loading!: boolean;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.searchString = this.config.data.searchString;

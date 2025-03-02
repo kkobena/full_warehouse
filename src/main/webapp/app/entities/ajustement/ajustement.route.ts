@@ -7,7 +7,6 @@ import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { AjustementService } from './ajustement.service';
 
-
 import { Ajust, IAjust } from '../../shared/model/ajust.model';
 
 export const AjustementResolve = (route: ActivatedRouteSnapshot): Observable<null | IAjust> => {

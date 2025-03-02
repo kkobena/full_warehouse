@@ -38,7 +38,7 @@ export class AssureFormStepComponent implements OnInit {
   customerService = inject(CustomerService);
   isSaving = false;
   typeAssure: string | undefined;
-  activeStep: number = 1;
+  activeStep = 1;
 
   constructor() {}
 
@@ -75,11 +75,11 @@ export class AssureFormStepComponent implements OnInit {
 
   currentCustomerState(): void {
     const currentAssure = this.assureFormStepService.assure();
-    const ayantDroits = currentAssure?.ayantDroits;
+    const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
     // const complementaires = currentAssure?.tiersPayants;
     this.assureFormStepService.setAssure({
       ...this.assureStepComponent().createFromForm(),
-      ayantDroits: ayantDroits,
+      ayantDroits,
       // tiersPayants: complementaires,
     });
   }

@@ -14,19 +14,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
-    selector: 'jhi-form-motif-ajustement',
-    templateUrl: './form-motif-ajustement.component.html',
-    styles: [],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        DynamicDialogModule,
-    ]
+  selector: 'jhi-form-motif-ajustement',
+  templateUrl: './form-motif-ajustement.component.html',
+  styles: [],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormMotifAjustementComponent implements OnInit {
   protected entityService = inject(ModifAjustementService);
@@ -41,11 +41,6 @@ export class FormMotifAjustementComponent implements OnInit {
     id: [],
     libelle: [null, [Validators.required]],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -76,10 +71,10 @@ export class FormMotifAjustementComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
-    result.subscribe(
-      (res: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(res.body),
-      () => this.onSaveError(),
-    );
+    result.subscribe({
+      next: (response: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(response.body),
+      error: () => this.onSaveError(),
+    });
   }
 
   protected onSaveSuccess(response: IMotifAjustement | null): void {
@@ -103,8 +98,8 @@ export class FormMotifAjustementComponent implements OnInit {
   private createFromForm(): IMotifAjustement {
     return {
       ...new MotifAjustement(),
-      id: this.editForm.get(['id'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
+      id: this.editForm.get(['id']).value,
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

@@ -20,11 +20,10 @@ public class WarehouseCalendarService {
     public WarehouseCalendar initCalendar() {
         LocalDate now = LocalDate.now();
         Optional<WarehouseCalendar> optionalWarehouseCalendar = warehouseCalendarRepository.findById(now);
-        return optionalWarehouseCalendar.orElseGet(
-            () ->
-                warehouseCalendarRepository.save(
-                    new WarehouseCalendar().setWorkDay(now).setWorkMonth(now.getMonthValue()).setWorkYear(now.getYear())
-                )
+        return optionalWarehouseCalendar.orElseGet(() ->
+            warehouseCalendarRepository.save(
+                new WarehouseCalendar().setWorkDay(now).setWorkMonth(now.getMonthValue()).setWorkYear(now.getYear())
+            )
         );
     }
 }

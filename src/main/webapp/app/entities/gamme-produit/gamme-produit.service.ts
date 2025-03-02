@@ -45,9 +45,7 @@ export class GammeProduitService {
 
   async queryPromise(req?: any): Promise<IGammeProduit[]> {
     const options = createRequestOption(req);
-    return await this.http
-      .get<IGammeProduit[]>(this.resourceUrl, { params: options })
-      .toPromise();
+    return await this.http.get<IGammeProduit[]>(this.resourceUrl, { params: options }).toPromise();
   }
 
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {

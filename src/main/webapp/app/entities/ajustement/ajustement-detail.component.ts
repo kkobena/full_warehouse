@@ -177,13 +177,13 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   onUpdateQuantity(ajustement: IAjustement, event: any): void {
-    const newQuantityRequested: number = Number(event.target.value);
+    const newQuantityRequested = Number(event.target.value);
     ajustement.qtyMvt = newQuantityRequested;
     this.subscribeAddItemResponse(this.ajustementService.updateItem(ajustement));
   }
 
   ngAfterViewInit(): void {
-    this.motif()?.focus();
+    this.motif().focus();
   }
 
   protected onQuantityBoxAction(event: any): void {
@@ -204,7 +204,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       if (!this.motifSelected) {
         this.showWarningMessage();
       } else {
-        if (this.ajustement?.id) {
+        if (this.ajustement.id) {
           this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
         } else {
           this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
@@ -386,7 +386,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       ...new Ajustement(),
       produitId: produit.id,
       qtyMvt: quantity,
-      ajustId: this.ajustement?.id,
+      ajustId: this.ajustement.id,
       motifAjustementId: this.motifSelected,
     };
   }

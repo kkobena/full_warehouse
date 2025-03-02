@@ -1,6 +1,5 @@
 <p-toast position="center"></p-toast>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
   <div class="p-col-12">
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
@@ -9,76 +8,72 @@
 
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Libellé<span
-        style="font-weight: 900;color: red;">*</span></label>
-        <input autocomplete="off" class="form-control" formControlName="libelle" name="libelle"
-          pInputText
-          type="text" />
-          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
-            <div
-              >
-              @if (editForm.get('libelle')?.errors?.required) {
-                <small class="form-text text-danger"
-                  style="color: red;">
-                  Ce champ est obligatoire.
-                </small>
-              }
-            </div>
-          }
-        </div>
-      </div>
-      <div class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col">
-          <label class="col-auto col-form-label">Code<span
-          style="font-weight: 900;color: red;">*</span></label>
-          <input autocomplete="off" class="form-control" formControlName="code" name="code" pInputText
-            type="text" />
-            @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
-              <div
-                >
-                @if (editForm.get('code')?.errors?.required) {
-                  <small class="form-text text-danger"
-                    style="color: red;">
-                    Ce champ est obligatoire.
-                  </small>
-                }
-              </div>
+        <label class="col-auto col-form-label">Libellé<span style="font-weight: 900; color: red">*</span></label>
+        <input autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText type="text" />
+        @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+          <div>
+            @if (editForm.get('libelle')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
-        </div>
-        <div class="p-fluid p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label class="col-auto col-form-label">Catégorie<span
-            style="font-weight: 900;color: red;">*</span></label>
-
-            <p-dropdown [filter]="true" [options]="categorieproduits" [style]="{'width':'100%'}"
-              [virtualScroll]="true" appendTo="body" formControlName="categorieId"
-              id="categorieId" name="categorieId"
-              placeholder="Séléctionner une catégorie ">
-            </p-dropdown>
-            @if (editForm.get('categorieId')!.invalid && (editForm.get('categorieId')!.dirty || editForm.get('categorieId')!.touched)) {
-              <div
-                >
-                @if (editForm.get('categorieId')?.errors?.required) {
-                  <small class="form-text text-danger"
-                    style="color: red;">
-                    Ce champ est obligatoire.
-                  </small>
-                }
-              </div>
+        }
+      </div>
+    </div>
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Code<span style="font-weight: 900; color: red">*</span></label>
+        <input autocomplete="off" class="form-control" formControlName="code" name="code" pInputText type="text" />
+        @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
+          <div>
+            @if (editForm.get('code')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
-        </div>
+        }
       </div>
-      <div style="float: right;margin-top:15px;">
-        <button [disabled]="editForm.invalid || isSaving"
-          class="p-button-success p-mr-2 p-button-raised" icon="pi pi-check" label="Enregistrer"
-          pButton
-        type="submit"></button>
-        <button (click)="cancel()" class="p-button-danger p-mr-2 p-button-raised" icon="pi pi-times"
-          label="Annuler"
-          pButton
-        type="button"></button>
-      </div>
+    </div>
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Catégorie<span style="font-weight: 900; color: red">*</span></label>
 
-    </form>
+        <p-dropdown
+          [filter]="true"
+          [options]="categorieproduits"
+          [style]="{ width: '100%' }"
+          [virtualScroll]="true"
+          appendTo="body"
+          formControlName="categorieId"
+          id="categorieId"
+          name="categorieId"
+          placeholder="Séléctionner une catégorie "
+        >
+        </p-dropdown>
+        @if (editForm.get('categorieId')!.invalid && (editForm.get('categorieId')!.dirty || editForm.get('categorieId')!.touched)) {
+          <div>
+            @if (editForm.get('categorieId')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div style="float: right; margin-top: 15px">
+    <button
+      [disabled]="editForm.invalid || isSaving"
+      class="p-button-success p-mr-2 p-button-raised"
+      icon="pi pi-check"
+      label="Enregistrer"
+      pButton
+      type="submit"
+    ></button>
+    <button
+      (click)="cancel()"
+      class="p-button-danger p-mr-2 p-button-raised"
+      icon="pi pi-times"
+      label="Annuler"
+      pButton
+      type="button"
+    ></button>
+  </div>
+</form>

@@ -90,15 +90,15 @@ export class BaseSaleComponent {
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
-      this.amountComputingComponent()?.computeMonnaie(amount);
+      this.amountComputingComponent().computeMonnaie(amount);
     } else {
       const inputAmount = Number(paymentModeControl.control.target.value);
-      this.amountComputingComponent()?.computeMonnaie(inputAmount);
+      this.amountComputingComponent().computeMonnaie(inputAmount);
       this.modeReglementComponent().manageShowAddButton(inputAmount);
     }
   }
 
-  finalyseSale(putsOnStandby: boolean = false): void {
+  finalyseSale(putsOnStandby = false): void {
     const entryAmount = this.getEntryAmount();
     this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
     this.currentSaleService.currentSale().type = 'VO';
@@ -124,27 +124,27 @@ export class BaseSaleComponent {
   }
 
   isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale().differe /*&& !this.sale.customerId*/;
+    return this.currentSaleService.currentSale().differe /* && !this.sale.customerId*/;
   }
 
   onLoadPrevente(): void {
-    this.modeReglementComponent()?.buildPreventeReglementInput();
+    this.modeReglementComponent().buildPreventeReglementInput();
     setTimeout(() => {
       this.baseSaleService.setInputBoxFocus('produitBox');
     }, 50);
   }
 
   getEntryAmount(): number {
-    return this.modeReglementComponent()?.getInputSum() || 0;
+    return this.modeReglementComponent().getInputSum() || 0;
   }
 
   computExtraInfo(): void {
-    this.currentSaleService.currentSale().commentaire = this.modeReglementComponent()?.commentaire || null;
+    this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire || null;
   }
 
   save(): void {
     this.isSaving = true;
-    if (this.currentSaleService.currentSale()?.amountToBePaid > 0) {
+    if (this.currentSaleService.currentSale().amountToBePaid > 0) {
       const entryAmount = this.getEntryAmount();
       const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
       this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
@@ -170,7 +170,7 @@ export class BaseSaleComponent {
         this.currentSaleService.currentSale().differe = true;
         this.finalyseSale();
       },
-      reject: () => {},
+      reject() {},
       key: 'differeConfirmDialog',
     });
   }
@@ -200,10 +200,10 @@ export class BaseSaleComponent {
         this.baseSaleService.createSale(
           salesLine,
           tiersPayants,
-          this.typePrescriptionService.typePrescription()?.code,
-          this.userCaissierService.caissier()?.id,
-          this.userVendeurService.vendeur()?.id,
-          this.selectedCustomerService.selectedCustomerSignal()?.id,
+          this.typePrescriptionService.typePrescription().code,
+          this.userCaissierService.caissier().id,
+          this.userVendeurService.vendeur().id,
+          this.selectedCustomerService.selectedCustomerSignal().id,
           this.currentSaleService.typeVo(),
         ),
       ),
@@ -274,7 +274,7 @@ export class BaseSaleComponent {
   }
 
   printInvoice(): void {
-    this.salesService.printInvoice(this.currentSaleService.currentSale()?.id).subscribe(blod => {
+    this.salesService.printInvoice(this.currentSaleService.currentSale().id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -317,7 +317,7 @@ export class BaseSaleComponent {
           error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
         });
     } else {
-      if (this.currentSaleService.currentSale()?.remise) {
+      if (this.currentSaleService.currentSale().remise) {
         this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
           next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
           error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
@@ -333,7 +333,7 @@ export class BaseSaleComponent {
       if (remise) {
         this.onAddRmiseOpenActionAutorisationDialog(remise);
       } else {
-        if (this.currentSaleService.currentSale()?.remise) {
+        if (this.currentSaleService.currentSale().remise) {
           this.onAddRmiseOpenActionAutorisationDialog(remise);
         }
       }

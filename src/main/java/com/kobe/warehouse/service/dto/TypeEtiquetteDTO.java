@@ -1,17 +1,17 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.TypeEtiquette;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class TypeEtiquetteDTO implements Serializable {
+
     private Long id;
+
     @NotNull
     private String libelle;
 
-    public TypeEtiquetteDTO() {
-    }
+    public TypeEtiquetteDTO() {}
 
     public TypeEtiquetteDTO(TypeEtiquette typeEtiquette) {
         id = typeEtiquette.getId();

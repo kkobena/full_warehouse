@@ -8,9 +8,8 @@ describe('EtatControlAchatAnnuelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EtatControlAchatAnnuelComponent]
-    })
-    .compileComponents();
+      imports: [EtatControlAchatAnnuelComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EtatControlAchatAnnuelComponent);
     component = fixture.componentInstance;

@@ -12,8 +12,7 @@ public class CommandeResponseDTO {
     private List<OrderItem> items = new ArrayList<>();
     private DeliveryReceiptLiteDTO entity;
 
-    public CommandeResponseDTO() {
-    }
+    public CommandeResponseDTO() {}
 
     public DeliveryReceiptLiteDTO getEntity() {
         return entity;

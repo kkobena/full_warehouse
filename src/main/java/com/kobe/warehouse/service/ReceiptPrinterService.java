@@ -20,71 +20,65 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReceiptPrinterService {
-  private final SaleReceiptService saleReceiptService;
-  private final StorageService storageService;
-  private final Logger log = LoggerFactory.getLogger(ReceiptPrinterService.class);
 
-  public ReceiptPrinterService(
-      SaleReceiptService saleReceiptService, StorageService storageService) {
-    this.saleReceiptService = saleReceiptService;
-    this.storageService = storageService;
-  }
+    private final SaleReceiptService saleReceiptService;
+    private final StorageService storageService;
+    private final Logger log = LoggerFactory.getLogger(ReceiptPrinterService.class);
 
-  public void printCashSale(Long saleId) {
-    Runnable runnableTask =
-        () -> {
-          try (PDDocument document =
-              Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-            printerJob.setPrintService(findPrintService());
-            printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
-            printerJob.print();
-          } catch (IOException | PrinterException e) {
-            log.error("printCashSale : {}", e.getLocalizedMessage());
-          }
+    public ReceiptPrinterService(SaleReceiptService saleReceiptService, StorageService storageService) {
+        this.saleReceiptService = saleReceiptService;
+        this.storageService = storageService;
+    }
+
+    public void printCashSale(Long saleId) {
+        Runnable runnableTask = () -> {
+            try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
+                PrinterJob printerJob = PrinterJob.getPrinterJob();
+                printerJob.setPrintService(findPrintService());
+                printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
+                printerJob.print();
+            } catch (IOException | PrinterException e) {
+                log.error("printCashSale : {}", e.getLocalizedMessage());
+            }
         };
-    runnableTask.run();
-  }
+        runnableTask.run();
+    }
 
-  public void printVoSale(Long saleId) {
-    Runnable runnableTask =
-        () -> {
-          try (PDDocument document =
-              Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-            printerJob.setPrintService(findPrintService());
-            printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
-            printerJob.print();
-          } catch (IOException | PrinterException e) {
-            log.debug("printVoSale : {}", e.getLocalizedMessage());
-          }
+    public void printVoSale(Long saleId) {
+        Runnable runnableTask = () -> {
+            try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
+                PrinterJob printerJob = PrinterJob.getPrinterJob();
+                printerJob.setPrintService(findPrintService());
+                printerJob.setPageable(new PDFPageable(document, Orientation.AUTO));
+                printerJob.print();
+            } catch (IOException | PrinterException e) {
+                log.debug("printVoSale : {}", e.getLocalizedMessage());
+            }
         };
-    runnableTask.run();
-  }
-
-  private PrintService findPrintService() {
-    // findPrintService("\\\\192.168.1.104\\HP LaserJet P1007");
-    User user = storageService.getUser();
-    String printerName = null;
-    Printer userPrinter = user.getPrinter();
-    if (userPrinter != null) {
-      printerName = userPrinter.getName();
+        runnableTask.run();
     }
 
-    if (StringUtils.isEmpty(printerName)) {
-      return PrintServiceLookup.lookupDefaultPrintService();
-    }
-    PrintService[] printServices = PrinterJob.lookupPrintServices();
-    for (PrintService printService : printServices) {
-      if (printService.getName().equals(printerName)) {
+    private PrintService findPrintService() {
+        // findPrintService("\\\\192.168.1.104\\HP LaserJet P1007");
+        User user = storageService.getUser();
+        String printerName = null;
+        Printer userPrinter = user.getPrinter();
+        if (userPrinter != null) {
+            printerName = userPrinter.getName();
+        }
 
-        return printService;
-      }
+        if (StringUtils.isEmpty(printerName)) {
+            return PrintServiceLookup.lookupDefaultPrintService();
+        }
+        PrintService[] printServices = PrinterJob.lookupPrintServices();
+        for (PrintService printService : printServices) {
+            if (printService.getName().equals(printerName)) {
+                return printService;
+            }
+        }
+        return PrintServiceLookup.lookupDefaultPrintService();
     }
-    return PrintServiceLookup.lookupDefaultPrintService();
-  }
-
-  /*
+    /*
     common size
   80*80
   58

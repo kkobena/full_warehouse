@@ -250,20 +250,20 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onLoadPrevente(sales: ISales, toEdit: boolean = false): void {
+  onLoadPrevente(sales: ISales, toEdit = false): void {
     if (!toEdit && sales.statut !== SalesStatut.CLOSED) {
       // modification vente cloturee
-      //1 annuler la vente originale
+      // 1 annuler la vente originale
       // gerer ordonnance de la vente vo
-      //Afficher
-      //Avoir
+      // Afficher
+      // Avoir
       // suggestion auto
-      //moidfier info client vo
-      //modifier date vo
+      // moidfier info client vo
+      // modifier date vo
       // suggestion d'une vente
-      //annulerVenteAnterieur
-      //vente vo à exclure
-      //annulerVenteAnterieur
+      // annulerVenteAnterieur
+      // vente vo à exclure
+      // annulerVenteAnterieur
       // notification
       this.router.navigate(['/sales', false, 'new']);
     } else {
@@ -282,7 +282,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       //   this.selectedCustomerService.setCustomer(sales.customer);
       this.naturesVente = this.naturesVentes.find(e => e.code === sales.natureVente) || null;
       this.typePrescriptionService.setTypePrescription(this.typePrescription);
-      this.userSeller = this.userVendeurService.vendeurs()?.find(e => e.id === sales.sellerId) || this.userSeller;
+      this.userSeller = this.userVendeurService.vendeurs().find(e => e.id === sales.sellerId) || this.userSeller;
       this.userVendeurService.setVendeur(this.userSeller);
       this.loadPrevente();
     }
@@ -437,7 +437,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.stockSeverity = 'danger';
       }
-    } else if (event.key === 'Enter' && this.currentSaleService.currentSale()?.salesLines.length > 0) {
+    } else if (event.key === 'Enter' && this.currentSaleService.currentSale().salesLines.length > 0) {
       if (this.isVoSale() && this.currentSaleService.currentSale().amountToBePaid === 0) {
         this.save();
       } else {
@@ -850,7 +850,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getToolBarCustomerCssClass(): string {
-    let css = 'col-md-6';
+    const css = 'col-md-6';
     if (this.currentSaleService.currentSale() && !this.selectedCustomerService.selectedCustomerSignal()) {
       return 'col-md-5';
     }
@@ -893,7 +893,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.active = 'carnet';
           }
         },
-        reject: () => {
+        reject() {
           evt.preventDefault();
         },
         key: 'changeTab',
@@ -927,7 +927,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.check) {
       this.produitbox().inputEL.nativeElement.focus();
-    } /*else {
+    } /* else {
       this.forcerStockDialogBtn().nativeElement.focus();
     }*/
 
@@ -1075,8 +1075,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
     const emptyBon = (element: IClientTiersPayant) =>
-      element.numBon === undefined || element.numBon === null || element.numBon?.trim() === '';
-    return this.currentSaleService.currentSale().tiersPayants?.some(emptyBon);
+      element.numBon === undefined || element.numBon === null || element.numBon.trim() === '';
+    return this.currentSaleService.currentSale().tiersPayants.some(emptyBon);
   }
 
   private getMessateOnNavChange(evt: NgbNavChangeEvent): string {
@@ -1120,7 +1120,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
-      saleId: this.currentSaleService.currentSale()?.id,
+      saleId: this.currentSaleService.currentSale().id,
       quantitySold: quantityRequested,
       quantityRequested,
       sales: this.currentSaleService.currentSale(),

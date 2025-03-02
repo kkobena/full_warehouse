@@ -8,10 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Facture } from './facture.model';
 import { FactureService } from './facture.service';
 
-
-
-
-
 export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null | Facture> => {
   const id = route.params['id'];
   if (id) {

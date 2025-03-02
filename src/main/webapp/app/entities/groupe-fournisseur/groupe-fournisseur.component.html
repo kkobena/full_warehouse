@@ -1,53 +1,60 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
-
-</p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-
-          [style]="{width: '50vw'}" header="Importer un fichier">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onUpload($event)" [customUpload]="true"
-                  accept=".txt,.csv,.xls,.xlsx"
-                  cancelLabel="Annuler"
-                  chooseLabel="Importer un fichier" name="importcsv"
-                  uploadLabel="Enrégistrer">
+    <p-fileupload
+      (uploadHandler)="onUpload($event)"
+      [customUpload]="true"
+      accept=".txt,.csv,.xls,.xlsx"
+      cancelLabel="Annuler"
+      chooseLabel="Importer un fichier"
+      name="importcsv"
+      uploadLabel="Enrégistrer"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times"
-              label="Annuler"
-              raised="true"
-              severity="danger" type="button"></p-button>
-
+    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
-<div><h3>Liste des groupes de grossiste</h3>
+<div>
+  <h3>Liste des groupes de grossiste</h3>
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-7">
-                    <span class="p-input-icon-left" style="width: 70%;">
-                        <i class="pi pi-search"></i>
-                        <input (keyup.enter)="search($event)" pInputText
-                               placeholder="Taper pour rechercher"
-                               style="width:98%;"
-                               type="text">
-                    </span>
+
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
+      </p-iconfield>
+
     </div>
     <div class="p-toolbar-group-right">
-      <p-button (click)="showFileDialog()" class="p-mr-2" icon="pi pi-upload" label="Importer"
-                raised="true"
-                severity="help" type="button"></p-button>
-      <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau"
-                raised="true"
-                severity="success" type="button"></p-button>
+      <p-button
+        (click)="showFileDialog()"
+        class="p-mr-2"
+        icon="pi pi-upload"
+        label="Importer"
+        raised="true"
+        severity="help"
+        type="button"
+      ></p-button>
+      <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
     </div>
   </p-toolbar>
   @if (entites && entites.length > 0) {
-    <p-table (onLazyLoad)="lazyLoading($event)"
-             [(selection)]="selectedEl"
-             [lazy]="true" [loading]="loading" [paginator]="true" [rows]="itemsPerPage"
-             [totalRecords]="totalItems"
-             [value]="entites" dataKey="id" selectionMode="single"
-             styleClass="ui-table-cars">
+    <p-table
+      (onLazyLoad)="lazyLoading($event)"
+      [(selection)]="selectedEl"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="itemsPerPage"
+      [totalRecords]="totalItems"
+      [value]="entites"
+      dataKey="id"
+      selectionMode="single"
+      styleClass="ui-table-cars"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th scope="col"><span>Libellé</span></th>
@@ -67,15 +74,23 @@
           <td>{{ elRow.tel }}</td>
           <td>{{ elRow.numFaxe }}</td>
           <td>{{ elRow.odre }}</td>
-          <td style="text-align: center;">
-            <p-button (click)="onEdit(elRow)" class="p-mr-2"
-                      icon="pi pi-pencil" rounded="true"
-                      severity="success"
-                      pTooltip="Editer"
+          <td style="text-align: center">
+            <p-button
+              (click)="onEdit(elRow)"
+              class="p-mr-2"
+              icon="pi pi-pencil"
+              rounded="true"
+              severity="success"
+              pTooltip="Editer"
             ></p-button>
-            <p-button (click)="delete(elRow)"
-                      icon="pi pi-trash" severity="danger" [rounded]="true"
-                      pTooltip="Supprimer" type="button"></p-button>
+            <p-button
+              (click)="delete(elRow)"
+              icon="pi pi-trash"
+              severity="danger"
+              [rounded]="true"
+              pTooltip="Supprimer"
+              type="button"
+            ></p-button>
           </td>
         </tr>
       </ng-template>
@@ -85,30 +100,35 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
-
 </div>
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <p-dialog [(visible)]="displayDialog" [focusOnShow]="false" [modal]="true"
-            [style]="{width: '600px'}" header="Créer ou éditer un grossiste"
+  <p-dialog
+    [(visible)]="displayDialog"
+    [focusOnShow]="false"
+    [modal]="true"
+    [style]="{ width: '600px' }"
+    header="Créer ou éditer un grossiste"
   >
     <ng-template pTemplate="content">
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
-
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
       <div class="ui-g form-group">
         <label for="field_libelle">Libellé</label>
-        <div class="ui-g-12" style="margin-bottom:10px">
-          <input autocomplete="off" class="form-control" formControlName="libelle"
-                 id="field_libelle"
-                 name="libelle"
-                 pInputText style="width: 100%;" />
+        <div class="ui-g-12" style="margin-bottom: 10px">
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="libelle"
+            id="field_libelle"
+            name="libelle"
+            pInputText
+            style="width: 100%"
+          />
         </div>
-        <div
-          *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
-          <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger"
-                 style="color: red;">
+        <div *ngIf="editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)">
+          <small *ngIf="editForm.get('libelle')?.errors?.required" class="form-text text-danger" style="color: red">
             Ce champ est obligatoire.
           </small>
         </div>
@@ -116,40 +136,59 @@
       <div class="ui-g form-group">
         <label for="field_odre">Orde de priorité</label>
         <div class="ui-g-12">
-
-          <input autocomplete="off" formControlName="odre" id="field_odre" name="odre" pInputText
-                 pKeyFilter="int" style="width: 100%;" type="text">
+          <input
+            autocomplete="off"
+            formControlName="odre"
+            id="field_odre"
+            name="odre"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
         </div>
       </div>
       <div class="ui-g form-group">
         <label for="field_tel">Téléphone</label>
         <div class="ui-g-12">
-
-          <input autocomplete="off" formControlName="tel" id="field_tel" name="tel" pInputText
-                 pKeyFilter="int" style="width: 100%;" type="text">
+          <input
+            autocomplete="off"
+            formControlName="tel"
+            id="field_tel"
+            name="tel"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
         </div>
       </div>
       <div class="ui-g form-group">
         <label for="field_addresspostale">Adresse postale</label>
         <div class="ui-g-12">
-          <input autocomplete="off" formControlName="addresspostale" id="field_addresspostale"
-                 name="addresspostale"
-                 pInputText
-                 style="width: 100%;" type="text" />
+          <input
+            autocomplete="off"
+            formControlName="addresspostale"
+            id="field_addresspostale"
+            name="addresspostale"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
         </div>
       </div>
     </ng-template>
     <ng-template #footer>
-      <p-button (click)="save()" [disabled]="editForm.invalid || isSaving" class=" p-mr-2"
-                icon="pi pi-check" label="Enregistrer"
-
-                severity="success" type="submit"></p-button>
-      <p-button (click)="cancel()" class=" p-mr-2" icon="pi pi-times" label="Annuler"
-
-
-                severity="danger"
-                type="button"></p-button>
-
+      <p-button
+        (click)="save()"
+        [disabled]="editForm.invalid || isSaving"
+        class="p-mr-2"
+        icon="pi pi-check"
+        label="Enregistrer"
+        severity="success"
+        type="submit"
+      ></p-button>
+      <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
     </ng-template>
   </p-dialog>
 </form>

@@ -6,5 +6,8 @@ export interface IResponseCommande {
 }
 
 export class ResponseCommande implements IResponseCommande {
-  constructor(public items?: IResponseCommandeItem[], public extraItems?: IResponseCommandeItem[]) {}
+  constructor(
+    public items?: IResponseCommandeItem[],
+    public extraItems?: IResponseCommandeItem[],
+  ) {}
 }

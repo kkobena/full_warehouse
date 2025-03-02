@@ -10,10 +10,10 @@ import { ReglementService } from '../reglement.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Component({
-    selector: 'jhi-detail-single-reglement',
-    imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule],
-    templateUrl: './detail-single-reglement.component.html',
-    styles: ``
+  selector: 'jhi-detail-single-reglement',
+  imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule],
+  templateUrl: './detail-single-reglement.component.html',
+  styles: ``,
 })
 export class DetailSingleReglementComponent implements OnInit {
   modalService = inject(NgbModal);
@@ -30,7 +30,7 @@ export class DetailSingleReglementComponent implements OnInit {
   ngOnInit(): void {
     if (this.reglement && this.reglement.id) {
       this.reglementService.getItems(this.reglement.id).subscribe((res: HttpResponse<InvoicePaymentItem[]>) => {
-        this.datas = res?.body || [];
+        this.datas = res.body || [];
       });
     }
   }

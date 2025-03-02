@@ -3,16 +3,12 @@ export interface ITableau {
   value?: number;
 
   code?: string;
-
-
 }
 
 export class Tableau implements ITableau {
   constructor(
     public id?: number,
     public value?: number,
-    public code?: string
-  ) {
-
-  }
+    public code?: string,
+  ) {}
 }

@@ -1,247 +1,257 @@
 <table class="main-table">
   <thead>
-  <tr>
-    <th class="text-center" rowspan="2">Type</th>
-    <th class="text-center" rowspan="2">Nombre</th>
-    <th class="text-center" colspan="4">Montants</th>
-    <th class="text-center" rowspan="2">Pamier.Moyen</th>
-    <th class="text-center" colspan="5">Modes règlements</th>
-    <th class="text-center" rowspan="2">Différé</th>
-    <th class="text-center" rowspan="2">Tiers-payant</th>
-  </tr>
-  <tr>
-    <th class="text-center">Brut(TTC)</th>
-    <th class="text-center">Remise</th>
-    <th class="text-center">Net(TTC)</th>
-    <th class="text-center">%</th>
-    <th class="text-center">Espèce</th>
-    <th class="text-center">Chèque</th>
-    <th class="text-center">CB</th>
-    <th class="text-center">Virement</th>
-    <th class="text-center">Mobile</th>
-  </tr>
+    <tr>
+      <th class="text-center" rowspan="2">Type</th>
+      <th class="text-center" rowspan="2">Nombre</th>
+      <th class="text-center" colspan="4">Montants</th>
+      <th class="text-center" rowspan="2">Pamier.Moyen</th>
+      <th class="text-center" colspan="5">Modes règlements</th>
+      <th class="text-center" rowspan="2">Différé</th>
+      <th class="text-center" rowspan="2">Tiers-payant</th>
+    </tr>
+    <tr>
+      <th class="text-center">Brut(TTC)</th>
+      <th class="text-center">Remise</th>
+      <th class="text-center">Net(TTC)</th>
+      <th class="text-center">%</th>
+      <th class="text-center">Espèce</th>
+      <th class="text-center">Chèque</th>
+      <th class="text-center">CB</th>
+      <th class="text-center">Virement</th>
+      <th class="text-center">Mobile</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
-    <td th:text="${itm.typeVeTypeAffichage}"></td>
+    <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+      <td th:text="${itm.typeVeTypeAffichage}"></td>
 
-    <td class="unit" th:if="${itm.count ge 1000}"
-        th:text="${#numbers.formatInteger(itm.count,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.count lt 1000}" th:text="${itm.count}"></td>
+      <td class="unit" th:if="${itm.count ge 1000}" th:text="${#numbers.formatInteger(itm.count,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.count lt 1000}" th:text="${itm.count}"></td>
 
-    <td class="unit" th:if="${itm.montantTtc ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantTtc,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantTtc lt 1000}" th:text="${itm.montantTtc}"></td>
+      <td class="unit" th:if="${itm.montantTtc ge 1000}" th:text="${#numbers.formatInteger(itm.montantTtc,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantTtc lt 1000}" th:text="${itm.montantTtc}"></td>
 
-    <td class="unit" th:if="${itm.montantDiscount ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantDiscount,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantDiscount lt 1000}" th:text="${itm.montantDiscount}"></td>
+      <td class="unit" th:if="${itm.montantDiscount ge 1000}" th:text="${#numbers.formatInteger(itm.montantDiscount,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantDiscount lt 1000}" th:text="${itm.montantDiscount}"></td>
 
-    <td class="unit" th:if="${itm.montantNet ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantNet,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantNet lt 1000}" th:text="${itm.montantNet}"></td>
+      <td class="unit" th:if="${itm.montantNet ge 1000}" th:text="${#numbers.formatInteger(itm.montantNet,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantNet lt 1000}" th:text="${itm.montantNet}"></td>
 
-    <td class="unit" th:if="${itm.typeSalePercent ge 1000}"
-        th:text="${#numbers.formatInteger(itm.typeSalePercent,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.typeSalePercent lt 1000}" th:text="${itm.typeSalePercent}"></td>
+      <td class="unit" th:if="${itm.typeSalePercent ge 1000}" th:text="${#numbers.formatInteger(itm.typeSalePercent,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.typeSalePercent lt 1000}" th:text="${itm.typeSalePercent}"></td>
 
-    <td class="unit" th:if="${itm.panierMoyen ge 1000}"
-        th:text="${#numbers.formatInteger(itm.panierMoyen,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.panierMoyen lt 1000}" th:text="${itm.panierMoyen}"></td>
+      <td class="unit" th:if="${itm.panierMoyen ge 1000}" th:text="${#numbers.formatInteger(itm.panierMoyen,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.panierMoyen lt 1000}" th:text="${itm.panierMoyen}"></td>
 
-    <td class="unit" th:if="${itm.montantCash ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantCash,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantCash lt 1000}" th:text="${itm.montantCash}"></td>
+      <td class="unit" th:if="${itm.montantCash ge 1000}" th:text="${#numbers.formatInteger(itm.montantCash,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantCash lt 1000}" th:text="${itm.montantCash}"></td>
 
+      <td class="unit" th:if="${itm.montantCheck ge 1000}" th:text="${#numbers.formatInteger(itm.montantCheck,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantCheck lt 1000}" th:text="${itm.montantCheck}"></td>
 
-    <td class="unit" th:if="${itm.montantCheck ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantCheck,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantCheck lt 1000}" th:text="${itm.montantCheck}"></td>
+      <td class="unit" th:if="${itm.montantCard ge 1000}" th:text="${#numbers.formatInteger(itm.montantCard,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantCard lt 1000}" th:text="${itm.montantCard}"></td>
 
-    <td class="unit" th:if="${itm.montantCard ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantCard,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantCard lt 1000}" th:text="${itm.montantCard}"></td>
+      <td class="unit" th:if="${itm.montantVirement ge 1000}" th:text="${#numbers.formatInteger(itm.montantVirement,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantVirement lt 1000}" th:text="${itm.montantVirement}"></td>
 
-    <td class="unit" th:if="${itm.montantVirement ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantVirement,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantVirement lt 1000}" th:text="${itm.montantVirement}"></td>
+      <td
+        class="unit"
+        th:if="${itm.montantMobileMoney ge 1000}"
+        th:text="${#numbers.formatInteger(itm.montantMobileMoney,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${itm.montantMobileMoney lt 1000}" th:text="${itm.montantMobileMoney}"></td>
 
-    <td class="unit" th:if="${itm.montantMobileMoney ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantMobileMoney,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantMobileMoney lt 1000}"
-        th:text="${itm.montantMobileMoney}"></td>
+      <td class="unit" th:if="${itm.montantDiffere ge 1000}" th:text="${#numbers.formatInteger(itm.montantDiffere,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantDiffere lt 1000}" th:text="${itm.montantDiffere}"></td>
 
-    <td class="unit" th:if="${itm.montantDiffere ge 1000}"
-        th:text="${#numbers.formatInteger(itm.montantDiffere,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.montantDiffere lt 1000}" th:text="${itm.montantDiffere}"></td>
-
-    <td class="unit" th:if="${itm.partTiersPayant ge 1000}"
-        th:text="${#numbers.formatInteger(itm.partTiersPayant,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.partTiersPayant lt 1000}" th:text="${itm.partTiersPayant}"></td>
-  </tr>
-
+      <td class="unit" th:if="${itm.partTiersPayant ge 1000}" th:text="${#numbers.formatInteger(itm.partTiersPayant,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.partTiersPayant lt 1000}" th:text="${itm.partTiersPayant}"></td>
+    </tr>
   </tbody>
   <tfoot>
-  <tr class="tr-footer">
-    <td>Total</td>
-    <td class="unit" th:if="${reportSummary.count ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.count,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.count lt 1000}" th:text="${reportSummary.count}"></td>
+    <tr class="tr-footer">
+      <td>Total</td>
+      <td class="unit" th:if="${reportSummary.count ge 1000}" th:text="${#numbers.formatInteger(reportSummary.count,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${reportSummary.count lt 1000}" th:text="${reportSummary.count}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantTtc ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantTtc lt 1000}"
-        th:text="${reportSummary.montantTtc}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantTtc ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantTtc lt 1000}" th:text="${reportSummary.montantTtc}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantDiscount ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantDiscount,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantDiscount lt 1000}"
-        th:text="${reportSummary.montantDiscount}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantDiscount ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantDiscount,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantDiscount lt 1000}" th:text="${reportSummary.montantDiscount}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantNet ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantNet,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantNet lt 1000}"
-        th:text="${reportSummary.montantNet}"></td>
-    <td class="unit">100</td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantNet ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantNet,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantNet lt 1000}" th:text="${reportSummary.montantNet}"></td>
+      <td class="unit">100</td>
 
-    <td class="unit" th:if="${reportSummary.panierMoyen ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.panierMoyen,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.panierMoyen lt 1000}"
-        th:text="${reportSummary.panierMoyen}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.panierMoyen ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.panierMoyen,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.panierMoyen lt 1000}" th:text="${reportSummary.panierMoyen}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantCash ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantCash,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantCash lt 1000}"
-        th:text="${reportSummary.montantCash}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantCash ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantCash,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantCash lt 1000}" th:text="${reportSummary.montantCash}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantCheck ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantCheck,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantCheck lt 1000}"
-        th:text="${reportSummary.montantCheck}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantCheck ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantCheck,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantCheck lt 1000}" th:text="${reportSummary.montantCheck}"></td>
 
+      <td
+        class="unit"
+        th:if="${reportSummary.montantCard ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantCard,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantCard lt 1000}" th:text="${reportSummary.montantCard}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantCard ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantCard,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantCard lt 1000}"
-        th:text="${reportSummary.montantCard}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantVirement ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantVirement,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantVirement lt 1000}" th:text="${reportSummary.montantVirement}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantVirement ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantVirement,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantVirement lt 1000}"
-        th:text="${reportSummary.montantVirement}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantMobileMoney ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantMobileMoney,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantMobileMoney lt 1000}" th:text="${reportSummary.montantMobileMoney}"></td>
 
-    <td class="unit" th:if="${reportSummary.montantMobileMoney ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantMobileMoney,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantMobileMoney lt 1000}"
-        th:text="${reportSummary.montantMobileMoney}"></td>
-
-    <td class="unit" th:if="${reportSummary.montantDiffere ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.montantDiffere,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.montantDiffere lt 1000}"
-        th:text="${reportSummary.montantDiffere}"></td>
-    <td class="unit" th:if="${reportSummary.partTiersPayant ge 1000}"
-        th:text="${#numbers.formatInteger(reportSummary.partTiersPayant,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${reportSummary.partTiersPayant lt 1000}"
-        th:text="${reportSummary.partTiersPayant}"></td>
-  </tr>
+      <td
+        class="unit"
+        th:if="${reportSummary.montantDiffere ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.montantDiffere,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.montantDiffere lt 1000}" th:text="${reportSummary.montantDiffere}"></td>
+      <td
+        class="unit"
+        th:if="${reportSummary.partTiersPayant ge 1000}"
+        th:text="${#numbers.formatInteger(reportSummary.partTiersPayant,3,'WHITESPACE')}"
+      ></td>
+      <td class="unit" th:if="${reportSummary.partTiersPayant lt 1000}" th:text="${reportSummary.partTiersPayant}"></td>
+    </tr>
   </tfoot>
-
 </table>
 <table class="mvt-balance-summary footer-table">
   <thead>
-  <tr>
-    <th>Information sur la vente</th>
-    <th>Montant ventes par modes règlement</th>
-    <th>Information sur les mouvements de caisse</th>
-  </tr>
+    <tr>
+      <th>Information sur la vente</th>
+      <th>Montant ventes par modes règlement</th>
+      <th>Information sur les mouvements de caisse</th>
+    </tr>
   </thead>
   <tbody>
-  <tr class="footer-table-tr">
-    <td class="footer-table-td">
-      <table class="sub-table-totaux">
-        <tbody>
-        <tr>
-          <td>Total TTC</td>
-          <td class="unit" th:if="${reportSummary.montantTtc ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantTtc lt 1000}"
-              th:text="${reportSummary.montantTtc}"></td>
-        </tr>
-        <tr>
-          <td>Total TVA</td>
-          <td class="unit" th:if="${reportSummary.montantTaxe ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantTaxe,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantTaxe lt 1000}"
-              th:text="${reportSummary.montantTaxe}"></td>
-        </tr>
-        <tr>
-          <td>Total TH</td>
-          <td class="unit" th:if="${reportSummary.montantHt ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantHt,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantHt lt 1000}"
-              th:text="${reportSummary.montantHt}"></td>
-        </tr>
-        <tr>
-          <td>Total comptant</td>
-          <td class="unit" th:if="${reportSummary.montantPaye ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantPaye,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantPaye lt 1000}"
-              th:text="${reportSummary.montantPaye}"></td>
-        </tr>
-        <tr>
-          <td>Total achat</td>
-          <td class="unit" th:if="${reportSummary.montantAchat ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantAchat,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantAchat lt 1000}"
-              th:text="${reportSummary.montantAchat}"></td>
-        </tr>
-        <tr>
-          <td>Marge</td>
-          <td class="unit" th:if="${reportSummary.montantMarge ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.montantMarge,3,'WHITESPACE')}"></td>
-          <td class="unit" th:if="${reportSummary.montantMarge lt 1000}"
-              th:text="${reportSummary.montantMarge}"></td>
-        </tr>
-        <tr>
-          <td>Ratio V/A</td>
-          <td class="unit"
-              th:text="${reportSummary.ratioVenteAchat}"></td>
-        </tr>
-        <tr>
-          <td>Ratio A/V</td>
-          <td class="unit"
-              th:text="${reportSummary.ratioAchatVente}"></td>
-        </tr>
-        </tbody>
-      </table>
-    </td>
-    <td class="footer-table-td">
-      <table class="sub-table-totaux">
-        <tbody>
-        <tr th:class="${itmStat.last}?'last-item':''"
-            th:each="itm : ${reportSummary.mvtCaissesByModes}">
-          <td th:text="${itm.libelle}"></td>
-          <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
-        </tr>
-        </tbody>
-      </table>
-    </td>
-    <td class="footer-table-td">
-      <table class="sub-table-totaux">
-        <tbody>
-        <tr th:class="${itmStat.last}?'last-item':''"
-            th:each="itm : ${reportSummary.mvtCaisses}">
-          <td th:text="${itm.libelle}"></td>
-          <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
-        </tr>
-        </tbody>
-      </table>
-
-    </td>
-  </tr>
+    <tr class="footer-table-tr">
+      <td class="footer-table-td">
+        <table class="sub-table-totaux">
+          <tbody>
+            <tr>
+              <td>Total TTC</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantTtc ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantTtc lt 1000}" th:text="${reportSummary.montantTtc}"></td>
+            </tr>
+            <tr>
+              <td>Total TVA</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantTaxe ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantTaxe,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantTaxe lt 1000}" th:text="${reportSummary.montantTaxe}"></td>
+            </tr>
+            <tr>
+              <td>Total TH</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantHt ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantHt,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantHt lt 1000}" th:text="${reportSummary.montantHt}"></td>
+            </tr>
+            <tr>
+              <td>Total comptant</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantPaye ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantPaye,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantPaye lt 1000}" th:text="${reportSummary.montantPaye}"></td>
+            </tr>
+            <tr>
+              <td>Total achat</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantAchat ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantAchat,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantAchat lt 1000}" th:text="${reportSummary.montantAchat}"></td>
+            </tr>
+            <tr>
+              <td>Marge</td>
+              <td
+                class="unit"
+                th:if="${reportSummary.montantMarge ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.montantMarge,3,'WHITESPACE')}"
+              ></td>
+              <td class="unit" th:if="${reportSummary.montantMarge lt 1000}" th:text="${reportSummary.montantMarge}"></td>
+            </tr>
+            <tr>
+              <td>Ratio V/A</td>
+              <td class="unit" th:text="${reportSummary.ratioVenteAchat}"></td>
+            </tr>
+            <tr>
+              <td>Ratio A/V</td>
+              <td class="unit" th:text="${reportSummary.ratioAchatVente}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td class="footer-table-td">
+        <table class="sub-table-totaux">
+          <tbody>
+            <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${reportSummary.mvtCaissesByModes}">
+              <td th:text="${itm.libelle}"></td>
+              <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td class="footer-table-td">
+        <table class="sub-table-totaux">
+          <tbody>
+            <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${reportSummary.mvtCaisses}">
+              <td th:text="${itm.libelle}"></td>
+              <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
   </tbody>
 </table>
-
-
-
-

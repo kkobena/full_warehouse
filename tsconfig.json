@@ -1,4 +1,4 @@
-{
+ {
   "compilerOptions": {
     "baseUrl": "src/main/webapp/",
     "outDir": "./target/out-tsc/root",
@@ -9,19 +9,17 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
-    /*"moduleResolution": "node",*/
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "importHelpers": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false,
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "es2022",
+    "module": "es2020",
     "types": [],
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["es2018", "es2020", "dom"]
   },
   "references": [
     {

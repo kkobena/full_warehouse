@@ -2,13 +2,14 @@
 name: warehouse
 services:
   mariadb:
-    image: mariadb:11.4.2
+    image: mariadb:11.6.2
     volumes:
       - ./config/mariadb:/etc/mariadb/conf.d
     # volumes:
     #   - ~/volumes/jhipster/warehouse/mariadb/:/var/lib/mariadb/
     environment:
       - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_DATABASE=warehouse
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix

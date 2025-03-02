@@ -40,7 +40,7 @@ export class GroupeFactureDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.groupeFactureSignal.set(this.groupeFacture());
-    this.factureService.find(this.groupeFactureSignal()?.factureId).subscribe((res: HttpResponse<Facture>) => {
+    this.factureService.find(this.groupeFactureSignal().factureId).subscribe((res: HttpResponse<Facture>) => {
       this.groupeFactureSignal.set(res.body);
     });
   }

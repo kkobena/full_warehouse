@@ -4,5 +4,8 @@ export interface ITypeEtiquette {
 }
 
 export class TypeEtiquette implements ITypeEtiquette {
-  constructor(public id?: number, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+  ) {}
 }

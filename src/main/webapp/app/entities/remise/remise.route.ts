@@ -7,7 +7,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { IRemise, Remise } from '../../shared/model/remise.model';
 import { RemiseService } from './remise.service';
 
-
 export const RemiseResolve = (route: ActivatedRouteSnapshot): Observable<null | IRemise> => {
   const id = route.params['id'];
   if (id) {

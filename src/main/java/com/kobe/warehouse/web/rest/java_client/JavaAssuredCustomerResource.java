@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaAssuredCustomerResource extends AssuredCustomerResourceProxy {
 
-  public JavaAssuredCustomerResource(AssuredCustomerService assuredCustomerService) {
-    super(assuredCustomerService);
-  }
+    public JavaAssuredCustomerResource(AssuredCustomerService assuredCustomerService) {
+        super(assuredCustomerService);
+    }
 }

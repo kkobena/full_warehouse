@@ -30,6 +30,6 @@ export class StockProduit implements IStockProduit {
     public produitId?: number,
     public storageId?: number,
     public storageName?: string,
-    public storageType?: string
+    public storageType?: string,
   ) {}
 }

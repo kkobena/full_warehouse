@@ -43,11 +43,6 @@ export class VenteEnCoursComponent implements OnInit {
   protected salesService = inject(SalesService);
   protected confirmationService = inject(ConfirmationService);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();

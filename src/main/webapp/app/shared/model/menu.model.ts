@@ -14,9 +14,16 @@ export interface IPrivillegesWrapper {
 }
 
 export class Menu implements IMenu {
-  constructor(public id?: number, public libelle?: string, public name?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+    public name?: string,
+  ) {}
 }
 
 export class PrivillegesWrapper implements IPrivillegesWrapper {
-  constructor(public associes?: IMenu[], public others?: IMenu[]) {}
+  constructor(
+    public associes?: IMenu[],
+    public others?: IMenu[],
+  ) {}
 }

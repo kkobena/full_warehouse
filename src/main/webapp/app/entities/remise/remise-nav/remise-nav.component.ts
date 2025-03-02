@@ -9,23 +9,23 @@ import { RemiseProduitsComponent } from '../remise-produits/remise-produits.comp
 import { CodeRemiseProduitComponent } from '../code-remise-produit/code-remise-produit.component';
 
 @Component({
-    selector: 'jhi-remise-nav',
-    imports: [
-        WarehouseCommonModule,
-        CardModule,
-        NgbNav,
-        NgbNavContent,
-        NgbNavItem,
-        NgbNavLink,
-        NgbNavLinkBase,
-        PanelModule,
-        FormsModule,
-        RemiseComponent,
-        RemiseProduitsComponent,
-        CodeRemiseProduitComponent,
-    ],
-    templateUrl: './remise-nav.component.html',
-    styles: ``
+  selector: 'jhi-remise-nav',
+  imports: [
+    WarehouseCommonModule,
+    CardModule,
+    NgbNav,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavLink,
+    NgbNavLinkBase,
+    PanelModule,
+    FormsModule,
+    RemiseComponent,
+    RemiseProduitsComponent,
+    CodeRemiseProduitComponent,
+  ],
+  templateUrl: './remise-nav.component.html',
+  styles: ``,
 })
 export class RemiseNavComponent {
   protected active = 'remise-produit';

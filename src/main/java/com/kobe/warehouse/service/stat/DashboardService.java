@@ -10,16 +10,13 @@ import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import java.util.List;
 
 public interface DashboardService {
+    VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO);
 
+    AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam);
 
-  VenteRecordWrapper getPeridiqueCa(VenteRecordParamDTO venteRecordParamDTO);
+    List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO);
 
-  AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam);
+    List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO);
 
-  List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO);
-
-  List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO);
-
-  List<VenteModePaimentRecord> getCaGroupingByPaimentMode(VenteRecordParamDTO venteRecordParamDTO);
-
+    List<VenteModePaimentRecord> getCaGroupingByPaimentMode(VenteRecordParamDTO venteRecordParamDTO);
 }

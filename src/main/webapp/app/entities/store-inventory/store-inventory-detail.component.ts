@@ -69,8 +69,6 @@ export class StoreInventoryDetailComponent implements OnInit {
   protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
   private spinner = inject(NgxSpinnerService);
 
-  constructor() {}
-
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ storeInventory }) => {
       this.storeInventory = storeInventory;

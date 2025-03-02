@@ -73,7 +73,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   }
 
   get isValid(): boolean {
-    return this.editForm?.get('vno')?.get('remiseValue')?.value > 0 || this.editForm?.get('vo')?.get('remiseValue')?.value > 0;
+    return this.editForm.get('vno').get('remiseValue').value > 0 || this.editForm.get('vo').get('remiseValue').value > 0;
   }
 
   cancel(): void {
@@ -95,23 +95,23 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     this.editForm.patchValue({
       id: entity.id,
       valeur: entity.valeur,
-      codeRemise: entity.grilles?.length ? entity.grilles[0].codeRemise.value : null,
-      vo: this.buildGrille(entity.grilles?.find(grille => grille.grilleType === 'VO')),
-      vno: this.buildGrille(entity.grilles?.find(grille => grille.grilleType === 'VNO')),
+      codeRemise: entity.grilles.length ? entity.grilles[0].codeRemise.value : null,
+      vo: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VO')),
+      vno: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VNO')),
     });
   }
 
   ngAfterViewInit(): void {
-    this.editForm.get('codeRemise')?.valueChanges.subscribe(value => {
+    this.editForm.get('codeRemise').valueChanges.subscribe(value => {
       if (value) {
-        this.editForm.get('grilles')?.reset();
+        this.editForm.get('grilles').reset();
         const cordeRemise = this.remisesCodes.find(code => code.value === value);
         this.addGrille(cordeRemise);
       }
     });
     if (this.entity) {
       this.updateForm(this.entity);
-      this.editForm.get('codeRemise')?.disable();
+      this.editForm.get('codeRemise').disable();
     }
     this.libelle().nativeElement.focus();
   }
@@ -141,7 +141,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
 
   private fetchCode(): void {
     this.entityService.queryCodes().subscribe(async (res: HttpResponse<CodeRemise[]>) => {
-      let codes = res.body?.filter(code => code.value != '0') || [];
+      const codes = res.body.filter(code => code.value != '0') || [];
       const grilles = await this.fetchGrilles();
       this.remisesCodes = codes.filter(code => !grilles.find(grille => grille.code === code.codeVo || grille.code === code.codeVno));
     });
@@ -149,14 +149,14 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
 
   private fetchAllCode(): void {
     this.entityService.queryCodes().subscribe((res: HttpResponse<CodeRemise[]>) => {
-      this.remisesCodes = res.body?.filter(code => code.value != '0') || [];
+      this.remisesCodes = res.body.filter(code => code.value != '0') || [];
     });
   }
 
   private fetchGrilles(): Promise<GrilleRemise[]> {
     return new Promise((resolve, reject) => {
       this.entityService.queryGrilles().subscribe({
-        next: (res: HttpResponse<GrilleRemise[]>) => {
+        next(res: HttpResponse<GrilleRemise[]>) {
           const grillesRemises = res.body || [];
           resolve(grillesRemises);
         },
@@ -188,16 +188,16 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     const grilles: GrilleRemise[] = [];
 
     grilles.push({
-      id: this.editForm.get('vno')?.get('id')?.value,
-      code: this.editForm.get('vno')?.get('code')?.value,
-      remiseValue: this.editForm.get('vno')?.get('remiseValue')?.value || 0,
+      id: this.editForm.get('vno').get('id').value,
+      code: this.editForm.get('vno').get('code').value,
+      remiseValue: this.editForm.get('vno').get('remiseValue').value || 0,
       grilleType: 'VNO',
     });
 
     grilles.push({
-      id: this.editForm.get('vo')?.get('id')?.value,
-      code: this.editForm.get('vo')?.get('code')?.value,
-      remiseValue: this.editForm.get('vo')?.get('remiseValue')?.value || 0,
+      id: this.editForm.get('vo').get('id').value,
+      code: this.editForm.get('vo').get('code').value,
+      remiseValue: this.editForm.get('vo').get('remiseValue').value || 0,
       grilleType: 'VO',
     });
 
@@ -207,8 +207,8 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   private createFromForm(): IRemise {
     return {
       ...new Remise(),
-      id: this.editForm.get(['id'])!.value,
-      valeur: this.editForm.get(['valeur'])!.value,
+      id: this.editForm.get(['id']).value,
+      valeur: this.editForm.get(['valeur']).value,
       type: 'remiseProduit',
       grilles: this.buildGrilles(),
     };

@@ -9,8 +9,6 @@ export class RegelementStateService {
   invoiceSearchParams: WritableSignal<InvoiceSearchParams> = signal<InvoiceSearchParams>(null);
   invoicePaymentParam: WritableSignal<InvoicePaymentParam> = signal<InvoicePaymentParam>(null);
 
-  constructor() {}
-
   setInvoiceSearchParams(searchParams: InvoiceSearchParams): void {
     this.invoiceSearchParams.set(searchParams);
   }

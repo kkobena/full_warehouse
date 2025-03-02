@@ -258,7 +258,8 @@ public class CommandServiceImpl implements CommandService {
                     commande.removeOrderLine(orderLine);
                     updateCommandeAmount(commande, orderLine.getGrossAmount() * (-1), orderLine.getOrderAmount() * (-1));
                     orderLineService.deleteOrderLine(orderLine);
-                }));
+                })
+        );
         commandeRepository.save(commande);
     }
 
@@ -294,7 +295,8 @@ public class CommandServiceImpl implements CommandService {
                             orderLineService.save(orderLine);
                             updateCommande(commande, orderLine);
                         }
-                    ));
+                    )
+                );
             commandesToDelete.add(commandeSecond);
         });
         commande.setLastUserEdit(storageService.getUser());

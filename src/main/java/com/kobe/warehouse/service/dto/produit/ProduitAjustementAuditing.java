@@ -10,4 +10,5 @@ public record ProduitAjustementAuditing(
     int beforeStock,
     int afterStock,
     LocalDateTime updated,
-    LocalDate mvtDate) {}
+    LocalDate mvtDate
+) {}

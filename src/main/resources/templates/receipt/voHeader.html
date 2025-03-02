@@ -1,28 +1,24 @@
 <th colspan="4">
-    <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
-       <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
+  <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
+    <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
+  </div>
+  <div class="receipt-info">
+    <p th:if="${sale.ayantDroitId eq sale.customer.id}" th:text="${'ASSURE: '+sale.customer.fullName}"></p>
+    <div th:if="${sale.ayantDroitId ne sale.customer.id}">
+      <p th:text="${'ASSURE: '+sale.customer.fullName}"></p>
+      <p th:text="${'MATRICULE ASSURE: '+sale.customer.num}"></p>
+      <p th:text="${'BENEFICIAIRE: '+sale.ayantDroitFirstName +' '+sale.ayantDroitLastName }"></p>
+      <p th:text="${'MATRICULE BENEFICIAIRE: '+sale.ayantDroitNum}"></p>
     </div>
-    <div class="receipt-info">
-        <p th:if="${sale.ayantDroitId eq sale.customer.id}" th:text="${'ASSURE: '+sale.customer.fullName}">
 
-        </p>
-        <div th:if="${sale.ayantDroitId ne sale.customer.id}">
-            <p th:text="${'ASSURE: '+sale.customer.fullName}"></p>
-            <p th:text="${'MATRICULE ASSURE: '+sale.customer.num}">
-
-            </p>
-            <p th:text="${'BENEFICIAIRE: '+sale.ayantDroitFirstName +' '+sale.ayantDroitLastName }"></p>
-            <p th:text="${'MATRICULE BENEFICIAIRE: '+sale.ayantDroitNum}">
-        </div>
-
-
-
-        <span th:if="${sale.cassier.id eq sale.seller.id}"
-              th:text="${'TICKET: '+sale.numberTransaction +' | OP: '+sale.cassier.abbrName +' | BON: '+sale.numBon}"></span>
-        <div th:if="${sale.cassier.id ne sale.seller.id}">
-            <p th:text="${'TICKET: '+sale.numberTransaction}"></p>
-            <p th:text="${'OP: '+sale.cassier.abbrName +' | VENDEUR: '+sale.seller.abbrName }"></p>
-            <p th:text="${'BON: '+sale.numBon }"></p>
-        </div>
+    <span
+      th:if="${sale.cassier.id eq sale.seller.id}"
+      th:text="${'TICKET: '+sale.numberTransaction +' | OP: '+sale.cassier.abbrName +' | BON: '+sale.numBon}"
+    ></span>
+    <div th:if="${sale.cassier.id ne sale.seller.id}">
+      <p th:text="${'TICKET: '+sale.numberTransaction}"></p>
+      <p th:text="${'OP: '+sale.cassier.abbrName +' | VENDEUR: '+sale.seller.abbrName }"></p>
+      <p th:text="${'BON: '+sale.numBon }"></p>
     </div>
+  </div>
 </th>

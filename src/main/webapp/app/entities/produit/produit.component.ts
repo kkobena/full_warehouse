@@ -488,9 +488,9 @@ export class ProduitComponent implements OnInit {
   }
 
   onClickLink(): void {
-    this.produitService.getRejectCsv(this.responsedto?.rejectFileUrl).subscribe({
+    this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).subscribe({
       next: blod => {
-        saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto?.rejectFileUrl);
+        saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);
         this.responseDialog = false;
       },
     });

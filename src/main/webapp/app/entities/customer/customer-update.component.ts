@@ -14,9 +14,9 @@ import { ProduitService } from 'app/entities/produit/produit.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
-    selector: 'jhi-customer-update',
-    templateUrl: './customer-update.component.html',
-    imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
+  selector: 'jhi-customer-update',
+  templateUrl: './customer-update.component.html',
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CustomerUpdateComponent implements OnInit {
   protected customerService = inject(CustomerService);
@@ -115,13 +115,13 @@ export class CustomerUpdateComponent implements OnInit {
   private createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id'])!.value,
-      firstName: this.editForm.get(['firstName'])!.value,
-      lastName: this.editForm.get(['lastName'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
-      email: this.editForm.get(['email'])!.value,
-      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
-      produits: this.editForm.get(['produits'])!.value,
+      id: this.editForm.get(['id']).value,
+      firstName: this.editForm.get(['firstName']).value,
+      lastName: this.editForm.get(['lastName']).value,
+      phone: this.editForm.get(['phone']).value,
+      email: this.editForm.get(['email']).value,
+      createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
+      produits: this.editForm.get(['produits']).value,
     };
   }
 }

@@ -8,9 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from './customer.service';
 
-
-
-
 export const CustomerResolve = (route: ActivatedRouteSnapshot): Observable<null | ICustomer> => {
   const id = route.params['id'];
   if (id) {

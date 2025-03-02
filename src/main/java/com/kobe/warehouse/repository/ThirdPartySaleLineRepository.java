@@ -27,7 +27,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ThirdPartySaleLineRepository
     extends JpaRepository<ThirdPartySaleLine, Long>, JpaSpecificationExecutor<ThirdPartySaleLine> {
-
     long countByClientTiersPayantId(Long clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
@@ -41,25 +40,24 @@ public interface ThirdPartySaleLineRepository
         @Param("statut") SalesStatut statut
     );
 
-    @Query(value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s WHERE s.facture_tiers_payant_id=:factureTiersPayantId", nativeQuery = true)
-    long sumMontantAttenduByFactureTiersPayantId(
-        @Param("factureTiersPayantId") Long factureTiersPayantId);
+    @Query(
+        value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s WHERE s.facture_tiers_payant_id=:factureTiersPayantId",
+        nativeQuery = true
+    )
+    long sumMontantAttenduByFactureTiersPayantId(@Param("factureTiersPayantId") Long factureTiersPayantId);
 
+    @Query(
+        value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s JOIN facture_tiers_payant f ON s.facture_tiers_payant_id = f.id  WHERE f.groupe_tiers_payant_id =:factureTiersPayantId",
+        nativeQuery = true
+    )
+    long sumMontantAttenduGroupeFacture(@Param("factureTiersPayantId") Long factureTiersPayantId);
 
-    @Query(value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s JOIN facture_tiers_payant f ON s.facture_tiers_payant_id = f.id  WHERE f.groupe_tiers_payant_id =:factureTiersPayantId", nativeQuery = true)
-    long sumMontantAttenduGroupeFacture(
-        @Param("factureTiersPayantId") Long factureTiersPayantId);
+    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, Long saleId);
 
-    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId,
-        Long saleId);
-
-
-    default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate,
-        LocalDate endDate) {
+    default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) ->
             cb.between(
-                cb.function("DATE", LocalDate.class,
-                    root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.updatedAt)),
+                cb.function("DATE", LocalDate.class, root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.updatedAt)),
                 cb.literal(startDate),
                 cb.literal(endDate)
             );
@@ -75,68 +73,69 @@ public interface ThirdPartySaleLineRepository
 
     default Specification<ThirdPartySaleLine> tiersPayantIdsCriteria(Set<Long> tiersPayantIds) {
         return (root, _, cb) -> {
-            In<Long> selectionIds = cb.in(root.get(ThirdPartySaleLine_.clientTiersPayant).get(
-                ClientTiersPayant_.tiersPayant).get(TiersPayant_.id));
+            In<Long> selectionIds = cb.in(
+                root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id)
+            );
             tiersPayantIds.forEach(selectionIds::value);
             return selectionIds;
         };
     }
 
-
     default Specification<ThirdPartySaleLine> groupIdsCriteria(Set<Long> groupIds) {
         return (root, _, cb) -> {
-            In<Long> selectionIds = cb.in(root.get(ThirdPartySaleLine_.clientTiersPayant).get(
-                ClientTiersPayant_.tiersPayant).get(TiersPayant_.groupeTiersPayant).get(
-                GroupeTiersPayant_.id));
+            In<Long> selectionIds = cb.in(
+                root
+                    .get(ThirdPartySaleLine_.clientTiersPayant)
+                    .get(ClientTiersPayant_.tiersPayant)
+                    .get(TiersPayant_.groupeTiersPayant)
+                    .get(GroupeTiersPayant_.id)
+            );
             groupIds.forEach(selectionIds::value);
             return selectionIds;
         };
     }
 
-
-    default Specification<ThirdPartySaleLine> saleStatutsCriteria(
-        Set<SalesStatut> salesStatuts) {
+    default Specification<ThirdPartySaleLine> saleStatutsCriteria(Set<SalesStatut> salesStatuts) {
         return (root, _, cb) -> {
-            In<SalesStatut> salesStatutIn = cb.in(
-                root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.statut));
+            In<SalesStatut> salesStatutIn = cb.in(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.statut));
             salesStatuts.forEach(salesStatutIn::value);
             return salesStatutIn;
         };
     }
 
     default Specification<ThirdPartySaleLine> canceledCriteria() {
-        return (root, _, cb) -> cb.and(
-            cb.isNull(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.canceledSale)),
-            cb.isFalse(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.canceled)));
+        return (root, _, cb) ->
+            cb.and(
+                cb.isNull(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.canceledSale)),
+                cb.isFalse(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.canceled))
+            );
     }
 
     default Specification<ThirdPartySaleLine> notBilledCriteria() {
-
         return (root, _, cb) -> {
             Join<ThirdPartySaleLine, FactureTiersPayant> factureTiersPayantJoin = root.join(
                 ThirdPartySaleLine_.factureTiersPayant,
-                JoinType.LEFT);
-            return cb.or(cb.isNull(factureTiersPayantJoin),
-                cb.isTrue(factureTiersPayantJoin.get(FactureTiersPayant_.factureProvisoire)));
+                JoinType.LEFT
+            );
+            return cb.or(cb.isNull(factureTiersPayantJoin), cb.isTrue(factureTiersPayantJoin.get(FactureTiersPayant_.factureProvisoire)));
         };
-
     }
 
     default Specification<ThirdPartySaleLine> factureProvisoireCriteria() {
         return (root, _, cb) -> {
             Join<ThirdPartySaleLine, FactureTiersPayant> factureTiersPayantJoin = root.join(
                 ThirdPartySaleLine_.factureTiersPayant,
-                JoinType.LEFT);
+                JoinType.LEFT
+            );
             return cb.isNull(factureTiersPayantJoin);
         };
     }
 
-    default Specification<ThirdPartySaleLine> categorieTiersPayantCriteria(
-        Set<TiersPayantCategorie> categorieTiersPayants) {
+    default Specification<ThirdPartySaleLine> categorieTiersPayantCriteria(Set<TiersPayantCategorie> categorieTiersPayants) {
         return (root, _, cb) -> {
             In<TiersPayantCategorie> tiersPayantCategorieIn = cb.in(
-                root.get(ThirdPartySaleLine_.clientTiersPayant)
-                    .get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie));
+                root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie)
+            );
             categorieTiersPayants.forEach(tiersPayantCategorieIn::value);
             return tiersPayantCategorieIn;
         };

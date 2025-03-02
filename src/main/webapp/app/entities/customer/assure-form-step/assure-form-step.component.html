@@ -1,71 +1,59 @@
 <p-toast position="center"></p-toast>
 <div class="modal-body form-client-step" id="modal">
-
   <p-stepper [linear]="true" [value]="activeStep">
     <p-step-list>
       <p-step [value]="1">Infos Assuré</p-step>
       @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
         <p-step [value]="2">Infos Ayant-droit</p-step>
       }
-
-
     </p-step-list>
     <p-step-panels>
       <p-step-panel [value]="1">
         <ng-template #content let-activateCallback="activateCallback">
           <jhi-assure-step></jhi-assure-step>
-          <div class="d-flex justify-content-center pt-2 ">
+          <div class="d-flex justify-content-center pt-2">
             @if (assureStepComponent()?.editForm.valid) {
-              <p-button (onClick)="save()" icon="pi pi-check"
-                        iconPos="right" [disabled]="isSaving" [loading]="isSaving"
-                        label="Enregister"
-                        severity="success"
-                        styleClass="mx-1" />
-              @if (commonService.categorieTiersPayant()
-              === 'ASSURANCE') {
-                <p-button (onClick)="onGoAyantDroit(2)" icon="pi pi-arrow-right"
-                          severity="secondary"
-                          label="Suivant" />
+              <p-button
+                (onClick)="save()"
+                icon="pi pi-check"
+                iconPos="right"
+                [disabled]="isSaving"
+                [loading]="isSaving"
+                label="Enregister"
+                severity="success"
+                styleClass="mx-1"
+              />
+              @if (commonService.categorieTiersPayant() === 'ASSURANCE') {
+                <p-button (onClick)="onGoAyantDroit(2)" icon="pi pi-arrow-right" severity="secondary" label="Suivant" />
               }
-
             }
-
           </div>
         </ng-template>
       </p-step-panel>
       @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
         <p-step-panel [value]="2">
-          <ng-template let-activateCallback="activateCallback" let-prevCallback="prevCallback"
-                       #content>
+          <ng-template let-activateCallback="activateCallback" let-prevCallback="prevCallback" #content>
             <jhi-ayant-droit-step></jhi-ayant-droit-step>
-            <div class="d-flex justify-content-center pt-2 ">
-              <p-button (onClick)="onGoBackFromAyantDroit(1)" icon="pi pi-arrow-left"
-                        label="Précedent"
-                        severity="secondary" />
+            <div class="d-flex justify-content-center pt-2">
+              <p-button (onClick)="onGoBackFromAyantDroit(1)" icon="pi pi-arrow-left" label="Précedent" severity="secondary" />
               @if (ayantDroitStepComponent()?.isValidForm()) {
-                <p-button (onClick)="save()" icon="pi pi-check" [disabled]="isSaving"
-                          [loading]="isSaving"
-                          severity="success"
-                          label="Enregister"
-                          class="mx-1" />
-
+                <p-button
+                  (onClick)="save()"
+                  icon="pi pi-check"
+                  [disabled]="isSaving"
+                  [loading]="isSaving"
+                  severity="success"
+                  label="Enregister"
+                  class="mx-1"
+                />
               }
-
-
             </div>
           </ng-template>
         </p-step-panel>
       }
     </p-step-panels>
-
   </p-stepper>
-
-
 </div>
 <div class="modal-footer modal-footer-step">
-  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" severity="danger"
-            type="button">
-  </p-button>
-
-
+  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" severity="danger" type="button"> </p-button>
 </div>

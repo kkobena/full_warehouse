@@ -25,6 +25,6 @@ export class Lot implements ILot {
     public manufacturingDate?: string,
     public expiryDate?: string,
     public ugQuantityReceived?: number,
-    public quantityReceived?: number
+    public quantityReceived?: number,
   ) {}
 }

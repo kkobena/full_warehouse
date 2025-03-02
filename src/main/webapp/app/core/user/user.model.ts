@@ -32,6 +32,6 @@ export class User implements IUser {
     public lastModifiedDate?: Date,
     public password?: string,
     public fullName?: string,
-    public abbrName?: string
+    public abbrName?: string,
   ) {}
 }

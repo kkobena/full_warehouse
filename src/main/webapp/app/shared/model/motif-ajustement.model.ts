@@ -4,5 +4,8 @@ export interface IMotifAjustement {
 }
 
 export class MotifAjustement implements IMotifAjustement {
-  constructor(public id?: number, public libelle?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+  ) {}
 }

@@ -259,18 +259,18 @@ border: 3px solid lightblue;
 
 
 https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-codes/
-1. Pouvoir une vente au comptant 
+1. Pouvoir une vente au comptant
 2. Faire une vente à crédit
 **Parametre d'impression ou pas du ticket (0=pas de ticket , 1=ticket systematique)
 ** Faire le point sur le CA réalisé(par type de vente, periode)
 
 3. Passer des commandes (exportation csv)
-4. Faire une entrée en stock  
+4. Faire une entrée en stock
 	*saisie manuelle produit par produit
 	*(importation csv/excel)
-	
+
 	*faire le point sur les produits et BL saisis
-	
+
 5. suivi mouvement article
 
 6. Retour à la pharmacie principale
@@ -279,16 +279,16 @@ https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-cod
 
 8. Ajustement de stock avec motif d'ajustement
 
-10. inventaire depot 
-	
+10. inventaire depot
+
 	*saisie manuelle
-	*inventaire avec le mobile 
-	
-11.Facturation 
+	*inventaire avec le mobile
+
+11.Facturation
 
 	*Point des ventes à credit saisie
 	*Edition facture des ventes à credit saisies
-	
+
 12. Saisie de mouvement de caisse
 
 13. Saisie des produits périmés
@@ -332,8 +332,8 @@ FROM t_compte_client_tiers_payant cp join t_compte_client c on cp.lg_COMPTE_CLIE
          JOIN  t_tiers_payant tp on cp.lg_TIERS_PAYANT_ID = tp.lg_TIERS_PAYANT_ID
        JOIN t_client cl on c.lg_CLIENT_ID = cl.lg_CLIENT_ID
          WHERE cp.str_STATUT='enable' ;
-         
-  # export requete to csv       
+
+  # export requete to csv
 mysql -u username -p -e "SELECT * FROM your_table;" -B > output.csv
 
 ##REQUETE POUR EXPORTER LES produits EN CSV
@@ -347,8 +347,8 @@ tva.int_VALUE AS codeTva,IFNULL(f.str_CODE_REMISE,'0') AS codeRemise,IFNULL(TRIM
 IFNULL(DATE_FORMAT(f.dt_PEREMPTION,'%Y-%m-%d'),'') AS perimeAt,IFNULL(TRIM(lab.libelle),'') AS libelleLab,
 IFNULL(TRIM(game.libelle),'') AS libelleGamme,IFNULL(f.int_NUMBERDETAIL,1) AS nombreDetail,IFNULL(decon.int_NUMBER_AVAILABLE,'') AS deconQty,IFNULL(decon.prixDT,'') AS prixUniDetail
 ,IFNULL(decon.prixAchatDT,'') AS prixAchatDetail
- FROM  t_famille f JOIN t_famille_stock s ON f.lg_FAMILLE_ID=s.lg_FAMILLE_ID 
-JOIN t_zone_geographique z ON f.lg_ZONE_GEO_ID=z.lg_ZONE_GEO_ID 
+ FROM  t_famille f JOIN t_famille_stock s ON f.lg_FAMILLE_ID=s.lg_FAMILLE_ID
+JOIN t_zone_geographique z ON f.lg_ZONE_GEO_ID=z.lg_ZONE_GEO_ID
 JOIN t_famillearticle fm ON f.lg_FAMILLEARTICLE_ID =fm.lg_FAMILLEARTICLE_ID
 JOIN t_grossiste gr ON f.lg_GROSSISTE_ID=gr.lg_GROSSISTE_ID
 LEFT JOIN laboratoire lab ON f.laboratoire_id=lab.id LEFT JOIN gamme_produit game ON f.gamme_id=game.id
@@ -362,3 +362,4 @@ npm install libphonenumber-js --save
 
 CREATE USER warehouse IDENTIFIED BY 'warehouse2802';
 GRANT ALL privileges ON `warehouse2802`.* TO `warehouse`;
+```

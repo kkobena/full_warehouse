@@ -11,11 +11,8 @@ export class SelectModeReglementService {
 
   modeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
   allModeReglements: WritableSignal<IPaymentMode[]> = signal<IPaymentMode[]>([]);
-  isReadonly: boolean = true;
+  isReadonly = true;
   paymentModes: IPaymentMode[] = [];
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
 
   constructor() {
     if (this.allModeReglements().length === 0) {
@@ -59,7 +56,7 @@ export class SelectModeReglementService {
   }
 
   selectCashModePayment(): void {
-    const cashControl = this.paymentModes.find(mode => mode.code === 'CASH') as IPaymentMode;
+    const cashControl = this.paymentModes.find(mode => mode.code === 'CASH');
     this.modeReglements.set([cashControl]);
   }
 

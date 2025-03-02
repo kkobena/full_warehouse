@@ -1,408 +1,447 @@
-<div class="row justify-content-center  produit-form">
+<div class="row justify-content-center produit-form">
   <div class="card-header">
-    <h5 class="card-title"> Formulaire produit</h5>
-
+    <h5 class="card-title">Formulaire produit</h5>
   </div>
 
-  <form (ngSubmit)="save()" [formGroup]="editForm" class="row mt-2" name="editForm" novalidate
-        role="form">
-
+  <form (ngSubmit)="save()" [formGroup]="editForm" class="row mt-2" name="editForm" novalidate role="form">
     <jhi-alert-error></jhi-alert-error>
 
     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    <input class="form-control" formControlName="createdAt"
-           id="field_createdAt"
-           name="createdAt" placeholder="YYYY-MM-DD HH:mm"
-           style="display:none;"
-           type="hidden" />
+    <input
+      class="form-control"
+      formControlName="createdAt"
+      id="field_createdAt"
+      name="createdAt"
+      placeholder="YYYY-MM-DD HH:mm"
+      style="display: none"
+      type="hidden"
+    />
 
     <div class="col-md-6 p-card">
       <div class="form-row">
         <div class="form-group col-md-7">
-          <label class="form-control-label" for="field_libelle"
-                 jhiTranslate="warehouseApp.produit.libelle">Libelle </label> <span
-          style="font-weight: 900;color: red;">*</span>
-          <input autocomplete="off" class="form-control" formControlName="libelle"
-                 id="field_libelle"
-                 name="libelle" type="text" />
-          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get(
-            'libelle')!.touched)) {
+          <label class="form-control-label" for="field_libelle" jhiTranslate="warehouseApp.produit.libelle">Libelle </label>
+          <span style="font-weight: 900; color: red">*</span>
+          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle" name="libelle" type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
-                <small
-                  class="form-text text-danger"
-                  jhiTranslate="entity.validation.required">
-                  This field is required.
-                </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
-
             </div>
           }
-
         </div>
         <div class="form-group col-md-5">
-          <label class="form-control-label"
-                 for="field_codeCip">Code cip <span
-            style="font-weight: 900;color: red;">*</span>
-          </label>
-          <input autocomplete="off" class="form-control" formControlName="codeCip"
-                 id="field_codeCip" name="codeCip"
-                 pInputText
-                 pKeyFilter="int" type="text" />
-          @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get(
-            'codeCip')!.touched)) {
+          <label class="form-control-label" for="field_codeCip">Code cip <span style="font-weight: 900; color: red">*</span> </label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeCip"
+            id="field_codeCip"
+            name="codeCip"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
+          @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)) {
             <div>
               @if (editForm.get('codeCip')?.errors?.required) {
-                <small
-                  class="form-text text-danger"
-                  jhiTranslate="entity.validation.required">
-                  This field is required.
-                </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
-
             </div>
           }
         </div>
-
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_costAmount"
-                 jhiTranslate="warehouseApp.produit.costAmount">Cost
-            Amount</label> <span style="font-weight: 900;color: red;">*</span>
-          <input (keyup)="handleCostInput($event)" autocomplete="off" class="form-control"
-                 formControlName="costAmount" id="field_costAmount"
-                 name="costAmount"
-                 pInputText pKeyFilter="int"
-                 type="text" />
-          @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty
-            || editForm.get('costAmount')!.touched)) {
+          <label class="form-control-label" for="field_costAmount" jhiTranslate="warehouseApp.produit.costAmount">Cost Amount</label>
+          <span style="font-weight: 900; color: red">*</span>
+          <input
+            (keyup)="handleCostInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="costAmount"
+            id="field_costAmount"
+            name="costAmount"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
+          @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)) {
             <div>
               @if (editForm.get('costAmount')?.errors?.required) {
-                <small
-                  class="form-text text-danger"
-                  jhiTranslate="entity.validation.required">
-                  This field is required.
-                </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
-              @if (editForm.get('costAmount')?.errors?.required) {
-              }
-              <small [hidden]="!editForm.get('costAmount')?.errors?.number"
-                     class="form-text text-danger"
-                     jhiTranslate="entity.validation.number">
+              @if (editForm.get('costAmount')?.errors?.required) {}
+              <small
+                [hidden]="!editForm.get('costAmount')?.errors?.number"
+                class="form-text text-danger"
+                jhiTranslate="entity.validation.number"
+              >
                 This field should be a number.
               </small>
             </div>
           }
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_regularUnitPrice"
-                 jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</label>
-          <span
-            style="font-weight: 900;color: red;">*</span>
-          <input (keyup)="handleUnitPriceInput($event)" autocomplete="off" class="form-control"
-                 formControlName="regularUnitPrice"
-                 id="field_regularUnitPrice"
-                 name="regularUnitPrice" pInputText
-                 pKeyFilter="int"
-                 type="text" />
-          @if (editForm.get('regularUnitPrice')!.invalid && (editForm.get('regularUnitPrice')!.dirty
-            || editForm.get('regularUnitPrice')!.touched)) {
+          <label class="form-control-label" for="field_regularUnitPrice" jhiTranslate="warehouseApp.produit.regularUnitPrice"
+            >Regular Unit Price</label
+          >
+          <span style="font-weight: 900; color: red">*</span>
+          <input
+            (keyup)="handleUnitPriceInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="regularUnitPrice"
+            id="field_regularUnitPrice"
+            name="regularUnitPrice"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
+          @if (
+            editForm.get('regularUnitPrice')!.invalid &&
+            (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)
+          ) {
             <div>
               @if (editForm.get('regularUnitPrice')?.errors?.required) {
-                <small
-                  class="form-text text-danger"
-                  jhiTranslate="entity.validation.required">
-                  This field is required.
-                </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
-              <small [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
-                     class="form-text text-danger"
-                     jhiTranslate="entity.validation.number">
+              <small
+                [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
+                class="form-text text-danger"
+                jhiTranslate="entity.validation.number"
+              >
                 This field should be a number.
               </small>
             </div>
           }
-
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="tvaId">Tva<span
-            style="font-weight: 900;color: red;">*</span></label>
-          <p-dropdown [filter]="false"
-                      [options]="tvas" [style]="{'width':'100%'}"
-                      appendTo="body"
-                      formControlName="tvaId"
-                      id="tvaId"
-                      name="tvaId" optionLabel="tva"
-                      optionValue="id"
-                      placeholder="Sélectionner une Tva"
+          <label class="form-control-label" for="tvaId">Tva<span style="font-weight: 900; color: red">*</span></label>
+          <p-dropdown
+            [filter]="false"
+            [options]="tvas"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            formControlName="tvaId"
+            id="tvaId"
+            name="tvaId"
+            optionLabel="tva"
+            optionValue="id"
+            placeholder="Sélectionner une Tva"
           >
           </p-dropdown>
-
         </div>
       </div>
 
       <div class="form-row">
-
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="fournisseurId">Fournisseurs<span
-            style="font-weight: 900;color: red;">*</span></label>
-          <p-dropdown [filter]="true"
-                      [options]="fournisseurs" [style]="{'width':'100%'}"
-                      [virtualScroll]="false" appendTo="body"
-                      filterBy="libelle"
-                      formControlName="fournisseurId"
-                      id="fournisseurId"
-                      name="fournisseurId" optionLabel="libelle"
-                      optionValue="id"
-                      placeholder="Sélectionner un fournisseur"
+          <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
+          <p-dropdown
+            [filter]="true"
+            [options]="fournisseurs"
+            [style]="{ width: '100%' }"
+            [virtualScroll]="false"
+            appendTo="body"
+            filterBy="libelle"
+            formControlName="fournisseurId"
+            id="fournisseurId"
+            name="fournisseurId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un fournisseur"
           >
           </p-dropdown>
-
         </div>
 
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="rayonId">Rayon<span
-            style="font-weight: 900;color: red;">*</span></label>
-          <p-dropdown [filter]="true"
-                      [options]="rayons" [style]="{'width':'100%'}"
-                      appendTo="body"
-                      filterBy="libelle"
-                      formControlName="rayonId"
-                      id="rayonId"
-                      name="rayonId" optionLabel="libelle"
-                      optionValue="id"
-                      placeholder="Sélectionner un rayon"
+          <label class="form-control-label" for="rayonId">Rayon<span style="font-weight: 900; color: red">*</span></label>
+          <p-dropdown
+            [filter]="true"
+            [options]="rayons"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            filterBy="libelle"
+            formControlName="rayonId"
+            id="rayonId"
+            name="rayonId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un rayon"
           >
           </p-dropdown>
-
         </div>
-
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="familleId">Famille article<span
-            style="font-weight: 900;color: red;">*</span></label>
-          <p-dropdown [filter]="true"
-                      [options]="familleProduits" [style]="{'width':'100%'}"
-                      [virtualScroll]="false" appendTo="body"
-                      filterBy="libelle"
-                      formControlName="familleId"
-                      id="familleId"
-                      name="familleId" optionLabel="libelle"
-                      optionValue="id"
-                      placeholder="Sélectionner une famille"
+          <label class="form-control-label" for="familleId">Famille article<span style="font-weight: 900; color: red">*</span></label>
+          <p-dropdown
+            [filter]="true"
+            [options]="familleProduits"
+            [style]="{ width: '100%' }"
+            [virtualScroll]="false"
+            appendTo="body"
+            filterBy="libelle"
+            formControlName="familleId"
+            id="familleId"
+            name="familleId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner une famille"
           >
           </p-dropdown>
-
         </div>
         <div class="form-group col-md-6">
-          <label class="form-control-label"
-                 for="field_codeEan">Code Ean
-          </label>
-          <input autocomplete="off" class="form-control" formControlName="codeEan"
-                 id="field_codeEan" name="codeEan"
-                 pInputText
-                 pKeyFilter="int" type="text" />
+          <label class="form-control-label" for="field_codeEan">Code Ean </label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeEan"
+            id="field_codeEan"
+            name="codeEan"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
         </div>
-
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
           <label class="form-control-label" for="cmuAmount">Montant cmu</label>
-          <input autocomplete="off" class="form-control" formControlName="cmuAmount"
-                 id="cmuAmount"
-                 name="cmuAmount"
-                 pInputText
-                 pKeyFilter="int"
-                 type="text" />
-
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="cmuAmount"
+            id="cmuAmount"
+            name="cmuAmount"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
         </div>
         <div class="form-group col-md-4">
           <label class="form-control-label" for="qtyAppro">Quantité réappro</label>
-          <input autocomplete="off" class="form-control" formControlName="qtyAppro"
-                 id="qtyAppro"
-                 name="qtyAppro"
-                 pInputText
-                 pKeyFilter="int"
-                 type="text" />
-
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="qtyAppro"
+            id="qtyAppro"
+            name="qtyAppro"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
         </div>
         <div class="form-group col-md-4">
           <label class="form-control-label" for="qtySeuilMini">Quantité Mini</label>
-          <input autocomplete="off" class="form-control" formControlName="qtySeuilMini"
-                 id="qtySeuilMini" name="qtySeuilMini"
-                 pInputText pKeyFilter="int"
-                 type="text" />
-
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="qtySeuilMini"
+            id="qtySeuilMini"
+            name="qtySeuilMini"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
         </div>
       </div>
-
     </div>
-    <div class="col-md-6 p-card ">
-
+    <div class="col-md-6 p-card">
       <div class="form-row">
         <div class="form-group col-md-6">
           <label class="form-control-label" for="typeEtiquetteId">Type etiquette</label>
           <p-dropdown
-            [options]="etiquettes" [style]="{'width':'100%'}"
+            [options]="etiquettes"
+            [style]="{ width: '100%' }"
             appendTo="body"
             formControlName="typeEtiquetteId"
             id="typeEtiquetteId"
-            name="typeEtiquetteId" optionLabel="libelle"
+            name="typeEtiquetteId"
+            optionLabel="libelle"
             optionValue="id"
             placeholder="Sélectionner une etiquette"
           >
           </p-dropdown>
-
-
         </div>
         <div class="form-group col-md-6">
           <label class="form-control-label" for="remiseCode">Remise produit</label>
 
           <p-dropdown
-            [options]="remisesCodes" [style]="{'width':'100%'}"
+            [options]="remisesCodes"
+            [style]="{ width: '100%' }"
             appendTo="body"
-            formControlName="remiseCode" id="remiseCode"
+            formControlName="remiseCode"
+            id="remiseCode"
             name="remiseCode"
             optionLabel="value"
             optionValue="value"
             placeholder="Sélectionner le code de remise"
           >
           </p-dropdown>
-
-
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label class="form-control-label" for="laboratoireId">Laboratoire produit</label>
           <p-dropdown
-            [options]="laboratoires" [style]="{'width':'100%'}"
+            [options]="laboratoires"
+            [style]="{ width: '100%' }"
             appendTo="body"
             emptyFilterMessage="Aucun laboratoire trouvé"
             emptyMessage="Aucun laboratoire trouvé"
-            formControlName="laboratoireId" id="laboratoireId"
+            formControlName="laboratoireId"
+            id="laboratoireId"
             name="laboratoireId"
             optionLabel="libelle"
             optionValue="id"
             placeholder="Sélectionner un laboratoire"
           >
           </p-dropdown>
-
-
         </div>
         <div class="form-group col-md-6">
           <label class="form-control-label" for="gammeId">Gamme produit</label>
           <p-dropdown
-            [options]="gammes" [style]="{'width':'100%'}"
+            [options]="gammes"
+            [style]="{ width: '100%' }"
             appendTo="body"
             emptyFilterMessage="Aucune gamme trouvée"
             emptyMessage="Aucune gamme trouvée"
-            formControlName="gammeId" id="gammeId"
+            formControlName="gammeId"
+            id="gammeId"
             name="gammeId"
             optionLabel="libelle"
             optionValue="id"
             placeholder="Sélectionner une gamme"
           >
           </p-dropdown>
-
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
           <label class="form-control-label" for="formeId">Forme produit</label>
           <p-dropdown
-            [options]="formeProduits" [style]="{'width':'100%'}"
+            [options]="formeProduits"
+            [style]="{ width: '100%' }"
             appendTo="body"
             emptyFilterMessage="Aucune forme trouvée"
             emptyMessage="Aucune forme trouvée"
-            formControlName="formeId" id="formeId"
+            formControlName="formeId"
+            id="formeId"
             name="formeId"
             optionLabel="libelle"
             optionValue="id"
             placeholder="Sélectionner une forme"
           >
           </p-dropdown>
-
         </div>
         <div class="form-group col-md-4">
           <div class="form-check form-switch pt-md-4">
-            <input (change)="onDatePeremtionCheck($event)" class="form-check-input mr-2"
-                   formControlName="dateperemption" id="dateperemption" name="dateperemption"
-                   type="checkbox">
-            <label class="form-check-label" for="dateperemption">Observer
-              la date de péremption ?</label>
+            <input
+              (change)="onDatePeremtionCheck($event)"
+              class="form-check-input mr-2"
+              formControlName="dateperemption"
+              id="dateperemption"
+              name="dateperemption"
+              type="checkbox"
+            />
+            <label class="form-check-label" for="dateperemption">Observer la date de péremption ?</label>
           </div>
         </div>
         @if (isDatePeremptionChecked) {
           <div class="form-group col-md-4">
             <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
-            <p-inputmask autocomplete="off" formControlName="expirationDate" id="field_perimeAt"
-                         mask="99/99/9999"
-                         name="expirationDate" placeholder="01/11/2020"
-                         slotChar="dd/mm/yyyy" styleClass="form-control">
+            <p-inputmask
+              autocomplete="off"
+              formControlName="expirationDate"
+              id="field_perimeAt"
+              mask="99/99/9999"
+              name="expirationDate"
+              placeholder="01/11/2020"
+              slotChar="dd/mm/yyyy"
+              styleClass="form-control"
+            >
             </p-inputmask>
           </div>
         }
-
       </div>
 
       <div class="form-row">
         <div class="form-group col-md-3">
-          <div class="form-check form-switch  pt-4">
-            <input (change)="onDeconditionnable($event)" class="form-check-input mr-2"
-                   formControlName="deconditionnable" id="deconditionnable"
-                   name="deconditionnable"
-                   type="checkbox">
-            <label class="form-check-label form-control-label " for="deconditionnable">Déconditionnable
-              ?</label>
+          <div class="form-check form-switch pt-4">
+            <input
+              (change)="onDeconditionnable($event)"
+              class="form-check-input mr-2"
+              formControlName="deconditionnable"
+              id="deconditionnable"
+              name="deconditionnable"
+              type="checkbox"
+            />
+            <label class="form-check-label form-control-label" for="deconditionnable">Déconditionnable ?</label>
           </div>
         </div>
         @if (isDeconditionnable) {
-          <div class="form-group  col-md-3">
-            <label class="form-control-label" for="field_itemQty"
-                   jhiTranslate="warehouseApp.produit.itemQty">Item Qty</label>
-            <input (keyup)="handleItemQty($event)" autocomplete="off" class="form-control"
-                   formControlName="itemQty"
-                   id="field_itemQty" name="itemQty"
-                   pInputText pKeyFilter="int" type="text" />
-
+          <div class="form-group col-md-3">
+            <label class="form-control-label" for="field_itemQty" jhiTranslate="warehouseApp.produit.itemQty">Item Qty</label>
+            <input
+              (keyup)="handleItemQty($event)"
+              autocomplete="off"
+              class="form-control"
+              formControlName="itemQty"
+              id="field_itemQty"
+              name="itemQty"
+              pInputText
+              pKeyFilter="int"
+              type="text"
+            />
           </div>
           <div class="form-group col-md-3">
-            <label class="form-control-label" for="field_itemCostAmount"
-                   jhiTranslate="warehouseApp.produit.itemCostAmount">Item
-              Cost Amount</label>
-            <input (keyup)="handleItemCost($event)" autocomplete="off" class="form-control"
-                   formControlName="itemCostAmount"
-                   id="field_itemCostAmount" name="itemCostAmount"
-                   pInputText pKeyFilter="int" type="text" />
-
+            <label class="form-control-label" for="field_itemCostAmount" jhiTranslate="warehouseApp.produit.itemCostAmount"
+              >Item Cost Amount</label
+            >
+            <input
+              (keyup)="handleItemCost($event)"
+              autocomplete="off"
+              class="form-control"
+              formControlName="itemCostAmount"
+              id="field_itemCostAmount"
+              name="itemCostAmount"
+              pInputText
+              pKeyFilter="int"
+              type="text"
+            />
           </div>
 
           <div class="form-group col-md-3">
-            <label class="form-control-label" for="field_itemRegularUnitPrice"
-                   jhiTranslate="warehouseApp.produit.itemRegularUnitPrice">Item Regular Unit
-              Price</label>
-            <input (keyup)="handleItemPrice($event)" autocomplete="off" class="form-control"
-                   formControlName="itemRegularUnitPrice"
-                   id="field_itemRegularUnitPrice"
-                   name="itemRegularUnitPrice" pInputText
-                   pKeyFilter="int" type="text" />
-
+            <label class="form-control-label" for="field_itemRegularUnitPrice" jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
+              >Item Regular Unit Price</label
+            >
+            <input
+              (keyup)="handleItemPrice($event)"
+              autocomplete="off"
+              class="form-control"
+              formControlName="itemRegularUnitPrice"
+              id="field_itemRegularUnitPrice"
+              name="itemRegularUnitPrice"
+              pInputText
+              pKeyFilter="int"
+              type="text"
+            />
           </div>
         }
-
       </div>
-
     </div>
 
-
-    <div class="mt-2 mb-2" style="text-align:center;">
-      <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check"
-                label="Enregistrer" type="submit"></p-button>
-      <p-button (click)="previousState()" [style]="{'margin-left': '.5em'}" icon="pi pi-times"
-                label="Annuler" styleClass="p-button-secondary"></p-button>
+    <div class="mt-2 mb-2" style="text-align: center">
+      <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check" label="Enregistrer" type="submit"></p-button>
+      <p-button
+        (click)="previousState()"
+        [style]="{ 'margin-left': '.5em' }"
+        icon="pi pi-times"
+        label="Annuler"
+        styleClass="p-button-secondary"
+      ></p-button>
       <!--   <p-button (click)="previousState()" id="cancel-save"
                    type="button">
            <fa-icon icon="ban"></fa-icon>&nbsp;<span
@@ -415,8 +454,5 @@
            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
          </p-button>-->
     </div>
-
   </form>
-
-
 </div>

@@ -1,10 +1,8 @@
 <div>
   @if (isGroupeSignal()) {
     <jhi-faire-groupe-reglement
-
       [reglementFactureDossiers]="reglementFactureDossiersSignal()"
       [dossierFactureProjection]="dossierFactureProjection"
-
     ></jhi-faire-groupe-reglement>
   } @else {
     <jhi-regelement-facture-individuelle
@@ -13,5 +11,4 @@
       (selectedFacture)="onSelectFacture($event)"
     ></jhi-regelement-facture-individuelle>
   }
-
 </div>

@@ -5,5 +5,9 @@ export interface IStatistiqueProduit {
 }
 
 export class StatistiqueProduit implements IStatistiqueProduit {
-  constructor(public libelleProduit?: string, public amount?: number, public quantity?: number) {}
+  constructor(
+    public libelleProduit?: string,
+    public amount?: number,
+    public quantity?: number,
+  ) {}
 }

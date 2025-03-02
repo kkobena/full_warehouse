@@ -3,14 +3,14 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import AppComponent from './app/app.component';
 
-import { DEBUG_INFO_ENABLED } from './app/app.constants';
+import { environment } from './environments/environment';
 
 // disable debug data on prod profile to improve performance
-if (!DEBUG_INFO_ENABLED) {
+if (!environment.DEBUG_INFO_ENABLED) {
   enableProdMode();
 }
 
 bootstrapApplication(AppComponent, appConfig)
   // eslint-disable-next-line no-console
   .then(() => console.log('Application started'))
-  .catch(err => console.error(err));
+  .catch((err: unknown) => console.error(err));

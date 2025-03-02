@@ -12,7 +12,7 @@ export interface FileLoadError {
 }
 
 /**
- * An utility service for data.
+ * A utility service for data.
  */
 @Injectable({
   providedIn: 'root',
@@ -42,7 +42,7 @@ export class DataUtils {
     });
     const fileURL = window.URL.createObjectURL(blob);
     const win = window.open(fileURL);
-    win!.onload = function () {
+    win.onload = function () {
       URL.revokeObjectURL(fileURL);
     };
   }
@@ -61,7 +61,7 @@ export class DataUtils {
   loadFileToForm(event: Event, editForm: FormGroup, field: string, isImage: boolean): Observable<void> {
     return new Observable((observer: Observer<void>) => {
       const eventTarget: HTMLInputElement | null = event.target as HTMLInputElement | null;
-      if (eventTarget?.files?.[0]) {
+      if (eventTarget.files[0]) {
         const file: File = eventTarget.files[0];
         if (isImage && !file.type.startsWith('image/')) {
           const error: FileLoadError = {
@@ -71,7 +71,7 @@ export class DataUtils {
           };
           observer.error(error);
         } else {
-          const fieldContentType: string = field + 'ContentType';
+          const fieldContentType = `${field}ContentType`;
           this.toBase64(file, (base64Data: string) => {
             editForm.patchValue({
               [field]: base64Data,
@@ -98,7 +98,7 @@ export class DataUtils {
   private toBase64(file: File, callback: (base64Data: string) => void): void {
     const fileReader: FileReader = new FileReader();
     fileReader.onload = (e: ProgressEvent<FileReader>) => {
-      if (typeof e.target?.result === 'string') {
+      if (typeof e.target.result === 'string') {
         const base64Data: string = e.target.result.substring(e.target.result.indexOf('base64,') + 'base64,'.length);
         callback(base64Data);
       }
@@ -125,6 +125,6 @@ export class DataUtils {
   }
 
   private formatAsBytes(size: number): string {
-    return size.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' bytes'; // NOSONAR
+    return `${size.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} bytes`; // NOSONAR
   }
 }

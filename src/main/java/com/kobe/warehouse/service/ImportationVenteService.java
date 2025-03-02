@@ -40,6 +40,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @Scope("singleton")
 public class ImportationVenteService {
+
     private final Logger log = LoggerFactory.getLogger(ImportationVenteService.class);
     private final TransactionTemplate transactionTemplate;
     private final RestTemplate restTemplate;
@@ -48,16 +49,18 @@ public class ImportationVenteService {
     private final CashSaleRepository cashSaleRepository;
     private final SalesLineRepository salesLineRepository;
     private final PaymentRepository paymentRepository;
+
     @Value("${legacy-url}")
     private String legacyUrl;
 
-    public ImportationVenteService(TransactionTemplate transactionTemplate,
-                                   RestTemplateBuilder restTemplateBuilder,
-                                   SaleService saleService,
-                                   CashSaleRepository cashSaleRepository,
-                                   SalesLineRepository salesLineRepository,
-                                   PaymentRepository paymentRepository,
-                                   SalesLineService salesLineService
+    public ImportationVenteService(
+        TransactionTemplate transactionTemplate,
+        RestTemplateBuilder restTemplateBuilder,
+        SaleService saleService,
+        CashSaleRepository cashSaleRepository,
+        SalesLineRepository salesLineRepository,
+        PaymentRepository paymentRepository,
+        SalesLineService salesLineService
     ) {
         this.transactionTemplate = transactionTemplate;
         restTemplate = restTemplateBuilder.build();
@@ -70,13 +73,15 @@ public class ImportationVenteService {
 
     private MaxAndMinDate findMaxAndMinDate() {
         try {
-            ResponseEntity<MaxAndMinDate> maxAndMinDateResponseEntity = restTemplate.getForEntity(legacyUrl + "/api/v1//whareouse-maxmin", MaxAndMinDate.class);
+            ResponseEntity<MaxAndMinDate> maxAndMinDateResponseEntity = restTemplate.getForEntity(
+                legacyUrl + "/api/v1//whareouse-maxmin",
+                MaxAndMinDate.class
+            );
             return maxAndMinDateResponseEntity.getBody();
         } catch (Exception e) {
             log.debug(" {}", e);
             return null;
         }
-
     }
 
     private List<SaleDTO> findFromLegacy(String date) {
@@ -88,11 +93,7 @@ public class ImportationVenteService {
                 .queryParam("dtStart", date)
                 .queryParam("dtEnd", date);
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            HttpEntity<SaleDTO[]> response = restTemplate.exchange(
-                builder.toUriString(),
-                HttpMethod.GET,
-                entity,
-                SaleDTO[].class);
+            HttpEntity<SaleDTO[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, SaleDTO[].class);
 
             return Arrays.asList(response.getBody());
         } catch (Exception e) {
@@ -108,7 +109,6 @@ public class ImportationVenteService {
         } catch (Throwable e) {
             log.debug(" {}", e);
         }
-
     }
 
     // @Scheduled(fixedRate = 1800000)
@@ -127,27 +127,29 @@ public class ImportationVenteService {
                         List<SaleDTO> datas = findFromLegacy(min.toString());
                         min = min.plusDays(1);
                         for (SaleDTO d : datas) {
-                            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                                @Override
-                                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                    try {
-                                        CashSaleDTO dto = (CashSaleDTO) d;
-                                        CashSale cashSale = saleService.fromDTOOldCashSale(dto);
-                                        cashSaleRepository.save(cashSale);
-                                        for (SaleLineDTO i : dto.getSalesLines()) {
-                                            SalesLine item = salesLineService.buildSaleLineFromDTO(i);
-                                            item.setSales(cashSale);
-                                            salesLineRepository.save(item);
+                            transactionTemplate.execute(
+                                new TransactionCallbackWithoutResult() {
+                                    @Override
+                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                        try {
+                                            CashSaleDTO dto = (CashSaleDTO) d;
+                                            CashSale cashSale = saleService.fromDTOOldCashSale(dto);
+                                            cashSaleRepository.save(cashSale);
+                                            for (SaleLineDTO i : dto.getSalesLines()) {
+                                                SalesLine item = salesLineService.buildSaleLineFromDTO(i);
+                                                item.setSales(cashSale);
+                                                salesLineRepository.save(item);
+                                            }
+                                            if (!dto.getPayments().isEmpty()) {
+                                                Payment payment = saleService.buildPaymentFromDTO(dto.getPayments().get(0), cashSale);
+                                                paymentRepository.save(payment);
+                                            }
+                                        } catch (Exception e) {
+                                            log.debug(" {}", e);
                                         }
-                                        if (!dto.getPayments().isEmpty()) {
-                                            Payment payment = saleService.buildPaymentFromDTO(dto.getPayments().get(0), cashSale);
-                                            paymentRepository.save(payment);
-                                        }
-                                    } catch (Exception e) {
-                                        log.debug(" {}", e);
                                     }
                                 }
-                            });
+                            );
                         }
                         interval--;
                         TimeUnit.MILLISECONDS.sleep(300);
@@ -160,6 +162,5 @@ public class ImportationVenteService {
             }
         };
         runnableTask.run();
-
     }
 }

@@ -17,18 +17,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
-    selector: 'jhi-commande-recus',
-    templateUrl: './commande-recus.component.html',
-    imports: [
-        WarehouseCommonModule,
-        ButtonModule,
-        TableModule,
-        NgxSpinnerModule,
-        RouterModule,
-        RippleModule,
-        DynamicDialogModule,
-        TooltipModule,
-    ]
+  selector: 'jhi-commande-recus',
+  templateUrl: './commande-recus.component.html',
+  imports: [
+    WarehouseCommonModule,
+    ButtonModule,
+    TableModule,
+    NgxSpinnerModule,
+    RouterModule,
+    RippleModule,
+    DynamicDialogModule,
+    TooltipModule,
+  ],
 })
 export class CommandeRecusComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);

@@ -5,10 +5,10 @@ import SharedModule from 'app/shared/shared.module';
 import { Thread, ThreadState } from 'app/admin/metrics/metrics.model';
 
 @Component({
-    selector: 'jhi-thread-modal',
-    templateUrl: './metrics-modal-threads.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [SharedModule]
+  selector: 'jhi-thread-modal',
+  templateUrl: './metrics-modal-threads.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SharedModule],
 })
 export class MetricsModalThreadsComponent implements OnInit {
   ThreadState = ThreadState;
@@ -23,7 +23,7 @@ export class MetricsModalThreadsComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
 
   ngOnInit(): void {
-    this.threads?.forEach(thread => {
+    this.threads.forEach(thread => {
       if (thread.threadState === ThreadState.Runnable) {
         this.threadDumpRunnable += 1;
       } else if (thread.threadState === ThreadState.Waiting) {
@@ -52,7 +52,7 @@ export class MetricsModalThreadsComponent implements OnInit {
   }
 
   getThreads(): Thread[] {
-    return this.threads?.filter(thread => !this.threadStateFilter || thread.threadState === this.threadStateFilter) ?? [];
+    return this.threads.filter(thread => !this.threadStateFilter || thread.threadState === this.threadStateFilter) ?? [];
   }
 
   dismiss(): void {

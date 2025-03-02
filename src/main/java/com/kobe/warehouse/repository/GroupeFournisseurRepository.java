@@ -8,9 +8,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupeFournisseurRepository
-    extends JpaRepository<GroupeFournisseur, Long>, JpaSpecificationExecutor<GroupeFournisseur> {
-  Optional<GroupeFournisseur> findOneByLibelle(String libelle);
+public interface GroupeFournisseurRepository extends JpaRepository<GroupeFournisseur, Long>, JpaSpecificationExecutor<GroupeFournisseur> {
+    Optional<GroupeFournisseur> findOneByLibelle(String libelle);
 
-  List<GroupeFournisseur> findAllByOrderByOdreAsc();
+    List<GroupeFournisseur> findAllByOrderByOdreAsc();
 }

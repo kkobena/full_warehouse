@@ -21,6 +21,6 @@ export class Ajust implements IAjust {
     public storageLibelle?: string,
     public userFullName?: string,
     public commentaire?: string,
-    public ajustements?: IAjustement[]
+    public ajustements?: IAjustement[],
   ) {}
 }

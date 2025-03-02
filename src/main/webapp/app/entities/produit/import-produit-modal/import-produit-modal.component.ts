@@ -87,13 +87,13 @@ export class ImportProduitModalComponent implements OnInit {
   }
 
   private buildFormData(): FormData {
-    const file = this.fileUpload()?.files[0];
+    const file = this.fileUpload().files[0];
     const formData: FormData = new FormData();
     const body = new Blob(
       [
         JSON.stringify({
           typeImportation: this.type,
-          fournisseurId: this.fournisseur()?.value,
+          fournisseurId: this.fournisseur().value,
         }),
       ],
       {

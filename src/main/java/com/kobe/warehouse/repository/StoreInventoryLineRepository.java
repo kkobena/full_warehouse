@@ -10,11 +10,10 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface StoreInventoryLineRepository extends JpaRepository<StoreInventoryLine, Long> {
+    List<StoreInventoryLine> findAllByStoreInventoryId(Long storeInventoryId);
 
-  List<StoreInventoryLine> findAllByStoreInventoryId(Long storeInventoryId);
+    long countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(Long id);
 
-  long countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(Long id);
-
-  @Procedure("proc_close_inventory")
-  int procCloseInventory(Integer inventoryId);
+    @Procedure("proc_close_inventory")
+    int procCloseInventory(Integer inventoryId);
 }

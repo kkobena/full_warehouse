@@ -34,9 +34,6 @@ export class CustomerOverlayPanelComponent {
   readonly onCloseEvent = output<boolean>();
   protected customer: ICustomer | null;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     effect(() => {
       this.customer = this.selectedCustomerService.selectedCustomerSignal();

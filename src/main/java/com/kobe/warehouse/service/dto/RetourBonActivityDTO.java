@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 
 public class RetourBonActivityDTO extends AbstractProduitActivity {
 
-  public RetourBonActivityDTO(
-      LocalDate dateMvt, Integer qtyMvt, LocalDateTime min, LocalDateTime max) {
-    super(dateMvt, qtyMvt, min, max);
-  }
+    public RetourBonActivityDTO(LocalDate dateMvt, Integer qtyMvt, LocalDateTime min, LocalDateTime max) {
+        super(dateMvt, qtyMvt, min, max);
+    }
 }

@@ -159,13 +159,12 @@ public class AccountResource extends AccountResourcesProxy {
         String decodedSeries = URLDecoder.decode(series, StandardCharsets.UTF_8);
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
-            .flatMap(
-                u ->
-                    persistentTokenRepository
-                        .findByUser(u)
-                        .stream()
-                        .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
-                        .findAny()
+            .flatMap(u ->
+                persistentTokenRepository
+                    .findByUser(u)
+                    .stream()
+                    .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
+                    .findAny()
             )
             .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries));
     }

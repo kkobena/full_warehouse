@@ -4,74 +4,71 @@
   <div class="modal-body">
     <div [hidden]="true" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-
     </div>
 
     <div class="form-row">
       <div class="form-group col">
-        <label class="form-control-label"
-               for="field_firstName">Nom</label>
-        <input #firstName autocomplete="off" class="form-control"
-               formControlName="firstName" id="field_firstName" name="firstName"
-               pInputText type="text" />
-        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
-          || editForm.get('firstName')!.touched)) {
+        <label class="form-control-label" for="field_firstName">Nom</label>
+        <input
+          #firstName
+          autocomplete="off"
+          class="form-control"
+          formControlName="firstName"
+          id="field_firstName"
+          name="firstName"
+          pInputText
+          type="text"
+        />
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
           <div>
             @if (editForm.get('firstName')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
-
           </div>
         }
-
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
-        <label class="form-control-label"
-               for="field_lastName">Prénom(s)</label>
-        <input autocomplete="off" class="form-control" formControlName="lastName"
-               id="field_lastName" name="lastName"
-               pInputText type="text" />
-        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get(
-          'lastName')!.touched)) {
-
+        <label class="form-control-label" for="field_lastName">Prénom(s)</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="lastName"
+          id="field_lastName"
+          name="lastName"
+          pInputText
+          type="text"
+        />
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
           <div>
             @if (editForm.get('lastName')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
-        <label class="form-control-label"
-               for="field_phone">Téléphone</label>
-        <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone"
-               name="phone"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="field_phone">Téléphone</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="phone"
+          id="field_phone"
+          name="phone"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
 
-        @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get(
-          'phone')!.touched)) {
+        @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
           <div>
             @if (editForm.get('phone')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
       </div>
@@ -79,25 +76,29 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label" for="field_email">E-mail</label>
-        <input autocomplete="off" class="form-control" formControlName="email" id="field_email"
-               name="email"
-               pInputText type="email" />
+        <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
       </div>
     </div>
-
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
-              label="Annuler"
-
-              severity="danger"
-              type="button"></p-button>
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
-              icon="pi pi-check" label="Enregistrer"
-
-              severity="success" type="submit"></p-button>
-
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="danger"
+      type="button"
+    ></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
   </div>
 </form>
-

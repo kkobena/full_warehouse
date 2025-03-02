@@ -299,26 +299,7 @@ public class AuthorityServiceImpl implements AuthorityService {
         if (!StringUtils.hasLength(search)) {
             return this.privilegeRepository.findAllPrivilege()
                 .stream()
-                .map(
-                    actionPrivilegeDTO ->
-                        new PrivillegesDTO(
-                            actionPrivilegeDTO.getName(),
-                            actionPrivilegeDTO.getName(),
-                            actionPrivilegeDTO.getLibelle(),
-                            false,
-                            null,
-                            true,
-                            Collections.emptySet(),
-                            false
-                        )
-                )
-                .toList();
-        }
-        return this.privilegeRepository.findAllPrivilege()
-            .stream()
-            .filter(privilege -> privilege.getName().contains(search.toUpperCase()))
-            .map(
-                actionPrivilegeDTO ->
+                .map(actionPrivilegeDTO ->
                     new PrivillegesDTO(
                         actionPrivilegeDTO.getName(),
                         actionPrivilegeDTO.getName(),
@@ -329,6 +310,23 @@ public class AuthorityServiceImpl implements AuthorityService {
                         Collections.emptySet(),
                         false
                     )
+                )
+                .toList();
+        }
+        return this.privilegeRepository.findAllPrivilege()
+            .stream()
+            .filter(privilege -> privilege.getName().contains(search.toUpperCase()))
+            .map(actionPrivilegeDTO ->
+                new PrivillegesDTO(
+                    actionPrivilegeDTO.getName(),
+                    actionPrivilegeDTO.getName(),
+                    actionPrivilegeDTO.getLibelle(),
+                    false,
+                    null,
+                    true,
+                    Collections.emptySet(),
+                    false
+                )
             )
             .toList();
     }
@@ -336,18 +334,17 @@ public class AuthorityServiceImpl implements AuthorityService {
     private List<PrivillegesDTO> buildFromAction(String roleName) {
         return this.authorityPrivilegeRepository.findAllAuthorityName(roleName)
             .stream()
-            .map(
-                authorityPrivilege ->
-                    new PrivillegesDTO(
-                        authorityPrivilege.getName(),
-                        authorityPrivilege.getName(),
-                        authorityPrivilege.getLibelle(),
-                        false,
-                        null,
-                        true,
-                        Collections.emptySet(),
-                        false
-                    )
+            .map(authorityPrivilege ->
+                new PrivillegesDTO(
+                    authorityPrivilege.getName(),
+                    authorityPrivilege.getName(),
+                    authorityPrivilege.getLibelle(),
+                    false,
+                    null,
+                    true,
+                    Collections.emptySet(),
+                    false
+                )
             )
             .toList();
     }

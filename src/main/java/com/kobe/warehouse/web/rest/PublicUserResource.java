@@ -12,30 +12,29 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class PublicUserResource extends PublicUserResourceProxy {
 
-  public PublicUserResource(UserService userService) {
-    super(userService);
-  }
+    public PublicUserResource(UserService userService) {
+        super(userService);
+    }
 
-  /**
-   * {@code GET /users} : get all users with only public information - calling this method is
-   * allowed for anyone.
-   *
-   * @param pageable the pagination information.
-   * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
-   */
-  @GetMapping("/users")
-  public ResponseEntity<List<UserDTO>> getAllPublicUsers(
-      @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
-    return super.getAllPublicUsers(pageable);
-  }
+    /**
+     * {@code GET /users} : get all users with only public information - calling this method is
+     * allowed for anyone.
+     *
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
+     */
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDTO>> getAllPublicUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+        return super.getAllPublicUsers(pageable);
+    }
 
-  /**
-   * Gets a list of all roles.
-   *
-   * @return a string list of all roles.
-   */
-  @GetMapping("/authorities")
-  public List<String> getAuthorities() {
-    return super.getAuthorities();
-  }
+    /**
+     * Gets a list of all roles.
+     *
+     * @return a string list of all roles.
+     */
+    @GetMapping("/authorities")
+    public List<String> getAuthorities() {
+        return super.getAuthorities();
+    }
 }

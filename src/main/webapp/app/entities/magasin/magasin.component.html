@@ -1,6 +1,4 @@
 <div class="row justify-content-center">
-
-
   @if (magasin) {
     <div class="col-8 magasin-detail">
       <p-panel header="Informations du magasin">
@@ -34,11 +32,15 @@
             <span>{{ magasin.welcomeMessage }}</span>
           </dd>
         </dl>
-        <button [routerLink]="['/magasin', magasin.id, 'edit']"
-          class="p-button-raised p-button-success" icon="pi pi-pencil" pButton
-          type="button">&nbsp;&nbsp;
-          <span
-          jhiTranslate="entity.action.edit">Edit</span>
+        <button
+          [routerLink]="['/magasin', magasin.id, 'edit']"
+          class="p-button-raised p-button-success"
+          icon="pi pi-pencil"
+          pButton
+          type="button"
+        >
+          &nbsp;&nbsp;
+          <span jhiTranslate="entity.action.edit">Edit</span>
         </button>
       </p-panel>
     </div>

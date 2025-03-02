@@ -10,4 +10,5 @@ public record ProduitDeconditionAuditing(
     int beforeStock,
     int afterStock,
     LocalDateTime updated,
-    LocalDate mvtDate) {}
+    LocalDate mvtDate
+) {}

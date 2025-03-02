@@ -16,11 +16,6 @@ export class TiersPayantService {
 
   public resourceUrl = SERVER_API_URL + 'api/tiers-payants';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(tiersPayant: ITiersPayant): Observable<EntityResponseType> {
     return this.http.post<ITiersPayant>(this.resourceUrl, tiersPayant, { observe: 'response' });
   }

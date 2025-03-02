@@ -13,11 +13,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TiersPayantRepository extends JpaRepository<TiersPayant, Long>,
-    JpaSpecificationExecutor<TiersPayant> {
-
-    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName,
-        String codeOrganisme);
+public interface TiersPayantRepository extends JpaRepository<TiersPayant, Long>, JpaSpecificationExecutor<TiersPayant> {
+    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName, String codeOrganisme);
 
     Optional<TiersPayant> findOneByNameOrFullName(String name, String fullName);
 
@@ -28,14 +25,16 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Long>,
     }
 
     default Specification<TiersPayant> specialisationByGroup(long groupId) {
-        return (root, _, cb) -> cb.equal(
-            root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
     }
 
     default Specification<TiersPayant> specialisationQueryString(String queryValue) {
-        return (root, _, cb) -> cb.or(cb.like(cb.upper(root.get(TiersPayant_.name)), queryValue),
-            cb.like(cb.upper(root.get(TiersPayant_.fullName)), queryValue),
-            cb.like(cb.upper(root.get(TiersPayant_.codeOrganisme)), queryValue));
+        return (root, _, cb) ->
+            cb.or(
+                cb.like(cb.upper(root.get(TiersPayant_.name)), queryValue),
+                cb.like(cb.upper(root.get(TiersPayant_.fullName)), queryValue),
+                cb.like(cb.upper(root.get(TiersPayant_.codeOrganisme)), queryValue)
+            );
     }
 
     default Specification<TiersPayant> specialisationCategorie(TiersPayantCategorie categorie) {

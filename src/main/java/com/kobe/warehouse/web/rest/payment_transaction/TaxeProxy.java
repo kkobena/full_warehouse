@@ -17,42 +17,45 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public class TaxeProxy {
-  private final TaxeService taxeService;
 
-  public TaxeProxy(TaxeService taxeService) {
-    this.taxeService = taxeService;
-  }
+    private final TaxeService taxeService;
 
-  @GetMapping("/taxe-report")
-  public ResponseEntity<TaxeWrapperDTO> getTaxe(
-      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-      @RequestParam(value = "toDate", required = false) LocalDate toDate,
-      @RequestParam(value = "categorieChiffreAffaires", required = false)
-          Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-      @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-      @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva")
-          String groupeBy) {
-    return ResponseEntity.ok(
-        taxeService.fetchTaxe(
-            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy)
-                .build(),
-            false,
-            false));
-  }
+    public TaxeProxy(TaxeService taxeService) {
+        this.taxeService = taxeService;
+    }
 
-  @GetMapping("/taxe-report/pdf")
-  public ResponseEntity<Resource> getExportTaxes( HttpServletRequest request,
-      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-      @RequestParam(value = "toDate", required = false) LocalDate toDate,
-      @RequestParam(value = "categorieChiffreAffaires", required = false)
-          Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-      @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-      @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva")
-          String groupeBy) throws MalformedURLException {
-      Resource resource= taxeService.exportToPdf(new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy)
-          .build(), false);
-      return Utils.printPDF(resource, request);
-  }
+    @GetMapping("/taxe-report")
+    public ResponseEntity<TaxeWrapperDTO> getTaxe(
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy
+    ) {
+        return ResponseEntity.ok(
+            taxeService.fetchTaxe(
+                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(),
+                false,
+                false
+            )
+        );
+    }
+
+    @GetMapping("/taxe-report/pdf")
+    public ResponseEntity<Resource> getExportTaxes(
+        HttpServletRequest request,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy
+    ) throws MalformedURLException {
+        Resource resource = taxeService.exportToPdf(
+            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(),
+            false
+        );
+        return Utils.printPDF(resource, request);
+    }
 }

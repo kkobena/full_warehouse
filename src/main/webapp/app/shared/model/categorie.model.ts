@@ -5,5 +5,9 @@ export interface ICategorie {
 }
 
 export class Categorie implements ICategorie {
-  constructor(public id?: number, public libelle?: string, public code?: string) {}
+  constructor(
+    public id?: number,
+    public libelle?: string,
+    public code?: string,
+  ) {}
 }

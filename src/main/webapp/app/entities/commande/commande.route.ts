@@ -8,8 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
 
-
-
 import DeliveryResolver from './delevery/delivery.resolver';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {

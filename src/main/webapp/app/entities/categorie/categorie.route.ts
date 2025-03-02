@@ -8,9 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
 
-
-
-
 export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null | ICategorie> => {
   const id = route.params['id'];
   if (id) {

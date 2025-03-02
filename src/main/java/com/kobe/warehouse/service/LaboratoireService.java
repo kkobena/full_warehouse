@@ -1,19 +1,16 @@
 package com.kobe.warehouse.service;
 
-
 import com.kobe.warehouse.service.dto.LaboratoireDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.io.InputStream;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.Laboratoire}.
  */
 public interface LaboratoireService {
-
     /**
      * Save a laboratoire.
      *
@@ -29,7 +26,6 @@ public interface LaboratoireService {
      * @return the list of entities.
      */
     Page<LaboratoireDTO> findAll(String libelle, Pageable pageable);
-
 
     /**
      * Get the "id" laboratoire.

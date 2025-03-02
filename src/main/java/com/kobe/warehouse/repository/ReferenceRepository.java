@@ -1,10 +1,8 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Reference;
-
 import java.time.LocalDate;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ReferenceRepository extends JpaRepository<Reference, Long> {
-	Optional<Reference> findOneBymvtDateAndType(LocalDate localDate, Integer dType);
+    Optional<Reference> findOneBymvtDateAndType(LocalDate localDate, Integer dType);
 }

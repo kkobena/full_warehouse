@@ -120,7 +120,7 @@ public class DeliveryReceipt implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     private WarehouseCalendar calendar;
-    
+
     public Long getId() {
         return id;
     }

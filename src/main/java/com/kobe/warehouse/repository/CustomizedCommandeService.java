@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface CustomizedCommandeService {
-  List<Commande> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
+    List<Commande> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
 
-  long countfetchCommandes(CommandeFilterDTO commandeFilterDTO);
+    long countfetchCommandes(CommandeFilterDTO commandeFilterDTO);
 }

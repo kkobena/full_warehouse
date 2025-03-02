@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
@@ -11,11 +11,10 @@ import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class LoginService {
-  private applicationConfigService = inject(ApplicationConfigService);
-  private accountService = inject(AccountService);
-  private authServerProvider = inject(AuthServerProvider);
-  private router = inject(Router);
-
+  private readonly applicationConfigService = inject(ApplicationConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly authServerProvider = inject(AuthServerProvider);
+  private readonly router = inject(Router);
   login(credentials: Login): Observable<Account | null> {
     return this.authServerProvider.login(credentials).pipe(mergeMap(() => this.accountService.identity(true)));
   }

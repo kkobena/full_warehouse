@@ -1,149 +1,135 @@
 <html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <title>Etiquetes</title>
-  <style th:inline="css">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes</title>
+    <style th:inline="css">
+      @page {
+        size: A4 portrait;
+        padding: 0;
+        margin: 5mm 9.75mm;
+      }
 
+      main {
+        padding: 0;
+      }
 
-    @page {
-      size: A4 portrait;
-      padding: 0;
-      margin: 5mm 9.75mm;
-    }
+      table:first-child {
+        padding: 0;
+      }
 
-    main {
-      padding: 0;
+      .text-left {
+        text-align: left;
+      }
 
-    }
+      .text-right {
+        text-align: right;
+      }
 
-    table:first-child {
-      padding: 0;
+      .text-center {
+        text-align: center;
+      }
 
-    }
+      .text-left {
+        text-align: left;
+      }
 
-    .text-left {
-      text-align: left;
-    }
+      .text-left {
+        text-align: left;
+      }
 
-    .text-right {
-      text-align: right;
-    }
+      .container-tr {
+        height: 21.2mm;
+        padding: 0;
+        margin: 0;
+        width: 190.5mm;
+      }
 
+      .container-tr td {
+        margin: 0;
+        padding: 0;
+        font-size: 9px;
+      }
 
-    .text-center {
-      text-align: center;
-    }
+      tr {
+        margin: 0;
+        padding: 0;
+      }
 
+      .container-tr-td {
+        width: 20%;
+        padding: 0;
+        margin: 0;
+      }
 
-    .text-left {
-      text-align: left;
-    }
+      .etiquette-table {
+        width: 100%;
+      }
 
-    .text-left {
-      text-align: left;
-    }
+      .etiquette-table tr:not(:last-child) td {
+        width: 100%;
+      }
 
-    .container-tr {
-      height: 21.2mm;
-      padding: 0;
-      margin: 0;
-      width: 190.5mm;
-    }
+      td img {
+        height: auto;
+        width: 34mm;
+        margin: 0;
+        padding: 0;
+      }
 
-    .container-tr td {
-      margin: 0;
-      padding: 0;
-      font-size: 9px;
-    }
+      .container-tr-td {
+        page-break-inside: avoid;
+        -fs-page-break-inside: avoid;
+      }
 
-    tr {
-      margin: 0;
-      padding: 0;
-    }
+      div {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
 
-    .container-tr-td {
-      width: 20%;
-      padding: 0;
-      margin: 0;
-    }
-
-    .etiquette-table {
-      width: 100%;
-    }
-
-    .etiquette-table tr:not(:last-child) td {
-      width: 100%;
-    }
-
-    td img {
-      height: auto;
-      width: 34mm;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container-tr-td {
-      page-break-inside: avoid;
-      -fs-page-break-inside: avoid;
-    }
-
-    div {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-    }
-
-    p {
-      margin: 0;
-      padding: 1px 0 0 0;
-      width: 98%;
-      text-align: center;
-
-    }
-  </style>
-</head>
-<body>
-<main>
-  <table class="container">
-    <tbody>
-    <tr class="container-tr" th:each="partitions : ${items}"
-        th:with="countTr=${partitionsStat.count}">
-      <td th:class="${itmStat.index eq 4}?'last-item container-tr-td':'container-tr-td'"
-          th:each="itm : ${partitions}">
-        <table class="etiquette-table" th:if="${itm.print}">
-          <tbody>
-          <tr>
-            <td class="text-left" colspan="2" th:text="${itm.magasin}"></td>
-          </tr>
-          <tr>
-            <td class="text-left" colspan="2" th:text="${itm.libelle}"></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <div><img th:id="${itm.code}" /></div>
-              <div>
-                <p th:text="${itm.code}"></p>
-              </div>
+      p {
+        margin: 0;
+        padding: 1px 0 0 0;
+        width: 98%;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <table class="container">
+        <tbody>
+          <tr class="container-tr" th:each="partitions : ${items}" th:with="countTr=${partitionsStat.count}">
+            <td th:class="${itmStat.index eq 4}?'last-item container-tr-td':'container-tr-td'" th:each="itm : ${partitions}">
+              <table class="etiquette-table" th:if="${itm.print}">
+                <tbody>
+                  <tr>
+                    <td class="text-left" colspan="2" th:text="${itm.magasin}"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" colspan="2" th:text="${itm.libelle}"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <div><img th:id="${itm.code}" /></div>
+                      <div>
+                        <p th:text="${itm.code}"></p>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" th:text="${itm.date}"></td>
+                    <td class="text-right" th:text="${itm.prix}"></td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
+            <th:block th:with="gap=${5 - countTr}">
+              <td class="container-tr-td" th:each="i : ${#numbers.sequence(1, gap )}"></td>
+            </th:block>
           </tr>
-          <tr>
-            <td class="text-left" th:text="${itm.date}"></td>
-            <td class="text-right"
-                th:text="${itm.prix}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-      <th:block th:with="gap=${5 - countTr}">
-        <td class="container-tr-td" th:each="i : ${#numbers.sequence(1, gap )}">
-        </td>
-      </th:block>
-
-    </tr>
-    </tbody>
-  </table>
-</main>
-
-
-</body>
+        </tbody>
+      </table>
+    </main>
+  </body>
 </html>

@@ -4,9 +4,8 @@ import { Facture } from '../../facturation/facture.model';
 import { LazyLoadEvent } from 'primeng/api';
 import { FactureService } from '../../facturation/facture.service';
 import { InvoiceSearchParams } from '../../facturation/edition-search-params.model';
-import { DATE_FORMAT_ISO_FROM_NGB_DATE, GET_NG_DATE } from '../../../shared/util/warehouse-util';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { INVOICES_STATUT } from '../../../shared/constants/data-constants';
-import { NgbCalendar, NgbDate, NgbDateAdapter, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { RegelementStateService } from '../regelement-state.service';
@@ -18,11 +17,11 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
-import { CustomAdapter, CustomDateParserFormatter, CustomDatepickerI18n, I18n } from '../../../shared/util/datepicker-adapter';
 import { SelectedFacture } from '../model/reglement.model';
 import { InputText } from 'primeng/inputtext';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { Toolbar } from 'primeng/toolbar';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-factues-modal',
@@ -36,24 +35,20 @@ import { Toolbar } from 'primeng/toolbar';
     InputText,
     ToggleSwitch,
     Toolbar,
+    DatePicker,
   ],
-  providers: [
-    I18n,
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: NgbDateAdapter, useClass: CustomAdapter },
-    { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
-  ],
+
   templateUrl: './factues-modal.component.html',
 })
 export class FactuesModalComponent implements AfterViewInit {
-  factureService = inject(FactureService);
-  calendar = inject(NgbCalendar);
-  regelementStateService = inject(RegelementStateService);
+  protected readonly factureService = inject(FactureService);
+
+  protected readonly regelementStateService = inject(RegelementStateService);
   factureGroup = input<boolean>(false);
   factureGroupWritable = signal(this.factureGroup());
-  tiersPayantService = inject(TiersPayantService);
-  groupeTiersPayantService = inject(GroupeTiersPayantService);
-  readonly selectedFacture = output<SelectedFacture>();
+  protected readonly tiersPayantService = inject(TiersPayantService);
+  protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  protected readonly selectedFacture = output<SelectedFacture>();
   protected loadingBtn = false;
   protected loading!: boolean;
   protected totalItems = 0;
@@ -62,19 +57,19 @@ export class FactuesModalComponent implements AfterViewInit {
   protected datas: Facture[] = [];
   protected statut: string = null;
   protected readonly statuts = INVOICES_STATUT;
-
-  protected modelStartDate: NgbDate | null = NgbDate.from({
-    year: this.calendar.getToday().month === 1 ? this.calendar.getToday().year - 1 : this.calendar.getToday().year,
-    month: this.calendar.getToday().month === 1 ? 12 : this.calendar.getToday().month - 1,
-    day: this.calendar.getToday().day,
-  });
-  protected modelEndDate: NgbDate | null = this.calendar.getToday();
+  private readonly toDate = new Date();
+  protected modelStartDate: Date = null;
+  protected modelEndDate: Date = new Date();
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
-  protected search: string = '';
+  protected search = '';
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] | undefined;
   protected minLength = 2;
+  constructor() {
+    this.toDate.setMonth(this.toDate.getMonth() - 1);
+    this.modelStartDate = this.toDate;
+  }
 
   searchTiersPayant(event: any): void {
     this.loadTiersPayants(event.query);
@@ -155,15 +150,15 @@ export class FactuesModalComponent implements AfterViewInit {
   }
 
   onSelectFacture(facture: Facture): void {
-    this.selectedFacture.emit({ isGroup: this.factureGroupWritable(), facture: facture });
+    this.selectedFacture.emit({ isGroup: this.factureGroupWritable(), facture });
   }
 
   ngAfterViewInit(): void {
     const previousSearch = this.regelementStateService.invoiceSearchParams();
 
     if (previousSearch) {
-      this.modelStartDate = previousSearch.startDate ? GET_NG_DATE(previousSearch.startDate) : null;
-      this.modelEndDate = previousSearch.endDate ? GET_NG_DATE(previousSearch.endDate) : null;
+      this.modelStartDate = previousSearch.startDate ? new Date(previousSearch.startDate) : new Date();
+      this.modelEndDate = previousSearch.endDate ? new Date(previousSearch.endDate) : new Date();
       this.selectedTiersPayants = previousSearch.tiersPayantIds
         ? this.tiersPayants.filter(item => previousSearch.tiersPayantIds.includes(item.id))
         : undefined;
@@ -173,7 +168,7 @@ export class FactuesModalComponent implements AfterViewInit {
       this.search = previousSearch.search || '';
       this.factureGroupWritable.set(previousSearch.factureGroupees || false);
       if (this.search) {
-        if (previousSearch.factureGroupees && previousSearch.factureGroupees === true) {
+        if (previousSearch.factureGroupees && previousSearch.factureGroupees) {
           this.loadGroupTiersPayant(this.search);
         } else {
           this.loadTiersPayants(this.search);
@@ -196,8 +191,8 @@ export class FactuesModalComponent implements AfterViewInit {
 
   private buildSearchParams(): InvoiceSearchParams {
     const params = {
-      startDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelStartDate),
-      endDate: DATE_FORMAT_ISO_FROM_NGB_DATE(this.modelEndDate),
+      startDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
+      endDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
       groupIds: this.selectedGroupeTiersPayants?.map(item => item.id),
       tiersPayantIds: this.selectedTiersPayants?.map(item => item.id),
       factureProvisoire: false,

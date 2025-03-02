@@ -27,4 +27,5 @@ public record VenteRecord(
     BigDecimal paidAmount,
     BigDecimal realNetAmount,
     Long saleCount,
-    double panierMoyen) {}
+    double panierMoyen
+) {}

@@ -18,54 +18,56 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class InventoryTransactionService {
 
-  private final InventoryTransactionRepository inventoryTransactionRepository;
+    private final InventoryTransactionRepository inventoryTransactionRepository;
 
-  private final ProduitRepository produitRepository;
-  private final InventoryTransactionSpec inventoryTransactionSpec;
+    private final ProduitRepository produitRepository;
+    private final InventoryTransactionSpec inventoryTransactionSpec;
 
-  public InventoryTransactionService(
-      InventoryTransactionRepository inventoryTransactionRepository,
-      ProduitRepository produitRepository,
-      InventoryTransactionSpec inventoryTransactionSpec) {
-    this.inventoryTransactionRepository = inventoryTransactionRepository;
-    this.produitRepository = produitRepository;
-    this.inventoryTransactionSpec = inventoryTransactionSpec;
-  }
-
-  @Transactional(readOnly = true)
-  public long quantitySold(Long produitId) {
-    Long aLong = inventoryTransactionRepository.quantitySold(TransactionType.SALE, produitId);
-    return (aLong != null ? aLong : 0);
-  }
-
-  @Transactional(readOnly = true)
-  public Optional<InventoryTransaction> findById(Long id) {
-    return inventoryTransactionRepository.findById(id);
-  }
-
-  private Specification<InventoryTransaction> add(
-      Specification<InventoryTransaction> specification,
-      Specification<InventoryTransaction> current) {
-    if (current == null) {
-      current = Specification.where(specification);
-    } else {
-      current = specification.and(specification);
+    public InventoryTransactionService(
+        InventoryTransactionRepository inventoryTransactionRepository,
+        ProduitRepository produitRepository,
+        InventoryTransactionSpec inventoryTransactionSpec
+    ) {
+        this.inventoryTransactionRepository = inventoryTransactionRepository;
+        this.produitRepository = produitRepository;
+        this.inventoryTransactionSpec = inventoryTransactionSpec;
     }
-    return current;
-  }
 
-  @Transactional(readOnly = true)
-  public Page<InventoryTransactionDTO> getAllInventoryTransactions(
-      Pageable pageable, Long produitId, String startDate, String endDate, Integer type) {
-    this.inventoryTransactionSpec.setInventoryTransactionFilter(
-        new InventoryTransactionFilterDTO()
-            .setEndDate(endDate)
-            .setProduitId(produitId)
-            .setStartDate(startDate)
-            .setType(type));
+    @Transactional(readOnly = true)
+    public long quantitySold(Long produitId) {
+        Long aLong = inventoryTransactionRepository.quantitySold(TransactionType.SALE, produitId);
+        return (aLong != null ? aLong : 0);
+    }
 
-    return inventoryTransactionRepository
-        .findAll(this.inventoryTransactionSpec, pageable)
-        .map(InventoryTransactionDTO::new);
-  }
+    @Transactional(readOnly = true)
+    public Optional<InventoryTransaction> findById(Long id) {
+        return inventoryTransactionRepository.findById(id);
+    }
+
+    private Specification<InventoryTransaction> add(
+        Specification<InventoryTransaction> specification,
+        Specification<InventoryTransaction> current
+    ) {
+        if (current == null) {
+            current = Specification.where(specification);
+        } else {
+            current = specification.and(specification);
+        }
+        return current;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InventoryTransactionDTO> getAllInventoryTransactions(
+        Pageable pageable,
+        Long produitId,
+        String startDate,
+        String endDate,
+        Integer type
+    ) {
+        this.inventoryTransactionSpec.setInventoryTransactionFilter(
+                new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
+            );
+
+        return inventoryTransactionRepository.findAll(this.inventoryTransactionSpec, pageable).map(InventoryTransactionDTO::new);
+    }
 }

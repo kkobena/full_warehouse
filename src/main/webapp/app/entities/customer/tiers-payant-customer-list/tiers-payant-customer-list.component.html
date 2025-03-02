@@ -1,73 +1,68 @@
 <div class="modal-body">
   <p-toolbar styleClass="mb-1">
     <ng-template pTemplate="left">
-      <button (click)="add()" class=" mr-2" pButton pButtonIcon="pi pi-plus"
-              pButtonLabel="Nouveau"
-              severity="success"></button>
-
+      <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau" severity="success"></button>
     </ng-template>
-
   </p-toolbar>
-  <p-table #tiersPayantTable
-           [globalFilterFields]="['tiersPayantName','tiersPayantFullName','typeTiersPayant']"
-           [showCurrentPageReport]="true"
-           [value]="tiersPayants"
-           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} "
-           dataKey="id"
-           selectionMode="single">
+  <p-table
+    #tiersPayantTable
+    [globalFilterFields]="['tiersPayantName', 'tiersPayantFullName', 'typeTiersPayant']"
+    [showCurrentPageReport]="true"
+    [value]="tiersPayants"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} "
+    dataKey="id"
+    selectionMode="single"
+  >
     <ng-template pTemplate="caption">
       <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
 
       <span class="p-input-icon-left">
-    <i class="pi pi-search"></i>
-    <input (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')" pInputText
-           placeholder="TAPEZ POUR FILTRER"
-           type="text">
-</span>
-
+        <i class="pi pi-search"></i>
+        <input
+          (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')"
+          pInputText
+          placeholder="TAPEZ POUR FILTRER"
+          type="text"
+        />
+      </span>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:3%">
-          #
-        </th>
+        <th style="width: 3%">#</th>
         <th>TIERS-PAYANT</th>
-        <th style="width:90px;">TAUX</th>
-        <th style="width:110px;">CATEGORIE</th>
-        <th style="width: 20%;">TYPE COMPTE</th>
-        <th style="width:7%"></th>
+        <th style="width: 90px">TAUX</th>
+        <th style="width: 110px">CATEGORIE</th>
+        <th style="width: 20%">TYPE COMPTE</th>
+        <th style="width: 7%"></th>
       </tr>
     </ng-template>
     <ng-template let-rowIndex="rowIndex" let-tiersPayant pTemplate="body">
-      <tr (dblclick)="onDbleClick(tiersPayant)" style="cursor: pointer;">
-        <td style="text-align: left;">{{ rowIndex + 1 }}</td>
+      <tr (dblclick)="onDbleClick(tiersPayant)" style="cursor: pointer">
+        <td style="text-align: left">{{ rowIndex + 1 }}</td>
         <td>{{ tiersPayant.tiersPayantFullName }}</td>
-        <td style="text-align: right;">{{ tiersPayant.taux }}</td>
-        <td style="text-align: center;">{{ tiersPayant.categorie }}</td>
+        <td style="text-align: right">{{ tiersPayant.taux }}</td>
+        <td style="text-align: center">{{ tiersPayant.categorie }}</td>
         <td>{{ tiersPayant.typeTiersPayant }}</td>
 
-        <td style="text-align: right;">
-          <button (click)="onSelect(tiersPayant)" [rounded]="true" class=" p-mb-3"
-                  pButton
-                  pButtonIcon="pi pi-check"
-
-                  pTooltip="Séléctionner"
-                  severity="info"
-                  size="small"></button>
+        <td style="text-align: right">
+          <button
+            (click)="onSelect(tiersPayant)"
+            [rounded]="true"
+            class="p-mb-3"
+            pButton
+            pButtonIcon="pi pi-check"
+            pTooltip="Séléctionner"
+            severity="info"
+            size="small"
+          ></button>
         </td>
       </tr>
-
     </ng-template>
-
   </p-table>
-
 </div>
 
 <div class="modal-footer">
   <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
     <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
   </button>
-
 </div>
-
-

@@ -6,86 +6,87 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MvtCaisseWrapper {
-  private List<Tuple> modesPaiementAmounts = new ArrayList<>();
-  private List<Tuple> typeTransactionAmounts = new ArrayList<>();
-  private BigDecimal totalAmount;
-  private BigDecimal debitedAmount;
-  private BigDecimal creditedAmount;
-  private BigDecimal totalPaymentAmount;
-  private BigDecimal totalSaleAmount;
-  private BigDecimal totalMobileAmount;
 
-  public MvtCaisseWrapper() {}
+    private List<Tuple> modesPaiementAmounts = new ArrayList<>();
+    private List<Tuple> typeTransactionAmounts = new ArrayList<>();
+    private BigDecimal totalAmount;
+    private BigDecimal debitedAmount;
+    private BigDecimal creditedAmount;
+    private BigDecimal totalPaymentAmount;
+    private BigDecimal totalSaleAmount;
+    private BigDecimal totalMobileAmount;
 
-  public BigDecimal getTotalAmount() {
-    return totalAmount;
-  }
+    public MvtCaisseWrapper() {}
 
-  public MvtCaisseWrapper setTotalAmount(BigDecimal totalAmount) {
-    this.totalAmount = totalAmount;
-    return this;
-  }
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
 
-  public BigDecimal getDebitedAmount() {
-    return debitedAmount;
-  }
+    public MvtCaisseWrapper setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setDebitedAmount(BigDecimal debitedAmount) {
-    this.debitedAmount = debitedAmount;
-    return this;
-  }
+    public BigDecimal getDebitedAmount() {
+        return debitedAmount;
+    }
 
-  public BigDecimal getCreditedAmount() {
-    return creditedAmount;
-  }
+    public MvtCaisseWrapper setDebitedAmount(BigDecimal debitedAmount) {
+        this.debitedAmount = debitedAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setCreditedAmount(BigDecimal creditedAmount) {
-    this.creditedAmount = creditedAmount;
-    return this;
-  }
+    public BigDecimal getCreditedAmount() {
+        return creditedAmount;
+    }
 
-  public BigDecimal getTotalPaymentAmount() {
-    return totalPaymentAmount;
-  }
+    public MvtCaisseWrapper setCreditedAmount(BigDecimal creditedAmount) {
+        this.creditedAmount = creditedAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setTotalPaymentAmount(BigDecimal totalPaymentAmount) {
-    this.totalPaymentAmount = totalPaymentAmount;
-    return this;
-  }
+    public BigDecimal getTotalPaymentAmount() {
+        return totalPaymentAmount;
+    }
 
-  public BigDecimal getTotalSaleAmount() {
-    return totalSaleAmount;
-  }
+    public MvtCaisseWrapper setTotalPaymentAmount(BigDecimal totalPaymentAmount) {
+        this.totalPaymentAmount = totalPaymentAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setTotalSaleAmount(BigDecimal totalSaleAmount) {
-    this.totalSaleAmount = totalSaleAmount;
-    return this;
-  }
+    public BigDecimal getTotalSaleAmount() {
+        return totalSaleAmount;
+    }
 
-  public BigDecimal getTotalMobileAmount() {
-    return totalMobileAmount;
-  }
+    public MvtCaisseWrapper setTotalSaleAmount(BigDecimal totalSaleAmount) {
+        this.totalSaleAmount = totalSaleAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setTotalMobileAmount(BigDecimal totalMobileAmount) {
-    this.totalMobileAmount = totalMobileAmount;
-    return this;
-  }
+    public BigDecimal getTotalMobileAmount() {
+        return totalMobileAmount;
+    }
 
-  public List<Tuple> getModesPaiementAmounts() {
-    return modesPaiementAmounts;
-  }
+    public MvtCaisseWrapper setTotalMobileAmount(BigDecimal totalMobileAmount) {
+        this.totalMobileAmount = totalMobileAmount;
+        return this;
+    }
 
-  public MvtCaisseWrapper setModesPaiementAmounts(List<Tuple> modesPaiementAmounts) {
-    this.modesPaiementAmounts = modesPaiementAmounts;
-    return this;
-  }
+    public List<Tuple> getModesPaiementAmounts() {
+        return modesPaiementAmounts;
+    }
 
-  public List<Tuple> getTypeTransactionAmounts() {
-    return typeTransactionAmounts;
-  }
+    public MvtCaisseWrapper setModesPaiementAmounts(List<Tuple> modesPaiementAmounts) {
+        this.modesPaiementAmounts = modesPaiementAmounts;
+        return this;
+    }
 
-  public MvtCaisseWrapper setTypeTransactionAmounts(List<Tuple> typeTransactionAmounts) {
-    this.typeTransactionAmounts = typeTransactionAmounts;
-    return this;
-  }
+    public List<Tuple> getTypeTransactionAmounts() {
+        return typeTransactionAmounts;
+    }
+
+    public MvtCaisseWrapper setTypeTransactionAmounts(List<Tuple> typeTransactionAmounts) {
+        this.typeTransactionAmounts = typeTransactionAmounts;
+        return this;
+    }
 }

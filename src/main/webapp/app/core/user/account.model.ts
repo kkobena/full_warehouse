@@ -9,6 +9,6 @@ export class Account {
     public login: string,
     public imageUrl: string,
     public id?: number,
-    public fullName?: string
+    public fullName?: string,
   ) {}
 }

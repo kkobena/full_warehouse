@@ -1,11 +1,9 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Categorie;
-
+import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /**
  * Spring Data  repository for the Categorie entity.

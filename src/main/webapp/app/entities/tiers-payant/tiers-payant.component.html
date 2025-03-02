@@ -1,103 +1,96 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="comfirmDialog">
-
-
-</p-confirmDialog>
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier json">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="comfirmDialog"> </p-confirmDialog>
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onUploadJson($event)" [customUpload]="true" accept=".json"
-                  cancelLabel="Annuler"
-                  chooseLabel="Importer un fichier" name="importjson" uploadLabel="Enrégistrer">
+    <p-fileupload
+      (uploadHandler)="onUploadJson($event)"
+      [customUpload]="true"
+      accept=".json"
+      cancelLabel="Annuler"
+      chooseLabel="Importer un fichier"
+      name="importjson"
+      uploadLabel="Enrégistrer"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler"
-              raised="true"
-
-              severity="danger" type="button"></p-button>
-
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
-
 </p-dialog>
 <div>
   @if (responseDialog) {
     <div class="mb-2">
-        <span
-          [ngClass]="(responsedto?.size===responsedto?.totalSize)?'text-success fw-bold':'text-danger fw-bold'">{{ jsonFileUploadStatutProgress }}</span>
+      <span [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
+        jsonFileUploadStatutProgress
+      }}</span>
       <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
     </div>
   }
 
-
-
-  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-               name="importation"
-               size="medium"
-               type="timer">
+  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation" size="medium" type="timer">
   </ngx-spinner>
-
 
   <h5 id="page-heading">
     <span>LISTE DES TIERS-PAYANTS</span>
   </h5>
   <p-toolbar>
     <ng-template #start>
-      <p-select (onChange)="onSearch()" [(ngModel)]="typeSelected" [filter]="false"
-                [options]="type"
-                [style]="{width:'200px'}" class="mr-1"
+      <p-select
+        (onChange)="onSearch()"
+        [(ngModel)]="typeSelected"
+        [filter]="false"
+        [options]="type"
+        [style]="{ width: '200px' }"
+        class="mr-1"
       >
       </p-select>
       <p-iconfield>
-
         <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" [style]="{width:'300px'}" pInputText
-               placeholder="Taper pour rechercher"
-               type="text">
+        <input
+          (keyup.enter)="onSearch()"
+          [(ngModel)]="search"
+          [style]="{ width: '300px' }"
+          pInputText
+          placeholder="Taper pour rechercher"
+          type="text"
+        />
       </p-iconfield>
     </ng-template>
     <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1"
-                icon="pi pi-search" label="Rechercher" raised="true"
-                severity="info"></p-button>
-      <p-button [hidden]="true" icon="pi pi-upload" label="Importation" raised="true"
-                severity="help"></p-button>
+      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
+      <p-button [hidden]="true" icon="pi pi-upload" label="Importation" raised="true" severity="help"></p-button>
 
-
-      <p-splitbutton [model]="tiersPayantSplitbuttons"
-                     icon="pi pi-user-plus" label="Nouveau tiers-payant"
-                     raised="true" severity="success"
-
-      >
+      <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus" label="Nouveau tiers-payant" raised="true" severity="success">
       </p-splitbutton>
     </ng-template>
-
   </p-toolbar>
 
   @if (tiersPayants && tiersPayants.length > 0) {
-    <p-table (onLazyLoad)="lazyLoading($event)" [lazy]="true"
-             [loading]="loading"
-             [paginator]="true" [rowsPerPageOptions]="[5,10,15,20,30,50]"
-             [rows]="itemsPerPage"
-             [showCurrentPageReport]="true"
-             [totalRecords]="totalItems"
-             [value]="tiersPayants"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
-             dataKey="id"
-             selectionMode="single"
-             styleClass="p-datatable-gridlines mt-2"
+    <p-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="true"
+      [totalRecords]="totalItems"
+      [value]="tiersPayants"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
+      dataKey="id"
+      selectionMode="single"
+      styleClass="p-datatable-gridlines mt-2"
     >
       <ng-template pTemplate="header">
         <tr>
-
-          <th style="width:9%">Type</th>
-          <th style="width:7%">Code</th>
-          <th style="width:15%">Nom abrégé</th>
-          <th style="width:20%">Nom longue</th>
-          <th style="width:10%">Téléphone</th>
-          <th style="width:8%">Plafond</th>
-          <th style="width:7%">Encours</th>
-          <th style="width:7%">Nbre Clients</th>
-          <th style="width:14%"></th>
+          <th style="width: 9%">Type</th>
+          <th style="width: 7%">Code</th>
+          <th style="width: 15%">Nom abrégé</th>
+          <th style="width: 20%">Nom longue</th>
+          <th style="width: 10%">Téléphone</th>
+          <th style="width: 8%">Plafond</th>
+          <th style="width: 7%">Encours</th>
+          <th style="width: 7%">Nbre Clients</th>
+          <th style="width: 14%"></th>
         </tr>
       </ng-template>
       <ng-template let-tiersPayant pTemplate="body">
@@ -107,49 +100,64 @@
           <td>{{ tiersPayant.name }}</td>
           <td>{{ tiersPayant.fullName }}</td>
           <td>{{ tiersPayant.telephone }}</td>
-          <td class="text-right">{{ tiersPayant.plafondConso |number }}</td>
-          <td class="text-right">{{ tiersPayant.encours |number }}</td>
-          <td class="text-right">{{ tiersPayant.customers?.length  |number }}</td>
+          <td class="text-right">{{ tiersPayant.plafondConso | number }}</td>
+          <td class="text-right">{{ tiersPayant.encours | number }}</td>
+          <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
 
           <td class="text-right">
             <div class="btn-group">
-              <p-button [hidden]="true" [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
-                        rounded="true" severity="info" size="small"
-                        pTooltip="Voir détails" icon="pi pi-eye">
-
-
-              </p-button>
-
-
-              <p-button (click)="editTiersPayant(tiersPayant)" severity="success" size="small"
-                        rounded="true" icon="pi pi-pencil"
-                        data-placement="left" pTooltip="Editer" type="button"
+              <p-button
+                [hidden]="true"
+                [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
+                rounded="true"
+                severity="info"
+                size="small"
+                pTooltip="Voir détails"
+                icon="pi pi-eye"
               >
-
               </p-button>
 
-              <p-button (click)="confirmRemove(tiersPayant)" severity="danger" size="small"
-                        rounded="true" icon="pi pi-trash"
-                        data-placement="left" pTooltip="Supprimer"
-                        type="button">
+              <p-button
+                (click)="editTiersPayant(tiersPayant)"
+                severity="success"
+                size="small"
+                rounded="true"
+                icon="pi pi-pencil"
+                data-placement="left"
+                pTooltip="Editer"
+                type="button"
+              >
               </p-button>
-              <p-button (click)="confirmDesactivation(tiersPayant)" rounded="true" size="small"
-                        severity="warn"
-                        pTooltip="Désativer" icon="pi pi-lock"
-                        type="button">
+
+              <p-button
+                (click)="confirmRemove(tiersPayant)"
+                severity="danger"
+                size="small"
+                rounded="true"
+                icon="pi pi-trash"
+                data-placement="left"
+                pTooltip="Supprimer"
+                type="button"
+              >
+              </p-button>
+              <p-button
+                (click)="confirmDesactivation(tiersPayant)"
+                rounded="true"
+                size="small"
+                severity="warn"
+                pTooltip="Désativer"
+                icon="pi pi-lock"
+                type="button"
+              >
               </p-button>
             </div>
           </td>
         </tr>
       </ng-template>
-
-
     </p-table>
   } @else {
     <div class="alert alert-warning mt-2">
       <span>Aucune donnée trouvée</span>
     </div>
   }
-
-
 </div>

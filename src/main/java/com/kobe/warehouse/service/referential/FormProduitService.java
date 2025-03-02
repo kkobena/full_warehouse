@@ -1,13 +1,11 @@
 package com.kobe.warehouse.service.referential;
 
-
 import com.kobe.warehouse.service.dto.FormProduitDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface FormProduitService {
-
     /**
      * Save a formProduit.
      *
@@ -23,7 +21,6 @@ public interface FormProduitService {
      * @return the list of entities.
      */
     Page<FormProduitDTO> findAll(Pageable pageable);
-
 
     /**
      * Get the "id" formProduit.

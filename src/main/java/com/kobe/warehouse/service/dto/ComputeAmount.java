@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 public class ComputeAmount {
+
     private Integer payrollAmount;
     private Integer amountToBePaid;
     private Integer discountAmount;

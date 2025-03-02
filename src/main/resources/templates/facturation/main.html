@@ -1,23 +1,17 @@
 <html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <title>Facture</title>
-  <style th:replace="~{facturation/css}"></style>
-</head>
-<body>
-<header th:replace="~{facturation/header}">
-</header>
-<div class="invoice">
-  <main>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Facture</title>
+    <style th:replace="~{facturation/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{facturation/header}"></header>
+    <div class="invoice">
+      <main>
+        <table th:replace="~{'facturation/model/' + ${entity.tiersPayant.modelFilePath}+'/body'}"></table>
 
-    <table th:replace="~{'facturation/model/' + ${entity.tiersPayant.modelFilePath}+'/body'}">
-    </table>
-
-    <div th:replace="~{facturation/total}">
-
+        <div th:replace="~{facturation/total}"></div>
+      </main>
     </div>
-  </main>
-</div>
-</body>
-
+  </body>
 </html>

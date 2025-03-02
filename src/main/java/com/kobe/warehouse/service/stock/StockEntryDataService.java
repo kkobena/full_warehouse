@@ -10,12 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface StockEntryDataService {
+    Page<DeliveryReceiptDTO> fetchAllReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
-    Page<DeliveryReceiptDTO> fetchAllReceipts(
-        DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
-
-    List<DeliveryReceiptDTO> fetchAllDeliveryReceipts(
-        DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
+    List<DeliveryReceiptDTO> fetchAllDeliveryReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
     Optional<DeliveryReceiptDTO> findOneById(Long id);
 
@@ -24,5 +21,4 @@ public interface StockEntryDataService {
     Optional<DeliveryReceiptDTO> findOneByOrderReference(String orderReference);
 
     Resource exportToPdf(Long id) throws IOException;
-
 }

@@ -3,79 +3,75 @@
     <ng-template #start>
       <div class="input-group">
         <p-floatlabel variant="on">
-          <p-datePicker [(ngModel)]="fromDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                        dateFormat="dd/mm/yy"
-                        id="dateDebut"
-                        inputId="dateDebut"
-                        selectOtherMonths="true" showIcon="true" />
-          <label for="dateDebut">Date début</label>
-        </p-floatlabel>&nbsp;
+          <p-datePicker
+            [(ngModel)]="fromDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            id="dateDebut"
+            inputId="dateDebut"
+            selectOtherMonths="true"
+            showIcon="true"
+          />
+          <label for="dateDebut">Date début</label> </p-floatlabel
+        >&nbsp;
 
         <p-floatlabel variant="on">
-          <p-datePicker [(ngModel)]="toDate" [iconDisplay]="'input'" [showButtonBar]="true"
-                        dateFormat="dd/mm/yy"
-                        id="dateFin"
-                        inputId="dateFin"
-                        selectOtherMonths="true"
-                        showIcon="true"></p-datePicker>&nbsp;
+          <p-datePicker
+            [(ngModel)]="toDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            id="dateFin"
+            inputId="dateFin"
+            selectOtherMonths="true"
+            showIcon="true"
+          ></p-datePicker
+          >&nbsp;
           <label for="dateFin">Date fin</label>
         </p-floatlabel>
 
-
         <div class="tva-radio flex align-items-center">
-          <p-radioButton
-            (onClick)="onAffichageChange()"
-            [(ngModel)]="groupBy"
-            id="daily"
-            inputId="daily"
-            name="daily"
-            value="daily" />
+          <p-radioButton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="daily" inputId="daily" name="daily" value="daily" />
           <label class="tva-radio-label mt-2" for="daily">
             <span>Journalier</span>
-
           </label>
         </div>
         <div class="tva-radio flex align-items-center">
-          <p-radioButton
-            (onClick)="onAffichageChange()"
-            [(ngModel)]="groupBy"
-            id="month"
-            inputId="month"
-            name="month"
-            value="month" />
+          <p-radioButton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="month" inputId="month" name="month" value="month" />
           <label class="tva-radio-label mt-2" for="month">
             <span>Mensuel</span>
           </label>
         </div>
-
       </div>
     </ng-template>
     <ng-template #end>
       <div class="input-group">
+        <p-button
+          (click)="onSearch()"
+          [disabled]="loading"
+          [loading]="loading"
+          icon="pi pi-search"
+          label="Rechercher"
+          pTooltip="Rechercher"
+          severity="info"
+          tooltipPosition="top"
+        ></p-button
+        >&nbsp;
+        <p-splitbutton
+          [model]="exportMenus"
+          icon="pi pi-download"
+          label="Exporter"
+          styleClass="p-button-raised   p-button-warning "
+        ></p-splitbutton
+        >&nbsp;
 
-        <p-button (click)="onSearch()" [disabled]="loading"
-                  [loading]="loading"
-                  icon="pi pi-search"
-                  label="Rechercher"
-                  pTooltip="Rechercher"
-                  severity="info"
-                  tooltipPosition="top"
-        ></p-button>&nbsp;
-        <p-splitbutton [model]="exportMenus"
-                       icon="pi pi-download"
-                       label="Exporter" styleClass="p-button-raised   p-button-warning "
-        ></p-splitbutton>&nbsp;
-
-        <p-selectButton
-          [(ngModel)]="affichage"
-          [options]="typeAffichafes"
-          optionLabel="icon" optionValue="value">
+        <p-selectButton [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
           <ng-template #item let-item>
             <i [class]="item.icon"></i>
           </ng-template>
         </p-selectButton>
       </div>
-
     </ng-template>
   </p-toolbar>
   <div class="row mvt-caisse-data-section">
@@ -84,27 +80,27 @@
         <div class="table-responsive">
           <table class="table table-striped table-bordered table-hover">
             <thead>
-            <tr>
-              <th rowspan="2" class="text-center">Date</th>
-              <th colspan="5" class="text-center">Chiffres d'affaitre</th>
-              <th [colSpan]="colspan" class="text-center">Achats</th>
-              <th colspan="2" class="text-center">Ratios</th>
-            </tr>
-            <tr>
-              <th>Comptant</th>
-              <th>Crédit</th>
-              <th>Remise</th>
-              <th>Montant Net</th>
-              <th>N. Clients</th>
-              @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
-                <th>{{ fournisseur.libelle }}</th>
-              }
+              <tr>
+                <th rowspan="2" class="text-center">Date</th>
+                <th colspan="5" class="text-center">Chiffres d'affaitre</th>
+                <th [colSpan]="colspan" class="text-center">Achats</th>
+                <th colspan="2" class="text-center">Ratios</th>
+              </tr>
+              <tr>
+                <th>Comptant</th>
+                <th>Crédit</th>
+                <th>Remise</th>
+                <th>Montant Net</th>
+                <th>N. Clients</th>
+                @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
+                  <th>{{ fournisseur.libelle }}</th>
+                }
 
-              <th>Avoirs</th>
-              <th>Achats Nets</th>
-              <th>V/A</th>
-              <th>A/V</th>
-            </tr>
+                <th>Avoirs</th>
+                <th>Achats Nets</th>
+                <th>V/A</th>
+                <th>A/V</th>
+              </tr>
             </thead>
             <tbody>
               @for (tableauPharmacien of tableauPharmacienWrapper.tableauPharmaciens; track $index) {
@@ -114,105 +110,59 @@
                   } @else {
                     <td>{{ tableauPharmacien.mvtDate | date: 'MM/yyyy' }}</td>
                   }
-                  <td
-                    class="amount-td-column">{{ tableauPharmacien.montantComptant | number }}
-                  </td>
-                  <td
-                    class="amount-td-column">{{ tableauPharmacien.montantCredit | number }}
-                  </td>
+                  <td class="amount-td-column">{{ tableauPharmacien.montantComptant | number }}</td>
+                  <td class="amount-td-column">{{ tableauPharmacien.montantCredit | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.montantRemise | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.montantNet | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.nombreVente | number }}</td>
 
                   @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
-
-                    <td class="amount-td-column">{{
-                        getGroupFournisseurAmount(fournisseur, tableauPharmacien) | number
-                      }}
-                    </td>
-
+                    <td class="amount-td-column">{{ getGroupFournisseurAmount(fournisseur, tableauPharmacien) | number }}</td>
                   }
-                  <td
-                    class="amount-td-column">{{ tableauPharmacien.montantAvoirFournisseur | number }}
-                  </td>
-                  <td
-                    class="amount-td-column">{{ tableauPharmacien.montantBonAchat | number }}
-                  </td>
+                  <td class="amount-td-column">{{ tableauPharmacien.montantAvoirFournisseur | number }}</td>
+                  <td class="amount-td-column">{{ tableauPharmacien.montantBonAchat | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.ratioVenteAchat | number }}</td>
                   <td class="amount-td-column">{{ tableauPharmacien.ratioAchatVente | number }}</td>
                 </tr>
               }
             </tbody>
             <tfoot>
-            <tr>
-              <td class="tf-column">Total</td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteComptant | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteCredit | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteRemise | number }}
-              </td>
-              <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteNet | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.numberCount | number }}
-              </td>
-              @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
-                <td class="amount-td-column">{{
-                    getTotalFournisseurAmount(fournisseur,
-                      tableauPharmacienWrapper.tableauPharmaciens) | number
-                  }}
-                </td>
-              }
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.montantAvoirFournisseur | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.montantAchatNet | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.ratioVenteAchat | number }}
-              </td>
-              <td
-                class="amount-td-column">{{ tableauPharmacienWrapper.ratioAchatVente | number }}
-              </td>
+              <tr>
+                <td class="tf-column">Total</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteComptant | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteCredit | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteRemise | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantVenteNet | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.numberCount | number }}</td>
+                @for (fournisseur of groupeFournisseurs; track fournisseur.id) {
+                  <td class="amount-td-column">
+                    {{ getTotalFournisseurAmount(fournisseur, tableauPharmacienWrapper.tableauPharmaciens) | number }}
+                  </td>
+                }
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantAvoirFournisseur | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.montantAchatNet | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.ratioVenteAchat | number }}</td>
+                <td class="amount-td-column">{{ tableauPharmacienWrapper.ratioAchatVente | number }}</td>
+              </tr>
             </tfoot>
           </table>
-
         </div>
       } @else {
         <div class="card">
           <div class="card-body">
-            <p-chart [data]="verticalBarChart?.data" [options]="verticalBarChart?.options"
-                     [responsive]="true"
-                     type="bar"
-            ></p-chart>
+            <p-chart [data]="verticalBarChart?.data" [options]="verticalBarChart?.options" [responsive]="true" type="bar"></p-chart>
           </div>
-
         </div>
         @if (showGrossisteChart) {
-          <div class="card" style="margin-top:3px;">
+          <div class="card" style="margin-top: 3px">
             <div class="card-body">
-              <p-chart [data]="grossiste?.data" [options]="grossiste?.options"
-                       [responsive]="true"
-                       type="bar"
-              ></p-chart>
+              <p-chart [data]="grossiste?.data" [options]="grossiste?.options" [responsive]="true" type="bar"></p-chart>
             </div>
-
           </div>
         }
-
       }
-
-
     } @else {
-      <div class="alert alert-warning" role="alert">
-        Aucune donnée à afficher
-      </div>
+      <div class="alert alert-warning" role="alert">Aucune donnée à afficher</div>
     }
-
   </div>
 </div>

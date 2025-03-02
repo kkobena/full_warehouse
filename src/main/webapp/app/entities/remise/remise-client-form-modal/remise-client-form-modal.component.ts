@@ -108,9 +108,9 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
   private createFromForm(): IRemise {
     return {
       ...new Remise(),
-      id: this.editForm.get(['id'])!.value,
-      remiseValue: this.editForm.get(['remiseValue'])!.value,
-      valeur: this.editForm.get(['valeur'])!.value,
+      id: this.editForm.get(['id']).value,
+      remiseValue: this.editForm.get(['remiseValue']).value,
+      valeur: this.editForm.get(['valeur']).value,
       type: 'remiseClient',
     };
   }

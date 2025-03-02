@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import java.io.Serializable;
 
 public class WeeklyCa implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private long amount;
@@ -29,6 +30,5 @@ public class WeeklyCa implements Serializable {
         this.numberTransaction = numberTransaction;
     }
 
-    public WeeklyCa() {
-    }
+    public WeeklyCa() {}
 }

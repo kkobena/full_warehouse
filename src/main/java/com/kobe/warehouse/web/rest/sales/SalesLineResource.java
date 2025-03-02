@@ -38,6 +38,7 @@ public class SalesLineResource {
     private final Logger log = LoggerFactory.getLogger(SalesLineResource.class);
     private final SaleService saleService;
     private final SalesLineRepository salesLineRepository;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 

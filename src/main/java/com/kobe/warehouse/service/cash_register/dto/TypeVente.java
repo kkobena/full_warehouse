@@ -1,26 +1,27 @@
 package com.kobe.warehouse.service.cash_register.dto;
 
 public enum TypeVente {
-  CASH_SALE("CashSale"),
-  CREDIT_SALE("ThirdPartySales"),
-  VENTES_DEPOTS("VenteDepot"),
-  VENTES_DEPOT_AGREE("VenteDepotAgree");
-  private final String value;
+    CASH_SALE("CashSale"),
+    CREDIT_SALE("ThirdPartySales"),
+    VENTES_DEPOTS("VenteDepot"),
+    VENTES_DEPOT_AGREE("VenteDepotAgree");
 
-  TypeVente(String value) {
-    this.value = value;
-  }
+    private final String value;
 
-  public static TypeVente fromValue(String value) {
-    for (TypeVente typeVente : TypeVente.values()) {
-      if (typeVente.value.equals(value)) {
-        return typeVente;
-      }
+    TypeVente(String value) {
+        this.value = value;
     }
-    return null;
-  }
 
-  public String getValue() {
-    return value;
-  }
+    public static TypeVente fromValue(String value) {
+        for (TypeVente typeVente : TypeVente.values()) {
+            if (typeVente.value.equals(value)) {
+                return typeVente;
+            }
+        }
+        return null;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

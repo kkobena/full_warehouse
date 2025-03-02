@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import SharedModule from 'app/shared/shared.module';
 import { AccountService } from 'app/core/auth/account.service';
@@ -7,9 +7,9 @@ import { Session } from './session.model';
 import { SessionsService } from './sessions.service';
 
 @Component({
-    selector: 'jhi-sessions',
-    imports: [SharedModule],
-    templateUrl: './sessions.component.html'
+  selector: 'jhi-sessions',
+  imports: [SharedModule],
+  templateUrl: './sessions.component.html',
 })
 export default class SessionsComponent implements OnInit {
   account: Account | null = null;
@@ -17,8 +17,8 @@ export default class SessionsComponent implements OnInit {
   success = false;
   sessions: Session[] = [];
 
-  private sessionsService = inject(SessionsService);
-  private accountService = inject(AccountService);
+  private readonly sessionsService = inject(SessionsService);
+  private readonly accountService = inject(AccountService);
 
   ngOnInit(): void {
     this.sessionsService.findAll().subscribe(sessions => (this.sessions = sessions));
@@ -30,12 +30,12 @@ export default class SessionsComponent implements OnInit {
     this.error = false;
     this.success = false;
 
-    this.sessionsService.delete(encodeURIComponent(series)).subscribe(
-      () => {
+    this.sessionsService.delete(encodeURIComponent(series)).subscribe({
+      next: () => {
         this.success = true;
         this.sessionsService.findAll().subscribe(sessions => (this.sessions = sessions));
       },
-      () => (this.error = true),
-    );
+      error: () => (this.error = true),
+    });
   }
 }

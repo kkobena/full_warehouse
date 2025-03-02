@@ -89,10 +89,6 @@ export class TiersPayantComponent implements OnInit {
   typeSelected = 'TOUT';
   search = '';
   tiersPayantSplitbuttons: MenuItem[];
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     this.tiersPayantSplitbuttons = [
       {

@@ -19,24 +19,24 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
-    selector: 'jhi-user-cash-register',
-    imports: [
-        WarehouseCommonModule,
-        PanelModule,
-        ButtonModule,
-        RouterModule,
-        CardModule,
-        TableModule,
-        ReactiveFormsModule,
-        KeyFilterModule,
-        InputTextModule,
-        RippleModule,
-        DialogModule,
-        ToastModule,
-        ConfirmDialogModule,
-    ],
-    providers: [ConfirmationService, MessageService],
-    templateUrl: './user-cash-register.component.html'
+  selector: 'jhi-user-cash-register',
+  imports: [
+    WarehouseCommonModule,
+    PanelModule,
+    ButtonModule,
+    RouterModule,
+    CardModule,
+    TableModule,
+    ReactiveFormsModule,
+    KeyFilterModule,
+    InputTextModule,
+    RippleModule,
+    DialogModule,
+    ToastModule,
+    ConfirmDialogModule,
+  ],
+  providers: [ConfirmationService, MessageService],
+  templateUrl: './user-cash-register.component.html',
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
@@ -48,9 +48,9 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   configService = inject(ConfigurationService);
   modalService = inject(ConfirmationService);
 
-  protected overtureCaisseAuto: boolean = false;
+  protected overtureCaisseAuto = false;
   protected isSaving = false;
-  protected openCaisse: boolean = false;
+  protected openCaisse = false;
   protected cashFundAmount: number | null = null;
   protected cashRegisters: CashRegister[] = [];
   protected selectedCashRegister: CashRegister | null = null;
@@ -83,7 +83,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
           this.cashFundAmount = parseInt(otherValue);
         }
         this.overtureCaisseAuto = res.body.value === '1';
-        this.editForm.get(['cashFundAmount'])!.setValue(this.cashFundAmount);
+        this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount);
       }
     });
     this.fetchCashRegisters();
@@ -119,7 +119,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
 
   protected openCashRegister(): void {
     if (this.editForm.valid) {
-      this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount'])!.value }).subscribe({
+      this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount']).value }).subscribe({
         next: res => {
           if (res.body) {
             this.messageService.add({
@@ -189,7 +189,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   private setCashFundControlFocus(): void {
     setTimeout(() => {
       this.cashFundAmountInput().nativeElement.focus();
-      this.editForm.get(['cashFundAmount'])!.setValue(this.cashFundAmount);
+      this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount);
       this.cashFundAmountInput().nativeElement.select();
     }, 50);
   }

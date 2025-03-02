@@ -2,14 +2,12 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.FamilleProduit;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class FamilleProduitDTO implements Serializable {
 
     private Long id;
-
 
     private String code;
 
@@ -29,11 +27,9 @@ public class FamilleProduitDTO implements Serializable {
             categorieId = categorie.getId();
             categorieLibelle = categorie.getLibelle();
         }
-
     }
 
-    public FamilleProduitDTO() {
-    }
+    public FamilleProduitDTO() {}
 
     public Long getId() {
         return id;

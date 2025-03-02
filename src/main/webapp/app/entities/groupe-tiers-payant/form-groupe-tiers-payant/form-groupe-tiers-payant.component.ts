@@ -18,21 +18,21 @@ import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 
 @Component({
-    selector: 'jhi-form-groupe-tiers-payant',
-    templateUrl: './form-groupe-tiers-payant.component.html',
-    providers: [MessageService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        DropdownModule,
-        ButtonModule,
-        InputTextModule,
-        RippleModule,
-        KeyFilterModule,
-        DynamicDialogModule,
-    ]
+  selector: 'jhi-form-groupe-tiers-payant',
+  templateUrl: './form-groupe-tiers-payant.component.html',
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    DropdownModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    KeyFilterModule,
+    DynamicDialogModule,
+  ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
   protected errorService = inject(ErrorService);
@@ -103,12 +103,12 @@ export class FormGroupeTiersPayantComponent implements OnInit {
   protected createFromForm(): IGroupeTiersPayant {
     return {
       ...new GroupeTiersPayant(),
-      id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
-      adresse: this.editForm.get(['adresse'])!.value,
-      telephone: this.editForm.get(['telephone'])!.value,
-      telephoneFixe: this.editForm.get(['telephoneFixe'])!.value,
-      ordreTrisFacture: this.editForm.get(['ordreTrisFacture'])!.value,
+      id: this.editForm.get(['id']).value,
+      name: this.editForm.get(['name']).value,
+      adresse: this.editForm.get(['adresse']).value,
+      telephone: this.editForm.get(['telephone']).value,
+      telephoneFixe: this.editForm.get(['telephoneFixe']).value,
+      ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value,
     };
   }
 

@@ -126,14 +126,14 @@ export class SalesComponent implements OnInit, AfterViewInit {
   hasAuthorityService = inject(HasAuthorityService);
   saleToolBarService = inject(SaleToolBarService);
   userControl = viewChild<Select>('userControl');
-  public translate = inject(TranslateService);
-  public primeNGConfig = inject(PrimeNG);
-  protected assuranceSalesService = inject(VoSalesService);
-  protected salesService = inject(SalesService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected confirmationService = inject(ConfirmationService);
-  protected userService = inject(UserService);
+  public readonly translate = inject(TranslateService);
+  public readonly primeNGConfig = inject(PrimeNG);
+  protected readonly assuranceSalesService = inject(VoSalesService);
+  protected readonly salesService = inject(SalesService);
+  protected readonly activatedRoute = inject(ActivatedRoute);
+  protected readonly router = inject(Router);
+  protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly userService = inject(UserService);
 
   constructor() {
     this.translate.use('fr');

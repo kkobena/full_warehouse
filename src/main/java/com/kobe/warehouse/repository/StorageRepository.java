@@ -1,12 +1,10 @@
 package com.kobe.warehouse.repository;
 
-
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.StorageType;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface StorageRepository extends JpaRepository<Storage, Long> {

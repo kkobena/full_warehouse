@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CommandeDataService {
-
     CommandeDTO findOneById(Long id);
 
     Optional<Commande> getOneById(Long id);
@@ -34,5 +33,4 @@ public interface CommandeDataService {
     Resource getRuptureCsv(String reference);
 
     Optional<CommandeDTO> findOneByOrderReference(String orderReference);
-
 }

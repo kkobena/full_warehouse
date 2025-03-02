@@ -1,121 +1,120 @@
 <p-toast position="center"></p-toast>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
   <div [hidden]="true">
     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
   </div>
   <div class="p-col-12">
-
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Num.Lot<span
-          style="font-weight: 900;color: red;">*</span></label>
-        <input (blur)="onValidateNumLot($event)" [pKeyFilter]="blockSpace" autocomplete="off"
-               class="form-control"
-               formControlName="numLot" name="numLot" pInputText
-               type="text"
+        <label class="col-auto col-form-label">Num.Lot<span style="font-weight: 900; color: red">*</span></label>
+        <input
+          (blur)="onValidateNumLot($event)"
+          [pKeyFilter]="blockSpace"
+          autocomplete="off"
+          class="form-control"
+          formControlName="numLot"
+          name="numLot"
+          pInputText
+          type="text"
         />
-        @if (editForm.get('numLot')!.invalid && (editForm.get('numLot')!.dirty || editForm.get(
-          'numLot')!.touched)) {
+        @if (editForm.get('numLot')!.invalid && (editForm.get('numLot')!.dirty || editForm.get('numLot')!.touched)) {
           <div>
             @if (editForm.get('numLot')?.errors?.required) {
-              <small class="form-text text-danger"
-                     style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
-
-
           </div>
         }
-
       </div>
     </div>
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Quantité<span
-          style="font-weight: 900;color: red;">*</span></label>
-        <input (blur)="onValidateQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
-               class="form-control" formControlName="quantityReceived"
-               name="quantityReceived" pInputText type="text" />
-        @if (editForm.get('quantityReceived')!.invalid && (editForm.get('quantityReceived')!.dirty
-          || editForm.get('quantityReceived')!.touched)) {
+        <label class="col-auto col-form-label">Quantité<span style="font-weight: 900; color: red">*</span></label>
+        <input
+          (blur)="onValidateQuantity($event)"
+          [pKeyFilter]="'int'"
+          autocomplete="off"
+          class="form-control"
+          formControlName="quantityReceived"
+          name="quantityReceived"
+          pInputText
+          type="text"
+        />
+        @if (
+          editForm.get('quantityReceived')!.invalid &&
+          (editForm.get('quantityReceived')!.dirty || editForm.get('quantityReceived')!.touched)
+        ) {
           <div>
             @if (editForm.get('quantityReceived')?.errors?.required) {
-              <small
-                class="form-text text-danger"
-                style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
-
-
           </div>
         }
-
       </div>
     </div>
     <div class="p-fluid p-formgrid p-grid">
       @if (showUgControl) {
         <div class="p-field p-col">
           <label class="col-auto col-form-label">Quantité UG</label>
-          <input (blur)="onValidateUgQuantity($event)" [pKeyFilter]="'int'" autocomplete="off"
-                 class="form-control" formControlName="ugQuantityReceived"
-                 name="ugQuantityReceived" pInputText type="text" />
-
+          <input
+            (blur)="onValidateUgQuantity($event)"
+            [pKeyFilter]="'int'"
+            autocomplete="off"
+            class="form-control"
+            formControlName="ugQuantityReceived"
+            name="ugQuantityReceived"
+            pInputText
+            type="text"
+          />
         </div>
-
       }
 
-
-
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Date de péremption<span
-          style="font-weight: 900;color: red;">*</span></label>
-        <p-datePicker [minDate]="minDate" [selectOtherMonths]="true" [showButtonBar]="true"
-                      [showIcon]="true"
-                      appendTo="body"
-                      class="form-control" dateFormat="dd/mm/yy" formControlName="expiryDate"
-                      name="expiryDate"
+        <label class="col-auto col-form-label">Date de péremption<span style="font-weight: 900; color: red">*</span></label>
+        <p-datePicker
+          [minDate]="minDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          appendTo="body"
+          class="form-control"
+          dateFormat="dd/mm/yy"
+          formControlName="expiryDate"
+          name="expiryDate"
         ></p-datePicker>
-        @if (editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty
-          || editForm.get('expiryDate')!.touched)) {
+        @if (editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty || editForm.get('expiryDate')!.touched)) {
           <div>
             @if (editForm.get('expiryDate')?.errors?.required) {
-              <small
-                class="form-text text-danger"
-                style="color: red;">
-                Ce champ est obligatoire.
-              </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
-
-
           </div>
         }
       </div>
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Date de fabrication</label>
-        <p-datePicker [maxDate]="maxDate" [selectOtherMonths]="true" [showButtonBar]="true"
-                      [showIcon]="true"
-                      appendTo="body" class="form-control"
-                      dateFormat="dd/mm/yy"
-                      formControlName="manufacturingDate" name="manufacturingDate"
+        <p-datePicker
+          [maxDate]="maxDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          appendTo="body"
+          class="form-control"
+          dateFormat="dd/mm/yy"
+          formControlName="manufacturingDate"
+          name="manufacturingDate"
         ></p-datePicker>
-
       </div>
     </div>
   </div>
-  <div class="mt-2" style="float: right;">
-    <p-button [disabled]="editForm.invalid || isSaving || numLotAlreadyExist"
-              class=" mr-2 " icon="pi pi-check"
-              label="Enregistrer" raised="true"
-              severity="success"
-              type="submit"></p-button>
-    <p-button (click)="cancel()" icon="pi pi-times"
-              label="Annuler"
-              raised="true"
-              severity="danger"
-              type="button"></p-button>
+  <div class="mt-2" style="float: right">
+    <p-button
+      [disabled]="editForm.invalid || isSaving || numLotAlreadyExist"
+      class="mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      raised="true"
+      severity="success"
+      type="submit"
+    ></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </div>
-
 </form>

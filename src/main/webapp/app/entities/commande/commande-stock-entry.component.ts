@@ -111,7 +111,7 @@ export class CommandeStockEntryComponent implements OnInit {
   pagination = true;
   /*   paginationPageSizeSelector = [5, 10, 20, 50, 100];
     paginationPageSize = 5; */
-  protected themeClass: string = 'ag-theme-quartz';
+  protected themeClass = 'ag-theme-quartz';
   protected readonly animateRows: boolean = true;
   private gridApi!: GridApi<IDeliveryItem>;
   private tvas: number[] = [];

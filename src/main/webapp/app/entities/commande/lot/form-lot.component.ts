@@ -97,12 +97,12 @@ export class FormLotComponent implements OnInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
-    this.editForm.get('ugQuantityReceived')!.setValidators([Validators.min(0), Validators.max(this.getValidLotUgQuantity())]);
-    this.editForm.get('ugQuantityReceived')!.updateValueAndValidity();
+    this.editForm.get('ugQuantityReceived').setValidators([Validators.min(0), Validators.max(this.getValidLotUgQuantity())]);
+    this.editForm.get('ugQuantityReceived').updateValueAndValidity();
     this.editForm
-      .get('quantityReceived')!
+      .get('quantityReceived')
       .setValidators([Validators.required, Validators.min(1), Validators.max(this.getValidLotQuantity())]);
-    this.editForm.get('quantityReceived')!.updateValueAndValidity();
+    this.editForm.get('quantityReceived').updateValueAndValidity();
   }
 
   updateForm(entity: ILot): void {
@@ -189,16 +189,16 @@ export class FormLotComponent implements OnInit {
   private createFromForm(): ILot {
     return {
       ...new Lot(),
-      id: this.editForm.get(['id'])!.value,
-      numLot: this.editForm.get(['numLot'])!.value,
-      expiryDate: this.editForm.get(['expiryDate'])!.value
-        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['expiryDate'])!.value))
+      id: this.editForm.get(['id']).value,
+      numLot: this.editForm.get(['numLot']).value,
+      expiryDate: this.editForm.get(['expiryDate']).value
+        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['expiryDate']).value))
         : null,
-      manufacturingDate: this.editForm.get(['manufacturingDate'])!.value
-        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['manufacturingDate'])!.value))
+      manufacturingDate: this.editForm.get(['manufacturingDate']).value
+        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['manufacturingDate']).value))
         : null,
-      quantityReceived: this.editForm.get(['quantityReceived'])!.value,
-      ugQuantityReceived: this.editForm.get(['ugQuantityReceived'])!.value,
+      quantityReceived: this.editForm.get(['quantityReceived']).value,
+      ugQuantityReceived: this.editForm.get(['ugQuantityReceived']).value,
       commandeId: this.commandeId,
       receiptItemId: this.deliveryItem.id,
     };

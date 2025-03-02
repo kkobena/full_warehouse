@@ -1,34 +1,41 @@
 <div class="row justify-content-center">
   <div class="col-11">
     <p-toolbar>
-      <div style="width: 100%;">
-        <p-button (click)="previousState()" class=" float-right" icon="pi pi-angle-double-left"
-                  label="Retour" severity="secondary"></p-button>
+      <div style="width: 100%">
+        <p-button
+          (click)="previousState()"
+          class="float-right"
+          icon="pi pi-angle-double-left"
+          label="Retour"
+          severity="secondary"
+        ></p-button>
       </div>
-
-
     </p-toolbar>
   </div>
   <p-divider></p-divider>
-  <div class="col-11 ">
-    <p-pickList (onMoveAllToSource)="moveAllToSource($event)"
-                (onMoveAllToTarget)="moveAllToTarget($event)"
-                (onMoveToSource)="moveToSource($event)"
-                (onMoveToTarget)="moveToTarget($event)"
-                [dragdrop]="true"
-                [responsive]="true" [scrollHeight]="scrollHeight"
-                [showSourceControls]="false"
-                [showTargetControls]="false"
-                [sourceStyle]="{ height: '90rem' }"
-                [source]="produitsSource"
-                [stripedRows]="true"
-                [target]="produitsTarget"
-                [trackBy]="trackId"
-                breakpoint="1400px"
-                filterBy="displayField" sourceFilterPlaceholder="Taper pour rechercher"
-                sourceHeader="Produits non associés à ce tableau"
-                targetFilterPlaceholder="Taper pour rechercher"
-                targetHeader="Produits associés">
+  <div class="col-11">
+    <p-pickList
+      (onMoveAllToSource)="moveAllToSource($event)"
+      (onMoveAllToTarget)="moveAllToTarget($event)"
+      (onMoveToSource)="moveToSource($event)"
+      (onMoveToTarget)="moveToTarget($event)"
+      [dragdrop]="true"
+      [responsive]="true"
+      [scrollHeight]="scrollHeight"
+      [showSourceControls]="false"
+      [showTargetControls]="false"
+      [sourceStyle]="{ height: '90rem' }"
+      [source]="produitsSource"
+      [stripedRows]="true"
+      [target]="produitsTarget"
+      [trackBy]="trackId"
+      breakpoint="1400px"
+      filterBy="displayField"
+      sourceFilterPlaceholder="Taper pour rechercher"
+      sourceHeader="Produits non associés à ce tableau"
+      targetFilterPlaceholder="Taper pour rechercher"
+      targetHeader="Produits associés"
+    >
       <ng-template let-options="options" pTemplate="sourceFilter">
         <div>
           <input
@@ -36,13 +43,10 @@
             [(ngModel)]="searchSource"
             class="p-picklist-filter-input p-inputtext p-component"
             role="textbox"
-            type="text" />
+            type="text"
+          />
           @if (searchSource) {
-            <span
-              (click)=" searchSource = '';sourceFilter()"
-
-              class="p-picklist-filter-icon pi pi-times">
-                 </span>
+            <span (click)="searchSource = ''; sourceFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
           }
         </div>
       </ng-template>
@@ -50,30 +54,25 @@
       <ng-template let-options="options" pTemplate="targetFilter">
         <div>
           <input
-            (keyup.enter)="targeFilter()" [(ngModel)]="searchTarget"
-            class="p-picklist-filter-input
-                       p-inputtext p-component"
-            role="textbox" type="text" />
+            (keyup.enter)="targeFilter()"
+            [(ngModel)]="searchTarget"
+            class="p-picklist-filter-input p-inputtext p-component"
+            role="textbox"
+            type="text"
+          />
           @if (searchTarget) {
-            <span
-              (click)=" searchTarget = '';targeFilter()"
-
-              class="p-picklist-filter-icon pi pi-times">
-                 </span>
+            <span (click)="searchTarget = ''; targeFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
           }
         </div>
       </ng-template>
 
       <ng-template #item let-index="index" let-item>
-        <div style="width: 100%;">
-                        <span
-                          style="width:18%; display:inline-block">{{ item.fournisseurProduit?.codeCip }}</span><span> {{ item.libelle }}</span>
-          <span class="float-right font-bold text-900">{{ item.unitPrice |number }}</span>
+        <div style="width: 100%">
+          <span style="width: 18%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+          ><span> {{ item.libelle }}</span>
+          <span class="float-right font-bold text-900">{{ item.unitPrice | number }}</span>
         </div>
-
       </ng-template>
-
-
     </p-pickList>
   </div>
 </div>

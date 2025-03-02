@@ -1,15 +1,16 @@
 package com.kobe.warehouse.service.dto.enumeration;
 
 public enum TypeVenteDTO {
-  CashSale("VNO"),
-  ThirdPartySales("VO");
-  private final String value;
+    CashSale("VNO"),
+    ThirdPartySales("VO");
 
-  TypeVenteDTO(String value) {
-    this.value = value;
-  }
+    private final String value;
 
-  public String getValue() {
-    return value;
-  }
+    TypeVenteDTO(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

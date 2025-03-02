@@ -65,8 +65,8 @@ public class OrderLineServiceImpl implements OrderLineService {
             orderLineDTO.getProduitId(),
             orderLineDTO.getCommande().getFournisseurId()
         );
-        FournisseurProduit fournisseurProduit = fournisseurProduitOptional.orElseGet(
-            () -> createNewFournisseurProduit(orderLineDTO, produit)
+        FournisseurProduit fournisseurProduit = fournisseurProduitOptional.orElseGet(() ->
+            createNewFournisseurProduit(orderLineDTO, produit)
         );
         OrderLine orderLine = buildOrderLine(orderLineDTO, fournisseurProduit);
         //  updateProduitParcours(produit, ParcoursProduitStatut.COMMANDE_EN_COURS);

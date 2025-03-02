@@ -1,23 +1,21 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}">
-
-</p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true"
-          [style]="{width: '50vw'}" header="Importer un fichier">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
   <div class="ui-g form-group">
-    <p-fileupload (uploadHandler)="onUpload($event)" [customUpload]="true"
-                  accept=".txt,.csv,.xls,.xlsx"
-                  cancelLabel="Annuler" cancelStyleClass="p-button-danger"
-                  chooseLabel="Importer un fichier"
-                  name="importcsv" uploadLabel="Enrégistrer"
-                  uploadStyleClass="p-button-info">
+    <p-fileupload
+      (uploadHandler)="onUpload($event)"
+      [customUpload]="true"
+      accept=".txt,.csv,.xls,.xlsx"
+      cancelLabel="Annuler"
+      cancelStyleClass="p-button-danger"
+      chooseLabel="Importer un fichier"
+      name="importcsv"
+      uploadLabel="Enrégistrer"
+      uploadStyleClass="p-button-info"
+    >
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" class="p-mr-2 " icon="pi pi-times"
-              label="Annuler"
-              raised="true"
-              severity="danger" type="button"></p-button>
-
+    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 <div class="row justify-content-center">
@@ -27,58 +25,73 @@
       <div class="p-toolbar-group-left p-md-7">
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="search($event)" pInputText
-                 placeholder="Taper pour rechercher"
-                 style="width:98%;"
-                 type="text">
+          <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
         </p-iconfield>
       </div>
       <div class="p-toolbar-group-right">
-        <p-button (click)="showFileDialog()" class=" mr-2" icon="pi pi-upload"
-                  label="Importer" raised="true"
-                  severity="help" type="button"></p-button>
-        <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau"
-                  raised="true"
-                  severity="success" type="button"></p-button>
+        <p-button
+          (click)="showFileDialog()"
+          class="mr-2"
+          icon="pi pi-upload"
+          label="Importer"
+          raised="true"
+          severity="help"
+          type="button"
+        ></p-button>
+        <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
       </div>
     </p-toolbar>
 
-    <div style="margin-top: 10px;">
-      <p-table (onLazyLoad)="lazyLoading($event)" [(selection)]="selectedEl" [lazy]="true"
-               [loading]="loading"
-               [paginator]="true" [resizableColumns]="true" [rows]="itemsPerPage"
-               [totalRecords]="totalItems"
-               [value]="entites" dataKey="id" selectionMode="single"
-               styleClass="ui-table-cars">
-
+    <div style="margin-top: 10px">
+      <p-table
+        (onLazyLoad)="lazyLoading($event)"
+        [(selection)]="selectedEl"
+        [lazy]="true"
+        [loading]="loading"
+        [paginator]="true"
+        [resizableColumns]="true"
+        [rows]="itemsPerPage"
+        [totalRecords]="totalItems"
+        [value]="entites"
+        dataKey="id"
+        selectionMode="single"
+        styleClass="ui-table-cars"
+      >
         <ng-template pTemplate="header">
           <tr>
-            <th scope="col" style="width:10%"><span>Code</span></th>
-            <th scope="col" style="width:70%"><span>Libellé</span></th>
-            <th scope="col" style="width:20%"></th>
+            <th scope="col" style="width: 10%"><span>Code</span></th>
+            <th scope="col" style="width: 70%"><span>Libellé</span></th>
+            <th scope="col" style="width: 20%"></th>
           </tr>
-
         </ng-template>
         <ng-template let-columns="columns" let-elRow pTemplate="body">
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
             <td>{{ elRow.code }}</td>
             <td>{{ elRow.libelle }}</td>
-            <td style="text-align: right;">
-              <p-button (click)="onEdit(elRow)" [rounded]="true" class=" p-mr-2"
-                        icon="pi pi-pencil" pTooltip="Editer"
-                        severity="success"
-                        type="button"></p-button>
-              <p-button (click)="delete(elRow)" [rounded]="true"
-                        icon="pi pi-trash" pTooltip="Supprimer"
-                        severity="danger" type="button"></p-button>
+            <td style="text-align: right">
+              <p-button
+                (click)="onEdit(elRow)"
+                [rounded]="true"
+                class="p-mr-2"
+                icon="pi pi-pencil"
+                pTooltip="Editer"
+                severity="success"
+                type="button"
+              ></p-button>
+              <p-button
+                (click)="delete(elRow)"
+                [rounded]="true"
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                severity="danger"
+                type="button"
+              ></p-button>
             </td>
           </tr>
         </ng-template>
         <ng-template let-columns pTemplate="emptymessage">
           <tr>
-            <td [attr.colspan]="3">
-              Aucune donnée trouvée
-            </td>
+            <td [attr.colspan]="3">Aucune donnée trouvée</td>
           </tr>
         </ng-template>
       </p-table>

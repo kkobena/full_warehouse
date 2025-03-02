@@ -1,53 +1,51 @@
 <div class="row justify-content-center">
   <p-toolbar>
     <ng-template #start>
-      <h4 id="page-heading"><span
-        jhiTranslate="warehouseApp.menu.detail.title">Menu</span>
-        <p-tag value="{{entity?.libelle}}"></p-tag>
-
+      <h4 id="page-heading">
+        <span jhiTranslate="warehouseApp.menu.detail.title">Menu</span>
+        <p-tag value="{{ entity?.libelle }}"></p-tag>
       </h4>
     </ng-template>
     <ng-template #end>
-      <p-button (click)="previousState()" [style]="{'float': 'right'}" icon="pi pi-arrow-left"
-                label="Retour"
-
-
-                severity="secondary"
-                type="button"></p-button>
+      <p-button
+        (click)="previousState()"
+        [style]="{ float: 'right' }"
+        icon="pi pi-arrow-left"
+        label="Retour"
+        severity="secondary"
+        type="button"
+      ></p-button>
     </ng-template>
   </p-toolbar>
   <div class="col-12">
     <p-panel>
-
-
       <jhi-alert-error></jhi-alert-error>
-      <p-pickList (onMoveAllToSource)="onMoveAllToSource()"
-                  (onMoveAllToTarget)="onMoveAllToTarget()"
-                  (onMoveToSource)="onMoveToSource()"
-                  (onMoveToTarget)="onMoveToTarget()"
-                  [dragdrop]="true" [responsive]="true"
-                  [scrollHeight]="scrollHeight"
-                  [sourceStyle]="{ height: '90rem' }"
-                  [source]="others"
-                  [target]="associes"
-                  breakpoint="1400px"
-                  filterBy="libelle"
-                  sourceFilterPlaceholder="Rechercher par libelle" sourceHeader="Privillèges"
-                  targetFilterPlaceholder="Rechercher par libelle"
-                  targetHeader="Privillèges associés">
+      <p-pickList
+        (onMoveAllToSource)="onMoveAllToSource()"
+        (onMoveAllToTarget)="onMoveAllToTarget()"
+        (onMoveToSource)="onMoveToSource()"
+        (onMoveToTarget)="onMoveToTarget()"
+        [dragdrop]="true"
+        [responsive]="true"
+        [scrollHeight]="scrollHeight"
+        [sourceStyle]="{ height: '90rem' }"
+        [source]="others"
+        [target]="associes"
+        breakpoint="1400px"
+        filterBy="libelle"
+        sourceFilterPlaceholder="Rechercher par libelle"
+        sourceHeader="Privillèges"
+        targetFilterPlaceholder="Rechercher par libelle"
+        targetHeader="Privillèges associés"
+      >
         <ng-template let-menu pTemplate="item">
           <div class="flex flex-wrap p-2 align-items-center">
-
-            <div class="flex-1 flex flex-column ">
+            <div class="flex-1 flex flex-column">
               <span class="font-bold">{{ menu.libelle }}</span>
-
             </div>
-
           </div>
         </ng-template>
       </p-pickList>
     </p-panel>
-
   </div>
-
 </div>

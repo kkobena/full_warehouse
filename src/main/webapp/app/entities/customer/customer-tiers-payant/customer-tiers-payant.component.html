@@ -4,134 +4,125 @@
   <div class="modal-body">
     <div [hidden]="true" class="form-group">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-
     </div>
 
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label class="form-control-label"
-               for="tiersPayant">Tiers-payant<span
-          style="font-weight: 900;color: red;">*</span></label>
+        <label class="form-control-label" for="tiersPayant">Tiers-payant<span style="font-weight: 900; color: red">*</span></label>
 
-        <p-autoComplete (completeMethod)="searchTiersPayant($event)"
-
-                        [dropdown]="true"
-                        [forceSelection]="true"
-                        [inputStyle]="{'width':'100%'}"
-                        [minLength]="minLength"
-                        [style]="{'width':'100%'}" [suggestions]="tiersPayants"
-                        appendTo="body" formControlName="tiersPayant"
-                        id="tiersPayant"
-                        optionLabel="fullName"
-                        placeholder="Taper pour rechercher">
+        <p-autoComplete
+          (completeMethod)="searchTiersPayant($event)"
+          [dropdown]="true"
+          [forceSelection]="true"
+          [inputStyle]="{ width: '100%' }"
+          [minLength]="minLength"
+          [style]="{ width: '100%' }"
+          [suggestions]="tiersPayants"
+          appendTo="body"
+          formControlName="tiersPayant"
+          id="tiersPayant"
+          optionLabel="fullName"
+          placeholder="Taper pour rechercher"
+        >
         </p-autoComplete>
 
-
-        @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty
-          || editForm.get('tiersPayant')!.touched)) {
+        @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty || editForm.get('tiersPayant')!.touched)) {
           <div>
             @if (editForm.get('tiersPayant')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
-
       </div>
-
 
       <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_num">Numéro<span
-          style="font-weight: 900;color: red;">*</span> </label>
-        <input autocomplete="off" class="form-control" formControlName="num" id="field_num"
-               name="num"
-               pInputText type="text" />
-        @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty
-          || editForm.get('num')!.touched)) {
+        <label class="form-control-label" for="field_num">Numéro<span style="font-weight: 900; color: red">*</span> </label>
+        <input autocomplete="off" class="form-control" formControlName="num" id="field_num" name="num" pInputText type="text" />
+        @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
           <div>
             @if (editForm.get('num')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
       </div>
-
-
     </div>
 
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label class="form-control-label"
-               for="field_taux">Taux<span style="font-weight: 900;color: red;">*</span></label>
-        <input autocomplete="off" class="form-control" formControlName="taux" id="field_taux"
-               name="taux"
-               pInputText
-               pKeyFilter="int" type="text" />
-        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty
-          || editForm.get('taux')!.touched)) {
+        <label class="form-control-label" for="field_taux">Taux<span style="font-weight: 900; color: red">*</span></label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="taux"
+          id="field_taux"
+          name="taux"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
+        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
           <div>
             @if (editForm.get('taux')?.errors?.required) {
-              <small class="form-text text-danger"
-                     jhiTranslate="entity.validation.required">
-                This field is required.
-              </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
-
           </div>
         }
-
       </div>
       <div class="form-group col-md-6">
-        <label class="form-control-label"
-               for="plafondJournalier">Plafond de vente</label>
-        <input autocomplete="off" class="form-control" formControlName="plafondJournalier"
-               id="plafondJournalier" name="plafondJournalier"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="plafondJournalier">Plafond de vente</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="plafondJournalier"
+          id="plafondJournalier"
+          name="plafondJournalier"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
-
     </div>
     <div class="form-row">
       <div class="form-group col-md-7">
-        <label class="form-control-label"
-               for="plafondConso">Plafond consommation</label>
-        <input autocomplete="off" class="form-control" formControlName="plafondConso"
-               id="plafondConso" name="plafondConso"
-               pInputText
-               pKeyFilter="int" type="text" />
+        <label class="form-control-label" for="plafondConso">Plafond consommation</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="plafondConso"
+          id="plafondConso"
+          name="plafondConso"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
       </div>
       <div class="form-group">
-        <label class="form-control-label" for="plafondAbsolu">Le plafond est-il absolu
-          ?</label>
+        <label class="form-control-label" for="plafondAbsolu">Le plafond est-il absolu ?</label>
 
-        <p-toggleswitch class="form-control" formControlName="plafondAbsolu" id="plafondAbsolu"
-        ></p-toggleswitch>
+        <p-toggleswitch class="form-control" formControlName="plafondAbsolu" id="plafondAbsolu"></p-toggleswitch>
       </div>
-
-
     </div>
-
-
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" class=" p-mr-2" icon="pi pi-times"
-              label="Annuler"
-
-              severity="danger"
-              type="button"></p-button>
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [raised]="true" class="p-mr-2"
-              icon="pi pi-check" label="Enregistrer"
-
-              severity="success" type="submit"></p-button>
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="danger"
+      type="button"
+    ></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
   </div>
 </form>
-
-

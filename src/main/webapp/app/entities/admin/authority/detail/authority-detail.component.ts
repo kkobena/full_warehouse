@@ -6,9 +6,9 @@ import { DurationPipe, FormatMediumDatetimePipe, FormatMediumDatePipe } from 'ap
 import { IAuthority } from '../authority.model';
 
 @Component({
-    selector: 'jhi-authority-detail',
-    templateUrl: './authority-detail.component.html',
-    imports: [SharedModule, RouterModule, DurationPipe, FormatMediumDatetimePipe, FormatMediumDatePipe]
+  selector: 'jhi-authority-detail',
+  templateUrl: './authority-detail.component.html',
+  imports: [SharedModule, RouterModule, DurationPipe, FormatMediumDatetimePipe, FormatMediumDatePipe],
 })
 export class AuthorityDetailComponent {
   authority = input<IAuthority | null>(null);

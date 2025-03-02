@@ -70,7 +70,7 @@ export class RemiseProduitsComponent implements OnInit {
       animation: true,
     });
     modalRef.componentInstance.entity = remise;
-    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise produit';
+    modalRef.componentInstance.title = remise.id ? 'Modifier la remise' : 'Ajouter une remise produit';
     modalRef.closed.subscribe(r => {
       this.loadPage();
     });

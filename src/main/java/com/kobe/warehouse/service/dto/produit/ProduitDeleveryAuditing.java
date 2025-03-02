@@ -10,4 +10,5 @@ public record ProduitDeleveryAuditing(
     int quantityReceived,
     int quantityUg,
     LocalDateTime updated,
-    LocalDate mvtDate) {}
+    LocalDate mvtDate
+) {}

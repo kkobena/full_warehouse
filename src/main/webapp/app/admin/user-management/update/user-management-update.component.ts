@@ -22,7 +22,8 @@ const newUser: IUser = {
 })
 export default class UserManagementUpdateComponent implements OnInit {
   authorities = signal<string[]>([]);
-  isSaving = false;
+  isSaving = signal(false);
+
   editForm = new FormGroup({
     id: new FormControl(userTemplate.id),
     login: new FormControl(userTemplate.login, {
@@ -34,21 +35,15 @@ export default class UserManagementUpdateComponent implements OnInit {
         Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
       ],
     }),
-    firstName: new FormControl(userTemplate.firstName, {
-      nonNullable: true,
-      validators: [Validators.maxLength(50), Validators.required],
-    }),
-    lastName: new FormControl(userTemplate.lastName, {
-      nonNullable: true,
-      validators: [Validators.maxLength(100), Validators.required],
-    }),
+    firstName: new FormControl(userTemplate.firstName, { validators: [Validators.maxLength(50)] }),
+    lastName: new FormControl(userTemplate.lastName, { validators: [Validators.maxLength(50)] }),
     email: new FormControl(userTemplate.email, {
+      nonNullable: true,
       validators: [Validators.minLength(5), Validators.maxLength(254), Validators.email],
     }),
-    authorities: new FormControl(userTemplate.authorities, {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+    activated: new FormControl(userTemplate.activated, { nonNullable: true }),
+    langKey: new FormControl(userTemplate.langKey, { nonNullable: true }),
+    authorities: new FormControl(userTemplate.authorities, { nonNullable: true }),
   });
   protected isAdmin = false;
   private userService = inject(UserManagementService);
@@ -71,7 +66,7 @@ export default class UserManagementUpdateComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const user = this.editForm.getRawValue();
     if (user.id !== null) {
       this.userService.update(user).subscribe({
@@ -87,11 +82,11 @@ export default class UserManagementUpdateComponent implements OnInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.previousState();
   }
 
   private onSaveError(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
   }
 }

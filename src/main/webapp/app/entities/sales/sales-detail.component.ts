@@ -8,9 +8,9 @@ import { Button } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-    selector: 'jhi-sales-detail',
-    templateUrl: './sales-detail.component.html',
-    imports: [WarehouseCommonModule, RouterModule, DecimalPipe, Button, ToolbarModule]
+  selector: 'jhi-sales-detail',
+  templateUrl: './sales-detail.component.html',
+  imports: [WarehouseCommonModule, RouterModule, DecimalPipe, Button, ToolbarModule],
 })
 export class SalesDetailComponent implements OnInit {
   sales: ISales | null = null;

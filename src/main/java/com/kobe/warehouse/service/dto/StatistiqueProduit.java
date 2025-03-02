@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import java.io.Serializable;
 
 public class StatistiqueProduit implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private long amount;
@@ -34,7 +35,6 @@ public class StatistiqueProduit implements Serializable {
     }
 
     public StatistiqueProduit(long quantity, String libelleProduit) {
-
         this.quantity = quantity;
         this.libelleProduit = libelleProduit;
     }
@@ -44,6 +44,5 @@ public class StatistiqueProduit implements Serializable {
         this.libelleProduit = libelleProduit;
     }
 
-    public StatistiqueProduit() {
-    }
+    public StatistiqueProduit() {}
 }

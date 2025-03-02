@@ -10,4 +10,5 @@ public record FetchCashRegisterParams(
     LocalDate fromDate,
     LocalDate toDate,
     String beginTime,
-    String endTime) {}
+    String endTime
+) {}

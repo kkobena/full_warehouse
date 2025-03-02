@@ -1,25 +1,25 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Tva;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class TvaDTO implements Serializable {
+
     private static final long serialVersionUID = -656800366874873921L;
     private Long id;
+
     @NotNull
     private Integer taux;
+
     private String tva;
 
     public TvaDTO(Tva tva) {
         id = tva.getId();
         taux = tva.getTaux();
-
     }
 
-    public TvaDTO() {
-    }
+    public TvaDTO() {}
 
     public Long getId() {
         return id;
@@ -61,9 +61,6 @@ public class TvaDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "TvaDTO{" +
-            "id=" + getId() +
-            ", taux=" + getTaux() +
-            "}";
+        return "TvaDTO{" + "id=" + getId() + ", taux=" + getTaux() + "}";
     }
 }

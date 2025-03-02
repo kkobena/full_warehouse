@@ -55,7 +55,7 @@ export class RemiseComponent implements OnInit {
   entites?: IRemise[];
   loading = false;
 
-  //types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
+  // types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
 
   ngModalService = inject(NgbModal);
   entityService = inject(RemiseService);
@@ -99,7 +99,7 @@ export class RemiseComponent implements OnInit {
       animation: true,
     });
     modalRef.componentInstance.entity = remise;
-    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise client';
+    modalRef.componentInstance.title = remise.id ? 'Modifier la remise' : 'Ajouter une remise client';
     modalRef.closed.subscribe(r => {
       this.loadPage();
     });

@@ -2,10 +2,9 @@ import { Directive, ElementRef, NgZone, OnInit, input, inject } from '@angular/c
 import { EditableColumn, Table } from 'primeng/table';
 
 @Directive({
-    selector: '[jhiTableEditor]',
-    standalone: false
+  selector: '[jhiTableEditor]',
 })
-export class TableEditorDirective extends EditableColumn implements OnInit {
+export class TableEditorDirective extends EditableColumn {
   dt: Table;
   el: ElementRef;
   zone: NgZone;
@@ -14,22 +13,17 @@ export class TableEditorDirective extends EditableColumn implements OnInit {
   readonly openCurrentCell = input<boolean>();
   readonly moveToPrevious = input<boolean>();
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     const dt = inject(Table);
     const el = inject(ElementRef);
     const zone = inject(NgZone);
 
     super(dt, el, zone);
-  
+
     this.dt = dt;
     this.el = el;
     this.zone = zone;
   }
-
-  ngOnInit() {}
 
   // @HostListener('keydown.enter', ['$event'])
   // @HostListener('keydown.meta.enter', ['$event'])

@@ -5,5 +5,9 @@ export interface INatureVente {
 }
 
 export class NatureVente implements INatureVente {
-  constructor(public code?: string, public name?: string, disabled?: boolean) {}
+  constructor(
+    public code?: string,
+    public name?: string,
+    disabled?: boolean,
+  ) {}
 }

@@ -26,75 +26,68 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 public class JavaSalesResource extends SalesResourceProxy {
 
-  public JavaSalesResource(SaleService saleService) {
-    super(saleService);
-  }
+    public JavaSalesResource(SaleService saleService) {
+        super(saleService);
+    }
 
-  @PutMapping("/sales/comptant/put-on-hold")
-  public ResponseEntity<ResponseDTO> putCashSaleOnHold(@Valid @RequestBody CashSaleDTO sale)
-      throws URISyntaxException {
-    return super.putCashSaleOnHold(sale);
-  }
+    @PutMapping("/sales/comptant/put-on-hold")
+    public ResponseEntity<ResponseDTO> putCashSaleOnHold(@Valid @RequestBody CashSaleDTO sale) throws URISyntaxException {
+        return super.putCashSaleOnHold(sale);
+    }
 
-  @PostMapping("/sales/comptant")
-  public ResponseEntity<CashSaleDTO> createCashSale(
-      @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request)
-      throws URISyntaxException {
-    return super.createCashSale(cashSaleDTO, request);
-  }
+    @PostMapping("/sales/comptant")
+    public ResponseEntity<CashSaleDTO> createCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request)
+        throws URISyntaxException {
+        return super.createCashSale(cashSaleDTO, request);
+    }
 
-  @PutMapping("/sales/comptant/save")
-  public ResponseEntity<FinalyseSaleDTO> closeCashSale(
-      @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) {
-    return super.closeCashSale(cashSaleDTO, request);
-  }
+    @PutMapping("/sales/comptant/save")
+    public ResponseEntity<FinalyseSaleDTO> closeCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) {
+        return super.closeCashSale(cashSaleDTO, request);
+    }
 
-  @PostMapping("/sales/add-item/comptant")
-  public ResponseEntity<SaleLineDTO> addItemComptant(@Valid @RequestBody SaleLineDTO saleLineDTO)
-      throws URISyntaxException {
-    return super.addItemComptant(saleLineDTO);
-  }
+    @PostMapping("/sales/add-item/comptant")
+    public ResponseEntity<SaleLineDTO> addItemComptant(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return super.addItemComptant(saleLineDTO);
+    }
 
-  @PutMapping("/sales/update-item/quantity-requested")
-  public ResponseEntity<SaleLineDTO> updateItemQtyRequested(
-      @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-    return super.updateItemQtyRequested(saleLineDTO);
-  }
+    @PutMapping("/sales/update-item/quantity-requested")
+    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return super.updateItemQtyRequested(saleLineDTO);
+    }
 
-  @PutMapping("/sales/update-item/price")
-  public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO)
-      throws URISyntaxException {
-    return super.updateItemPrice(saleLineDTO);
-  }
+    @PutMapping("/sales/update-item/price")
+    public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return super.updateItemPrice(saleLineDTO);
+    }
 
-  @PutMapping("/sales/update-item/quantity-sold")
-  public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO)
-      throws URISyntaxException {
-    return super.updateItemQtySold(saleLineDTO);
-  }
+    @PutMapping("/sales/update-item/quantity-sold")
+    public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return super.updateItemQtySold(saleLineDTO);
+    }
 
-  @DeleteMapping("/sales/delete-item/{id}")
-  public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
-    return super.deleteSaleItem(id);
-  }
+    @DeleteMapping("/sales/delete-item/{id}")
+    public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
+        return super.deleteSaleItem(id);
+    }
 
-  @DeleteMapping("/sales/prevente/{id}")
-  public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
-    return super.deleteSalePrevente(id);
-  }
+    @DeleteMapping("/sales/prevente/{id}")
+    public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
+        return super.deleteSalePrevente(id);
+    }
 
-  @DeleteMapping("/sales/cancel/comptant/{id}")
-  public ResponseEntity<Void> cancelCashSale(@PathVariable Long id) {
-    return super.cancelCashSale(id);
-  }
+    @DeleteMapping("/sales/cancel/comptant/{id}")
+    public ResponseEntity<Void> cancelCashSale(@PathVariable Long id) {
+        return super.cancelCashSale(id);
+    }
 
-  @PutMapping("/sales/comptant/add-customer")
-  public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody KeyValue keyValue) {
-    return super.addCustommerToCashSale(keyValue);
-  }
+    @PutMapping("/sales/comptant/add-customer")
+    public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody KeyValue keyValue) {
+        return super.addCustommerToCashSale(keyValue);
+    }
 
-  @DeleteMapping("/sales/comptant/remove-customer/{id}")
-  public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable Long id) {
-    return super.removeCustommerToCashSale(id);
-  }
+    @DeleteMapping("/sales/comptant/remove-customer/{id}")
+    public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable Long id) {
+        return super.removeCustommerToCashSale(id);
+    }
 }

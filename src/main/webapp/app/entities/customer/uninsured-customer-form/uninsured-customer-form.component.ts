@@ -15,19 +15,19 @@ import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
-    selector: 'jhi-uninsured-customer-form',
-    templateUrl: './uninsured-customer-form.component.html',
-    providers: [MessageService, DialogService, ConfirmationService],
-    imports: [
-        WarehouseCommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ToastModule,
-        ButtonModule,
-        RippleModule,
-        InputTextModule,
-        KeyFilterModule,
-    ]
+  selector: 'jhi-uninsured-customer-form',
+  templateUrl: './uninsured-customer-form.component.html',
+  providers: [MessageService, DialogService, ConfirmationService],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastModule,
+    ButtonModule,
+    RippleModule,
+    InputTextModule,
+    KeyFilterModule,
+  ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   protected errorService = inject(ErrorService);
@@ -95,11 +95,11 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   protected createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id'])!.value,
-      firstName: this.editForm.get(['firstName'])!.value,
-      lastName: this.editForm.get(['lastName'])!.value,
-      email: this.editForm.get(['email'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
+      id: this.editForm.get(['id']).value,
+      firstName: this.editForm.get(['firstName']).value,
+      lastName: this.editForm.get(['lastName']).value,
+      email: this.editForm.get(['email']).value,
+      phone: this.editForm.get(['phone']).value,
       type: 'STANDARD',
     };
   }

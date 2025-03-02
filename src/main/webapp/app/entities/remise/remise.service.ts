@@ -16,11 +16,6 @@ export class RemiseService {
 
   public resourceUrl = SERVER_API_URL + 'api/remises';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(remise: IRemise): Observable<EntityResponseType> {
     return this.http.post<IRemise>(this.resourceUrl, remise, { observe: 'response' });
   }

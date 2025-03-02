@@ -12,6 +12,6 @@ export class FamilleProduit implements IFamilleProduit {
     public code?: string,
     public libelle?: string,
     public categorieLibelle?: string,
-    public categorieId?: number
+    public categorieId?: number,
   ) {}
 }

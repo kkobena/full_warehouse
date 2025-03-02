@@ -1,18 +1,16 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.service.TvaService;
 import com.kobe.warehouse.service.dto.TvaDTO;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Tva}.
@@ -27,7 +25,6 @@ public class TvaServiceImpl implements TvaService {
 
     public TvaServiceImpl(TvaRepository tvaRepository) {
         this.tvaRepository = tvaRepository;
-
     }
 
     /**
@@ -56,10 +53,8 @@ public class TvaServiceImpl implements TvaService {
     @Transactional(readOnly = true)
     public Page<TvaDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Tvas");
-        return tvaRepository.findAll(pageable)
-            .map(TvaDTO::new);
+        return tvaRepository.findAll(pageable).map(TvaDTO::new);
     }
-
 
     /**
      * Get one tva by id.
@@ -71,8 +66,7 @@ public class TvaServiceImpl implements TvaService {
     @Transactional(readOnly = true)
     public Optional<TvaDTO> findOne(Long id) {
         log.debug("Request to get Tva : {}", id);
-        return tvaRepository.findById(id)
-            .map(TvaDTO::new);
+        return tvaRepository.findById(id).map(TvaDTO::new);
     }
 
     /**

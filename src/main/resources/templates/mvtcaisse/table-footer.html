@@ -1,68 +1,67 @@
 <div class="page-footer">
   <table class="footer-table" th:if="${isLastPage}">
     <thead>
-    <tr>
-      <th>Totaux</th>
-      <th>Modes règlements</th>
-      <th>Types mouvements</th>
-    </tr>
+      <tr>
+        <th>Totaux</th>
+        <th>Modes règlements</th>
+        <th>Types mouvements</th>
+      </tr>
     </thead>
     <tbody>
-    <tr class="footer-table-tr">
-      <td class="footer-table-td">
-        <table class="sub-table-totaux">
-          <tbody>
-          <tr>
-            <td>Total ventes</td>
-            <td th:if="${reportSummary.totalPaymentAmount ge 1000}"
-                th:text="${#numbers.formatInteger(reportSummary.totalPaymentAmount,3,'WHITESPACE')}"></td>
-            <td th:if="${reportSummary.totalPaymentAmount lt 1000}"
-                th:text="${reportSummary.totalPaymentAmount}"></td>
-          </tr>
-          <tr>
-            <td>Total sortie</td>
-            <td th:if="${reportSummary.debitedAmount ge 1000}"
-                th:text="${#numbers.formatInteger(reportSummary.debitedAmount,3,'WHITESPACE')}"></td>
-            <td th:if="${reportSummary.debitedAmount lt 1000}"
-                th:text="${reportSummary.debitedAmount}"></td>
-          </tr>
-          <tr>
-            <td> Total Mobile</td>
-            <td th:if="${reportSummary.totalMobileAmount ge 1000}"
-                th:text="${#numbers.formatInteger(reportSummary.debitedAmount,3,'WHITESPACE')}"></td>
-            <td th:if="${reportSummary.totalMobileAmount lt 1000}"
-                th:text="${reportSummary.totalMobileAmount}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-      <td class="footer-table-td">
-        <table class="sub-table-totaux">
-          <tbody>
-          <tr th:class="${itmStat.last}?'last-item':''"
-              th:each="itm : ${reportSummary.modesPaiementAmounts}">
-            <td th:text="${itm.libelle}"></td>
-            <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-      <td class="footer-table-td">
-        <table class="sub-table-totaux">
-          <tbody>
-          <tr th:class="${itmStat.last}?'last-item':''"
-              th:each="itm : ${reportSummary.typeTransactionAmounts}">
-            <td th:text="${itm.libelle}"></td>
-            <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
+      <tr class="footer-table-tr">
+        <td class="footer-table-td">
+          <table class="sub-table-totaux">
+            <tbody>
+              <tr>
+                <td>Total ventes</td>
+                <td
+                  th:if="${reportSummary.totalPaymentAmount ge 1000}"
+                  th:text="${#numbers.formatInteger(reportSummary.totalPaymentAmount,3,'WHITESPACE')}"
+                ></td>
+                <td th:if="${reportSummary.totalPaymentAmount lt 1000}" th:text="${reportSummary.totalPaymentAmount}"></td>
+              </tr>
+              <tr>
+                <td>Total sortie</td>
+                <td
+                  th:if="${reportSummary.debitedAmount ge 1000}"
+                  th:text="${#numbers.formatInteger(reportSummary.debitedAmount,3,'WHITESPACE')}"
+                ></td>
+                <td th:if="${reportSummary.debitedAmount lt 1000}" th:text="${reportSummary.debitedAmount}"></td>
+              </tr>
+              <tr>
+                <td>Total Mobile</td>
+                <td
+                  th:if="${reportSummary.totalMobileAmount ge 1000}"
+                  th:text="${#numbers.formatInteger(reportSummary.debitedAmount,3,'WHITESPACE')}"
+                ></td>
+                <td th:if="${reportSummary.totalMobileAmount lt 1000}" th:text="${reportSummary.totalMobileAmount}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+        <td class="footer-table-td">
+          <table class="sub-table-totaux">
+            <tbody>
+              <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${reportSummary.modesPaiementAmounts}">
+                <td th:text="${itm.libelle}"></td>
+                <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+        <td class="footer-table-td">
+          <table class="sub-table-totaux">
+            <tbody>
+              <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${reportSummary.typeTransactionAmounts}">
+                <td th:text="${itm.libelle}"></td>
+                <td th:text="${#numbers.formatInteger(itm.value,3,'WHITESPACE')}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
 
-<div style="clear: both;"></div>
-
-
+<div style="clear: both"></div>

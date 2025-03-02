@@ -30,73 +30,73 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 public class JavaFinancialTransactionResource extends FinancialTransactionProxy {
 
-  public JavaFinancialTransactionResource(FinancialTransactionService financialTransactionService) {
-    super(financialTransactionService);
-  }
+    public JavaFinancialTransactionResource(FinancialTransactionService financialTransactionService) {
+        super(financialTransactionService);
+    }
 
-  @PostMapping("/payment-transactions")
-  public ResponseEntity<Void> createEvent(
-      @Valid @RequestBody FinancialTransactionDTO financialTransaction) throws URISyntaxException {
+    @PostMapping("/payment-transactions")
+    public ResponseEntity<Void> createEvent(@Valid @RequestBody FinancialTransactionDTO financialTransaction) throws URISyntaxException {
+        return super.create(financialTransaction);
+    }
 
-    return super.create(financialTransaction);
-  }
+    @GetMapping("/payment-transactions")
+    public ResponseEntity<List<FinancialTransactionDTO>> fetchAllFinancialTransactions(
+        @RequestParam(value = "search", required = false) String search,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "userId", required = false) Long userId,
+        @RequestParam(value = "typeFinancialTransaction", required = false) TypeFinancialTransaction typeFinancialTransaction,
+        @RequestParam(value = "categorieChiffreAffaire", required = false) CategorieChiffreAffaire categorieChiffreAffaire,
+        @RequestParam(value = "paymentMode", required = false) String paymentMode,
+        @RequestParam(value = "organismeId", required = false) String organismeId,
+        Pageable pageable
+    ) {
+        return super.fetchAllFinancialTransactions(
+            new FinancielTransactionFilterDTO(
+                fromDate,
+                toDate,
+                userId,
+                search,
+                typeFinancialTransaction,
+                categorieChiffreAffaire,
+                paymentMode,
+                organismeId
+            ),
+            pageable
+        );
+    }
 
-  @GetMapping("/payment-transactions")
-  public ResponseEntity<List<FinancialTransactionDTO>> fetchAllFinancialTransactions(
-      @RequestParam(value = "search", required = false) String search,
-      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-      @RequestParam(value = "toDate", required = false) LocalDate toDate,
-      @RequestParam(value = "userId", required = false) Long userId,
-      @RequestParam(value = "typeFinancialTransaction", required = false)
-          TypeFinancialTransaction typeFinancialTransaction,
-      @RequestParam(value = "categorieChiffreAffaire", required = false)
-          CategorieChiffreAffaire categorieChiffreAffaire,
-      @RequestParam(value = "paymentMode", required = false) String paymentMode,
-      @RequestParam(value = "organismeId", required = false) String organismeId,
-      Pageable pageable) {
-    return super.fetchAllFinancialTransactions(
-        new FinancielTransactionFilterDTO(
-            fromDate,
-            toDate,
-            userId,
-            search,
-            typeFinancialTransaction,
-            categorieChiffreAffaire,
-            paymentMode,
-            organismeId),
-        pageable);
-  }
+    @GetMapping("/payment-transactions/types")
+    public ResponseEntity<List<Pair>> fetchTypes() {
+        return super.getTypes();
+    }
 
-  @GetMapping("/payment-transactions/types")
-  public ResponseEntity<List<Pair>> fetchTypes() {
-    return super.getTypes();
-  }
-
-  @GetMapping("/payment-transactions/mvt-caisses/sum")
-  public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
-      @RequestParam(value = "search", required = false) String search,
-      @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-      @RequestParam(value = "toDate", required = false) LocalDate toDate,
-      @RequestParam(value = "userId", required = false) Long userId,
-      @RequestParam(value = "typeFinancialTransactions", required = false)
-          Set<TypeFinancialTransaction> typeFinancialTransactions,
-      @RequestParam(value = "categorieChiffreAffaires", required = false)
-          Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-      @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
-      @RequestParam(value = "order", required = false) Order order,
-      @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
-      @RequestParam(value = "toTime", required = false) LocalTime toTime) {
-    return super.getMvtCaisseSum(
-        new TransactionFilterDTO(
-            fromDate,
-            toDate,
-            userId,
-            search,
-            typeFinancialTransactions,
-            categorieChiffreAffaires,
-            paymentModes,
-            order,
-            fromTime,
-            toTime));
-  }
+    @GetMapping("/payment-transactions/mvt-caisses/sum")
+    public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
+        @RequestParam(value = "search", required = false) String search,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "userId", required = false) Long userId,
+        @RequestParam(value = "typeFinancialTransactions", required = false) Set<TypeFinancialTransaction> typeFinancialTransactions,
+        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
+        @RequestParam(value = "order", required = false) Order order,
+        @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
+        @RequestParam(value = "toTime", required = false) LocalTime toTime
+    ) {
+        return super.getMvtCaisseSum(
+            new TransactionFilterDTO(
+                fromDate,
+                toDate,
+                userId,
+                search,
+                typeFinancialTransactions,
+                categorieChiffreAffaires,
+                paymentModes,
+                order,
+                fromTime,
+                toTime
+            )
+        );
+    }
 }

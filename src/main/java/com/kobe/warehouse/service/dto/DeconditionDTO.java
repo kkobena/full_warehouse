@@ -3,7 +3,9 @@ package com.kobe.warehouse.service.dto;
 import jakarta.validation.constraints.NotNull;
 
 public class DeconditionDTO {
+
     private int qtyMvt;
+
     @NotNull
     private Long produitId;
 

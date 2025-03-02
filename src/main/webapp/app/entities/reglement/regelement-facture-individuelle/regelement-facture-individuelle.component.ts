@@ -64,11 +64,11 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  errorService = inject(ErrorService);
-  reglementService = inject(ReglementService);
-  factureService = inject(FactureService);
+  protected readonly modalService = inject(NgbModal);
+  protected readonly confirmationService = inject(ConfirmationService);
+  protected readonly errorService = inject(ErrorService);
+  protected readonly reglementService = inject(ReglementService);
+  protected readonly factureService = inject(FactureService);
   readonly selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
@@ -78,9 +78,9 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   constructor() {
     effect(() => {
       if (this.montantAPayer()) {
-        this.reglementFormComponent()?.cashInput?.setValue(this.montantAPayer());
+        this.reglementFormComponent().cashInput.setValue(this.montantAPayer());
       } else {
-        this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+        this.reglementFormComponent().cashInput.setValue(this.montantAttendu);
       }
       if (this.dossierFactureProjection()) {
         this.dossierFactureProjectionSignal.set(this.dossierFactureProjection());
@@ -97,7 +97,10 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   private get montantAttendu(): number {
     const dossierFactureProjection = this.dossierFactureProjection();
-    return dossierFactureProjection?.montantTotal - dossierFactureProjection?.montantDetailRegle;
+    if (dossierFactureProjection) {
+      return dossierFactureProjection.montantTotal - dossierFactureProjection.montantDetailRegle;
+    }
+    return null;
   }
 
   openSideBar(): void {
@@ -122,7 +125,9 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
   }
-
+  get drawerWidth(): {} {
+    return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
+  }
   ngOnInit(): void {
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
   }
@@ -183,14 +188,14 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   private reset(response: ResponseReglement): void {
     this.factureDossierSelectionnes.set([]);
-    this.reglementFormComponent()?.reset();
+    this.reglementFormComponent().reset();
     if (response.total) {
       this.dossierFactureProjectionSignal.set(null);
       this.reglementFactureDossiersSignal.set([]);
-      this.reglementFormComponent()?.cashInput?.setValue(null);
+      this.reglementFormComponent().cashInput.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjection()?.id);
+      this.reload(this.dossierFactureProjection().id);
     }
   }
 
@@ -203,7 +208,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
           this.reglementFactureDossiersSignal.set(res.body);
-          this.reglementFormComponent()?.cashInput?.setValue(this.montantAttendu);
+          this.reglementFormComponent().cashInput.setValue(this.montantAttendu);
         },
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
@@ -214,7 +219,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   private fetchFacture(): void {
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjection()?.id, {
+      .findDossierFactureProjection(this.dossierFactureProjection().id, {
         isGroup: false,
       })
       .subscribe(res => {

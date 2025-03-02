@@ -16,110 +16,113 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "retour_bon_item")
 public class RetourBonItem implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  @NotNull
-  @Column(name = "date_mtv", nullable = false)
-  private LocalDateTime dateMtv = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private RetourBon retourBon;
+    @NotNull
+    @Column(name = "date_mtv", nullable = false)
+    private LocalDateTime dateMtv = LocalDateTime.now();
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private MotifRetourProduit motifRetour;
+    @ManyToOne(optional = false)
+    @NotNull
+    private RetourBon retourBon;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private DeliveryReceiptItem deliveryReceiptItem;
+    @ManyToOne(optional = false)
+    @NotNull
+    private MotifRetourProduit motifRetour;
 
-  @ManyToOne private Lot lot;
+    @ManyToOne(optional = false)
+    @NotNull
+    private DeliveryReceiptItem deliveryReceiptItem;
 
-  @NotNull
-  @Min(1)
-  @Column(name = "qty_mvt", nullable = false, length = 8)
-  private Integer qtyMvt;
+    @ManyToOne
+    private Lot lot;
 
-  @Column(name = "init_stock", nullable = false, length = 8)
-  private Integer initStock;
+    @NotNull
+    @Min(1)
+    @Column(name = "qty_mvt", nullable = false, length = 8)
+    private Integer qtyMvt;
 
-  @Column(name = "after_stock", length = 8)
-  private Integer afterStock;
+    @Column(name = "init_stock", nullable = false, length = 8)
+    private Integer initStock;
 
-  public Long getId() {
-    return id;
-  }
+    @Column(name = "after_stock", length = 8)
+    private Integer afterStock;
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public @NotNull LocalDateTime getDateMtv() {
-    return dateMtv;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public void setDateMtv(@NotNull LocalDateTime dateMtv) {
-    this.dateMtv = dateMtv;
-  }
+    public @NotNull LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-  public @NotNull RetourBon getRetourBon() {
-    return retourBon;
-  }
+    public void setDateMtv(@NotNull LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+    }
 
-  public void setRetourBon(@NotNull RetourBon retourBon) {
-    this.retourBon = retourBon;
-  }
+    public @NotNull RetourBon getRetourBon() {
+        return retourBon;
+    }
 
-  public @NotNull MotifRetourProduit getMotifRetour() {
-    return motifRetour;
-  }
+    public void setRetourBon(@NotNull RetourBon retourBon) {
+        this.retourBon = retourBon;
+    }
 
-  public void setMotifRetour(@NotNull MotifRetourProduit motifRetour) {
-    this.motifRetour = motifRetour;
-  }
+    public @NotNull MotifRetourProduit getMotifRetour() {
+        return motifRetour;
+    }
 
-  public @NotNull DeliveryReceiptItem getDeliveryReceiptItem() {
-    return deliveryReceiptItem;
-  }
+    public void setMotifRetour(@NotNull MotifRetourProduit motifRetour) {
+        this.motifRetour = motifRetour;
+    }
 
-  public void setDeliveryReceiptItem(@NotNull DeliveryReceiptItem deliveryReceiptItem) {
-    this.deliveryReceiptItem = deliveryReceiptItem;
-  }
+    public @NotNull DeliveryReceiptItem getDeliveryReceiptItem() {
+        return deliveryReceiptItem;
+    }
 
-  public Lot getLot() {
-    return lot;
-  }
+    public void setDeliveryReceiptItem(@NotNull DeliveryReceiptItem deliveryReceiptItem) {
+        this.deliveryReceiptItem = deliveryReceiptItem;
+    }
 
-  public void setLot(Lot lot) {
-    this.lot = lot;
-  }
+    public Lot getLot() {
+        return lot;
+    }
 
-  public @NotNull @Min(1) Integer getQtyMvt() {
-    return qtyMvt;
-  }
+    public void setLot(Lot lot) {
+        this.lot = lot;
+    }
 
-  public void setQtyMvt(@NotNull @Min(1) Integer qtyMvt) {
-    this.qtyMvt = qtyMvt;
-  }
+    public @NotNull @Min(1) Integer getQtyMvt() {
+        return qtyMvt;
+    }
 
-  public Integer getInitStock() {
-    return initStock;
-  }
+    public void setQtyMvt(@NotNull @Min(1) Integer qtyMvt) {
+        this.qtyMvt = qtyMvt;
+    }
 
-  public void setInitStock(Integer initStock) {
-    this.initStock = initStock;
-  }
+    public Integer getInitStock() {
+        return initStock;
+    }
 
-  public Integer getAfterStock() {
-    return afterStock;
-  }
+    public void setInitStock(Integer initStock) {
+        this.initStock = initStock;
+    }
 
-  public void setAfterStock(Integer afterStock) {
-    this.afterStock = afterStock;
-  }
+    public Integer getAfterStock() {
+        return afterStock;
+    }
+
+    public void setAfterStock(Integer afterStock) {
+        this.afterStock = afterStock;
+    }
 }

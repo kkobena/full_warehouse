@@ -1,41 +1,41 @@
-<p-drawer [(visible)]="showSidebar" [style]="{width: '60vw'}" position="right">
+<p-drawer [(visible)]="showSidebar" [style]="drawerWidth" position="right">
   <ng-template pTemplate="header">
     <span class="font-semibold text-xl">Factures</span>
   </ng-template>
   <ng-template pTemplate="content">
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false">
-
-    </jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"> </jhi-factues-modal>
   </ng-template>
 </p-drawer>
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
-    <p-table #factureDossierTable
-             (selectionChange)="onSelectChange($event)"
-             [(selection)]="factureDossierSelectionnes"
-             [globalFilterFields]="['bonNumber','customerFullName','matricule']"
-             [paginator]="true"
-             [rowsPerPageOptions]="[10,20,30,50,100]"
-             [rows]="20"
-             [showCurrentPageReport]="true"
-             [value]="reglementFactureDossiersWritable()"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
-             dataKey="id"
-             selectionMode="multiple">
+    <p-table
+      #factureDossierTable
+      (selectionChange)="onSelectChange($event)"
+      [(selection)]="factureDossierSelectionnes"
+      [globalFilterFields]="['bonNumber', 'customerFullName', 'matricule']"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
+      [rows]="20"
+      [showCurrentPageReport]="true"
+      [value]="reglementFactureDossiersWritable()"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
+      dataKey="id"
+      selectionMode="multiple"
+    >
       <ng-template pTemplate="caption">
         <div class="d-flex justify-content-between">
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
           <div class="p-0">
             <p-iconfield>
               <p-inputicon styleClass="pi pi-search" />
-              <input (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
-                     [style]="{'width': '300px'}"
-                     pInputText
-                     placeholder="Taper pour filter "
-                     type="text">
+              <input
+                (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
+                [style]="{ width: '300px' }"
+                pInputText
+                placeholder="Taper pour filter "
+                type="text"
+              />
             </p-iconfield>
-
-
           </div>
         </div>
       </ng-template>
@@ -51,55 +51,50 @@
           @if (partialPayment) {
             <ng-container>
               <th class="table-all-checkbos">
-                <p-tableHeaderCheckbox #checkbox
-                ></p-tableHeaderCheckbox>
+                <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
               </th>
             </ng-container>
           }
         </tr>
       </ng-template>
       <ng-template let-item let-rowIndex="rowIndex" pTemplate="body">
-        <tr [ngClass]="{'table-success0':item.montantPaye>0}">
+        <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
           <td>{{ item.organismeName }}</td>
-          <td>Du {{ item.debutPeriode | date: 'dd/MM/yy' }}
-            Au {{ item.finPeriode | date: 'dd/MM/yy' }}
-          </td>
+          <td>Du {{ item.debutPeriode | date: 'dd/MM/yy' }} Au {{ item.finPeriode | date: 'dd/MM/yy' }}</td>
           <td>{{ item.numFacture }}</td>
-          <td class="amount-column">{{ item.itemsCount |number }}</td>
+          <td class="amount-column">{{ item.itemsCount | number }}</td>
           <td class="amount-column">
-            {{ item.montantTotal |number }}
-
+            {{ item.montantTotal | number }}
           </td>
           <td class="amount-column">
-            {{ item.montantPaye |number }}
-
+            {{ item.montantPaye | number }}
           </td>
           @if (isInputEditable(item)) {
-            <td pEditableColumn
-                class="amount-column">
+            <td pEditableColumn class="amount-column">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText
-                         [(ngModel)]="item.montantVerse"
-                         required
-                         (keyup)="onMontantVerseChange(item)"
-                         style="width: 100px;"
-                         type="number">
+                  <input
+                    pInputText
+                    [(ngModel)]="item.montantVerse"
+                    required
+                    (keyup)="onMontantVerseChange(item)"
+                    style="width: 100px"
+                    type="number"
+                  />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ item.montantVerse |number }}
+                  {{ item.montantVerse | number }}
                 </ng-template>
               </p-cellEditor>
             </td>
           } @else {
             <td class="amount-column">
-              {{ item.montantVerse |number }}
+              {{ item.montantVerse | number }}
             </td>
           }
           @if (partialPayment) {
             <td class="text-center">
-              <p-tableCheckbox
-                [value]="item"></p-tableCheckbox>
+              <p-tableCheckbox [value]="item"></p-tableCheckbox>
             </td>
           }
         </tr>
@@ -111,34 +106,24 @@
       <ng-template pTemplate="header">
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
-          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
-                    severity="info"></p-button>
+          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche" severity="info"></p-button>
         </div>
       </ng-template>
-      <jhi-reglement-form (partialPayment)="onPartielReglement($event)"
-                          (reglementParams)="onSaveReglement($event)"
-                          [allSelection]="checkbox()?.checked"
-                          [dossierIds]="dossierIds()"
-                          [facture]="dossierFactureProjectionWritable()"
-                          [isSaving]="isSaving"
-                          [montantAPayer]="montantAPayer()"
-                          [typeFacture]="ModeEditionReglement.GROUP">
+      <jhi-reglement-form
+        (partialPayment)="onPartielReglement($event)"
+        (reglementParams)="onSaveReglement($event)"
+        [allSelection]="checkbox()?.checked"
+        [dossierIds]="dossierIds()"
+        [facture]="dossierFactureProjectionWritable()"
+        [isSaving]="isSaving"
+        [montantAPayer]="montantAPayer()"
+        [typeFacture]="ModeEditionReglement.GROUP"
+      >
       </jhi-reglement-form>
     </p-fieldset>
-    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionWritable()"
-                                [totalApayer]="montantAPayer()"
-    >
+    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionWritable()" [totalApayer]="montantAPayer()">
     </jhi-dossier-reglement-info>
-
   </div>
-
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{width: '40vw'}" key="printReceipt">
-
-</p-confirmDialog>
-
-
-
-
-
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"> </p-confirmDialog>

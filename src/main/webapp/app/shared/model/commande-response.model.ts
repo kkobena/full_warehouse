@@ -16,6 +16,6 @@ export class CommandeResponse implements ICommandeResponse {
     public failureCount?: number,
     public reference?: string,
     public entity?: any,
-    public items?: IOrderItem[]
+    public items?: IOrderItem[],
   ) {}
 }

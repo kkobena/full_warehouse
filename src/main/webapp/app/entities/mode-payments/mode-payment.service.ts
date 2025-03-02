@@ -17,11 +17,6 @@ export class ModePaymentService {
 
   public resourceUrl = SERVER_API_URL + 'api/payment-modes';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   update(tableau: IPaymentMode): Observable<EntityResponseType> {
     return this.http.put<IPaymentMode>(this.resourceUrl, tableau, { observe: 'response' });
   }

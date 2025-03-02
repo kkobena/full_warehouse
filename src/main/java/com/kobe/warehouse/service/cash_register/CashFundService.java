@@ -8,18 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface CashFundService {
-  CashFund allocateCashFund(
-      Integer amount, CashFundType cashFundType, User cashRegisterOwner, User user);
+    CashFund allocateCashFund(Integer amount, CashFundType cashFundType, User cashRegisterOwner, User user);
 
-  CashFund initCashFund(int amount, User user);
+    CashFund initCashFund(int amount, User user);
 
-  void validateCashFund(CashRegister cashRegister);
+    void validateCashFund(CashRegister cashRegister);
 
-  CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId);
+    CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId);
 
-  CashFund findById(Long id);
+    CashFund findById(Long id);
 
-  void updateCashFund(CashFund cashFund, CashRegister cashRegister);
+    void updateCashFund(CashFund cashFund, CashRegister cashRegister);
 
-  CashFund save(CashFund cashFund);
+    CashFund save(CashFund cashFund);
 }

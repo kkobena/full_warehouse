@@ -4,40 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StoreInventoryStorageExport {
-  private long storageId;
-  private String storageLibelle;
-  private List<StoreInventoryGroupExport> rayons = new ArrayList<>();
 
-  public StoreInventoryStorageExport() {}
+    private long storageId;
+    private String storageLibelle;
+    private List<StoreInventoryGroupExport> rayons = new ArrayList<>();
 
-  public StoreInventoryStorageExport(
-      long storageId, String strageLibelle, List<StoreInventoryGroupExport> rayons) {
-    this.storageId = storageId;
-    this.storageLibelle = strageLibelle;
-    this.rayons = rayons;
-  }
+    public StoreInventoryStorageExport() {}
 
-  public long getStorageId() {
-    return storageId;
-  }
+    public StoreInventoryStorageExport(long storageId, String strageLibelle, List<StoreInventoryGroupExport> rayons) {
+        this.storageId = storageId;
+        this.storageLibelle = strageLibelle;
+        this.rayons = rayons;
+    }
 
-  public void setStorageId(long storageId) {
-    this.storageId = storageId;
-  }
+    public long getStorageId() {
+        return storageId;
+    }
 
-  public String getStorageLibelle() {
-    return storageLibelle;
-  }
+    public void setStorageId(long storageId) {
+        this.storageId = storageId;
+    }
 
-  public void setStorageLibelle(String storageLibelle) {
-    this.storageLibelle = storageLibelle;
-  }
+    public String getStorageLibelle() {
+        return storageLibelle;
+    }
 
-  public List<StoreInventoryGroupExport> getRayons() {
-    return rayons;
-  }
+    public void setStorageLibelle(String storageLibelle) {
+        this.storageLibelle = storageLibelle;
+    }
 
-  public void setRayons(List<StoreInventoryGroupExport> rayons) {
-    this.rayons = rayons;
-  }
+    public List<StoreInventoryGroupExport> getRayons() {
+        return rayons;
+    }
+
+    public void setRayons(List<StoreInventoryGroupExport> rayons) {
+        this.rayons = rayons;
+    }
 }

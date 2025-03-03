@@ -376,7 +376,7 @@ export class ComptantComponent {
     if (remise) {
       this.salesService
         .addRemise({
-          key: this.currentSaleService.currentSale().id,
+          key: this.currentSaleService.currentSale()?.id,
           value: remise.id,
         })
         .subscribe({
@@ -457,11 +457,11 @@ export class ComptantComponent {
     return {
       ...new Sales(),
       salesLines: [salesLine],
-      customerId: currentCustomer.id,
+      customerId: currentCustomer?.id,
       natureVente: 'COMPTANT',
-      typePrescription: this.typePrescriptionService.typePrescription().code,
-      cassierId: this.userCaissierService.caissier().id,
-      sellerId: this.userVendeurService.vendeur().id,
+      typePrescription: this.typePrescriptionService.typePrescription()?.code,
+      cassierId: this.userCaissierService.caissier()?.id,
+      sellerId: this.userVendeurService.vendeur()?.id,
       type: 'VNO',
       categorie: 'VNO',
     };

@@ -3,26 +3,33 @@
     Code facture <span class="badge rounded-pill text-bg-light"> {{ reglement.codeFacture }}</span>
   </h6>
 
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
 </div>
 <div class="modal-body">
   <div class="row">
     <div class="d-flex flex-row">
       <div class="p-2">
-        Date règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.created }}</span>
+        Date règlement: <span
+        class="badge rounded-pill text-bg-light">{{ reglement.created }}</span>
       </div>
       <div class="p-2">
-        Montant attendu: <span class="badge rounded-pill text-bg-light">{{ reglement.montantAttendu }}</span>
+        Montant attendu: <span
+        class="badge rounded-pill text-bg-light">{{ reglement.montantAttendu }}</span>
       </div>
 
       <div class="p-2">
-        Montant règlé: <span class="badge rounded-pill text-bg-light">{{ reglement.paidAmount }}</span>
+        Montant règlé: <span
+        class="badge rounded-pill text-bg-light">{{ reglement.paidAmount }}</span>
       </div>
       <div class="p-2">
-        Montant restant: <span class="badge rounded-pill text-bg-light">{{ reglement.montantRestant }}</span>
+        Montant restant: <span
+        class="badge rounded-pill text-bg-light">{{ reglement.montantRestant }}</span>
       </div>
       <div class="p-2">
-        Mode règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.paymentMode }}</span>
+        Mode règlement: <span
+        class="badge rounded-pill text-bg-light">{{ reglement.paymentMode }}</span>
       </div>
     </div>
   </div>
@@ -41,10 +48,12 @@
         >
           <ng-template pTemplate="caption">
             <div class="d-flex">
-              <span class="p-input-icon-left ml-auto">
-                <i class="pi pi-search"></i>
-                <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer" type="text" />
-              </span>
+
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText
+                       placeholder="Filtrer" type="text" />
+              </p-iconfield>
             </div>
           </ng-template>
           <ng-template pTemplate="header">
@@ -81,11 +90,14 @@
             styleClass="p-datatable-striped"
           >
             <ng-template pTemplate="caption">
+
               <div class="d-flex">
-                <span class="p-input-icon-left ml-auto">
-                  <i class="pi pi-search"></i>
-                  <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer" type="text" />
-                </span>
+                <p-iconfield>
+                  <p-inputicon styleClass="pi pi-search" />
+                  <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText
+                         placeholder="Filtrer" type="text" />
+                </p-iconfield>
+               
               </div>
             </ng-template>
             <ng-template pTemplate="header">

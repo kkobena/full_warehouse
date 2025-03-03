@@ -927,9 +927,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.check) {
       this.produitbox().inputEL.nativeElement.focus();
-    } /* else {
-      this.forcerStockDialogBtn().nativeElement.focus();
-    }*/
+    }
 
     this.produitSelected = null;
   }
@@ -1120,7 +1118,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
-      saleId: this.currentSaleService.currentSale().id,
+      saleId: this.currentSaleService.currentSale()?.id,
       quantitySold: quantityRequested,
       quantityRequested,
       sales: this.currentSaleService.currentSale(),

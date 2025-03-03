@@ -14,6 +14,8 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { ISales } from '../../../shared/model/sales.model';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-assured-customer-list',
@@ -28,12 +30,11 @@ import { ISales } from '../../../shared/model/sales.model';
     RippleModule,
     DynamicDialogModule,
     TableModule,
+    IconField,
+    InputIcon,
   ],
 })
 export class AssuredCustomerListComponent implements OnInit {
-  private ref = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-
   customers: ICustomer[] = [];
   searchString?: string | null = '';
   itemsPerPage = ITEMS_PER_PAGE;
@@ -44,6 +45,8 @@ export class AssuredCustomerListComponent implements OnInit {
   customerService = inject(CustomerService);
   dialogService = inject(DialogService);
   loading!: boolean;
+  private ref = inject(DynamicDialogRef);
+  private config = inject(DynamicDialogConfig);
 
   ngOnInit(): void {
     this.searchString = this.config.data.searchString;

@@ -58,6 +58,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   messageService = inject(MessageService);
   baseSaleService = inject(BaseSaleService);
   private document = inject<Document>(DOCUMENT);
+
   constructor() {
     effect(() => {
       const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
@@ -176,7 +177,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     this.ref.onClose.subscribe((resp: IClientTiersPayant) => {
       if (resp) {
         if (this.currentSaleService.currentSale()) {
-          this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale().id, resp);
+          this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale()?.id, resp);
         }
         this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
         this.bonInputFocusOnAddTiersPayant(null);

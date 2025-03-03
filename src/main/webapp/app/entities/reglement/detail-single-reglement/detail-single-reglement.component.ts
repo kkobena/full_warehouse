@@ -8,10 +8,12 @@ import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ReglementService } from '../reglement.service';
 import { HttpResponse } from '@angular/common/http';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-detail-single-reglement',
-  imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule],
+  imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule, IconField, InputIcon],
   templateUrl: './detail-single-reglement.component.html',
   styles: ``,
 })

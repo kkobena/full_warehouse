@@ -1,4 +1,4 @@
-import { Component, OnInit, input, inject } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -31,12 +31,9 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class ListBonsComponent implements OnInit {
-  protected router = inject(Router);
-  private spinner = inject(NgxSpinnerService);
-  protected entityService = inject(DeliveryService);
-  private dialogService = inject(DialogService);
-
   readonly search = input('');
+  protected router = inject(Router);
+  protected entityService = inject(DeliveryService);
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
@@ -47,11 +44,8 @@ export class ListBonsComponent implements OnInit {
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
   protected selectedFilter = 'CLOSE';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private spinner = inject(NgxSpinnerService);
+  private dialogService = inject(DialogService);
 
   ngOnInit(): void {
     this.onSearch();

@@ -1,16 +1,20 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.GroupeFournisseurService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,9 +40,14 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
 
     private final Logger log = LoggerFactory.getLogger(GroupeFournisseurServiceImpl.class);
     private final GroupeFournisseurRepository groupeFournisseurRepository;
+    private final DeliveryReceiptRepository deliveryReceiptRepository;
 
-    public GroupeFournisseurServiceImpl(GroupeFournisseurRepository groupeFournisseurRepository) {
+    public GroupeFournisseurServiceImpl(
+        GroupeFournisseurRepository groupeFournisseurRepository,
+        DeliveryReceiptRepository deliveryReceiptRepository
+    ) {
         this.groupeFournisseurRepository = groupeFournisseurRepository;
+        this.deliveryReceiptRepository = deliveryReceiptRepository;
     }
 
     /**
@@ -136,5 +145,10 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
     @Override
     public List<GroupeFournisseurDTO> findTopNToDisplay() {
         return groupeFournisseurRepository.findAllByOrderByOdreAsc().stream().limit(5).map(GroupeFournisseurDTO::new).toList();
+    }
+
+    @Override
+    public Page<GroupeFournisseurAchat> fetchAchats(LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, ReceiptStatut.CLOSE, pageable);
     }
 }

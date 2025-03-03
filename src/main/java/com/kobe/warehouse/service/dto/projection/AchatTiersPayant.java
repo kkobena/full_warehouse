@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 public interface AchatTiersPayant {
     String getLibelle();
 
-    String getType();
+    String getCategorie();
 
-    Integer getAchatCount();
+    Integer getClientCount();
 
     BigDecimal getMontant();
 

@@ -198,8 +198,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         this.orderLines = commande.orderLines;
         this.fournisseurDisabled = true;
         this.selectedProvider = this.commande.fournisseurId;
-        //   this.commandCommonService.updateCommand(commande);
-      } else if (this.commandCommonService.currentCommand().id) {
+      } else if (this.commandCommonService.currentCommand()?.id) {
         this.commande = this.commandCommonService.currentCommand();
         this.orderLines = this.commande.orderLines;
         this.fournisseurDisabled = true;
@@ -236,7 +235,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
       if (this.selectedProvider) {
-        if (this.commande.id !== undefined) {
+        if (this.commande?.id !== undefined) {
           this.subscribeToSaveOrderLineResponse(
             this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
           );
@@ -600,7 +599,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       produitId: produit.id,
       totalQuantity: produit.totalQuantity,
       commande:
-        this.commande.id !== undefined
+        this.commande?.id !== undefined
           ? this.commande
           : {
               ...new Commande(),

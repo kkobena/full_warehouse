@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../../shared/model/vente-record.model';
 import {
   faChartArea,
@@ -32,9 +32,6 @@ import { FormsModule } from '@angular/forms';
   imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
 })
 export class DailyDataComponent implements OnInit {
-  private dashboardService = inject(DashboardService);
-  private produitStatService = inject(ProduitStatService);
-
   protected faShoppingBasket = faShoppingBasket;
   protected faShippingFast = faShippingFast;
   protected faShoppingCart = faShoppingCart;
@@ -65,6 +62,8 @@ export class DailyDataComponent implements OnInit {
   protected totalQuantityAvg: number;
   protected totalAmountAvg: number;
   protected totalQuantity20x80: number;
+  private dashboardService = inject(DashboardService);
+  private produitStatService = inject(ProduitStatService);
 
   constructor() {
     this.TOP_MAX_QUANTITY = this.tops[1];
@@ -161,8 +160,8 @@ export class DailyDataComponent implements OnInit {
   }
 
   protected onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
-    this.vno = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VNO').venteRecord;
-    this.assurance = venteByTypeRecords.find((e: VenteByTypeRecord) => e.typeVente === 'VO').venteRecord;
+    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO')?.venteRecord;
+    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO')?.venteRecord;
   }
 
   protected subscribeToByModePaimentResponse(result: Observable<HttpResponse<VenteModePaimentRecord[]>>): void {

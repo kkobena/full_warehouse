@@ -1,7 +1,8 @@
 <div class="modal-body">
   <p-toolbar styleClass="mb-1">
     <ng-template pTemplate="left">
-      <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau" severity="success"></button>
+      <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau"
+              severity="success"></button>
     </ng-template>
   </p-toolbar>
   <p-table
@@ -15,16 +16,16 @@
   >
     <ng-template pTemplate="caption">
       <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
-
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
         <input
           (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')"
           pInputText
           placeholder="TAPEZ POUR FILTRER"
           type="text"
         />
-      </span>
+      </p-iconfield>
+
     </ng-template>
     <ng-template pTemplate="header">
       <tr>

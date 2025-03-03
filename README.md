@@ -363,3 +363,26 @@ npm install libphonenumber-js --save
 CREATE USER warehouse IDENTIFIED BY 'warehouse2802';
 GRANT ALL privileges ON `warehouse2802`.* TO `warehouse`;
 ```
+
+SELECT SUM(s.sales_amount) AS montantTtc,SUM(s.discount_amount) AS montantRemise,SUM(s.ht_amount) AS
+htAmount,
+SUM(s.tax_amount) AS tvaAmount,
+SUM(s.part_tiers_payant) AS montantTiersPayant,
+SUM(s.net_amount) AS montantNet,
+SUM(s.cost_amount) AS montantAchat,
+SUM(s.rest_to_pay) montantRestant
+
+FROM sales s WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED') ;
+
+SELECT SUM(p.paid_amount)  AS montant,p.payment_mode_code,pm.libelle FROM payment p JOIN sales s ON
+p.sales_id = s.id
+JOIN payment_mode pm ON p.payment_mode_code = pm.code
+WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') GROUP BY p.payment_mode_code;
+
+SELECT p.type_transaction AS typeTransaction,SUM(p.amount) AS amount FROM payment_transaction p
+JOIN payment_mode pm ON p.payment_mode_code = pm.code
+WHERE p.categorie_ca IN ('CA')  GROUP BY p.type_transaction ;
+
+SELECT SUM(d.net_amount) AS netAmount,SUM(d.tax_amount) AS taxAmount,SUM(d.receipt_amount) AS
+amountTtc
+FROM delivery_receipt d;

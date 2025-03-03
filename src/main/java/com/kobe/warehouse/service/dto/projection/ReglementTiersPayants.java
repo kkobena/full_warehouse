@@ -11,5 +11,7 @@ public interface ReglementTiersPayants {
 
     Integer getMontantReglement();
 
-    Integer getMontantRestant();
+    default Integer getMontantRestant() {
+        return getMontantFacture() - getMontantReglement();
+    }
 }

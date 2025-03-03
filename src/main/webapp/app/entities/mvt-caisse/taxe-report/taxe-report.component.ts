@@ -154,12 +154,12 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   private buildChartLine(): void {
     this.doughnutChart = {
       data: {
-        labels: this.taxeReportWrapper.chart.labeles,
+        labels: this.taxeReportWrapper?.chart.labeles,
         datasets: [
           {
-            data: this.taxeReportWrapper.chart.data,
-            backgroundColor: this.chartColorsUtilsService.colors().slice(0, this.taxeReportWrapper.chart.labeles.length),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper.chart.labeles.length),
+            data: this.taxeReportWrapper?.chart.data,
+            backgroundColor: this.chartColorsUtilsService.colors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
           },
         ],
       },

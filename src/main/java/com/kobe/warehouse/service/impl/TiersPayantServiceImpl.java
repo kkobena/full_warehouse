@@ -3,14 +3,20 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.ModelFacture;
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.InvoicePaymentRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
+import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
+import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.errors.GenericError;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +25,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,15 +38,21 @@ public class TiersPayantServiceImpl implements TiersPayantService {
     private final TiersPayantRepository tiersPayantRepository;
     private final StorageService storageService;
     private final ClientTiersPayantRepository clientTiersPayantRepository;
+    private final ThirdPartySaleLineRepository thirdPartySaleRepository;
+    private final InvoicePaymentRepository invoicePaymentRepository;
 
     public TiersPayantServiceImpl(
         TiersPayantRepository tiersPayantRepository,
         StorageService storageService,
-        ClientTiersPayantRepository clientTiersPayantRepository
+        ClientTiersPayantRepository clientTiersPayantRepository,
+        ThirdPartySaleLineRepository thirdPartySaleRepository,
+        InvoicePaymentRepository invoicePaymentRepository
     ) {
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
+        this.thirdPartySaleRepository = thirdPartySaleRepository;
+        this.invoicePaymentRepository = invoicePaymentRepository;
     }
 
     @Override
@@ -125,5 +139,15 @@ public class TiersPayantServiceImpl implements TiersPayantService {
     @Override
     public List<Pair> getOrdreTrisFacture() {
         return Stream.of(OrdreTrisFacture.values()).map(modelFacture -> new Pair(modelFacture.name(), modelFacture.getLibelle())).toList();
+    }
+
+    @Override
+    public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+        return this.thirdPartySaleRepository.fetchAchatTiersPayant(fromDate, toDate, search, SalesStatut.CLOSED, pageable);
+    }
+
+    @Override
+    public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+        return this.invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, search, pageable);
     }
 }

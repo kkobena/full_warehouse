@@ -8,10 +8,12 @@ import { PanelModule } from 'primeng/panel';
 import { PrimeTemplate } from 'primeng/api';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-detail-group-reglement',
-  imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule],
+  imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule, IconField, InputIcon],
   templateUrl: './detail-group-reglement.component.html',
   styles: ``,
 })

@@ -15,13 +15,12 @@
   >
     <ng-template pTemplate="caption">
       <div class="d-flex justify-content-between">
-        <span class="p-input-icon-left">
-          <i class="pi pi-search"></i>
-          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText placeholder="TAPEZ POUR FILTRER" type="text" />
-        </span>
-        <!--<button (click)="addAssureCustomer()" class="btn btn-success" type="button"><i
-          class="pi pi-user-plus">&nbsp;</i>Nouveau
-        </button>-->
+
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText
+                 placeholder="TAPEZ POUR FILTRER" type="text" />
+        </p-iconfield>
       </div>
     </ng-template>
     <ng-template pTemplate="header">

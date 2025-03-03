@@ -10,6 +10,8 @@ import { FactureService } from '../facture.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-groupe-facture-detail',
@@ -23,6 +25,8 @@ import { FormsModule } from '@angular/forms';
     PaginatorModule,
     CommonModule,
     FormsModule,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './groupe-facture-detail.component.html',
   styles: ``,

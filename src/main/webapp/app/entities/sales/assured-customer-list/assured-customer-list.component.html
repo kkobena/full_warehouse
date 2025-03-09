@@ -15,11 +15,9 @@
   >
     <ng-template pTemplate="caption">
       <div class="d-flex justify-content-between">
-
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText
-                 placeholder="TAPEZ POUR FILTRER" type="text" />
+          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText placeholder="TAPEZ POUR FILTRER" type="text" />
         </p-iconfield>
       </div>
     </ng-template>

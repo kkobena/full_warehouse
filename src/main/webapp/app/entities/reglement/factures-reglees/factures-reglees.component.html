@@ -11,21 +11,35 @@
         <input [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" />
       </div>
 
-
-        <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker   dateFormat="dd/mm/yy" [iconDisplay]="'input'" id="du" [(ngModel)]="modelStartDate" [showIcon]="true" inputId="du"  [selectOtherMonths]="true"
-                          [showButtonBar]="true" />
-            <label for="du">Du</label>
-          </p-floatlabel>
+      <div class="pt-1 ml-1">
+        <p-floatlabel variant="on">
+          <p-datePicker
+            dateFormat="dd/mm/yy"
+            [iconDisplay]="'input'"
+            id="du"
+            [(ngModel)]="modelStartDate"
+            [showIcon]="true"
+            inputId="du"
+            [selectOtherMonths]="true"
+            [showButtonBar]="true"
+          />
+          <label for="du">Du</label>
+        </p-floatlabel>
       </div>
-        <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker   dateFormat="dd/mm/yy" [iconDisplay]="'input'" id="au" [(ngModel)]="modelEndDate" inputId="au"  [selectOtherMonths]="true"
-                          [showButtonBar]="true" [showIcon]="true" />
-            <label for="au">Au</label>
-          </p-floatlabel>
-
+      <div class="pt-1 ml-1">
+        <p-floatlabel variant="on">
+          <p-datePicker
+            dateFormat="dd/mm/yy"
+            [iconDisplay]="'input'"
+            id="au"
+            [(ngModel)]="modelEndDate"
+            inputId="au"
+            [selectOtherMonths]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
+          />
+          <label for="au">Au</label>
+        </p-floatlabel>
       </div>
 
       @if (factureGroup) {

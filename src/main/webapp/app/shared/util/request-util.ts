@@ -10,8 +10,6 @@ export interface Search {
   query: string;
 }
 
-export interface SearchWithPagination extends Search, Pagination {}
-
 export const createRequestOption = (req?: any): HttpParams => {
   let options: HttpParams = new HttpParams();
   if (req) {

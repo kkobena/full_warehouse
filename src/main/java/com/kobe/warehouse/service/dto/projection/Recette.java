@@ -1,9 +1,14 @@
 package com.kobe.warehouse.service.dto.projection;
 
+import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import java.math.BigDecimal;
 
 public interface Recette {
-    String getLibelle();
+    BigDecimal getMontantPaye();
 
-    BigDecimal getMontant();
+    BigDecimal getMontantReel();
+
+    ModePaimentCode getModePaimentCode();
+
+    String getModePaimentLibelle();
 }

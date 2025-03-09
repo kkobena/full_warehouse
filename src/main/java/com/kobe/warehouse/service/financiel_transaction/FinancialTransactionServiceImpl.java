@@ -22,6 +22,8 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.enumeration.Order;
 import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
+import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
+import com.kobe.warehouse.service.dto.projection.MouvementCaisseGroupByMode;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSum;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
@@ -217,6 +219,16 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                 mvtCaisseWrapper,
                 new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
             );
+    }
+
+    @Override
+    public List<MouvementCaisse> findMouvementsCaisse(LocalDate fromDate, LocalDate toDate) {
+        return this.paymentTransactionRepository.findMouvementsCaisse(fromDate, toDate);
+    }
+
+    @Override
+    public List<MouvementCaisseGroupByMode> findMouvementsCaisseGroupBYModeReglement(LocalDate fromDate, LocalDate toDate) {
+        return this.paymentTransactionRepository.findMouvementsCaisseGroupBYModeReglement(fromDate, toDate);
     }
 
     private PaymentTransaction fromDTO(FinancialTransactionDTO financialTransaction) {

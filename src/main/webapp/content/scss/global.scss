@@ -1,5 +1,3 @@
-
-
 @import 'bootstrap/scss/functions';
 @import 'bootstrap-icons/font/bootstrap-icons';
 @import 'bootswatch/dist/yeti/variables';
@@ -17,18 +15,18 @@ h4 {
   font-weight: 300;
 }
 
-
 .justify-content-center {
   //background: #f7f7f7;
   margin: 0;
 }
 
-body, .jh-card {
-  background: #EFF3F8;
+body,
+.jh-card {
+  background: #eff3f8;
 }
 
 .home-ca {
-  background: #EFF3F8;
+  background: #eff3f8;
 }
 
 /*.jh-card {
@@ -1817,3 +1815,31 @@ menu  de la vente
   padding: 2px 2px !important;
 }
  */
+.activity-summary {
+  .row {
+    padding: 0.1rem 0.1rem;
+    .col {
+      padding: 0.2rem 0.2rem;
+      .card {
+        padding: 0;
+        .ws-card-footer {
+          font-weight: 800;
+          font-size: 1rem;
+          span {
+            font-weight: 800;
+            font-size: 1rem;
+          }
+        }
+        .list-group {
+          .list-group-item {
+            padding-left: 0.1rem;
+            padding-right: 0.1rem;
+            .list-group-item-right {
+              font-weight: 800;
+            }
+          }
+        }
+      }
+    }
+  }
+}

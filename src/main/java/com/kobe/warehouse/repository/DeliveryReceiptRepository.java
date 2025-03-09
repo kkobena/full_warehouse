@@ -2,6 +2,7 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.DeliveryReceipt;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -25,5 +26,14 @@ public interface DeliveryReceiptRepository extends JpaRepository<DeliveryReceipt
         @Param("toDate") LocalDate toDate,
         @Param("receiptStatut") ReceiptStatut receiptStatut,
         Pageable pageable
+    );
+
+    @Query(
+        value = "select SUM(a.receiptAmount)  AS montantTtc,SUM(a.netAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from DeliveryReceipt a where FUNCTION('DATE',a.createdDate)  between :fromDate and :toDate AND a.receiptStatut=:receiptStatut"
+    )
+    ChiffreAffaireAchat fetchAchats(
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate,
+        @Param("receiptStatut") ReceiptStatut receiptStatut
     );
 }

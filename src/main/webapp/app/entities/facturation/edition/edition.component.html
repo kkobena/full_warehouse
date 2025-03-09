@@ -12,18 +12,27 @@
         <div class="mb-3">
           <label class="form-label" for="startDate">Date de début</label>
 
-            <p-datePicker [selectOtherMonths]="true" [showIcon]="true"
-                          [showButtonBar]="true" id="startDate"
-                          [(ngModel)]="modelStartDate" inputId="startDate"   dateFormat="dd/mm/yy"  />
-
+          <p-datePicker
+            [selectOtherMonths]="true"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            id="startDate"
+            [(ngModel)]="modelStartDate"
+            inputId="startDate"
+            dateFormat="dd/mm/yy"
+          />
         </div>
         <div class="mb-3">
           <label class="form-label" for="endDate">Date de fin</label>
-          <p-datePicker [selectOtherMonths]="true" [showIcon]="true"
-                        [showButtonBar]="true" id="endDate"
-                        [(ngModel)]="modelEndDate" inputId="endDate"   dateFormat="dd/mm/yy" />
-
-
+          <p-datePicker
+            [selectOtherMonths]="true"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            id="endDate"
+            [(ngModel)]="modelEndDate"
+            inputId="endDate"
+            dateFormat="dd/mm/yy"
+          />
         </div>
 
         <div class="mb-3">

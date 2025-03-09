@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.utils;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.DecimalFormatSymbols;
 import com.ibm.icu.text.RuleBasedNumberFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,5 +59,20 @@ public final class NumberUtil {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    public double round(BigDecimal value) {
+        if (value == null) {
+            return 0;
+        }
+        return value.setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    public double round(long value) {
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    public double round(int value) {
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

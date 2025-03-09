@@ -1,6 +1,5 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
-             type="timer"
-><p style="color: white">Traitement en cours...</p></ngx-spinner
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
+  ><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
 @if (deliveries && deliveries.length > 0) {
   <p-table
@@ -63,8 +62,7 @@
         <td class="text-right">
           <div class="btn-group">
             @if (row.statut === 'PENDING0') {
-              <p-button icon="pi pi-pencil" severity="success" [rounded]="true" size="small"
-                        pTooltip="Editer"></p-button>
+              <p-button icon="pi pi-pencil" severity="success" [rounded]="true" size="small" pTooltip="Editer"></p-button>
             }
             @if (row.statut === 'PENDING') {
               <p-button
@@ -133,10 +131,7 @@
               <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
                 <tr>
                   <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                  <td>{{
-                      receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
-                    }}
-                  </td>
+                  <td>{{ receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip }}</td>
                   <td>{{ receiptItem.fournisseurProduitLibelle }}</td>
                   <td class="text-right">{{ receiptItem.initStock | number }}</td>
                   <td class="text-right">{{ receiptItem.afterStock | number }}</td>

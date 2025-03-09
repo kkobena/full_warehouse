@@ -18,7 +18,7 @@ import { TableauPharmacienComponent } from './tableau-pharmacien/tableau-pharmac
 import { BalanceMvtCaisseComponent } from './balance-mvt-caisse/balance-mvt-caisse.component';
 import { TaxeReportComponent } from './taxe-report/taxe-report.component';
 import { GestionCaisseComponent } from './gestion-caisse/gestion-caisse.component';
-import { RaportActiviteGlobalComponent } from './raport-activite-global/raport-activite-global.component';
+import { ActivitySummaryComponent } from '../raport-gestion/activity-summary/activity-summary.component';
 
 @Component({
   selector: 'jhi-mvt-caisse',
@@ -40,7 +40,7 @@ import { RaportActiviteGlobalComponent } from './raport-activite-global/raport-a
     TableauPharmacienComponent,
     TaxeReportComponent,
     GestionCaisseComponent,
-    RaportActiviteGlobalComponent,
+    ActivitySummaryComponent,
   ],
   templateUrl: './mvt-caisse.component.html',
 })

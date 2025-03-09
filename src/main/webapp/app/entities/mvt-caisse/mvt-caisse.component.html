@@ -27,16 +27,16 @@
               <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
             </ng-template>
           </ng-container>
-          <ng-container ngbNavItem="raport-activite">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Raport d'activité</a>
-            <ng-template ngbNavContent>
-              <jhi-raport-activite-global></jhi-raport-activite-global>
-            </ng-template>
-          </ng-container>
           <ng-container ngbNavItem="gestion-caisse">
             <a class="flex-sm-fill nav-link" ngbNavLink>Gestion de caisse</a>
             <ng-template ngbNavContent>
               <jhi-gestion-caisse></jhi-gestion-caisse>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem="raport-activite">
+            <a class="flex-sm-fill nav-link" ngbNavLink>Raport d'activité</a>
+            <ng-template ngbNavContent>
+              <jhi-activity-summary></jhi-activity-summary>
             </ng-template>
           </ng-container>
         </div>

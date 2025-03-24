@@ -57,6 +57,7 @@ public final class Constant {
     public static final String REGLEMENT_COUNT = "totalDossier";
     public static final String REGLEMENT_PAID_AMOUNT = "paidAmount";
     public static final String REGLEMENT_PERIODE = "periode";
+    public static final String ACTIVITY_SUMMARY = "activity/main";
 
     private Constant() {}
 }

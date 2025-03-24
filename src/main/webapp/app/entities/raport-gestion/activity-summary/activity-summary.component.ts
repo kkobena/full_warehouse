@@ -74,8 +74,17 @@ export class ActivitySummaryComponent {
     });
   }
 
-  protected printAll(): void {}
-
+  protected printAll(): void {
+    this.loadingPdf = true;
+    this.activitySummaryService.onPrintPdf(this.buildRequest()).subscribe({
+      next: blod => {
+        this.loadingPdf = false;
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+      error: () => (this.loadingPdf = false),
+    });
+  }
   private getGroupeFournisseurAchat(query: any): void {
     this.loadingAchat.set(true);
     this.activitySummaryService.getGroupeFournisseurAchat(query).subscribe({

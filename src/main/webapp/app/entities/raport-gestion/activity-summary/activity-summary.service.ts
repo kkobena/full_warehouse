@@ -43,4 +43,9 @@ export class ActivitySummaryService {
     const options = createRequestOptions(req);
     return this.http.get<AchatTiersPayant[]>(this.resourceUrl + '/achats-tiers-payants', { params: options, observe: 'response' });
   }
+
+  onPrintPdf(req?: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/ca/pdf`, { params: options, responseType: 'blob' });
+  }
 }

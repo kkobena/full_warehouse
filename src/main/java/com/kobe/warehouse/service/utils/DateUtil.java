@@ -14,7 +14,8 @@ import org.springframework.util.StringUtils;
 public final class DateUtil {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final String DD_MM_YYYY = "dd-MM-yyy";
+    private static final String DD_MM_YYYY = "dd-MM-yyyy";
+    private static final String DD_MM_YYYY_FR = "dd/MM/yyyy";
     private static final String TIME_FORMAT = "HH:mm";
 
     private DateUtil() {}
@@ -95,4 +96,11 @@ public final class DateUtil {
         }
         return null;
     }
+    public static String formatFr(LocalDate date) {
+        if (date == null) {
+            return "";
+        }
+        return date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY_FR));
+    }
+
 }

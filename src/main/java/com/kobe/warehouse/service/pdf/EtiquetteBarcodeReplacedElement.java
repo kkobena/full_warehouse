@@ -2,10 +2,12 @@ package com.kobe.warehouse.service.pdf;
 
 import com.lowagie.text.Image;
 import com.lowagie.text.pdf.Barcode39;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -64,24 +66,10 @@ public class EtiquetteBarcodeReplacedElement implements ReplacedElementFactory {
 
     private FSImage getBarcodeImage(String barcodeData, int cssWidth, int cssHeight) throws IOException {
         Barcode39 code = new Barcode39();
-        //  Element.ALIGN_CENTE
         code.setCode(barcodeData);
-        //  code.setBaseline(10);
-        //   code.set
-        /* code.setCodeType(Barcode39.CODE128);
-        code.setChecksumText(true);
-        code.setBaseline(1f);
-        code.setStartStopText(true);
-        code.setGenerateChecksum(true);
-        code.setAltText(barcodeData);
-        code.setTextAlignment(com.lowagie.text.Element.ALIGN_CENTER);*/
-        //        code.setGuardBars(true);
         java.awt.Image image = code.createAwtImage(Color.BLACK, Color.WHITE);
         FSImage fsImage = new ITextFSImage(Image.getInstance(image, Color.WHITE));
-        if (cssWidth != -1 || cssHeight != -1) {
-            fsImage.scale(cssWidth, cssHeight);
-        }
-        return fsImage;
+        return fsImage.scale(cssWidth, cssHeight);
     }
 
     //e EAN-13 barcode 6*19 mm

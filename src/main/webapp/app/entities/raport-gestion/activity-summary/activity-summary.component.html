@@ -179,19 +179,7 @@
           [paginator]="true"
           [rowsPerPageOptions]="[10, 15, 20]"
         >
-          <ng-template #caption>
-            <div class="d-flex">
-              <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
-                <input
-                  (input)="tbGroupeFournisseur.filterGlobal($event.target.value, 'contains')"
-                  pInputText
-                  placeholder="Filtrer"
-                  type="text"
-                />
-              </p-iconfield>
-            </div>
-          </ng-template>
+
           <ng-template #header>
             <tr>
               <th scope="col">Groupe fournisseur</th>
@@ -237,6 +225,7 @@
                       pInputText
                       placeholder="Filtrer"
                       type="text"
+                      [(ngModel)]="searchReglement"
                     />
                   </p-iconfield>
                 </div>
@@ -288,7 +277,7 @@
                 <div class="d-flex">
                   <p-iconfield>
                     <p-inputicon styleClass="pi pi-search" />
-                    <input (input)="tb.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer" type="text" />
+                    <input     [(ngModel)]="searchAchat" (input)="tb.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer" type="text" />
                   </p-iconfield>
                 </div>
               </ng-template>

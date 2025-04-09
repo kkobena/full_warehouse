@@ -7,30 +7,20 @@ import java.util.Objects;
 public class LotJsonValue {
 
     @NotNull
-    private Long commandeId;
-
-    @NotNull
     private String numLot;
 
-    @NotNull
-    private Long receiptItem;
-
-    @NotNull
-    private Integer quantityReceived;
-
-    private Integer ugQuantityReceived = 0;
+    private int quantity;
+    private int freeQuantity;
     private LocalDate manufacturingDate;
     private LocalDate expiryDate;
+    private long linkedId; // id of the entry line or order line
 
-    public Integer getUgQuantityReceived() {
-        if (Objects.isNull(ugQuantityReceived)) {
-            ugQuantityReceived = 0;
-        }
-        return ugQuantityReceived;
+    public int getFreeQuantity() {
+        return freeQuantity;
     }
 
-    public LotJsonValue setUgQuantityReceived(Integer ugQuantityReceived) {
-        this.ugQuantityReceived = ugQuantityReceived;
+    public LotJsonValue setFreeQuantity(int freeQuantity) {
+        this.freeQuantity = freeQuantity;
         return this;
     }
 
@@ -43,21 +33,12 @@ public class LotJsonValue {
         return this;
     }
 
-    public Long getReceiptItem() {
-        return receiptItem;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public LotJsonValue setReceiptItem(Long receiptItem) {
-        this.receiptItem = receiptItem;
-        return this;
-    }
-
-    public Integer getQuantityReceived() {
-        return quantityReceived;
-    }
-
-    public LotJsonValue setQuantityReceived(Integer quantityReceived) {
-        this.quantityReceived = quantityReceived;
+    public LotJsonValue setQuantity(Integer quantity) {
+        this.quantity = quantity;
         return this;
     }
 
@@ -79,12 +60,12 @@ public class LotJsonValue {
         return this;
     }
 
-    public Long getCommandeId() {
-        return commandeId;
+    public long getLinkedId() {
+        return linkedId;
     }
 
-    public LotJsonValue setCommandeId(Long commandeId) {
-        this.commandeId = commandeId;
+    public LotJsonValue setLinkedId(long linkedId) {
+        this.linkedId = linkedId;
         return this;
     }
 
@@ -98,29 +79,6 @@ public class LotJsonValue {
         }
         LotJsonValue that = (LotJsonValue) o;
         return numLot.equals(that.numLot);
-    }
-
-    @Override
-    public String toString() {
-        String sb =
-            "LotJsonValue{" +
-            "commandeId=" +
-            commandeId +
-            ", numLot='" +
-            numLot +
-            '\'' +
-            ", receiptItem=" +
-            receiptItem +
-            ", quantityReceived=" +
-            quantityReceived +
-            ", ugQuantityReceived=" +
-            ugQuantityReceived +
-            ", manufacturingDate=" +
-            manufacturingDate +
-            ", expiryDate=" +
-            expiryDate +
-            '}';
-        return sb;
     }
 
     @Override

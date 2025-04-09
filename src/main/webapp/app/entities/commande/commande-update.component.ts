@@ -11,10 +11,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
+import { IOrderLine, OrderLine, OrderLineLot } from '../../shared/model/order-line.model';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { saveAs } from 'file-saver';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
@@ -45,6 +45,10 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { SORT } from '../../shared/util/command-item-sort';
+import { IDelivery } from '../../shared/model/delevery.model';
+import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
+import { DeliveryService } from './delevery/delivery.service';
+import { OrderLineLotsComponent } from './lot/order-line-lots.component';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -113,7 +117,6 @@ import { SORT } from '../../shared/util/command-item-sort';
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   isSaving = false;
   produits: IProduit[] = [];
-
   commande?: ICommande | null = null;
   orderLines: IOrderLine[] = [];
   searchValue?: string;
@@ -133,22 +136,26 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   fileDialog = false;
   fournisseurBox = viewChild.required<any>('fournisseurBox');
   produitbox = viewChild.required<any>('produitbox');
-  commandCommonService = inject(CommandCommonService);
+
   route = inject(Router);
   protected readonly sorts = SORT;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
+  protected ref!: DynamicDialogRef;
   protected readonly APPEND_TO = APPEND_TO;
-  private commandeService = inject(CommandeService);
-  private produitService = inject(ProduitService);
-  private activatedRoute = inject(ActivatedRoute);
-  private modalService = inject(NgbModal);
-  private fournisseurService = inject(FournisseurService);
-  private confirmationService = inject(ConfirmationService);
-  private errorService = inject(ErrorService);
-  private spinner = inject(NgxSpinnerService);
-  private messageService = inject(MessageService);
-
+  private readonly commandeService = inject(CommandeService);
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly modalService = inject(NgbModal);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly errorService = inject(ErrorService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly messageService = inject(MessageService);
+  private readonly deliveryService = inject(DeliveryService);
+  private readonly commandCommonService = inject(CommandCommonService);
+  private readonly dialogService = inject(DialogService);
+  private readonly router = inject(Router);
   constructor() {
     this.selectedEl = [];
     this.filtres = [
@@ -186,6 +193,14 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     ];
   }
 
+  onShowLots(orderLine: IOrderLine): void {
+    const modalRef = this.modalService.open(OrderLineLotsComponent, {
+      backdrop: 'static',
+      size: 'lg',
+    });
+    modalRef.componentInstance.lots = orderLine.lots;
+    modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
+  }
   onEditProduit(produitId: number): void {
     this.commandCommonService.updateCommand(this.commande);
     this.route.navigate(['produit', produitId, 'edit']);
@@ -331,7 +346,29 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   onMettreAttente(): void {
     this.confirmStay();
   }
+  gotoEntreeStockComponent(delivery: IDelivery): void {
+    this.router.navigate(['/commande', delivery.id, 'stock-entry']);
+  }
 
+  onCreateBon(): void {
+    this.deliveryService.findByOrderReference(this.commande?.orderRefernce).subscribe({
+      next: (res: HttpResponse<IDelivery>) => {
+        this.gotoEntreeStockComponent(res.body);
+      },
+      error: () => {
+        this.ref = this.dialogService.open(DeliveryModalComponent, {
+          data: { entity: null, commande: this.commande },
+          header: 'CREATION DU BON DE LIVRAISON',
+          width: '40%',
+        });
+        this.ref.onClose.subscribe((delivery: IDelivery) => {
+          if (delivery) {
+            this.gotoEntreeStockComponent(delivery);
+          }
+        });
+      },
+    });
+  }
   exportCSV(): void {
     this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
   }
@@ -469,7 +506,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   onImporterReponseCommande(event: any): void {
     const formData: FormData = new FormData();
     const file = event.files[0];
-
     formData.append('commande', file, file.name);
 
     this.showsPinner('commandeEnCourspinner');

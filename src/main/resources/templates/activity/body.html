@@ -1,280 +1,328 @@
 <table class="main-table-ca">
   <tr>
-    <td th:with="chiffreAffaire=${entity.chiffreAffaire.chiffreAffaire}" style="padding-right: 10px;">
+    <td th:with="chiffreAffaire=${entity.chiffreAffaire.chiffreAffaire}" style="padding-right: 10px">
       <table>
         <thead>
-        <tr>
-          <th colspan="2">Chiffre d'affaires</th>
-        </tr>
+          <tr>
+            <th colspan="2">Chiffre d'affaires</th>
+          </tr>
         </thead>
         <tbody>
-
-
-        <tr>
-          <td>Montant Ttc</td>
-          <td class="unit" th:if="${chiffreAffaire.montantTtc ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantTtc,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantTtc lt 1000}" th:text="${chiffreAffaire.montantTtc}"></td>
-
-        </tr>
-        <tr>
-          <td>Montant Tva</td>
-          <td class="unit" th:if="${chiffreAffaire.montantTva ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantTva,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantTva lt 1000}" th:text="${chiffreAffaire.montantTva}"></td>
-
-        </tr>
-        <tr>
-          <td>Montant Ht</td>
-          <td class="unit" th:if="${chiffreAffaire.montantHt ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantHt,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantHt lt 1000}" th:text="${chiffreAffaire.montantHt}"></td>
-        </tr>
-        <tr>
-          <td>Montant remise</td>
-          <td class="unit" th:if="${chiffreAffaire.montantRemise ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantRemise,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantRemise lt 1000}" th:text="${chiffreAffaire.montantRemise}"></td>
-        </tr>
-        <tr>
-          <td>Montant net</td>
-          <td class="unit" th:if="${chiffreAffaire.montantNet ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantNet,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantNet lt 1000}" th:text="${chiffreAffaire.montantNet}"></td>
-        </tr>
-        <tr>
-          <td>Montant espèce</td>
-          <td class="unit" th:if="${chiffreAffaire.montantEspece ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantEspece,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantEspece lt 1000}" th:text="${chiffreAffaire.montantEspece}"></td>
-        </tr>
-        <tr>
-          <td>Montant autres règlements</td>
-          <td class="unit" th:if="${chiffreAffaire.montantAutreModePaiement ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantAutreModePaiement,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantAutreModePaiement lt 1000}" th:text="${chiffreAffaire.montantAutreModePaiement}"></td>
-        </tr>
-        <tr>
-          <td>Montant crédit</td>
-          <td class="unit" th:if="${chiffreAffaire.montantCredit ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.montantCredit,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.montantCredit lt 1000}" th:text="${chiffreAffaire.montantCredit}"></td>
-        </tr>
-        <tr>
-          <td>Marge</td>
-          <td class="unit" th:if="${chiffreAffaire.marge ge 1000}"> <span th:text="${#numbers.formatInteger(chiffreAffaire.marge,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${chiffreAffaire.marge lt 1000}" th:text="${chiffreAffaire.marge}"></td>
-        </tr>   </tbody>
-      </table>
-
-    </td>
-    <td th:with="achat=${entity.chiffreAffaire.achats}" style="padding-right: 10px;">
-      <table>
-        <thead>
-        <tr>
-          <th colspan="2">Total des achats</th>
-        </tr>
-        </thead>
-        <tbody>
-
-
-        <tr>
-          <td>Montant Ttc</td>
-          <td class="unit" th:if="${achat.MontantTtc ge 1000}"> <span th:text="${#numbers.formatInteger(achat.montantTtc,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${achat.montantTtc lt 1000}" th:text="${achat.montantTtc}"></td>
-
-        </tr>
-        <tr>
-          <td>Montant Tva</td>
-          <td class="unit" th:if="${achat.MontantTva ge 1000}"> <span th:text="${#numbers.formatInteger(achat.MontantTva,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${achat.MontantTva lt 1000}" th:text="${achat.MontantTva}"></td>
-
-        </tr>
-        <tr>
-          <td>Montant Ht</td>
-          <td class="unit" th:if="${achat.montantHt ge 1000}"> <span th:text="${#numbers.formatInteger(achat.montantHt,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${achat.montantHt lt 1000}" th:text="${achat.montantHt}"></td>
-        </tr>
+          <tr>
+            <td>Montant Ttc</td>
+            <td class="unit" th:if="${chiffreAffaire.montantTtc ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantTtc,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantTtc lt 1000}" th:text="${chiffreAffaire.montantTtc}"></td>
+          </tr>
+          <tr>
+            <td>Montant Tva</td>
+            <td class="unit" th:if="${chiffreAffaire.montantTva ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantTva,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantTva lt 1000}" th:text="${chiffreAffaire.montantTva}"></td>
+          </tr>
+          <tr>
+            <td>Montant Ht</td>
+            <td class="unit" th:if="${chiffreAffaire.montantHt ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantHt,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantHt lt 1000}" th:text="${chiffreAffaire.montantHt}"></td>
+          </tr>
+          <tr>
+            <td>Montant remise</td>
+            <td class="unit" th:if="${chiffreAffaire.montantRemise ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantRemise,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantRemise lt 1000}" th:text="${chiffreAffaire.montantRemise}"></td>
+          </tr>
+          <tr>
+            <td>Montant net</td>
+            <td class="unit" th:if="${chiffreAffaire.montantNet ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantNet,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantNet lt 1000}" th:text="${chiffreAffaire.montantNet}"></td>
+          </tr>
+          <tr>
+            <td>Montant espèce</td>
+            <td class="unit" th:if="${chiffreAffaire.montantEspece ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantEspece,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantEspece lt 1000}" th:text="${chiffreAffaire.montantEspece}"></td>
+          </tr>
+          <tr>
+            <td>Montant autres règlements</td>
+            <td class="unit" th:if="${chiffreAffaire.montantAutreModePaiement ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantAutreModePaiement,3,'WHITESPACE')}"></span>
+            </td>
+            <td
+              class="unit"
+              th:if="${chiffreAffaire.montantAutreModePaiement lt 1000}"
+              th:text="${chiffreAffaire.montantAutreModePaiement}"
+            ></td>
+          </tr>
+          <tr>
+            <td>Montant crédit</td>
+            <td class="unit" th:if="${chiffreAffaire.montantCredit ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.montantCredit,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.montantCredit lt 1000}" th:text="${chiffreAffaire.montantCredit}"></td>
+          </tr>
+          <tr>
+            <td>Marge</td>
+            <td class="unit" th:if="${chiffreAffaire.marge ge 1000}">
+              <span th:text="${#numbers.formatInteger(chiffreAffaire.marge,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${chiffreAffaire.marge lt 1000}" th:text="${chiffreAffaire.marge}"></td>
+          </tr>
         </tbody>
       </table>
-
     </td>
-    <td th:with="recettes=${entity.chiffreAffaire.recettes},totalRecette = ${totalRecette}"  style="padding-right: 10px;">
+    <td th:with="achat=${entity.chiffreAffaire.achats}" style="padding-right: 10px">
       <table>
         <thead>
-        <tr>
-          <th colspan="2">Recettes</th>
-        </tr>
+          <tr>
+            <th colspan="2">Total des achats</th>
+          </tr>
         </thead>
         <tbody>
-
-
-        <tr th:each="rec : ${recettes}">
-          <td><span th:text="${rec.modePaimentLibelle}"></span></td>
-          <td class="unit" th:if="${rec.montantReel ge 1000}"> <span th:text="${#numbers.formatInteger(rec.montantReel,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${rec.montantReel lt 1000}" th:text="${rec.montantReel}"></td>
-
-        </tr></tbody>
-        <tfoot class="datatable-footer">
-        <tr class="tr-footer">
-          <td>Total</td>
-          <td class="unit" th:if="${totalRecette ge 1000}"> <span th:text="${#numbers.formatInteger(totalRecette,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${totalRecette lt 1000}" th:text="${totalRecette}"></td></tr>
-        </tfoot>
-
-
+          <tr>
+            <td>Montant Ttc</td>
+            <td class="unit" th:if="${achat.MontantTtc ge 1000}">
+              <span th:text="${#numbers.formatInteger(achat.montantTtc,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${achat.montantTtc lt 1000}" th:text="${achat.montantTtc}"></td>
+          </tr>
+          <tr>
+            <td>Montant Tva</td>
+            <td class="unit" th:if="${achat.MontantTva ge 1000}">
+              <span th:text="${#numbers.formatInteger(achat.MontantTva,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${achat.MontantTva lt 1000}" th:text="${achat.MontantTva}"></td>
+          </tr>
+          <tr>
+            <td>Montant Ht</td>
+            <td class="unit" th:if="${achat.montantHt ge 1000}">
+              <span th:text="${#numbers.formatInteger(achat.montantHt,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${achat.montantHt lt 1000}" th:text="${achat.montantHt}"></td>
+          </tr>
+        </tbody>
       </table>
-
-
     </td>
-    <td th:with="mouvementCaisses=${entity.chiffreAffaire.mouvementCaisses},totalMvt = ${totalMvt}" >
+    <td th:with="recettes=${entity.chiffreAffaire.recettes},totalRecette = ${totalRecette}" style="padding-right: 10px">
       <table>
         <thead>
-        <tr>
-          <th colspan="2">Mouvements de caisse</th>
-        </tr>
+          <tr>
+            <th colspan="2">Recettes</th>
+          </tr>
         </thead>
         <tbody>
-
-
-        <tr th:each="mvt : ${mouvementCaisses}" >
-          <td><span th:text="${mvt.libelle}"></span></td>
-          <td class="unit" th:if="${mvt.montant ge 1000}"> <span th:text="${#numbers.formatInteger(mvt.montant,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${mvt.montant lt 1000}" th:text="${mvt.montant}"></td>
-        </tr>
+          <tr th:each="rec : ${recettes}">
+            <td><span th:text="${rec.modePaimentLibelle}"></span></td>
+            <td class="unit" th:if="${rec.montantReel ge 1000}">
+              <span th:text="${#numbers.formatInteger(rec.montantReel,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${rec.montantReel lt 1000}" th:text="${rec.montantReel}"></td>
+          </tr>
         </tbody>
         <tfoot class="datatable-footer">
-        <tr class="tr-footer">
-          <td>Total</td>
-          <td class="unit" th:if="${totalMvt ge 1000}"> <span th:text="${#numbers.formatInteger(totalMvt,3,'WHITESPACE')}"></span></td>
-          <td class="unit" th:if="${totalMvt lt 1000}" th:text="${totalMvt}"></td></tr>
+          <tr class="tr-footer">
+            <td>Total</td>
+            <td class="unit" th:if="${totalRecette ge 1000}">
+              <span th:text="${#numbers.formatInteger(totalRecette,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${totalRecette lt 1000}" th:text="${totalRecette}"></td>
+          </tr>
         </tfoot>
-
-
       </table>
-
-
+    </td>
+    <td th:with="mouvementCaisses=${entity.chiffreAffaire.mouvementCaisses},totalMvt = ${totalMvt}">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="2">Mouvements de caisse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="mvt : ${mouvementCaisses}">
+            <td><span th:text="${mvt.libelle}"></span></td>
+            <td class="unit" th:if="${mvt.montant ge 1000}">
+              <span th:text="${#numbers.formatInteger(mvt.montant,3,'WHITESPACE')}"></span>
+            </td>
+            <td class="unit" th:if="${mvt.montant lt 1000}" th:text="${mvt.montant}"></td>
+          </tr>
+        </tbody>
+        <tfoot class="datatable-footer">
+          <tr class="tr-footer">
+            <td>Total</td>
+            <td class="unit" th:if="${totalMvt ge 1000}"><span th:text="${#numbers.formatInteger(totalMvt,3,'WHITESPACE')}"></span></td>
+            <td class="unit" th:if="${totalMvt lt 1000}" th:text="${totalMvt}"></td>
+          </tr>
+        </tfoot>
+      </table>
     </td>
   </tr>
 </table>
 
-<table class="main-table" th:if="${not #lists.isEmpty(entity.groupeFournisseurAchats)}" th:with="totalTtcAchatGroupe=${totauxGroupeFour.amounts[0]}, totalTvaAchatGroupe=${totauxGroupeFour.amounts[1]}, totalHtAchatGroupe=${totauxGroupeFour.amounts[2]}">
+<table
+  class="main-table"
+  th:if="${not #lists.isEmpty(entity.groupeFournisseurAchats)}"
+  th:with="totalTtcAchatGroupe=${totauxGroupeFour.amounts[0]}, totalTvaAchatGroupe=${totauxGroupeFour.amounts[1]}, totalHtAchatGroupe=${totauxGroupeFour.amounts[2]}"
+>
   <thead>
-  <tr>
-    <th colspan="4">Achats par groupe de fournisseur</th>
-  </tr>
+    <tr>
+      <th colspan="4">Achats par groupe de fournisseur</th>
+    </tr>
     <tr>
       <th>Groupe fournisseur</th>
       <th class="text-right">Montant Ttc</th>
       <th class="text-right">Montant Tva</th>
       <th class="text-right">Montant Ht</th>
-
     </tr>
   </thead>
   <tbody>
-    <tr th:each="itAchat : ${entity.groupeFournisseurAchats}" >
+    <tr th:each="itAchat : ${entity.groupeFournisseurAchats}">
       <td th:text="${itAchat.libelle}"></td>
-      <td class="unit" th:if="${itAchat.montantTtc ge 1000}"> <span th:text="${#numbers.formatInteger(itAchat.montantTtc,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${itAchat.montantTtc ge 1000}">
+        <span th:text="${#numbers.formatInteger(itAchat.montantTtc,3,'WHITESPACE')}"></span>
+      </td>
       <td class="unit" th:if="${itAchat.montantTtc lt 1000}" th:text="${itAchat.montantTtc}"></td>
 
-      <td class="unit" th:if="${itAchat.montantTva ge 1000}"> <span th:text="${#numbers.formatInteger(itAchat.montantTva,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${itAchat.montantTva ge 1000}">
+        <span th:text="${#numbers.formatInteger(itAchat.montantTva,3,'WHITESPACE')}"></span>
+      </td>
       <td class="unit" th:if="${itAchat.montantTva lt 1000}" th:text="${itAchat.montantTva}"></td>
 
-      <td class="unit" th:if="${itAchat.montantHt ge 1000}"> <span th:text="${#numbers.formatInteger(itAchat.montantHt,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${itAchat.montantHt ge 1000}">
+        <span th:text="${#numbers.formatInteger(itAchat.montantHt,3,'WHITESPACE')}"></span>
+      </td>
       <td class="unit" th:if="${itAchat.montantHt lt 1000}" th:text="${itAchat.montantHt}"></td>
-
     </tr>
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-    <td>Total</td>
-    <td class="unit" th:if="${totalTtcAchatGroupe ge 1000}"> <span th:text="${#numbers.formatInteger(totalTtcAchatGroupe,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${totalTtcAchatGroupe lt 1000}" th:text="${totalTtcAchatGroupe}"></td>
-      <td class="unit" th:if="${totalTvaAchatGroupe ge 1000}"> <span th:text="${#numbers.formatInteger(totalTvaAchatGroupe,3,'WHITESPACE')}"></span></td>
+      <td>Total</td>
+      <td class="unit" th:if="${totalTtcAchatGroupe ge 1000}">
+        <span th:text="${#numbers.formatInteger(totalTtcAchatGroupe,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${totalTtcAchatGroupe lt 1000}" th:text="${totalTtcAchatGroupe}"></td>
+      <td class="unit" th:if="${totalTvaAchatGroupe ge 1000}">
+        <span th:text="${#numbers.formatInteger(totalTvaAchatGroupe,3,'WHITESPACE')}"></span>
+      </td>
       <td class="unit" th:if="${totalTvaAchatGroupe lt 1000}" th:text="${totalTvaAchatGroupe}"></td>
-      <td class="unit" th:if="${totalHtAchatGroupe ge 1000}"> <span th:text="${#numbers.formatInteger(totalHtAchatGroupe,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${totalHtAchatGroupe ge 1000}">
+        <span th:text="${#numbers.formatInteger(totalHtAchatGroupe,3,'WHITESPACE')}"></span>
+      </td>
       <td class="unit" th:if="${totalHtAchatGroupe lt 1000}" th:text="${totalHtAchatGroupe}"></td>
     </tr>
   </tfoot>
 </table>
 
-<table class="main-table" th:if="${not #lists.isEmpty(entity.reglementTiersPayants)}" th:with="totalMontantFacture=${totauxReglement.amounts[0]}, totalMontantReglement=${totauxReglement.amounts[0]}">
+<table
+  class="main-table"
+  th:if="${not #lists.isEmpty(entity.reglementTiersPayants)}"
+  th:with="totalMontantFacture=${totauxReglement.amounts[0]}, totalMontantReglement=${totauxReglement.amounts[0]}"
+>
   <thead>
-  <tr>
-    <th colspan="4">Règlements tiers payants</th>
-  </tr>
-  <tr>
-    <th>Tiers-payant</th>
-    <th>Catégorie</th>
-    <th>Numéro facture</th>
-    <th  class="text-right">Montant facture</th>
-    <th  class="text-right">Montant règlé</th>
-    <th  class="text-right">Montant restant</th>
-
-
-  </tr>
+    <tr>
+      <th colspan="4">Règlements tiers payants</th>
+    </tr>
+    <tr>
+      <th>Tiers-payant</th>
+      <th>Catégorie</th>
+      <th>Numéro facture</th>
+      <th class="text-right">Montant facture</th>
+      <th class="text-right">Montant règlé</th>
+      <th class="text-right">Montant restant</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:each="itRegl: ${entity.reglementTiersPayants}" th:with="totalMontantFacture=${totalMontantFacture + itRegl.montantFacture}, totalMontantReglement=${totalMontantReglement + itRegl.montantReglement}">
-    <td th:text="${itRegl.libelle}"></td>
-    <td th:text="${itRegl.type}"></td>
-    <td th:text="${itRegl.factureNumber}"></td>
-    <td class="unit" th:if="${itRegl.montantFacture ge 1000}">
-      <span th:text="${#numbers.formatInteger(itRegl.montantFacture,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itRegl.montantFacture lt 1000}" th:text="${itRegl.montantFacture}"></td>
+    <tr
+      th:each="itRegl: ${entity.reglementTiersPayants}"
+      th:with="totalMontantFacture=${totalMontantFacture + itRegl.montantFacture}, totalMontantReglement=${totalMontantReglement + itRegl.montantReglement}"
+    >
+      <td th:text="${itRegl.libelle}"></td>
+      <td th:text="${itRegl.type}"></td>
+      <td th:text="${itRegl.factureNumber}"></td>
+      <td class="unit" th:if="${itRegl.montantFacture ge 1000}">
+        <span th:text="${#numbers.formatInteger(itRegl.montantFacture,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itRegl.montantFacture lt 1000}" th:text="${itRegl.montantFacture}"></td>
 
-    <td class="unit" th:if="${itRegl.montantReglement ge 1000}"> <span th:text="${#numbers.formatInteger(itRegl.montantReglement,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itRegl.montantReglement lt 1000}" th:text="${itRegl.montantReglement}"></td>
+      <td class="unit" th:if="${itRegl.montantReglement ge 1000}">
+        <span th:text="${#numbers.formatInteger(itRegl.montantReglement,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itRegl.montantReglement lt 1000}" th:text="${itRegl.montantReglement}"></td>
 
-    <td class="unit" th:if="${itRegl.montantRestant ge 1000}"> <span th:text="${#numbers.formatInteger(itRegl.montantRestant,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itRegl.montantRestant lt 1000}" th:text="${itRegl.montantRestant}"></td>
-
-  </tr>
+      <td class="unit" th:if="${itRegl.montantRestant ge 1000}">
+        <span th:text="${#numbers.formatInteger(itRegl.montantRestant,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itRegl.montantRestant lt 1000}" th:text="${itRegl.montantRestant}"></td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
-    <td colspan="3">Total</td>
-    <td class="unit" th:if="${totalMontantFacture ge 1000}"> <span th:text="${#numbers.formatInteger(totalMontantFacture,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${totalMontantFacture lt 1000}" th:text="${totalMontantFacture}"></td>
-    <td class="unit" th:if="${totalMontantReglement ge 1000}"> <span th:text="${#numbers.formatInteger(totalMontantReglement,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${totalMontantReglement lt 1000}" th:text="${totalMontantReglement}"></td>
-    <td></td>
-
-  </tr>
+    <tr class="tr-footer">
+      <td colspan="3">Total</td>
+      <td class="unit" th:if="${totalMontantFacture ge 1000}">
+        <span th:text="${#numbers.formatInteger(totalMontantFacture,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${totalMontantFacture lt 1000}" th:text="${totalMontantFacture}"></td>
+      <td class="unit" th:if="${totalMontantReglement ge 1000}">
+        <span th:text="${#numbers.formatInteger(totalMontantReglement,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${totalMontantReglement lt 1000}" th:text="${totalMontantReglement}"></td>
+      <td></td>
+    </tr>
   </tfoot>
 </table>
 
-
-<table class="main-table" th:if="${not #lists.isEmpty(entity.achatTiersPayants)}" th:with="totalBons=${totauxAchat.amounts[2]}, totalMontant=${totauxAchat.amounts[1]}, totalClient=${totauxAchat.amounts[0]}">
+<table
+  class="main-table"
+  th:if="${not #lists.isEmpty(entity.achatTiersPayants)}"
+  th:with="totalBons=${totauxAchat.amounts[2]}, totalMontant=${totauxAchat.amounts[1]}, totalClient=${totauxAchat.amounts[0]}"
+>
   <thead>
-  <tr>
-    <th colspan="4">Crédits accordés</th>
-  </tr>
-  <tr>
-    <th>Tiers-payant</th>
-    <th>Catégorie</th>
-    <th class="text-right">Nombre de bon</th>
-    <th class="text-right">Montant</th>
-    <th class="text-right">Nombre de client</th>
-  </tr>
+    <tr>
+      <th colspan="4">Crédits accordés</th>
+    </tr>
+    <tr>
+      <th>Tiers-payant</th>
+      <th>Catégorie</th>
+      <th class="text-right">Nombre de bon</th>
+      <th class="text-right">Montant</th>
+      <th class="text-right">Nombre de client</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:each="itCredit: ${entity.achatTiersPayants}" >
-    <td th:text="${itCredit.libelle}"></td>
-    <td th:text="${itCredit.categorie}"></td>
-    <td class="unit" th:if="${itCredit.bonsCount ge 1000}">
-      <span th:text="${#numbers.formatInteger(itCredit.bonsCount,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itCredit.bonsCount lt 1000}" th:text="${itCredit.bonsCount}"></td>
+    <tr th:each="itCredit: ${entity.achatTiersPayants}">
+      <td th:text="${itCredit.libelle}"></td>
+      <td th:text="${itCredit.categorie}"></td>
+      <td class="unit" th:if="${itCredit.bonsCount ge 1000}">
+        <span th:text="${#numbers.formatInteger(itCredit.bonsCount,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itCredit.bonsCount lt 1000}" th:text="${itCredit.bonsCount}"></td>
 
-    <td class="unit" th:if="${itCredit.montant ge 1000}"> <span th:text="${#numbers.formatInteger(itCredit.montant,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itCredit.montant lt 1000}" th:text="${itCredit.montant}"></td>
+      <td class="unit" th:if="${itCredit.montant ge 1000}">
+        <span th:text="${#numbers.formatInteger(itCredit.montant,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itCredit.montant lt 1000}" th:text="${itCredit.montant}"></td>
 
-    <td class="unit" th:if="${itCredit.clientCount ge 1000}"> <span th:text="${#numbers.formatInteger(itCredit.clientCount,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${itCredit.clientCount lt 1000}" th:text="${itCredit.clientCount}"></td>
-
-  </tr>
+      <td class="unit" th:if="${itCredit.clientCount ge 1000}">
+        <span th:text="${#numbers.formatInteger(itCredit.clientCount,3,'WHITESPACE')}"></span>
+      </td>
+      <td class="unit" th:if="${itCredit.clientCount lt 1000}" th:text="${itCredit.clientCount}"></td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
-    <td colspan="2">Total</td>
-  <td class="unit" th:if="${totalBons ge 1000}"> <span th:text="${#numbers.formatInteger(totalBons,3,'WHITESPACE')}"></span></td>
-  <td class="unit" th:if="${totalBons lt 1000}" th:text="${totalBons}"></td>
-    <td class="unit" th:if="${totalMontant ge 1000}"> <span th:text="${#numbers.formatInteger(totalMontant,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${totalMontant lt 1000}" th:text="${totalMontant}"></td>
-    <td class="unit" th:if="${totalClient ge 1000}"> <span th:text="${#numbers.formatInteger(totalClient,3,'WHITESPACE')}"></span></td>
-    <td class="unit" th:if="${totalClient lt 1000}" th:text="${totalClient}"></td>
-  </tr>
+    <tr class="tr-footer">
+      <td colspan="2">Total</td>
+      <td class="unit" th:if="${totalBons ge 1000}"><span th:text="${#numbers.formatInteger(totalBons,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${totalBons lt 1000}" th:text="${totalBons}"></td>
+      <td class="unit" th:if="${totalMontant ge 1000}"><span th:text="${#numbers.formatInteger(totalMontant,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${totalMontant lt 1000}" th:text="${totalMontant}"></td>
+      <td class="unit" th:if="${totalClient ge 1000}"><span th:text="${#numbers.formatInteger(totalClient,3,'WHITESPACE')}"></span></td>
+      <td class="unit" th:if="${totalClient lt 1000}" th:text="${totalClient}"></td>
+    </tr>
   </tfoot>
 </table>

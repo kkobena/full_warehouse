@@ -55,7 +55,6 @@ export class FormProduitFournisseurComponent implements OnInit {
   entity?: IFournisseurProduit;
   isSaving = false;
   isValid = true;
-  fournisseurSelected!: IFournisseur | null;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
   editForm = this.fb.group({

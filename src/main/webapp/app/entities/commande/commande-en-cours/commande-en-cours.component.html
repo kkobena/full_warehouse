@@ -58,30 +58,25 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              (click)="onPasserEnCours(commande)"
-              severity="info"
-              [rounded]="true"
-              icon="pi pi-fast-forward"
-              pTooltip="Passer en cours"
-            >
-            </p-button>
-            <p-button
               [routerLink]="['/commande', commande.id, 'edit']"
               severity="success"
               icon="pi pi-pencil"
               [rounded]="true"
               pTooltip="Editer"
+              text
             >
             </p-button>
 
             <p-button
               (click)="onCreateBon(commande)"
+              text
               severity="help"
               icon="pi pi-upload"
               [rounded]="true"
               pTooltip="Faire l'entréé en  stock"
             ></p-button>
             <p-button
+              text
               (click)="onShowFileDialog(commande)"
               [hidden]="true"
               [rounded]="true"
@@ -95,17 +90,17 @@
 
                        pTooltip="Envoi par Pharma-ML"></button>-->
 
-            <p-button (click)="exportCSV(commande)" icon="pi pi-file-excel" [rounded]="true" severity="warn" pTooltip="Exporter en CSV" />
-
-            <p-button (click)="exportPdf(commande)" icon="pi pi-print" severity="secondary" [rounded]="true" pTooltip="Imprimer" />
             <p-button
-              (click)="confirmDelete(commande)"
+              text
+              (click)="exportCSV(commande)"
+              icon="pi pi-file-excel"
               [rounded]="true"
-              severity="danger"
-              icon="pi pi-trash"
-              pTooltip="Supprimer"
-              type="submit"
+              severity="warn"
+              pTooltip="Exporter en CSV"
             />
+
+            <p-button text (click)="exportPdf(commande)" icon="pi pi-print" severity="secondary" [rounded]="true" pTooltip="Imprimer" />
+            <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger" icon="pi pi-trash" pTooltip="Supprimer" text />
           </div>
         </td>
       </tr>

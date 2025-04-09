@@ -52,9 +52,6 @@ public class Lot implements Serializable {
     @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int default '0'")
     private Integer ugQuantityReceived = 0;
 
-    @Column(name = "quantity_received", nullable = false)
-    private Integer quantityReceived;
-
     @NotNull
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
@@ -74,15 +71,6 @@ public class Lot implements Serializable {
 
     public Lot setUgQuantityReceived(Integer ugQuantityReceived) {
         this.ugQuantityReceived = ugQuantityReceived;
-        return this;
-    }
-
-    public Integer getQuantityReceived() {
-        return quantityReceived;
-    }
-
-    public Lot setQuantityReceived(Integer quantityReceived) {
-        this.quantityReceived = quantityReceived;
         return this;
     }
 

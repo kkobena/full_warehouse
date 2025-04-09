@@ -89,6 +89,7 @@ public class ProduitDTO {
     private TableauDTO tableau;
     private int unitPrice;
     private String remiseCode;
+    private EtatProduit etatProduit;
 
     public String getRemiseCode() {
         return remiseCode;
@@ -234,6 +235,15 @@ public class ProduitDTO {
 
     public ProduitDTO setQuantity(Integer quantity) {
         this.quantity = quantity;
+        return this;
+    }
+
+    public EtatProduit getEtatProduit() {
+        return etatProduit;
+    }
+
+    public ProduitDTO setEtatProduit(EtatProduit etatProduit) {
+        this.etatProduit = etatProduit;
         return this;
     }
 

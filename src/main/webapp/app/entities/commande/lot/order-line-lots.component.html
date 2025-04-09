@@ -1,0 +1,32 @@
+<div class="modal-header">
+  <div class="modal-title">
+    <h5>Liste des lots du produit {{ produitLibelle }}</h5>
+  </div>
+
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+</div>
+<div class="modal-body">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Num</th>
+        <th>Quantité</th>
+        <th>Quantité ug</th>
+        <th>Date Fabrication</th>
+        <th>Date péremption</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (lot of lots; track lot.numLot) {
+        <td>{{ lot.numLot }}</td>
+        <td>{{ lot.quantity }}</td>
+        <td>{{ lot.freeQuantity }}</td>
+        <td>{{ lot.manufacturingDate | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</td>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
+</div>

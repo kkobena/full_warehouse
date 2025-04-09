@@ -39,7 +39,7 @@ public class LotDTO {
         receiptRefernce = lot.getReceiptRefernce();
         receiptItemId = lot.getReceiptItem().getId();
         quantity = lot.getQuantity();
-        quantityReceived = lot.getQuantityReceived();
+        quantityReceived = lot.getQuantity();
         createdDate = lot.getCreatedDate();
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
@@ -155,7 +155,6 @@ public class LotDTO {
             .setNumLot(numLot)
             .setExpiryDate(expiryDate)
             .setManufacturingDate(manufacturingDate)
-            .setQuantityReceived(quantityReceived)
             .setQuantity(quantityReceived + ug)
             .setUgQuantityReceived(ug);
     }

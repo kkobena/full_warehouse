@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import java.util.List;
@@ -36,7 +37,7 @@ public interface OrderLineService {
 
     void updateCodeCip(OrderLineDTO orderLineDTO);
 
-    void updateRequestedLineToPassedLine(Set<OrderLine> orderLines);
+    void updateRequestedLineToPassedLine(List<OrderLine> orderLines);
 
     void updateOrderLine(OrderLine orderLine, int quantityRequested);
 
@@ -58,7 +59,8 @@ public interface OrderLineService {
 
     List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId);
 
-    void removeProductState(List<Produit> produits);
+    void removeProductState(List<Produit> produits, OrderStatut orderStatut);
 
     void rollbackProductState(List<Produit> produits);
+    int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
 }

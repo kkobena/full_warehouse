@@ -28,42 +28,50 @@
 <p-panel header="Menu commandes" styleClass="main-panel">
   <div class="row commande-gestion">
     <div class="col-2 col-md-2 col-sm-2">
-      <p-card>
-        <div
-          #nav="ngbNav"
-          (navChange)="onNavChange($event)"
-          [(activeId)]="active"
-          class="nav flex-column nav-pills"
-          ngbNav
-          orientation="vertical"
-        >
-          <ng-container ngbNavItem="REQUESTED">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Commande en cours</a>
-            <ng-template ngbNavContent>
-              <jhi-commande-en-cours
-                (selectionLength)="updateSelectionLength($event)"
-                [searchCommande]="searchCommande"
-                [search]="search"
-              ></jhi-commande-en-cours>
-            </ng-template>
-          </ng-container>
-          <ng-container ngbNavItem="PASSED">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Commande passées</a>
-            <ng-template ngbNavContent>
-              <jhi-commande-passes
-                (selectionLength)="updateSelectionLength($event)"
-                [searchCommande]="searchCommande"
-                [search]="search"
-              ></jhi-commande-passes>
-            </ng-template>
-          </ng-container>
-          <ng-container ngbNavItem="RECEIVED">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Commande reçues</a>
-            <ng-template ngbNavContent>
-              <jhi-commande-recus [searchByRef]="searchCommande" [search]="search"></jhi-commande-recus>
-            </ng-template>
-          </ng-container>
-        </div>
+      <p-card
+        #nav="ngbNav"
+        (navChange)="onNavChange($event)"
+        [(activeId)]="active"
+        class="nav flex-column nav-pills"
+        ngbNav
+        orientation="vertical"
+      >
+        <ng-container ngbNavItem="SUGGESTIONS">
+          <a class="flex-sm-fill nav-link" ngbNavLink>Suggestions</a>
+          <ng-template ngbNavContent>
+            <jhi-suggestion
+              (selectionLength)="updateSelectionLength($event)"
+              [fournisseurId]="selectFournisseurId"
+              [selectedtypeSuggession]="selectedtypeSuggession"
+            ></jhi-suggestion>
+          </ng-template>
+        </ng-container>
+        <p-divider layout="horizontal"></p-divider>
+        <ng-container ngbNavItem="REQUESTED">
+          <a class="flex-sm-fill nav-link" ngbNavLink>Commande en cours</a>
+          <ng-template ngbNavContent>
+            <jhi-commande-en-cours
+              (selectionLength)="updateSelectionLength($event)"
+              [searchCommande]="searchCommande"
+              [search]="search"
+            ></jhi-commande-en-cours>
+          </ng-template>
+        </ng-container>
+
+        <p-divider layout="horizontal"></p-divider>
+        <ng-container ngbNavItem="BONS_EN_COURS">
+          <a class="flex-sm-fill nav-link" ngbNavLink>Bons en cours</a>
+          <ng-template ngbNavContent>
+            <jhi-bon-en-cours [search]="search"></jhi-bon-en-cours>
+          </ng-template>
+        </ng-container>
+        <p-divider layout="horizontal"></p-divider>
+        <ng-container ngbNavItem="LIST_BONS">
+          <a class="flex-sm-fill nav-link" ngbNavLink>Liste des bons</a>
+          <ng-template ngbNavContent>
+            <jhi-list-bons [search]="search"></jhi-list-bons>
+          </ng-template>
+        </ng-container>
       </p-card>
     </div>
 
@@ -71,8 +79,8 @@
       <div>
         <p-toolbar>
           <ng-template #start>
-            <div class="row" style="width: 100%">
-              <div class="col-md-6">
+            <div class="d-flex justify-content-between" style="width: 100%">
+              @if (active === 'REQUESTED') {
                 <p-iconfield>
                   <p-inputicon styleClass="pi pi-search" />
                   <input
@@ -82,22 +90,42 @@
                     placeholder="Recherche sur la commande"
                     style="width: 100%"
                     type="text"
-                  />
-                </p-iconfield>
-              </div>
-              <div class="col-md-6">
-                <p-iconfield>
-                  <p-inputicon styleClass="pi pi-search" />
-                  <input
-                    (keyup.enter)="onSearch()"
-                    [(ngModel)]="search"
-                    pInputText
-                    placeholder="Recherche sur les produits"
-                    style="width: 100%"
-                    type="text"
-                  />
-                </p-iconfield>
-              </div>
+                  /> </p-iconfield
+                >&nbsp;
+              }
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input
+                  (keyup.enter)="onSearch()"
+                  [(ngModel)]="search"
+                  pInputText
+                  placeholder="Taper pour rechercher"
+                  style="width: 100%"
+                  type="text"
+                />
+              </p-iconfield>
+              @if (active === 'SUGGESTIONS') {
+                <p-select
+                  (onChange)="onTypeSuggestionChange($event)"
+                  [filter]="false"
+                  [showClear]="true"
+                  [options]="typeSuggessions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Séléctionner un type de suggestion "
+                >
+                </p-select>
+                <p-select
+                  (onChange)="onFournisseurChange($event)"
+                  [filter]="false"
+                  [showClear]="true"
+                  [options]="fournisseurs"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Séléctionner un fournisseur "
+                >
+                </p-select>
+              }
             </div>
           </ng-template>
           <ng-template #end>
@@ -110,23 +138,26 @@
                 severity="info"
                 type="button"
               ></p-button>
-              <p-button
-                (click)="onShowNewCommandeDialog()"
-                [raised]="true"
-                icon="pi pi-upload"
-                label="Importation"
-                severity="help"
-                type="button"
-              ></p-button>
-              <p-button
-                (click)="onCreatNewCommande()"
-                [raised]="true"
-                icon="pi pi-plus"
-                label="Nouvelle commande"
-                severity="success"
-                type="button"
-              ></p-button>
-              @if (active === 'REQUESTED' && selectionLength > 1) {
+
+              @if (active === 'REQUESTED') {
+                <p-button
+                  (click)="onShowNewCommandeDialog()"
+                  [raised]="true"
+                  icon="pi pi-upload"
+                  label="Importation"
+                  severity="help"
+                  type="button"
+                ></p-button>
+                <p-button
+                  (click)="onCreatNewCommande()"
+                  [raised]="true"
+                  icon="pi pi-plus"
+                  label="Nouvelle commande"
+                  severity="success"
+                  type="button"
+                ></p-button>
+              }
+              @if ((active === 'REQUESTED' || active === 'SUGGESTIONS') && selectionLength > 1) {
                 <button
                   (click)="fusionner()"
                   pButtonIcon="pi pi-copy"

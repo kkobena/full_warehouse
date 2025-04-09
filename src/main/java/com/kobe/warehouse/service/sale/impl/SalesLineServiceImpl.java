@@ -21,14 +21,13 @@ import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -46,19 +45,22 @@ public class SalesLineServiceImpl implements SalesLineService {
     private final StockProduitRepository stockProduitRepository;
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final LogsService logsService;
+    private final SuggestionProduitService suggestionProduitService;
 
     public SalesLineServiceImpl(
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
         InventoryTransactionRepository inventoryTransactionRepository,
-        LogsService logsService
+        LogsService logsService,
+        SuggestionProduitService suggestionProduitService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.logsService = logsService;
+        this.suggestionProduitService = suggestionProduitService;
     }
 
     @Override
@@ -315,15 +317,20 @@ public class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public void save(Set<SalesLine> salesLines, User user, Long storageId) {
+        List<QuantitySuggestion> quantitySuggestions = new ArrayList<>();
         if (!CollectionUtils.isEmpty(salesLines)) {
-            salesLines.forEach(salesLine -> save(salesLine, storageId));
+            salesLines.forEach(salesLine -> {
+                Produit p = salesLine.getProduit();
+                StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+                save(salesLine, stockProduit, p);
+                quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
+            });
         }
+        this.suggestionProduitService.suggerer(quantitySuggestions);
     }
 
-    private void save(SalesLine salesLine, Long storageId) {
-        Produit p = salesLine.getProduit();
-        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
-        int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
+    private void save(SalesLine salesLine, StockProduit stockProduit, Produit p) {
+        int quantityBefor = stockProduit.getTotalStockQuantity();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
         salesLine.setInitStock(quantityBefor);
         salesLine.setAfterStock(quantityAfter);

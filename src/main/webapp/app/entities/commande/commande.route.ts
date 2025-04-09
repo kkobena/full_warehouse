@@ -9,6 +9,8 @@ import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
 
 import DeliveryResolver from './delevery/delivery.resolver';
+import SuggestionResolver from './suggestion/suggestion.resolver';
+import { EditSuggestionComponent } from './suggestion/edit-suggestion.component';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
@@ -84,23 +86,24 @@ const commandeRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
-  /* {
-     path: ':id/stock-entry',
-     component: CommandeStockEntryComponent,
-     resolve: {
-       commande: CommandeResolve,
-     },
-     data: {
-       authorities: [Authority.USER],
-       pageTitle: 'warehouseApp.commande.home.title',
-     },
-     canActivate: [UserRouteAccessService],
-   },*/
+
   {
     path: ':id/stock-entry',
     loadComponent: () => import('./commande-stock-entry.component').then(m => m.CommandeStockEntryComponent),
     resolve: {
       delivery: DeliveryResolver,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      pageTitle: 'warehouseApp.commande.home.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':id/suggestion',
+    loadComponent: () => import('./suggestion/edit-suggestion.component').then(m => m.EditSuggestionComponent),
+    resolve: {
+      suggestion: SuggestionResolver,
     },
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],

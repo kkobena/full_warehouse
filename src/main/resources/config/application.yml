@@ -65,6 +65,10 @@ management:
           enabled: false
 
 spring:
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   flyway:
     enabled: true
     create-schemas: false
@@ -103,6 +107,9 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     open-in-view: false
     properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.type.preferred_instant_jdbc_type: TIMESTAMP
@@ -122,6 +129,8 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    show-sql: true
+
   messages:
     basename: i18n/messages
   main:

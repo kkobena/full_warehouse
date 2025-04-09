@@ -34,6 +34,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
@@ -80,6 +81,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final ProduitRepository produitRepository;
     private final RayonProduitRepository rayonProduitRepository;
     private final StorageService storageService;
+    private final EtatProduitService etatProduitService;
 
     @PersistenceContext
     private EntityManager em;
@@ -89,13 +91,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
         LogsService logsService,
         ProduitRepository produitRepository,
         RayonProduitRepository rayonProduitRepository,
-        StorageService storageService
+        StorageService storageService,
+        EtatProduitService etatProduitService
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
         this.produitRepository = produitRepository;
         this.rayonProduitRepository = rayonProduitRepository;
         this.storageService = storageService;
+        this.etatProduitService = etatProduitService;
     }
 
     @Override
@@ -356,6 +360,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
                     if (deliveryReceiptItem != null) {
                         dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
                     }
+                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
                     list.add(dto);
                 });
         }

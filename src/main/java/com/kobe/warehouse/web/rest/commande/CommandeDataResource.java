@@ -37,12 +37,8 @@ import tech.jhipster.web.util.ResponseUtil;
 @RequestMapping("/api")
 public class CommandeDataResource {
 
-    private static final String ENTITY_NAME = "commande";
     private final Logger log = LoggerFactory.getLogger(CommandeDataResource.class);
     private final CommandeDataService commandeDataService;
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
 
     public CommandeDataResource(CommandeDataService commandeDataService) {
         this.commandeDataService = commandeDataService;

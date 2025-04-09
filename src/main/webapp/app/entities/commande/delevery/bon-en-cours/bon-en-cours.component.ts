@@ -35,11 +35,6 @@ export class BonEnCoursComponent implements OnInit {
   protected ref?: DynamicDialogRef;
   protected selectedFilter = 'PENDING';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
     this.onSearch();
   }
@@ -51,7 +46,7 @@ export class BonEnCoursComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search,
+        search: this.search(),
         statut: this.selectedFilter,
       })
       .subscribe({
@@ -79,13 +74,13 @@ export class BonEnCoursComponent implements OnInit {
   protected onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/gestion-entree'], {
+    /*  this.router.navigate(['/gestion-entree'], {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
         search: this.search,
       },
-    });
+    });*/
     this.deliveries = data || [];
     this.loading = false;
   }

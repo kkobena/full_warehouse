@@ -17,6 +17,7 @@ public final class DateUtil {
     private static final String DD_MM_YYYY = "dd-MM-yyyy";
     private static final String DD_MM_YYYY_FR = "dd/MM/yyyy";
     private static final String TIME_FORMAT = "HH:mm";
+    private static final String YYYY_MM_DD = "yyyyMMdd";
 
     private DateUtil() {}
 
@@ -96,6 +97,7 @@ public final class DateUtil {
         }
         return null;
     }
+
     public static String formatFr(LocalDate date) {
         if (date == null) {
             return "";
@@ -103,4 +105,10 @@ public final class DateUtil {
         return date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY_FR));
     }
 
+    public static LocalDate fromYyyyMmDd(String dateValue) {
+        if (Objects.isNull(dateValue)) {
+            return null;
+        }
+        return LocalDate.parse(dateValue, DateTimeFormatter.ofPattern(YYYY_MM_DD));
+    }
 }

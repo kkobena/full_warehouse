@@ -76,9 +76,6 @@ export class CommandeEnCoursComponent implements OnInit {
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     this.rowExpandMode = 'single';
   }

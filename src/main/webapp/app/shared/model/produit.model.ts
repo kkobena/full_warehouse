@@ -8,6 +8,7 @@ import { IStockProduit } from './stock-produit.model';
 import { IFournisseurProduit } from './fournisseur-produit.model';
 import { IRayonProduit } from './rayon-produit.model';
 import { ITableau } from './tableau.model';
+import { EtatProduit } from './etat-produit.model';
 
 export interface IProduit {
   id?: number;
@@ -72,6 +73,7 @@ export interface IProduit {
   cmuAmount?: number;
   tableau?: ITableau;
   remiseCode?: string;
+  etatProduit?: EtatProduit;
 }
 
 export class Produit implements IProduit {

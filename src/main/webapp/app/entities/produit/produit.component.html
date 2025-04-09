@@ -151,12 +151,21 @@
           <td>{{ produit.codeCip }}</td>
           <td>{{ produit.codeEan }}</td>
           <td>{{ produit.libelle }}</td>
-          <td style="text-align: right">{{ produit.totalQuantity | number }}</td>
+          @if (produit.totalQuantity < 0) {
+            <td style="text-align: right" class="amount-column red-400">{{ produit.totalQuantity | number }}</td>
+          } @else if (produit.totalQuantity === 0) {
+            <td style="text-align: right" class="amount-column orange-400">{{ produit.totalQuantity | number }}</td>
+          } @else {
+            <td style="text-align: right" class="amount-column">{{ produit.totalQuantity | number }}</td>
+          }
+
           <td style="text-align: right">{{ produit.costAmount | number }}</td>
           <td style="text-align: right">{{ produit.regularUnitPrice | number }}</td>
           <td style="text-align: right">{{ produit.qtyAppro | number }}</td>
           <td style="text-align: right">{{ produit.qtySeuilMini | number }}</td>
-          <td></td>
+          <td>
+            <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false"> </jhi-eta-produit>
+          </td>
           <td class="text-right">
             <div class="btn-group">
               <button [routerLink]="['/produit', produit.id, 'view']" class="btn btn-success btn-sm" type="submit">

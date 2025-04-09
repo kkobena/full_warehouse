@@ -1,17 +1,15 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
-import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.LotRepository;
-import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -21,20 +19,17 @@ import org.springframework.util.CollectionUtils;
 public class LotServiceImpl implements LotService {
 
     private final LotRepository lotRepository;
-    private final StorageService storageService;
-    private final CommandeRepository commandeRepository;
     private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
+    private final OrderLineService orderLineService;
 
     public LotServiceImpl(
         LotRepository lotRepository,
-        StorageService storageService,
-        CommandeRepository commandeRepository,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository
+        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
+        OrderLineService orderLineService
     ) {
         this.lotRepository = lotRepository;
-        this.storageService = storageService;
-        this.commandeRepository = commandeRepository;
         this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
+        this.orderLineService = orderLineService;
     }
 
     @Override
@@ -44,9 +39,8 @@ public class LotServiceImpl implements LotService {
         lot.setCreatedDate(LocalDateTime.now());
         lot.setExpiryDate(lotJsonValue.getExpiryDate());
         lot.setManufacturingDate(lotJsonValue.getManufacturingDate());
-        lot.setQuantity(lotJsonValue.getQuantityReceived() + lotJsonValue.getUgQuantityReceived());
-        lot.setUgQuantityReceived(lotJsonValue.getUgQuantityReceived());
-        lot.setQuantityReceived(lotJsonValue.getQuantityReceived());
+        lot.setQuantity(lotJsonValue.getQuantity() + lotJsonValue.getFreeQuantity());
+        lot.setUgQuantityReceived(lotJsonValue.getFreeQuantity());
         lot.setReceiptItem(receiptItem);
         lot.setReceiptRefernce(receiptRefernce);
         lotRepository.save(lot);
@@ -54,12 +48,10 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public LotJsonValue addLot(LotJsonValue lot) {
-        Commande commande = commandeRepository.getReferenceById(lot.getCommandeId());
-        removeLotFromCommande(commande, lot);
-        commande.getLots().add(lot);
-        commande.setUpdatedAt(LocalDateTime.now());
-        commande.setLastUserEdit(storageService.getUser());
-        commandeRepository.saveAndFlush(commande);
+        OrderLine orderLine = orderLineService.findOneById(lot.getLinkedId()).orElseThrow();
+        orderLine.getLots().add(lot);
+        orderLine.setUpdatedAt(LocalDateTime.now());
+        orderLineService.save(orderLine);
         return lot;
     }
 
@@ -75,7 +67,6 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotDTO editLot(LotDTO lot) {
         Lot entity = this.lotRepository.getReferenceById(lot.getId());
-        entity.setQuantityReceived(lot.getQuantityReceived());
         entity.setUgQuantityReceived(Optional.ofNullable(lot.getUgQuantityReceived()).orElse(0));
         entity.setExpiryDate(lot.getExpiryDate());
         entity.setManufacturingDate(lot.getManufacturingDate());
@@ -86,9 +77,13 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public void remove(LotJsonValue lot) {
-        Commande commande = commandeRepository.getReferenceById(lot.getCommandeId());
-        removeLotFromCommande(commande, lot);
-        commandeRepository.saveAndFlush(commande);
+        orderLineService
+            .findOneById(lot.getLinkedId())
+            .ifPresent(orderLine -> {
+                orderLine.getLots().removeIf(e -> e.getNumLot().equalsIgnoreCase(lot.getNumLot()));
+                orderLine.setUpdatedAt(LocalDateTime.now());
+                orderLineService.save(orderLine);
+            });
     }
 
     @Override
@@ -96,11 +91,20 @@ public class LotServiceImpl implements LotService {
         this.lotRepository.deleteById(lotId);
     }
 
-    private void removeLotFromCommande(Commande commande, LotJsonValue lot) {
-        if (!CollectionUtils.isEmpty(commande.getLots())) {
-            commande
-                .getLots()
-                .removeIf(e -> e.getNumLot().equalsIgnoreCase(lot.getNumLot()) && e.getReceiptItem().equals(lot.getReceiptItem()));
+    @Override
+    public void addLot(Set<LotJsonValue> lots, DeliveryReceiptItem receiptItem) {
+        if (!CollectionUtils.isEmpty(lots)) {
+            lots.forEach(l -> {
+                Lot lot = new Lot();
+                lot.setNumLot(l.getNumLot());
+                lot.setCreatedDate(LocalDateTime.now());
+                lot.setExpiryDate(l.getExpiryDate());
+                lot.setManufacturingDate(l.getManufacturingDate());
+                lot.setQuantity(l.getQuantity() + l.getFreeQuantity());
+                lot.setUgQuantityReceived(l.getFreeQuantity());
+                lot.setReceiptItem(receiptItem);
+                lotRepository.save(lot);
+            });
         }
     }
 

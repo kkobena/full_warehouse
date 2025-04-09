@@ -11,11 +11,7 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.categorie.home.title' },
     loadChildren: () => import('./categorie/categorie.route'),
   },
-  {
-    path: 'gestion-entree',
-    data: { pageTitle: 'warehouseApp.delivery.home.title' },
-    loadChildren: () => import('./commande/delevery/delivery.route'),
-  },
+
   {
     path: 'commande',
     data: { pageTitle: 'warehouseApp.commande.home.title' },

@@ -1,23 +1,18 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_state", indexes = { @Index(columnList = "state", name = "state_index") })
+@Table(
+    name = "product_state",
+    indexes = { @Index(columnList = "state", name = "state_index") },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "state", "produit_id" }) }
+)
 public class ProductState implements Serializable {
 
     @Serial

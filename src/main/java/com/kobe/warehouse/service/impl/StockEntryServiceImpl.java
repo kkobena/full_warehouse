@@ -1,42 +1,11 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.DeliveryReceipt;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.ProductState;
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.WarehouseSequence;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
-import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
-import com.kobe.warehouse.repository.CommandeRepository;
-import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
-import com.kobe.warehouse.repository.DeliveryReceiptRepository;
-import com.kobe.warehouse.repository.FournisseurRepository;
-import com.kobe.warehouse.repository.TvaRepository;
-import com.kobe.warehouse.repository.WarehouseSequenceRepository;
-import com.kobe.warehouse.service.FournisseurProduitService;
-import com.kobe.warehouse.service.LogsService;
-import com.kobe.warehouse.service.OrderLineService;
-import com.kobe.warehouse.service.ProductStateService;
-import com.kobe.warehouse.service.ProduitService;
-import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
-import com.kobe.warehouse.service.dto.CommandeModel;
-import com.kobe.warehouse.service.dto.CommandeResponseDTO;
-import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
-import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
-import com.kobe.warehouse.service.dto.LotJsonValue;
-import com.kobe.warehouse.service.dto.OrderItem;
-import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
+import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.enumeration.*;
+import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.service.*;
+import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -48,14 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import org.apache.commons.csv.CSVFormat;
@@ -112,7 +74,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             return (
                 !CollectionUtils.isEmpty(deliveryReceiptItem.getLots()) &&
                 deliveryReceiptItem.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-                deliveryReceiptItem.getLots().stream().mapToInt(Lot::getQuantityReceived).sum() == deliveryReceiptItem.getQuantityReceived()
+                deliveryReceiptItem.getLots().stream().mapToInt(Lot::getQuantity).sum() >= deliveryReceiptItem.getQuantityReceived()
             );
         }
         return true;
@@ -123,9 +85,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (lotJsonValueList.isEmpty()) {
             return false;
         }
-        return (
-            orderLine.getQuantityRequested() < lotJsonValueList.stream().map(LotJsonValue::getQuantityReceived).reduce(Integer::sum).get()
-        );
+        return (orderLine.getQuantityRequested() < lotJsonValueList.stream().map(LotJsonValue::getQuantity).reduce(Integer::sum).get());
     };
 
     public StockEntryServiceImpl(
@@ -382,17 +342,15 @@ public class StockEntryServiceImpl implements StockEntryService {
         receiptItem.setTaxAmount(0);
         receiptItem.setQuantityReturned(0);
         receiptItem.setCostAmount(orderLine.getCostAmount());
-        receiptItem = deliveryReceiptItemRepository.save(receiptItem);
         setProductState(fournisseurProduit.getProduit());
+        receiptItem = deliveryReceiptItemRepository.save(receiptItem);
+        this.lotService.addLot(orderLine.getLots(), receiptItem);
+
         return receiptItem;
     }
 
-    private void setProductState(List<Produit> produits) {
-        produits.forEach(this::setProductState);
-    }
-
     private void setProductState(Produit produit) {
-        List<ProductState> productStates = this.productStateService.fetchByProduitAndState(produit, ProductStateEnum.COMMANDE_PASSE);
+        List<ProductState> productStates = this.productStateService.fetchByProduitAndState(produit, ProductStateEnum.COMMANDE_EN_COURS);
         if (!CollectionUtils.isEmpty(productStates)) {
             if (productStates.size() == 1) {
                 productStates.forEach(this.productStateService::remove);
@@ -400,14 +358,12 @@ public class StockEntryServiceImpl implements StockEntryService {
                 this.productStateService.remove(productStates.getFirst());
             }
         }
-        this.productStateService.addState(produit, ProductStateEnum.ENTREE);
-    }
-
-    private List<LotJsonValue> getLotByOrderLine(OrderLine orderLine, Commande commande) {
-        if (CollectionUtils.isEmpty(commande.getLots())) {
-            return Collections.emptyList();
+        if (this.orderLineService.countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut.REQUESTED, produit.getId()) <= 1) {
+            this.productStateService.removeByProduitAndState(produit, ProductStateEnum.COMMANDE_EN_COURS);
         }
-        return commande.getLots().stream().filter(lotJsonValue -> lotJsonValue.getReceiptItem().compareTo(orderLine.getId()) == 0).toList();
+        if (!this.productStateService.getProductStateByProduitId(produit.getId()).contains(ProductStateEnum.ENTREE)) {
+            this.productStateService.addState(produit, ProductStateEnum.ENTREE);
+        }
     }
 
     private String buildDeliveryReceiptNumberTransaction() {
@@ -1117,51 +1073,6 @@ public class StockEntryServiceImpl implements StockEntryService {
             return;
         }
         this.importationEchoueService.save(deliveryReceiptId, false, commandeResponse.getItems());
-    }
-
-    private void finalyseSaisieStock(Commande commande, DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Set<OrderLine> orderLineSet = commande.getOrderLines();
-        DeliveryReceipt deliveryReceipt = this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
-        // TODO: liste des vente en avoir pour envoi possible de notif et de mail
-        orderLineSet.forEach(orderLine -> {
-            if (isNotEntreeStockIsAuthorize.test(orderLine) && cannotContinue.test(orderLine, getLotByOrderLine(orderLine, commande))) {
-                throw new GenericError(
-                    "La reception de certains produits n'a pas ete faite. Veuillez verifier la saisie",
-                    "commandeManquante"
-                );
-            }
-
-            DeliveryReceiptItem deliveryReceiptItem = addItem(orderLine, deliveryReceipt);
-            getLotByOrderLine(orderLine, commande).forEach(lotJsonValue ->
-                lotService.addLot(lotJsonValue, deliveryReceiptItem, deliveryReceipt.getReceiptRefernce())
-            );
-            FournisseurProduit fournisseurProduit = updateFournisseurProduit(deliveryReceiptItem);
-            StockProduit stockProduit = produitService.updateTotalStock(
-                fournisseurProduit.getProduit(),
-                deliveryReceiptItem.getQuantityReceived(),
-                deliveryReceiptItem.getUgQuantity()
-            );
-            Produit produit = stockProduit.getProduit();
-
-            produit.setPrixMnp(
-                produitService.calculPrixMoyenPondereReception(
-                    deliveryReceiptItem.getInitStock(),
-                    orderLine.getGrossAmount(),
-                    getTotalStockQuantity(stockProduit),
-                    deliveryReceiptItem.getOrderCostAmount()
-                )
-            );
-            produitService.update(produit);
-        });
-        logsService.create(
-            TransactionType.ENTREE_STOCK,
-            "order.entry",
-            new Object[] { deliveryReceipt.getReceiptRefernce() },
-            deliveryReceipt.getId().toString()
-        );
-        deliveryReceipt.setReceiptStatut(ReceiptStatut.CLOSE);
-        this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
-        commandeRepository.saveAndFlush(commande);
     }
 
     private void saveItem(DeliveryReceiptItem receiptItem) {

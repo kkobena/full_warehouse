@@ -14,11 +14,6 @@ export class LotService {
 
   public resourceUrl = SERVER_API_URL + 'api/lot';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/add-to-commande', lot, { observe: 'response' });
   }

@@ -103,9 +103,7 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
         List<Predicate> predicates = new ArrayList<>();
 
         predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderStatus), commandeFilterDTO.getOrderStatut()));
-        if (StringUtils.hasText(commandeFilterDTO.getTypeSuggession())) {
-            predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.typeSuggession), commandeFilterDTO.getTypeSuggession()));
-        }
+
         if (StringUtils.hasText(commandeFilterDTO.getSearchCommande())) {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
             predicates.add(
@@ -147,10 +145,6 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
                     cb.like(cb.upper(root.get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)
                 )
             );
-        }
-
-        if (StringUtils.hasText(commandeFilterDTO.getTypeSuggession())) {
-            predicates.add(cb.equal(root.get(Commande_.typeSuggession), commandeFilterDTO.getTypeSuggession()));
         }
 
         return predicates;

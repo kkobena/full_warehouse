@@ -8,12 +8,11 @@ import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.*;
 import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
+import com.kobe.warehouse.service.errors.ReportFileExportException;
+import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
-import com.kobe.warehouse.service.errors.ReportFileExportException;
-import com.kobe.warehouse.service.utils.DateUtil;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +37,8 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         DeliveryReceiptRepository deliveryReceiptRepository,
         PaymentTransactionRepository paymentTransactionRepository,
         PaymentRepository paymentRepository,
-        SalesRepository salesRepository, ActivitySummaryReportService activitySummaryReportService
+        SalesRepository salesRepository,
+        ActivitySummaryReportService activitySummaryReportService
     ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.invoicePaymentRepository = invoicePaymentRepository;
@@ -101,10 +101,17 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     }
 
     @Override
-    public Resource printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement) throws ReportFileExportException {
-        return this.activitySummaryReportService.printToPdf(new ActivitySummaryRecord(
-            getChiffreAffaire(fromDate, toDate), fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),  findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(), fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(), " du " + DateUtil.formatFr(fromDate) + " au " + toDate
-        ));
+    public Resource printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement)
+        throws ReportFileExportException {
+        return this.activitySummaryReportService.printToPdf(
+                new ActivitySummaryRecord(
+                    getChiffreAffaire(fromDate, toDate),
+                    fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
+                    findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
+                    fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
+                    " du " + DateUtil.formatFr(fromDate) + " au " + toDate
+                )
+            );
     }
 
     @Override

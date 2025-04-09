@@ -9,15 +9,14 @@ import com.kobe.warehouse.service.dto.records.Amount;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class ActivitySummaryReportService extends CommonReportService {
@@ -27,7 +26,6 @@ public class ActivitySummaryReportService extends CommonReportService {
 
     private final Map<String, Object> variablesMap = new HashMap<>();
     private String templateFile;
-
 
     public ActivitySummaryReportService(
         SpringTemplateEngine templateEngine,
@@ -85,15 +83,11 @@ public class ActivitySummaryReportService extends CommonReportService {
     }
 
     private BigDecimal getTotalRecette(List<Recette> recettes) {
-        return recettes.stream()
-            .map(Recette::getMontantReel)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return recettes.stream().map(Recette::getMontantReel).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private BigDecimal getTotalMouvementCaisse(List<MouvementCaisse> mouvementCaisses) {
-        return mouvementCaisses.stream()
-            .map(MouvementCaisse::getMontant)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return mouvementCaisses.stream().map(MouvementCaisse::getMontant).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private Amount getTotalAchatTiersPayant(List<AchatTiersPayant> achatTiersPayants) {
@@ -131,7 +125,6 @@ public class ActivitySummaryReportService extends CommonReportService {
     }
 
     public Resource printToPdf(ActivitySummaryRecord activitySummaryRecord) throws ReportFileExportException {
-
         try {
             return this.getResource(print(activitySummaryRecord));
         } catch (Exception e) {

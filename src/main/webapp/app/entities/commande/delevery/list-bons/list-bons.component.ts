@@ -112,13 +112,13 @@ export class ListBonsComponent implements OnInit {
   protected onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/gestion-entree'], {
+    /* this.router.navigate(['/gestion-entree'], {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
         search: this.search(),
       },
-    });
+    });*/
     this.deliveries = data || [];
     this.loading = false;
   }

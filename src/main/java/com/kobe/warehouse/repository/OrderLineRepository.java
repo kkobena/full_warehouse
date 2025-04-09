@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -19,4 +20,8 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     Page<OrderLine> findByCommandeId(Long commandeId, Pageable pageable);
 
     Long countByCommandeId(Long commandeId);
+
+    int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
+
+    boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatus(Long produitId, OrderStatut orderStatus);
 }

@@ -68,4 +68,19 @@ public class AppConfigurationService {
     public Optional<AppConfiguration> findParamResetInvoiceNumberEveryYear() {
         return appConfigurationRepository.findById(EntityConstant.APP_RESET_INVOICE_NUMBER);
     }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_SUGGESTION_RETENTION)
+    public int findSuggestionRetention() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_SUGGESTION_RETENTION)
+            .map(appConfiguration -> {
+                try {
+                    return Integer.parseInt(appConfiguration.getValue());
+                } catch (NumberFormatException e) {
+                    return 90;
+                }
+            })
+            .orElse(90);
+    }
 }

@@ -3,13 +3,12 @@ package com.kobe.warehouse.web.rest.activity_summary;
 import com.kobe.warehouse.service.activity_summary.ActivitySummaryService;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.*;
-import java.time.LocalDate;
-import java.util.List;
-
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,13 +95,11 @@ public class ActivitySummaryResource {
     @GetMapping("/ca/pdf")
     public ResponseEntity<Resource> exportToPdf(
         HttpServletRequest request,
-        @RequestParam( name = "fromDate") LocalDate fromDate,
-        @RequestParam( name = "toDate") LocalDate toDate,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate,
         @RequestParam(required = false, name = "searchAchat") String searchAchatTp,
         @RequestParam(required = false, name = "searchReglement") String searchReglement
-
     ) throws ReportFileExportException {
-        return Utils.printPDF(
-            activitySummaryService.printToPdf(fromDate,toDate, searchAchatTp, searchReglement),request);
+        return Utils.printPDF(activitySummaryService.printToPdf(fromDate, toDate, searchAchatTp, searchReglement), request);
     }
 }

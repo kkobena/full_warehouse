@@ -47,6 +47,7 @@ import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -120,27 +121,27 @@ export type ExpandMode = 'single' | 'multiple';
     IconField,
     InputIcon,
     ToggleSwitch,
+    EtaProduitComponent,
   ],
 })
 export class ProduitComponent implements OnInit {
-  protected produitService = inject(ProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(NgbModal);
-  protected confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
-  private messageService = inject(MessageService);
-  protected rayonService = inject(RayonService);
-  protected familleService = inject(FamilleProduitService);
-  protected errorService = inject(ErrorService);
-  protected configurationService = inject(ConfigurationService);
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
+  private readonly rayonService = inject(RayonService);
+  private readonly familleService = inject(FamilleProduitService);
+  private readonly errorService = inject(ErrorService);
+  private readonly configurationService = inject(ConfigurationService);
 
   faCut = faCut;
   faPlusCircle = faPlusCircle;
   produits!: IProduit[];
   selectedCriteria = 0;
   selectedRayon = 0;
-  selectedFamille = 0;
   filtesProduits: SelectItem[] = [];
   rayons: SelectItem[] = [];
   familles: SelectItem[] = [];
@@ -159,7 +160,6 @@ export class ProduitComponent implements OnInit {
   displayDialog = false;
   responsedto!: IResponseDto;
   isSaving = false;
-  stockFileJsonDialog = false;
   splitbuttons: MenuItem[];
   criteria: IProduitCriteria;
   onErrorOccur = false;
@@ -169,10 +169,6 @@ export class ProduitComponent implements OnInit {
   rowExpandMode: ExpandMode = 'single';
   protected typeImportation: string | null = null;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  //            <td><span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span></td>
   constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;

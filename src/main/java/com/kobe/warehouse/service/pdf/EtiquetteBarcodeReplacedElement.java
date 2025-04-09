@@ -2,12 +2,10 @@ package com.kobe.warehouse.service.pdf;
 
 import com.lowagie.text.Image;
 import com.lowagie.text.pdf.Barcode39;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;

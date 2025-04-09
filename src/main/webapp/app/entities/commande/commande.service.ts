@@ -21,11 +21,6 @@ export class CommandeService {
 
   public resourceUrl = SERVER_API_URL + 'api/commandes';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   create(commande: ICommande): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(commande);
     return this.http

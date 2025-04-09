@@ -188,6 +188,7 @@
         <div class="col-6 text-right" style="padding-left: 1px; padding-right: 1px">
           <div class="btn-group">
             <p-button
+              [hidden]="true"
               label="Passer la commande"
               class="mr-1"
               icon="pi pi-fast-forward"
@@ -196,6 +197,15 @@
               (click)="onCloseCurrentCommande()"
               type="button"
             />
+
+            <p-button
+              (click)="onCreateBon()"
+              class="mr-1"
+              severity="help"
+              icon="pi pi-fast-forward"
+              [raised]="true"
+              label="Faire l'entréé en  stock"
+            ></p-button>
 
             <p-button
               [hidden]="true"
@@ -238,8 +248,8 @@
     <ng-template #header>
       <tr>
         <th style="width: 2%">#</th>
-        <th style="width: 8%">CODE</th>
-        <th style="width: 30%">LIBELLE</th>
+        <th style="width: 7%">CODE</th>
+        <th style="width: 20%">LIBELLE</th>
         <th style="width: 5%">STOCK INIT</th>
         <th style="width: 9%">P ACHAT</th>
         <th style="width: 6%">P.A MACHINE</th>
@@ -247,7 +257,9 @@
         <th style="width: 6%">P.U MACHINE</th>
         <th style="width: 7%">QUANTITE</th>
         <th style="width: 5%">T.ACHAT</th>
-        <th style="width: 9%"></th>
+        <th style="width: 7%">Lots</th>
+        <th style="width: 7%">DATE PEREMPTION</th>
+        <th style="width: 6%"></th>
         <th class="table-all-checkbos" style="width: 3rem">
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
@@ -339,23 +351,48 @@
             </ng-template>
           </p-cellEditor>
         </td>
+
         <td style="text-align: right">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}</td>
-        <td style="text-align: right">
+        <td>
+          @for (lot of orderLine.lots; track lot.numLot) {
+            <span>{{ lot.numLot }}</span>
+          }
+        </td>
+        <td>
+          @for (lot of orderLine.lots; track lot.numLot) {
+            <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
+          }
+        </td>
+
+        <td style="text-align: right" class="d-flex justify-content-end">
           <p-button
             (click)="onEditProduit(orderLine.produitId)"
-            class="mr-1"
             icon="pi pi-pencil"
             size="small"
-            severity="info"
+            severity="success"
             [rounded]="true"
+            [text]="true"
             pTooltip="Editer"
           ></p-button>
+          @if (orderLine.lots?.length) {
+            <p-button
+              (click)="onShowLots(orderLine)"
+              icon="pi pi-eye"
+              size="small"
+              severity="info"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Voir les lots"
+            ></p-button>
+          }
+
           <p-button
             (click)="confirmDeleteItem(orderLine)"
             icon="pi pi-trash"
             size="small"
             severity="danger"
             [rounded]="true"
+            [text]="true"
             pTooltip="Supprimer"
           ></p-button>
         </td>
@@ -371,7 +408,7 @@
           <td class="amount-column text-right">{{ commande.grossAmount | number }}</td>
           <td class="amount-column text-right" colspan="2">{{ commande.orderAmount | number }}</td>
           <td class="amount-column text-right" colspan="3">{{ commande.grossAmount | number }}</td>
-          <td colspan="2"></td>
+          <td colspan="4"></td>
         </tr>
       </ng-template>
     }

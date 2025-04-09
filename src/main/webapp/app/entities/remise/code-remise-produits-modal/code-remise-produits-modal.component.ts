@@ -48,7 +48,6 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
   templateUrl: './code-remise-produits-modal.component.html',
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
-  modalService = inject(NgbModal);
   activeModal = inject(NgbActiveModal);
   produitService = inject(ProduitService);
   messageService = inject(MessageService);

@@ -1,19 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.TypeSuggession;
-import com.kobe.warehouse.service.dto.LotJsonValue;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,14 +9,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * A Commande.
  */
 @Entity
-@Table(name = "commande")
+@Table(name = "commande", indexes = { @Index(columnList = "order_status", name = "order_status_index") })
 public class Commande implements Serializable, Cloneable {
 
     @Serial
@@ -98,10 +84,6 @@ public class Commande implements Serializable, Cloneable {
     @NotNull
     private User lastUserEdit;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "type_suggession", length = 3)
-    private TypeSuggession typeSuggession;
-
     @ManyToOne(optional = false)
     @NotNull
     private Fournisseur fournisseur;
@@ -109,22 +91,6 @@ public class Commande implements Serializable, Cloneable {
     @ManyToOne(optional = false)
     @NotNull
     private WarehouseCalendar calendar;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "lots")
-    private Set<LotJsonValue> lots = new HashSet<>();
-
-    public Set<LotJsonValue> getLots() {
-        if (lots == null) {
-            lots = new HashSet<>();
-        }
-        return lots;
-    }
-
-    public Commande setLots(Set<LotJsonValue> lots) {
-        this.lots = lots;
-        return this;
-    }
 
     public Long getId() {
         return id;
@@ -275,15 +241,6 @@ public class Commande implements Serializable, Cloneable {
         return this;
     }
 
-    public TypeSuggession getTypeSuggession() {
-        return typeSuggession;
-    }
-
-    public Commande setTypeSuggession(TypeSuggession typeSuggession) {
-        this.typeSuggession = typeSuggession;
-        return this;
-    }
-
     public @NotNull Fournisseur getFournisseur() {
         return fournisseur;
     }
@@ -419,7 +376,6 @@ public class Commande implements Serializable, Cloneable {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace(System.err);
             return null;
         }
     }

@@ -5,11 +5,8 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.springframework.util.CollectionUtils;
 
 public class OrderLineDTO {
 
@@ -44,7 +41,6 @@ public class OrderLineDTO {
     private Integer quantityUg;
     private Integer quantityReceivedTmp;
     private Integer ugQuantity;
-
     private Set<LotJsonValue> lots = new HashSet<>();
 
     public OrderLineDTO() {}
@@ -81,9 +77,7 @@ public class OrderLineDTO {
         quantityUg = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
         ugQuantity = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
         quantityReceivedTmp = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested();
-        lots = !CollectionUtils.isEmpty(commande.getLots())
-            ? commande.getLots().stream().filter(lotJsonValue -> lotJsonValue.getReceiptItem().equals(id)).collect(Collectors.toSet())
-            : Collections.emptySet();
+        lots = orderLine.getLots();
     }
 
     public int getTotalQuantity() {
@@ -367,5 +361,10 @@ public class OrderLineDTO {
 
     public Set<LotJsonValue> getLots() {
         return lots;
+    }
+
+    public OrderLineDTO setLots(Set<LotJsonValue> lots) {
+        this.lots = lots;
+        return this;
     }
 }

@@ -14,10 +14,7 @@ import { CommandeImportResponseDialogComponent } from './commande-import-respons
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ImportationNewCommandeComponent } from './importation-new-commande.component';
-import { IDelivery } from '../../shared/model/delevery.model';
 import { CommandeEnCoursComponent } from './commande-en-cours/commande-en-cours.component';
-import { CommandePassesComponent } from './commande-passes/commande-passes.component';
-import { CommandeRecusComponent } from './commande-recus/commande-recus.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -27,7 +24,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { CardModule } from 'primeng/card';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
@@ -35,6 +32,14 @@ import { CommandCommonService } from './command-common.service';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { BonEnCoursComponent } from './delevery/bon-en-cours/bon-en-cours.component';
+import { ListBonsComponent } from './delevery/list-bons/list-bons.component';
+import { Divider } from 'primeng/divider';
+import { SuggestionComponent } from './suggestion/suggestion.component';
+import { FournisseurService } from '../fournisseur/fournisseur.service';
+import { HttpResponse } from '@angular/common/http';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-commande',
@@ -57,11 +62,15 @@ import { InputIcon } from 'primeng/inputicon';
     ToolbarModule,
     InputTextModule,
     CommandeEnCoursComponent,
-    CommandePassesComponent,
-    CommandeRecusComponent,
     PanelModule,
     IconField,
     InputIcon,
+    BonEnCoursComponent,
+    ListBonsComponent,
+    Divider,
+    SuggestionComponent,
+    ReactiveFormsModule,
+    Select,
   ],
   styles: [
     `
@@ -88,29 +97,39 @@ export class CommandeComponent implements OnInit {
 
   commandes: ICommande[] = [];
   commandeSelected?: ICommande;
-  selectedRowIndex?: number;
-  tooltipPosition = 'left';
   selectedFilter = 'REQUESTED';
   loading!: boolean;
-  selectedtypeSuggession = 'ALL';
-  typeSuggessions: any[] = [];
+  protected selectedtypeSuggession: string = null;
   fileDialog = false;
   ref!: DynamicDialogRef;
-  commandCommonService = inject(CommandCommonService);
-  commandeEnCoursComponent = viewChild(CommandeEnCoursComponent);
-  commandePasses = viewChild(CommandePassesComponent);
-  commandeRecues = viewChild(CommandeRecusComponent);
+  private readonly commandCommonService = inject(CommandCommonService);
+  private readonly commandeEnCoursComponent = viewChild(CommandeEnCoursComponent);
+  private readonly suggestion = viewChild(SuggestionComponent);
+  private readonly enCoursComponent = viewChild(BonEnCoursComponent);
+  private readonly listBonsComponent = viewChild(ListBonsComponent);
+  protected fournisseurService = inject(FournisseurService);
   protected searchCommande = '';
   protected active = 'REQUESTED';
   protected search = '';
   protected selectionLength = 0;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  protected readonly display = false;
+  protected selectFournisseurId: number | null = null;
+  protected fournisseurs: IFournisseur[] = [];
+  protected typeSuggessions = [
+    // { label: 'Tous', value: 'ALL' },
+    { label: 'Auto', value: 'AUTO' },
+    { label: 'Manuelle', value: 'MANUELLE' },
+  ];
 
   ngOnInit(): void {
+    this.fournisseurService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IFournisseur[]>) => {
+        this.fournisseurs = res.body || [];
+      });
     this.active = this.commandCommonService.commandPreviousActiveNav();
   }
 
@@ -118,17 +137,32 @@ export class CommandeComponent implements OnInit {
     this.active = evt.nextId;
     this.commandCommonService.updateCommandPreviousActiveNav(this.active);
   }
+  onTypeSuggestionChange(event: any): void {
+    this.selectedtypeSuggession = event.value;
+    setTimeout(() => {
+      this.suggestion().onSearch();
+    }, 50);
+  }
+  onFournisseurChange(event: any): void {
+    this.selectFournisseurId = event.value;
+    setTimeout(() => {
+      this.suggestion().onSearch();
+    }, 50);
+  }
 
   onSearch(): void {
     switch (this.active) {
       case 'REQUESTED':
         this.commandeEnCoursComponent().onSearch();
         break;
-      case 'PASSED':
-        this.commandePasses().onSearch();
+      case 'SUGGESTIONS':
+        this.suggestion().onSearch();
         break;
-      case 'RECEIVED':
-        this.commandeRecues().onSearch();
+      case 'BONS_EN_COURS':
+        this.enCoursComponent().onSearch();
+        break;
+      case 'LIST_BONS':
+        this.listBonsComponent().onSearch();
         break;
     }
   }
@@ -142,16 +176,13 @@ export class CommandeComponent implements OnInit {
   fusionner(): void {
     if (this.active === 'REQUESTED') {
       this.commandeEnCoursComponent().fusionner();
+    } else if (this.active === 'SUGGESTIONS') {
+      this.suggestion().fusionner();
     }
   }
 
   cancel(): void {
     this.fileDialog = false;
-  }
-
-  onShowFileDialog(commande: ICommande): void {
-    this.fileDialog = true;
-    this.commandeSelected = commande;
   }
 
   onImporterReponseCommande(event: any): void {
@@ -213,7 +244,7 @@ export class CommandeComponent implements OnInit {
 
   confirmDeleteSelectedRows(): void {
     this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer ces commandes  ?',
+      message: ' Voullez-vous supprimer ces lignes  ?',
       header: ' SUPPRESSION',
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
@@ -221,38 +252,11 @@ export class CommandeComponent implements OnInit {
       accept: () => {
         if (this.active === 'REQUESTED') {
           this.commandeEnCoursComponent().removeAll();
-        } else if (this.active === 'PASSED') {
-          this.commandePasses().removeAll();
+        } else if (this.active === 'SUGGESTIONS') {
+          this.suggestion().deleteAll();
         }
       },
       key: 'deleteCommande',
-    });
-  }
-
-  confirmRollback(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous LES retourner dans commande en cours ?',
-      header: ' SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        if (this.active === 'PASSED') {
-          this.commandePasses().rollbackAll();
-        }
-      },
-      key: 'deleteCommande',
-    });
-  }
-
-  gotoEntreeStockComponent(delivery: IDelivery): void {
-    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
-    this.router.navigate(['/commande', delivery.id, 'stock-entry']);
-  }
-
-  test(): void {
-    this.commandeService.test({ model: 'TEDIS' }).subscribe(() => {
-      console.error('===============================');
     });
   }
 

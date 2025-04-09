@@ -75,4 +75,22 @@ public class ReferenceService {
             return reference.getNum();
         }
     }
+
+    public String buildSuggestionReference() {
+        Reference reference;
+        Optional<Reference> op = referenceRepository.findOneBymvtDateAndType(LocalDate.now(), Constants.REFERENCE_TYPE_SUGGESTION);
+        if (op.isPresent()) {
+            reference = op.get();
+            reference.setNumberTransac(reference.getNumberTransac() + 1);
+        } else {
+            reference = new Reference();
+            reference.setType(Constants.REFERENCE_TYPE_SUGGESTION);
+            reference.setMvtDate(LocalDate.now());
+            reference.setNumberTransac(1);
+        }
+        String ref = reference.getMvtDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        reference.setNum(ref.concat(StringUtils.leftPad(String.valueOf(reference.getNumberTransac()), 3, '0')));
+        referenceRepository.save(reference);
+        return reference.getNum();
+    }
 }

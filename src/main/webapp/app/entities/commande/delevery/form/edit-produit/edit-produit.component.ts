@@ -83,11 +83,6 @@ export class EditProduitComponent implements OnInit {
     principal: [],
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   save(): void {
     this.isSaving = true;
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));

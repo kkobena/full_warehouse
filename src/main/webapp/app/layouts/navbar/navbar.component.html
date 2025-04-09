@@ -90,18 +90,7 @@
                   <span jhiTranslate="global.menu.entities.commande">Commande</span>
                 </a>
               </li>
-              <li *jhiHasAnyAuthority="['gestion-entree', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/gestion-entree"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faShoppingBasket"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.delivery">Entrée en stock</span>
-                </a>
-              </li>
+
               <li *jhiHasAnyAuthority="['produit', 'inventory-transaction', 'ROLE_ADMIN']">
                 <a
                   (click)="collapseNavbar()"

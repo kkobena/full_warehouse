@@ -33,7 +33,6 @@ export interface IOrderLine {
   quantityUG?: number;
   provisionalCode?: boolean;
   ugQuantity?: number;
-
   lots?: ILot[];
 }
 
@@ -70,4 +69,11 @@ export class OrderLine implements IOrderLine {
     public ugQuantity?: number,
     public lots?: ILot[],
   ) {}
+}
+export class OrderLineLot {
+  quantity?: number;
+  freeQuantity?: number;
+  lotNumber?: string;
+  expirationDate?: Date;
+  manufacturingDate?: Date;
 }

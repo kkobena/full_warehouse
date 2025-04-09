@@ -59,19 +59,20 @@
         <td class="text-right">
           <div class="btn-group">
             @if (row.statut === 'PENDING0') {
-              <p-button severity="success" [rounded]="true" icon="pi pi-pencil" pTooltip="Editer"> </p-button>
+              <p-button text severity="success" [rounded]="true" icon="pi pi-pencil" pTooltip="Editer"> </p-button>
             }
             @if (row.statut === 'PENDING') {
               <p-button
                 [routerLink]="['/commande', row.id, 'stock-entry']"
                 severity="help"
                 [rounded]="true"
+                text
                 icon="pi pi-upload"
                 pTooltip="Faire l'entréé en  stock"
               ></p-button>
             }
 
-            <p-button (click)="exportPdf(row)" [rounded]="true" icon="pi pi-file-pdf" pTooltip="Imprimer" severity="warn"></p-button>
+            <p-button text (click)="exportPdf(row)" [rounded]="true" icon="pi pi-file-pdf" pTooltip="Imprimer" severity="warn"></p-button>
           </div>
         </td>
       </tr>

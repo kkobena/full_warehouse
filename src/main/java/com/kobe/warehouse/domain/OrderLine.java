@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.service.dto.LotJsonValue;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +14,11 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * A OrderLine.
@@ -107,6 +112,10 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "provisional_code")
     private Boolean provisionalCode = Boolean.FALSE;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "lots")
+    private Set<LotJsonValue> lots = new HashSet<>();
+
     public Long getId() {
         return id;
     }
@@ -121,6 +130,14 @@ public class OrderLine implements Serializable, Cloneable {
 
     public void setQuantityReceived(Integer quantityReceived) {
         this.quantityReceived = quantityReceived;
+    }
+
+    public Set<LotJsonValue> getLots() {
+        return lots;
+    }
+
+    public void setLots(Set<LotJsonValue> lots) {
+        this.lots = lots;
     }
 
     public @NotNull Integer getInitStock() {

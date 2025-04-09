@@ -40,4 +40,5 @@ public final class EntityConstant {
     public static final String APP_RESET_INVOICE_NUMBER = "APP_RESET_INVOICE_NUMBER";
     public static final String SANS_EMPLACEMENT_CODE = "SANS";
     public static final Long DEFAULT_TYPE_ETIQUETTES = 2L;
+    public static final String APP_SUGGESTION_RETENTION = "APP_SUGGESTION_RETENTION";
 }

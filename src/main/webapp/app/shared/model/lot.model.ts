@@ -1,6 +1,5 @@
 export interface ILot {
   id?: number;
-  commandeId?: number;
   receiptItemId?: number;
   quantity?: number;
   numLot?: string;
@@ -10,12 +9,13 @@ export interface ILot {
   expiryDate?: string;
   ugQuantityReceived?: number;
   quantityReceived?: number;
+  linkedId?: number;
+  freeQuantity?: number;
 }
 
 export class Lot implements ILot {
   constructor(
     public id?: number,
-    public commandeId?: number,
     public receiptItemQuantityRequested?: number,
     public receiptItemId?: number,
     public quantity?: number,

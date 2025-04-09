@@ -1,11 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
@@ -13,20 +8,17 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
-import com.kobe.warehouse.service.dto.CommandeDTO;
-import com.kobe.warehouse.service.dto.CommandeModel;
-import com.kobe.warehouse.service.dto.CommandeResponseDTO;
-import com.kobe.warehouse.service.dto.OrderItem;
-import com.kobe.warehouse.service.dto.OrderLineDTO;
-import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
+import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
+import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.FileUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +43,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -229,7 +222,10 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void deleteById(Long id) {
         Commande commande = commandeRepository.getReferenceById(id);
-        orderLineService.removeProductState(commande.getOrderLines().stream().map(e -> e.getFournisseurProduit().getProduit()).toList());
+        orderLineService.removeProductState(
+            commande.getOrderLines().stream().map(e -> e.getFournisseurProduit().getProduit()).toList(),
+            commande.getOrderStatus()
+        );
         commandeRepository.delete(commande);
     }
 
@@ -269,7 +265,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.PASSED);
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setLastUserEdit(storageService.getUser());
-        orderLineService.updateRequestedLineToPassedLine(commande.getOrderLines());
+        orderLineService.updateRequestedLineToPassedLine(new ArrayList<>(commande.getOrderLines()));
         commandeRepository.save(commande);
     }
 
@@ -417,7 +413,9 @@ public class CommandServiceImpl implements CommandService {
                         orderCostAmount,
                         orderUnitPrice,
                         fournisseurProduit,
-                        currentStock
+                        currentStock,
+                        null,
+                        null
                     );
                 } else {
                     items.add(
@@ -445,13 +443,16 @@ public class CommandServiceImpl implements CommandService {
         int orderCostAmount,
         int orderUnitPrice,
         FournisseurProduit fournisseurProduit,
-        int currentStock
+        int currentStock,
+        String lotNumber,
+        LocalDate expirationDate
     ) {
         findInCommandeMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
             orderLine -> {
                 int oldQty = orderLine.getQuantityReceived();
                 int oldTaxAmount = orderLine.getTaxAmount();
                 updateInRecord(commande, orderLine, quantityReceived, 0, oldQty, oldTaxAmount, 0);
+                buildLot(orderLine, quantityReceived, lotNumber, expirationDate, 0, null);
             },
             () ->
                 createInRecord(
@@ -464,7 +465,11 @@ public class CommandServiceImpl implements CommandService {
                     orderUnitPrice,
                     0,
                     currentStock,
-                    0
+                    0,
+                    lotNumber,
+                    expirationDate,
+                    0,
+                    null
                 )
         );
         succesCount++;
@@ -525,7 +530,11 @@ public class CommandServiceImpl implements CommandService {
                                     orderUnitPrice,
                                     quantityUg,
                                     currentStock,
-                                    taxAmount
+                                    taxAmount,
+                                    null,
+                                    null,
+                                    0,
+                                    null
                                 )
                         );
                         succesCount++;
@@ -602,7 +611,11 @@ public class CommandServiceImpl implements CommandService {
                                     orderUnitPrice,
                                     quantityUg,
                                     currentStock,
-                                    0
+                                    0,
+                                    null,
+                                    null,
+                                    0,
+                                    null
                                 )
                         );
                         succesCount++;
@@ -656,6 +669,9 @@ public class CommandServiceImpl implements CommandService {
                 int quantityReceived = new BigDecimal(record.get(3)).intValue();
                 int orderCostAmount = new BigDecimal(record.get(2)).intValue();
                 int orderUnitPrice = new BigDecimal(record.get(5)).intValue();
+                String lotNumero = record.get(6);
+                String dateP = record.get(7);
+                LocalDate datePeremption = DateUtil.fromYyyyMmDd(dateP);
 
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
@@ -673,7 +689,9 @@ public class CommandServiceImpl implements CommandService {
                         orderCostAmount,
                         orderUnitPrice,
                         fournisseurProduit,
-                        currentStock
+                        currentStock,
+                        lotNumero,
+                        datePeremption
                     );
                 } else {
                     items.add(
@@ -684,6 +702,8 @@ public class CommandServiceImpl implements CommandService {
                             .setPrixUn(orderUnitPrice)
                             .setQuantityReceived(quantityReceived)
                             .setPrixAchat(orderCostAmount)
+                            .setLotNumber(lotNumero)
+                            .setDatePeremption(dateP)
                     );
                 }
             }
@@ -745,7 +765,11 @@ public class CommandServiceImpl implements CommandService {
                                 orderUnitPrice,
                                 0,
                                 currentStock,
-                                (int) taxAmount
+                                (int) taxAmount,
+                                null,
+                                null,
+                                0,
+                                null
                             )
                     );
                     succesCount++;
@@ -793,6 +817,7 @@ public class CommandServiceImpl implements CommandService {
         int quantitUg
     ) {
         updateOrderLineFromRecord(orderLine, quantityReceived, quantitUg, taxAmount);
+
         /*  commande.removeOrderLine(orderLine);
     commande.addOrderLine(orderLine);*/
         updateCommandeAmountDuringUploading(commande, orderLine, oldQty, oldTaxAmount);
@@ -808,7 +833,11 @@ public class CommandServiceImpl implements CommandService {
         int orderUnitPrice,
         int quantityUg,
         int currentStock,
-        int taxAmount
+        int taxAmount,
+        String lotNumber,
+        LocalDate expirationDate,
+        int lotNumberUg,
+        LocalDate manufactureDate
     ) {
         OrderLine orderLineNew = orderLineService.createOrderLine(
             commande,
@@ -824,6 +853,7 @@ public class CommandServiceImpl implements CommandService {
             )
         );
         orderLineNew.setFournisseurProduit(fournisseurProduit);
+        buildLot(orderLineNew, quantityReceived, lotNumber, expirationDate, lotNumberUg, manufactureDate);
         commande.addOrderLine(orderLineNew);
         updateCommandeAmountDuringUploading(commande, orderLineNew, 0, 0);
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
@@ -920,8 +950,7 @@ public class CommandServiceImpl implements CommandService {
         } catch (IOException e) {
             log.debug("{0}", e);
         }
-        verificationResponseCommandeDTO.setItems(items);
-        verificationResponseCommandeDTO.setExtraItems(extraItems);
+        verificationResponseCommandeDTO.setItems(items).setExtraItems(extraItems);
         return verificationResponseCommandeDTO;
     }
 
@@ -1001,9 +1030,7 @@ public class CommandServiceImpl implements CommandService {
         } catch (IOException e) {
             log.debug("{0}", e);
         }
-        verificationResponseCommandeDTO.setItems(items);
-        verificationResponseCommandeDTO.setExtraItems(extraItems);
-        return verificationResponseCommandeDTO;
+        return verificationResponseCommandeDTO.setItems(items).setExtraItems(extraItems);
     }
 
     private void saveOrderLines(Set<OrderLine> orderLines) {
@@ -1129,7 +1156,11 @@ public class CommandServiceImpl implements CommandService {
                                 fournisseurProduit.getPrixUni(),
                                 0,
                                 currentStock,
-                                0
+                                0,
+                                null,
+                                null,
+                                0,
+                                null
                             )
                     );
                     succesCount++;
@@ -1208,7 +1239,11 @@ public class CommandServiceImpl implements CommandService {
                                 fournisseurProduit.getPrixUni(),
                                 0,
                                 currentStock,
-                                0
+                                0,
+                                null,
+                                null,
+                                0,
+                                null
                             )
                     );
                     succesCount++;
@@ -1232,5 +1267,27 @@ public class CommandServiceImpl implements CommandService {
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
+    }
+
+    private void buildLot(
+        OrderLine orderLine,
+        int quantity,
+        String lotNumber,
+        LocalDate expirationDate,
+        int freeQuantity,
+        LocalDate manufacturingDate
+    ) {
+        if (StringUtils.hasLength(lotNumber)) {
+            orderLine
+                .getLots()
+                .add(
+                    new LotJsonValue()
+                        .setNumLot(lotNumber)
+                        .setFreeQuantity(quantity)
+                        .setExpiryDate(expirationDate)
+                        .setQuantity(quantity)
+                        .setManufacturingDate(manufacturingDate)
+                );
+        }
     }
 }

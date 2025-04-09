@@ -76,9 +76,6 @@ export class FormLotComponent implements OnInit {
     manufacturingDate: new FormControl<Date | null>(null),
   });
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -199,8 +196,7 @@ export class FormLotComponent implements OnInit {
         : null,
       quantityReceived: this.editForm.get(['quantityReceived']).value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived']).value,
-      commandeId: this.commandeId,
-      receiptItemId: this.deliveryItem.id,
+      receiptItemId: this.deliveryItem?.id,
     };
   }
 

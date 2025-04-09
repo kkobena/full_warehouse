@@ -18,6 +18,7 @@ public class OrderItem {
     private String facture;
     private String etablissement;
     private String datePeremption;
+    private String lotNumber;
 
     public OrderItem() {}
 
@@ -63,6 +64,15 @@ public class OrderItem {
 
     public OrderItem setQuantityRequested(int quantityRequested) {
         this.quantityRequested = quantityRequested;
+        return this;
+    }
+
+    public String getLotNumber() {
+        return lotNumber;
+    }
+
+    public OrderItem setLotNumber(String lotNumber) {
+        this.lotNumber = lotNumber;
         return this;
     }
 
@@ -115,8 +125,9 @@ public class OrderItem {
         return datePeremption;
     }
 
-    public void setDatePeremption(String datePeremption) {
+    public OrderItem setDatePeremption(String datePeremption) {
         this.datePeremption = datePeremption;
+        return this;
     }
 
     public double getPrixUn() {

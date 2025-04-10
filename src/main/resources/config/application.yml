@@ -212,4 +212,5 @@ jhipster:
 # ===================================================================
 
 # application:
+portCom:
 legacy-url: http://localhost:9090/laborex

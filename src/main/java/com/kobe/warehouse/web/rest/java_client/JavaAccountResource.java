@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import jakarta.validation.Valid;
@@ -23,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaAccountResource extends AccountResourcesProxy {
 
-    public JavaAccountResource(UserRepository userRepository, UserService userService) {
-        super(userRepository, userService);
+    public JavaAccountResource(UserRepository userRepository, UserService userService, AfficheurPosService afficheurPosService) {
+        super(userRepository, userService,afficheurPosService);
     }
 
     @GetMapping("/account")

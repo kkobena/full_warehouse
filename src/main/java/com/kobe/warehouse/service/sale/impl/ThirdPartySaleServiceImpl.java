@@ -53,6 +53,7 @@ import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -112,7 +113,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         PosteRepository posteRepository,
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository
+        RemiseRepository remiseRepository, AfficheurPosService afficheurPosService
     ) {
         super(
             referenceService,
@@ -122,7 +123,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             salesLineService,
             cashRegisterService,
             avoirService,
-            posteRepository
+            posteRepository,afficheurPosService
         );
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
@@ -156,6 +157,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         saleLine.setSales(sale);
         salesLineService.saveSalesLine(saleLine);
+        this.displayNet(thirdPartySales.getPartAssure());
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(sale);
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(thirdPartySaleDTO, message);
@@ -324,6 +326,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
         }
+        this.displayNet(thirdPartySales.getPartAssure());
         return new SaleLineDTO(salesLine);
     }
 
@@ -339,6 +342,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         sales.setLastUserEdit(storageService.getUser());
         thirdPartySaleRepository.save(sales);
         salesLineService.deleteSaleLine(salesLine);
+        this.displayNet(sales.getPartAssure());
     }
 
     @Override
@@ -356,6 +360,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
         thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
         }
@@ -372,6 +377,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
         thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
         }
@@ -441,6 +447,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
             .ifPresent(o -> p.setNumBon(o.getNumBon()));
         thirdPartySaleRepository.save(p);
+        displayMonnaie(dto.getMontantRendu());
         return new FinalyseSaleDTO(p.getId(), true);
     }
 
@@ -462,6 +469,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
         ThirdPartySales thirdPartySales = (ThirdPartySales) salesLine.getSales();
         thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        this.displayNet(thirdPartySales.getPartAssure());
         return new SaleLineDTO(salesLine);
     }
 
@@ -493,6 +501,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         applRemiseToSale(thirdPartySales);
         var message = reComputeAmounts(thirdPartySales);
         var tp = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
             ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(tp);
             throw new PlafondVenteException(thirdPartySaleDTO, message);
@@ -511,7 +520,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 thirdPartySales.getThirdPartySaleLines().remove(thirdPartySaleLine);
                 thirdPartySaleLineRepository.delete(thirdPartySaleLine);
                 reComputeAmounts(thirdPartySales);
+
                 thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+                this.displayNet(thirdPartySales.getPartAssure());
             });
     }
 
@@ -526,6 +537,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             salesLineService.saveSalesLine(salesLine);
         }
         this.cashSaleRepository.delete(cashSale);
+        this.displayNet(c.getPartAssure());
         return c.getId();
     }
 
@@ -939,6 +951,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public void processDiscount(KeyValue keyValue) {
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(keyValue.key());
         remiseRepository.findById(keyValue.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
+        this.displayNet(thirdPartySales.getPartAssure());
     }
 
     private void processDiscount(ThirdPartySales thirdPartySales, Remise remise) {

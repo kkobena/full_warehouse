@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +48,7 @@ public class SaleCommonService {
     private final CashRegisterService cashRegisterService;
     private final AvoirService avoirService;
     private final PosteRepository posteRepository;
+    private final AfficheurPosService afficheurPosService;
 
     public SaleCommonService(
         ReferenceService referenceService,
@@ -55,7 +58,7 @@ public class SaleCommonService {
         SalesLineService salesLineService,
         CashRegisterService cashRegisterService,
         AvoirService avoirService,
-        PosteRepository posteRepository
+        PosteRepository posteRepository, AfficheurPosService afficheurPosService
     ) {
         this.referenceService = referenceService;
         this.warehouseCalendarService = warehouseCalendarService;
@@ -65,6 +68,7 @@ public class SaleCommonService {
         this.cashRegisterService = cashRegisterService;
         this.avoirService = avoirService;
         this.posteRepository = posteRepository;
+        this.afficheurPosService = afficheurPosService;
     }
 
     public void computeSaleEagerAmount(Sales c, int amount, int oldSalesAmount) {
@@ -493,5 +497,16 @@ public class SaleCommonService {
                 this.computeRemisableAmount((RemiseClient) remise, sales);
             }
         }
+    }
+
+    protected void  displayMonnaie(Integer monnaie) {
+        if (Objects.requireNonNullElse(monnaie,0)>0) {
+            afficheurPosService.displayMonnaie(monnaie);
+        }
+    }
+
+    protected void  displayNet(Integer net) {
+        afficheurPosService.displaySaleTotal(Objects.requireNonNullElse(net,0));
+
     }
 }

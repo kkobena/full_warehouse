@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.EmailAlreadyUsedException;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
 import java.util.Optional;
@@ -17,10 +18,12 @@ public class AccountResourcesProxy {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final AfficheurPosService afficheurPosService;
 
-    public AccountResourcesProxy(UserRepository userRepository, UserService userService) {
+    public AccountResourcesProxy(UserRepository userRepository, UserService userService, AfficheurPosService afficheurPosService) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.afficheurPosService = afficheurPosService;
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
@@ -32,7 +35,9 @@ public class AccountResourcesProxy {
     }
 
     protected AdminUserDTO getAccount() {
-        return userService.getUserConnectedWithAuthorities().orElseThrow(() -> new AccountResourceException("User could not be found"));
+        AdminUserDTO userDTO = userService.getUserConnectedWithAuthorities().orElseThrow(() -> new AccountResourceException("User could not be found"));
+       afficheurPosService.connectedUserMessage(userDTO.getLastName());
+        return userDTO;
     }
 
     protected void saveAccount(AdminUserDTO userDTO) {

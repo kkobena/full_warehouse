@@ -51,6 +51,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +92,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         AvoirService avoirService,
         PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository
+        RemiseRepository remiseRepository, AfficheurPosService afficheurPosService
     ) {
         super(
             referenceService,
@@ -100,7 +102,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             salesLineService,
             cashRegisterService,
             avoirService,
-            posteRepository
+            posteRepository,afficheurPosService
         );
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;
@@ -132,6 +134,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             (sales.getCostAmount() - (oldQty * salesLine.getCostAmount())) + (salesLine.getQuantitySold() * salesLine.getCostAmount())
         );
         salesRepository.save(sales);
+        this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
     }
 
@@ -241,6 +244,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         saleLine.setSales(cashSale);
 
         salesLineService.saveSalesLine(saleLine);
+        this.displayNet(cashSale.getNetAmount());
         return new CashSaleDTO(sale);
     }
 
@@ -268,6 +272,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         //   this.proccessDiscount(sales);
         upddateCashSaleAmounts(sales, salesLine, oldSalesLine);
         cashSaleRepository.saveAndFlush(sales);
+        this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
     }
 
@@ -278,6 +283,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         CashSale sales = (CashSale) salesLine.getSales();
         this.proccessDiscount(sales);
         cashSaleRepository.saveAndFlush(sales);
+        this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
     }
 
@@ -289,6 +295,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         Sales sales = salesLine.getSales();
         upddateCashSaleAmounts((CashSale) sales, salesLine, OldSalesLine);
         salesRepository.saveAndFlush(sales);
+        this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
     }
 
@@ -334,6 +341,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, ticket, cashSale.getUser());
         cashSale.setTvaEmbeded(ticket.getTva());
         salesRepository.save(cashSale);
+        displayMonnaie(dto.getMontantRendu());
 
         return new FinalyseSaleDTO(cashSale.getId(), true);
     }
@@ -366,6 +374,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         sales.setEffectiveUpdateDate(sales.getUpdatedAt());
         cashSaleRepository.save(sales);
         salesLineService.deleteSaleLine(salesLine);
+        this.displayNet(sales.getNetAmount());
     }
 
     @Override
@@ -470,6 +479,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                         computeCashSaleAmountToPaid(cashSale);
                         arrondirMontantCaisse(cashSale);
                         this.cashSaleRepository.save(cashSale);
+                        this.displayNet(cashSale.getNetAmount());
                     });
             });
     }
@@ -479,5 +489,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         CashSale sales = cashSaleRepository.getReferenceById(salesId);
         this.removeRemise(sales);
         this.cashSaleRepository.save(sales);
+        this.displayNet(sales.getNetAmount());
     }
 }

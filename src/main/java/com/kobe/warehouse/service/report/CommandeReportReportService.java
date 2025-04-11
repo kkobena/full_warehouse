@@ -18,11 +18,10 @@ public class CommandeReportReportService extends CommonReportService {
 
     private final SpringTemplateEngine templateEngine;
     private final StorageService storageService;
-
     private final Map<String, Object> variablesMap = new HashMap<>();
     private CommandeDTO commande;
     private String templateFile;
-    private String contextAsString;
+
 
     public CommandeReportReportService(
         SpringTemplateEngine templateEngine,

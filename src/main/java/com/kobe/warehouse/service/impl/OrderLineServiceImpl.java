@@ -1,9 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
 import com.kobe.warehouse.repository.CustomizedProductService;
@@ -303,7 +300,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         return fournisseurProduitService.getFournisseurProduitsByFournisseur(founisseurId, PageRequest.of(0, 1000));
     }
 
-    public OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
+    private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setUpdatedAt(commande.getCreatedAt());
@@ -319,6 +316,27 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setProvisionalCode(orderLineDTO.getProvisionalCode());
         orderLine.setQuantityUg(orderLineDTO.getQuantityUg());
         orderLine.setTaxAmount(orderLine.getTaxAmount());
+        return orderLine;
+    }
+@Override
+    public OrderLine buildOrderLine(SuggestionLine suggestionLine) {
+      FournisseurProduit fournisseurProduit=suggestionLine.getFournisseurProduit();
+       int stockProduit = fournisseurProduit.getProduit().getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+        OrderLine orderLine = new OrderLine();
+        orderLine.setCreatedAt(LocalDateTime.now());
+        orderLine.setUpdatedAt(orderLine.getCreatedAt());
+        orderLine.setQuantityReceived(0);
+        orderLine.setInitStock(stockProduit);
+        orderLine.setQuantityRequested(suggestionLine.getQuantity());
+        orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
+        orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
+        orderLine.setOrderAmount(orderLine.getOrderUnitPrice()* suggestionLine.getQuantity());
+        orderLine.setCostAmount(fournisseurProduit.getPrixAchat());
+        orderLine.setRegularUnitPrice(fournisseurProduit.getPrixUni());
+        orderLine.setGrossAmount(orderLine.getOrderCostAmount()* suggestionLine.getQuantity());
+        orderLine.setProvisionalCode(false);
+        orderLine.setQuantityUg(0);
+        orderLine.setTaxAmount(0);
         return orderLine;
     }
 }

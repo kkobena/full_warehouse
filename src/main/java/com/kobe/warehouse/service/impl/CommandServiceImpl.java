@@ -334,6 +334,11 @@ public class CommandServiceImpl implements CommandService {
         return commandeResponse;
     }
 
+    @Override
+    public void createCommandeFromSuggestion(Suggestion suggestion) {
+        buildNew(suggestion);
+    }
+
     private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long commandeId) {
         if (Objects.isNull(commandeResponse) || commandeResponse.getItems().isEmpty()) {
             return;
@@ -1283,11 +1288,38 @@ public class CommandServiceImpl implements CommandService {
                 .add(
                     new LotJsonValue()
                         .setNumLot(lotNumber)
-                        .setFreeQuantity(quantity)
+                        .setFreeQuantity(freeQuantity)
                         .setExpiryDate(expirationDate)
                         .setQuantity(quantity)
                         .setManufacturingDate(manufacturingDate)
                 );
         }
     }
+
+    private Commande buildNew(Suggestion suggestion) {
+        User user = storageService.getUser();
+        Commande commande = new Commande();
+        commande.setCalendar(warehouseCalendarService.initCalendar());
+        commande.setCreatedAt(LocalDateTime.now());
+        commande.setUpdatedAt(commande.getCreatedAt());
+        commande.setOrderStatus(OrderStatut.REQUESTED);
+        commande.setUser(user);
+        commande.setLastUserEdit(user);
+        commande.setMagasin(user.getMagasin());
+        commande.setOrderRefernce(referenceService.buildNumCommande());
+        commande.setGrossAmount(0);
+        commande.setOrderAmount(0);//getGrossAmount
+        commande.setFournisseur(suggestion.getFournisseur());
+        suggestion.getSuggestionLines().forEach(suggestionLine -> {
+        OrderLine orderLine=   this.orderLineService.buildOrderLine(suggestionLine);
+            orderLine.setCommande(commande);
+            commande.setGrossAmount(  commande.getGrossAmount() + orderLine.getGrossAmount());
+            commande.setOrderAmount(  commande.getOrderAmount() + orderLine.getOrderAmount());
+            commande.getOrderLines().add(orderLine);
+
+        });
+        return commandeRepository.save(commande);
+
+    }
+
 }

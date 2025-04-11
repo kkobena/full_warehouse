@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.dto.projection;
+package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;

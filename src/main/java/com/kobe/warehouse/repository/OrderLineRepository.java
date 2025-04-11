@@ -24,4 +24,5 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
 
     boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatus(Long produitId, OrderStatut orderStatus);
+    int countByFournisseurProduitProduitIdAndCommandeOrderStatus(Long produitId, OrderStatut orderStatus);
 }

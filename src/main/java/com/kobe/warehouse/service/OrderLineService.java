@@ -1,9 +1,6 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -63,4 +60,5 @@ public interface OrderLineService {
 
     void rollbackProductState(List<Produit> produits);
     int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
+    OrderLine buildOrderLine(SuggestionLine suggestionLine);
 }

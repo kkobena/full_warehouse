@@ -13,5 +13,7 @@ public record SuggestionLineDTO(
     long produitId,
     long fournisseurProduitId,
     int currentStock,
-    EtatProduit etatProduit
+    EtatProduit etatProduit,
+    int prixAchat,
+    int prixVente
 ) {}

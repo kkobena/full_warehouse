@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
@@ -45,4 +46,5 @@ public interface CommandService {
     VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile);
 
     CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
+    void createCommandeFromSuggestion(Suggestion suggestion);
 }

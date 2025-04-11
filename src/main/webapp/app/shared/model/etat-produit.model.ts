@@ -5,4 +5,6 @@ export class EtatProduit {
   enSuggestion: boolean;
   enCommande: boolean;
   entree: boolean;
+  otherSuggestion: boolean;
+  otherCommande: boolean;
 }

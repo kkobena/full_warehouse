@@ -9,7 +9,7 @@
       </div>
       <div class="card-body">
         <ul class="list-group">
-          @let sug = suggestion();
+          @let sug = writableSignal();
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Référence
             <span class="badge text-bg-secondary fw-bold">{{ sug.suggessionReference }}</span>
@@ -26,36 +26,101 @@
             Type de suggestion
             <span class="badge text-bg-secondary fw-bold">{{ sug.typeSuggession }}</span>
           </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Nombre de produits
+            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount |number }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur achat
+            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat |number }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur vente
+            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente |number }}</span>
+          </li>
         </ul>
       </div>
     </div>
   </div>
   <div class="col-sm-12 col-sm-8 col-lg-9 col-xl-9 col-md-8">
+
     <p-toolbar>
-      <ng-template #start>
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch($event.target.value)" pInputText placeholder="Taper pour rechercher" type="text" />
-        </p-iconfield>
-      </ng-template>
-      <ng-template #end>
-        <div class="d-flex justify-content-end">
-          <p-button [raised]="true" class="mr-1" icon="pi pi-upload" label="Commander" severity="primary" type="button"></p-button>
-          <p-button
-            (click)="sanitize()"
-            class="mr-1"
-            [raised]="true"
-            icon="pi pi-objects-column"
-            label="Purger"
-            severity="info"
-            type="button"
-          ></p-button>
-          @if (selections?.length) {
-            <p-button [raised]="true" icon="pi pi-trash" label="Supprimer" severity="danger" type="button"></p-button>
-          }
-          <p-button (onClick)="previousState()" severity="secondary" icon="pi pi-arrow-left" label="Retour" />
+      <div class="row" style="width: 100%;padding-right: 0;">
+        <div class="col-md-10 col-xl-9 col-lg-9 col-sm-10 d-flex justify-content-start">
+          <div style="padding: 0 2px 0 0;" class="flex-grow-1">
+            <p-floatlabel variant="on">
+              <p-autoComplete
+                #produitbox
+                (completeMethod)="searchFn($event)"
+                (onSelect)="onSelect()"
+                [(ngModel)]="produitSelected"
+                [appendTo]="APPEND_TO"
+                [dataKey]="'id'"
+                [dropdown]="true"
+                [emptyMessage]="PRODUIT_NOT_FOUND"
+                [minLength]="PRODUIT_COMBO_MIN_LENGTH"
+                [showEmptyMessage]="true"
+                [showClear]="true"
+                [suggestions]="produits"
+                optionLabel="libelle"
+                id="produit"
+              >
+                <ng-template let-item pTemplate="item">
+                  @if (item.totalQuantity > 0) {
+                    <div [style]="{ width: '100%' }">
+                <span style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                ><span> {{ item.libelle }}</span>
+                      <span class="float-right">{{ item.regularUnitPrice | number }}</span>
+                    </div>
+                  }
+                  @if (item.totalQuantity <= 0) {
+                    <div [style]="{ width: '100%' }">
+                <span class="stockless" style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                ><span class="stockless"> {{ item.libelle }}</span>
+                      <span class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
+                    </div>
+                  }
+                </ng-template>
+              </p-autoComplete>
+              <label for="produit">Produits</label>
+            </p-floatlabel>
+
+          </div>
+          <div style="max-width: 230px;">
+
+              <p-inputgroup>
+                <p-floatlabel variant="on">
+                <input id="quantite"
+                  #quantityBox
+                  (keydown.enter)="onQuantityBoxAction($event)"
+                  [(ngModel)]="quantiteSaisie"
+                  pInputText
+                  type="number"
+                />   <label for="quantite">Quantité</label>   </p-floatlabel>
+                <p-inputgroup-addon>
+                  <p-button
+                    (click)="onQuantity()"
+                    [disabled]="!produitSelected"
+                    [raised]="true"
+                    icon="pi pi-plus"
+                    severity="info"
+                    type="button"
+                  ></p-button>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+
+          </div>
+
+
         </div>
-      </ng-template>
+        <div class="col-md-2 col-xl-3 col-lg-3 col-sm-2 d-flex justify-content-end">
+
+            <p-button (onClick)="previousState()" severity="secondary" icon="pi pi-arrow-left" label="Retour" />
+          </div>
+
+      </div>
+
+
     </p-toolbar>
     @if (suggestions && suggestions.length > 0) {
       <p-table
@@ -73,13 +138,47 @@
         selectionMode="multiple"
         styleClass="p-datatable-striped mt-2"
       >
-        <ng-template pTemplate="header">
+        <ng-template #caption>
+          <div class="d-flex justify-content-between">
+            <div>
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input (keyup.enter)="onSearch($event.target.value)" pInputText placeholder="Taper pour rechercher" type="text" />
+              </p-iconfield>
+            </div>
+            <div class="d-flex justify-content-end">
+
+              <p-button (click)="commander()" [raised]="true" class="mr-1" icon="pi pi-fast-forward" label="Commander" severity="primary"
+                        type="button"></p-button>
+              <p-button class="mr-1" [raised]="true" label="Exporter" severity="help"
+                             icon="pi pi-file-excel" (onClick)="exportCSV()" />
+              <p-splitbutton [hidden]="true" class="mr-1" [raised]="true" label="Exporter" severity="help"
+                             dropdownIcon="pi pi-file-export" [model]="splitbuttons" />
+              <p-button
+                (click)="sanitize()"
+                class="mr-1"
+                [raised]="true"
+                icon="pi pi-objects-column"
+                label="Purger"
+                severity="info"
+                type="button"
+              ></p-button>
+              @if (selections?.length) {
+                <p-button (click)="deleteAll()" [raised]="true" icon="pi pi-trash" label="Supprimer" severity="danger" type="button"></p-button>
+              }
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template #header>
           <tr>
             <th style="width: 20%">Etat</th>
             <th>Code</th>
             <th>Libellé</th>
             <th>Stock</th>
             <th>Quantité</th>
+            <th>Prix.A</th>
+            <th>Prix.U</th>
 
             <th class="table-all-checkbos">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
@@ -89,7 +188,7 @@
         </ng-template>
         <ng-template let-suggestion pTemplate="body">
           <tr>
-            <td><jhi-eta-produit [etatProduit]="suggestion.etatProduit"> </jhi-eta-produit></td>
+            <td><jhi-eta-produit [isSuggestion]="true" [etatProduit]="suggestion.etatProduit"> </jhi-eta-produit></td>
             <td>{{ suggestion.fournisseurProduitCip }}</td>
             <td>{{ suggestion.fournisseurProduitLibelle }}</td>
             @if (suggestion.currentStock < 0) {
@@ -99,19 +198,36 @@
             } @else {
               <td style="text-align: right" class="amount-column">{{ suggestion.currentStock | number }}</td>
             }
-
-            <td style="text-align: right" class="amount-column">{{ suggestion.quantity | number }}</td>
+            <td pEditableColumn  style="text-align: right" class="amount-column">
+              <p-cellEditor>
+                <ng-template #input>
+                  <input
+                    (focus)="$event.target.select()"
+                    (keydown.enter)="onUpdateQuantityRequested(suggestion, $event)"
+                    [value]="suggestion.quantity "
+                    pInputText
+                    required
+                    type="number"
+                  />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ suggestion.quantity | number }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td style="text-align: right" class="amount-column">{{ suggestion.prixAchat | number }}</td>
+            <td style="text-align: right" class="amount-column">{{ suggestion.prixVente | number }}</td>
             <td class="text-center">
               <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
             </td>
             <td class="text-right">
               <div class="btn-group">
                 <p-button
-                  [routerLink]="['/produit', suggestion.produitId, 'edit']"
-                  severity="success"
-                  icon="pi pi-pencil"
+                  [routerLink]="['/produit', suggestion.produitId, 'view']"
+                  severity="info"
+                  icon="pi pi-eye"
                   [rounded]="true"
-                  pTooltip="Editer"
+                  pTooltip="Voir le produit"
                   text
                 >
                 </p-button>

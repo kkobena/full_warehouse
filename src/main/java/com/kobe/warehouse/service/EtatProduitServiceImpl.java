@@ -44,8 +44,8 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockPositif = currentStock > 0;
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
-        boolean enSuggestion = suggestionLineRepository.existsByFournisseurProduitProduitId(idProduit);
-        boolean enCommande = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatus(
+        int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
+        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(
             idProduit,
             OrderStatut.REQUESTED
         );
@@ -53,6 +53,6 @@ public class EtatProduitServiceImpl implements EtatProduitService {
             idProduit,
             ReceiptStatut.PENDING
         );
-        return new EtatProduit(stockPositif, stockNegatif, stockZero, enSuggestion, enCommande, entree);
+        return new EtatProduit(stockPositif, stockNegatif, stockZero, suggestionCount>0, commandeCount>0, entree,suggestionCount>1,commandeCount>1);
     }
 }

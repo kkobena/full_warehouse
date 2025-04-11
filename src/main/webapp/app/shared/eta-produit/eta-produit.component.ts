@@ -32,6 +32,8 @@ import { MeterGroup } from 'primeng/metergroup';
 export class EtaProduitComponent {
   readonly etatProduit = input.required<EtatProduit>();
   readonly showLabel = input<boolean>(true);
+  readonly isSuggestion = input<boolean>(false);
+  readonly isCommande = input<boolean>(false);
 
   private getStockPositif(etat: EtatProduit): number {
     if (etat.stockPositif) {
@@ -52,7 +54,7 @@ export class EtaProduitComponent {
     return 0;
   }
   private getEnSuggestion(etat: EtatProduit): number {
-    if (etat.enSuggestion) {
+    if (etat.enSuggestion || etat.otherSuggestion) {
       return (
         120 -
         (etat.stockPositif ? 20 : 0) -
@@ -64,8 +66,9 @@ export class EtaProduitComponent {
     }
     return 0;
   }
+
   private getEnCommande(etat: EtatProduit): number {
-    if (etat.enCommande) {
+    if (etat.enCommande || etat.otherCommande) {
       return (
         120 -
         (etat.stockPositif ? 20 : 0) -
@@ -118,29 +121,41 @@ export class EtaProduitComponent {
           label: 'N',
         });
       }
-      if (etat.enSuggestion) {
-        values.push({
-          value: this.getEnSuggestion(etat),
-          color: '#60a5fa',
-          label: 'S',
-        });
-      }
-      if (etat.enCommande) {
-        values.push({
-          value: this.getEnCommande(etat),
-          color: '#c084fc',
-          label: 'C',
-        });
-        if (etat.entree) {
+      if (!this.isSuggestion()) {
+        if (etat.enSuggestion) {
           values.push({
-            value: this.getEntree(etat),
-            color: '#9c27b0',
-            label: 'E',
+            value: this.getEnSuggestion(etat),
+            color: '#60a5fa',
+            label: 'S',
+          });
+        }
+      } else {
+        if (etat.otherSuggestion) {
+          values.push({
+            value: this.getEnSuggestion(etat),
+            color: '#60a5fa',
+            label: 'S',
           });
         }
       }
+      if (!this.isCommande()) {
+        if (etat.enCommande) {
+          values.push({
+            value: this.getEnCommande(etat),
+            color: '#c084fc',
+            label: 'C',
+          });
+        }
+      }
+
+      if (etat.entree) {
+        values.push({
+          value: this.getEntree(etat),
+          color: '#9c27b0',
+          label: 'E',
+        });
+      }
     }
-    console.log(values);
     return values;
   }
 }

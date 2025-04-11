@@ -6,5 +6,7 @@ public record EtatProduit(
     boolean stockNegatif,
     boolean enSuggestion,
     boolean enCommande,
-    boolean entree
+    boolean entree,
+    boolean otherSuggestion,
+    boolean otherCommande
 ) {}

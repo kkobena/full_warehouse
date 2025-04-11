@@ -606,13 +606,13 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected onProduitSuccess(data: IProduit[] | null): void {
+  private onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
   }
 
-  protected onError(): void {}
+  private onError(): void {}
 
-  protected subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
+  private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
       next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body),
       error: (err: any) => this.onCommonError(err),

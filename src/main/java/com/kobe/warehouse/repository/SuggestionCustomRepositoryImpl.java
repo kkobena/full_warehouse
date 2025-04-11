@@ -1,10 +1,9 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Fournisseur_;
-import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.Suggestion_;
-import com.kobe.warehouse.service.dto.projection.SuggestionProjection;
+import com.kobe.warehouse.service.dto.SuggestionProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

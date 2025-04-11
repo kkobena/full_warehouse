@@ -3,10 +3,16 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
-import com.kobe.warehouse.service.dto.projection.SuggestionProjection;
+import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+
+import java.io.IOException;
 import java.util.List;
+
+import com.kobe.warehouse.web.rest.Utils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +66,7 @@ public class SuggestionResource {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/items")
+    @PostMapping("/delete/items")
     public ResponseEntity<Void> deleteItems(@RequestBody Keys keys) {
         suggestionProduitService.deleteSuggestionLine(keys.ids());
         return ResponseEntity.noContent().build();
@@ -75,6 +81,28 @@ public class SuggestionResource {
     @PostMapping("/fusionner")
     public ResponseEntity<Void> fusionner(@RequestBody Keys keys) {
         suggestionProduitService.fusionnerSuggestion(keys.ids());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add-item/{id}")
+    public ResponseEntity<Void> addItem(@PathVariable Long id,@RequestBody SuggestionLineDTO suggestionLine) {
+        suggestionProduitService.addSuggestionLine(id, suggestionLine);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/update-quantity")
+    public ResponseEntity<Void> updateQuantity(@RequestBody SuggestionLineDTO suggestionLine) {
+        suggestionProduitService.updateSuggestionLinQuantity(suggestionLine);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/csv/{id}")
+    public ResponseEntity<Resource> exportToCsv(@PathVariable Long id, HttpServletRequest request) throws IOException {
+        final Resource resource = suggestionProduitService.exportToCsv(id);
+        return Utils.exportCsv(resource, request);
+    }
+    @GetMapping("/commander/{id}")
+    public ResponseEntity<Void> commander(@PathVariable Long id) {
+        suggestionProduitService.commander(id);
         return ResponseEntity.ok().build();
     }
 }

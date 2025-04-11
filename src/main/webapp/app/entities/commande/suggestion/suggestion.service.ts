@@ -6,6 +6,8 @@ import { SERVER_API_URL } from '../../../app.constants';
 import { Suggestion } from './model/suggestion.model';
 import { Keys } from '../../../shared/model/keys.model';
 import { SuggestionLine } from './model/suggestion-line.model';
+import { IOrderLine } from '../../../shared/model/order-line.model';
+import { map } from 'rxjs/operators';
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 @Injectable({
   providedIn: 'root',
@@ -44,5 +46,21 @@ export class SuggestionService {
   }
   sanitize(id: number): Observable<{}> {
     return this.http.delete(`${this.resourceUrl}/sanitize/${id}`);
+  }
+  exportToCsv(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/csv/${id}`, { responseType: 'blob' });
+  }
+
+  createOrUpdateItem(item: SuggestionLine, id: number): Observable<HttpResponse<{}>> {
+    return this.http.post(`${this.resourceUrl}/add-item/${id}`, item, { observe: 'response' });
+  }
+  updateQuantity(item: SuggestionLine): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/update-quantity', item, { observe: 'response' });
+  }
+  exportToPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/pdf/${id}`, { responseType: 'blob' });
+  }
+  commander(id: number): Observable<{}> {
+    return this.http.delete(`${this.resourceUrl}/commander/${id}`);
   }
 }

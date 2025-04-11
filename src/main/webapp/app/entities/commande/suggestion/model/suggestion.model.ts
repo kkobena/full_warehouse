@@ -8,4 +8,10 @@ export class Suggestion {
   fournisseurLibelle: string;
   statut: string;
   statutLibelle: string;
+  suggestionAggregator: SuggestionAggregator;
+}
+export class SuggestionAggregator {
+  itemsCount: number;
+  montantAchat: number;
+  montantVente: number;
 }

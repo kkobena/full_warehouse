@@ -44,6 +44,7 @@
         </td>
         <td class="text-right">
           <div class="btn-group">
+
             <p-button
               [routerLink]="['/commande', suggestion.id, 'suggestion']"
               severity="success"
@@ -53,6 +54,7 @@
               text
             >
             </p-button>
+            <p-button [rounded]="true"  text icon="pi pi-fast-forward"  severity="info" type="button"  pTooltip="Commander"></p-button>
             <p-button
               (click)="sanitize(suggestion.id)"
               [rounded]="true"

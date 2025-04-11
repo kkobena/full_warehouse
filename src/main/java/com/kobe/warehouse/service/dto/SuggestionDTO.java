@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.service.dto.projection.SuggestionAggregator;
+
 import java.time.LocalDateTime;
 
 public class SuggestionDTO {
@@ -20,6 +22,16 @@ public class SuggestionDTO {
 
     private TypeSuggession typeSuggession;
     private String fournisseurLibelle;
+    private SuggestionAggregator suggestionAggregator;
+
+    public SuggestionAggregator getSuggestionAggregator() {
+        return suggestionAggregator;
+    }
+
+    public SuggestionDTO setSuggestionAggregator(SuggestionAggregator suggestionAggregator) {
+        this.suggestionAggregator = suggestionAggregator;
+        return this;
+    }
 
     public Long getId() {
         return id;
@@ -92,6 +104,7 @@ public class SuggestionDTO {
         this.fournisseurLibelle = fournisseurLibelle;
         return this;
     }
+
 
     public SuggestionDTO(Suggestion suggestion) {
         this.id = suggestion.getId();

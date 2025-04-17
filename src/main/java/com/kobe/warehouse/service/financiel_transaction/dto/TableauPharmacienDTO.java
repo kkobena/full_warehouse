@@ -31,14 +31,14 @@ public class TableauPharmacienDTO {
     private long montantBonAchat;
     private float ratioAchatVente;
     private float ratioVenteAchat;
-    private Map<Long, Long> achatFournisseus = new HashMap<>();
+    private Map<Long, Long> achatFournisseurs = new HashMap<>();
 
-    public Map<Long, Long> getAchatFournisseus() {
-        return achatFournisseus;
+    public Map<Long, Long> getAchatFournisseurs() {
+        return achatFournisseurs;
     }
 
-    public void setAchatFournisseus(Map<Long, Long> achatFournisseus) {
-        this.achatFournisseus = achatFournisseus;
+    public void setAchatFournisseurs(Map<Long, Long> achatFournisseurs) {
+        this.achatFournisseurs = achatFournisseurs;
     }
 
     public long getAmountToBeTakenIntoAccount() {

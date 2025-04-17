@@ -268,6 +268,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             updateTableauPharmaciens(map, tableauPharmaciens);
             return tableauPharmaciens;
         }
+
         for (TableauPharmacienDTO tableauPharmacien : tableauPharmaciens) {
             if (!map.isEmpty()) {
                 List<AchatDTO> achatDTOS = map.remove(tableauPharmacien.getMvtDate());
@@ -279,7 +280,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
             computeRatioVenteAchat(tableauPharmacien);
             computeRatioAchatVente(tableauPharmacien);
-            tableauPharmacien.setAchatFournisseus(computeMapGroupFournisseurAchat(tableauPharmacien.getGroupAchats()));
+            tableauPharmacien.setAchatFournisseurs(computeMapGroupFournisseurAchat(tableauPharmacien.getGroupAchats()));
         }
         if (!map.isEmpty()) {
             updateTableauPharmaciens(map, tableauPharmaciens);
@@ -292,6 +293,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         if (CollectionUtils.isEmpty(groupAchats)) {
             return Collections.emptyMap();
         }
+
         return groupAchats
             .stream()
             .collect(Collectors.groupingBy(FournisseurAchat::getId, Collectors.summingLong(f -> f.getAchat().getMontantNet())));
@@ -350,6 +352,9 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
             tableauPharmacienDTO.setMvtDate(k);
             tableauPharmacienDTO.setGroupAchats(computeGroupFournisseurAchatPerDay(v));
+            if (tableauPharmaciens.stream().noneMatch(t -> t.getMvtDate().equals(k))) {
+                tableauPharmacienDTO.setAchatFournisseurs(computeMapGroupFournisseurAchat(tableauPharmacienDTO.getGroupAchats()));
+            }
             tableauPharmacienDTO.setMontantBonAchat(
                 tableauPharmacienDTO.getGroupAchats().stream().mapToLong(f -> f.getAchat().getMontantNet()).sum()
             );
@@ -373,7 +378,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         computeAchats(tableauPharmacienWrapper);
         computeRatioVenteAchat(tableauPharmacienWrapper);
         computeRatioAchatVente(tableauPharmacienWrapper);
-        tableauPharmacienWrapper.setAchatFournisseus(
+        tableauPharmacienWrapper.setAchatFournisseurs(
             computeMapGroupFournisseurAchat(
                 tableauPharmacienWrapper.getTableauPharmaciens().stream().flatMap(t -> t.getGroupAchats().stream()).toList()
             )

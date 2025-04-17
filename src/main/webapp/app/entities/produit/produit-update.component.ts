@@ -12,7 +12,6 @@ import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITva } from '../../shared/model/tva.model';
-import { ITypeEtiquette } from '../../shared/model/type-etiquette.model';
 import { CodeRemise } from '../../shared/model/remise.model';
 import { IFormProduit } from '../../shared/model/form-produit.model';
 import { IGammeProduit } from '../../shared/model/gamme-produit.model';
@@ -24,7 +23,6 @@ import { FournisseurService } from '../fournisseur/fournisseur.service';
 import { FamilleProduitService } from '../famille-produit/famille-produit.service';
 import { GammeProduitService } from '../gamme-produit/gamme-produit.service';
 import { TvaService } from '../tva/tva.service';
-import { TypeEtiquetteService } from '../type-etiquette/type-etiquette.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -50,23 +48,10 @@ import { RemiseService } from '../remise/remise.service';
   ],
 })
 export class ProduitUpdateComponent implements OnInit {
-  protected produitService = inject(ProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-  private fb = inject(UntypedFormBuilder);
-  protected rayonService = inject(RayonService);
-  protected laboratoireService = inject(LaboratoireProduitService);
-  protected formeProduitService = inject(FormeProduitService);
-  protected fournisseurService = inject(FournisseurService);
-  protected familleService = inject(FamilleProduitService);
-  protected gammeProduitService = inject(GammeProduitService);
-  protected tvaService = inject(TvaService);
-  protected typeEtiquetteService = inject(TypeEtiquetteService);
-
   isSaving = false;
   isValid = true;
   isDeconditionnable = false;
   isDatePeremptionChecked = false;
-  etiquettes: ITypeEtiquette[] = [];
   formeProduits: IFormProduit[] = [];
   familleProduits: IFamilleProduit[] = [];
   laboratoires: ILaboratoire[] = [];
@@ -76,6 +61,16 @@ export class ProduitUpdateComponent implements OnInit {
   rayons: IRayon[] = [];
   remisesCodes: CodeRemise[] = [];
   remiseService = inject(RemiseService);
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly rayonService = inject(RayonService);
+  private readonly laboratoireService = inject(LaboratoireProduitService);
+  private readonly formeProduitService = inject(FormeProduitService);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly familleService = inject(FamilleProduitService);
+  private readonly gammeProduitService = inject(GammeProduitService);
+  private readonly tvaService = inject(TvaService);
+  private readonly fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
     id: [],
     tvaId: [null, [Validators.required]],
@@ -100,7 +95,6 @@ export class ProduitUpdateComponent implements OnInit {
     itemCostAmount: [],
     itemRegularUnitPrice: [],
     expirationDate: [],
-    typeEtiquetteId: [],
     cmuAmount: [],
   });
 
@@ -126,14 +120,7 @@ export class ProduitUpdateComponent implements OnInit {
         this.isDatePeremptionChecked = true;
       }
     }
-    this.typeEtiquetteService
-      .query({
-        page: 0,
-        size: 9999,
-      })
-      .subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
-        this.etiquettes = res.body || [];
-      });
+
     this.tvaService
       .query({
         page: 0,
@@ -202,7 +189,6 @@ export class ProduitUpdateComponent implements OnInit {
       itemQty: produit.itemQty,
       itemCostAmount: produit.itemCostAmount,
       itemRegularUnitPrice: produit.itemRegularUnitPrice,
-      typeEtiquetteId: produit.typeEtiquetteId,
       tvaId: produit.tvaId,
       familleId: produit.familleId,
       codeCip: produit.codeCip,
@@ -333,7 +319,6 @@ export class ProduitUpdateComponent implements OnInit {
       itemCostAmount: this.editForm.get(['itemCostAmount']).value,
       itemRegularUnitPrice: this.editForm.get(['itemRegularUnitPrice']).value,
       typeProduit: TypeProduit.PACKAGE,
-      typeEtiquetteId: this.editForm.get(['typeEtiquetteId']).value,
       tvaId: this.editForm.get(['tvaId']).value,
       familleId: this.editForm.get(['familleId']).value,
       codeCip: this.editForm.get(['codeCip']).value,

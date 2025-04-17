@@ -239,7 +239,6 @@ public class ImportationProduitService {
         produit.setLaboratoire(parent.getLaboratoire());
         produit.setFamille(parent.getFamille());
         produit.setGamme(produit.getGamme());
-        produit.setTypeEtyquette(parent.getTypeEtyquette());
         produit.setForme(parent.getForme());
         return produit;
     }
@@ -285,9 +284,7 @@ public class ImportationProduitService {
         if (StringUtils.isNotEmpty(produitDTO.getGammeLibelle())) {
             gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle()).ifPresent(produit::setGamme);
         }
-        if (StringUtils.isNotEmpty(produitDTO.getTypeEtiquetteLibelle())) {
-            typeEtiquetteRepository.findFirstByLibelleEquals(produitDTO.getTypeEtiquetteLibelle()).ifPresent(produit::setTypeEtyquette);
-        }
+
         if (StringUtils.isNotEmpty(produitDTO.getFormeLibelle())) {
             formProduitRepository.findFirstByLibelleEquals(produitDTO.getFormeLibelle()).ifPresent(produit::setForme);
         }
@@ -779,9 +776,7 @@ public class ImportationProduitService {
         if (nonNull(record.gammeId())) {
             produit.setGamme(new GammeProduit().setId(record.gammeId()));
         }
-        if (nonNull(record.typeEtiquetteId())) {
-            produit.setTypeEtyquette(new TypeEtiquette().setId(record.typeEtiquetteId()));
-        }
+
         if (nonNull(record.itemNumber())) {
             produit.setItemQty(record.itemNumber());
         }
@@ -841,7 +836,6 @@ public class ImportationProduitService {
         produit.setLaboratoire(parent.getLaboratoire());
         produit.setFamille(parent.getFamille());
         produit.setGamme(produit.getGamme());
-        produit.setTypeEtyquette(parent.getTypeEtyquette());
         produit.setForme(parent.getForme());
         return produit;
     }

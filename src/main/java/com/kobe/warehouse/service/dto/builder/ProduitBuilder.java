@@ -14,7 +14,6 @@ import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.TypeEtiquette;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -78,7 +77,6 @@ public final class ProduitBuilder {
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
-        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
@@ -111,7 +109,6 @@ public final class ProduitBuilder {
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
-        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduit);
         produit.setCmuAmount(produitDTO.getCmuAmount());
@@ -140,14 +137,6 @@ public final class ProduitBuilder {
         FormProduit formProduit = produit.getForme();
         if (formProduit != null) {
             produitDTO.formeId(formProduit.getId()).formeLibelle(formProduit.getLibelle());
-        }
-        return produitDTO;
-    }
-
-    private static ProduitDTO TypeEtiquette(ProduitDTO produitDTO, Produit produit) {
-        TypeEtiquette typeEtiquette = produit.getTypeEtyquette();
-        if (typeEtiquette != null) {
-            produitDTO.typeEtiquetteId(typeEtiquette.getId()).typeEtiquetteLibelle(typeEtiquette.getLibelle());
         }
         return produitDTO;
     }
@@ -251,7 +240,6 @@ public final class ProduitBuilder {
         setFournisseurPrincipal(produitDTO, produit);
         laboratoire(produitDTO, produit);
         formProduit(produitDTO, produit);
-        TypeEtiquette(produitDTO, produit);
         familleProduit(produitDTO, produit);
         gammeProduit(produitDTO, produit);
         tva(produitDTO, produit);
@@ -334,7 +322,6 @@ public final class ProduitBuilder {
         fournisseurProduits(produitDTO, produit);
         laboratoire(produitDTO, produit);
         formProduit(produitDTO, produit);
-        TypeEtiquette(produitDTO, produit);
         familleProduit(produitDTO, produit);
         gammeProduit(produitDTO, produit);
         tva(produitDTO, produit);
@@ -372,7 +359,7 @@ public final class ProduitBuilder {
                     .getRayon();
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
-            } catch (Exception e) {}
+            } catch (Exception _) {}
         }
         dto.setCodeEan(produit.getCodeEan());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
@@ -397,15 +384,6 @@ public final class ProduitBuilder {
             return null;
         }
         Laboratoire entity = new Laboratoire();
-        entity.setId(id);
-        return entity;
-    }
-
-    public static TypeEtiquette typeEtiquetteFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        TypeEtiquette entity = new TypeEtiquette();
         entity.setId(id);
         return entity;
     }
@@ -503,7 +481,6 @@ public final class ProduitBuilder {
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
-        produit.setTypeEtyquette(typeEtiquetteFromId(produitDTO.getTypeEtiquetteId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addFournisseurProduit(fournisseurProduitProduit(produit, produitDTO));
         return produit;
@@ -521,7 +498,6 @@ public final class ProduitBuilder {
 
     public static ProduitDTO fromProduitWithRequiredParentRelation(Produit produit) {
         ProduitDTO produitDTO = partialFromProduit(produit);
-        TypeEtiquette(produitDTO, produit);
         tva(produitDTO, produit);
         rayonProduits(produitDTO, produit);
         produitDTO.setStatus(produit.getStatus().ordinal());
@@ -582,7 +558,6 @@ public final class ProduitBuilder {
     public static ProduitDTO fromEntity(Produit produit) {
         ProduitDTO produitDTO = partialFromProduit(produit);
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-        TypeEtiquette(produitDTO, produit);
         tva(produitDTO, produit);
         rayonProduits(produitDTO, produit);
         produitDTO.setStatus(produit.getStatus().ordinal());

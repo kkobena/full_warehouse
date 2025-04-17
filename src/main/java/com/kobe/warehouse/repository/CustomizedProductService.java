@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.domain.Fournisseur;
@@ -11,15 +10,18 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RemiseProduit;
-import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.TypeEtiquette;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,11 +63,11 @@ public interface CustomizedProductService {
 
     StockProduit stockProduitFromProduitDTO(ProduitDTO dto);
 
-    SalesLine lastSale(ProduitCriteria produitCriteria);
+    LocalDateTime lastSale(ProduitCriteria produitCriteria);
 
-    StoreInventoryLine lastInventory(ProduitCriteria produitCriteria);
+    LocalDateTime lastInventory(ProduitCriteria produitCriteria);
 
-    DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria);
+    LocalDateTime lastOrder(ProduitCriteria produitCriteria);
 
     void updateDetail(ProduitDTO dto);
 
@@ -76,6 +78,14 @@ public interface CustomizedProductService {
     List<Produit> find(ProduitCriteria produitCriteria);
 
     List<Produit> findByIds(Set<Long> ids);
+
+    Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable);
+
+    List<HistoriqueProduitVenteMensuelleWrapper> getHistoriqueVenteMensuelle(ProduitHistoriqueParam produitHistorique);
+
+    Page<HistoriqueProduitAchats> getHistoriqueAchat(ProduitHistoriqueParam produitHistorique, Pageable pageable);
+
+    List<HistoriqueProduitAchatMensuelleWrapper> getHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique);
 
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();

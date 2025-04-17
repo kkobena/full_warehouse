@@ -1,18 +1,18 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-/** Service Interface for managing {@link com.kobe.warehouse.domain.Produit}. */
+/**
+ * Service Interface for managing {@link com.kobe.warehouse.domain.Produit}.
+ */
 public interface ProduitService {
     /**
      * Save a produit.
@@ -47,11 +47,11 @@ public interface ProduitService {
 
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable);
 
-    SalesLine lastSale(ProduitCriteria produitCriteria);
+    LocalDateTime lastSale(ProduitCriteria produitCriteria);
 
-    StoreInventoryLine lastInventory(ProduitCriteria produitCriteria);
+    LocalDateTime lastInventory(ProduitCriteria produitCriteria);
 
-    DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria);
+    LocalDateTime lastOrder(ProduitCriteria produitCriteria);
 
     ProduitDTO findOne(ProduitCriteria produitCriteria);
 

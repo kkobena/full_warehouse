@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -19,12 +18,10 @@ import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.Rayon_;
-import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Storage_;
-import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
@@ -38,10 +35,17 @@ import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -61,17 +65,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-@Repository
+@Service
 @Transactional
 public class CustomizedProductRepository implements CustomizedProductService {
 
@@ -82,6 +87,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final RayonProduitRepository rayonProduitRepository;
     private final StorageService storageService;
     private final EtatProduitService etatProduitService;
+    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
+    private final StoreInventoryLineRepository storeInventoryLineRepository;
+    private final SalesLineRepository salesLineRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -92,7 +100,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
         ProduitRepository produitRepository,
         RayonProduitRepository rayonProduitRepository,
         StorageService storageService,
-        EtatProduitService etatProduitService
+        EtatProduitService etatProduitService,
+        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
+        StoreInventoryLineRepository storeInventoryLineRepository,
+        SalesLineRepository salesLineRepository
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
@@ -100,6 +111,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.rayonProduitRepository = rayonProduitRepository;
         this.storageService = storageService;
         this.etatProduitService = etatProduitService;
+        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
+        this.storeInventoryLineRepository = storeInventoryLineRepository;
+        this.salesLineRepository = salesLineRepository;
     }
 
     @Override
@@ -146,62 +160,31 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public SalesLine lastSale(ProduitCriteria produitCriteria) {
-        try {
-            TypedQuery<SalesLine> q = em.createQuery(
-                "SELECT o FROM SalesLine o WHERE o.sales.statut=?1 AND o.produit.id=?2 " +
-                " AND o.sales.magasin.id=?3  ORDER BY  o.sales.updatedAt DESC",
-                SalesLine.class
-            );
-            q.setMaxResults(1);
-            q.setParameter(1, SalesStatut.CLOSED);
-            q.setParameter(2, produitCriteria.getId());
-            q.setParameter(3, produitCriteria.getMagasinId());
-            return q.getSingleResult();
-        } catch (Exception e) {
-            // LOG.debug("lastSale=====>>>> {}", e);
-        }
-        return null;
+    public LocalDateTime lastSale(ProduitCriteria produitCriteria) {
+        return fromLastDateProjection(
+            salesLineRepository.findLastUpdatedAtByProduitIdAndSalesStatut(produitCriteria.getId(), SalesStatut.CLOSED.name())
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public StoreInventoryLine lastInventory(ProduitCriteria produitCriteria) {
-        try {
-            TypedQuery<StoreInventoryLine> q = em.createQuery(
-                "SELECT o FROM StoreInventoryLine o WHERE o.storeInventory.statut=?1 AND o.produit.id=?2 " +
-                " AND o.storeInventory.storage.magasin.id=?3  ORDER BY  o.storeInventory.updatedAt DESC",
-                StoreInventoryLine.class
-            );
-            q.setMaxResults(1);
-            q.setParameter(1, SalesStatut.CLOSED);
-            q.setParameter(2, produitCriteria.getId());
-            q.setParameter(3, produitCriteria.getMagasinId());
-            return q.getSingleResult();
-        } catch (Exception e) {
-            // LOG.debug("lastInventory =====>>>> {}", e);
-        }
-        return null;
+    public LocalDateTime lastInventory(ProduitCriteria produitCriteria) {
+        return fromLastDateProjection(storeInventoryLineRepository.findLastUpdatedAtProduitId(produitCriteria.getId()));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
-        try {
-            TypedQuery<DeliveryReceiptItem> q = em.createQuery(
-                "SELECT o FROM DeliveryReceiptItem o WHERE o.deliveryReceipt.receiptStatut<>?1 AND o.fournisseurProduit.produit.id=?2 " +
-                " ORDER BY  o.deliveryReceipt.modifiedDate DESC",
-                DeliveryReceiptItem.class
-            );
-            q.setMaxResults(1);
-            q.setParameter(1, ReceiptStatut.PENDING);
-            q.setParameter(2, produitCriteria.getId());
+    public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
+        return fromLastDateProjection(
+            deliveryReceiptItemRepository.findLastUpdatedAtByFournisseurProduitProduitId(
+                produitCriteria.getId(),
+                ReceiptStatut.CLOSE.name()
+            )
+        );
+    }
 
-            return q.getSingleResult();
-        } catch (Exception e) {
-            //  LOG.debug("lastOrder =====>>>> {}", e);
-        }
-        return null;
+    private LocalDateTime fromLastDateProjection(LastDateProjection lastDateProjection) {
+        return Optional.ofNullable(lastDateProjection).map(LastDateProjection::getUpdatedAt).orElse(null);
     }
 
     @Override
@@ -258,7 +241,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (StringUtils.hasLength(dto.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
-        produit.setCmuAmount(dto.getCmuAmount()).setTypeEtyquette(this.typeEtiquetteFromId(dto.getTypeEtiquetteId()));
+        produit.setCmuAmount(dto.getCmuAmount());
 
         produit.setUpdatedAt(LocalDateTime.now());
         Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
@@ -330,6 +313,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         List<ProduitDTO> list = new ArrayList<>();
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+        produitCriteria.setMagasinId(magasin.getId());
         if (total > 0) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
@@ -348,18 +332,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
                         magasin,
                         p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
                     );
-                    SalesLine lignesVente = lastSale(produitCriteria);
-                    if (lignesVente != null) {
-                        dto.setLastDateOfSale(lignesVente.getUpdatedAt());
-                    }
-                    StoreInventoryLine detailsInventaire = lastInventory(produitCriteria);
-                    if (detailsInventaire != null) {
-                        dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
-                    }
-                    DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
-                    if (deliveryReceiptItem != null) {
-                        dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
-                    }
+                    produitCriteria.setId(p.getId());
+                    dto.setLastDateOfSale(lastSale(produitCriteria));
+                    dto.setLastInventoryDate(lastInventory(produitCriteria));
+                    dto.setLastOrderDate(lastOrder(produitCriteria));
                     dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
                     list.add(dto);
                 });
@@ -464,6 +440,43 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     public int produitTotalStockWithQantityUg(Produit produit) {
         return produit.getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
+        return this.salesLineRepository.getHistoriqueVente(
+                produitHistorique.produitId(),
+                produitHistorique.startDate(),
+                produitHistorique.endDate(),
+                Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()),
+                pageable
+            );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<HistoriqueProduitAchatMensuelleWrapper> getHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique) {}
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<HistoriqueProduitAchats> getHistoriqueAchat(ProduitHistoriqueParam produitHistorique, Pageable pageable) {}
+
+    @Override
+    public List<HistoriqueProduitVenteMensuelleWrapper> getHistoriqueVenteMensuelle(ProduitHistoriqueParam produitHistorique) {
+        List<HistoriqueProduitVenteMensuelle> historiqueProduitVenteMensuelles = salesLineRepository.getHistoriqueVenteMensuelle(
+            produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name())
+        );
+        return historiqueProduitVenteMensuelles
+            .stream()
+            .collect(Collectors.groupingBy(HistoriqueProduitVenteMensuelle::getAnnee))
+            .entrySet()
+            .stream()
+            .map(entry -> new HistoriqueProduitVenteMensuelleWrapper(entry.getKey(), entry.getValue()))
+            .toList();
     }
 
     private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {

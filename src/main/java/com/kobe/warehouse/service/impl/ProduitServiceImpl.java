@@ -1,11 +1,8 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -14,6 +11,7 @@ import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}. */
+/**
+ * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
+ */
 @Service
 @Transactional
 public class ProduitServiceImpl implements ProduitService {
@@ -121,18 +121,9 @@ public class ProduitServiceImpl implements ProduitService {
         ProduitDTO dto = null;
         if (produit.isPresent()) {
             dto = produit.get();
-            SalesLine lignesVente = lastSale(produitCriteria);
-            if (lignesVente != null) {
-                dto.setLastDateOfSale(lignesVente.getUpdatedAt());
-            }
-            StoreInventoryLine detailsInventaire = lastInventory(produitCriteria);
-            if (detailsInventaire != null) {
-                dto.setLastInventoryDate(detailsInventaire.getStoreInventory().getUpdatedAt());
-            }
-            DeliveryReceiptItem deliveryReceiptItem = lastOrder(produitCriteria);
-            if (deliveryReceiptItem != null) {
-                dto.setLastOrderDate(deliveryReceiptItem.getUpdatedDate());
-            }
+            dto.setLastDateOfSale(lastSale(produitCriteria));
+            dto.setLastInventoryDate(lastInventory(produitCriteria));
+            dto.setLastOrderDate(lastOrder(produitCriteria));
         }
 
         return dto;
@@ -140,19 +131,19 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     @Transactional(readOnly = true)
-    public SalesLine lastSale(ProduitCriteria produitCriteria) {
+    public LocalDateTime lastSale(ProduitCriteria produitCriteria) {
         return customizedProductService.lastSale(produitCriteria);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public StoreInventoryLine lastInventory(ProduitCriteria produitCriteria) {
+    public LocalDateTime lastInventory(ProduitCriteria produitCriteria) {
         return customizedProductService.lastInventory(produitCriteria);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public DeliveryReceiptItem lastOrder(ProduitCriteria produitCriteria) {
+    public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
         return customizedProductService.lastOrder(produitCriteria);
     }
 

@@ -171,11 +171,6 @@ public class Produit implements Serializable {
 
     @NotAudited
     @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
-    private TypeEtiquette typeEtyquette;
-
-    @NotAudited
-    @ManyToOne
     private Dci dci;
 
     @NotNull
@@ -493,15 +488,6 @@ public class Produit implements Serializable {
 
     public void setGamme(GammeProduit gamme) {
         this.gamme = gamme;
-    }
-
-    public TypeEtiquette getTypeEtyquette() {
-        return typeEtyquette;
-    }
-
-    public Produit setTypeEtyquette(TypeEtiquette typeEtyquette) {
-        this.typeEtyquette = typeEtyquette;
-        return this;
     }
 
     public @NotNull Status getStatus() {

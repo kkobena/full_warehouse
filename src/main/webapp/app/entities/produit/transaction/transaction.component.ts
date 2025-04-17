@@ -1,4 +1,4 @@
-import { Component, OnInit, viewChild, inject } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -22,6 +22,8 @@ import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../..
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { RippleModule } from 'primeng/ripple';
 import { DatePicker } from 'primeng/datepicker';
+import { StatSalesComponent } from '../stat-sales/stat-sales.component';
+import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component';
 
 @Component({
   selector: 'jhi-transaction',
@@ -41,17 +43,18 @@ import { DatePicker } from 'primeng/datepicker';
     AutoCompleteModule,
     RippleModule,
     DatePicker,
+    StatSalesComponent,
+    StatDeliveryComponent,
   ],
   templateUrl: './transaction.component.html',
   providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit {
+  readonly auditingComponent = viewChild(AuditingComponent);
   protected activatedRoute = inject(ActivatedRoute);
   protected router = inject(Router);
   protected produitService = inject(ProduitService);
   protected produitAuditingParamService = inject(ProduitAuditingParamService);
-
-  readonly auditingComponent = viewChild(AuditingComponent);
   protected active = 'auditing';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();

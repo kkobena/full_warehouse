@@ -52,7 +52,7 @@ public class ProduitDTO {
     private String laboratoireLibelle;
     private Long formeId;
     private String formeLibelle;
-    private Long typeEtiquetteId;
+
     private String typeEtiquetteLibelle;
     private Long familleId;
     private String familleLibelle;
@@ -117,11 +117,6 @@ public class ProduitDTO {
 
     public ProduitDTO formeId(Long formeId) {
         this.formeId = formeId;
-        return this;
-    }
-
-    public ProduitDTO typeEtiquetteId(Long typeEtiquetteId) {
-        this.typeEtiquetteId = typeEtiquetteId;
         return this;
     }
 
@@ -450,14 +445,6 @@ public class ProduitDTO {
 
     public void setFormeLibelle(String formeLibelle) {
         this.formeLibelle = formeLibelle;
-    }
-
-    public Long getTypeEtiquetteId() {
-        return typeEtiquetteId;
-    }
-
-    public void setTypeEtiquetteId(Long typeEtiquetteId) {
-        this.typeEtiquetteId = typeEtiquetteId;
     }
 
     public String getTypeEtiquetteLibelle() {

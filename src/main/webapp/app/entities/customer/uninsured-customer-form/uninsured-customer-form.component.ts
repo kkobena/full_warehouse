@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
@@ -30,16 +30,15 @@ import { KeyFilterModule } from 'primeng/keyfilter';
   ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
-  protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
-  protected customerService = inject(CustomerService);
-  private messageService = inject(MessageService);
-
   entity?: ICustomer;
   isSaving = false;
   isValid = true;
+  firstName = viewChild.required<ElementRef>('firstName');
+  private readonly errorService = inject(ErrorService);
+  private readonly customerService = inject(CustomerService);
+  private fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required, Validators.min(1)]],
@@ -47,12 +46,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
     phone: [null, [Validators.required, Validators.min(1)]],
     email: [],
   });
-  firstName = viewChild.required<ElementRef>('firstName');
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly messageService = inject(MessageService);
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -92,7 +86,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
     this.ref.close();
   }
 
-  protected createFromForm(): ICustomer {
+  private createFromForm(): ICustomer {
     return {
       ...new Customer(),
       id: this.editForm.get(['id']).value,
@@ -104,27 +98,25 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });
   }
 
-  protected onSaveSuccess(customer: ICustomer | null): void {
+  private onSaveSuccess(customer: ICustomer | null): void {
     this.isSaving = false;
     this.ref.close(customer);
   }
 
-  protected onSaveError(error: any): void {
+  private onSaveError(error: any): void {
     this.isSaving = false;
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: this.errorService.getErrorMessage(error),
       });
     } else {
       this.messageService.add({

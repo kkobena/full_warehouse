@@ -29,8 +29,8 @@ public abstract class CommandeWrapperDTO {
 
     public CommandeWrapperDTO(Commande commande) {
         id = commande.getId();
-        orderRefernce = commande.getOrderRefernce();
-        receiptRefernce = commande.getReceiptRefernce();
+        orderRefernce = commande.getOrderReference();
+        receiptRefernce = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
         discountAmount = commande.getDiscountAmount();
         orderAmount = commande.getOrderAmount();

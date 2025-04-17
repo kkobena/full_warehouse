@@ -23,14 +23,13 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.kobe.warehouse.service.utils.AfficheurPosService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +57,8 @@ public class SaleCommonService {
         SalesLineService salesLineService,
         CashRegisterService cashRegisterService,
         AvoirService avoirService,
-        PosteRepository posteRepository, AfficheurPosService afficheurPosService
+        PosteRepository posteRepository,
+        AfficheurPosService afficheurPosService
     ) {
         this.referenceService = referenceService;
         this.warehouseCalendarService = warehouseCalendarService;
@@ -375,6 +375,7 @@ public class SaleCommonService {
         } else {
             c.setPaymentStatus(PaymentStatus.IMPAYE);
         }
+        c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
         this.buildReference(c);
         if (dto.isAvoir()) {
             this.avoirService.save(c);
@@ -499,14 +500,13 @@ public class SaleCommonService {
         }
     }
 
-    protected void  displayMonnaie(Integer monnaie) {
-        if (Objects.requireNonNullElse(monnaie,0)>0) {
+    protected void displayMonnaie(Integer monnaie) {
+        if (Objects.requireNonNullElse(monnaie, 0) > 0) {
             afficheurPosService.displayMonnaie(monnaie);
         }
     }
 
-    protected void  displayNet(Integer net) {
-        afficheurPosService.displaySaleTotal(Objects.requireNonNullElse(net,0));
-
+    protected void displayNet(Integer net) {
+        afficheurPosService.displaySaleTotal(Objects.requireNonNullElse(net, 0));
     }
 }

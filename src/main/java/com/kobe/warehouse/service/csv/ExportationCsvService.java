@@ -48,7 +48,7 @@ public class ExportationCsvService {
         String filename =
             this.fileStorageLocation.resolve(
                     "commande_" +
-                    commande.getOrderRefernce() +
+                    commande.getOrderReference() +
                     "_" +
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
                     ".csv"

@@ -1,11 +1,42 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.*;
-import com.kobe.warehouse.repository.*;
-import com.kobe.warehouse.service.*;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.DeliveryReceipt;
+import com.kobe.warehouse.domain.DeliveryReceiptItem;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.ProductState;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Tva;
+import com.kobe.warehouse.domain.WarehouseSequence;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
+import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
+import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
+import com.kobe.warehouse.repository.DeliveryReceiptRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
+import com.kobe.warehouse.repository.TvaRepository;
+import com.kobe.warehouse.repository.WarehouseSequenceRepository;
+import com.kobe.warehouse.service.FournisseurProduitService;
+import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.OrderLineService;
+import com.kobe.warehouse.service.ProductStateService;
+import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
+import com.kobe.warehouse.service.dto.CommandeModel;
+import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
+import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
+import com.kobe.warehouse.service.dto.LotJsonValue;
+import com.kobe.warehouse.service.dto.OrderItem;
+import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -17,7 +48,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import org.apache.commons.csv.CSVFormat;
@@ -124,14 +160,14 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Optional<Commande> commandeOp = commandeRepository.getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference());
+        Optional<Commande> commandeOp = commandeRepository.getFirstByOrderReference(deliveryReceiptLite.getOrderReference());
         return commandeOp
             .map(commande ->
                 commande
                     .setReceiptDate(deliveryReceiptLite.getReceiptDate())
                     .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
                     .taxAmount(deliveryReceiptLite.getTaxAmount())
-                    .setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce())
+                    .setReceiptReference(deliveryReceiptLite.getReceiptRefernce())
                     .setSequenceBon(deliveryReceiptLite.getSequenceBon())
                     .setLastUserEdit(storageService.getUser())
                     .orderStatus(OrderStatut.CLOSED)
@@ -146,7 +182,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         DeliveryReceipt deliveryReceipt = finalizeSaisie(deliveryReceiptLite);
 
         if (Objects.nonNull(commande)) {
-            deliveryReceipt.setOrderReference(commande.getOrderRefernce());
+            deliveryReceipt.setOrderReference(commande.getOrderReference());
             this.commandeRepository.saveAndFlush(commande);
         }
         this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
@@ -234,7 +270,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         deliveryReceipt.setCreatedDate(LocalDateTime.now());
         deliveryReceipt.setCreatedUser(storageService.getUser());
 
-        Commande commande = commandeRepository.getFirstByOrderRefernce(deliveryReceiptLite.getOrderReference()).orElseThrow();
+        Commande commande = commandeRepository.getFirstByOrderReference(deliveryReceiptLite.getOrderReference()).orElseThrow();
         commande.orderStatus(OrderStatut.RECEIVED);
         deliveryReceipt.setOrderReference(deliveryReceiptLite.getOrderReference());
         deliveryReceipt.setFournisseur(commande.getFournisseur());

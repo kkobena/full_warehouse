@@ -3,7 +3,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -11,7 +10,7 @@ import { MvtCaisse, MvtCaisseWrapper, TypeFinancialTransaction } from '../cash-r
 import { MvtCaisseServiceService } from './mvt-caisse-service.service';
 import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { IUser } from '../../core/user/user.model';
@@ -27,7 +26,6 @@ import { DividerModule } from 'primeng/divider';
 import { UserService } from '../../core/user/user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
-import { Tuple } from '../../shared/model/tuple.model';
 import { MvtParamServiceService } from './mvt-param-service.service';
 import { ToastModule } from 'primeng/toast';
 import { PrimeNG } from 'primeng/config';
@@ -73,7 +71,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected predicate!: string;
   protected ascending!: boolean;
   protected ngbPaginationPage = 1;
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly itemsPerPage = 10;
   protected fromDate: Date | undefined;
   protected toDate: Date | undefined;
   protected fromTime: Date | undefined;
@@ -139,6 +137,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     this.mvtCaisseService
       .findAllMvts({
         page: pageToLoad,
+        size: this.itemsPerPage,
         ...this.buildParams(),
       })
       .subscribe({
@@ -150,10 +149,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       });
   }
 
-  trackModeId(index: number, item: Tuple): string {
-    return item.key;
-  }
-
   protected getColorClass(index: number): string {
     return this.colors[index % this.colors.length];
   }
@@ -162,19 +157,21 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     return this.colorsByTypes[index % this.colors.length];
   }
 
-  protected onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/mvt-caisse'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search,
-      },
-    });
-
-    this.mvtCaisses = data || [];
-    this.loading = false;
+  protected lazyLoading(event: LazyLoadEvent): void {
+    if (event) {
+      this.page = event.first / event.rows;
+      this.loading = true;
+      this.mvtCaisseService
+        .findAllMvts({
+          page: this.page,
+          size: event.rows,
+          ...this.buildParams(),
+        })
+        .subscribe({
+          next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
+          error: () => this.onError(),
+        });
+    }
   }
 
   protected onError(): void {
@@ -216,9 +213,23 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    /*     this.router.navigate(['/mvt-caisse'], {
+          queryParams: {
+            page: this.page,
+            size: this.itemsPerPage,
+            search: this.search,
+          },
+        }); */
+
+    this.mvtCaisses = data || [];
+    this.loading = false;
+  }
+
   private buildParams(): any {
     return {
-      size: this.itemsPerPage,
       search: this.search,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),

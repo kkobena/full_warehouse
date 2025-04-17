@@ -87,28 +87,20 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Set<Payment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, Ticket ticket, User user) {
-        Set<Payment> payments = new HashSet<>();
+    public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, Ticket ticket, User user) {
         removeOldPayment(sales);
         saleDTO
             .getPayments()
-            .forEach(paymentDTO -> {
-                Payment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, ticket);
-                paymentRepository.save(payment);
-                payments.add(payment);
-            });
-        return payments;
+            .forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, ticket)));
     }
 
     private void removeOldPayment(Sales sales) {
         Set<Payment> payments = sales.getPayments();
         if (!CollectionUtils.isEmpty(payments)) {
-            payments
-                .stream()
-                .forEach(payment -> {
-                    payment.setSales(null);
-                    this.paymentRepository.delete(payment);
-                });
+            payments.forEach(payment -> {
+                payment.setSales(null);
+                this.paymentRepository.delete(payment);
+            });
             sales.setPayments(null);
         }
     }

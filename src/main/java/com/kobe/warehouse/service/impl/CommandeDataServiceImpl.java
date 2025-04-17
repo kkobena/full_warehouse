@@ -179,7 +179,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public Optional<CommandeDTO> findOneByOrderReference(String orderReference) {
-        return this.commandeRepository.getFirstByOrderRefernce(orderReference).map(CommandeDTO::new);
+        return this.commandeRepository.getFirstByOrderReference(orderReference).map(CommandeDTO::new);
     }
 
     private Resource getResource(String path) throws MalformedURLException {

@@ -13,10 +13,10 @@ import { Tooltip } from 'primeng/tooltip';
     <div class="btn-group btn-group-sm" role="group">
       @if (showEditBtn) {
         <p-button
+          [text]="true"
           rounded="true"
           (click)="onEditLigneInfo()"
           icon="pi pi-pencil"
-          size="small"
           class="mr-1"
           severity="success"
           pTooltip="Modifier le produit"
@@ -25,9 +25,9 @@ import { Tooltip } from 'primeng/tooltip';
       }
       @if (showLotBtn) {
         <p-button
+          [text]="true"
           rounded="true"
           (click)="onAddLot()"
-          size="small"
           severity="info"
           icon="pi pi-plus-circle"
           pTooltip="Gérer le lot"

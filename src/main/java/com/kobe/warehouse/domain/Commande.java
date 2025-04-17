@@ -1,7 +1,18 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,14 +35,14 @@ public class Commande implements Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order_refernce")
-    private String orderRefernce;
+    @Column(name = "order_reference")
+    private String orderReference;
 
     @Column(name = "sequence_bon")
     private String sequenceBon;
 
-    @Column(name = "receipt_refernce")
-    private String receiptRefernce;
+    @Column(name = "receipt_reference")
+    private String receiptReference;
 
     @Column(name = "receipt_date")
     private LocalDate receiptDate;
@@ -100,12 +111,12 @@ public class Commande implements Serializable, Cloneable {
         this.id = id;
     }
 
-    public String getOrderRefernce() {
-        return orderRefernce;
+    public String getOrderReference() {
+        return orderReference;
     }
 
-    public void setOrderRefernce(String orderRefernce) {
-        this.orderRefernce = orderRefernce;
+    public void setOrderReference(String orderReference) {
+        this.orderReference = orderReference;
     }
 
     public String getSequenceBon() {
@@ -117,12 +128,12 @@ public class Commande implements Serializable, Cloneable {
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public Commande setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public Commande setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 
@@ -260,7 +271,7 @@ public class Commande implements Serializable, Cloneable {
     }
 
     public Commande orderRefernce(String orderRefernce) {
-        this.orderRefernce = orderRefernce;
+        this.orderReference = orderRefernce;
         return this;
     }
 
@@ -344,7 +355,7 @@ public class Commande implements Serializable, Cloneable {
             + "id="
             + getId()
             + ", orderRefernce='"
-            + getOrderRefernce()
+            + getOrderReference()
             + "'"
             + ", receiptDate='"
             + getReceiptDate()

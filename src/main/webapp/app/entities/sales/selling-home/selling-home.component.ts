@@ -162,10 +162,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private primeNGConfig = inject(PrimeNG);
   private remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
-  private responseEvent: Subscription;
-  private saveResponse: Subscription;
-  private inputBoxFocus: Subscription;
-  private onCompleteSale: Subscription;
+  private readonly responseEvent: Subscription;
+  private readonly saveResponse: Subscription;
+  private readonly inputBoxFocus: Subscription;
+  private readonly onCompleteSale: Subscription;
   private readonly saleEventManager = inject(SaleEventManager);
 
   constructor() {

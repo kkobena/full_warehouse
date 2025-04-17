@@ -26,6 +26,7 @@ public class PaymentDTO {
     private Integer reelPaidAmount;
     private String paymentCode;
     private Integer montantVerse = 0;
+    private boolean differe;
 
     public PaymentDTO(Payment payment) {
         super();
@@ -38,8 +39,7 @@ public class PaymentDTO {
         User user = payment.getUser();
         this.userId = user.getId();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
-        Customer customer = payment.getCustomer();
-        this.customer = customer;
+        this.customer = payment.getCustomer();
         Sales sales = payment.getSales();
         this.saleNumberTransaction = sales.getNumberTransaction();
         this.salesId = sales.getId();
@@ -187,6 +187,14 @@ public class PaymentDTO {
     public PaymentDTO setPaymentCode(String paymentCode) {
         this.paymentCode = paymentCode;
         return this;
+    }
+
+    public boolean isDiffere() {
+        return differe;
+    }
+
+    public void setDiffere(boolean differe) {
+        this.differe = differe;
     }
 
     public Integer getMontantVerse() {

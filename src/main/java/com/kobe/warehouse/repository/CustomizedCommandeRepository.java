@@ -108,7 +108,7 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
             predicates.add(
                 cb.or(
-                    cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.orderRefernce)), searchCommande),
+                    cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.orderReference)), searchCommande),
                     cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)
                 )
             );
@@ -141,7 +141,7 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
             predicates.add(
                 cb.or(
-                    cb.like(cb.upper(root.get(Commande_.orderRefernce)), searchCommande),
+                    cb.like(cb.upper(root.get(Commande_.orderReference)), searchCommande),
                     cb.like(cb.upper(root.get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)
                 )
             );

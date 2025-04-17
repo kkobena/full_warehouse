@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface CommandeRepository extends JpaRepository<Commande, Long> {
-    Optional<Commande> getFirstByOrderRefernce(String orderRefernce);
+    Optional<Commande> getFirstByOrderReference(String orderRefernce);
 }

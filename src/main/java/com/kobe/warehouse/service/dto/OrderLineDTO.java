@@ -63,8 +63,8 @@ public class OrderLineDTO {
         costAmount = orderLine.getCostAmount();
         Commande commande = orderLine.getCommande();
         commandeId = commande.getId();
-        commandeOrderRefernce = commande.getOrderRefernce();
-        commandeReceiptRefernce = commande.getReceiptRefernce();
+        commandeOrderRefernce = commande.getOrderReference();
+        commandeReceiptRefernce = commande.getReceiptReference();
         FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
         Produit produit = fournisseurProduit.getProduit();
         produitId = produit.getId();

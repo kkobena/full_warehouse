@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
@@ -582,5 +583,19 @@ public class InventaireServiceImpl implements InventaireService {
             log.error(null, e);
         }
         return Collections.emptyList();
+    }
+
+    // @EventListener(ApplicationReadyEvent.class)
+    private void updateAll() {
+        AtomicInteger atomicInteger = new AtomicInteger(5);
+        this.storeInventoryLineRepository.findAllByStoreInventoryId(-1L).forEach(storeInventory -> {
+                StoreInventoryLineDTO dto = new StoreInventoryLineDTO();
+                dto.setId(storeInventory.getId());
+                dto.setQuantitySold(0);
+                dto.setQuantityInit(0);
+                dto.setProduitId(0L);
+                dto.setQuantityOnHand(atomicInteger.getAndIncrement());
+                updateQuantityOnHand(dto);
+            });
     }
 }

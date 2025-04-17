@@ -1,6 +1,12 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Suggestion;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
@@ -8,7 +14,13 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeModel;
+import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.LotJsonValue;
+import com.kobe.warehouse.service.dto.OrderItem;
+import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
@@ -126,7 +138,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setUser(user);
         commande.setLastUserEdit(user);
         commande.setMagasin(user.getMagasin());
-        commande.setOrderRefernce(referenceService.buildNumCommande());
+        commande.setOrderReference(referenceService.buildNumCommande());
         OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
         commande.setGrossAmount(orderLine.getGrossAmount());
@@ -359,7 +371,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setNetAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
-        commande.setOrderRefernce(referenceService.buildNumCommande());
+        commande.setOrderReference(referenceService.buildNumCommande());
         commande.setLastUserEdit(storageService.getUser());
         commande.setUser(commande.getLastUserEdit());
         commande.setOrderAmount(0);
@@ -384,7 +396,7 @@ public class CommandServiceImpl implements CommandService {
             case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case CIP_QTE -> uploadCipQteFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
         };
-        createRuptureFile(commande.getOrderRefernce(), commandeModel, commandeResponseDTO.getItems());
+        createRuptureFile(commande.getOrderReference(), commandeModel, commandeResponseDTO.getItems());
         return commandeResponseDTO;
     }
 
@@ -807,7 +819,7 @@ public class CommandServiceImpl implements CommandService {
         return new CommandeResponseDTO()
             .setFailureCount(items.size())
             .setItems(items)
-            .setReference(commande.getOrderRefernce())
+            .setReference(commande.getOrderReference())
             .setSuccesCount(succesCount)
             .setTotalItemCount(totalItemCount);
     }
@@ -1306,20 +1318,19 @@ public class CommandServiceImpl implements CommandService {
         commande.setUser(user);
         commande.setLastUserEdit(user);
         commande.setMagasin(user.getMagasin());
-        commande.setOrderRefernce(referenceService.buildNumCommande());
+        commande.setOrderReference(referenceService.buildNumCommande());
         commande.setGrossAmount(0);
-        commande.setOrderAmount(0);//getGrossAmount
+        commande.setOrderAmount(0); //getGrossAmount
         commande.setFournisseur(suggestion.getFournisseur());
-        suggestion.getSuggestionLines().forEach(suggestionLine -> {
-        OrderLine orderLine=   this.orderLineService.buildOrderLine(suggestionLine);
-            orderLine.setCommande(commande);
-            commande.setGrossAmount(  commande.getGrossAmount() + orderLine.getGrossAmount());
-            commande.setOrderAmount(  commande.getOrderAmount() + orderLine.getOrderAmount());
-            commande.getOrderLines().add(orderLine);
-
-        });
+        suggestion
+            .getSuggestionLines()
+            .forEach(suggestionLine -> {
+                OrderLine orderLine = this.orderLineService.buildOrderLine(suggestionLine);
+                orderLine.setCommande(commande);
+                commande.setGrossAmount(commande.getGrossAmount() + orderLine.getGrossAmount());
+                commande.setOrderAmount(commande.getOrderAmount() + orderLine.getOrderAmount());
+                commande.getOrderLines().add(orderLine);
+            });
         return commandeRepository.save(commande);
-
     }
-
 }

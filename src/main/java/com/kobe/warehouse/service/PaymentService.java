@@ -15,6 +15,7 @@ public interface PaymentService {
 
     Set<Payment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, User user);
 
-    Set<Payment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, Ticket ticket, User user);
+    void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, Ticket ticket, User user);
+
     void delete(Payment payment);
 }

@@ -67,9 +67,9 @@ export class ModeReglementComponent implements OnInit {
   protected sansBon = false;
   protected printInvoice = false;
   protected paymentModeToChange: IPaymentMode | null;
+  protected isSmallScreen = false;
   private document = inject<Document>(DOCUMENT);
   private readonly modes = [this.CB, this.VIREMENT, this.CH];
-  protected isSmallScreen = false;
 
   constructor() {
     this.updateAvailableMode();
@@ -289,7 +289,10 @@ export class ModeReglementComponent implements OnInit {
   }
 
   private buildModePayment(mode: IPaymentMode, inputAmount: number, entryAmount: number): Payment {
-    const amount = this.currentSaleService.currentSale().amountToBePaid - (entryAmount - inputAmount);
+    const amount =
+      entryAmount > this.currentSaleService.currentSale().amountToBePaid
+        ? this.currentSaleService.currentSale().amountToBePaid - (entryAmount - inputAmount)
+        : inputAmount;
     return {
       ...new Payment(),
       paidAmount: amount,

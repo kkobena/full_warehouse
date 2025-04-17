@@ -82,7 +82,6 @@ export class ComptantComponent {
   private userVendeurService = inject(UserVendeurService);
   private selectModeReglementService = inject(SelectModeReglementService);
   private salesService = inject(SalesService);
-
   private modalService = inject(NgbModal);
   private confirmationService = inject(ConfirmationService);
   private dialogService = inject(DialogService);
@@ -107,10 +106,10 @@ export class ComptantComponent {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
+        this.currentSaleService.currentSale().differe = true;
         if (!this.currentSaleService.currentSale().customerId) {
           this.openUninsuredCustomer(true);
         } else {
-          this.currentSaleService.currentSale().differe = true;
           this.finalyseSale();
         }
       },
@@ -144,6 +143,7 @@ export class ComptantComponent {
 
   finalyseSale(putsOnStandby = false): void {
     const entryAmount = this.getEntryAmount();
+    console.log('entryAmount ', entryAmount);
     this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
     this.currentSaleService.currentSale().type = 'VNO';
     this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();

@@ -24,7 +24,7 @@ import java.util.Objects;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "receipt_item_id" }) },
     indexes = {
         @Index(columnList = "num_lot", name = "num_lot_index"),
-        @Index(columnList = "receipt_refernce", name = "lot_receipt_refernce_index"),
+        @Index(columnList = "receipt_reference", name = "lot_receipt_reference_index"),
     }
 )
 public class Lot implements Serializable {
@@ -40,8 +40,8 @@ public class Lot implements Serializable {
     private String numLot;
 
     @NotNull
-    @Column(name = "receipt_refernce", nullable = false)
-    private String receiptRefernce;
+    @Column(name = "receipt_reference", nullable = false)
+    private String receiptReference;
 
     @ManyToOne(optional = false)
     private DeliveryReceiptItem receiptItem;
@@ -83,12 +83,12 @@ public class Lot implements Serializable {
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public Lot setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public Lot setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 

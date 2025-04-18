@@ -42,7 +42,7 @@ public class LotServiceImpl implements LotService {
         lot.setQuantity(lotJsonValue.getQuantity() + lotJsonValue.getFreeQuantity());
         lot.setUgQuantityReceived(lotJsonValue.getFreeQuantity());
         lot.setReceiptItem(receiptItem);
-        lot.setReceiptRefernce(receiptRefernce);
+        lot.setReceiptReference(receiptRefernce);
         lotRepository.save(lot);
     }
 
@@ -60,7 +60,7 @@ public class LotServiceImpl implements LotService {
         DeliveryReceiptItem deliveryReceiptItem = this.deliveryReceiptItemRepository.getReferenceById(lot.getReceiptItemId());
         Lot entity = lot.toEntity();
         entity.setReceiptItem(deliveryReceiptItem);
-        entity.setReceiptRefernce(deliveryReceiptItem.getDeliveryReceipt().getReceiptRefernce());
+        entity.setReceiptReference(deliveryReceiptItem.getDeliveryReceipt().getReceiptReference());
         return new LotDTO(this.lotRepository.saveAndFlush(entity));
     }
 

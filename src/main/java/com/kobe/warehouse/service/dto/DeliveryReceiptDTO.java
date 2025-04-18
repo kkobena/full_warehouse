@@ -48,7 +48,7 @@ public class DeliveryReceiptDTO {
         id = deliveryReceipt.getId();
         numberTransaction = deliveryReceipt.getNumberTransaction();
         sequenceBon = deliveryReceipt.getSequenceBon();
-        receiptRefernce = deliveryReceipt.getReceiptRefernce();
+        receiptRefernce = deliveryReceipt.getReceiptReference();
         receiptDate = deliveryReceipt.getReceiptDate();
         receiptAmount = deliveryReceipt.getReceiptAmount();
         createdDate = deliveryReceipt.getCreatedDate();

@@ -34,16 +34,7 @@ import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
-import com.kobe.warehouse.service.dto.ProduitCriteria;
-import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
-import com.kobe.warehouse.service.dto.StockProduitDTO;
+import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.EntityManager;
@@ -427,7 +418,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
             q.setMaxResults(1);
             return Optional.ofNullable(q.getSingleResult());
         } catch (Exception e) {
-            LOG.debug("getFournisseurProduitByCriteria=====>>>> {}", e);
+            LOG.error("getFournisseurProduitByCriteria=====>>>> {}", e);
             return Optional.empty();
         }
     }
@@ -440,43 +431,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     public int produitTotalStockWithQantityUg(Produit produit) {
         return produit.getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
-        return this.salesLineRepository.getHistoriqueVente(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()),
-                pageable
-            );
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<HistoriqueProduitAchatMensuelleWrapper> getHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique) {}
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<HistoriqueProduitAchats> getHistoriqueAchat(ProduitHistoriqueParam produitHistorique, Pageable pageable) {}
-
-    @Override
-    public List<HistoriqueProduitVenteMensuelleWrapper> getHistoriqueVenteMensuelle(ProduitHistoriqueParam produitHistorique) {
-        List<HistoriqueProduitVenteMensuelle> historiqueProduitVenteMensuelles = salesLineRepository.getHistoriqueVenteMensuelle(
-            produitHistorique.produitId(),
-            produitHistorique.startDate(),
-            produitHistorique.endDate(),
-            Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name())
-        );
-        return historiqueProduitVenteMensuelles
-            .stream()
-            .collect(Collectors.groupingBy(HistoriqueProduitVenteMensuelle::getAnnee))
-            .entrySet()
-            .stream()
-            .map(entry -> new HistoriqueProduitVenteMensuelleWrapper(entry.getKey(), entry.getValue()))
-            .toList();
     }
 
     private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {
@@ -632,6 +586,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();

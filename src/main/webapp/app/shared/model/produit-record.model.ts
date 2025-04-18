@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { MonthEnum } from './enumerations/month-enum';
 
 export class ProductStatRecord {
   id?: number;
@@ -43,4 +44,43 @@ export class ProduitAuditingParam {
   produitId?: number;
   fromDate?: string;
   toDate?: string;
+}
+
+export class HistoriqueProduitVDonneesMensuelles {
+  annee: number;
+  quantites: Map<MonthEnum, number>;
+}
+
+export class HistoriqueProduitVente {
+  mvtDate: Date;
+
+  reference: string;
+
+  quantite: number;
+
+  prixUnitaire: number;
+
+  montantNet: number;
+
+  montantRemise: number;
+
+  montantTtc: number;
+
+  montantTva: number;
+
+  montantHt: number;
+
+  user: string;
+}
+
+export class HistoriqueProduitAchats {
+  mvtDate: Date;
+
+  reference: string;
+
+  quantite: number;
+
+  prixAchat: number;
+
+  user: string;
 }

@@ -8,8 +8,7 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.ProduitService;
-import com.kobe.warehouse.service.dto.ProduitCriteria;
-import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -180,6 +179,7 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
         return customizedProductService.productsLiteList(produitCriteria, pageable);
     }

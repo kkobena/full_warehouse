@@ -64,7 +64,7 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
 
     @Override
     protected String getGenerateFileName() {
-        return this.deliveryReceipt.getReceiptRefernce();
+        return this.deliveryReceipt.getReceiptReference();
     }
 
     public String print(DeliveryReceipt deliveryReceipt) {

@@ -36,7 +36,7 @@ public class LotDTO {
         id = lot.getId();
         numLot = lot.getNumLot();
         ugQuantityReceived = lot.getUgQuantityReceived();
-        receiptRefernce = lot.getReceiptRefernce();
+        receiptRefernce = lot.getReceiptReference();
         receiptItemId = lot.getReceiptItem().getId();
         quantity = lot.getQuantity();
         quantityReceived = lot.getQuantity();

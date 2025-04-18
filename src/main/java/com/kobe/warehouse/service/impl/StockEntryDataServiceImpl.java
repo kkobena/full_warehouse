@@ -142,7 +142,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
             predicates.add(
                 cb.or(
                     cb.like(
-                        cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptRefernce)),
+                        cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptReference)),
                         deliveryReceiptFilterDTO.getSearchByRef() + "%"
                     ),
                     cb.like(
@@ -156,7 +156,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
             String search = deliveryReceiptFilterDTO.getSearch().toUpperCase() + "%";
             predicates.add(
                 cb.or(
-                    cb.like(cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptRefernce)), search),
+                    cb.like(cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptReference)), search),
                     cb.like(cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.numberTransaction)), search),
                     cb.like(cb.upper(root.get(DeliveryReceiptItem_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
                     cb.like(

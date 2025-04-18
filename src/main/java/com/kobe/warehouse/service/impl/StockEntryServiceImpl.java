@@ -253,7 +253,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         logsService.create(
             TransactionType.ENTREE_STOCK,
             "order.entry",
-            new Object[] { deliveryReceipt.getReceiptRefernce() },
+            new Object[] { deliveryReceipt.getReceiptReference() },
             deliveryReceipt.getId().toString()
         );
         deliveryReceipt.setReceiptStatut(ReceiptStatut.CLOSE);
@@ -430,7 +430,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         deliveryReceipt.setReceiptAmount(deliveryReceiptLite.getReceiptAmount());
         deliveryReceipt.setDiscountAmount(0);
         deliveryReceipt.setTaxAmount(deliveryReceiptLite.getTaxAmount());
-        deliveryReceipt.setReceiptRefernce(deliveryReceiptLite.getReceiptRefernce());
+        deliveryReceipt.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
         deliveryReceipt.setSequenceBon(deliveryReceiptLite.getSequenceBon());
         deliveryReceipt.setNetAmount(ServiceUtil.computeHtaxe(deliveryReceipt.getReceiptAmount(), deliveryReceipt.getTaxAmount()));
         return deliveryReceipt;
@@ -444,7 +444,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             .setReceiptFullDate(deliveryReceipt.getReceiptDate().atStartOfDay())
             .setOrderReference(deliveryReceipt.getOrderReference())
             .setSequenceBon(deliveryReceipt.getSequenceBon())
-            .setReceiptRefernce(deliveryReceipt.getReceiptRefernce())
+            .setReceiptRefernce(deliveryReceipt.getReceiptReference())
             .setTaxAmount(deliveryReceipt.getTaxAmount());
     }
 
@@ -458,7 +458,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         deliveryReceipt.setReceiptStatut(ReceiptStatut.PENDING);
         deliveryReceipt.setNumberTransaction(buildDeliveryReceiptNumberTransaction());
         buildDeliveryReceipt(uploadDeleiveryReceipt.getDeliveryReceipt(), deliveryReceipt);
-        deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptRefernce());
+        deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptReference());
         deliveryReceiptRepository.save(deliveryReceipt);
         return deliveryReceipt;
     }
@@ -1081,7 +1081,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         return new CommandeResponseDTO()
             .setFailureCount(items.size())
             .setItems(items)
-            .setReference(deliveryReceipt.getReceiptRefernce())
+            .setReference(deliveryReceipt.getReceiptReference())
             .setSuccesCount(succesCount)
             .setTotalItemCount(totalItemCount);
     }

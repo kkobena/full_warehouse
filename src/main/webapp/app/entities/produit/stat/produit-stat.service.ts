@@ -5,18 +5,19 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { VenteRecordParam } from '../../../shared/model/vente-record-param.model';
-import { ProductStatRecord, ProduitAuditingParam, ProduitAuditingState } from '../../../shared/model/produit-record.model';
+import {
+  HistoriqueProduitAchats,
+  HistoriqueProduitVDonneesMensuelles,
+  HistoriqueProduitVente,
+  ProductStatRecord,
+  ProduitAuditingParam,
+  ProduitAuditingState,
+} from '../../../shared/model/produit-record.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProduitStatService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/produits/stat';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly resourceUrl = SERVER_API_URL + 'api/produits/stat';
+  private readonly http = inject(HttpClient);
 
   fetchPoduitCa(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatRecord[]>> {
     const options = createRequestOptions(venteRecordParam);
@@ -44,5 +45,40 @@ export class ProduitStatService {
 
   exportToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
     return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, { responseType: 'blob' });
+  }
+
+  getProduitHistoriqueVente(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitVente[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitVente[]>(`${this.resourceUrl}/historique-vente`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  getProduitHistoriqueAchat(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitAchats[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitAchats[]>(`${this.resourceUrl}/historique-achat`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  getProduitHistoriqueAchatMensuelle(
+    produitAuditingParam: ProduitAuditingParam,
+  ): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-achat-mensuelle`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+  getProduitHistoriqueVenteMensuelle(
+    produitAuditingParam: ProduitAuditingParam,
+  ): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
+      params: options,
+      observe: 'response',
+    });
   }
 }

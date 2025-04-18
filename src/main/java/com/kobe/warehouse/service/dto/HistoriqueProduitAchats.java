@@ -11,5 +11,11 @@ public interface HistoriqueProduitAchats {
 
     int getPrixAchat();
 
-    String getUser();
+    default String getUser() {
+        return getFirstName() + " " + getLastName();
+    }
+
+    String getFirstName();
+
+    String getLastName();
 }

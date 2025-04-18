@@ -32,13 +32,13 @@ import java.util.Set;
     name = "delivery_receipt",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = { "number_transaction" }),
-        @UniqueConstraint(columnNames = { "receipt_refernce", "fournisseur_id" }),
+        @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id" }),
     },
     indexes = {
         @Index(columnList = "receipt_date DESC", name = "receipt_date_index"),
         @Index(columnList = "receipt_status", name = "receipt_status_index"),
         @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
-        @Index(columnList = "receipt_refernce", name = "receipt_refernce_index"),
+        @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
         @Index(columnList = "number_transaction", name = "number_transaction_index"),
     }
 )
@@ -57,8 +57,8 @@ public class DeliveryReceipt implements Serializable {
     @Column(name = "sequence_bon")
     private String sequenceBon;
 
-    @Column(name = "receipt_refernce")
-    private String receiptRefernce;
+    @Column(name = "receipt_reference")
+    private String receiptReference;
 
     @Column(name = "order_reference")
     private String orderReference;
@@ -148,12 +148,12 @@ public class DeliveryReceipt implements Serializable {
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public DeliveryReceipt setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public DeliveryReceipt setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 

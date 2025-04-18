@@ -50,7 +50,7 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
     );
 
     @Query(
-        value = "SELECT YEAR(s.updated_at) AS annee,SUM(o.quantity_requested) AS Quantite,MONTH(s.updated_at) AS mois    FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate GROUP BY YEAR(s.updated_at),MONTH(s.updated_at) ORDER BY YEAR(s.updated_at) DESC",
+        value = "SELECT YEAR(s.updated_at) AS annee,SUM(o.quantity_requested) AS quantite,MONTH(s.updated_at) AS mois    FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate GROUP BY YEAR(s.updated_at),MONTH(s.updated_at) ORDER BY YEAR(s.updated_at) DESC",
         nativeQuery = true
     )
     List<HistoriqueProduitVenteMensuelle> getHistoriqueVenteMensuelle(

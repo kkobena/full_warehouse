@@ -111,7 +111,6 @@ public class ProductStatResource {
     }
 
 
-    @Transactional(readOnly = true)
     @GetMapping("/historique-achat")
     public ResponseEntity<List<HistoriqueProduitAchats>> getProduitHistoriqueAchat(
         @RequestParam(name = "produitId") Long produitId,
@@ -125,5 +124,44 @@ public class ProductStatResource {
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+
+    @GetMapping("/historique-vente-mensuelle-summary")
+    public ResponseEntity<HistoriqueProduitVenteMensuelleSummary> getHistoriqueVenteMensuelleSummary(
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate
+
+    ) {
+
+        return ResponseEntity.ok().body(
+            productStatService.getHistoriqueVenteMensuelleSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
+        );
+    }
+
+
+    @GetMapping("/historique-achat-summary")
+    public ResponseEntity<HistoriqueProduitAchatsSummary> getHistoriqueAchatSummary(
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate
+
+    ) {
+        return ResponseEntity.ok().body(
+            productStatService.getHistoriqueAchatSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
+        );
+    }
+
+    @GetMapping("/historique-vente-summary")
+    public ResponseEntity<HistoriqueProduitVenteSummary> getHistoriqueVenteSummary(
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate
+
+    ) {
+        return ResponseEntity.ok().body(
+            productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
+        );
     }
 }

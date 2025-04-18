@@ -81,6 +81,22 @@ export class HistoriqueProduitAchats {
   quantite: number;
 
   prixAchat: number;
-
+  montantAchat: number;
   user: string;
+}
+export class HistoriqueProduitAchatsSummary {
+  quantite: number;
+
+  montantAchat: number;
+}
+export class HistoriqueProduitVenteSummary {
+  quantite: number;
+  montantNet: number;
+  montantRemise: number;
+  montantTtc: number;
+  montantTva: number;
+  montantHt: number;
+}
+export class HistoriqueProduitVenteMensuelleSummary {
+  quantite: number;
 }

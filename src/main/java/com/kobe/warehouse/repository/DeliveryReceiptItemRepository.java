@@ -2,10 +2,7 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelle;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
-import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
+import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 
 import java.time.LocalDate;
@@ -49,4 +46,14 @@ public interface DeliveryReceiptItemRepository extends JpaRepository<DeliveryRec
         @Param("endDate") LocalDate endDate,
         @Param("statut") String statut
         );
+    @Query(value = "SELECT SUM(o.quantity_received) AS quantite,SUM(o.cost_amount*o.quantity_received) AS montantAchat  FROM delivery_receipt_item o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN delivery_receipt d ON o.delivery_receipt_id = d.id WHERE fp.produit_id =:produitId AND d.receipt_status=:statut AND DATE(o.updated_date) BETWEEN :startDate AND :endDate",
+        nativeQuery = true
+    )
+    HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(
+        @Param("produitId") long produitId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statut") String statut
+    );
+
 }

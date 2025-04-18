@@ -173,6 +173,30 @@ public class ProductStatServiceImpl implements ProductStatService {
             .toList();
     }
 
+    @Override
+    public HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(ProduitHistoriqueParam produitHistorique) {
+        return this.deliveryReceiptItemRepository.getHistoriqueAchatSummary(   produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            ReceiptStatut.CLOSE.name());
+    }
+
+    @Override
+    public HistoriqueProduitVenteSummary getHistoriqueVenteSummary(ProduitHistoriqueParam produitHistorique) {
+        return this.salesLineRepository.getHistoriqueVenteSummary( produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()));
+    }
+
+    @Override
+    public HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(ProduitHistoriqueParam produitHistorique) {
+        return this.salesLineRepository.getHistoriqueVenteMensuelleSummary( produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()));
+    }
+
     private List<Tuple> getExecQuery(ProduitRecordParamDTO produitRecordParam) {
         Pair<LocalDate, LocalDate> periode = this.buildPeriode(produitRecordParam);
         try {

@@ -3,6 +3,8 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
 import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import java.time.LocalDate;
 import java.util.List;
@@ -54,6 +56,23 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
         nativeQuery = true
     )
     List<HistoriqueProduitVenteMensuelle> getHistoriqueVenteMensuelle(
+        @Param("produitId") long produitId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") Set<String> statuts
+    );
+    @Query(
+        value = "SELECT SUM(o.quantity_requested) AS quantite, SUM(o.sales_amount) AS montantTtc, SUM(o.ht_amount) AS montantHt, SUM(o.discount_amount) AS montantRemise, SUM(o.tax_amount) AS montantTva,SUM(o.net_amount) AS montantNet FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate",
+        nativeQuery = true
+    )
+    HistoriqueProduitVenteSummary getHistoriqueVenteSummary(
+        @Param("produitId") long produitId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") Set<String> statuts
+    );
+    @Query(value = "SELECT SUM(o.quantity_requested) AS quantite  FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate",nativeQuery = true)
+    HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(
         @Param("produitId") long produitId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,

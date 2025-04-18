@@ -18,4 +18,8 @@ public interface HistoriqueProduitAchats {
     String getFirstName();
 
     String getLastName();
+
+    default int getMontantAchat() {
+        return getPrixAchat() * getQuantite();
+    }
 }

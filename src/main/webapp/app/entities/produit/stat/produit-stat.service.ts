@@ -7,8 +7,11 @@ import { createRequestOptions } from 'app/shared/util/request-util';
 import { VenteRecordParam } from '../../../shared/model/vente-record-param.model';
 import {
   HistoriqueProduitAchats,
+  HistoriqueProduitAchatsSummary,
   HistoriqueProduitVDonneesMensuelles,
   HistoriqueProduitVente,
+  HistoriqueProduitVenteMensuelleSummary,
+  HistoriqueProduitVenteSummary,
   ProductStatRecord,
   ProduitAuditingParam,
   ProduitAuditingState,
@@ -77,6 +80,30 @@ export class ProduitStatService {
   ): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  getHistoriqueAchatSummary(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitAchatsSummary>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitAchatsSummary>(`${this.resourceUrl}/historique-achat-summary`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+  getHistoriqueVenteSummary(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitVenteSummary>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitVenteSummary>(`${this.resourceUrl}/historique-vente-summary`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+  getHistoriqueVenteMensuelleSummary(
+    produitAuditingParam: ProduitAuditingParam,
+  ): Observable<HttpResponse<HistoriqueProduitVenteMensuelleSummary>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<HistoriqueProduitVenteMensuelleSummary>(`${this.resourceUrl}/historique-vente-mensuelle-summary`, {
       params: options,
       observe: 'response',
     });

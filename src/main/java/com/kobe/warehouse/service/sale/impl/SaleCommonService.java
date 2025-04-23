@@ -314,7 +314,7 @@ public class SaleCommonService {
         c.setImported(false);
         c.setUser(user);
         c.setLastUserEdit(c.getUser());
-        c.setCassier(caissier);
+        c.setCaissier(caissier);
         c.setCopy(dto.getCopy());
         c.setCreatedAt(LocalDateTime.now());
         c.setUpdatedAt(c.getCreatedAt());
@@ -332,7 +332,7 @@ public class SaleCommonService {
             });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
-        c.setMagasin(c.getCassier().getMagasin());
+        c.setMagasin(c.getCaissier().getMagasin());
     }
 
     public void save(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {

@@ -10,7 +10,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
 import { TaxeReportService } from './taxe-report.service';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { DATE_FORMAT_ISO_DATE, TYPE_AFFICHAGE } from '../../../shared/util/warehouse-util';
 import { getTypeVentes, MvtCaisseParams } from '../mvt-caisse-util';
 import { TaxeWrapper } from './taxe-report.model';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -61,18 +61,15 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected taxeReportWrapper: TaxeWrapper | null = null;
   protected groupBy = 'codeTva';
   protected affichage = 'table';
-  protected typeAffichafes = [
-    { icon: 'pi pi-align-justify', value: 'table' },
-    { icon: 'pi pi-chart-bar', value: 'graphe' },
-  ];
+  protected readonly typeAffichafes = TYPE_AFFICHAGE;
   protected doughnutChart: DoughnutChart | null = null;
-  private primeNGConfig = inject(PrimeNG);
-  private translate = inject(TranslateService);
-  private messageService = inject(MessageService);
-  private taxeReportService = inject(TaxeReportService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly messageService = inject(MessageService);
+  private readonly taxeReportService = inject(TaxeReportService);
 
-  private mvtParamServiceService = inject(MvtParamServiceService);
-  private chartColorsUtilsService = inject(ChartColorsUtilsService);
+  private readonly mvtParamServiceService = inject(MvtParamServiceService);
+  private readonly chartColorsUtilsService = inject(ChartColorsUtilsService);
 
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();

@@ -1,1 +1,62 @@
-<p>daily-sale-produit-historique works!</p>
+@if (data && data.length) {
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+    [rows]="itemsPerPage"
+    [showCurrentPageReport]="false"
+    [totalRecords]="totalItems"
+    [value]="data"
+    dataKey="id"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Date</th>
+        <th>Référence</th>
+        <th>Prix.Unitaire</th>
+        <th>Quantité</th>
+        <th>Montant</th>
+        <th>Montant Tva</th>
+        <th>Montant Ht</th>
+        <th>Remise</th>
+        <th>Montant net</th>
+        <th>Opérateur</th>
+
+
+      </tr>
+    </ng-template>
+    <ng-template let-vente pTemplate="body">
+      <tr>
+        <td>{{ vente.mvtDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+        <td>{{ vente.reference }}</td>
+        <td class="amount-column">{{ vente.prixUnitaire | number }}</td>
+        <td class="amount-column">{{ vente.quantite | number }}</td>
+        <td class="amount-column">{{ vente.montantTtc | number }}</td>
+        <td class="amount-column">{{ vente.montantTva | number }}</td>
+        <td class="amount-column">{{ vente.montantHt | number }}</td>
+        <td class="amount-column">{{ vente.montantRemise | number }}</td>
+        <td class="amount-column">{{ vente.montantNet | number }}</td>
+        <td>{{ vente.user }}</td>
+
+      </tr>
+    </ng-template>
+    <ng-template #footer>
+      <tr>
+        <td colspan="3" class="text-left font-bold p-3 pb-0">Totaux</td>
+        <td class="amount-column">{{ summary?.quantite | number }}</td>
+        <td class="amount-column">{{ summary?.montantTtc | number }}</td>
+        <td class="amount-column">{{ summary?.montantTva | number }}</td>
+        <td class="amount-column">{{ summary?.montantHt | number }}</td>
+        <td class="amount-column">{{ summary?.montantRemise | number }}</td>
+        <td class="amount-column">{{ summary?.montantNet | number }}</td>
+        <td></td>
+      </tr>
+    </ng-template>
+  </p-table>
+} @else {
+  <div class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+}

@@ -72,3 +72,7 @@ export const FORMAT_DD_MM_YYYY = (date: Date): string | null => {
   }
   return '';
 };
+export const TYPE_AFFICHAGE = [
+  { icon: 'pi pi-align-justify', value: 'table' },
+  { icon: 'pi pi-chart-bar', value: 'graphe' },
+];

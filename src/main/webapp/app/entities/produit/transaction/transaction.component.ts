@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { AuditingComponent } from '../auditing/auditing.component';
@@ -51,10 +51,7 @@ import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component'
 })
 export class TransactionComponent implements OnInit {
   readonly auditingComponent = viewChild(AuditingComponent);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected produitService = inject(ProduitService);
-  protected produitAuditingParamService = inject(ProduitAuditingParamService);
+  readonly statSalesComponent = viewChild(StatSalesComponent);
   protected active = 'auditing';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
@@ -65,6 +62,9 @@ export class TransactionComponent implements OnInit {
   protected readonly APPEND_TO = APPEND_TO;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly produitService = inject(ProduitService);
+  private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
@@ -95,7 +95,7 @@ export class TransactionComponent implements OnInit {
       .query({
         page: 0,
         size: 10,
-        withdetail: false,
+        withdetail: true,
         search: this.searchValue,
       })
       .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
@@ -127,12 +127,19 @@ export class TransactionComponent implements OnInit {
     };
   }
 
+  protected updateParam(): void {
+    this.produitAuditingParamService.setParameter(this.buildQuery());
+  }
+
   private loadData(): void {
     const params: ProduitAuditingParam = this.buildQuery();
     this.produitAuditingParamService.setParameter(params);
     switch (this.active) {
       case 'auditing':
-        this.auditingComponent().load(this.buildQuery());
+        this.auditingComponent().load(params);
+        break;
+      case 'sales':
+        this.statSalesComponent().load(params);
         break;
     }
   }

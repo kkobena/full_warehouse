@@ -266,10 +266,8 @@ public class SaleDataService {
         Root<Sales> root = cq.from(Sales.class);
         Root<CashSale> cashSaleRoot = cb.treat(root, CashSale.class);
         cq.select(cashSaleRoot).distinct(true).orderBy(cb.desc(root.get(CashSale_.updatedAt)));
-        //    cashSaleRoot.fetch(CashSale_.SALES_LINES);
         List<Predicate> predicates = new ArrayList<>();
         predicatesPrevente(query, predicates, cb, root, userId);
-        //   predicatesPreventeVNO(query, predicates, cb, root, userId);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
@@ -280,7 +278,6 @@ public class SaleDataService {
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
-        //  root.fetch(Sales_.SALES_LINES);
         List<Predicate> predicates = new ArrayList<>();
         predicatesPrevente(query, predicates, cb, root, userId);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
@@ -500,7 +497,7 @@ public class SaleDataService {
             predicates.add(
                 cb.or(
                     cb.equal(root.get(Sales_.user).get(User_.id), userId),
-                    cb.equal(root.get(Sales_.cassier).get(User_.id), userId),
+                    cb.equal(root.get(Sales_.caissier).get(User_.id), userId),
                     cb.equal(root.get(Sales_.user).get(User_.id), userId),
                     cb.equal(root.get(Sales_.seller).get(User_.id), userId)
                 )

@@ -40,7 +40,7 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
     @Query(
         value = "SELECT s.updated_at AS mvtDate,s.number_transaction AS reference,o.quantity_requested AS quantite," +
         "o.regular_unit_price AS prixUnitaire,o.ht_amount AS montantHt,o.net_amount AS montantNet,o.sales_amount AS montantTtc," +
-        "o.discount_amount AS montantRemise,o.tax_amount AS montantTva,u.first_name AS firstName,u.last_name AS lastName    FROM sales_line o JOIN sales s ON o.sales_id = s.id JOIN user u ON s.caisse_id=u.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate ORDER BY s.updated_at DESC",
+        "o.discount_amount AS montantRemise,o.tax_amount AS montantTva,u.first_name AS firstName,u.last_name AS lastName    FROM sales_line o JOIN sales s ON o.sales_id = s.id JOIN user u ON s.caissier_id =u.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate ORDER BY s.updated_at DESC",
         nativeQuery = true
     )
     Page<HistoriqueProduitVente> getHistoriqueVente(
@@ -61,6 +61,7 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
         @Param("endDate") LocalDate endDate,
         @Param("statuts") Set<String> statuts
     );
+
     @Query(
         value = "SELECT SUM(o.quantity_requested) AS quantite, SUM(o.sales_amount) AS montantTtc, SUM(o.ht_amount) AS montantHt, SUM(o.discount_amount) AS montantRemise, SUM(o.tax_amount) AS montantTva,SUM(o.net_amount) AS montantNet FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate",
         nativeQuery = true
@@ -71,7 +72,11 @@ public interface SalesLineRepository extends JpaRepository<SalesLine, Long> {
         @Param("endDate") LocalDate endDate,
         @Param("statuts") Set<String> statuts
     );
-    @Query(value = "SELECT SUM(o.quantity_requested) AS quantite  FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate",nativeQuery = true)
+
+    @Query(
+        value = "SELECT SUM(o.quantity_requested) AS quantite  FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate",
+        nativeQuery = true
+    )
     HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(
         @Param("produitId") long produitId,
         @Param("startDate") LocalDate startDate,

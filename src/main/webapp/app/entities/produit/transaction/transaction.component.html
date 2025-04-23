@@ -71,6 +71,7 @@
           <div class="input-group">
             <span class="input-group-text">Du</span>
             <p-datePicker
+              (onSelect)="updateParam()"
               [(ngModel)]="fromDate"
               [maxDate]="toDate"
               [selectOtherMonths]="true"
@@ -87,6 +88,7 @@
           <div class="input-group">
             <span class="input-group-text">Au</span>
             <p-datePicker
+              (onSelect)="updateParam()"
               [(ngModel)]="toDate"
               [minDate]="fromDate"
               [selectOtherMonths]="true"
@@ -115,7 +117,7 @@
               icon="pi pi-file-pdf"
               label="Imprimer"
               raised="true"
-              severity="danger"
+              severity="warn"
               type="button"
             >
             </p-button>
@@ -128,6 +130,8 @@
       </div>
     </p-toolbar>
     <p-panel>
+      <ng-template #header>
+      </ng-template>
       <div [ngbNavOutlet]="nav"></div>
     </p-panel>
   </div>

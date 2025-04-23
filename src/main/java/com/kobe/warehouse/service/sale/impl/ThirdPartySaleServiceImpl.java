@@ -113,7 +113,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         PosteRepository posteRepository,
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository, AfficheurPosService afficheurPosService
+        RemiseRepository remiseRepository,
+        AfficheurPosService afficheurPosService
     ) {
         super(
             referenceService,
@@ -123,7 +124,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             salesLineService,
             cashRegisterService,
             avoirService,
-            posteRepository,afficheurPosService
+            posteRepository,
+            afficheurPosService
         );
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
@@ -577,7 +579,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setImported(false);
         c.setUser(cashSale.getUser());
         c.setLastUserEdit(this.storageService.getUser());
-        c.setCassier(cashSale.getCassier());
+        c.setCaissier(cashSale.getCaissier());
         c.setCopy(false);
         c.setCreatedAt(cashSale.getCreatedAt());
         c.setUpdatedAt(cashSale.getUpdatedAt());

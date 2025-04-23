@@ -115,10 +115,8 @@ export class AuditingComponent implements OnInit {
     this.resetTotaux();
     if (this.entites.length > 0) {
       for (const e of this.entites) {
-        console.warn(e);
         if (e.saleQuantity) {
           this.saleQuantity = this.saleQuantity + e.saleQuantity;
-          console.error(this.saleQuantity);
         }
         if (e.retourFournisseurQuantity) {
           this.retourFournisseurQuantity = this.retourFournisseurQuantity + e.retourFournisseurQuantity;

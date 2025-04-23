@@ -1,29 +1,32 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import {
+  HistoriqueProduitVDonneesMensuelles,
+  HistoriqueProduitVenteSummary,
+  ProduitAuditingParam,
+} from '../../../../shared/model/produit-record.model';
 import { ProduitStatService } from '../../stat/produit-stat.service';
-import { HistoriqueProduitVente, HistoriqueProduitVenteSummary, ProduitAuditingParam } from '../../../../shared/model/produit-record.model';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
-import { CommonModule, DatePipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { LazyLoadEvent } from 'primeng/api';
 
 @Component({
-  selector: 'jhi-daily-sale-produit-historique',
-  imports: [CommonModule, DatePipe, PrimeTemplate, TableModule],
-  templateUrl: './daily-sale-produit-historique.component.html',
+  selector: 'jhi-hearly-sale-produit-historique',
+  imports: [],
+  templateUrl: './yearly-sale-produit-historique.component.html',
+  styles: ``,
 })
-export class DailySaleProduitHistoriqueComponent implements OnInit {
+export class YearlySaleProduitHistoriqueComponent {
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected loading!: boolean;
   protected page = 0;
-  protected data: HistoriqueProduitVente[] = [];
+  protected data: HistoriqueProduitVDonneesMensuelles[] = [];
   protected summary: HistoriqueProduitVenteSummary | null = null;
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
 
-  ngOnInit(): void {
+  constructor() {
     this.load(this.produitAuditingParamService.produitAuditingParam);
   }
 
@@ -36,13 +39,13 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
     const pageToLoad: number = page || this.page;
     this.loading = true;
     this.produitStatService
-      .getProduitHistoriqueVente({
+      .getProduitHistoriqueVenteMensuelle({
         page: pageToLoad,
         size: this.itemsPerPage,
         ...produitAuditingParam,
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        next: (res: HttpResponse<HistoriqueProduitVDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
       });
   }
 
@@ -51,13 +54,13 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
       this.page = event.first / event.rows;
       this.loading = true;
       this.produitStatService
-        .getProduitHistoriqueVente({
+        .getProduitHistoriqueVenteMensuelle({
           page: this.page,
           size: event.rows,
           ...this.produitAuditingParamService.produitAuditingParam,
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<HistoriqueProduitVDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page),
         });
     }
   }
@@ -70,7 +73,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
     });
   }
 
-  private onSuccess(data: HistoriqueProduitVente[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: HistoriqueProduitVDonneesMensuelles[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
     this.data = data || [];

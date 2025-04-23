@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -50,7 +50,7 @@ export class ProduitStatService {
     return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, { responseType: 'blob' });
   }
 
-  getProduitHistoriqueVente(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitVente[]>> {
+  getProduitHistoriqueVente(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVente[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVente[]>(`${this.resourceUrl}/historique-vente`, {
       params: options,
@@ -58,7 +58,7 @@ export class ProduitStatService {
     });
   }
 
-  getProduitHistoriqueAchat(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitAchats[]>> {
+  getProduitHistoriqueAchat(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitAchats[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitAchats[]>(`${this.resourceUrl}/historique-achat`, {
       params: options,
@@ -66,18 +66,15 @@ export class ProduitStatService {
     });
   }
 
-  getProduitHistoriqueAchatMensuelle(
-    produitAuditingParam: ProduitAuditingParam,
-  ): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+  getProduitHistoriqueAchatMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-achat-mensuelle`, {
       params: options,
       observe: 'response',
     });
   }
-  getProduitHistoriqueVenteMensuelle(
-    produitAuditingParam: ProduitAuditingParam,
-  ): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+
+  getProduitHistoriqueVenteMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
       params: options,
@@ -92,6 +89,7 @@ export class ProduitStatService {
       observe: 'response',
     });
   }
+
   getHistoriqueVenteSummary(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<HistoriqueProduitVenteSummary>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVenteSummary>(`${this.resourceUrl}/historique-vente-summary`, {
@@ -99,6 +97,7 @@ export class ProduitStatService {
       observe: 'response',
     });
   }
+
   getHistoriqueVenteMensuelleSummary(
     produitAuditingParam: ProduitAuditingParam,
   ): Observable<HttpResponse<HistoriqueProduitVenteMensuelleSummary>> {

@@ -115,6 +115,7 @@ Custom alerts for notification
 .alerts {
   .alert {
     text-overflow: ellipsis;
+
     pre {
       background: none;
       border: none;
@@ -123,22 +124,28 @@ Custom alerts for notification
       padding: 0;
       margin: 0;
     }
+
     .popover pre {
       font-size: 10px;
     }
   }
+
   .jhi-toast {
     position: fixed;
     width: 100%;
+
     &.left {
       left: 5px;
     }
+
     &.right {
       right: 5px;
     }
+
     &.top {
       top: 55px;
     }
+
     &.bottom {
       bottom: 55px;
     }
@@ -180,6 +187,7 @@ entity detail page css
       white-space: nowrap;
       padding: 0.5em 0;
     }
+
     dd {
       border-bottom: 1px solid #eee;
       padding: 0.5em 0;
@@ -1425,7 +1433,7 @@ menu  de la vente
 }
 
 .amount-column {
-  text-align: right;
+  text-align: right !important;
   font-weight: 700;
   font-style: italic;
 }
@@ -1807,15 +1815,19 @@ menu  de la vente
     padding: 0.25rem 0.25rem;
   }
 }
+
 .red-400 {
   color: $red-400;
 }
+
 .orange-400 {
   color: $orange-400;
 }
+
 .green-400 {
   color: $green-400;
 }
+
 /*
 .p-datatable .p-datatable-tbody > tr > td {
 
@@ -1826,22 +1838,28 @@ menu  de la vente
 .activity-summary {
   .row {
     padding: 0.1rem 0.1rem;
+
     .col {
       padding: 0.2rem 0.2rem;
+
       .card {
         padding: 0;
+
         .ws-card-footer {
           font-weight: 800;
           font-size: 1rem;
+
           span {
             font-weight: 800;
             font-size: 1rem;
           }
         }
+
         .list-group {
           .list-group-item {
             padding-left: 0.1rem;
             padding-right: 0.1rem;
+
             .list-group-item-right {
               font-weight: 800;
             }

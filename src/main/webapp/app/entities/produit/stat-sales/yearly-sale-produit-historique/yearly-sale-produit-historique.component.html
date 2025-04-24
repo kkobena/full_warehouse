@@ -1,1 +1,60 @@
-<p>hearly-sale-produit-historique works!</p>
+@if (data && data.length) {
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+    [rows]="itemsPerPage"
+    [showCurrentPageReport]="false"
+    [totalRecords]="totalItems"
+    [value]="data"
+    dataKey="annee"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Année</th>
+        <th>Janvier</th>
+        <th>Février</th>
+        <th>Mars</th>
+        <th>Avril</th>
+        <th>Mai</th>
+        <th>Juin</th>
+        <th>Juillet</th>
+        <th>Août</th>
+        <th>Septembre</th>
+        <th>Octobre</th>
+        <th>Novembre</th>
+        <th>Décembre</th>
+      </tr>
+    </ng-template>
+    <ng-template let-vente pTemplate="body">
+      <tr>
+        <td>{{ vente.annee }}</td>
+        <td class="amount-column">{{ getMonthData(vente, JANUARY) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, FEBRUARY) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, MARCH) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, APRIL) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, MAY) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, JUNE) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, JULY) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, AUGUST) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, SEPTEMBER) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, OCTOBER) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, NOVEMBER) | number }}</td>
+        <td class="amount-column">{{ getMonthData(vente, DECEMBER) | number }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #footer>
+      <tr>
+        <td colspan="13" class="text-left ">
+          Total quantité sur la période <span class="font-bold">{{ summary?.quantite | number }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+} @else {
+  <div class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+}

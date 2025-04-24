@@ -18,6 +18,15 @@ import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -31,16 +40,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -66,7 +65,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         StorageService storageService,
         ReferenceService referenceService,
         AppConfigurationService appConfigurationService,
-        EtatProduitService etatProduitService, CommandService commandService, FileStorageProperties fileStorageProperties
+        EtatProduitService etatProduitService,
+        CommandService commandService,
+        FileStorageProperties fileStorageProperties
     ) {
         this.productStateService = productStateService;
         this.suggestionRepository = suggestionRepository;
@@ -133,8 +134,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void suggerer(Produit produit) {
-    }
+    public void suggerer(Produit produit) {}
 
     @Override
     @Transactional(readOnly = true)
@@ -163,9 +163,11 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     @Transactional(readOnly = true)
     public Optional<SuggestionDTO> getSuggestionById(long id) {
-        return suggestionRepository.findById(id).map(suggestion -> new SuggestionDTO(suggestion)
-            .setSuggestionAggregator(suggestionLineRepository.getSuggestionData(suggestion.getId()))
-        );
+        return suggestionRepository
+            .findById(id)
+            .map(suggestion ->
+                new SuggestionDTO(suggestion).setSuggestionAggregator(suggestionLineRepository.getSuggestionData(suggestion.getId()))
+            );
     }
 
     @Override
@@ -292,26 +294,31 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public void addSuggestionLine(long suggestionId, SuggestionLineDTO suggestionLine) {
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
-        suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(suggestionId,suggestionLine.produitId())
-            .ifPresentOrElse(line->{
-                line.setQuantity(line.getQuantity()+suggestionLine.quantity());
-                line.setUpdatedAt(line.getCreatedAt());
-                suggestionLineRepository.save(line);
-            },()->{
-                Fournisseur fournisseur = suggestion.getFournisseur();
-                FournisseurProduit fournisseurProduit = fournisseurProduitRepository.findFirstByProduitIdAndFournisseurId(suggestionLine.produitId(), fournisseur.getId()).orElseThrow();
-                SuggestionLine line = new SuggestionLine();
-                line.setCreatedAt(LocalDateTime.now());
-                line.setUpdatedAt(line.getCreatedAt());
-                line.setQuantity(suggestionLine.quantity());
-                line.setFournisseurProduit(fournisseurProduit);
-                line.setSuggestion(suggestion);
-                suggestion.getSuggestionLines().add(line);
-                suggestionLineRepository.save(line);
-            });
+        suggestionLineRepository
+            .findBySuggestionIdAndFournisseurProduitProduitId(suggestionId, suggestionLine.produitId())
+            .ifPresentOrElse(
+                line -> {
+                    line.setQuantity(line.getQuantity() + suggestionLine.quantity());
+                    line.setUpdatedAt(line.getCreatedAt());
+                    suggestionLineRepository.save(line);
+                },
+                () -> {
+                    Fournisseur fournisseur = suggestion.getFournisseur();
+                    FournisseurProduit fournisseurProduit = fournisseurProduitRepository
+                        .findFirstByProduitIdAndFournisseurId(suggestionLine.produitId(), fournisseur.getId())
+                        .orElseThrow();
+                    SuggestionLine line = new SuggestionLine();
+                    line.setCreatedAt(LocalDateTime.now());
+                    line.setUpdatedAt(line.getCreatedAt());
+                    line.setQuantity(suggestionLine.quantity());
+                    line.setFournisseurProduit(fournisseurProduit);
+                    line.setSuggestion(suggestion);
+                    suggestion.getSuggestionLines().add(line);
+                    suggestionLineRepository.save(line);
+                }
+            );
         suggestion.setUpdatedAt(LocalDateTime.now());
         suggestionRepository.save(suggestion);
-
     }
 
     @Override
@@ -362,12 +369,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         Suggestion suggestion
     ) {
         this.suggestionLineRepository.findBySuggestionTypeSuggessionAndFournisseurProduitId(
-            TypeSuggession.AUTO,
-            fournisseurProduit.getId()
-        ).ifPresentOrElse(
-            line -> updateLine(produit, stockProduit, line),
-            () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion)
-        );
+                TypeSuggession.AUTO,
+                fournisseurProduit.getId()
+            ).ifPresentOrElse(
+                line -> updateLine(produit, stockProduit, line),
+                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion)
+            );
     }
 
     private void buildLine(Produit produit, StockProduit stockProduit, FournisseurProduit fournisseurProduit, Suggestion suggestion) {
@@ -392,14 +399,13 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     private String exportToCsv(Suggestion suggestion) {
-
         String filename =
             this.fileStorageLocation.resolve(
                     "suggestion_" +
-                        suggestion.getSuggessionReference() +
-                        "_" +
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                        ".csv"
+                    suggestion.getSuggessionReference() +
+                    "_" +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
+                    ".csv"
                 )
                 .toFile()
                 .getAbsolutePath();
@@ -411,7 +417,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     Produit produit = fournisseurProduit.getProduit();
                     try {
                         printer.printRecord(
-                            org.apache.commons.lang3.StringUtils.isNotEmpty(produit.getCodeEan()) ? produit.getCodeEan() : fournisseurProduit.getCodeCip(),
+                            org.apache.commons.lang3.StringUtils.isNotEmpty(produit.getCodeEan())
+                                ? produit.getCodeEan()
+                                : fournisseurProduit.getCodeCip(),
                             item.getQuantity()
                         );
                     } catch (IOException e) {

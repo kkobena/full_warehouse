@@ -318,10 +318,16 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setTaxAmount(orderLine.getTaxAmount());
         return orderLine;
     }
-@Override
+
+    @Override
     public OrderLine buildOrderLine(SuggestionLine suggestionLine) {
-      FournisseurProduit fournisseurProduit=suggestionLine.getFournisseurProduit();
-       int stockProduit = fournisseurProduit.getProduit().getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+        FournisseurProduit fournisseurProduit = suggestionLine.getFournisseurProduit();
+        int stockProduit = fournisseurProduit
+            .getProduit()
+            .getStockProduits()
+            .stream()
+            .map(StockProduit::getTotalStockQuantity)
+            .reduce(0, Integer::sum);
         OrderLine orderLine = new OrderLine();
         orderLine.setCreatedAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
@@ -330,10 +336,10 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(suggestionLine.getQuantity());
         orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setOrderAmount(orderLine.getOrderUnitPrice()* suggestionLine.getQuantity());
+        orderLine.setOrderAmount(orderLine.getOrderUnitPrice() * suggestionLine.getQuantity());
         orderLine.setCostAmount(fournisseurProduit.getPrixAchat());
         orderLine.setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        orderLine.setGrossAmount(orderLine.getOrderCostAmount()* suggestionLine.getQuantity());
+        orderLine.setGrossAmount(orderLine.getOrderCostAmount() * suggestionLine.getQuantity());
         orderLine.setProvisionalCode(false);
         orderLine.setQuantityUg(0);
         orderLine.setTaxAmount(0);

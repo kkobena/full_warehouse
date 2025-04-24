@@ -7,12 +7,10 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.GenericError;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +36,7 @@ public interface SuggestionProduitService {
 
     void sanitize(long suggestionId);
     void commander(long suggestionId);
-    void addSuggestionLine(long suggestionId, SuggestionLineDTO suggestionLine) ;
-    void updateSuggestionLinQuantity( SuggestionLineDTO suggestionLine) ;
+    void addSuggestionLine(long suggestionId, SuggestionLineDTO suggestionLine);
+    void updateSuggestionLinQuantity(SuggestionLineDTO suggestionLine);
     Resource exportToCsv(Long id) throws IOException;
 }

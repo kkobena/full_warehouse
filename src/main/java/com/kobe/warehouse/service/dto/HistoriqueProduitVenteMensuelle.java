@@ -1,10 +1,9 @@
 package com.kobe.warehouse.service.dto;
 
 import java.time.Month;
-import java.time.Year;
 
 public interface HistoriqueProduitVenteMensuelle {
-    Year getAnnee();
+    Integer getAnnee();
 
     Integer getMois();
 
@@ -16,5 +15,4 @@ public interface HistoriqueProduitVenteMensuelle {
         }
         return Month.of(getMois());
     }
-
 }

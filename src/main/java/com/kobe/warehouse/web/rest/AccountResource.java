@@ -49,9 +49,10 @@ public class AccountResource extends AccountResourcesProxy {
         UserRepository userRepository,
         UserService userService,
         // MailService mailService,
-        PersistentTokenRepository persistentTokenRepository, AfficheurPosService afficheurPosService
+        PersistentTokenRepository persistentTokenRepository,
+        AfficheurPosService afficheurPosService
     ) {
-        super(userRepository, userService,afficheurPosService);
+        super(userRepository, userService, afficheurPosService);
         this.userRepository = userRepository;
         this.userService = userService;
         // this.mailService = mailService;

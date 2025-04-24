@@ -9,6 +9,9 @@ import com.kobe.warehouse.service.stat.ProductStatService;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
-
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/produits/stat")
@@ -73,43 +72,29 @@ public class ProductStatResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    private ProduitHistoriqueParam getProduitHistoriqueParam(
-        Long produitId,
-        LocalDate fromDate,
-        LocalDate toDate
-    ) {
+    private ProduitHistoriqueParam getProduitHistoriqueParam(Long produitId, LocalDate fromDate, LocalDate toDate) {
         return new ProduitHistoriqueParam(produitId, fromDate, toDate);
-
     }
-
 
     @GetMapping("/historique-vente-mensuelle")
     public ResponseEntity<List<HistoriqueProduitVenteMensuelleWrapper>> getProduitHistoriqueVenteMensuelle(
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
-
     ) {
-
-        return ResponseEntity.ok().body(
-            productStatService.getHistoriqueVenteMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate))
-        );
+        return ResponseEntity.ok()
+            .body(productStatService.getHistoriqueVenteMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
-
 
     @GetMapping("/historique-achat-mensuelle")
     public ResponseEntity<List<HistoriqueProduitAchatMensuelleWrapper>> getProduitHistoriqueAchatMensuelle(
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
-
     ) {
-
-        return ResponseEntity.ok().body(
-            productStatService.getHistoriqueAchatMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate))
-        );
+        return ResponseEntity.ok()
+            .body(productStatService.getHistoriqueAchatMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
-
 
     @GetMapping("/historique-achat")
     public ResponseEntity<List<HistoriqueProduitAchats>> getProduitHistoriqueAchat(
@@ -126,31 +111,24 @@ public class ProductStatResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-
     @GetMapping("/historique-vente-mensuelle-summary")
     public ResponseEntity<HistoriqueProduitVenteMensuelleSummary> getHistoriqueVenteMensuelleSummary(
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
-
     ) {
-
-        return ResponseEntity.ok().body(
-            productStatService.getHistoriqueVenteMensuelleSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
-        );
+        return ResponseEntity.ok()
+            .body(productStatService.getHistoriqueVenteMensuelleSummary(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
-
 
     @GetMapping("/historique-achat-summary")
     public ResponseEntity<HistoriqueProduitAchatsSummary> getHistoriqueAchatSummary(
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
-
     ) {
-        return ResponseEntity.ok().body(
-            productStatService.getHistoriqueAchatSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
-        );
+        return ResponseEntity.ok()
+            .body(productStatService.getHistoriqueAchatSummary(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
 
     @GetMapping("/historique-vente-summary")
@@ -158,10 +136,8 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
-
     ) {
-        return ResponseEntity.ok().body(
-            productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate))
-        );
+        return ResponseEntity.ok()
+            .body(productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
 }

@@ -498,15 +498,6 @@ create or replace table tva
     unique (taux)
 );
 
-create or replace table type_etiquette
-(
-  id      bigint auto_increment
-    primary key,
-  libelle varchar(255) not null,
-  constraint UKnrxyveu79xqb48la1r8hdrun9
-    unique (libelle)
-);
-
 create or replace table produit
 (
   id                      bigint auto_increment
@@ -555,7 +546,6 @@ create or replace table produit
   parent_id               bigint                       null,
   tableau_id              bigint                       null,
   tva_id                  bigint                       not null,
-  type_etyquette_id       bigint                       null,
   constraint UKhaaprmfc9pf1bp3n5g9dnkx91
     unique (libelle, type_produit),
   constraint FK1a3bimdll1wc7by0ng16rl58y
@@ -568,8 +558,6 @@ create or replace table produit
     foreign key (tva_id) references tva (id),
   constraint FKchxb0k9i70n6x9sa3mcpgfqei
     foreign key (parent_id) references produit (id),
-  constraint FKg3ysemtb7iudo9q67fo0r0d2o
-    foreign key (type_etyquette_id) references type_etiquette (id),
   constraint FKh4p706en3rc1tbafjh6goa7yp
     foreign key (tableau_id) references tableau (id),
   constraint FKhowc8u7evv6pewlrvhs0q1lap
@@ -1230,7 +1218,7 @@ create or replace table delivery_receipt
   paiment_status     enum ('NOT_SOLD', 'PAID', 'UNPAID') not null,
   receipt_amount     int                                 null,
   receipt_date       date                                not null,
-  receipt_refernce   varchar(255)                        null,
+  receipt_reference  varchar(255)                        null,
   receipt_status     enum ('ANY', 'CLOSE', 'PENDING')    not null,
   sequence_bon       varchar(255)                        null,
   tax_amount         int default 0                       null,
@@ -1240,10 +1228,10 @@ create or replace table delivery_receipt
   created_user_id    bigint                              not null,
   fournisseur_id     bigint                              not null,
   modified_user_id   bigint                              not null,
+  constraint UK1cxxd47lha2dwo8ygtb8het8r
+    unique (receipt_reference, fournisseur_id),
   constraint UKgvydy4ot9g040hfo81yal2ayd
     unique (number_transaction),
-  constraint UKrujm3jga75vvkajs98nfmvpj0
-    unique (receipt_refernce, fournisseur_id),
   constraint FK2jc0ra32yybd6r4iej7wk7pb1
     foreign key (calendar_work_day) references warehouse_calendar (work_day),
   constraint FKgag79pbmk0offb9m5o6oecnpv
@@ -1258,13 +1246,13 @@ create or replace index number_transaction_index
   on delivery_receipt (number_transaction);
 
 create or replace index receipt_date_index
-  on delivery_receipt (receipt_date);
+  on delivery_receipt (receipt_date desc);
 
 create or replace index receipt_paiment_status_index
   on delivery_receipt (paiment_status);
 
-create or replace index receipt_refernce_index
-  on delivery_receipt (receipt_refernce);
+create or replace index receipt_reference_index
+  on delivery_receipt (receipt_reference);
 
 create or replace index receipt_status_index
   on delivery_receipt (receipt_status);
@@ -1326,7 +1314,7 @@ create or replace table lot
   manufacturing_date   date          null,
   num_lot              varchar(255)  not null,
   quantity             int           not null,
-  receipt_refernce     varchar(255)  not null,
+  receipt_reference    varchar(255)  not null,
   quantity_received_ug int default 0 not null,
   receipt_item_id      bigint        not null,
   constraint UK8qafssjc0vp90d8q7hvwytw29
@@ -1335,8 +1323,8 @@ create or replace table lot
     foreign key (receipt_item_id) references delivery_receipt_item (id)
 );
 
-create or replace index lot_receipt_refernce_index
-  on lot (receipt_refernce);
+create or replace index lot_receipt_reference_index
+  on lot (receipt_reference);
 
 create or replace index num_lot_index
   on lot (num_lot);
@@ -1583,10 +1571,10 @@ create or replace table sales
   part_tiers_payant               int        default 0                                                                 null,
   avoir_id                        bigint                                                                               null,
   caisse_id                       bigint                                                                               null,
+  caissier_id                     bigint                                                                               not null,
   calendar_work_day               date                                                                                 not null,
   canceled_sale_id                bigint                                                                               null,
   cash_register_id                bigint                                                                               null,
-  cassier_id                      bigint                                                                               not null,
   customer_id                     bigint                                                                               null,
   last_caisse_id                  bigint                                                                               null,
   last_user_edit_id               bigint                                                                               not null,
@@ -1615,14 +1603,14 @@ create or replace table sales
     foreign key (depot_agree_id) references magasin (id),
   constraint FKaoq0nuq3h1e1d1swcv1i0knc2
     foreign key (seller_id) references user (id),
-  constraint FKctt2nduttdge3kvjefuxr6689
-    foreign key (cassier_id) references user (id),
   constraint FKd98rul87ffrih39pgn4xh0x3i
     foreign key (magasin_id) references magasin (id),
   constraint FKhoe19wv2k8i34v9eb8o3g2k4m
     foreign key (last_user_edit_id) references user (id),
   constraint FKjjnyagbe68u4fn7k5btsuqqoh
     foreign key (remise_id) references remise (id),
+  constraint FKjmka8om7114crri3l6ucotdum
+    foreign key (caissier_id) references user (id),
   constraint FKol9pmxkqx60x3slvu2ijoex43
     foreign key (caisse_id) references poste (id),
   constraint FKpyxoaae6i92epy849wvdfdlke
@@ -1915,4 +1903,5 @@ create or replace table warehouse_sequence
   increment int(4) default 1 null,
   seq_value int    default 0 null
 );
+
 

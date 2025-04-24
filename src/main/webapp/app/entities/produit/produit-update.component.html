@@ -3,8 +3,7 @@
     <h5 class="card-title">Formulaire produit</h5>
   </div>
 
-  <form (ngSubmit)="save()" [formGroup]="editForm" class="row mt-2" name="editForm" novalidate
-        role="form">
+  <form (ngSubmit)="save()" [formGroup]="editForm" class="row mt-2" name="editForm" novalidate role="form">
     <jhi-alert-error></jhi-alert-error>
 
     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
@@ -21,24 +20,19 @@
     <div class="col-md-6 p-card">
       <div class="form-row">
         <div class="form-group col-md-7">
-          <label class="form-control-label" for="field_libelle"
-                 jhiTranslate="warehouseApp.produit.libelle">Libelle </label>
+          <label class="form-control-label" for="field_libelle" jhiTranslate="warehouseApp.produit.libelle">Libelle </label>
           <span style="font-weight: 900; color: red">*</span>
-          <input autocomplete="off" class="form-control" formControlName="libelle"
-                 id="field_libelle" name="libelle" type="text" />
-          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get(
-            'libelle')!.touched)) {
+          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle" name="libelle" type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
         </div>
         <div class="form-group col-md-5">
-          <label class="form-control-label" for="field_codeCip">Code cip <span
-            style="font-weight: 900; color: red">*</span> </label>
+          <label class="form-control-label" for="field_codeCip">Code cip <span style="font-weight: 900; color: red">*</span> </label>
           <input
             autocomplete="off"
             class="form-control"
@@ -49,12 +43,10 @@
             pKeyFilter="int"
             type="text"
           />
-          @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get(
-            'codeCip')!.touched)) {
+          @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)) {
             <div>
               @if (editForm.get('codeCip')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -62,8 +54,7 @@
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_costAmount"
-                 jhiTranslate="warehouseApp.produit.costAmount">Cost Amount</label>
+          <label class="form-control-label" for="field_costAmount" jhiTranslate="warehouseApp.produit.costAmount">Cost Amount</label>
           <span style="font-weight: 900; color: red">*</span>
           <input
             (keyup)="handleCostInput($event)"
@@ -76,15 +67,12 @@
             pKeyFilter="int"
             type="text"
           />
-          @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty
-            || editForm.get('costAmount')!.touched)) {
+          @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)) {
             <div>
               @if (editForm.get('costAmount')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
-              @if (editForm.get('costAmount')?.errors?.required) {
-              }
+              @if (editForm.get('costAmount')?.errors?.required) {}
               <small
                 [hidden]="!editForm.get('costAmount')?.errors?.number"
                 class="form-text text-danger"
@@ -96,9 +84,8 @@
           }
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_regularUnitPrice"
-                 jhiTranslate="warehouseApp.produit.regularUnitPrice"
-          >Regular Unit Price</label
+          <label class="form-control-label" for="field_regularUnitPrice" jhiTranslate="warehouseApp.produit.regularUnitPrice"
+            >Regular Unit Price</label
           >
           <span style="font-weight: 900; color: red">*</span>
           <input
@@ -112,12 +99,13 @@
             pKeyFilter="int"
             type="text"
           />
-          @if (editForm.get('regularUnitPrice')!.invalid &&
-          (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)) {
+          @if (
+            editForm.get('regularUnitPrice')!.invalid &&
+            (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)
+          ) {
             <div>
               @if (editForm.get('regularUnitPrice')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
               <small
                 [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
@@ -130,8 +118,7 @@
           }
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="tvaId">Tva<span
-            style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="tvaId">Tva<span style="font-weight: 900; color: red">*</span></label>
           <p-dropdown
             [filter]="false"
             [options]="tvas"
@@ -150,8 +137,7 @@
 
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="fournisseurId">Fournisseurs<span
-            style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
           <p-dropdown
             [filter]="true"
             [options]="fournisseurs"
@@ -170,8 +156,7 @@
         </div>
 
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="rayonId">Rayon<span
-            style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="rayonId">Rayon<span style="font-weight: 900; color: red">*</span></label>
           <p-dropdown
             [filter]="true"
             [options]="rayons"
@@ -190,8 +175,7 @@
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="familleId">Famille article<span
-            style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="familleId">Famille article<span style="font-weight: 900; color: red">*</span></label>
           <p-dropdown
             [filter]="true"
             [options]="familleProduits"
@@ -345,14 +329,12 @@
               name="deconditionnable"
               type="checkbox"
             />
-            <label class="form-check-label form-control-label" for="deconditionnable">Déconditionnable
-              ?</label>
+            <label class="form-check-label form-control-label" for="deconditionnable">Déconditionnable ?</label>
           </div>
         </div>
         @if (isDeconditionnable) {
           <div class="form-group col-md-3">
-            <label class="form-control-label" for="field_itemQty"
-                   jhiTranslate="warehouseApp.produit.itemQty">Item Qty</label>
+            <label class="form-control-label" for="field_itemQty" jhiTranslate="warehouseApp.produit.itemQty">Item Qty</label>
             <input
               (keyup)="handleItemQty($event)"
               autocomplete="off"
@@ -366,9 +348,8 @@
             />
           </div>
           <div class="form-group col-md-3">
-            <label class="form-control-label" for="field_itemCostAmount"
-                   jhiTranslate="warehouseApp.produit.itemCostAmount"
-            >Item Cost Amount</label
+            <label class="form-control-label" for="field_itemCostAmount" jhiTranslate="warehouseApp.produit.itemCostAmount"
+              >Item Cost Amount</label
             >
             <input
               (keyup)="handleItemCost($event)"
@@ -384,9 +365,8 @@
           </div>
 
           <div class="form-group col-md-3">
-            <label class="form-control-label" for="field_itemRegularUnitPrice"
-                   jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
-            >Item Regular Unit Price</label
+            <label class="form-control-label" for="field_itemRegularUnitPrice" jhiTranslate="warehouseApp.produit.itemRegularUnitPrice"
+              >Item Regular Unit Price</label
             >
             <input
               (keyup)="handleItemPrice($event)"
@@ -403,7 +383,6 @@
         }
       </div>
       <div class="form-row">
-
         <div class="form-group col-md-6">
           <div class="form-check form-switch pt-md-4">
             <input
@@ -414,8 +393,7 @@
               name="dateperemption"
               type="checkbox"
             />
-            <label class="form-check-label" for="dateperemption">Observer la date de péremption
-              ?</label>
+            <label class="form-check-label" for="dateperemption">Observer la date de péremption ?</label>
           </div>
         </div>
         @if (isDatePeremptionChecked) {
@@ -435,13 +413,10 @@
           </div>
         }
       </div>
-
-
     </div>
 
     <div class="mt-2 mb-2" style="text-align: center">
-      <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check"
-                label="Enregistrer" type="submit"></p-button>
+      <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check" label="Enregistrer" type="submit"></p-button>
       <p-button
         (click)="previousState()"
         [style]="{ 'margin-left': '.5em' }"

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'jhi-dayly-delevery-produit-historique',
   imports: [],
   templateUrl: './dayly-delevery-produit-historique.component.html',
-  styles: ``
+  styles: ``,
 })
-export class DaylyDeleveryProduitHistoriqueComponent {
-
-}
+export class DaylyDeleveryProduitHistoriqueComponent {}

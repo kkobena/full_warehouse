@@ -116,12 +116,6 @@ VALUES (4, 'TEDIS PHAR.', 4);
 INSERT IGNORE INTO `groupe_fournisseur` (`id`, `libelle`, `odre`)
 VALUES (5, 'AUTRES', 100);
 
-INSERT IGNORE INTO type_etiquette(id, libelle)
-VALUES (1, 'CIP'),
-       (2, 'CIP_PRIX'),
-       (3, 'CIP_DESIGNATION'),
-       (4, 'CIP_PRIX_DESIGNATION'),
-       (5, 'POSITION');
 INSERT IGNORE INTO form_produit(id, libelle)
 VALUES (1, 'Comprimés'),
        (2, 'Sachets');
@@ -185,4 +179,63 @@ values ('APP_LIMIT_NBR_DAY_REAPPRO',
 INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_DENOMINATEUR_REAPPRO',
         'denominateur du calcul de réappro', '84', null, 'NUMBER');
+INSERT IGNORE INTO authority (name, libelle)
+VALUES ('ROLE_VENDEUR', 'Vendeur');
+INSERT IGNORE INTO authority (name, libelle)
+VALUES ('ROLE_CAISSIER', 'Caissier');
+INSERT IGNORE INTO authority (name, libelle)
+VALUES ('ROLE_RESPONSABLE_COMMANDE', 'Responsable de commande');
 
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_FORCE_STOCK', 'Privilège de Forçage du stock à la vente', 37);
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_MODIFIER_PRIX', 'Privilège de modification du prix de vente du produit à la vente', 37);
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_MODIFICATION_VENTE', 'Privilège de modification de vente', 37);
+
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_ANNULATION_VENTE', 'Privilège annulation se vente', 37);
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_SUPPRIME_PRODUIT_VENTE', 'Privilège suppression d\'une ligne de produit à la vente',
+        37);
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_AJOUTER_REMISE_VENTE', 'Privilège appliquer une remise à une vente', 37);
+INSERT IGNORE INTO privilege (name, libelle, menu_id)
+VALUES ('PR_VOIR_STOCK_INVENTAIRE', 'Privilège affichage du stock des produits inventoriés', 3);
+
+
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_FORCE_STOCK');
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_MODIFIER_PRIX');
+
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_MODIFICATION_VENTE');
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_ANNULATION_VENTE');
+
+
+
+INSERT IGNORE INTO authority_privilege (authority_name, privilege_name)
+VALUES ('ROLE_ADMIN', 'PR_VOIR_STOCK_INVENTAIRE');
+INSERT IGNORE INTO tableau(code, valeur)
+VALUES ('A', 0);
+INSERT IGNORE INTO tableau(code, valeur)
+VALUES ('C', 0);
+
+INSERT IGNORE INTO user_authority
+(user_id, authority_name)
+VALUES (3, 'ROLE_CAISSIER');
+INSERT IGNORE INTO user_authority
+(user_id, authority_name)
+VALUES (3, 'ROLE_RESPONSABLE_COMMANDE');
+INSERT IGNORE INTO user_authority
+(user_id, authority_name)
+VALUES (3, 'ROLE_USER');
+
+INSERT IGNORE INTO user_authority
+(user_id, authority_name)
+VALUES (3, 'ROLE_VENDEUR');
+INSERT IGNORE INTO user_authority
+(user_id, authority_name)
+VALUES (3, 'ROLE_ADMIN');

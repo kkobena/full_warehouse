@@ -65,7 +65,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
   protected getSalesSummary(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.getHistoriqueVenteSummary(produitAuditingParam).subscribe({
       next: res => {
-        this.summary = res.body || null;
+        this.summary = res.body;
       },
     });
   }

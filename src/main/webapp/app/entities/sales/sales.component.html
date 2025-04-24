@@ -1,28 +1,23 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="deleteVente"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteVente"></p-confirmDialog>
 
 <div class="container-fluid">
   <p-toolbar>
     <ng-template #start>
       <div class="d-flex justify-content-around ws-toolbar-flex">
-        <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
-                  [options]="typeVentes" size="small"></p-select> &nbsp;
+        <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes" size="small"></p-select> &nbsp;
 
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
-                 type="text" />
+          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
         </p-iconfield>
         &nbsp;&nbsp;
 
-        <p-checkbox [(ngModel)]="global" [binary]="true" class="mt-2" id="global"
-                    inputId="global"></p-checkbox>
+        <p-checkbox [(ngModel)]="global" [binary]="true" class="mt-2" id="global" inputId="global"></p-checkbox>
         <label class="ml-2 mt-2" for="global">Global</label>
         &nbsp;&nbsp;
         <p-inputgroup>
           <p-inputgroup-addon>Du</p-inputgroup-addon>
-          <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                        [showButtonBar]="true" dateFormat="dd/mm/yy">
+          <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true" [showButtonBar]="true" dateFormat="dd/mm/yy">
           </p-datePicker>
         </p-inputgroup>
         &nbsp;
@@ -48,8 +43,7 @@
         </p-inputgroup>
         &nbsp;
 
-        <p-select #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName"
-                  optionValue="id"></p-select>
+        <p-select #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName" optionValue="id"></p-select>
       </div>
     </ng-template>
     <ng-template #end>
@@ -256,17 +250,14 @@
                       </tr>
                     </ng-template>
                     <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr
-                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                         <td style="text-align: left">{{ rowIndex + 1 }}</td>
                         <td>{{ saleLine.code }}</td>
                         <td>{{ saleLine.produitLibelle }}</td>
                         <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                         <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                         <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td
-                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                        </td>
+                        <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
                       </tr>
                     </ng-template>
                   </p-table>
@@ -299,17 +290,14 @@
                       </tr>
                     </ng-template>
                     <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr
-                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                         <td style="text-align: left">{{ rowIndex + 1 }}</td>
                         <td>{{ saleLine.code }}</td>
                         <td>{{ saleLine.produitLibelle }}</td>
                         <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                         <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                         <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td
-                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                        </td>
+                        <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
                       </tr>
                     </ng-template>
                   </p-table>
@@ -319,33 +307,33 @@
                   <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
                   <table class="table table-bordered">
                     <tbody>
-                    <tr>
-                      <td class="firstColumn">MONTANT ASSURE</td>
-                      <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
+                      <tr>
+                        <td class="firstColumn">MONTANT ASSURE</td>
+                        <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
 
-                      <td class="firstColumn">MONTANT ASSURANCE</td>
-                      <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
-                    </tr>
+                        <td class="firstColumn">MONTANT ASSURANCE</td>
+                        <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
+                      </tr>
 
-                    <tr>
-                      <td class="firstColumn">MONTANT TTC</td>
-                      <td class="secondColumn">{{ elRow?.salesAmount }}</td>
-                      <td class="firstColumn">MONTANT HT</td>
-                      <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
-                    </tr>
+                      <tr>
+                        <td class="firstColumn">MONTANT TTC</td>
+                        <td class="secondColumn">{{ elRow?.salesAmount }}</td>
+                        <td class="firstColumn">MONTANT HT</td>
+                        <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
+                      </tr>
 
-                    <tr>
-                      <td class="firstColumn">MONTANT TAXE</td>
-                      <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
-                      <td class="firstColumn">REMISE</td>
-                      <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
-                    </tr>
-                    <tr>
-                      <td class="firstColumn">MONTANT A PAYER</td>
-                      <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
-                      <td class="firstColumn">RESTE A PAYER</td>
-                      <td class="secondColumn">{{ elRow?.restToPay }}</td>
-                    </tr>
+                      <tr>
+                        <td class="firstColumn">MONTANT TAXE</td>
+                        <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
+                        <td class="firstColumn">REMISE</td>
+                        <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">MONTANT A PAYER</td>
+                        <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
+                        <td class="firstColumn">RESTE A PAYER</td>
+                        <td class="secondColumn">{{ elRow?.restToPay }}</td>
+                      </tr>
                       @for (tp of elRow?.thirdPartySaleLines; track tp; let i = $index) {
                         <tr>
                           <td class="firstColumn">

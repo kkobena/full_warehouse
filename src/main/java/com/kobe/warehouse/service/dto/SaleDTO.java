@@ -26,8 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
-    {@JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"),
-        @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO")}
+    { @JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"), @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO") }
 )
 public class SaleDTO implements Serializable {
 
@@ -84,8 +83,7 @@ public class SaleDTO implements Serializable {
     private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
     private String commentaire;
 
-    public SaleDTO() {
-    }
+    public SaleDTO() {}
 
     public SaleDTO(Sales sale) {
         this.id = sale.getId();
@@ -93,14 +91,12 @@ public class SaleDTO implements Serializable {
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {
             if (thirdPartySales.getCustomer() != null) {
-                this.customer = new AssuredCustomerDTO(
-                    (AssuredCustomer) thirdPartySales.getCustomer());
+                this.customer = new AssuredCustomerDTO((AssuredCustomer) thirdPartySales.getCustomer());
             }
             this.categorie = "VO";
         } else if (sale instanceof CashSale cashSale) {
             if (cashSale.getCustomer() != null) {
-                this.customer = new UninsuredCustomerDTO(
-                    (UninsuredCustomer) cashSale.getCustomer());
+                this.customer = new UninsuredCustomerDTO((UninsuredCustomer) cashSale.getCustomer());
             }
             this.categorie = "VNO";
         }

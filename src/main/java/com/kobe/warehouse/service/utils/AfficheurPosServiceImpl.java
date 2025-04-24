@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.utils;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.kobe.warehouse.service.StorageService;
+import java.io.OutputStream;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,16 +13,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.OutputStream;
-import java.util.Objects;
-
 @Service
 @Transactional(readOnly = true)
 public class AfficheurPosServiceImpl implements AfficheurPosService {
+
     private static final Logger LOG = LoggerFactory.getLogger(AfficheurPosServiceImpl.class);
     private final StorageService storageService;
+
     @Value("${portCom}")
     private String portName;
+
     private SerialPort serialPort;
     private OutputStream outputStream;
 
@@ -49,9 +51,7 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
         } else {
             LOG.info("port is not open");
         }
-
     }
-
 
     @Override
     public void sendDataToAfficheurPos(String data, String position) {
@@ -60,7 +60,6 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
             try {
                 String repeat = " ".repeat(Math.max(0, (20 - data.length())));
                 if (position.equals("begin")) {
-
                     data = repeat + data;
                 } else {
                     data = data + repeat;
@@ -90,7 +89,10 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
             }
             if (Objects.nonNull(serialPort)) {
                 sendDataToAfficheurPos(substring(produitName.toUpperCase(), 0, 20));
-                sendDataToAfficheurPos(substring(qty + "*" + NumberUtil.formatToString(price) + " = " + NumberUtil.formatToString(qty * price), 0, 20), "begin");
+                sendDataToAfficheurPos(
+                    substring(qty + "*" + NumberUtil.formatToString(price) + " = " + NumberUtil.formatToString(qty * price), 0, 20),
+                    "begin"
+                );
             }
         }
     }
@@ -108,7 +110,6 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
                 sendDataToAfficheurPos(substring(" BIENVENUE A VOUS", 0, 20));
             }
         }
-
     }
 
     @Override
@@ -162,7 +163,6 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
         } catch (Exception e) {
             LOG.error("get serial port", e);
         }
-
     }
 
     private void closeSerialPort() {
@@ -173,7 +173,6 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
                 }
                 serialPort.closePort();
             }
-
         } catch (Exception e) {
             LOG.error("close serial port", e);
         }
@@ -183,7 +182,6 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
         if (Objects.nonNull(serialPort) && !serialPort.isOpen()) {
             serialPort.openPort();
         }
-
     }
 
     private void sendData(char character) {

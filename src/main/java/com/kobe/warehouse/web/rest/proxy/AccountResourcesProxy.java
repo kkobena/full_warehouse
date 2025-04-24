@@ -35,8 +35,10 @@ public class AccountResourcesProxy {
     }
 
     protected AdminUserDTO getAccount() {
-        AdminUserDTO userDTO = userService.getUserConnectedWithAuthorities().orElseThrow(() -> new AccountResourceException("User could not be found"));
-       afficheurPosService.connectedUserMessage(userDTO.getLastName());
+        AdminUserDTO userDTO = userService
+            .getUserConnectedWithAuthorities()
+            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+        afficheurPosService.connectedUserMessage(userDTO.getLastName());
         return userDTO;
     }
 

@@ -1,5 +1,4 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="deletePrevente"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deletePrevente"></p-confirmDialog>
 <div class="container-fluid">
   <p-toolbar>
     <ng-template #start>
@@ -19,8 +18,7 @@
         <div class="col">
           <p-iconfield>
             <p-inputicon styleClass="pi pi-search" />
-            <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
-                   type="text" />
+            <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
           </p-iconfield>
         </div>
       </div>
@@ -136,17 +134,14 @@
                   </tr>
                 </ng-template>
                 <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                  <tr
-                    [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                  <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                     <td style="text-align: left">{{ rowIndex + 1 }}</td>
                     <td>{{ saleLine.code }}</td>
                     <td>{{ saleLine.produitLibelle }}</td>
                     <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                     <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                     <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                    <td
-                      style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                    </td>
+                    <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
                   </tr>
                 </ng-template>
               </p-table>

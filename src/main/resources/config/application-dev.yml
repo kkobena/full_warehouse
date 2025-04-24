@@ -1,11 +1,3 @@
-# ===================================================================
-# Spring Boot configuration for the "dev" profile.
-#
-# This configuration overrides the application.yml file.
-#
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
 # ===================================================================
 # Standard Spring Boot properties.
@@ -17,7 +9,7 @@ logging:
   level:
     ROOT: DEBUG
     tech.jhipster: OFF
-    com.kobe.warehouse: TRACE
+    com.kobe.warehouse: DEBUG
     javax:
       management:
         remote:
@@ -43,7 +35,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
+    url: jdbc:mysql://localhost:33010/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
     #    username: warehouse
     #    password: warehouse2802
     username: warehouse

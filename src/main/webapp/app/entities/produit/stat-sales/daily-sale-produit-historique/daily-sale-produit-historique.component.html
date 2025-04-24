@@ -9,7 +9,7 @@
     [showCurrentPageReport]="false"
     [totalRecords]="totalItems"
     [value]="data"
-    dataKey="id"
+    dataKey="mvtDate"
   >
     <ng-template pTemplate="header">
       <tr>
@@ -23,8 +23,6 @@
         <th>Remise</th>
         <th>Montant net</th>
         <th>Opérateur</th>
-
-
       </tr>
     </ng-template>
     <ng-template let-vente pTemplate="body">
@@ -39,7 +37,6 @@
         <td class="amount-column">{{ vente.montantRemise | number }}</td>
         <td class="amount-column">{{ vente.montantNet | number }}</td>
         <td>{{ vente.user }}</td>
-
       </tr>
     </ng-template>
     <ng-template #footer>

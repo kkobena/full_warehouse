@@ -46,13 +46,12 @@ import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.utils.AfficheurPosService;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.kobe.warehouse.service.utils.AfficheurPosService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +91,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         AvoirService avoirService,
         PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository, AfficheurPosService afficheurPosService
+        RemiseRepository remiseRepository,
+        AfficheurPosService afficheurPosService
     ) {
         super(
             referenceService,
@@ -102,7 +102,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             salesLineService,
             cashRegisterService,
             avoirService,
-            posteRepository,afficheurPosService
+            posteRepository,
+            afficheurPosService
         );
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;

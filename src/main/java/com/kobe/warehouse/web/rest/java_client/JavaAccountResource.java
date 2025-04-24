@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class JavaAccountResource extends AccountResourcesProxy {
 
     public JavaAccountResource(UserRepository userRepository, UserService userService, AfficheurPosService afficheurPosService) {
-        super(userRepository, userService,afficheurPosService);
+        super(userRepository, userService, afficheurPosService);
     }
 
     @GetMapping("/account")

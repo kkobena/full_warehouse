@@ -8,6 +8,10 @@ import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
 import jakarta.validation.Valid;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +25,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.

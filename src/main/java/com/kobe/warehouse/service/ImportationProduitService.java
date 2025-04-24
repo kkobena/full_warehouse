@@ -19,7 +19,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.TypeEtiquette;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
@@ -37,7 +36,6 @@ import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.TableauRepository;
 import com.kobe.warehouse.repository.TvaRepository;
-import com.kobe.warehouse.repository.TypeEtiquetteRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.InstallationDataDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
@@ -91,7 +89,6 @@ public class ImportationProduitService {
     private final Logger log = LoggerFactory.getLogger(ImportationProduitService.class);
     private final FamilleProduitRepository familleProduitRepository;
     private final RayonRepository rayonRepository;
-    private final TypeEtiquetteRepository typeEtiquetteRepository;
     private final TvaRepository tvaRepository;
     private final FournisseurRepository fournisseurRepository;
     private final GammeProduitRepository gammeProduitRepository;
@@ -112,7 +109,6 @@ public class ImportationProduitService {
         TransactionTemplate transactionTemplate,
         FamilleProduitRepository familleProduitRepository,
         RayonRepository rayonRepository,
-        TypeEtiquetteRepository typeEtiquetteRepository,
         TvaRepository tvaRepository,
         FournisseurRepository fournisseurRepository,
         GammeProduitRepository gammeProduitRepository,
@@ -128,7 +124,6 @@ public class ImportationProduitService {
     ) {
         this.familleProduitRepository = familleProduitRepository;
         this.rayonRepository = rayonRepository;
-        this.typeEtiquetteRepository = typeEtiquetteRepository;
         this.tvaRepository = tvaRepository;
         this.fournisseurRepository = fournisseurRepository;
         this.gammeProduitRepository = gammeProduitRepository;
@@ -384,7 +379,7 @@ public class ImportationProduitService {
         List<Record> errorList = new ArrayList<>();
         AtomicInteger errorSize = new AtomicInteger();
         FamilleProduit familleProduit = findFamilleProduit(DEFAULT_CODE_FAMILLE);
-        TypeEtiquette typeEtiquette = typeEtiquetteRepository.getReferenceById(EntityConstant.DEFAULT_TYPE_ETIQUETTES);
+
         Map<String, Long> tableauCode =
             this.tableauRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         ResponseDTO response = new ResponseDTO();
@@ -428,7 +423,6 @@ public class ImportationProduitService {
                                     0,
                                     null,
                                     null,
-                                    typeEtiquette.getId(),
                                     null,
                                     null,
                                     0,
@@ -471,7 +465,6 @@ public class ImportationProduitService {
         Map<String, Long> rayonCodes =
             this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         AtomicInteger count = new AtomicInteger();
-        TypeEtiquette typeEtiquette = typeEtiquetteRepository.getReferenceById(EntityConstant.DEFAULT_TYPE_ETIQUETTES);
         Map<String, Long> familleCode =
             this.familleProduitRepository.findAll()
                 .stream()
@@ -536,7 +529,6 @@ public class ImportationProduitService {
                                     Integer.parseInt(record.get(10)),
                                     null,
                                     null,
-                                    typeEtiquette.getId(),
                                     null,
                                     null,
                                     0,
@@ -582,7 +574,6 @@ public class ImportationProduitService {
             this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         AtomicInteger count = new AtomicInteger();
         AtomicInteger errorSize = new AtomicInteger();
-        TypeEtiquette typeEtiquette = typeEtiquetteRepository.getReferenceById(EntityConstant.DEFAULT_TYPE_ETIQUETTES);
         Map<String, Long> familleCode =
             this.familleProduitRepository.findAll()
                 .stream()
@@ -666,7 +657,6 @@ public class ImportationProduitService {
                                     NumberUtil.parseInt(record.get(7)),
                                     org.springframework.util.StringUtils.hasText(labo) ? tableauCode.get(labo) : null,
                                     org.springframework.util.StringUtils.hasText(gamme) ? tableauCode.get(gamme) : null,
-                                    typeEtiquette.getId(),
                                     org.springframework.util.StringUtils.hasText(chiffre) ? Integer.parseInt(chiffre) == 1 : null,
                                     org.springframework.util.StringUtils.hasText(produitAvecOrdance)
                                         ? NumberUtil.parseInt(produitAvecOrdance) == 1
@@ -869,7 +859,6 @@ public class ImportationProduitService {
                 "Qté Reappro",
                 "Laboratoire id",
                 "Gamme id",
-                "Type Etiquette id",
                 "Chiffre",
                 "Produit ordonnancé",
                 "Cmu",
@@ -903,7 +892,6 @@ public class ImportationProduitService {
                             record.qtyReappro(),
                             record.laboratoireId(),
                             record.gammeId(),
-                            record.typeEtiquetteId(),
                             record.chiffre(),
                             record.scheduled(),
                             record.cmu(),
@@ -953,7 +941,6 @@ public class ImportationProduitService {
         int qtyReappro,
         Long laboratoireId,
         Long gammeId,
-        Long typeEtiquetteId,
         Boolean chiffre,
         Boolean scheduled,
         int cmu,

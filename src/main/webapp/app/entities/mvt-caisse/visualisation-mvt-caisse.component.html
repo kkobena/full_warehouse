@@ -33,8 +33,7 @@
 
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
-                 type="text" />&nbsp;
+          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />&nbsp;
         </p-iconfield>
 
         <p-multiSelect
@@ -80,11 +79,9 @@
           tooltipPosition="top"
         ></p-button
         >&nbsp;
-        <p-button (click)="addNew()" icon="pi pi-plus" pTooltip="Nouveau mouvement"
-                  severity="success" tooltipPosition="top"></p-button
+        <p-button (click)="addNew()" icon="pi pi-plus" pTooltip="Nouveau mouvement" severity="success" tooltipPosition="top"></p-button
         >&nbsp;
-        <p-button (click)="onPrint()" [loading]="btnLoading" icon="pi pi-print" pTooltip="Imprimer"
-                  severity="warn" tooltipPosition="top" />
+        <p-button (click)="onPrint()" [loading]="btnLoading" icon="pi pi-print" pTooltip="Imprimer" severity="warn" tooltipPosition="top" />
       </div>
     </ng-template>
   </p-toolbar>
@@ -96,7 +93,7 @@
           [lazy]="true"
           [loading]="loading"
           [paginator]="true"
-          [rowsPerPageOptions]="[10,20, 30, 50]"
+          [rowsPerPageOptions]="[10, 20, 30, 50]"
           [rows]="itemsPerPage"
           [showCurrentPageReport]="false"
           [totalRecords]="totalItems"
@@ -127,8 +124,7 @@
               </td>
               <td>{{ mvtCaisse.date }}</td>
               @if (mvtCaisse.type === 'SORTIE_CAISSE') {
-                <td class="text-right text-danger amount-column">{{ mvtCaisse.montant | number }}
-                </td>
+                <td class="text-right text-danger amount-column">{{ mvtCaisse.montant | number }}</td>
               } @else {
                 <td class="text-right amount-column">{{ mvtCaisse.montant | number }}</td>
               }
@@ -139,8 +135,7 @@
 
               <td [hidden]="true" class="text-right">
                 <div class="btn-group">
-                  <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye"
-                            pTooltip="Voir"></p-button>
+                  <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye" pTooltip="Voir"></p-button>
                 </div>
               </td>
             </tr>
@@ -154,30 +149,25 @@
               @if (mvtCaisseSum.totalPaymentAmount > 0) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total ventes
-                  <span
-                    class="badge bg-primary rounded-pill">{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
+                  <span class="badge bg-primary rounded-pill">{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
                 </li>
               }
               @if (mvtCaisseSum.creditedAmount) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total entrée
-                  <span
-                    class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
+                  <span class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.creditedAmount | number }}</span>
                 </li>
               }
               @if (mvtCaisseSum.debitedAmount) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total sortie
-                  <span class="badge bg-danger rounded-pill">{{
-                      mvtCaisseSum.debitedAmount * -1 | number
-                    }}</span>
+                  <span class="badge bg-danger rounded-pill">{{ mvtCaisseSum.debitedAmount * -1 | number }}</span>
                 </li>
               }
               @if (mvtCaisseSum.totalMobileAmount) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total Mobile
-                  <span
-                    class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.totalMobileAmount | number }}</span>
+                  <span class="badge bg-secondary rounded-pill">{{ mvtCaisseSum.totalMobileAmount | number }}</span>
                 </li>
               }
             </ul>
@@ -185,7 +175,7 @@
           @if (mvtCaisseSum.modesPaiementAmounts.length > 0) {
             <p-card header="Modes règlements">
               <ul class="list-group">
-                @for (mode of mvtCaisseSum.modesPaiementAmounts; track mode.key; ) {
+                @for (mode of mvtCaisseSum.modesPaiementAmounts; track mode.key) {
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     {{ mode.libelle }}
                     <span class="badge rounded-pill bg-secondary">{{ mode.value | number }}</span>
@@ -197,13 +187,11 @@
           @if (mvtCaisseSum.typeTransactionAmounts.length > 0) {
             <p-card header="Types mouvements">
               <ul class="list-group">
-                @for (mode of mvtCaisseSum.typeTransactionAmounts; track mode.key; ) {
+                @for (mode of mvtCaisseSum.typeTransactionAmounts; track mode.key) {
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     {{ mode.libelle }}
                     @if (mode.key === 'SORTIE_CAISSE') {
-                      <span class="badge rounded-pill bg-danger">{{
-                          mode.value * -1 | number
-                        }}</span>
+                      <span class="badge rounded-pill bg-danger">{{ mode.value * -1 | number }}</span>
                     } @else {
                       <span class="badge rounded-pill bg-secondary">{{ mode.value | number }}</span>
                     }

@@ -22,7 +22,6 @@ public class CommandeReportReportService extends CommonReportService {
     private CommandeDTO commande;
     private String templateFile;
 
-
     public CommandeReportReportService(
         SpringTemplateEngine templateEngine,
         StorageService storageService,

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import {
   HistoriqueProduitVDonneesMensuelles,
+  HistoriqueProduitVenteMensuelleSummary,
   HistoriqueProduitVenteSummary,
   ProduitAuditingParam,
 } from '../../../../shared/model/produit-record.model';
@@ -8,21 +9,35 @@ import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent } from 'primeng/api';
+import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
+import { CommonModule, DatePipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { MonthEnum } from '../../../../shared/model/enumerations/month-enum';
 
 @Component({
   selector: 'jhi-hearly-sale-produit-historique',
-  imports: [],
+  imports: [CommonModule, PrimeTemplate, TableModule],
   templateUrl: './yearly-sale-produit-historique.component.html',
-  styles: ``,
 })
 export class YearlySaleProduitHistoriqueComponent {
+  protected readonly JANUARY = MonthEnum.JANUARY;
+  protected readonly FEBRUARY = MonthEnum.FEBRUARY;
+  protected readonly MARCH = MonthEnum.MARCH;
+  protected readonly APRIL = MonthEnum.APRIL;
+  protected readonly MAY = MonthEnum.MAY;
+  protected readonly JUNE = MonthEnum.JUNE;
+  protected readonly JULY = MonthEnum.JULY;
+  protected readonly AUGUST = MonthEnum.AUGUST;
+  protected readonly SEPTEMBER = MonthEnum.SEPTEMBER;
+  protected readonly OCTOBER = MonthEnum.OCTOBER;
+  protected readonly NOVEMBER = MonthEnum.NOVEMBER;
+  protected readonly DECEMBER = MonthEnum.DECEMBER;
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected loading!: boolean;
   protected page = 0;
   protected data: HistoriqueProduitVDonneesMensuelles[] = [];
-  protected summary: HistoriqueProduitVenteSummary | null = null;
+  protected summary: HistoriqueProduitVenteMensuelleSummary | null = null;
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
 
@@ -66,17 +81,20 @@ export class YearlySaleProduitHistoriqueComponent {
   }
 
   protected getSalesSummary(produitAuditingParam: ProduitAuditingParam): void {
-    this.produitStatService.getHistoriqueVenteSummary(produitAuditingParam).subscribe({
+    this.produitStatService.getHistoriqueVenteMensuelleSummary(produitAuditingParam).subscribe({
       next: res => {
-        this.summary = res.body || null;
+        this.summary = res.body;
       },
     });
   }
-
+  protected getMonthData(record: HistoriqueProduitVDonneesMensuelles, month: MonthEnum): number {
+    const monthValue = record.quantites[month];
+    return monthValue ? Number(monthValue) : null;
+  }
   private onSuccess(data: HistoriqueProduitVDonneesMensuelles[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.data = data || [];
+    this.data = data;
     this.loading = false;
   }
 }

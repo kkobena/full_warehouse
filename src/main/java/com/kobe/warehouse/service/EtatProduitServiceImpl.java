@@ -45,14 +45,20 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
-        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(
-            idProduit,
-            OrderStatut.REQUESTED
-        );
+        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
         boolean entree = deliveryReceiptItemRepository.existsByFournisseurProduitProduitIdAndDeliveryReceiptReceiptStatut(
             idProduit,
             ReceiptStatut.PENDING
         );
-        return new EtatProduit(stockPositif, stockNegatif, stockZero, suggestionCount>0, commandeCount>0, entree,suggestionCount>1,commandeCount>1);
+        return new EtatProduit(
+            stockPositif,
+            stockNegatif,
+            stockZero,
+            suggestionCount > 0,
+            commandeCount > 0,
+            entree,
+            suggestionCount > 1,
+            commandeCount > 1
+        );
     }
 }

@@ -6,12 +6,10 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
-
-import java.io.IOException;
-import java.util.List;
-
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,10 +83,11 @@ public class SuggestionResource {
     }
 
     @PostMapping("/add-item/{id}")
-    public ResponseEntity<Void> addItem(@PathVariable Long id,@RequestBody SuggestionLineDTO suggestionLine) {
+    public ResponseEntity<Void> addItem(@PathVariable Long id, @RequestBody SuggestionLineDTO suggestionLine) {
         suggestionProduitService.addSuggestionLine(id, suggestionLine);
         return ResponseEntity.ok().build();
     }
+
     @PutMapping("/update-quantity")
     public ResponseEntity<Void> updateQuantity(@RequestBody SuggestionLineDTO suggestionLine) {
         suggestionProduitService.updateSuggestionLinQuantity(suggestionLine);
@@ -100,6 +99,7 @@ public class SuggestionResource {
         final Resource resource = suggestionProduitService.exportToCsv(id);
         return Utils.exportCsv(resource, request);
     }
+
     @GetMapping("/commander/{id}")
     public ResponseEntity<Void> commander(@PathVariable Long id) {
         suggestionProduitService.commander(id);

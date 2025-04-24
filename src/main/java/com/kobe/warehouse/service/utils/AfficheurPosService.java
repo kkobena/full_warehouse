@@ -7,7 +7,7 @@ public interface AfficheurPosService {
 
     boolean isAfficheurPosEnabled();
 
-    void displaySalesData(String produitName,int qty, int price);
+    void displaySalesData(String produitName, int qty, int price);
 
     void welcomeMessage();
 

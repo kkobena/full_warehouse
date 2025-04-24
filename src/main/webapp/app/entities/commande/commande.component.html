@@ -90,7 +90,8 @@
                     placeholder="Recherche sur la commande"
                     style="width: 100%"
                     type="text"
-                  /> </p-iconfield>&nbsp;
+                  /> </p-iconfield
+                >&nbsp;
               }
               <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
@@ -101,8 +102,8 @@
                   placeholder="Taper pour rechercher"
                   style="width: 100%"
                   type="text"
-                />
-              </p-iconfield>&nbsp;
+                /> </p-iconfield
+              >&nbsp;
               @if (active === 'SUGGESTIONS') {
                 <p-select
                   (onChange)="onTypeSuggestionChange($event)"
@@ -113,7 +114,8 @@
                   optionValue="value"
                   placeholder="Séléctionner un type de suggestion "
                 >
-                </p-select>&nbsp;
+                </p-select
+                >&nbsp;
                 <p-select
                   (onChange)="onFournisseurChange($event)"
                   [filter]="false"

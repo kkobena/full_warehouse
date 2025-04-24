@@ -48,7 +48,7 @@ export class ProduitAuditingParam {
 
 export class HistoriqueProduitVDonneesMensuelles {
   annee: number;
-  quantites: Map<MonthEnum, number>;
+  quantites: any;
 }
 
 export class HistoriqueProduitVente {

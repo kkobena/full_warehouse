@@ -1,27 +1,18 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.GammeProduit;
 import com.kobe.warehouse.domain.Laboratoire;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
-import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.TypeEtiquette;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
-import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -78,7 +69,6 @@ public interface CustomizedProductService {
     List<Produit> find(ProduitCriteria produitCriteria);
 
     List<Produit> findByIds(Set<Long> ids);
-
 
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
@@ -180,42 +170,6 @@ public interface CustomizedProductService {
         Produit produit = new Produit();
         produit.setId(id);
         return produit;
-    }
-
-    default TypeEtiquette typeEtiquetteFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        TypeEtiquette typeEtiquette = new TypeEtiquette();
-        typeEtiquette.setId(id);
-        return typeEtiquette;
-    }
-
-    default FamilleProduit familleFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        FamilleProduit famille = new FamilleProduit();
-        famille.setId(id);
-        return famille;
-    }
-
-    default RemiseProduit remiseProduitFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        RemiseProduit remiseProduit = new RemiseProduit();
-        remiseProduit.setId(id);
-        return remiseProduit;
-    }
-
-    default GammeProduit gammeFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        GammeProduit famille = new GammeProduit();
-        famille.setId(id);
-        return famille;
     }
 
     default Tva tvaFromId(Long id) {

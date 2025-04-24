@@ -8,7 +8,7 @@ import { VenteRecordParam } from '../../../shared/model/vente-record-param.model
 import {
   HistoriqueProduitAchats,
   HistoriqueProduitAchatsSummary,
-  HistoriqueProduitVDonneesMensuelles,
+  HistoriqueProduitDonneesMensuelles,
   HistoriqueProduitVente,
   HistoriqueProduitVenteMensuelleSummary,
   HistoriqueProduitVenteSummary,
@@ -66,17 +66,17 @@ export class ProduitStatService {
     });
   }
 
-  getProduitHistoriqueAchatMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+  getProduitHistoriqueAchatMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitDonneesMensuelles[]>> {
     const options = createRequestOptions(produitAuditingParam);
-    return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-achat-mensuelle`, {
+    return this.http.get<HistoriqueProduitDonneesMensuelles[]>(`${this.resourceUrl}/historique-achat-mensuelle`, {
       params: options,
       observe: 'response',
     });
   }
 
-  getProduitHistoriqueVenteMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVDonneesMensuelles[]>> {
+  getProduitHistoriqueVenteMensuelle(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitDonneesMensuelles[]>> {
     const options = createRequestOptions(produitAuditingParam);
-    return this.http.get<HistoriqueProduitVDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
+    return this.http.get<HistoriqueProduitDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
       params: options,
       observe: 'response',
     });

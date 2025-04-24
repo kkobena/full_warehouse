@@ -111,7 +111,7 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
         this.getParameters().put(Constant.REGLEMENT_COUNT, NumberUtil.formatToString(itemSize));
         this.getParameters().put(Constant.ITEMS, invoicePaymentWrappers);
         this.getParameters().put(Constant.REGLEMENT_PAID_AMOUNT, NumberUtil.formatToString(totalAmount));
-        this.getParameters().put(Constant.REGLEMENT_PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
+        this.getParameters().put(Constant.PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
 
         super.getCommonParameters();
         return super.printOneReceiptPage(getDestFilePath());

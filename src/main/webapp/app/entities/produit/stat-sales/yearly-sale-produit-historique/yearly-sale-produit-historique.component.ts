@@ -1,8 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
-  HistoriqueProduitVDonneesMensuelles,
+  HistoriqueProduitDonneesMensuelles,
   HistoriqueProduitVenteMensuelleSummary,
-  HistoriqueProduitVenteSummary,
   ProduitAuditingParam,
 } from '../../../../shared/model/produit-record.model';
 import { ProduitStatService } from '../../stat/produit-stat.service';
@@ -10,16 +9,16 @@ import { ProduitAuditingParamService } from '../../transaction/produit-auditing-
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { MonthEnum } from '../../../../shared/model/enumerations/month-enum';
 
 @Component({
-  selector: 'jhi-hearly-sale-produit-historique',
+  selector: 'jhi-yearly-sale-produit-historique',
   imports: [CommonModule, PrimeTemplate, TableModule],
   templateUrl: './yearly-sale-produit-historique.component.html',
 })
-export class YearlySaleProduitHistoriqueComponent {
+export class YearlySaleProduitHistoriqueComponent implements OnInit {
   protected readonly JANUARY = MonthEnum.JANUARY;
   protected readonly FEBRUARY = MonthEnum.FEBRUARY;
   protected readonly MARCH = MonthEnum.MARCH;
@@ -36,12 +35,12 @@ export class YearlySaleProduitHistoriqueComponent {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected loading!: boolean;
   protected page = 0;
-  protected data: HistoriqueProduitVDonneesMensuelles[] = [];
+  protected data: HistoriqueProduitDonneesMensuelles[] = [];
   protected summary: HistoriqueProduitVenteMensuelleSummary | null = null;
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
 
-  constructor() {
+  ngOnInit() {
     this.load(this.produitAuditingParamService.produitAuditingParam);
   }
 
@@ -60,7 +59,7 @@ export class YearlySaleProduitHistoriqueComponent {
         ...produitAuditingParam,
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitVDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
       });
   }
 
@@ -75,7 +74,7 @@ export class YearlySaleProduitHistoriqueComponent {
           ...this.produitAuditingParamService.produitAuditingParam,
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitVDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page),
         });
     }
   }
@@ -87,11 +86,13 @@ export class YearlySaleProduitHistoriqueComponent {
       },
     });
   }
-  protected getMonthData(record: HistoriqueProduitVDonneesMensuelles, month: MonthEnum): number {
+
+  protected getMonthData(record: HistoriqueProduitDonneesMensuelles, month: MonthEnum): number {
     const monthValue = record.quantites[month];
     return monthValue ? Number(monthValue) : null;
   }
-  private onSuccess(data: HistoriqueProduitVDonneesMensuelles[] | null, headers: HttpHeaders, page: number): void {
+
+  private onSuccess(data: HistoriqueProduitDonneesMensuelles[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
     this.data = data;

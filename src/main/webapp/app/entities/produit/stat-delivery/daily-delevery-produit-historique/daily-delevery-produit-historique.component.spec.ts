@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DaylyDeleveryProduitHistoriqueComponent } from './dayly-delevery-produit-historique.component';
+import { DailyDeleveryProduitHistoriqueComponent } from './daily-delevery-produit-historique.component';
 
 describe('DaylyDeleveryProduitHistoriqueComponent', () => {
-  let component: DaylyDeleveryProduitHistoriqueComponent;
-  let fixture: ComponentFixture<DaylyDeleveryProduitHistoriqueComponent>;
+  let component: DailyDeleveryProduitHistoriqueComponent;
+  let fixture: ComponentFixture<DailyDeleveryProduitHistoriqueComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DaylyDeleveryProduitHistoriqueComponent],
+      imports: [DailyDeleveryProduitHistoriqueComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DaylyDeleveryProduitHistoriqueComponent);
+    fixture = TestBed.createComponent(DailyDeleveryProduitHistoriqueComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

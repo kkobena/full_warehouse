@@ -1,6 +1,14 @@
 package com.kobe.warehouse.web.rest.stat.produit;
 
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
+import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
+import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
@@ -18,7 +26,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
@@ -139,5 +152,37 @@ public class ProductStatResource {
     ) {
         return ResponseEntity.ok()
             .body(productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate)));
+    }
+
+    @GetMapping("/historique-vente-mensuelle/pdf")
+    public ResponseEntity<Resource> exportHistoriqueVenteToPdf(
+        @Valid ProduitHistoriqueParam produitHistorique,
+        HttpServletRequest request
+    ) {
+        return Utils.printPDF(this.productStatService.exportHistoriqueVenteToPdf(produitHistorique), request);
+    }
+
+    @GetMapping("/historique-achat/pdf")
+    public ResponseEntity<Resource> exportHistoriqueAchatToPdf(
+        @Valid ProduitHistoriqueParam produitHistorique,
+        HttpServletRequest request
+    ) {
+        return Utils.printPDF(this.productStatService.exportHistoriqueAchatToPdf(produitHistorique), request);
+    }
+
+    @GetMapping("/historique-vente-mensuelle/pdf")
+    public ResponseEntity<Resource> exportHistoriqueVenteMensuelleToPdf(
+        @Valid ProduitHistoriqueParam produitHistorique,
+        HttpServletRequest request
+    ) {
+        return Utils.printPDF(this.productStatService.exportHistoriqueVenteMensuelleToPdf(produitHistorique), request);
+    }
+
+    @GetMapping("/historique-achat-mensuelle/pdf")
+    public ResponseEntity<Resource> exportHistoriqueAchatMensuelToPdf(
+        @Valid ProduitHistoriqueParam produitHistorique,
+        HttpServletRequest request
+    ) {
+        return Utils.printPDF(this.productStatService.exportHistoriqueAchatMensuelToPdf(produitHistorique), request);
     }
 }

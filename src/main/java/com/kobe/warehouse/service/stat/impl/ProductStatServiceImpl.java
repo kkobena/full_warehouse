@@ -7,8 +7,18 @@ import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
-import com.kobe.warehouse.repository.StoreInventoryLineRepository;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelle;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
+import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
+import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
+import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.produit.AuditType;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditing;
@@ -28,7 +38,12 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -77,24 +92,24 @@ public class ProductStatServiceImpl implements ProductStatService {
     private final ProduitAuditingReportSevice produitAuditingReportSevice;
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
-    private final StoreInventoryLineRepository storeInventoryLineRepository;
     private final SalesLineRepository salesLineRepository;
+    private final HistoriqueVenteReportReportService historiqueVenteReportReportService;
 
     public ProductStatServiceImpl(
         EntityManager em,
         ProduitAuditingReportSevice produitAuditingReportSevice,
         FournisseurProduitRepository fournisseurProduitRepository,
         DeliveryReceiptItemRepository deliveryReceiptItemRepository,
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        SalesLineRepository salesLineRepository
+        SalesLineRepository salesLineRepository,
+        HistoriqueVenteReportReportService historiqueVenteReportReportService
     ) {
         this.em = em;
         this.produitAuditingReportSevice = produitAuditingReportSevice;
 
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
-        this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.salesLineRepository = salesLineRepository;
+        this.historiqueVenteReportReportService = historiqueVenteReportReportService;
     }
 
     @Override
@@ -603,5 +618,53 @@ public class ProductStatServiceImpl implements ProductStatService {
             produitAuditings.addAll(perimes);
         }
         return produitAuditings;
+    }
+
+    @Override
+    public Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
+        return this.historiqueVenteReportReportService.exportHistoriqueVenteToPdf(
+                this.salesLineRepository.getHistoriqueVente(
+                        produitHistorique.produitId(),
+                        produitHistorique.startDate(),
+                        produitHistorique.endDate(),
+                        Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()),
+                        Pageable.unpaged()
+                    ).getContent(),
+                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+            );
+    }
+
+    @Override
+    public Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique) {
+        return this.historiqueVenteReportReportService.exportHistoriqueAchatsToPdf(
+                this.deliveryReceiptItemRepository.getHistoriqueAchat(
+                        produitHistorique.produitId(),
+                        produitHistorique.startDate(),
+                        produitHistorique.endDate(),
+                        ReceiptStatut.CLOSE.name(),
+                        Pageable.unpaged()
+                    ).getContent(),
+                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+            );
+    }
+
+    @Override
+    public Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique) {
+        return this.historiqueVenteReportReportService.exportHistoriqueVenteMensuelleToPdf(
+                this.getHistoriqueVenteMensuelle(produitHistorique),
+                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+            );
+    }
+
+    @Override
+    public Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique) {
+        return this.historiqueVenteReportReportService.exportHistoriqueAchatsMensuelToPdf(
+                this.getHistoriqueAchatMensuelle(produitHistorique),
+                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+            );
     }
 }

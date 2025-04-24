@@ -1,0 +1,50 @@
+@if (data && data.length) {
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+    [rows]="itemsPerPage"
+    [showCurrentPageReport]="false"
+    [totalRecords]="totalItems"
+    [value]="data"
+    dataKey="mvtDate"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Date</th>
+        <th>Référence</th>
+        <th>Quantité</th>
+        <th>Prix.Achat</th>
+        <th>Montant Achat</th>
+        <th>Opérateur</th>
+      </tr>
+    </ng-template>
+    <ng-template let-achat pTemplate="body">
+      <tr>
+        <td>{{ achat.mvtDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+        <td>{{ achat.reference }}</td>
+
+        <td class="amount-column">{{ achat.quantite | number }}</td>
+        <td class="amount-column">{{ achat.prixAchat | number }}</td>
+        <td class="amount-column">{{ achat.montantAchat | number }}</td>
+
+        <td>{{ achat.user }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #footer>
+      <tr>
+        <td colspan="2" class="text-left font-bold p-3 pb-0">Totaux</td>
+        <td class="amount-column">{{ summary.quantite | number }}</td>
+        <td colspan="2" class="amount-column">{{ summary.montantAchat | number }}</td>
+        <td></td>
+      </tr>
+    </ng-template>
+  </p-table>
+} @else {
+  <div class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+}
+

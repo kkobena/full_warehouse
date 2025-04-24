@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -33,4 +34,10 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournisseurId);
 
     List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Long produitId, Pageable pageable);
+
+    @Query(
+        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean AS codeEan FROM fournisseur_produit o JOIN  produit p ON o.produit_id = p.id WHERE o.produit_id =?1 AND o.principal",
+        nativeQuery = true
+    )
+    HistoriqueProduitInfo findHistoriqueProduitInfoByFournisseurIdAndProduitId(Long produitId);
 }

@@ -1,6 +1,15 @@
 package com.kobe.warehouse.service.stat;
 
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
+import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleWrapper;
+import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
+import com.kobe.warehouse.service.dto.OrderBy;
+import com.kobe.warehouse.service.dto.ProduitHistoriqueParam;
+import com.kobe.warehouse.service.dto.ProduitRecordParamDTO;
 import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
@@ -87,4 +96,12 @@ public interface ProductStatService extends CommonStatService {
     HistoriqueProduitVenteSummary getHistoriqueVenteSummary(ProduitHistoriqueParam produitHistorique);
 
     HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(ProduitHistoriqueParam produitHistorique);
+
+    Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique);
+
+    Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique);
+
+    Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique);
+
+    Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique);
 }

@@ -56,8 +56,12 @@ public final class Constant {
     public static final String REGLEMENT_GROUP_TEMPLATE_FILE = "reglement/pdf/group/main";
     public static final String REGLEMENT_COUNT = "totalDossier";
     public static final String REGLEMENT_PAID_AMOUNT = "paidAmount";
-    public static final String REGLEMENT_PERIODE = "periode";
+    public static final String PERIODE = "periode";
     public static final String ACTIVITY_SUMMARY = "activity/main";
+    public static final String HISTORIQUE_VENTE_DAILY_ARTICLE_TEMPLATE_FILE = "historique/vente/daily/main";
+    public static final String HISTORIQUE_VENTE_YEARLY_ARTICLE_TEMPLATE_FILE = "historique/vente/yearly/main";
+    public static final String HISTORIQUE_ACHAT_DAILY_ARTICLE_TEMPLATE_FILE = "historique/achat/daily/main";
+    public static final String HISTORIQUE_ACHAT_YEARLY_ARTICLE_TEMPLATE_FILE = "historique/achat/yearly/main";
 
     private Constant() {}
 }

@@ -66,6 +66,15 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
     }
   }
 
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    this.produitStatService.exportHistoriqueAchatToPdf(produitAuditingParam).subscribe({
+      next: blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+    });
+  }
+
   protected getHistoriqueAchatSummary(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.getHistoriqueAchatSummary(produitAuditingParam).subscribe({
       next: res => {

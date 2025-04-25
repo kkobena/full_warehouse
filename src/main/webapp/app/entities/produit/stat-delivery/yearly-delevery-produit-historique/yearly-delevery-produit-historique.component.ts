@@ -80,6 +80,15 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
     }
   }
 
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    this.produitStatService.exportHistoriqueAchatMensuelToPdf(produitAuditingParam).subscribe({
+      next: blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+    });
+  }
+
   protected getHistoriqueAchatSummary(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.getHistoriqueAchatSummary(produitAuditingParam).subscribe({
       next: res => {

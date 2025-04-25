@@ -21,4 +21,12 @@ export class StatSalesComponent {
       this.yearlySaleProduitHistoriqueComponent()?.load(produitAuditingParam);
     }
   }
+
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    if (this.active === 'daily') {
+      this.dailySaleProduitHistoriqueComponent()?.exportPdf(produitAuditingParam);
+    } else {
+      this.yearlySaleProduitHistoriqueComponent()?.exportPdf(produitAuditingParam);
+    }
+  }
 }

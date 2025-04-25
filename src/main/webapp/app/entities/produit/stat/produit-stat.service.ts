@@ -107,4 +107,36 @@ export class ProduitStatService {
       observe: 'response',
     });
   }
+
+  exportHistoriqueVenteToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get(`${this.resourceUrl}/historique-vente/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
+  exportHistoriqueAchatToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get(`${this.resourceUrl}/historique-achat/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
+  exportHistoriqueVenteMensuelleToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get(`${this.resourceUrl}/historique-vente-mensuelle/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
+  exportHistoriqueAchatMensuelToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get(`${this.resourceUrl}/historique-achat-mensuelle/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
 }

@@ -1,0 +1,15 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Historiques des commandes</title>
+    <style th:replace="~{common/portrait_table}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheadertable}"></header>
+    <div class="invoice">
+      <main>
+        <table th:replace="~{historique/achat/yearly/table-body}"></table>
+      </main>
+    </div>
+  </body>
+</html>

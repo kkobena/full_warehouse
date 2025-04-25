@@ -1,0 +1,85 @@
+<table class="main-table">
+  <thead>
+    <tr>
+      <th class="text-left">Date</th>
+      <th class="text-left">Référence</th>
+      <th class="text-right">Prix.U</th>
+      <th class="text-right">Qté</th>
+      <th class="text-right">Montant</th>
+      <th class="text-right">Montant Tva</th>
+      <th class="text-right">Montant Ht</th>
+      <th class="text-right">Remise</th>
+      <th class="text-right">Montant Net</th>
+      <th>Opérateur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text="${#temporals.format(itm.mvtDate, 'dd/MM/yyyy HH:mm:ss')}"></td>
+      <td class="text-left" th:text="${itm.reference}"></td>
+
+      <td class="unit" th:if="${itm.prixUnitaire ge 1000}" th:text="${#numbers.formatInteger(itm.prixUnitaire,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.prixUnitaire lt 1000}" th:text="${itm.prixUnitaire}"></td>
+
+      <td class="qty" th:if="${itm.quantite ge 1000}" th:text="${#numbers.formatInteger(itm.quantite,3,'WHITESPACE')}"></td>
+      <td class="qty" th:if="${itm.quantite lt 1000}" th:text="${itm.quantite}"></td>
+
+      <td class="unit" th:if="${itm.montantTtc ge 1000}" th:text="${#numbers.formatInteger(itm.montantTtc,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantTtc lt 1000}" th:text="${itm.montantTtc}"></td>
+
+      <td class="unit" th:if="${itm.montantTva ge 1000}" th:text="${#numbers.formatInteger(itm.montantTva,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantTva lt 1000}" th:text="${itm.montantTva}"></td>
+      <td class="unit" th:if="${itm.montantHt lt 1000}" th:text="${itm.montantHt}"></td>
+      <td class="unit" th:if="${itm.montantHt ge 1000}" th:text="${#numbers.formatInteger(itm.montantHt,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantRemise lt 1000}" th:text="${itm.montantRemise}"></td>
+      <td class="unit" th:if="${itm.montantRemise ge 1000}" th:text="${#numbers.formatInteger(itm.montantRemise,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantNet lt 1000}" th:text="${itm.montantNet}"></td>
+      <td class="unit" th:if="${itm.montantNet ge 1000}" th:text="${#numbers.formatInteger(itm.montantNet,3,'WHITESPACE')}"></td>
+      <td class="text-left" th:text="${itm.user}"></td>
+    </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+    <tr class="tr-footer">
+      <td colspan="3">TOTAUX</td>
+      <td class="unit">
+        <span th:if="${reportSummary.quantite ge 1000}" th:text="${#numbers.formatInteger(reportSummary.quantite,3,'WHITESPACE')}"></span>
+        <span th:if="${reportSummary.quantite lt 1000}" th:text="${reportSummary.quantite}"></span>
+      </td>
+      <td class="unit">
+        <span
+          th:if="${reportSummary.montantTtc ge 1000}"
+          th:text="${#numbers.formatInteger(reportSummary.montantTtc,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${reportSummary.montantTtc lt 1000}" th:text="${reportSummary.montantTtc}"></span>
+      </td>
+
+      <td class="unit">
+        <span
+          th:if="${reportSummary.montantTva ge 1000}"
+          th:text="${#numbers.formatInteger(reportSummary.montantTva,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${reportSummary.montantTva lt 1000}" th:text="${reportSummary.montantTva}"></span>
+      </td>
+      <td class="unit">
+        <span th:if="${reportSummary.montantHt ge 1000}" th:text="${#numbers.formatInteger(reportSummary.montantHt,3,'WHITESPACE')}"></span>
+        <span th:if="${reportSummary.montantHt lt 1000}" th:text="${reportSummary.montantHt}"></span>
+      </td>
+
+      <td class="unit">
+        <span
+          th:if="${reportSummary.montantRemise ge 1000}"
+          th:text="${#numbers.formatInteger(reportSummary.montantRemise,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${reportSummary.montantRemise lt 1000}" th:text="${reportSummary.montantRemise}"></span>
+      </td>
+      <td class="unit">
+        <span
+          th:if="${reportSummary.montantNet ge 1000}"
+          th:text="${#numbers.formatInteger(reportSummary.montantNet,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${reportSummary.montantNet lt 1000}" th:text="${reportSummary.montantNet}"></span>
+      </td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>

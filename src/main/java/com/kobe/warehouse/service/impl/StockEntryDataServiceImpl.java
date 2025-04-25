@@ -12,7 +12,6 @@ import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.service.FileResourceService;
-import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
@@ -43,7 +42,6 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     private final EntityManager em;
     private final DeliveryReceiptRepository deliveryReceiptRepository;
-    private final ExportationCsvService exportationCsvService;
     private final DeliveryReceiptReportReportService receiptReportService;
     private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
     private final EtiquetteExportReportServiceImpl etiquetteExportService;
@@ -51,14 +49,13 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     public StockEntryDataServiceImpl(
         EntityManager em,
         DeliveryReceiptRepository deliveryReceiptRepository,
-        ExportationCsvService exportationCsvService,
         DeliveryReceiptReportReportService receiptReportService,
         DeliveryReceiptItemRepository deliveryReceiptItemRepository,
         EtiquetteExportReportServiceImpl etiquetteExportService
     ) {
         this.em = em;
         this.deliveryReceiptRepository = deliveryReceiptRepository;
-        this.exportationCsvService = exportationCsvService;
+
         this.receiptReportService = receiptReportService;
         this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
         this.etiquetteExportService = etiquetteExportService;

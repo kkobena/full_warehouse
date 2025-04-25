@@ -21,4 +21,12 @@ export class StatDeliveryComponent {
       this.yearly()?.load(produitAuditingParam);
     }
   }
+
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    if (this.active === 'daily') {
+      this.daily()?.exportPdf(produitAuditingParam);
+    } else {
+      this.yearly()?.exportPdf(produitAuditingParam);
+    }
+  }
 }

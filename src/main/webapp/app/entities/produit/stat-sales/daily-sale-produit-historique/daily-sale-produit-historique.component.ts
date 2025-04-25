@@ -62,6 +62,15 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
     }
   }
 
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    this.produitStatService.exportHistoriqueVenteToPdf(produitAuditingParam).subscribe({
+      next: blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+    });
+  }
+
   protected getSalesSummary(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.getHistoriqueVenteSummary(produitAuditingParam).subscribe({
       next: res => {

@@ -154,35 +154,55 @@ public class ProductStatResource {
             .body(productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate)));
     }
 
-    @GetMapping("/historique-vente-mensuelle/pdf")
+    @GetMapping("/historique-vente/pdf")
     public ResponseEntity<Resource> exportHistoriqueVenteToPdf(
-        @Valid ProduitHistoriqueParam produitHistorique,
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate,
         HttpServletRequest request
     ) {
-        return Utils.printPDF(this.productStatService.exportHistoriqueVenteToPdf(produitHistorique), request);
+        return Utils.printPDF(
+            this.productStatService.exportHistoriqueVenteToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate)),
+            request
+        );
     }
 
     @GetMapping("/historique-achat/pdf")
     public ResponseEntity<Resource> exportHistoriqueAchatToPdf(
-        @Valid ProduitHistoriqueParam produitHistorique,
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate,
         HttpServletRequest request
     ) {
-        return Utils.printPDF(this.productStatService.exportHistoriqueAchatToPdf(produitHistorique), request);
+        return Utils.printPDF(
+            this.productStatService.exportHistoriqueAchatToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate)),
+            request
+        );
     }
 
     @GetMapping("/historique-vente-mensuelle/pdf")
     public ResponseEntity<Resource> exportHistoriqueVenteMensuelleToPdf(
-        @Valid ProduitHistoriqueParam produitHistorique,
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate,
         HttpServletRequest request
     ) {
-        return Utils.printPDF(this.productStatService.exportHistoriqueVenteMensuelleToPdf(produitHistorique), request);
+        return Utils.printPDF(
+            this.productStatService.exportHistoriqueVenteMensuelleToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate)),
+            request
+        );
     }
 
     @GetMapping("/historique-achat-mensuelle/pdf")
     public ResponseEntity<Resource> exportHistoriqueAchatMensuelToPdf(
-        @Valid ProduitHistoriqueParam produitHistorique,
+        @RequestParam(name = "produitId") Long produitId,
+        @RequestParam(name = "fromDate") LocalDate fromDate,
+        @RequestParam(name = "toDate") LocalDate toDate,
         HttpServletRequest request
     ) {
-        return Utils.printPDF(this.productStatService.exportHistoriqueAchatMensuelToPdf(produitHistorique), request);
+        return Utils.printPDF(
+            this.productStatService.exportHistoriqueAchatMensuelToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate)),
+            request
+        );
     }
 }

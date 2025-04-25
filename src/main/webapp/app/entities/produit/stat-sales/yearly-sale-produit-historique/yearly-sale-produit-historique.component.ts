@@ -79,6 +79,15 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
     }
   }
 
+  exportPdf(produitAuditingParam: ProduitAuditingParam): void {
+    this.produitStatService.exportHistoriqueVenteMensuelleToPdf(produitAuditingParam).subscribe({
+      next: blod => {
+        const blobUrl = URL.createObjectURL(blod);
+        window.open(blobUrl);
+      },
+    });
+  }
+
   protected getSalesSummary(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.getHistoriqueVenteMensuelleSummary(produitAuditingParam).subscribe({
       next: res => {

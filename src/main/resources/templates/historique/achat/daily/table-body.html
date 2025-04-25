@@ -1,0 +1,47 @@
+<table class="main-table">
+  <thead>
+    <tr>
+      <th class="text-left">Date</th>
+      <th class="text-left">Référence</th>
+      <th class="text-right">Quantité</th>
+      <th class="text-right">Prix.Achat</th>
+      <th class="text-right">Montant Achat</th>
+      <th>Opérateur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text="${#temporals.format(itm.mvtDate, 'dd/MM/yyyy HH:mm:ss')}"></td>
+      <td class="text-left" th:text="${itm.reference}"></td>
+
+      <td class="qty" th:if="${itm.quantite ge 1000}" th:text="${#numbers.formatInteger(itm.quantite,3,'WHITESPACE')}"></td>
+      <td class="qty" th:if="${itm.quantite lt 1000}" th:text="${itm.quantite}"></td>
+
+      <td class="unit" th:if="${itm.prixAchat ge 1000}" th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.prixAchat lt 1000}" th:text="${itm.prixAchat}"></td>
+
+      <td class="unit" th:if="${itm.montantAchat ge 1000}" th:text="${#numbers.formatInteger(itm.montantAchat,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.montantAchat lt 1000}" th:text="${itm.montantAchat}"></td>
+      <td class="text-left" th:text="${itm.user}"></td>
+    </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+    <tr class="tr-footer">
+      <td colspan="2">TOTAUX</td>
+      <td class="unit">
+        <span th:if="${reportSummary.quantite ge 1000}" th:text="${#numbers.formatInteger(reportSummary.quantite,3,'WHITESPACE')}"></span>
+        <span th:if="${reportSummary.quantite lt 1000}" th:text="${reportSummary.quantite}"></span>
+      </td>
+      <td></td>
+      <td class="unit">
+        <span
+          th:if="${reportSummary.montantAchat ge 1000}"
+          th:text="${#numbers.formatInteger(reportSummary.montantAchat,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${reportSummary.montantAchat lt 1000}" th:text="${reportSummary.montantAchat}"></span>
+      </td>
+
+      <td></td>
+    </tr>
+  </tfoot>
+</table>

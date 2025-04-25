@@ -1,0 +1,72 @@
+<table class="main-table">
+  <thead>
+    <tr>
+      <th>Année</th>
+      <th>Janvier</th>
+      <th>Février</th>
+      <th>Mars</th>
+      <th>Avril</th>
+      <th>Mai</th>
+      <th>Juin</th>
+      <th>Juillet</th>
+      <th>Août</th>
+      <th>Septembre</th>
+      <th>Octobre</th>
+      <th>Novembre</th>
+      <th>Décembre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text="${itm.annee}"></td>
+
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).JANUARY)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).FEBRUARY)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).MARCH)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).APRIL)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).MAY)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).JUNE)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).JULY)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).AUGUST)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).SEPTEMBER)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).OCTOBER)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).NOVEMBER)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+      <td class="qty" th:with="quantity=${itm.quantites.get(T(java.time.Month).DECEMBER)}">
+        <span th:if="${quantity ne null}" th:text="${quantity}"></span>
+      </td>
+    </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+    <tr class="tr-footer">
+      <td colspan="13" th:with="totalQuantity=${reportSummary.quantite}">
+        <span
+          th:if="${totalQuantity ge 1000}"
+          th:text="${'TOTAUX QUANTITE VENDUE SUR LA PERIODE   '+   #numbers.formatInteger(totalQuantity,3,'WHITESPACE')}"
+        ></span>
+        <span th:if="${totalQuantity lt 1000}" th:text="${'TOTAUX QUANTITE VENDUE SUR LA PERIODE   '+ totalQuantity}"></span>
+      </td>
+    </tr>
+  </tfoot>
+</table>

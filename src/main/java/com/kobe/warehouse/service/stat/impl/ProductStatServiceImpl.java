@@ -622,14 +622,21 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     @Override
     public Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
+        var status = Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name());
         return this.historiqueVenteReportReportService.exportHistoriqueVenteToPdf(
                 this.salesLineRepository.getHistoriqueVente(
                         produitHistorique.produitId(),
                         produitHistorique.startDate(),
                         produitHistorique.endDate(),
-                        Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name()),
+                        status,
                         Pageable.unpaged()
                     ).getContent(),
+                this.salesLineRepository.getHistoriqueVenteSummary(
+                        produitHistorique.produitId(),
+                        produitHistorique.startDate(),
+                        produitHistorique.endDate(),
+                        status
+                    ),
                 this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
@@ -645,6 +652,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                         ReceiptStatut.CLOSE.name(),
                         Pageable.unpaged()
                     ).getContent(),
+                this.getHistoriqueAchatSummary(produitHistorique),
                 this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
@@ -654,6 +662,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     public Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueVenteMensuelleToPdf(
                 this.getHistoriqueVenteMensuelle(produitHistorique),
+                this.getHistoriqueVenteMensuelleSummary(produitHistorique),
                 this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
@@ -663,6 +672,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     public Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsMensuelToPdf(
                 this.getHistoriqueAchatMensuelle(produitHistorique),
+                this.getHistoriqueAchatSummary(produitHistorique),
                 this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );

@@ -52,6 +52,7 @@ import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component'
 export class TransactionComponent implements OnInit {
   readonly auditingComponent = viewChild(AuditingComponent);
   readonly statSalesComponent = viewChild(StatSalesComponent);
+  readonly delivery = viewChild(StatDeliveryComponent);
   protected active = 'auditing';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
@@ -86,6 +87,12 @@ export class TransactionComponent implements OnInit {
     switch (this.active) {
       case 'auditing':
         this.auditingComponent().exportPdf(this.buildQuery());
+        break;
+      case 'sales':
+        this.statSalesComponent().exportPdf(this.buildQuery());
+        break;
+      case 'commande':
+        this.delivery().exportPdf(this.buildQuery());
         break;
     }
   }
@@ -140,6 +147,9 @@ export class TransactionComponent implements OnInit {
         break;
       case 'sales':
         this.statSalesComponent().load(params);
+        break;
+      case 'commande':
+        this.delivery().load(params);
         break;
     }
   }

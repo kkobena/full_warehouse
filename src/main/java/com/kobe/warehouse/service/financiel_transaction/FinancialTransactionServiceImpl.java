@@ -1,17 +1,11 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.Customer;
-import com.kobe.warehouse.domain.PaymentTransaction;
-import com.kobe.warehouse.domain.PaymentTransaction_;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import com.kobe.warehouse.repository.CustomerRepository;
-import com.kobe.warehouse.repository.FournisseurRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
-import com.kobe.warehouse.repository.TiersPayantRepository;
+import com.kobe.warehouse.repository.*;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -72,7 +66,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         SELECT COUNT(*) as total FROM (SELECT s.id,s.updated_at as createdAt,s.number_transaction as numberTransaction,'vente' as typeMvt,s.dtype as typeTransaction,s.ca as ca,p.payment_mode_code as paymentModeCode,s.user_id as userId
          FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code  JOIN user u ON s.user_id = u.id LEFT JOIN customer c ON s.customer_id = c.id   union
          SELECT  pt.id,pt.created_at as createdAt,'' as numberTransaction,'transaction' as typeMvt,pt.type_transaction as typeTransaction,pt.categorie_ca as ca,pt.payment_mode_code as paymentModeCode,pt.user_id as userId
-         FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
+         FROM  payment_transaction pt left join  customer pc on pt.object_id = pc.id LEFT JOIN tiers_payant tp ON  pt.object_id = tp.id JOIN user up ON pt.user_id = up.id
         JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt
         """;
     private static final String SQL_FULL_BASE_QUERY =
@@ -94,8 +88,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                               pt.created_at as createdAt, '' as numberTransaction,
                               tp.name as infoAssureur,'NA' as statut,pt.categorie_ca as ca,0 as htAmount,0 as discountAmount,0 as netAmount,0 as partAssure,0 as part_tiers_payant,
                               pt.transaction_date as transactionDate
-        FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp
-          ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id
+        FROM  payment_transaction pt left join  customer pc on pt.object_id = pc.id LEFT JOIN tiers_payant tp
+          ON  pt.object_id = tp.id JOIN user up ON pt.user_id = up.id
         JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code) as mvt
         """;
 
@@ -117,7 +111,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private static final String TRANSACTION_SUM_SQL_QUERY =
         """
         SELECT 'transaction' as typeMvt, SUM(pt.amount) AS amount,pt.payment_mode_code as paymentModeCode,pmp.libelle as paymentModeLibelle,pt.type_transaction as typeTransaction
-        FROM  payment_transaction pt left join  customer pc on pt.organisme_id = pc.id LEFT JOIN tiers_payant tp  ON  pt.organisme_id = tp.id JOIN user up ON pt.user_id = up.id JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code
+        FROM  payment_transaction pt left join  customer pc on pt.object_id = pc.id LEFT JOIN tiers_payant tp  ON  pt.object_id = tp.id JOIN user up ON pt.user_id = up.id JOIN payment_mode pmp ON pt.payment_mode_code = pmp.code
         """;
     private static final Logger log = LoggerFactory.getLogger(FinancialTransactionServiceImpl.class);
 
@@ -126,10 +120,10 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private final CustomerRepository customerRepository;
     private final TiersPayantRepository tiersPayantRepository;
     private final FournisseurRepository fournisseurRepository;
-    private final WarehouseCalendarService warehouseCalendarService;
     private final CashRegisterService cashRegisterService;
     private final EntityManager em;
     private final MvtCaisseReportReportService mvtCaisseReportService;
+    private final DefaultTransactionRepository defaultTransactionRepository;
 
     public FinancialTransactionServiceImpl(
         PaymentTransactionRepository paymentTransactionRepository,
@@ -137,26 +131,24 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         CustomerRepository customerRepository,
         TiersPayantRepository tiersPayantRepository,
         FournisseurRepository fournisseurRepository,
-        WarehouseCalendarService warehouseCalendarService,
         CashRegisterService cashRegisterService,
         EntityManager em,
-        MvtCaisseReportReportService mvtCaisseReportService
+        MvtCaisseReportReportService mvtCaisseReportService, DefaultTransactionRepository defaultTransactionRepository
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;
         this.customerRepository = customerRepository;
         this.tiersPayantRepository = tiersPayantRepository;
         this.fournisseurRepository = fournisseurRepository;
-        this.warehouseCalendarService = warehouseCalendarService;
         this.cashRegisterService = cashRegisterService;
         this.em = em;
         this.mvtCaisseReportService = mvtCaisseReportService;
+        this.defaultTransactionRepository = defaultTransactionRepository;
     }
 
     @Override
     public void create(FinancialTransactionDTO financialTransactionDTO) {
-        PaymentTransaction paymentTransaction = fromDTO(financialTransactionDTO);
-        paymentTransactionRepository.save(paymentTransaction);
+        defaultTransactionRepository.save(fromDTO(financialTransactionDTO));
     }
 
     @Override
@@ -231,65 +223,61 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         return this.paymentTransactionRepository.findMouvementsCaisseGroupBYModeReglement(fromDate, toDate);
     }
 
-    private PaymentTransaction fromDTO(FinancialTransactionDTO financialTransaction) {
+    private DefaultPayment fromDTO(FinancialTransactionDTO financialTransaction) {
         var user = userService.getUser();
-        PaymentTransaction paymentTransaction = new PaymentTransaction();
+        DefaultPayment paymentTransaction = new DefaultPayment();
         paymentTransaction.setCreatedAt(LocalDateTime.now());
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
         if (Objects.isNull(cashRegister)) {
             cashRegister = cashRegisterService.openCashRegister(user, user);
         }
         paymentTransaction.setCashRegister(cashRegister);
-        paymentTransaction.setCalendar(this.warehouseCalendarService.initCalendar());
-        paymentTransaction.setAmount(financialTransaction.getAmount());
+        paymentTransaction.setExpectedAmount(financialTransaction.getAmount());
+        paymentTransaction.setPaidAmount(financialTransaction.getAmount());
+        paymentTransaction.setReelAmount(financialTransaction.getAmount());
         paymentTransaction.setPaymentMode(financialTransaction.getPaymentMode());
         if (Objects.nonNull(financialTransaction.getTransactionDate())) {
             paymentTransaction.setTransactionDate(financialTransaction.getTransactionDate());
         }
         paymentTransaction.setTypeFinancialTransaction(financialTransaction.getTypeTransaction());
-        paymentTransaction.setOrganismeId(financialTransaction.getOrganismeId());
-        paymentTransaction.setUser(userService.getUser());
         switch (financialTransaction.getTypeTransaction()) {
-            case REGLEMENT_DIFFERE, REGLEMENT_TIERS_PAYANT, ENTREE_CAISSE:
+            case SORTIE_CAISSE, REGLMENT_FOURNISSEUR:
                 paymentTransaction.setCredit(true);
                 break;
-            case SORTIE_CAISSE, REGLMENT_FOURNISSEUR:
-                paymentTransaction.setCredit(false);
-                break;
             default:
-                throw new IllegalArgumentException("Unexpected value: " + financialTransaction.getTypeTransaction());
+                break;
         }
         return paymentTransaction;
     }
 
     private FinancialTransactionDTO toDTO(PaymentTransaction paymentTransaction) {
         FinancialTransactionDTO financialTransactionDTO = new FinancialTransactionDTO();
-        financialTransactionDTO.setAmount(paymentTransaction.getAmount());
+     //   financialTransactionDTO.setAmount(paymentTransaction.getAmount());
         financialTransactionDTO.setPaymentMode(paymentTransaction.getPaymentMode());
         financialTransactionDTO.setTransactionDate(paymentTransaction.getTransactionDate());
         financialTransactionDTO.setTypeFinancialTransaction(paymentTransaction.getTypeFinancialTransaction());
-        financialTransactionDTO.setOrganismeId(paymentTransaction.getOrganismeId());
+       // financialTransactionDTO.setOrganismeId(paymentTransaction.getObjectId());
         financialTransactionDTO.setCreatedAt(paymentTransaction.getCreatedAt());
         financialTransactionDTO.setCredit(paymentTransaction.isCredit());
-        switch (paymentTransaction.getTypeFinancialTransaction()) {
+       /* switch (paymentTransaction.getTypeFinancialTransaction()) {
             case REGLEMENT_DIFFERE:
-                Customer customer = this.customerRepository.getReferenceById(paymentTransaction.getOrganismeId());
+                Customer customer = this.customerRepository.getReferenceById(paymentTransaction.getObjectId());
                 financialTransactionDTO.setOrganismeName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
                 break;
             case REGLEMENT_TIERS_PAYANT:
                 financialTransactionDTO.setOrganismeName(
-                    tiersPayantRepository.getReferenceById(paymentTransaction.getOrganismeId()).getName()
+                    tiersPayantRepository.getReferenceById(paymentTransaction.getObjectId()).getName()
                 );
                 break;
             case REGLMENT_FOURNISSEUR:
                 financialTransactionDTO.setOrganismeName(
-                    fournisseurRepository.getReferenceById(paymentTransaction.getOrganismeId()).getLibelle()
+                    fournisseurRepository.getReferenceById(paymentTransaction.getObjectId()).getLibelle()
                 );
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected value: " + paymentTransaction.getTypeFinancialTransaction());
-        }
-        var user = paymentTransaction.getUser();
+        }*/
+        var user = paymentTransaction.getCashRegister().getUser();
         financialTransactionDTO.setUserFullName(user.getFirstName().concat(" ").concat(user.getLastName()));
         return financialTransactionDTO;
     }
@@ -312,11 +300,9 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         if (!ObjectUtils.isEmpty(transactionFilter.typeFinancialTransaction())) {
             predicates.add(cb.equal(root.get(PaymentTransaction_.typeFinancialTransaction), transactionFilter.typeFinancialTransaction()));
         }
-        if (!ObjectUtils.isEmpty(transactionFilter.organismeId())) {
-            predicates.add(cb.equal(root.get(PaymentTransaction_.organismeId), transactionFilter.organismeId()));
-        }
+
         if (Objects.nonNull(transactionFilter.userId())) {
-            predicates.add(cb.equal(root.get(PaymentTransaction_.user).get("id"), transactionFilter.userId()));
+            predicates.add(cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id), transactionFilter.userId()));
         }
         if (Objects.nonNull(transactionFilter.fromDate()) && Objects.nonNull(transactionFilter.toDate())) {
             predicates.add(

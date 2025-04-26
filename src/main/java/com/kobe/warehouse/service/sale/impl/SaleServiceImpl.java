@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
@@ -14,6 +14,7 @@ import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.PosteRepository;
@@ -183,24 +184,23 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public Payment buildPaymentFromDTO(PaymentDTO dto, Sales s) {
-        Payment payment = new Payment();
+    public SalePayment buildPaymentFromDTO(PaymentDTO dto, Sales s) {
+        SalePayment payment = new SalePayment();
+        payment.setExpectedAmount(dto.getNetAmount());
         payment.setCreatedAt(dto.getCreatedAt());
-        payment.setUpdatedAt(dto.getUpdatedAt());
-        payment.setEffectiveUpdateDate(dto.getUpdatedAt());
-        if (s instanceof CashSale cashSale) {
-            payment.setCustomer(cashSale.getCustomer());
-        } else if (s instanceof ThirdPartySales t) {
-            payment.setCustomer(t.getCustomer());
-        }
-        payment.setNetAmount(dto.getNetAmount());
+        payment.setReelAmount(dto.getNetAmount());
         payment.setPaidAmount(dto.getPaidAmount());
-        payment.setUser(s.getUser());
+        payment.setCashRegister(s.getCashRegister());
         PaymentMode paymentMode = paymentModeRepository
             .findById(dto.getPaymentCode())
             .orElse(paymentModeRepository.getReferenceById(Constants.MODE_ESP));
         payment.setPaymentMode(paymentMode);
-        payment.setSales(s);
+        payment.setSale(s);
+        if (s instanceof CashSale) {
+            payment.setTypeFinancialTransaction(TypeFinancialTransaction.CASH_SALE);
+        } else if (s instanceof ThirdPartySales) {
+            payment.setTypeFinancialTransaction(TypeFinancialTransaction.CREDIT_SALE);
+        }
         return payment;
     }
 
@@ -291,10 +291,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-        SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+        SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
         Sales sales = salesLine.getSales();
-        upddateCashSaleAmounts((CashSale) sales, salesLine, OldSalesLine);
+        upddateCashSaleAmounts((CashSale) sales, salesLine, oldSalesLine);
         salesRepository.saveAndFlush(sales);
         this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);

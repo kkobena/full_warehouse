@@ -3,26 +3,19 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * A Payment.
  */
 @Entity
-@Table(name = "payment_transaction", indexes = { @Index(columnList = "organisme_id", name = "organisme_id_index") })
+@Table(name = "payment_transaction", indexes = { @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index") })
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class PaymentTransaction implements Serializable {
 
     @Serial
@@ -31,10 +24,18 @@ public class PaymentTransaction implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
-    @Column(name = "amount", nullable = false)
-    private int amount;
+    @Column(name = "expected_amount", nullable = false)
+    private Integer expectedAmount;
+    @NotNull
+    @Column(name = "paid_amount", nullable = false)
+    private Integer paidAmount;
+    @NotNull
+    @Column(name = "reel_amount", nullable = false)
+    private Integer reelAmount;
+
+    @Column(name = "montant_verse", nullable = false)
+    private Integer montantVerse = 0;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -46,14 +47,7 @@ public class PaymentTransaction implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
-
-    @NotNull
-    @ManyToOne(optional = false)
     private CashRegister cashRegister;
-
-    @Column(name = "organisme_id")
-    private Long organismeId;
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)
@@ -62,7 +56,7 @@ public class PaymentTransaction implements Serializable {
 
     @Column(name = "transaction_date", nullable = false)
     @NotNull
-    private LocalDateTime transactionDate = LocalDateTime.now();
+    private LocalDate transactionDate = LocalDate.now();
 
     private boolean credit;
 
@@ -71,9 +65,50 @@ public class PaymentTransaction implements Serializable {
     @Column(name = "type_transaction", nullable = false)
     private TypeFinancialTransaction typeFinancialTransaction;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+    public Integer getExpectedAmount() {
+        return expectedAmount;
+    }
+
+    public PaymentTransaction setExpectedAmount(Integer expectedAmount) {
+        this.expectedAmount = expectedAmount;
+        return this;
+    }
+
+    public Integer getPaidAmount() {
+        return paidAmount;
+    }
+
+    public PaymentTransaction setPaidAmount(Integer paidAmount) {
+        this.paidAmount = paidAmount;
+        return this;
+    }
+
+    public Integer getReelAmount() {
+        return reelAmount;
+    }
+
+    public PaymentTransaction setReelAmount(Integer reelAmount) {
+        this.reelAmount = reelAmount;
+        return this;
+    }
+
+    public Integer getMontantVerse() {
+        return montantVerse;
+    }
+
+    public PaymentTransaction setMontantVerse(Integer montantVerse) {
+        this.montantVerse = montantVerse;
+        return this;
+    }
+
+    public LocalDate getTransactionDate() {
+        return transactionDate;
+    }
+
+    public PaymentTransaction setTransactionDate(LocalDate transactionDate) {
+        this.transactionDate = transactionDate;
+        return this;
+    }
 
     private String commentaire;
 
@@ -83,24 +118,6 @@ public class PaymentTransaction implements Serializable {
 
     public PaymentTransaction setCommentaire(String commentaire) {
         this.commentaire = commentaire;
-        return this;
-    }
-
-    public WarehouseCalendar getCalendar() {
-        return calendar;
-    }
-
-    public PaymentTransaction setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
-
-    public LocalDateTime getTransactionDate() {
-        return transactionDate;
-    }
-
-    public PaymentTransaction setTransactionDate(LocalDateTime transactionDate) {
-        this.transactionDate = transactionDate;
         return this;
     }
 
@@ -135,14 +152,7 @@ public class PaymentTransaction implements Serializable {
         this.id = id;
     }
 
-    public int getAmount() {
-        return amount;
-    }
 
-    public PaymentTransaction setAmount(int amount) {
-        this.amount = amount;
-        return this;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -156,17 +166,11 @@ public class PaymentTransaction implements Serializable {
         return paymentMode;
     }
 
-    public void setPaymentMode(PaymentMode paymentMode) {
+    public PaymentTransaction setPaymentMode(PaymentMode paymentMode) {
         this.paymentMode = paymentMode;
+        return this;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public CashRegister getCashRegister() {
         return cashRegister;
@@ -177,14 +181,7 @@ public class PaymentTransaction implements Serializable {
         return this;
     }
 
-    public Long getOrganismeId() {
-        return organismeId;
-    }
 
-    public PaymentTransaction setOrganismeId(Long organismeId) {
-        this.organismeId = organismeId;
-        return this;
-    }
 
     public CategorieChiffreAffaire getCategorieChiffreAffaire() {
         return categorieChiffreAffaire;

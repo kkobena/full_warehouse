@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Customer;
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.User;
 import java.time.LocalDateTime;
@@ -28,19 +28,19 @@ public class PaymentDTO {
     private Integer montantVerse = 0;
     private boolean differe;
 
-    public PaymentDTO(Payment payment) {
+    public PaymentDTO(SalePayment payment) {
         super();
         this.id = payment.getId();
-        this.netAmount = payment.getNetAmount();
+        this.netAmount = payment.getReelAmount();
         this.paidAmount = payment.getPaidAmount();
         this.createdAt = payment.getCreatedAt();
-        this.updatedAt = payment.getUpdatedAt();
+        this.updatedAt = payment.getCreatedAt();
         this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
-        User user = payment.getUser();
+        User user = payment.getCashRegister().getUser();
         this.userId = user.getId();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
-        this.customer = payment.getCustomer();
-        Sales sales = payment.getSales();
+        Sales sales = payment.getSale();
+        this.customer = sales.getCustomer();
         this.saleNumberTransaction = sales.getNumberTransaction();
         this.salesId = sales.getId();
         this.salesAmount = sales.getSalesAmount();

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.PaymentRepository;
@@ -141,7 +141,7 @@ public class ImportationVenteService {
                                                 salesLineRepository.save(item);
                                             }
                                             if (!dto.getPayments().isEmpty()) {
-                                                Payment payment = saleService.buildPaymentFromDTO(dto.getPayments().get(0), cashSale);
+                                                SalePayment payment = saleService.buildPaymentFromDTO(dto.getPayments().get(0), cashSale);
                                                 paymentRepository.save(payment);
                                             }
                                         } catch (Exception e) {

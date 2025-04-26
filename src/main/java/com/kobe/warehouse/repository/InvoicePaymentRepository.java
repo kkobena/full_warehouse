@@ -52,7 +52,7 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
 
     default Specification<InvoicePayment> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) ->
-            cb.between(cb.function("DATE", LocalDate.class, root.get(InvoicePayment_.created)), cb.literal(startDate), cb.literal(endDate));
+            cb.between(cb.function("DATE", LocalDate.class, root.get(InvoicePayment_.createdAt)), cb.literal(startDate), cb.literal(endDate));
     }
 
     default Specification<InvoicePayment> invoicesTypePredicats(boolean grouped) {

@@ -33,11 +33,11 @@ public class InvoicePaymentDTO {
 
     public InvoicePaymentDTO(InvoicePayment invoicePayment) {
         this.id = invoicePayment.getId();
-        this.montantAttendu = NumberUtil.formatToString(invoicePayment.getAmount());
+        this.montantAttendu = NumberUtil.formatToString(invoicePayment.getExpectedAmount());
         FactureTiersPayant factureTiersPayant = invoicePayment.getFactureTiersPayant();
         this.codeFacture = factureTiersPayant.getNumFacture();
-        this.created = DateUtil.format(invoicePayment.getCreated());
-        this.grouped = invoicePayment.getGrouped();
+        this.created = DateUtil.format(invoicePayment.getCreatedAt());
+        this.grouped = invoicePayment.isGrouped();
 
         this.montantVerse = NumberUtil.formatToStringIfNotNull(invoicePayment.getMontantVerse());
         this.paidAmount = NumberUtil.formatToString(invoicePayment.getPaidAmount());
@@ -56,13 +56,13 @@ public class InvoicePaymentDTO {
         this.paymentMode = mode.getLibelle();
         User u = invoicePayment.getCashRegister().getUser();
         this.user = u.getFirstName() + " " + u.getLastName();
-        var montantR = invoicePayment.getAmount() - invoicePayment.getPaidAmount();
+        var montantR = invoicePayment.getExpectedAmount() - invoicePayment.getPaidAmount();
         if (montantR > 0) {
             this.montantRestant = NumberUtil.formatToString(montantR);
         } else {
             this.montantRestant = "0";
         }
-        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getAmount();
+        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
         if (change0 > 0) {
             this.change = NumberUtil.formatToString(change0);
         } else {

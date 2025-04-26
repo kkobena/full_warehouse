@@ -9,7 +9,6 @@ import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.OrganismeDTO;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
@@ -39,7 +38,7 @@ import org.springframework.util.StringUtils;
 @Transactional(readOnly = true)
 public class ReglementDataServiceImpl implements ReglementDataService {
 
-    private final PaymentTransactionRepository paymentTransactionRepository;
+
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
@@ -49,7 +48,6 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     public ReglementDataServiceImpl(
         FacturationRepository facturationRepository,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ReglementReceiptService reglementReceiptService,
@@ -57,7 +55,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         ReglementReportService reglementReportService
     ) {
         this.facturationRepository = facturationRepository;
-        this.paymentTransactionRepository = paymentTransactionRepository;
+
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.reglementReceiptService = reglementReceiptService;
@@ -80,7 +78,6 @@ public class ReglementDataServiceImpl implements ReglementDataService {
             }
             updateFactureTiersPayantStatus(groupeFacture, totalAmount);
             facturationRepository.save(groupeFacture);
-            paymentTransactionRepository.deleteByOrganismeId(invoicePayment.getId());
             invoicePaymentRepository.delete(invoicePayment);
         }
     }
@@ -186,7 +183,6 @@ public class ReglementDataServiceImpl implements ReglementDataService {
             }
             thirdPartySaleLineRepository.save(thirdPartySaleLine);
         }
-        paymentTransactionRepository.deleteByOrganismeId(invoicePayment.getId());
         invoicePaymentRepository.delete(invoicePayment);
 
         updateFactureTiersPayantStatus(factureTiersPayant, totalAmount);

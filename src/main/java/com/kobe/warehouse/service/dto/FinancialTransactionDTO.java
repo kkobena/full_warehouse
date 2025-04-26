@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class FinancialTransactionDTO {
@@ -18,7 +20,7 @@ public class FinancialTransactionDTO {
 
     private Long organismeId;
     private String ticketCode;
-    private LocalDateTime transactionDate;
+    private LocalDate transactionDate;
     private boolean credit;
     private TypeFinancialTransaction typeFinancialTransaction;
 
@@ -119,11 +121,11 @@ public class FinancialTransactionDTO {
         return this;
     }
 
-    public LocalDateTime getTransactionDate() {
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
 
-    public FinancialTransactionDTO setTransactionDate(LocalDateTime transactionDate) {
+    public FinancialTransactionDTO setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
         return this;
     }

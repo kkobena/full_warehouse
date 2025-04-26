@@ -38,7 +38,6 @@ public abstract class AbstractReglementService implements ReglementService {
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final UserService userService;
     private final FacturationRepository facturationRepository;
-    private final WarehouseCalendarService warehouseCalendarService;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     private final BanqueRepository banqueRepository;
@@ -49,7 +48,6 @@ public abstract class AbstractReglementService implements ReglementService {
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
-        WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository
     ) {
@@ -58,24 +56,12 @@ public abstract class AbstractReglementService implements ReglementService {
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.userService = userService;
         this.facturationRepository = facturationRepository;
-        this.warehouseCalendarService = warehouseCalendarService;
+
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.banqueRepository = banqueRepository;
     }
 
-    protected void savePaymentTransaction(InvoicePayment invoicePayment, String comment) {
-        PaymentTransaction paymentTransaction = new PaymentTransaction();
-        paymentTransaction.setAmount(invoicePayment.getPaidAmount());
-        paymentTransaction.setPaymentMode(invoicePayment.getPaymentMode());
-        paymentTransaction.setUser(userService.getUser());
-        paymentTransaction.setTypeFinancialTransaction(TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT);
-        paymentTransaction.setCreatedAt(invoicePayment.getCreated());
-        paymentTransaction.setCalendar(warehouseCalendarService.initCalendar());
-        paymentTransaction.setCashRegister(getCashRegister());
-        paymentTransaction.setOrganismeId(invoicePayment.getId());
-        paymentTransaction.setCommentaire(comment);
-        paymentTransactionRepository.save(paymentTransaction);
-    }
+
 
     protected CashRegister getCashRegister() {
         var user = userService.getUser();
@@ -107,13 +93,16 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
-        return new InvoicePayment()
+        InvoicePayment invoice= new InvoicePayment()
             .setBanque(buildBanque(reglementParam.getBanqueInfo()))
-            .setFactureTiersPayant(factureTiersPayant)
+            .setFactureTiersPayant(factureTiersPayant);
+        invoice
             .setCashRegister(getCashRegister())
             .setMontantVerse(reglementParam.getAmount())
-            .setInvoiceDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()))
+            .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
+        invoice
             .setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
+        return invoice;
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, InvoicePayment paymentParent) {
@@ -122,7 +111,7 @@ public abstract class AbstractReglementService implements ReglementService {
         invoicePayment.setFactureTiersPayant(factureTiersPayant);
         invoicePayment.setCashRegister(paymentParent.getCashRegister());
         invoicePayment.setPaymentMode(paymentParent.getPaymentMode());
-        invoicePayment.setInvoiceDate(paymentParent.getInvoiceDate());
+        invoicePayment.setTransactionDate(paymentParent.getTransactionDate());
         return invoicePayment;
     }
 
@@ -137,6 +126,7 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment saveInvoicePayment(InvoicePayment invoicePayment) {
+        invoicePayment.setTypeFinancialTransaction(TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT);
         return invoicePaymentRepository.save(invoicePayment);
     }
 

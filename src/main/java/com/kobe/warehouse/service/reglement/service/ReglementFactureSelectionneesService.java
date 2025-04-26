@@ -10,7 +10,6 @@ import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -38,7 +37,6 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
-        WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository
     ) {
@@ -48,7 +46,6 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             invoicePaymentRepository,
             userService,
             facturationRepository,
-            warehouseCalendarService,
             thirdPartySaleLineRepository,
             banqueRepository
         );
@@ -93,10 +90,10 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         super.updateStatut(factureTiersPayant, reglementParam.getMontantFacture());
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
-        invoicePayment.setAmount(totalAmount);
+        invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
-        super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
@@ -134,8 +131,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         super.updateStatut(factureTiersPayant, item.getMontantFacture());
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
-        invoicePayment.setAmount(totalAmount);
+        invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
         return invoicePayment;
     }
 

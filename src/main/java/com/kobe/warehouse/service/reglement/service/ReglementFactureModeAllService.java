@@ -31,7 +31,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
-        WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository
     ) {
@@ -41,7 +40,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             invoicePaymentRepository,
             userService,
             facturationRepository,
-            warehouseCalendarService,
             thirdPartySaleLineRepository,
             banqueRepository
         );
@@ -66,10 +64,12 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         super.updateStatut(factureTiersPayant, reglementParam.getMontantFacture());
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
-        invoicePayment.setAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
         invoicePayment.setPaidAmount(montantPaye);
+        invoicePayment.setExpectedAmount(montantPaye);
+        invoicePayment.setCommentaire(reglementParam.getComment());
         invoicePayment = super.saveInvoicePayment(invoicePayment);
-        super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
+
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
@@ -89,7 +89,8 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
-        invoicePayment.setAmount(montantPaye);
+        invoicePayment.setExpectedAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
         invoicePayment.setPaidAmount(montantPaye);
         return invoicePayment;
     }

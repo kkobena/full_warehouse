@@ -29,15 +29,12 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
     private final FacturationRepository facturationRepository;
     private final ReglementFactureSelectionneesService reglementFactureSelectionneesService;
 
-    //  private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-
     public ReglementGroupeSelectionFactureService(
         CashRegisterService cashRegisterService,
         PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
-        WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         ReglementFactureSelectionneesService reglementFactureSelectionneesService
@@ -48,7 +45,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             invoicePaymentRepository,
             userService,
             facturationRepository,
-            warehouseCalendarService,
             thirdPartySaleLineRepository,
             banqueRepository
         );
@@ -94,14 +90,14 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             factureTiersPayant.getMontantRegle() < reglementParam.getMontantFacture() ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID
         );
         super.saveFactureTiersPayant(factureTiersPayant);
-        invoicePayment.setAmount(totalAmount);
+        invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         for (InvoicePayment item : invoicePayments) {
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

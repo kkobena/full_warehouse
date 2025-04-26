@@ -33,7 +33,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
-        WarehouseCalendarService warehouseCalendarService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         ReglementFactureModeAllService reglementFactureModeAllService
@@ -44,7 +43,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             invoicePaymentRepository,
             userService,
             facturationRepository,
-            warehouseCalendarService,
             thirdPartySaleLineRepository,
             banqueRepository
         );
@@ -77,14 +75,15 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             factureTiersPayant.getMontantRegle() < reglementParam.getMontantFacture() ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID
         );
         super.saveFactureTiersPayant(factureTiersPayant);
-        invoicePayment.setAmount(totalAmount);
+        invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
+        invoicePayment.setReelAmount(montantPaye);
+        invoicePayment.setCommentaire(reglementParam.getComment());
         invoicePayment = super.saveInvoicePayment(invoicePayment);
         for (InvoicePayment item : invoicePayments) {
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        super.savePaymentTransaction(invoicePayment, reglementParam.getComment());
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

@@ -1,6 +1,6 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.service.dto.projection.Recette;
 import java.time.LocalDate;
 import java.util.List;
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    List<Payment> findAllBySalesId(Long id);
+public interface PaymentRepository extends JpaRepository<SalePayment, Long> {
+    List<SalePayment> findAllBySaleId(Long id);
 
-    Optional<List<Payment>> findBySalesId(Long id);
+    Optional<List<SalePayment>> findBySaleId(Long id);
 
     @Query(
         value = "SELECT  SUM(p.net_amount) AS montantReel,SUM(p.paid_amount) AS montantPaye,pm.libelle AS modePaimentLibelle,pm.code AS modePaimentCode FROM payment p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +

@@ -1,17 +1,12 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.Payment;
-import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.Ticket;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.PaymentRepository;
 import com.kobe.warehouse.service.PaymentService;
-import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import java.time.LocalDateTime;
@@ -25,61 +20,44 @@ import org.springframework.util.CollectionUtils;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final TicketService ticketService;
     private final PaymentModeRepository paymentModeRepository;
 
     public PaymentServiceImpl(
         PaymentRepository paymentRepository,
-        TicketService ticketService,
         PaymentModeRepository paymentModeRepository
     ) {
         this.paymentRepository = paymentRepository;
-        this.ticketService = ticketService;
         this.paymentModeRepository = paymentModeRepository;
     }
 
     @Override
-    public void clonePayment(Payment payment, List<Ticket> tickets, Sales copy) {
-        payment.setEffectiveUpdateDate(LocalDateTime.now());
-        payment.setCanceled(true);
-        Payment paymentCopy = (Payment) payment.clone();
+    public void clonePayment(SalePayment payment, List<Ticket> tickets, Sales copy) {
+
+        SalePayment paymentCopy = (SalePayment) payment.clone();
         paymentCopy.setId(null);
-        paymentCopy.setCanceled(true);
         paymentCopy.setCreatedAt(copy.getCreatedAt());
-        paymentCopy.setUpdatedAt(copy.getCreatedAt());
-        paymentCopy.setUser(copy.getUser());
-        paymentCopy.setSales(copy);
+        paymentCopy.setCashRegister(copy.getCashRegister());
+        paymentCopy.setSale(copy);
         paymentCopy.setMontantVerse(paymentCopy.getMontantVerse() * (-1));
-        paymentCopy.setNetAmount(paymentCopy.getNetAmount() * (-1));
+        paymentCopy.setReelAmount(paymentCopy.getReelAmount() * (-1));
         paymentCopy.setPaidAmount(paymentCopy.getPaidAmount() * (-1));
-        String paymentTicket = payment.getTicketCode();
-        if (paymentTicket != null) {
-            for (Ticket ticket : tickets) {
-                if (ticket.getCode().equals(paymentTicket)) {
-                    Ticket ticketCopy = ticketService.cloneTicket(ticket, copy);
-                    paymentCopy.setTicketCode(ticketCopy.getCode());
-                    break;
-                }
-            }
-        }
-        paymentCopy.setStatut(SalesStatut.CANCELED);
+        paymentCopy.setExpectedAmount(paymentCopy.getExpectedAmount() * (-1));
         paymentRepository.save(paymentCopy);
         paymentRepository.save(payment);
     }
 
     @Override
-    public List<Payment> findAllBySalesId(Long id) {
-        return paymentRepository.findAllBySalesId(id);
+    public List<SalePayment> findAllBySalesId(Long id) {
+        return paymentRepository.findAllBySaleId(id);
     }
 
     @Override
-    public Set<Payment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, User user) {
-        Set<Payment> payments = new HashSet<>();
+    public Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, User user) {
+        Set<SalePayment> payments = new HashSet<>();
         saleDTO
             .getPayments()
             .forEach(paymentDTO -> {
-                Payment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, null);
-                payment.setStatut(SalesStatut.PENDING);
+                SalePayment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, null);
                 paymentRepository.save(payment);
                 payments.add(payment);
             });
@@ -95,10 +73,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void removeOldPayment(Sales sales) {
-        Set<Payment> payments = sales.getPayments();
+        Set<SalePayment> payments = sales.getPayments();
         if (!CollectionUtils.isEmpty(payments)) {
             payments.forEach(payment -> {
-                payment.setSales(null);
+                payment.setSale(null);
                 this.paymentRepository.delete(payment);
             });
             sales.setPayments(null);
@@ -106,18 +84,15 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void delete(Payment payment) {
+    public void delete(SalePayment payment) {
         paymentRepository.delete(payment);
     }
 
-    private Payment buildPaymentFromFromPaymentDTO(Sales sales, PaymentDTO paymentDTO, User user, Ticket ticket) {
-        Payment payment = new Payment();
+    private SalePayment buildPaymentFromFromPaymentDTO(Sales sales, PaymentDTO paymentDTO, User user, Ticket ticket) {
+        SalePayment payment = new SalePayment();
         payment.setCreatedAt(LocalDateTime.now());
-        payment.setUpdatedAt(payment.getCreatedAt());
-        payment.setEffectiveUpdateDate(payment.getCreatedAt());
-        payment.setSales(sales);
-        payment.setUser(user);
-        payment.setCustomer(sales.getCustomer());
+        payment.setSale(sales);
+        payment.setCashRegister(sales.getCashRegister());
         if (paymentDTO.getPaymentMode() != null) {
             PaymentMode paymentMode = paymentModeRepository.getReferenceById(paymentDTO.getPaymentMode().getCode());
             ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
@@ -127,15 +102,16 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setPaymentMode(paymentMode);
         }
 
-        payment.setNetAmount(paymentDTO.getNetAmount());
+        payment.setReelAmount(paymentDTO.getNetAmount());
         payment.setPaidAmount(paymentDTO.getPaidAmount());
-        if (ticket != null) {
-            payment.setTicketCode(ticket.getCode());
-        }
-
+        payment.setExpectedAmount(paymentDTO.getNetAmount());
         if (sales instanceof ThirdPartySales thirdPartySales) {
             payment.setPartTiersPayant(thirdPartySales.getPartTiersPayant());
             payment.setPartAssure(thirdPartySales.getPartAssure());
+            payment.setTypeFinancialTransaction(TypeFinancialTransaction.CREDIT_SALE);
+        }
+        if (sales instanceof CashSale) {
+            payment.setTypeFinancialTransaction(TypeFinancialTransaction.CASH_SALE);
         }
         return payment;
     }

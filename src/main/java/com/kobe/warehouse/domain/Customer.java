@@ -65,8 +65,7 @@ public class Customer implements Serializable {
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
 
-    @OneToMany(mappedBy = "customer")
-    private Set<Payment> payments = new HashSet<>();
+
 
     @NotNull
     @Column(name = "code", nullable = false, unique = true)
@@ -125,13 +124,7 @@ public class Customer implements Serializable {
         this.status = status;
     }
 
-    public Set<Payment> getPayments() {
-        return payments;
-    }
 
-    public void setPayments(Set<Payment> payments) {
-        this.payments = payments;
-    }
 
     public @NotNull String getCode() {
         return code;
@@ -203,10 +196,6 @@ public class Customer implements Serializable {
         return this;
     }
 
-    public Customer payments(Set<Payment> payments) {
-        this.payments = payments;
-        return this;
-    }
 
     @Override
     public boolean equals(Object o) {

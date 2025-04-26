@@ -36,16 +36,16 @@ public class InvoicePaymentReceiptDTO {
     private List<InvoicePaymentReceiptDTO> invoicePayments = new ArrayList<>();
 
     public InvoicePaymentReceiptDTO(InvoicePayment invoicePayment) {
-        this.montantAttendu = NumberUtil.formatToString(invoicePayment.getAmount());
+        this.montantAttendu = NumberUtil.formatToString(invoicePayment.getExpectedAmount());
         FactureTiersPayant factureTiersPayant = invoicePayment.getFactureTiersPayant();
         this.codeFacture = factureTiersPayant.getNumFacture();
-        this.created = DateUtil.format(invoicePayment.getCreated());
-        this.grouped = invoicePayment.getGrouped();
+        this.created = DateUtil.format(invoicePayment.getCreatedAt());
+        this.grouped = invoicePayment.isGrouped();
         this.invoicePaymentItemsCount = String.valueOf(invoicePayment.getInvoicePaymentItems().size());
         this.montantVerse = NumberUtil.formatToStringIfNotNull(invoicePayment.getMontantVerse());
         this.paidAmount = NumberUtil.formatToString(invoicePayment.getPaidAmount());
 
-        if (invoicePayment.getGrouped()) {
+        if (invoicePayment.isGrouped()) {
             GroupeTiersPayant groupeTiersPayant = factureTiersPayant.getGroupeTiersPayant();
             this.organisme = groupeTiersPayant.getName();
         } else {
@@ -58,13 +58,13 @@ public class InvoicePaymentReceiptDTO {
         this.paymentModeCode = mode.getCode();
         User u = invoicePayment.getCashRegister().getUser();
         this.user = u.getFirstName() + " " + u.getLastName();
-        var montantR = invoicePayment.getAmount() - invoicePayment.getPaidAmount();
+        var montantR = invoicePayment.getExpectedAmount() - invoicePayment.getPaidAmount();
         if (montantR > 0) {
             this.montantRestant = NumberUtil.formatToString(montantR);
         } else {
             this.montantRestant = "0";
         }
-        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getAmount();
+        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
         if (change0 > 0) {
             this.change = NumberUtil.formatToString(change0);
         } else {

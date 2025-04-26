@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
@@ -45,7 +45,7 @@ public interface SaleService {
 
     CashSale fromDTOOldCashSale(CashSaleDTO dto);
 
-    Payment buildPaymentFromDTO(PaymentDTO dto, Sales sales);
+    SalePayment buildPaymentFromDTO(PaymentDTO dto, Sales sales);
 
     /*
   Gestin d'ouverture de caisse

@@ -1,11 +1,11 @@
-create or replace table authority
+create table authority
 (
   name    varchar(50)  not null
     primary key,
   libelle varchar(100) null
 );
 
-create or replace table banque
+create table banque
 (
   id           bigint auto_increment
     primary key,
@@ -15,7 +15,7 @@ create or replace table banque
   nom          varchar(100) not null
 );
 
-create or replace table categorie
+create table categorie
 (
   id      bigint auto_increment
     primary key,
@@ -25,7 +25,7 @@ create or replace table categorie
     unique (libelle)
 );
 
-create or replace table dci
+create table dci
 (
   id      bigint auto_increment
     primary key,
@@ -35,10 +35,10 @@ create or replace table dci
     unique (code)
 );
 
-create or replace index dci_libelle_index
+create index dci_libelle_index
   on dci (libelle);
 
-create or replace table famille_produit
+create table famille_produit
 (
   id           bigint auto_increment
     primary key,
@@ -51,7 +51,7 @@ create or replace table famille_produit
     foreign key (categorie_id) references categorie (id)
 );
 
-create or replace table form_produit
+create table form_produit
 (
   id      bigint auto_increment
     primary key,
@@ -60,7 +60,7 @@ create or replace table form_produit
     unique (libelle)
 );
 
-create or replace table gamme_produit
+create table gamme_produit
 (
   id      bigint auto_increment
     primary key,
@@ -70,7 +70,7 @@ create or replace table gamme_produit
     unique (libelle)
 );
 
-create or replace table groupe_fournisseur
+create table groupe_fournisseur
 (
   id             bigint auto_increment
     primary key,
@@ -84,7 +84,7 @@ create or replace table groupe_fournisseur
     unique (libelle)
 );
 
-create or replace table fournisseur
+create table fournisseur
 (
   id                      bigint auto_increment
     primary key,
@@ -103,7 +103,7 @@ create or replace table fournisseur
     foreign key (groupe_fournisseur_id) references groupe_fournisseur (id)
 );
 
-create or replace table groupe_tiers_payant
+create table groupe_tiers_payant
 (
   id                 bigint auto_increment
     primary key,
@@ -116,7 +116,7 @@ create or replace table groupe_tiers_payant
     unique (name)
 );
 
-create or replace table importation_echouee
+create table importation_echouee
 (
   id          bigint auto_increment
     primary key,
@@ -125,7 +125,7 @@ create or replace table importation_echouee
   object_id   bigint      null
 );
 
-create or replace table importation_echouee_ligne
+create table importation_echouee_ligne
 (
   id                    bigint auto_increment
     primary key,
@@ -146,7 +146,7 @@ create or replace table importation_echouee_ligne
     foreign key (importation_echoue_id) references importation_echouee (id)
 );
 
-create or replace table laboratoire
+create table laboratoire
 (
   id      bigint auto_increment
     primary key,
@@ -155,7 +155,7 @@ create or replace table laboratoire
     unique (libelle)
 );
 
-create or replace table magasin
+create table magasin
 (
   id                  bigint auto_increment
     primary key,
@@ -178,7 +178,7 @@ create or replace table magasin
     unique (full_name)
 );
 
-create or replace table menu
+create table menu
 (
   id               bigint auto_increment
     primary key,
@@ -197,7 +197,7 @@ create or replace table menu
     foreign key (parent_id) references menu (id)
 );
 
-create or replace table authority_menu
+create table authority_menu
 (
   authority_name varchar(50) not null,
   menu_id        bigint      not null,
@@ -208,7 +208,7 @@ create or replace table authority_menu
     foreign key (authority_name) references authority (name)
 );
 
-create or replace table motif_ajustement
+create table motif_ajustement
 (
   id      bigint auto_increment
     primary key,
@@ -217,7 +217,7 @@ create or replace table motif_ajustement
     unique (libelle)
 );
 
-create or replace table motif_retour_produit
+create table motif_retour_produit
 (
   id      bigint auto_increment
     primary key,
@@ -226,7 +226,7 @@ create or replace table motif_retour_produit
     unique (libelle)
 );
 
-create or replace table payment_mode
+create table payment_mode
 (
   code          varchar(50)  not null
     primary key,
@@ -240,7 +240,7 @@ create or replace table payment_mode
     unique (libelle)
 );
 
-create or replace table persistent_audit_event
+create table persistent_audit_event
 (
   event_id   bigint auto_increment
     primary key,
@@ -249,7 +249,7 @@ create or replace table persistent_audit_event
   principal  varchar(255) not null
 );
 
-create or replace table persistent_audit_evt_data
+create table persistent_audit_evt_data
 (
   event_id bigint       not null,
   value    varchar(255) null,
@@ -259,7 +259,7 @@ create or replace table persistent_audit_evt_data
     foreign key (event_id) references persistent_audit_event (event_id)
 );
 
-create or replace table poste
+create table poste
 (
   id           bigint auto_increment
     primary key,
@@ -270,10 +270,10 @@ create or replace table poste
     unique (name)
 );
 
-create or replace index poste_name_index
+create index poste_name_index
   on poste (name);
 
-create or replace table printer
+create table printer
 (
   id              bigint auto_increment
     primary key,
@@ -289,10 +289,10 @@ create or replace table printer
     foreign key (poste_id) references poste (id)
 );
 
-create or replace index name_index
+create index name_index
   on printer (name);
 
-create or replace table privilege
+create table privilege
 (
   name    varchar(100) not null
     primary key,
@@ -302,7 +302,7 @@ create or replace table privilege
     foreign key (menu_id) references menu (id)
 );
 
-create or replace table authority_privilege
+create table authority_privilege
 (
   id             bigint auto_increment
     primary key,
@@ -316,7 +316,7 @@ create or replace table authority_privilege
     foreign key (authority_name) references authority (name)
 );
 
-create or replace table reference
+create table reference
 (
   id             bigint auto_increment
     primary key,
@@ -329,7 +329,7 @@ create or replace table reference
     unique (mvt_date, d_type, num)
 );
 
-create or replace table remise
+create table remise
 (
   dtype        varchar(31)          not null,
   id           bigint auto_increment
@@ -339,7 +339,7 @@ create or replace table remise
   remise_value float                null
 );
 
-create or replace table customer
+create table customer
 (
   dtype               varchar(31)                       not null,
   id                  bigint auto_increment
@@ -368,7 +368,7 @@ create or replace table customer
     foreign key (assure_principal_id) references customer (id)
 );
 
-create or replace table grille_remise
+create table grille_remise
 (
   id                bigint auto_increment
     primary key,
@@ -384,14 +384,14 @@ create or replace table grille_remise
     foreign key (remise_produit_id) references remise (id)
 );
 
-create or replace table revinfo
+create table revinfo
 (
   rev      int auto_increment
     primary key,
   revtstmp bigint null
 );
 
-create or replace table produit_aud
+create table produit_aud
 (
   id                      bigint                      not null,
   rev                     int                         not null,
@@ -428,7 +428,7 @@ create or replace table produit_aud
     foreign key (rev) references revinfo (rev)
 );
 
-create or replace table stock_produit_aud
+create table stock_produit_aud
 (
   id               bigint      not null,
   rev              int         not null,
@@ -446,7 +446,7 @@ create or replace table stock_produit_aud
     foreign key (rev) references revinfo (rev)
 );
 
-create or replace table storage
+create table storage
 (
   id           bigint auto_increment
     primary key,
@@ -460,7 +460,7 @@ create or replace table storage
     foreign key (magasin_id) references magasin (id)
 );
 
-create or replace table rayon
+create table rayon
 (
   id         bigint auto_increment
     primary key,
@@ -476,7 +476,7 @@ create or replace table rayon
     foreign key (storage_id) references storage (id)
 );
 
-create or replace table tableau
+create table tableau
 (
   id     bigint auto_increment
     primary key,
@@ -486,10 +486,10 @@ create or replace table tableau
     unique (code)
 );
 
-create or replace index code_index
+create index code_index
   on tableau (code);
 
-create or replace table tva
+create table tva
 (
   id   bigint auto_increment
     primary key,
@@ -498,7 +498,7 @@ create or replace table tva
     unique (taux)
 );
 
-create or replace table produit
+create table produit
 (
   id                      bigint auto_increment
     primary key,
@@ -566,7 +566,7 @@ create or replace table produit
     foreign key (forme_id) references form_produit (id)
 );
 
-create or replace table fournisseur_produit
+create table fournisseur_produit
 (
   id                 bigint auto_increment
     primary key,
@@ -590,13 +590,13 @@ create or replace table fournisseur_produit
     foreign key (produit_id) references produit (id)
 );
 
-create or replace index code_cip_index
+create index code_cip_index
   on fournisseur_produit (code_cip);
 
-create or replace index principal_index
+create index principal_index
   on fournisseur_produit (principal);
 
-create or replace table product_state
+create table product_state
 (
   id         bigint auto_increment
     primary key,
@@ -610,19 +610,19 @@ create or replace table product_state
     foreign key (produit_id) references produit (id)
 );
 
-create or replace index state_index
+create index state_index
   on product_state (state);
 
-create or replace index codeEan_index
+create index codeEan_index
   on produit (code_ean);
 
-create or replace index libelle_index
+create index libelle_index
   on produit (libelle);
 
-create or replace index status_index
+create index status_index
   on produit (status);
 
-create or replace table rayon_produit
+create table rayon_produit
 (
   id         bigint auto_increment
     primary key,
@@ -636,7 +636,7 @@ create or replace table rayon_produit
     foreign key (rayon_id) references rayon (id)
 );
 
-create or replace table stock_produit
+create table stock_produit
 (
   id               bigint auto_increment
     primary key,
@@ -657,7 +657,7 @@ create or replace table stock_produit
     foreign key (storage_id) references storage (id)
 );
 
-create or replace table user
+create table user
 (
   id                   bigint auto_increment
     primary key,
@@ -689,7 +689,7 @@ create or replace table user
     foreign key (printer_id) references printer (id)
 );
 
-create or replace table app_configuration
+create table app_configuration
 (
   name            varchar(50)                                                                                       not null
     primary key,
@@ -704,7 +704,7 @@ create or replace table app_configuration
     foreign key (validated_by_id) references user (id)
 );
 
-create or replace table cash_register
+create table cash_register
 (
   id              bigint auto_increment
     primary key,
@@ -724,7 +724,7 @@ create or replace table cash_register
     foreign key (user_id) references user (id)
 );
 
-create or replace table cash_fund
+create table cash_fund
 (
   id               bigint auto_increment
     primary key,
@@ -746,7 +746,7 @@ create or replace table cash_fund
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table cash_register_item
+create table cash_register_item
 (
   id                bigint auto_increment
     primary key,
@@ -763,7 +763,7 @@ create or replace table cash_register_item
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table importation
+create table importation
 (
   id                 bigint auto_increment
     primary key,
@@ -783,16 +783,16 @@ create or replace table importation
     foreign key (user_id) references user (id)
 );
 
-create or replace index created_at_index
+create index created_at_index
   on importation (created_at);
 
-create or replace index importation_status_index
+create index importation_status_index
   on importation (importation_status);
 
-create or replace index importation_type_index
+create index importation_type_index
   on importation (importation_type);
 
-create or replace table logs
+create table logs
 (
   id               bigint auto_increment
     primary key,
@@ -808,16 +808,16 @@ create or replace table logs
     foreign key (user_id) references user (id)
 );
 
-create or replace index createdAt_index
+create index createdAt_index
   on logs (created_at);
 
-create or replace index indentityKey_index
+create index indentityKey_index
   on logs (indentity_key);
 
-create or replace index transaction_type_index
+create index transaction_type_index
   on logs (transaction_type);
 
-create or replace table persistent_token
+create table persistent_token
 (
   series      varchar(255) not null
     primary key,
@@ -830,7 +830,7 @@ create or replace table persistent_token
     foreign key (user_id) references user (id)
 );
 
-create or replace table repartition_stock_produit
+create table repartition_stock_produit
 (
   id                           bigint auto_increment
     primary key,
@@ -854,7 +854,7 @@ create or replace table repartition_stock_produit
     foreign key (stock_produit_destination_id) references stock_produit (id)
 );
 
-create or replace table suggestion
+create table suggestion
 (
   id                   bigint auto_increment
     primary key,
@@ -874,10 +874,10 @@ create or replace table suggestion
     foreign key (last_user_edit_id) references user (id)
 );
 
-create or replace index type_suggession_index
+create index type_suggession_index
   on suggestion (type_suggession);
 
-create or replace table suggestion_line
+create table suggestion_line
 (
   id                     bigint auto_increment
     primary key,
@@ -894,7 +894,7 @@ create or replace table suggestion_line
     foreign key (fournisseur_produit_id) references fournisseur_produit (id)
 );
 
-create or replace table ticketing
+create table ticketing
 (
   id                  bigint auto_increment
     primary key,
@@ -920,7 +920,7 @@ create or replace table ticketing
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table tiers_payant
+create table tiers_payant
 (
   id                     bigint auto_increment
     primary key,
@@ -961,7 +961,7 @@ create or replace table tiers_payant
     foreign key (updated_by_id) references user (id)
 );
 
-create or replace table client_tiers_payant
+create table client_tiers_payant
 (
   id                  bigint auto_increment
     primary key,
@@ -991,7 +991,7 @@ create or replace table client_tiers_payant
     foreign key (tiers_payant_id) references tiers_payant (id)
 );
 
-create or replace table facture_tiers_payant
+create table facture_tiers_payant
 (
   id                             bigint auto_increment
     primary key,
@@ -1020,37 +1020,10 @@ create or replace table facture_tiers_payant
     foreign key (groupe_tiers_payant_id) references groupe_tiers_payant (id)
 );
 
-create or replace index num_facture_index
+create index num_facture_index
   on facture_tiers_payant (num_facture);
 
-create or replace table invoice_payment
-(
-  id                      bigint auto_increment
-    primary key,
-  montant_attendu         int         not null,
-  created                 datetime(6) not null,
-  grouped                 bit         null,
-  invoice_date            date        null,
-  montant_verse           int         null,
-  montant_paye            int         not null,
-  banque_id               bigint      null,
-  cash_register_id        bigint      not null,
-  facture_tiers_payant_id bigint      not null,
-  parent_id               bigint      null,
-  payment_mode_code       varchar(50) null,
-  constraint FK2jbx4pxbdrcih2ytx4nd8elfy
-    foreign key (parent_id) references invoice_payment (id),
-  constraint FKktfofq520ch37ujiypb8lgjsx
-    foreign key (banque_id) references banque (id),
-  constraint FKlqlnt6i5kab1htr25udh8ova9
-    foreign key (payment_mode_code) references payment_mode (code),
-  constraint FKnrvwnlyv50ome7nc2jpgytm7e
-    foreign key (cash_register_id) references cash_register (id),
-  constraint FKoayv76mnkulkjnbf66vpy26v4
-    foreign key (facture_tiers_payant_id) references facture_tiers_payant (id)
-);
-
-create or replace table user_authority
+create table user_authority
 (
   user_id        bigint      not null,
   authority_name varchar(50) not null,
@@ -1061,7 +1034,7 @@ create or replace table user_authority
     foreign key (user_id) references user (id)
 );
 
-create or replace table utilisation_cle_securite
+create table utilisation_cle_securite
 (
   id                    bigint auto_increment
     primary key,
@@ -1081,7 +1054,7 @@ create or replace table utilisation_cle_securite
     foreign key (privilege_name) references privilege (name)
 );
 
-create or replace table warehouse_calendar
+create table warehouse_calendar
 (
   work_day   date not null
     primary key,
@@ -1089,7 +1062,7 @@ create or replace table warehouse_calendar
   work_year  int  not null
 );
 
-create or replace table ajust
+create table ajust
 (
   id                bigint auto_increment
     primary key,
@@ -1108,7 +1081,7 @@ create or replace table ajust
     foreign key (calendar_work_day) references warehouse_calendar (work_day)
 );
 
-create or replace table ajustement
+create table ajustement
 (
   id                  bigint auto_increment
     primary key,
@@ -1131,7 +1104,7 @@ create or replace table ajustement
     foreign key (motif_ajustement_id) references motif_ajustement (id)
 );
 
-create or replace table avoir
+create table avoir
 (
   id                bigint auto_increment
     primary key,
@@ -1146,7 +1119,7 @@ create or replace table avoir
     foreign key (user_id) references user (id)
 );
 
-create or replace table commande
+create table commande
 (
   id                bigint auto_increment
     primary key,
@@ -1181,10 +1154,10 @@ create or replace table commande
     foreign key (user_id) references user (id)
 );
 
-create or replace index order_status_index
+create index order_status_index
   on commande (order_status);
 
-create or replace table decondition
+create table decondition
 (
   id                     bigint auto_increment
     primary key,
@@ -1205,7 +1178,7 @@ create or replace table decondition
     foreign key (user_id) references user (id)
 );
 
-create or replace table delivery_receipt
+create table delivery_receipt
 (
   id                 bigint auto_increment
     primary key,
@@ -1242,22 +1215,22 @@ create or replace table delivery_receipt
     foreign key (fournisseur_id) references fournisseur (id)
 );
 
-create or replace index number_transaction_index
+create index number_transaction_index
   on delivery_receipt (number_transaction);
 
-create or replace index receipt_date_index
+create index receipt_date_index
   on delivery_receipt (receipt_date desc);
 
-create or replace index receipt_paiment_status_index
+create index receipt_paiment_status_index
   on delivery_receipt (paiment_status);
 
-create or replace index receipt_reference_index
+create index receipt_reference_index
   on delivery_receipt (receipt_reference);
 
-create or replace index receipt_status_index
+create index receipt_status_index
   on delivery_receipt (receipt_status);
 
-create or replace table delivery_receipt_item
+create table delivery_receipt_item
 (
   id                     bigint auto_increment
     primary key,
@@ -1289,7 +1262,7 @@ create or replace table delivery_receipt_item
     foreign key (delivery_receipt_id) references delivery_receipt (id)
 );
 
-create or replace table ligne_avoir
+create table ligne_avoir
 (
   id         bigint auto_increment
     primary key,
@@ -1305,7 +1278,7 @@ create or replace table ligne_avoir
     foreign key (avoir_id) references avoir (id)
 );
 
-create or replace table lot
+create table lot
 (
   id                   bigint auto_increment
     primary key,
@@ -1323,13 +1296,13 @@ create or replace table lot
     foreign key (receipt_item_id) references delivery_receipt_item (id)
 );
 
-create or replace index lot_receipt_reference_index
+create index lot_receipt_reference_index
   on lot (receipt_reference);
 
-create or replace index num_lot_index
+create index num_lot_index
   on lot (num_lot);
 
-create or replace table order_line
+create table order_line
 (
   id                     bigint auto_increment
     primary key,
@@ -1363,7 +1336,7 @@ create or replace table order_line
     foreign key (fournisseur_produit_id) references fournisseur_produit (id)
 );
 
-create or replace table payment_fournisseur
+create table payment_fournisseur
 (
   id                  bigint auto_increment
     primary key,
@@ -1383,38 +1356,7 @@ create or replace table payment_fournisseur
     foreign key (payment_mode_code) references payment_mode (code)
 );
 
-create or replace table payment_transaction
-(
-  id                bigint auto_increment
-    primary key,
-  amount            int          not null,
-  categorie_ca      tinyint      not null
-    check (`categorie_ca` between 0 and 3),
-  commentaire       varchar(255) null,
-  created_at        datetime(6)  not null,
-  credit            bit          not null,
-  organisme_id      bigint       null,
-  transaction_date  datetime(6)  not null,
-  type_transaction  tinyint      not null
-    check (`type_transaction` between 0 and 9),
-  calendar_work_day date         not null,
-  cash_register_id  bigint       not null,
-  payment_mode_code varchar(50)  not null,
-  user_id           bigint       not null,
-  constraint FKgb2j41meoqx9t219ccuyiui43
-    foreign key (user_id) references user (id),
-  constraint FKgq9ocwvjtdlt49fd0vhibjd4t
-    foreign key (cash_register_id) references cash_register (id),
-  constraint FKllqlbjskwsugxh20pc7h43wd3
-    foreign key (payment_mode_code) references payment_mode (code),
-  constraint FKtd5v4m1mt78c1lkx40hrsx8gk
-    foreign key (calendar_work_day) references warehouse_calendar (work_day)
-);
-
-create or replace index organisme_id_index
-  on payment_transaction (organisme_id);
-
-create or replace table produit_perime
+create table produit_perime
 (
   id                bigint auto_increment
     primary key,
@@ -1439,10 +1381,10 @@ create or replace table produit_perime
     foreign key (produit_id) references produit (id)
 );
 
-create or replace index produit_perime_index
+create index produit_perime_index
   on produit_perime (peremption_date);
 
-create or replace table retour_bon
+create table retour_bon
 (
   id                  bigint auto_increment
     primary key,
@@ -1461,7 +1403,7 @@ create or replace table retour_bon
     foreign key (delivery_receipt_id) references delivery_receipt (id)
 );
 
-create or replace table reponse_retour_bon
+create table reponse_retour_bon
 (
   id                bigint auto_increment
     primary key,
@@ -1481,7 +1423,7 @@ create or replace table reponse_retour_bon
     foreign key (retour_bon_id) references retour_bon (id)
 );
 
-create or replace table retour_bon_item
+create table retour_bon_item
 (
   id                       bigint auto_increment
     primary key,
@@ -1504,7 +1446,7 @@ create or replace table retour_bon_item
     foreign key (lot_id) references lot (id)
 );
 
-create or replace table reponse_retour_bon_item
+create table reponse_retour_bon_item
 (
   id                    bigint auto_increment
     primary key,
@@ -1521,7 +1463,7 @@ create or replace table reponse_retour_bon_item
     foreign key (retour_bon_item_id) references retour_bon_item (id)
 );
 
-create or replace table sales
+create table sales
 (
   dtype                           varchar(31)                                                                          not null,
   id                              bigint auto_increment
@@ -1619,64 +1561,88 @@ create or replace table sales
     foreign key (user_id) references user (id)
 );
 
-create or replace table payment
+create table payment_transaction
 (
-  id                    bigint auto_increment
+  dtype                   varchar(31)   not null,
+  id                      bigint auto_increment
     primary key,
-  canceled              tinyint(1) default 0 not null,
-  created_at            datetime(6)          not null,
-  effective_update_date datetime(6)          not null,
-  montant_verse         int                  not null,
-  net_amount            int                  not null,
-  paid_amount           int                  not null,
-  part_assure           int        default 0 null,
-  part_tiers_payant     int        default 0 null,
-  statut                tinyint              not null
-    check (`statut` between 0 and 6),
-  ticket_code           varchar(50)          null,
-  updated_at            datetime(6)          not null,
-  customer_id           bigint               null,
-  payment_mode_code     varchar(50)          not null,
-  sales_id              bigint               null,
-  user_id               bigint               not null,
-  constraint FK4spfnm9si9dowsatcqs5or42i
-    foreign key (user_id) references user (id),
-  constraint FKby2skjf3ov608yb6nm16b49lg
-    foreign key (customer_id) references customer (id),
-  constraint FKd4y7p2b9ky7wnt9j8s68p39nq
+  categorie_ca            tinyint       not null
+    check (`categorie_ca` between 0 and 3),
+  commentaire             varchar(255)  null,
+  created_at              datetime(6)   not null,
+  credit                  bit           not null,
+  expected_amount         int           not null,
+  montant_verse           int           not null,
+  paid_amount             int           not null,
+  reel_amount             int           not null,
+  transaction_date        date          not null,
+  type_transaction        tinyint       not null
+    check (`type_transaction` between 0 and 9),
+  grouped                 bit           null,
+  part_assure             int default 0 null,
+  part_tiers_payant       int default 0 null,
+  cash_register_id        bigint        not null,
+  payment_mode_code       varchar(50)   not null,
+  banque_id               bigint        null,
+  facture_tiers_payant_id bigint        null,
+  parent_id               bigint        null,
+  sale_id                 bigint        null,
+  constraint FK6972n014se2yx902jv033f6dc
+    foreign key (parent_id) references payment_transaction (id),
+  constraint FKgq9ocwvjtdlt49fd0vhibjd4t
+    foreign key (cash_register_id) references cash_register (id),
+  constraint FKidf4n2nq1dnta4vd5nqfpxolm
+    foreign key (sale_id) references sales (id),
+  constraint FKisvg65ny10fvvwvvwl5w5kged
+    foreign key (banque_id) references banque (id),
+  constraint FKllqlbjskwsugxh20pc7h43wd3
     foreign key (payment_mode_code) references payment_mode (code),
-  constraint FKft95hgc3p39d9hedhmpe4pk7w
-    foreign key (sales_id) references sales (id)
+  constraint FKslxt8smktjygypqgfhkc891gs
+    foreign key (facture_tiers_payant_id) references facture_tiers_payant (id)
 );
 
-create or replace index ticket_code_index
-  on payment (ticket_code);
+create table differe_payment_item
+(
+  id                 bigint auto_increment
+    primary key,
+  expected_amount    int    not null,
+  paid_amount        int    not null,
+  differe_payment_id bigint not null,
+  sale_id            bigint not null,
+  constraint FK80ktxvufyyohmgi801iynj0h5
+    foreign key (sale_id) references sales (id),
+  constraint FKbbc7tcygixkp2yit0yfpl2pcc
+    foreign key (differe_payment_id) references payment_transaction (id)
+);
 
-create or replace index vente_created_at_index
+create index pt_categorie_ca_id_index
+  on payment_transaction (categorie_ca);
+
+create index vente_created_at_index
   on sales (created_at);
 
-create or replace index vente_effective_update_index
+create index vente_effective_update_index
   on sales (effective_update_date);
 
-create or replace index vente_nature_vente_index
+create index vente_nature_vente_index
   on sales (nature_vente);
 
-create or replace index vente_number_transaction_index
+create index vente_number_transaction_index
   on sales (number_transaction);
 
-create or replace index vente_payment_status_index
+create index vente_payment_status_index
   on sales (payment_status);
 
-create or replace index vente_statut_index
+create index vente_statut_index
   on sales (statut);
 
-create or replace index vente_to_ignore_index
+create index vente_to_ignore_index
   on sales (to_ignore);
 
-create or replace index vente_updated_at_index
+create index vente_updated_at_index
   on sales (updated_at);
 
-create or replace table sales_line
+create table sales_line
 (
   id                              bigint auto_increment
     primary key,
@@ -1715,7 +1681,7 @@ create or replace table sales_line
     foreign key (produit_id) references produit (id)
 );
 
-create or replace table inventory_transaction
+create table inventory_transaction
 (
   id                           bigint auto_increment
     primary key,
@@ -1756,13 +1722,13 @@ create or replace table inventory_transaction
     foreign key (sale_line_id) references sales_line (id)
 );
 
-create or replace index createdAt_index
+create index createdAt_index
   on inventory_transaction (created_at);
 
-create or replace index transaction_type_index
+create index transaction_type_index
   on inventory_transaction (transaction_type);
 
-create or replace table lot_sold
+create table lot_sold
 (
   id           bigint auto_increment
     primary key,
@@ -1778,7 +1744,7 @@ create or replace table lot_sold
     foreign key (sale_line_id) references sales_line (id)
 );
 
-create or replace table store_inventory
+create table store_inventory
 (
   id                         bigint auto_increment
     primary key,
@@ -1810,7 +1776,7 @@ create or replace table store_inventory
     foreign key (calendar_work_day) references warehouse_calendar (work_day)
 );
 
-create or replace table store_inventory_line
+create table store_inventory_line
 (
   id                   bigint auto_increment
     primary key,
@@ -1832,7 +1798,7 @@ create or replace table store_inventory_line
     foreign key (store_inventory_id) references store_inventory (id)
 );
 
-create or replace table third_party_sale_line
+create table third_party_sale_line
 (
   id                      bigint auto_increment
     primary key,
@@ -1857,7 +1823,7 @@ create or replace table third_party_sale_line
     foreign key (client_tiers_payant_id) references client_tiers_payant (id)
 );
 
-create or replace table invoice_payment_item
+create table invoice_payment_item
 (
   id                       bigint auto_increment
     primary key,
@@ -1867,11 +1833,11 @@ create or replace table invoice_payment_item
   third_party_sale_line_id bigint not null,
   constraint FK6rjhg3s15cyvb1wt5pl7athr2
     foreign key (third_party_sale_line_id) references third_party_sale_line (id),
-  constraint FKmbkjv7f6nw0ygcvmikcyu34mm
-    foreign key (invoice_payment_id) references invoice_payment (id)
+  constraint FKmhbj2xqnqn61nr4p8yxejj3iv
+    foreign key (invoice_payment_id) references payment_transaction (id)
 );
 
-create or replace table ticket
+create table ticket
 (
   code              varchar(50)          not null
     primary key,
@@ -1896,12 +1862,10 @@ create or replace table ticket
     foreign key (customer_id) references customer (id)
 );
 
-create or replace table warehouse_sequence
+create table warehouse_sequence
 (
   name      varchar(255)     not null
     primary key,
   increment int(4) default 1 null,
   seq_value int    default 0 null
 );
-
-

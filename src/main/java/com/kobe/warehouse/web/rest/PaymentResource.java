@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.repository.PaymentRepository;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
- * REST controller for managing {@link com.kobe.warehouse.domain.Payment}.
+ * REST controller for managing {@link SalePayment}.
  */
 @RestController
 @RequestMapping("/api")
@@ -57,12 +57,12 @@ public class PaymentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/payments")
-    public ResponseEntity<Payment> createPayment(@Valid @RequestBody Payment payment) throws URISyntaxException {
+    public ResponseEntity<SalePayment> createPayment(@Valid @RequestBody SalePayment payment) throws URISyntaxException {
         log.debug("REST request to save Payment : {}", payment);
         if (payment.getId() != null) {
             throw new BadRequestAlertException("A new payment cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Payment result = paymentRepository.save(payment);
+        SalePayment result = paymentRepository.save(payment);
         return ResponseEntity.created(new URI("/api/payments/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -78,12 +78,12 @@ public class PaymentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/payments")
-    public ResponseEntity<Payment> updatePayment(@Valid @RequestBody Payment payment) throws URISyntaxException {
+    public ResponseEntity<SalePayment> updatePayment(@Valid @RequestBody SalePayment payment) throws URISyntaxException {
         log.debug("REST request to update Payment : {}", payment);
         if (payment.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Payment result = paymentRepository.save(payment);
+        SalePayment result = paymentRepository.save(payment);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, payment.getId().toString()))
             .body(result);
@@ -97,9 +97,9 @@ public class PaymentResource {
      * body.
      */
     @GetMapping("/payments")
-    public ResponseEntity<List<Payment>> getAllPayments(Pageable pageable) {
+    public ResponseEntity<List<SalePayment>> getAllPayments(Pageable pageable) {
         log.debug("REST request to get a page of Payments");
-        Page<Payment> page = paymentRepository.findAll(pageable);
+        Page<SalePayment> page = paymentRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -112,9 +112,9 @@ public class PaymentResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/payments/{id}")
-    public ResponseEntity<Payment> getPayment(@PathVariable Long id) {
+    public ResponseEntity<SalePayment> getPayment(@PathVariable Long id) {
         log.debug("REST request to get Payment : {}", id);
-        Optional<Payment> payment = paymentRepository.findById(id);
+        Optional<SalePayment> payment = paymentRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(payment);
     }
 

@@ -16,15 +16,15 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, Long> {
-    void deleteByOrganismeId(Long organismeId);
+
 
     @Query(
-        value = "SELECT  SUM(p.amount) AS montant,p.typeFinancialTransaction AS type  FROM PaymentTransaction p WHERE   FUNCTION('DATE',p.createdAt) BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction"
+        value = "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type  FROM PaymentTransaction p WHERE   FUNCTION('DATE',p.createdAt) BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction"
     )
     List<MouvementCaisse> findMouvementsCaisse(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     @Query(
-        value = "SELECT  SUM(p.amount) AS montant,p.typeFinancialTransaction AS type,p.paymentMode.code AS modePaimentCode,p.paymentMode.libelle AS modePaimentLibelle   FROM PaymentTransaction p WHERE   FUNCTION('DATE',p.createdAt) BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction,p.paymentMode.code"
+        value = "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type,p.paymentMode.code AS modePaimentCode,p.paymentMode.libelle AS modePaimentLibelle   FROM PaymentTransaction p WHERE   FUNCTION('DATE',p.createdAt) BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction,p.paymentMode.code"
     )
     List<MouvementCaisseGroupByMode> findMouvementsCaisseGroupBYModeReglement(
         @Param("fromDate") LocalDate fromDate,

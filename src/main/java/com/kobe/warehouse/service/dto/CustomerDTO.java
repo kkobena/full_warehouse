@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Customer;
-import com.kobe.warehouse.domain.Payment;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class CustomerDTO {
     private int encours;
     private String categorie;
     private List<SaleDTO> sales = new ArrayList<>();
-    private Set<Payment> payments = new HashSet<>();
+    private Set<SalePayment> payments = new HashSet<>();
     private String code;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
@@ -149,11 +149,11 @@ public class CustomerDTO {
         return this;
     }
 
-    public Set<Payment> getPayments() {
+    public Set<SalePayment> getPayments() {
         return payments;
     }
 
-    public void setPayments(Set<Payment> payments) {
+    public void setPayments(Set<SalePayment> payments) {
         this.payments = payments;
     }
 

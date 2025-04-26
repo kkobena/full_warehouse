@@ -156,8 +156,8 @@ public class Sales implements Serializable, Cloneable {
     @ManyToOne(optional = false)
     private User caissier;
 
-    @OneToMany(mappedBy = "sales")
-    private Set<Payment> payments = new HashSet<>();
+    @OneToMany(mappedBy = "sale")
+    private Set<SalePayment> payments = new HashSet<>();
 
     @ManyToOne(optional = false)
     @NotNull
@@ -503,11 +503,11 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public Set<Payment> getPayments() {
+    public Set<SalePayment> getPayments() {
         return payments;
     }
 
-    public void setPayments(Set<Payment> payments) {
+    public void setPayments(Set<SalePayment> payments) {
         this.payments = payments;
     }
 

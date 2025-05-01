@@ -76,23 +76,34 @@ export class ComptantComponent {
   protected entryAmount?: number | null = null;
   protected canRemoveItem: boolean;
   protected canApplyDiscount: boolean;
-  private selectedCustomerService = inject(SelectedCustomerService);
-  private typePrescriptionService = inject(TypePrescriptionService);
-  private userCaissierService = inject(UserCaissierService);
-  private userVendeurService = inject(UserVendeurService);
-  private selectModeReglementService = inject(SelectModeReglementService);
-  private salesService = inject(SalesService);
-  private modalService = inject(NgbModal);
-  private confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
+  private readonly selectedCustomerService = inject(SelectedCustomerService);
+  private readonly typePrescriptionService = inject(TypePrescriptionService);
+  private readonly userCaissierService = inject(UserCaissierService);
+  private readonly userVendeurService = inject(UserVendeurService);
+  private readonly selectModeReglementService = inject(SelectModeReglementService);
+  private readonly salesService = inject(SalesService);
+  private readonly modalService = inject(NgbModal);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly dialogService = inject(DialogService);
+  private readonly baseSaleService = inject(BaseSaleService);
+  private readonly hasAuthorityService = inject(HasAuthorityService);
 
-  private baseSaleService = inject(BaseSaleService);
-  private hasAuthorityService = inject(HasAuthorityService);
+  //private readonly scanDetectorService = inject(ScanDetectorService);
 
   constructor() {
     this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
     this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
   }
+
+  /*
+    @HostListener('window:keypress', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+      const result = this.scanDetectorService.keyPressed(event.key);
+
+      if (result) {
+        console.log('SCAN détecté :', result);
+      }
+    }*/
 
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();

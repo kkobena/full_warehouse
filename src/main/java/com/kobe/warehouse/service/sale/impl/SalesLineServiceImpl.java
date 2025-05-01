@@ -27,7 +27,11 @@ import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -219,9 +223,6 @@ public class SalesLineServiceImpl implements SalesLineService {
         salesLine.setQuantityRequested(dto.getQuantityRequested());
         salesLine.setDiscountAmount(0);
         salesLine.setDiscountUnitPrice(0);
-        if (Objects.nonNull(produit.getCmuAmount())) {
-            salesLine.setCmuAmount(produit.getCmuAmount());
-        }
         processUg(salesLine, dto, stockageId);
         // processProductDiscount(salesLine);
         return salesLine;

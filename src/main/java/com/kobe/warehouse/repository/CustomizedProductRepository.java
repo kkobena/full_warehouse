@@ -34,7 +34,10 @@ import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitCriteria;
+import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.EntityManager;
@@ -56,7 +59,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,8 +234,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (StringUtils.hasLength(dto.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
-        produit.setCmuAmount(dto.getCmuAmount());
-
         produit.setUpdatedAt(LocalDateTime.now());
         Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
         buildRayonProduits(produit, dto, rayonProduits);

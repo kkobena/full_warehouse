@@ -32,8 +32,6 @@ import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
@@ -55,13 +53,10 @@ import { InputIcon } from 'primeng/inputicon';
     DatePicker,
     Select,
     FloatLabel,
-    IconField,
-    InputIcon,
   ],
   templateUrl: './visualisation-mvt-caisse.component.html',
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
-  protected search = '';
   protected mvtCaisses: MvtCaisse[] = [];
   protected mvtCaisseSum: MvtCaisseWrapper | null = null;
   protected totalItems = 0;
@@ -110,7 +105,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       this.selectedTypes = this.mvtParamServiceService.mvtCaisseParam().selectedTypes;
       this.selectedModes = this.mvtParamServiceService.mvtCaisseParam().paymentModes;
       this.selectedUser = this.mvtParamServiceService.mvtCaisseParam().selectedUser;
-      this.search = this.mvtParamServiceService.mvtCaisseParam().search;
     }
     this.loadModes();
     this.loadUsers();
@@ -230,7 +224,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
 
   private buildParams(): any {
     return {
-      search: this.search,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
       fromTime: this.fromTime,
@@ -268,7 +261,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       selectedTypes: this.selectedTypes,
       paymentModes: this.selectedModes,
       selectedUser: this.selectedUser,
-      search: this.search,
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -281,7 +273,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       params.selectedTypes = this.selectedTypes;
       params.paymentModes = this.selectedModes;
       params.selectedUser = this.selectedUser;
-      params.search = this.search;
       this.mvtParamServiceService.setMvtCaisseParam(params);
     } else {
       this.setParam();

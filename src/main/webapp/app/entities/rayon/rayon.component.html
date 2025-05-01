@@ -1,7 +1,8 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
 
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
+<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
+          header="Importer un fichier">
   <div class="pi-g form-group">
     <p-fileupload
       (uploadHandler)="onUpload($event)"
@@ -17,18 +18,22 @@
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
+              severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '500px' }" header="Message">
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{ width: '500px' }" header="Message">
   <div class="ui-g form-group">
     <p>
-      Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px"> {{ responsedto?.size }}</span>
+      Le nombre de lignes insérées <span
+      style="font-weight: 900; margin-left: 10px"> {{ responsedto?.size }}</span>
     </p>
   </div>
 </p-dialog>
-<p-dialog [(visible)]="dialogueClone" [focusOnShow]="false" [modal]="true" [style]="{ width: '500px' }" header="Message">
+<p-dialog [(visible)]="dialogueClone" [focusOnShow]="false" [modal]="true"
+          [style]="{ width: '500px' }" header="Message">
   <div class="ui-g form-group">
     <p-dropdown
       (onChange)="onCloneChange($event)"
@@ -45,10 +50,12 @@
 
   <ng-template pTemplate="footer">
     @if (clone) {
-      <p-button [raised]="true" (click)="clonerRayon()" icon="pi pi-check" label="Cloner les rayons" pButton type="button"></p-button>
+      <p-button [raised]="true" (click)="clonerRayon()" icon="pi pi-check" label="Cloner les rayons"
+                pButton type="button"></p-button>
     }
 
-    <p-button (click)="dialogueClone = false" icon="pi pi-times" label="Annuler" pButton severity="danger" type="button"></p-button>
+    <p-button (click)="dialogueClone = false" icon="pi pi-times" label="Annuler" pButton
+              severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
@@ -78,7 +85,8 @@
       <div class="p-toolbar-group-left">
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 100%" type="text" />
+          <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                 style="width: 100%" type="text" />
         </p-iconfield>
       </div>
       <div class="p-toolbar-group-right">
@@ -125,9 +133,7 @@
         <tr>
           <th scope="col"><span>Code</span></th>
           <th scope="col"><span>Libellé</span></th>
-          <!-- <th style="width: 3rem">
-             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-           </th>-->
+
           <th scope="col" style="text-align: center">Actions</th>
         </tr>
       </ng-template>
@@ -135,19 +141,14 @@
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
           <td>{{ elRow.code }}</td>
           <td>{{ elRow.libelle }}</td>
-          <!--<td>
-            <p-tableCheckbox [value]="elRow"></p-tableCheckbox>
-          </td>-->
-          <td style="text-align: right">
-            <p-button (click)="onEdit(elRow)" [rounded]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success" size="small">
-            </p-button>
-            <!--<button (click)="onBasculer(elRow)"
-                    class="btn btn-warning btn-sm" type="submit"><i
-              class="pi pi-reply"></i>
 
-              <span class="d-none d-md-inline" jhiTranslate="entity.action.basculer">Basculer</span>
-            </button>-->
-            <p-button (click)="delete(elRow)" [rounded]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger" size="small">
+          <td style="text-align: right">
+            <p-button (click)="onEdit(elRow)" [rounded]="true" icon="pi pi-pencil"
+                      pTooltip="Modifier" severity="success" size="small">
+            </p-button>
+
+            <p-button (click)="delete(elRow)" [rounded]="true" icon="pi pi-trash"
+                      pTooltip="Supprimer" severity="danger" size="small">
             </p-button>
           </td>
         </tr>

@@ -66,7 +66,7 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     public Page<LaboratoireDTO> findAll(String libelle, Pageable pageable) {
         log.debug("Request to get all Laboratoires");
         Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
-        if (!StringUtils.isEmpty(libelle)) {
+        if (StringUtils.hasLength(libelle)) {
             SpecificationBuilder<Laboratoire> builder = new SpecificationBuilder<>();
             Specification<Laboratoire> spec = builder
                 .with(new String[] { "libelle" }, libelle + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)

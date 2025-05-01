@@ -14,8 +14,6 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
-import com.kobe.warehouse.domain.Ticket;
-import com.kobe.warehouse.domain.Ticket_;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -139,7 +137,6 @@ public class SaleDataService {
         Root<Sales> root = cq.from(Sales.class);
         root.fetch(Sales_.SALES_LINES, JoinType.INNER);
         root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        root.fetch(Sales_.TICKETS, JoinType.LEFT);
         cq.select(root).distinct(true);
         cq.where(cb.equal(root.get(Sales_.id), id));
         TypedQuery<Sales> q = em.createQuery(cq);
@@ -153,7 +150,6 @@ public class SaleDataService {
         Root<Sales> root = cq.from(Sales.class);
         root.fetch(Sales_.SALES_LINES, JoinType.INNER);
         root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        root.fetch(Sales_.TICKETS, JoinType.LEFT);
         cq.select(root).distinct(true);
         cq.where(cb.equal(root.get(Sales_.id), id));
         TypedQuery<Sales> q = em.createQuery(cq);
@@ -509,8 +505,7 @@ public class SaleDataService {
         if (StringUtils.isNotEmpty(query)) {
             if (StringUtils.isNotEmpty(query)) {
                 query = query.toUpperCase() + "%";
-                SetJoin<Sales, Ticket> tickeSetJoin = root.joinSet(Sales_.TICKETS);
-                predicates.add(cb.or(cb.like(root.get(Sales_.numberTransaction), query), cb.like(tickeSetJoin.get(Ticket_.code), query)));
+                predicates.add(cb.like(root.get(Sales_.numberTransaction), query));
             }
         }
     }

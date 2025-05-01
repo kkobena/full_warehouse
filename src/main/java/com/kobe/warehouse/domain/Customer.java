@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,8 +18,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A Customer.
@@ -64,8 +61,6 @@ public class Customer implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
-
-
 
     @NotNull
     @Column(name = "code", nullable = false, unique = true)
@@ -123,8 +118,6 @@ public class Customer implements Serializable {
     public void setStatus(Status status) {
         this.status = status;
     }
-
-
 
     public @NotNull String getCode() {
         return code;
@@ -195,7 +188,6 @@ public class Customer implements Serializable {
         this.updatedAt = updatedAt;
         return this;
     }
-
 
     @Override
     public boolean equals(Object o) {

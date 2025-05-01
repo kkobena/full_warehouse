@@ -38,7 +38,6 @@ import org.springframework.util.StringUtils;
 @Transactional(readOnly = true)
 public class ReglementDataServiceImpl implements ReglementDataService {
 
-
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
@@ -106,9 +105,9 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     private List<InvoicePayment> fetchInvoicePayments(InvoicePaymentParam invoicePaymentParam) {
         var startDate = Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now() : invoicePaymentParam.dateDebut();
         var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate : invoicePaymentParam.dateFin();
-        Sort sort = Sort.by(Direction.ASC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
+        Sort sort = Sort.by(Direction.ASC, "createdAt").and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
         if (invoicePaymentParam.grouped()) {
-            sort = Sort.by(Direction.ASC, "created").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
+            sort = Sort.by(Direction.ASC, "createdAt").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
         }
         Specification<InvoicePayment> invoicePaymentSpecification = Specification.where(
             this.invoicePaymentRepository.periodeCriteria(startDate, endDate)

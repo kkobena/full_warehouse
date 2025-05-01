@@ -2,16 +2,13 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * A InvoicePayment.
@@ -36,7 +33,7 @@ public class InvoicePayment extends PaymentTransaction implements Serializable {
     @ManyToOne
     private Banque banque;
 
-    private boolean grouped ;
+    private boolean grouped;
 
     @OneToMany(mappedBy = "parent", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<InvoicePayment> invoicePayments = new ArrayList<>();

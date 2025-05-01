@@ -2,7 +2,6 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;

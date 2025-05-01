@@ -266,7 +266,6 @@ public class ImportationProduitService {
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
         produit.setPerimeAt(produitDTO.getPerimeAt());
-        produit.setCmuAmount(produitDTO.getCmuAmount());
         if (ObjectUtils.isNotEmpty(produitDTO.getTvaTaux())) {
             tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux()).ifPresent(produit::setTva);
         }
@@ -788,8 +787,6 @@ public class ImportationProduitService {
         produit.setCheckExpiryDate(false);
         produit.setQtyAppro(record.qtyReappro());
         produit.setQtySeuilMini(record.seuil());
-        produit.setCmuAmount(record.cmu());
-
         if (org.springframework.util.StringUtils.hasText(record.codeRemise())) {
             produit.setCodeRemise(CodeRemise.fromValue(record.codeRemise()));
         }

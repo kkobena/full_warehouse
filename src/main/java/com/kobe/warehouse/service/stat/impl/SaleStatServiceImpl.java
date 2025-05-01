@@ -35,7 +35,7 @@ public class SaleStatServiceImpl implements SaleStatService {
     }
 
     private VenteRecord getCaByPeriode(VenteRecordParamDTO venteRecordParamDTO, Pair<LocalDate, LocalDate> periode) {
-        Tuple tuple = getCaQuery(VenteStatQueryBuilder.PERIOQIQUE_CA_QUERY, venteRecordParamDTO, periode.getLeft(), periode.getRight());
+        Tuple tuple = getCaQuery(venteRecordParamDTO, periode.getLeft(), periode.getRight());
         if (Objects.nonNull(tuple)) {
             return VenteStatQueryBuilder.buildVenteRecord(tuple);
         }
@@ -57,9 +57,12 @@ public class SaleStatServiceImpl implements SaleStatService {
         return this.buildPeriode(venteRecordParamDTO);
     }
 
-    private Tuple getCaQuery(String sql, VenteRecordParamDTO venteRecordParamDTO, LocalDate fromDate, LocalDate toDate) {
+    private Tuple getCaQuery(VenteRecordParamDTO venteRecordParamDTO, LocalDate fromDate, LocalDate toDate) {
         try {
-            return (Tuple) this.em.createNativeQuery(buildQuery(sql, venteRecordParamDTO), Tuple.class)
+            return (Tuple) this.em.createNativeQuery(
+                    buildQuery(VenteStatQueryBuilder.PERIOQIQUE_CA_QUERY, venteRecordParamDTO),
+                    Tuple.class
+                )
                 .setParameter(1, java.sql.Date.valueOf(fromDate))
                 .setParameter(2, java.sql.Date.valueOf(toDate))
                 .setParameter(3, List.of(venteRecordParamDTO.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name()))

@@ -10,7 +10,6 @@ import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.Ticket;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
@@ -29,7 +28,6 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -88,7 +86,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final ThirdPartySaleRepository thirdPartySaleRepository;
     private final AssuredCustomerRepository assuredCustomerRepository;
     private final PaymentService paymentService;
-    private final TicketService ticketService;
     private final CashSaleRepository cashSaleRepository;
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
@@ -99,7 +96,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ClientTiersPayantRepository clientTiersPayantRepository,
         TiersPayantRepository tiersPayantRepository,
-        TicketService ticketService,
         SalesLineService salesLineService,
         StorageService storageService,
         ThirdPartySaleRepository thirdPartySaleRepository,
@@ -130,7 +126,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.tiersPayantRepository = tiersPayantRepository;
-        this.ticketService = ticketService;
         this.salesLineService = salesLineService;
         this.storageService = storageService;
         this.thirdPartySaleRepository = thirdPartySaleRepository;
@@ -400,8 +395,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 sales.setLastUserEdit(user);
                 thirdPartySaleRepository.save(sales);
                 thirdPartySaleRepository.save(copy);
-                List<Ticket> tickets = ticketService.findAllBySaleId(sales.getId());
-                paymentService.findAllBySalesId(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, tickets, copy));
+                paymentService.findAllBySalesId(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
                 salesLineService.cloneSalesLine(
                     sales.getSalesLines(),
                     copy,
@@ -423,9 +417,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         User user = storageService.getUser();
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.save(p, dto);
-        Ticket ticket = ticketService.buildTicket(p, dto, user, buildTvaData(p.getSalesLines()));
-        paymentService.buildPaymentFromFromPaymentDTO(p, dto, ticket, user);
-        p.setTvaEmbeded(ticket.getTva());
+        p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
+        paymentService.buildPaymentFromFromPaymentDTO(p, dto);
+
         List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
         if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
             throw new ThirdPartySalesTiersPayantException();
@@ -481,7 +475,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .findOneWithEagerSalesLines(id)
             .ifPresent(sales -> {
                 paymentService.findAllBySalesId(sales.getId()).forEach(paymentService::delete);
-                ticketService.findAllBySaleId(sales.getId()).forEach(ticketService::delete);
                 sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
                 thirdPartySaleRepository.delete(sales);
             });
@@ -912,12 +905,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
-        User user = storageService.getUser();
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.editSale(p, dto);
-        Ticket ticket = ticketService.buildTicket(p, dto, user, buildTvaData(p.getSalesLines()));
-        paymentService.buildPaymentFromFromPaymentDTO(p, dto, ticket, user);
-        p.setTvaEmbeded(ticket.getTva());
+        paymentService.buildPaymentFromFromPaymentDTO(p, dto);
+        p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
         List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
         if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
             throw new ThirdPartySalesTiersPayantException();

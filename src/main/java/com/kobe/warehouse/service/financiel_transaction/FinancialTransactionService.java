@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 
 public interface FinancialTransactionService {
     default List<Pair> getTypes() {
@@ -29,8 +28,6 @@ public interface FinancialTransactionService {
     Page<FinancialTransactionDTO> findAll(FinancielTransactionFilterDTO financielTransactionFilter, Pageable pageable);
 
     Page<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter, Pageable pageable);
-
-    List<MvtCaisseDTO> findAll(TransactionFilterDTO transactionFilter);
 
     MvtCaisseWrapper getMvtCaisseSum(TransactionFilterDTO transactionFilter);
 

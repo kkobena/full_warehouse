@@ -30,7 +30,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
     );
 
     @Query(
-        value = "SELECT SUM(p.paid_amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,s.dtype AS typeVente FROM  sales s join payment p ON s.id = p.sales_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle",
+        value = "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction AS typeTransaction FROM  sales s join payment_transaction p ON s.id = p.sale_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle",
         nativeQuery = true
     )
     List<CashRegisterVenteSpecialisation> findCashRegisterSalesDataById(
@@ -40,13 +40,14 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
     );
 
     @Query(
-        value = "SELECT SUM(p.amount) as paidAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id" +
-        " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle",
+        value = "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id" +
+        " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE p.dtype NOT IN(:transactionTypes) AND cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle",
         nativeQuery = true
     )
     List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(
         @Param("cashRegisterId") Long cashRegisterId,
-        @Param("categorieChiffreAffaires") Set<Integer> categorieChiffreAffaires
+        @Param("categorieChiffreAffaires") Set<Integer> categorieChiffreAffaires,
+        @Param("transactionTypes") Set<String> transactionTypes
     );
 
     default Specification<CashRegister> specialisation(Long userId) {

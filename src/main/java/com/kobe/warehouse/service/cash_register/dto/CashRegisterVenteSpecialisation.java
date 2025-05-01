@@ -1,5 +1,11 @@
 package com.kobe.warehouse.service.cash_register.dto;
 
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+
 public interface CashRegisterVenteSpecialisation extends CashRegisterSpecialisation {
-    String getTypeVente();
+    Byte getTypeTransaction();
+
+    default TypeFinancialTransaction getTypeVente() {
+        return TypeFinancialTransaction.values()[getTypeTransaction()];
+    }
 }

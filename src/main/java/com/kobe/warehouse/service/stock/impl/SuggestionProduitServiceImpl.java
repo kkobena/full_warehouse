@@ -1,15 +1,24 @@
 package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.config.FileStorageProperties;
-import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.Suggestion;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
-import com.kobe.warehouse.service.*;
+import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.EtatProduitService;
+import com.kobe.warehouse.service.ReferenceService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
@@ -25,7 +34,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -46,7 +60,7 @@ import org.springframework.util.StringUtils;
 public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SuggestionProduitServiceImpl.class);
-    private final ProductStateService productStateService;
+
     private final SuggestionRepository suggestionRepository;
     private final SuggestionLineRepository suggestionLineRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;
@@ -58,7 +72,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     private final Path fileStorageLocation;
 
     public SuggestionProduitServiceImpl(
-        ProductStateService productStateService,
         SuggestionRepository suggestionRepository,
         SuggestionLineRepository suggestionLineRepository,
         FournisseurProduitRepository fournisseurProduitRepository,
@@ -69,7 +82,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         CommandService commandService,
         FileStorageProperties fileStorageProperties
     ) {
-        this.productStateService = productStateService;
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
@@ -99,12 +111,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     values.forEach(quantitySuggestion -> {
                         StockProduit stockProduit = quantitySuggestion.stockProduit();
                         Produit produit = quantitySuggestion.produit();
-                        Set<ProductStateEnum> productStates = productStateService.getProductStateByProduitId(produit.getId());
-                        if (
-                            !productStates.containsAll(
-                                Set.of(ProductStateEnum.COMMANDE_EN_COURS, ProductStateEnum.ENTREE, ProductStateEnum.COMMANDE_PASSE)
-                            )
-                        ) {
+
+                        if (etatProduitService.canSuggere(produit.getId())) {
                             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
 
                             int quantitySold = quantitySuggestion.quantitySold();
@@ -114,9 +122,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                             }
                             int currentStock = stockProduit.getTotalStockQuantity() - quantitySold;
                             if (currentStock <= produit.getQtySeuilMini()) {
-                                if (!productStateService.existsByStateAndProduitId(ProductStateEnum.SUGGESTION, produit.getId())) {
-                                    productStateService.addState(produit, ProductStateEnum.SUGGESTION);
-                                }
                                 saveSuggestionLine(produit, stockProduit, fournisseurProduit, suggestion);
                             }
                         }

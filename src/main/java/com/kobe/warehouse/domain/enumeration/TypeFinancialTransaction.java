@@ -14,7 +14,8 @@ public enum TypeFinancialTransaction {
         "Règlement facture fournisseur",
         CategorieTransaction.SORTIE_CAISSE,
         TransactionTypeAffichage.REGLEMENT_FOURNISSEUR
-    );
+    ),
+    CAUTION("Caution", CategorieTransaction.ENTREE, TransactionTypeAffichage.DEPOT_CAUTION);
 
     private final String value;
     private final CategorieTransaction categorieTransaction;

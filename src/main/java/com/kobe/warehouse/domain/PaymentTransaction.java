@@ -3,7 +3,20 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,11 +24,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * A Payment.
+ * A PaymentTransaction.
  */
 @Entity
 @Table(name = "payment_transaction", indexes = { @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 public class PaymentTransaction implements Serializable {
 
     @Serial
@@ -24,12 +38,15 @@ public class PaymentTransaction implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(name = "expected_amount", nullable = false)
     private Integer expectedAmount;
+
     @NotNull
     @Column(name = "paid_amount", nullable = false)
     private Integer paidAmount;
+
     @NotNull
     @Column(name = "reel_amount", nullable = false)
     private Integer reelAmount;
@@ -65,6 +82,11 @@ public class PaymentTransaction implements Serializable {
     @Column(name = "type_transaction", nullable = false)
     private TypeFinancialTransaction typeFinancialTransaction;
 
+    private String commentaire;
+
+    @Column(name = "dtype", insertable = false, updatable = false)
+    private String type;
+
     public Integer getExpectedAmount() {
         return expectedAmount;
     }
@@ -72,6 +94,14 @@ public class PaymentTransaction implements Serializable {
     public PaymentTransaction setExpectedAmount(Integer expectedAmount) {
         this.expectedAmount = expectedAmount;
         return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Integer getPaidAmount() {
@@ -109,8 +139,6 @@ public class PaymentTransaction implements Serializable {
         this.transactionDate = transactionDate;
         return this;
     }
-
-    private String commentaire;
 
     public String getCommentaire() {
         return commentaire;
@@ -152,8 +180,6 @@ public class PaymentTransaction implements Serializable {
         this.id = id;
     }
 
-
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -171,7 +197,6 @@ public class PaymentTransaction implements Serializable {
         return this;
     }
 
-
     public CashRegister getCashRegister() {
         return cashRegister;
     }
@@ -180,8 +205,6 @@ public class PaymentTransaction implements Serializable {
         this.cashRegister = cashRegister;
         return this;
     }
-
-
 
     public CategorieChiffreAffaire getCategorieChiffreAffaire() {
         return categorieChiffreAffaire;

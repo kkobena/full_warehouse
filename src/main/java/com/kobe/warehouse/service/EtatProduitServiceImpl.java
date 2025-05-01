@@ -40,6 +40,16 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         return buildEtatProduit(produit.getId(), currentStock);
     }
 
+    @Override
+    public boolean canSuggere(Long idProduit) {
+        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
+        boolean entree = deliveryReceiptItemRepository.existsByFournisseurProduitProduitIdAndDeliveryReceiptReceiptStatut(
+            idProduit,
+            ReceiptStatut.PENDING
+        );
+        return commandeCount == 0 && !entree;
+    }
+
     private EtatProduit buildEtatProduit(Long idProduit, int currentStock) {
         boolean stockPositif = currentStock > 0;
         boolean stockNegatif = currentStock < 0;

@@ -2,14 +2,13 @@ package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.Ticket;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
@@ -26,7 +25,6 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.TicketService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -50,7 +48,6 @@ import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +69,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final CashSaleRepository cashSaleRepository;
     private final SalesLineService salesLineService;
     private final PaymentService paymentService;
-    private final TicketService ticketService;
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
 
@@ -86,7 +82,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         CashRegisterService cashRegisterService,
         SalesLineService salesLineService,
         PaymentService paymentService,
-        TicketService ticketService,
         ReferenceService referenceService,
         WarehouseCalendarService warehouseCalendarService,
         AvoirService avoirService,
@@ -114,7 +109,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.cashSaleRepository = cashSaleRepository;
         this.salesLineService = salesLineService;
         this.paymentService = paymentService;
-        this.ticketService = ticketService;
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
     }
@@ -331,16 +325,12 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public FinalyseSaleDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
-        // cashRegisterService.checkIfCashRegisterIsOpen(user, storageService.getSystemeUser());
         CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.save(cashSale, dto);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
-        // if (Objects.nonNull(uninsuredCustomer)) {
         cashSale.setCustomer(uninsuredCustomer);
-        // }
-        Ticket ticket = ticketService.buildTicket(dto, cashSale, cashSale.getUser(), buildTvaData(cashSale.getSalesLines()));
-        paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, ticket, cashSale.getUser());
-        cashSale.setTvaEmbeded(ticket.getTva());
+        cashSale.setTvaEmbeded(buildTvaData(cashSale.getSalesLines()));
+        paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto);
         salesRepository.save(cashSale);
         displayMonnaie(dto.getMontantRendu());
 
@@ -384,7 +374,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             .findOneWithEagerSalesLines(id)
             .ifPresent(sales -> {
                 paymentService.findAllBySalesId(sales.getId()).forEach(paymentService::delete);
-                ticketService.findAllBySaleId(sales.getId()).forEach(ticketService::delete);
                 sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
                 salesRepository.delete(sales);
             });
@@ -404,8 +393,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                 sales.setLastUserEdit(user);
                 cashSaleRepository.save(sales);
                 cashSaleRepository.save(copy);
-                List<Ticket> tickets = ticketService.findAllBySaleId(sales.getId());
-                paymentService.findAllBySalesId(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, tickets, copy));
+                paymentService.findAllBySalesId(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
                 salesLineService.cloneSalesLine(
                     sales.getSalesLines(),
                     copy,
@@ -441,7 +429,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         copy.setUser(sales.getUser());
         copy.setLastUserEdit(storageService.getUser());
         copy.setPayments(Collections.emptySet());
-        copy.setTickets(Collections.emptySet());
         copy.setSalesLines(Collections.emptySet());
     }
 

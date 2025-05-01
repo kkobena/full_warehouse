@@ -1,14 +1,17 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.OrderLineService;
-import com.kobe.warehouse.service.ProductStateService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -30,20 +33,17 @@ public class OrderLineServiceImpl implements OrderLineService {
     private final FournisseurProduitService fournisseurProduitService;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
-    private final ProductStateService productStateService;
 
     public OrderLineServiceImpl(
         OrderLineRepository orderLineRepository,
         FournisseurProduitService fournisseurProduitService,
         ProduitRepository produitRepository,
-        CustomizedProductService customizedProductService,
-        ProductStateService productStateService
+        CustomizedProductService customizedProductService
     ) {
         this.orderLineRepository = orderLineRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
-        this.productStateService = productStateService;
     }
 
     @Override
@@ -65,10 +65,6 @@ public class OrderLineServiceImpl implements OrderLineService {
             createNewFournisseurProduit(orderLineDTO, produit)
         );
         OrderLine orderLine = buildOrderLine(orderLineDTO, fournisseurProduit);
-        //  updateProduitParcours(produit, ParcoursProduitStatut.COMMANDE_EN_COURS);
-        if (!this.productStateService.existsByStateAndProduitId(ProductStateEnum.COMMANDE_EN_COURS, orderLineDTO.getProduitId())) {
-            this.productStateService.addState(produit, ProductStateEnum.COMMANDE_EN_COURS);
-        }
 
         produitRepository.save(produit);
         return orderLine;
@@ -163,53 +159,18 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public void deleteOrderLine(OrderLine orderLine) {
-        removeProductState(orderLine.getFournisseurProduit().getProduit(), orderLine.getCommande().getOrderStatus());
         orderLineRepository.delete(orderLine);
     }
 
     @Override
-    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {
-        produits.forEach(produit -> removeProductState(produit, orderStatut));
-    }
+    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {}
 
     @Override
-    public void rollbackProductState(List<Produit> produits) {
-        produits.forEach(this::rollbackProductState);
-    }
+    public void rollbackProductState(List<Produit> produits) {}
 
     @Override
     public int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId) {
         return this.orderLineRepository.countByCommandeOrderStatusAndFournisseurProduitProduitId(orderStatut, produitId);
-    }
-
-    private void rollbackProductState(Produit produit) {
-        int count = this.countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut.PASSED, produit.getId());
-        if (count == 1) {
-            this.productStateService.removeByProduitAndState(produit, ProductStateEnum.COMMANDE_PASSE);
-        }
-        addProductStateEnCours(produit);
-    }
-
-    private void addProductStateEnCours(Produit produit) {
-        if (!this.productStateService.existsByStateAndProduitId(ProductStateEnum.COMMANDE_EN_COURS, produit.getId())) {
-            this.productStateService.addState(produit, ProductStateEnum.COMMANDE_EN_COURS);
-        }
-    }
-
-    private void removeProductState(Produit produit, OrderStatut orderStatut) {
-        int count = this.orderLineRepository.countByCommandeOrderStatusAndFournisseurProduitProduitId(orderStatut, produit.getId());
-        if (count == 1) {
-            switch (orderStatut) {
-                case PASSED:
-                    this.productStateService.removeByProduitAndState(produit, ProductStateEnum.COMMANDE_PASSE);
-                    break;
-                case REQUESTED:
-                    this.productStateService.removeByProduitAndState(produit, ProductStateEnum.COMMANDE_EN_COURS);
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     private FournisseurProduit createNewFournisseurProduit(OrderLineDTO orderLineDTO, Produit produit) throws GenericError {
@@ -263,16 +224,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setProvisionalCode(Boolean.FALSE);
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.save(orderLine);
-    }
-
-    @Override
-    public void updateRequestedLineToPassedLine(List<OrderLine> orderLines) {
-        OrderStatut orderStatut = orderLines.getFirst().getCommande().getOrderStatus();
-
-        orderLines.forEach(orderLine -> {
-            removeProductState(orderLine.getFournisseurProduit().getProduit(), orderStatut);
-            this.productStateService.addState(orderLine.getFournisseurProduit().getProduit(), ProductStateEnum.COMMANDE_PASSE);
-        });
     }
 
     @Override

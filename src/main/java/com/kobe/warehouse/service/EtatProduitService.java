@@ -7,4 +7,6 @@ public interface EtatProduitService {
     EtatProduit getEtatProduit(Long idProduit, int currentStock);
 
     EtatProduit getEtatProduit(Produit produit);
+
+    boolean canSuggere(Long idProduit);
 }

@@ -150,6 +150,11 @@ const routes: Routes = [
     data: { pageTitle: 'Réglement de facture' },
     loadChildren: () => import('./reglement/reglement.route'),
   },
+  {
+    path: 'gestion-differe',
+    data: { pageTitle: 'Gestion des différés' },
+    loadChildren: () => import('./differes/differe.route'),
+  },
 ];
 
 export default routes;

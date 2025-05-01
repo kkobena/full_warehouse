@@ -1,7 +1,11 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.SalePayment;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentModeRepository;
@@ -22,17 +26,13 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentModeRepository paymentModeRepository;
 
-    public PaymentServiceImpl(
-        PaymentRepository paymentRepository,
-        PaymentModeRepository paymentModeRepository
-    ) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository) {
         this.paymentRepository = paymentRepository;
         this.paymentModeRepository = paymentModeRepository;
     }
 
     @Override
-    public void clonePayment(SalePayment payment, List<Ticket> tickets, Sales copy) {
-
+    public void clonePayment(SalePayment payment, Sales copy) {
         SalePayment paymentCopy = (SalePayment) payment.clone();
         paymentCopy.setId(null);
         paymentCopy.setCreatedAt(copy.getCreatedAt());
@@ -57,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
         saleDTO
             .getPayments()
             .forEach(paymentDTO -> {
-                SalePayment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, null);
+                SalePayment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO);
                 paymentRepository.save(payment);
                 payments.add(payment);
             });
@@ -65,11 +65,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, Ticket ticket, User user) {
+    public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        saleDTO
-            .getPayments()
-            .forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO, user, ticket)));
+        saleDTO.getPayments().forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
     }
 
     private void removeOldPayment(Sales sales) {
@@ -88,7 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.delete(payment);
     }
 
-    private SalePayment buildPaymentFromFromPaymentDTO(Sales sales, PaymentDTO paymentDTO, User user, Ticket ticket) {
+    private SalePayment buildPaymentFromFromPaymentDTO(Sales sales, PaymentDTO paymentDTO) {
         SalePayment payment = new SalePayment();
         payment.setCreatedAt(LocalDateTime.now());
         payment.setSale(sales);
@@ -112,6 +110,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
         if (sales instanceof CashSale) {
             payment.setTypeFinancialTransaction(TypeFinancialTransaction.CASH_SALE);
+            payment.setPartTiersPayant(0);
+            payment.setPartAssure(0);
         }
         return payment;
     }

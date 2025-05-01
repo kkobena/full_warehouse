@@ -61,8 +61,6 @@ public abstract class AbstractReglementService implements ReglementService {
         this.banqueRepository = banqueRepository;
     }
 
-
-
     protected CashRegister getCashRegister() {
         var user = userService.getUser();
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
@@ -93,15 +91,14 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
-        InvoicePayment invoice= new InvoicePayment()
+        InvoicePayment invoice = new InvoicePayment()
             .setBanque(buildBanque(reglementParam.getBanqueInfo()))
             .setFactureTiersPayant(factureTiersPayant);
         invoice
             .setCashRegister(getCashRegister())
             .setMontantVerse(reglementParam.getAmount())
             .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
-        invoice
-            .setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
+        invoice.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
         return invoice;
     }
 

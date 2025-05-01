@@ -7,13 +7,11 @@ import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.ProductState;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ProductStateEnum;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
@@ -26,7 +24,6 @@ import com.kobe.warehouse.repository.WarehouseSequenceRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
-import com.kobe.warehouse.service.ProductStateService;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
@@ -86,7 +83,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final WarehouseSequenceRepository warehouseSequenceRepository;
     private final FournisseurRepository fournisseurRepository;
     private final OrderLineService orderLineService;
-    private final ProductStateService productStateService;
+
     private final WarehouseCalendarService warehouseCalendarService;
     private final ImportationEchoueService importationEchoueService;
     private final TvaRepository tvaRepository;
@@ -136,7 +133,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         WarehouseSequenceRepository warehouseSequenceRepository,
         FournisseurRepository fournisseurRepository,
         OrderLineService orderLineService,
-        ProductStateService productStateService,
         WarehouseCalendarService warehouseCalendarService,
         ImportationEchoueService importationEchoueService,
         TvaRepository tvaRepository
@@ -153,7 +149,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         this.fournisseurRepository = fournisseurRepository;
         this.orderLineService = orderLineService;
-        this.productStateService = productStateService;
+
         this.warehouseCalendarService = warehouseCalendarService;
         this.importationEchoueService = importationEchoueService;
         this.tvaRepository = tvaRepository;
@@ -247,7 +243,6 @@ public class StockEntryServiceImpl implements StockEntryService {
                     )
                 );
                 produit.setUpdatedAt(LocalDateTime.now());
-                updateProductState(produit);
                 produitService.update(produit);
             });
         logsService.create(
@@ -378,28 +373,11 @@ public class StockEntryServiceImpl implements StockEntryService {
         receiptItem.setTaxAmount(0);
         receiptItem.setQuantityReturned(0);
         receiptItem.setCostAmount(orderLine.getCostAmount());
-        setProductState(fournisseurProduit.getProduit());
+
         receiptItem = deliveryReceiptItemRepository.save(receiptItem);
         this.lotService.addLot(orderLine.getLots(), receiptItem);
 
         return receiptItem;
-    }
-
-    private void setProductState(Produit produit) {
-        List<ProductState> productStates = this.productStateService.fetchByProduitAndState(produit, ProductStateEnum.COMMANDE_EN_COURS);
-        if (!CollectionUtils.isEmpty(productStates)) {
-            if (productStates.size() == 1) {
-                productStates.forEach(this.productStateService::remove);
-            } else {
-                this.productStateService.remove(productStates.getFirst());
-            }
-        }
-        if (this.orderLineService.countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut.REQUESTED, produit.getId()) <= 1) {
-            this.productStateService.removeByProduitAndState(produit, ProductStateEnum.COMMANDE_EN_COURS);
-        }
-        if (!this.productStateService.getProductStateByProduitId(produit.getId()).contains(ProductStateEnum.ENTREE)) {
-            this.productStateService.addState(produit, ProductStateEnum.ENTREE);
-        }
     }
 
     private String buildDeliveryReceiptNumberTransaction() {
@@ -570,7 +548,6 @@ public class StockEntryServiceImpl implements StockEntryService {
                     )
                 );
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
-        setProductState(fournisseurProduit.getProduit());
     }
 
     private void updateDeliveryReceiptAmountDuringUploading(
@@ -1153,21 +1130,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         }
 
         fournisseurProduitService.update(fournisseurProduit);
-    }
-
-    private void updateProductState(Produit produit) {
-        List<ProductState> productStates = this.productStateService.fetchByProduit(produit);
-        if (!CollectionUtils.isEmpty(productStates)) {
-            if (productStates.size() == 1) {
-                productStates.forEach(this.productStateService::remove);
-            } else {
-                productStates
-                    .stream()
-                    .filter(s -> s.getState() == ProductStateEnum.ENTREE)
-                    .limit(1)
-                    .forEach(this.productStateService::remove);
-            }
-        }
     }
 
     private int skipFirstLigne(CSVRecord cSVRecord, int index) {

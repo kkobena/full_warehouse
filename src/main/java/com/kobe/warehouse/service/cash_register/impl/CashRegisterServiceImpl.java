@@ -25,6 +25,7 @@ import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisat
 import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
+import com.kobe.warehouse.service.financiel_transaction.dto.PaymentType;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -179,29 +180,26 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
         salesData
             .stream()
-            .collect(Collectors.groupingBy(e -> this.getTypeVenteFromLibelle(e.getTypeVente())))
-            .forEach((typeVente, data) -> {
-                TypeFinancialTransaction typeFinancialTransaction =
-                    switch (typeVente) {
-                        case CASH_SALE -> TypeFinancialTransaction.CASH_SALE;
-                        case CREDIT_SALE -> TypeFinancialTransaction.CREDIT_SALE;
-                        case VENTES_DEPOTS -> TypeFinancialTransaction.VENTES_DEPOTS;
-                        case VENTES_DEPOT_AGREE -> TypeFinancialTransaction.VENTES_DEPOTS_AGREE;
-                    };
+            .collect(Collectors.groupingBy(CashRegisterVenteSpecialisation::getTypeVente))
+            .forEach((typeFinancialTransaction, data) -> {
                 buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
             });
     }
 
     private void buildTransactions(CashRegister cashRegister) {
         List<CashRegisterTransactionSpecialisation> mvtData =
-            this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.ordinal()));
+            this.cashRegisterRepository.findCashRegisterMvtDataById(
+                    cashRegister.getId(),
+                    Set.of(CategorieChiffreAffaire.CA.ordinal()),
+                    Set.of(PaymentType.SalePayment.name(), PaymentType.PaymentFournisseur.name())
+                );
         mvtData
             .stream()
             .collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction))
             .forEach((typeTransaction, data) -> {
                 TypeFinancialTransaction typeFinancialTransaction =
                     switch (typeTransaction) {
-                        case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, VENTES_DEPOTS_AGREE -> null;
+                        case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, VENTES_DEPOTS_AGREE, CAUTION -> null;
                         case REGLEMENT_DIFFERE -> TypeFinancialTransaction.REGLEMENT_DIFFERE;
                         case REGLEMENT_TIERS_PAYANT -> TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT;
                         case SORTIE_CAISSE -> TypeFinancialTransaction.SORTIE_CAISSE;

@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
 import { RemiseService } from '../remise.service';
 import { ToastModule } from 'primeng/toast';
@@ -21,7 +21,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ITva } from '../../../shared/model/tva.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 
@@ -124,7 +123,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
           rayonId: this.selectedRayon,
         })
         .subscribe({
-          next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => this.onError(),
         });
     }

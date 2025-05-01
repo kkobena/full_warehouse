@@ -114,9 +114,10 @@ public class Produit implements Serializable {
     @Column(name = "item_regular_unit_price", nullable = false)
     private Integer itemRegularUnitPrice = 0;
 
-    @Min(value = 0)
-    @Column(name = "prix_reference")
-    private Integer prixRererence;
+    @NotAudited
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "prix_reference")
+    private List<PrixRererence> prixReference = new ArrayList<>();
 
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
@@ -211,10 +212,6 @@ public class Produit implements Serializable {
     @ManyToOne
     private Tableau tableau;
 
-    @Min(value = 0)
-    @Column(name = "cmu_amount", columnDefinition = "int default '0'")
-    private Integer cmuAmount = 0;
-
     /*
     seuil minimun en point de vente pour declencher un reassort
      */
@@ -272,12 +269,12 @@ public class Produit implements Serializable {
     return this;
   }*/
 
-    public @Min(value = 0) Integer getPrixRererence() {
-        return prixRererence;
+    public List<PrixRererence> prixReference() {
+        return prixReference;
     }
 
-    public void setPrixRererence(@Min(value = 0) Integer prixRererence) {
-        this.prixRererence = prixRererence;
+    public void setPrixReference(List<PrixRererence> prixReference) {
+        this.prixReference = prixReference;
     }
 
     public Dci getDci() {
@@ -559,15 +556,6 @@ public class Produit implements Serializable {
 
     public Produit setTableau(Tableau tableau) {
         this.tableau = tableau;
-        return this;
-    }
-
-    public @Min(value = 0) Integer getCmuAmount() {
-        return cmuAmount;
-    }
-
-    public Produit setCmuAmount(Integer cmuAmount) {
-        this.cmuAmount = cmuAmount;
         return this;
     }
 

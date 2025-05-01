@@ -52,7 +52,11 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
 
     default Specification<InvoicePayment> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) ->
-            cb.between(cb.function("DATE", LocalDate.class, root.get(InvoicePayment_.createdAt)), cb.literal(startDate), cb.literal(endDate));
+            cb.between(
+                cb.function("DATE", LocalDate.class, root.get(InvoicePayment_.createdAt)),
+                cb.literal(startDate),
+                cb.literal(endDate)
+            );
     }
 
     default Specification<InvoicePayment> invoicesTypePredicats(boolean grouped) {
@@ -66,9 +70,9 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
     }
 
     @Query(
-        value = "SELECT tp.full_name AS libelle,tp.categorie AS type,f.num_facture,it.montantReglement,it.montantFacture FROM  invoice_payment p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id JOIN (SELECT s.facture_tiers_payant_id, SUM(s.montant_regle) AS montantReglement,SUM(s.montant) AS montantFacture FROM third_party_sale_line s" +
-        " GROUP BY s.facture_tiers_payant_id) AS it ON it.facture_tiers_payant_id=f.id WHERE DATE(p.created)  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
-        countQuery = "SELECT COUNT(p.id) FROM  invoice_payment p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id WHERE DATE(p.created)  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
+        value = "SELECT tp.full_name AS libelle,tp.categorie AS type,f.num_facture,it.montantReglement,it.montantFacture FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id JOIN (SELECT s.facture_tiers_payant_id, SUM(s.montant_regle) AS montantReglement,SUM(s.montant) AS montantFacture FROM third_party_sale_line s" +
+        " GROUP BY s.facture_tiers_payant_id) AS it ON it.facture_tiers_payant_id=f.id WHERE DATE(p.created_at)  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
+        countQuery = "SELECT COUNT(p.id) FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id WHERE DATE(p.created_at)  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
         nativeQuery = true
     )
     Page<ReglementTiersPayants> findReglementTierspayant(

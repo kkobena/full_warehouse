@@ -75,7 +75,6 @@ public class SaleDTO implements Serializable {
     private UserDTO cassier, seller;
     private Long cassierId;
     private Long sellerId;
-    private List<TicketDTO> tickets = new ArrayList<>();
     private String caisseEndNum;
     private String caisseNum;
     private String categorie;
@@ -563,15 +562,6 @@ public class SaleDTO implements Serializable {
 
     public SaleDTO setSellerId(Long sellerId) {
         this.sellerId = sellerId;
-        return this;
-    }
-
-    public List<TicketDTO> getTickets() {
-        return tickets;
-    }
-
-    public SaleDTO setTickets(List<TicketDTO> tickets) {
-        this.tickets = tickets;
         return this;
     }
 

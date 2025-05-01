@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
+import com.kobe.warehouse.domain.PrixRererence;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,7 +53,6 @@ public class ProduitDTO {
     private String laboratoireLibelle;
     private Long formeId;
     private String formeLibelle;
-
     private String typeEtiquetteLibelle;
     private Long familleId;
     private String familleLibelle;
@@ -72,8 +72,7 @@ public class ProduitDTO {
     private String rayonLibelle;
     private long rayonId;
     private long storageId;
-
-    private Integer cmuAmount;
+    private List<PrixRererence> prixReference = new ArrayList<>();
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -595,6 +594,14 @@ public class ProduitDTO {
         return this;
     }
 
+    public List<PrixRererence> prixReference() {
+        return prixReference;
+    }
+
+    public void setPrixReference(List<PrixRererence> prixReference) {
+        this.prixReference = prixReference;
+    }
+
     public int getQtyReserve() {
         return qtyReserve;
     }
@@ -655,19 +662,6 @@ public class ProduitDTO {
 
     public ProduitDTO setStorageId(long storageId) {
         this.storageId = storageId;
-        return this;
-    }
-
-    public Integer getCmuAmount() {
-        return cmuAmount;
-    }
-
-    public void setCmuAmount(Integer cmuAmount) {
-        this.cmuAmount = cmuAmount;
-    }
-
-    public ProduitDTO cmuAmount(Integer cmuAmount) {
-        this.cmuAmount = cmuAmount;
         return this;
     }
 

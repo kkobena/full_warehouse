@@ -172,7 +172,7 @@ public class Sales implements Serializable, Cloneable {
 
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
-    private LocalDateTime effectiveUpdateDate;
+    private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
 
     @Column(name = "to_ignore", nullable = false, columnDefinition = "boolean default false")
     private boolean toIgnore = false;
@@ -228,9 +228,6 @@ public class Sales implements Serializable, Cloneable {
 
     @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
     private Boolean canceled = false;
-
-    @OneToMany(mappedBy = "sale")
-    private Set<Ticket> tickets = new HashSet<>();
 
     @Column(length = 100)
     private String tvaEmbeded;
@@ -670,15 +667,6 @@ public class Sales implements Serializable, Cloneable {
 
     public Sales setCanceled(Boolean canceled) {
         this.canceled = canceled;
-        return this;
-    }
-
-    public Set<Ticket> getTickets() {
-        return tickets;
-    }
-
-    public Sales setTickets(Set<Ticket> tickets) {
-        this.tickets = tickets;
         return this;
     }
 

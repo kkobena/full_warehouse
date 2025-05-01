@@ -29,7 +29,8 @@
             ngbDropdown
             routerLinkActive="active"
           >
-            <a class="nav-link dropdown-toggle" href="javascript:void(0);" id="gestion-courante-menu" ngbDropdownToggle>
+            <a class="nav-link dropdown-toggle" href="javascript:void(0);"
+               id="gestion-courante-menu" ngbDropdownToggle>
               <span>
                 <fa-icon icon="th-list"></fa-icon>
                 <span jhiTranslate="global.menu.menuGestionCourrante">Gestion courante</span>
@@ -49,7 +50,8 @@
                   <span jhiTranslate="global.menu.entities.sales">Gestion des ventes</span>
                 </a>
               </li>
-              <li *jhiHasAnyAuthority="['payment', 'ROLE_ADMIN', 'mvt-caisse', 'tableau-pharmacien']">
+              <li
+                *jhiHasAnyAuthority="['payment', 'ROLE_ADMIN', 'mvt-caisse', 'tableau-pharmacien']">
                 <a
                   (click)="collapseNavbar()"
                   [routerLinkActiveOptions]="{ exact: true }"
@@ -213,7 +215,8 @@
                   routerLinkActive="active"
                 >
                   <i class="pi pi-home"></i>
-                  <span jhiTranslate="global.menu.entities.groupeFournisseur">Groupe fournisseurs</span>
+                  <span
+                    jhiTranslate="global.menu.entities.groupeFournisseur">Groupe fournisseurs</span>
                 </a>
               </li>
               <li *jhiHasAnyAuthority="['tva', 'referentiel', 'ROLE_ADMIN']">
@@ -357,7 +360,18 @@
                   <span>Réglement de facture</span>
                 </a>
               </li>
-
+              <li>
+                <a
+                  (click)="collapseNavbar()"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="dropdown-item"
+                  routerLink="/gestion-differe"
+                  routerLinkActive="active"
+                >
+                  <i class="pi pi-money-bill"></i>
+                  <span>Gestion des différés</span>
+                </a>
+              </li>
               <li>
                 <a
                   (click)="collapseNavbar()"
@@ -367,7 +381,8 @@
                   routerLinkActive="active"
                 >
                   <i class="pi pi-book"></i>
-                  <span jhiTranslate="global.menu.entities.groupeTiersPayant">Groupe tiers-payants</span>
+                  <span
+                    jhiTranslate="global.menu.entities.groupeTiersPayant">Groupe tiers-payants</span>
                 </a>
               </li>
               <li>
@@ -404,7 +419,8 @@
             ngbDropdown
             routerLinkActive="active"
           >
-            <a class="nav-link dropdown-toggle" data-cy="adminMenu" href="javascript:void(0);" id="admin-menu" ngbDropdownToggle>
+            <a class="nav-link dropdown-toggle" data-cy="adminMenu" href="javascript:void(0);"
+               id="admin-menu" ngbDropdownToggle>
               <span>
                 <fa-icon icon="users-cog"></fa-icon>
                 <span jhiTranslate="global.menu.admin.main">Administration</span>
@@ -424,13 +440,16 @@
                 </a>
               </li>
               <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/admin/user-management" routerLinkActive="active">
+                <a (click)="collapseNavbar()" class="dropdown-item"
+                   routerLink="/admin/user-management" routerLinkActive="active">
                   <fa-icon [fixedWidth]="true" icon="users"></fa-icon>
-                  <span jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
+                  <span
+                    jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
                 </a>
               </li>
               <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/menu" routerLinkActive="active">
+                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/menu"
+                   routerLinkActive="active">
                   <fa-icon [fixedWidth]="true" icon="gears"></fa-icon>
                   <span jhiTranslate="global.menu.entities.menu">Rôles et autorisations</span>
                 </a>
@@ -445,7 +464,8 @@
           ngbDropdown
           routerLinkActive="active"
         >
-          <a class="nav-link dropdown-toggle" href="javascript:void(0);" id="account-menu-w" ngbDropdownToggle>
+          <a class="nav-link dropdown-toggle" href="javascript:void(0);" id="account-menu-w"
+             ngbDropdownToggle>
             @if (!account()?.imageUrl) {
               <span>
                 <fa-icon icon="user"></fa-icon>
@@ -453,27 +473,31 @@
               </span>
             } @else {
               <span>
-                <img [src]="account()!.imageUrl" class="profile-image rounded-circle" alt="Avatar" />
+                <img [src]="account()!.imageUrl" class="profile-image rounded-circle"
+                     alt="Avatar" />
               </span>
             }
           </a>
           <ul aria-labelledby="account-menu-w" class="dropdown-menu" ngbDropdownMenu>
             @if (account() !== null) {
               <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/account/settings" routerLinkActive="active">
+                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/account/settings"
+                   routerLinkActive="active">
                   <fa-icon [fixedWidth]="true" icon="wrench"></fa-icon>
                   <span jhiTranslate="global.menu.account.settings">Settings</span>
                 </a>
               </li>
               <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/my-cash-register" routerLinkActive="active">
+                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/my-cash-register"
+                   routerLinkActive="active">
                   <fa-icon [fixedWidth]="true" [icon]="faSackDollar"></fa-icon>
                   <span jhiTranslate="global.menu.account.cashRegister">Ma Caisse</span>
                 </a>
               </li>
 
               <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/account/password" routerLinkActive="active">
+                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/account/password"
+                   routerLinkActive="active">
                   <fa-icon [fixedWidth]="true" icon="lock"></fa-icon>
                   <span jhiTranslate="global.menu.account.password">Password</span>
                 </a>

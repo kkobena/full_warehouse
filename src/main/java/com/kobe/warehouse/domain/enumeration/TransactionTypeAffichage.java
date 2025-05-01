@@ -8,7 +8,8 @@ public enum TransactionTypeAffichage {
     SORTIE_CAISSE("Sortie de caisse"),
     REGLEMENT_DIFFERE("Règlements différés"),
     REGLEMENT_TIERS_PAYANT("Règlements tiers payant"),
-    REGLEMENT_FOURNISSEUR("Règlement facture fournisseur");
+    REGLEMENT_FOURNISSEUR("Règlement facture fournisseur"),
+    DEPOT_CAUTION("Dépôt de caution");
 
     private final String value;
 

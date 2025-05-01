@@ -18,19 +18,21 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
 @Entity
 public class SalePayment extends PaymentTransaction implements Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @NotNull
     @ManyToOne
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Sales sale;
+
     @NotNull
     @Column(name = "part_assure", columnDefinition = "int default '0'")
     private Integer partAssure;
+
     @NotNull
     @Column(name = "part_tiers_payant", columnDefinition = "int default '0'")
     private Integer partTiersPayant;

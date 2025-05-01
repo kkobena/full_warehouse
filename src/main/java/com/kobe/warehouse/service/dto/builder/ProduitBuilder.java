@@ -53,7 +53,6 @@ public final class ProduitBuilder {
             produit.setCodeRemise(CodeRemise.fromValue(produitDTO.getRemiseCode()));
         }
 
-        produit.setCmuAmount(produitDTO.getCmuAmount());
         produit.setCostAmount(produitDTO.getCostAmount());
         if (produitDTO.getDeconditionnable()) {
             produit.setItemCostAmount(produitDTO.getItemCostAmount());
@@ -111,7 +110,6 @@ public final class ProduitBuilder {
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduit);
-        produit.setCmuAmount(produitDTO.getCmuAmount());
         fournisseurProduit.forEach(produit::addFournisseurProduit);
         return produit;
     }
@@ -207,10 +205,9 @@ public final class ProduitBuilder {
                 .stream()
                 .filter(r -> (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue()) && r.getMagasinId().equals(magasinId)))
                 .findFirst();
-            if (rayon.isPresent()) {
-                RayonProduitDTO rayonProduitDTO = rayon.get();
-                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon());
-            }
+            rayon.ifPresent(rayonProduitDTO ->
+                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon())
+            );
         }
         return produitDTO;
     }
@@ -270,7 +267,6 @@ public final class ProduitBuilder {
             .setId(produit.getId())
             .setRemiseCode(produit.getCodeRemise().getValue())
             .setLibelle(produit.getLibelle())
-            .cmuAmount(produit.getCmuAmount())
             .setTypeProduit(produit.getTypeProduit())
             .setCostAmount(produit.getCostAmount())
             .setRegularUnitPrice(produit.getRegularUnitPrice())
@@ -293,6 +289,9 @@ public final class ProduitBuilder {
         }
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
+        if (!CollectionUtils.isEmpty(produit.prixReference())) {
+            produitDTO.setPrixReference(produit.prixReference());
+        }
 
         return produitDTO;
     }
@@ -339,6 +338,9 @@ public final class ProduitBuilder {
 
     public static ProduitDTO lite(Produit produit) {
         ProduitDTO dto = new ProduitDTO();
+        if (!CollectionUtils.isEmpty(produit.prixReference())) {
+            dto.setPrixReference(produit.prixReference());
+        }
         dto.setId(produit.getId());
         dto.setLibelle(produit.getLibelle());
         dto.setRemiseCode(produit.getCodeRemise().getValue());
@@ -455,7 +457,6 @@ public final class ProduitBuilder {
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCostAmount(produitDTO.getCostAmount());
-        produit.setCmuAmount(produitDTO.getCmuAmount());
         if (produitDTO.getDeconditionnable()) {
             produit.setItemCostAmount(produitDTO.getItemCostAmount());
             produit.setItemQty(produitDTO.getItemQty());
@@ -539,16 +540,16 @@ public final class ProduitBuilder {
 
     public static void setUnitPrice(ProduitDTO produitDTO) {
         FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
-        TableauDTO tableau = produitDTO.getTableau();
+
         if (Objects.nonNull(fournisseurProduitDTO)) {
             produitDTO.setUnitPrice(
-                Optional.ofNullable(tableau)
+                Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
                     .orElse(fournisseurProduitDTO.getPrixUni())
             );
         } else {
             produitDTO.setUnitPrice(
-                Optional.ofNullable(tableau)
+                Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
                     .orElse(produitDTO.getRegularUnitPrice())
             );
@@ -568,14 +569,13 @@ public final class ProduitBuilder {
     }
 
     public static String buildDisplayName(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-        TableauDTO tableau = produitDTO.getTableau();
         if (Objects.nonNull(fournisseurProduit)) {
             return String.format(
                 "%s %s %s ",
                 produitDTO.getLibelle(),
                 fournisseurProduit.getCodeCip(),
                 NumberUtil.formatToString(
-                    Optional.ofNullable(tableau)
+                    Optional.ofNullable(produitDTO.getTableau())
                         .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
                         .orElse(fournisseurProduit.getPrixUni())
                 )
@@ -586,7 +586,7 @@ public final class ProduitBuilder {
             produitDTO.getLibelle(),
             produitDTO.getCodeEan(),
             NumberUtil.formatToString(
-                Optional.ofNullable(tableau)
+                Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
                     .orElse(produitDTO.getRegularUnitPrice())
             )
@@ -594,16 +594,15 @@ public final class ProduitBuilder {
     }
 
     public static void setUnitPrice(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-        TableauDTO tableau = produitDTO.getTableau();
         if (Objects.nonNull(fournisseurProduit)) {
             produitDTO.setUnitPrice(
-                Optional.ofNullable(tableau)
+                Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + fournisseurProduit.getPrixUni())
                     .orElse(fournisseurProduit.getPrixUni())
             );
         } else {
             produitDTO.setUnitPrice(
-                Optional.ofNullable(tableau)
+                Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + produitDTO.getRegularUnitPrice())
                     .orElse(produitDTO.getRegularUnitPrice())
             );

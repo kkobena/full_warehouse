@@ -233,12 +233,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void deleteById(Long id) {
-        Commande commande = commandeRepository.getReferenceById(id);
-        orderLineService.removeProductState(
-            commande.getOrderLines().stream().map(e -> e.getFournisseurProduit().getProduit()).toList(),
-            commande.getOrderStatus()
-        );
-        commandeRepository.delete(commande);
+        commandeRepository.deleteById(id);
     }
 
     @Override
@@ -247,7 +242,6 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setLastUserEdit(storageService.getUser());
-        orderLineService.rollbackProductState(commande.getOrderLines().stream().map(e -> e.getFournisseurProduit().getProduit()).toList());
         commandeRepository.save(commande);
     }
 
@@ -277,7 +271,6 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.PASSED);
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setLastUserEdit(storageService.getUser());
-        orderLineService.updateRequestedLineToPassedLine(new ArrayList<>(commande.getOrderLines()));
         commandeRepository.save(commande);
     }
 

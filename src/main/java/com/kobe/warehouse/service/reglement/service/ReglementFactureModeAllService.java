@@ -7,10 +7,8 @@ import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
@@ -27,7 +25,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
 
     public ReglementFactureModeAllService(
         CashRegisterService cashRegisterService,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
@@ -36,7 +33,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
     ) {
         super(
             cashRegisterService,
-            paymentTransactionRepository,
             invoicePaymentRepository,
             userService,
             facturationRepository,

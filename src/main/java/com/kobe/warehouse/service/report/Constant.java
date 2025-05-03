@@ -62,6 +62,9 @@ public final class Constant {
     public static final String HISTORIQUE_VENTE_YEARLY_ARTICLE_TEMPLATE_FILE = "historique/vente/yearly/main";
     public static final String HISTORIQUE_ACHAT_DAILY_ARTICLE_TEMPLATE_FILE = "historique/achat/daily/main";
     public static final String HISTORIQUE_ACHAT_YEARLY_ARTICLE_TEMPLATE_FILE = "historique/achat/yearly/main";
+    public static final String REGLEMENT_DIFFERE_RECEIPT_TEMPLATE_FILE = "differe/receipt/main";
+    public static final String LIST_DIFFERE_PDF_TEMPLATE_FILE = "differe/pdf/list/main";
+    public static final String REGLEMENT_DIFFERE_PDF_TEMPLATE_FILE = "differe/pdf/reglement/main";
 
     private Constant() {}
 }

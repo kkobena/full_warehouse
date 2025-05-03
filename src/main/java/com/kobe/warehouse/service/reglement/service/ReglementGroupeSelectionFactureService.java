@@ -41,7 +41,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
     ) {
         super(
             cashRegisterService,
-            paymentTransactionRepository,
             invoicePaymentRepository,
             userService,
             facturationRepository,

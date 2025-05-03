@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
+import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -50,7 +51,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                     root.get(Sales_.customer).get(Customer_.id)
                 )
             )
-            .orderBy(cb.desc(root.get(Sales_.effectiveUpdateDate)));
+            .orderBy(cb.asc(root.get(Sales_.effectiveUpdateDate)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -128,5 +129,24 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
         countQuery.where(predicate);
         return entityManager.createQuery(countQuery).getSingleResult();
+    }
+
+    @Override
+    public DiffereSummary getDiffereSummary(Specification<Sales> specification) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DiffereSummary> query = cb.createQuery(DiffereSummary.class);
+        Root<Sales> root = query.from(Sales.class);
+        query
+            .select(
+                cb.construct(
+                    DiffereSummary.class,
+                    cb.sumAsLong(root.get(Sales_.restToPay))
+                )
+            );
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
+        TypedQuery<DiffereSummary> typedQuery = entityManager.createQuery(query);
+       return typedQuery.getSingleResult();
     }
 }

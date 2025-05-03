@@ -346,4 +346,13 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             return 0;
         }
     }
+    @Override
+    public CashRegister getCashRegister() {
+        var user = userService.getUser();
+        CashRegister cashRegister = this.getLastOpiningUserCashRegisterByUser(user);
+        if (Objects.isNull(cashRegister)) {
+            cashRegister = this.openCashRegister(user, user);
+        }
+        return cashRegister;
+    }
 }

@@ -1,0 +1,15 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Relevé de règlement</title>
+    <style th:replace="~{reglement/pdf/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{reglement/pdf/single/header}"></header>
+    <div class="invoice">
+      <main>
+        <table th:replace="~{reglement/pdf/single/body}"></table>
+      </main>
+    </div>
+  </body>
+</html>

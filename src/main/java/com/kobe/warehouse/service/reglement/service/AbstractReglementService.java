@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractReglementService implements ReglementService {
 
     private final CashRegisterService cashRegisterService;
-    private final PaymentTransactionRepository paymentTransactionRepository;
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final UserService userService;
     private final FacturationRepository facturationRepository;
@@ -44,7 +43,6 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected AbstractReglementService(
         CashRegisterService cashRegisterService,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
@@ -52,7 +50,6 @@ public abstract class AbstractReglementService implements ReglementService {
         BanqueRepository banqueRepository
     ) {
         this.cashRegisterService = cashRegisterService;
-        this.paymentTransactionRepository = paymentTransactionRepository;
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.userService = userService;
         this.facturationRepository = facturationRepository;
@@ -62,12 +59,7 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected CashRegister getCashRegister() {
-        var user = userService.getUser();
-        CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
-        if (Objects.isNull(cashRegister)) {
-            cashRegister = cashRegisterService.openCashRegister(user, user);
-        }
-        return cashRegister;
+       return cashRegisterService.getCashRegister();
     }
 
     protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {

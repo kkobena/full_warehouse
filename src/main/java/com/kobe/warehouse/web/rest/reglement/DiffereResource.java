@@ -54,4 +54,10 @@ public class DiffereResource {
     public ResponseEntity<DiffereDTO> getDiffere(@PathVariable Long id) {
         return ResponseUtil.wrapOrNotFound(reglementDiffereService.getOne(id));
     }
+
+    @GetMapping("/print-receipt/{id}")
+    public ResponseEntity<Void> printReceipt(@PathVariable(name = "id") long id) {
+        this.reglementDiffereService.printReceipt(id);
+        return ResponseEntity.ok().build();
+    }
 }

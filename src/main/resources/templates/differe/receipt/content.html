@@ -1,0 +1,35 @@
+<tbody>
+
+  <tr>
+    <td class="total-libelle"><span>MONTANT ATTENDU</span></td>
+
+    <td class="amount-to-pay" th:text="${ entity.formattedExpectedAmount }"></td>
+  </tr>
+
+  <tr>
+    <td class="total-libelle"><span>MONTANT PAYE</span></td>
+
+    <td class="total" th:text="${ entity.formattedPaidAmount }"></td>
+  </tr>
+  <tr>
+    <td class="total-libelle"><span>RESTE A PAYER</span></td>
+
+    <td class="total" th:text="${ entity.formattedSolde }"></td>
+  </tr>
+
+  <tr>
+    <td class="total-libelle">REGLEMENT</td>
+    <td th:text="${entity.libelleMode}"></td>
+  </tr>
+<th:block th:if="${ #strings.equals(entity.mode,'CASH')}">
+  <tr>
+    <td>MONTANT VERSE</td>
+    <td class="total" th:text="${ entity.formattedMontantVerse }"></td>
+  </tr>
+  <tr>
+    <td>MONNAIE</td>
+    <td class="total" th:text="${ entity.monnaie }"></td>
+  </tr>
+</th:block>
+
+</tbody>

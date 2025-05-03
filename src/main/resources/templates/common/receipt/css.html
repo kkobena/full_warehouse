@@ -1,0 +1,142 @@
+<style th:inline="css">
+  @media print {
+    header {
+      position: absolute;
+      position: running(header);
+    }
+  }
+  @page {
+    size: [(${size})];
+    margin-right: 2px;
+    margin-left: 2px;
+    margin-bottom: 1px;
+    @top-center {
+      content: element(header);
+      padding-right: 2px;
+      margin-bottom: 2px;
+    }
+  }
+
+  body {
+    font-size: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    -fs-table-paginate: paginate;
+  }
+
+  table .total,
+  table .unit {
+    text-align: right;
+  }
+
+  table .total {
+    font-weight: bold;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-left {
+    text-align: left;
+  }
+
+  .total-to-pay {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  .amount-to-pay {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .compagnie-name,
+  .compagnie-name h4 {
+    padding: 0;
+    margin: 0;
+  }
+
+  .company-details {
+    padding: 0;
+  }
+
+  main {
+    display: block;
+  }
+
+  footer div {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    border-top: solid 0.5px #4d4d4d;
+  }
+
+  .message-bienvenu {
+    margin-bottom: 0.5px;
+    padding: 0;
+  }
+
+  .barcode {
+    border-top: dotted 0px #2c1e30;
+  }
+
+  .last-item td {
+    border-bottom: solid 0.5px #2c1e30;
+  }
+
+  .total-libelle {
+    font-weight: bold;
+  }
+
+  .reglement {
+    border-bottom: solid 0.5px #2c1e30;
+    border-top: solid 0.5px #2c1e30;
+  }
+
+  .receipt-info {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 1px;
+  }
+
+  .receipt-info p {
+    margin: 1px;
+  }
+
+  table thead tr:first-child th {
+    font-weight: normal !important;
+  }
+
+  .tva:first-child td {
+    margin-top: 5px;
+  }
+
+  table:last-child {
+    margin-bottom: 5px;
+  }
+
+  .barcode img {
+    margin-bottom: 0;
+    height: 30px;
+    width: 80%;
+  }
+
+  .itm-header th {
+    border-top: solid 0.5px #2c1e30;
+  }
+  .today {
+    width: 100%;
+    text-align: right;
+    font-weight: 700;
+    padding-right: 3px;
+  }
+</style>

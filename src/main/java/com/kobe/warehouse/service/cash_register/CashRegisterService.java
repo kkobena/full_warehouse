@@ -47,4 +47,5 @@ public interface CashRegisterService {
     int getCanceledAmount(CashRegister cashRegister);
 
     boolean hasOpenCashRegister();
+    CashRegister getCashRegister();
 }

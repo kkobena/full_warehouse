@@ -1,0 +1,12 @@
+<th colspan="2">
+  <div class="message-bienvenu" th:if="${magasin.welcomeMessage ne null}">
+    <span th:text="${'*** '+magasin.welcomeMessage+' ****'}"></span>
+  </div>
+  <div class="receipt-info">
+    <div>
+      <p th:text="${'Client: '+entity.customerfullName}"></p>
+
+      <p th:text="${'Opérateur: '+entity.userfullName}"></p>
+    </div>
+  </div>
+</th>

@@ -1,7 +1,9 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,10 +15,12 @@ import java.util.List;
  */
 
 @Entity
-public class DifferePayment extends SalePayment implements Serializable {
+public class DifferePayment extends PaymentTransaction implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+    @ManyToOne
+    private Customer differeCustomer;
 
     @OneToMany(mappedBy = "differePayment", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<DifferePaymentItem> differePaymentItems = new ArrayList<>();
@@ -27,6 +31,20 @@ public class DifferePayment extends SalePayment implements Serializable {
 
     public DifferePayment setDifferePaymentItems(List<DifferePaymentItem> differePaymentItems) {
         this.differePaymentItems = differePaymentItems;
+        return this;
+    }
+
+    public DifferePayment() {
+        super();
+        super.setTypeFinancialTransaction(TypeFinancialTransaction.REGLEMENT_DIFFERE);
+    }
+
+    public Customer getDiffereCustomer() {
+        return differeCustomer;
+    }
+
+    public DifferePayment setDiffereCustomer(Customer differeCustomer) {
+        this.differeCustomer = differeCustomer;
         return this;
     }
 }

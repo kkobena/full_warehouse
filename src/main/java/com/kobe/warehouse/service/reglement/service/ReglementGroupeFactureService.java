@@ -39,7 +39,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
     ) {
         super(
             cashRegisterService,
-            paymentTransactionRepository,
             invoicePaymentRepository,
             userService,
             facturationRepository,

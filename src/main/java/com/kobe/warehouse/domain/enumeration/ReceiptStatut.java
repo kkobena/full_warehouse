@@ -4,4 +4,5 @@ public enum ReceiptStatut {
     CLOSE,
     PENDING,
     ANY,
+    REQUESTED
 }

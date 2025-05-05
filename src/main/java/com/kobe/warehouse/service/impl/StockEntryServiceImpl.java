@@ -261,7 +261,6 @@ public class StockEntryServiceImpl implements StockEntryService {
     @Override
     public DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
         DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
-        deliveryReceipt.setCalendar(warehouseCalendarService.initCalendar());
         deliveryReceipt.setCreatedDate(LocalDateTime.now());
         deliveryReceipt.setCreatedUser(storageService.getUser());
 
@@ -428,7 +427,6 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private DeliveryReceipt importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
         DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
-        deliveryReceipt.setCalendar(warehouseCalendarService.initCalendar());
         deliveryReceipt.setType(TypeDeliveryReceipt.DIRECT);
         deliveryReceipt.setCreatedDate(LocalDateTime.now());
         deliveryReceipt.setCreatedUser(storageService.getUser());

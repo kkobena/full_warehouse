@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -115,8 +116,7 @@ public class Produit implements Serializable {
     private Integer itemRegularUnitPrice = 0;
 
     @NotAudited
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "prix_reference")
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
     private List<PrixRererence> prixReference = new ArrayList<>();
 
     @NotNull
@@ -178,6 +178,10 @@ public class Produit implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "categorie", nullable = false)
+    private CategorieABC categorie= CategorieABC.C;
 
     @Column(name = "perime_at")
     private LocalDate perimeAt;

@@ -41,7 +41,7 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     }
 
     @Override
-    public Resource printReglementToPdf(List<ReglementDiffereWrapperDTO> reglements, DifferePaymentSummary differePaymentSummary, ReportPeriode reportPeriode) throws ReportFileExportException {
+    public Resource printReglementToPdf(List<ReglementDiffereWrapperDTO> reglements, DifferePaymentSummaryDTO differePaymentSummary, ReportPeriode reportPeriode) throws ReportFileExportException {
         this.fileName="liste_des_reglements_differes";
         this.templateFile = Constant.REGLEMENT_DIFFERE_PDF_TEMPLATE_FILE;
         try {
@@ -84,15 +84,15 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     }
     private String print(List<DiffereDTO> differe, DiffereSummary differeSummary,ReportPeriode reportPeriode) {
         this.getParameters().put(Constant.ITEMS, differe);
-        this.getParameters().put(Constant.REPORT_TITLE, "Liste des différés du " + DateUtil.format(reportPeriode.from() ) + " au " + DateUtil.format(reportPeriode.to()));
+        this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES DIFFERES PERIODE DU " + DateUtil.format(reportPeriode.from() ) + " AU " + DateUtil.format(reportPeriode.to()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differeSummary);
         super.getCommonParameters();
         return super.printOneReceiptPage(getDestFilePath());
     }
 
-    private String printReglement(List<ReglementDiffereWrapperDTO> reglements, DifferePaymentSummary differePaymentSummary, ReportPeriode reportPeriode) {
+    private String printReglement(List<ReglementDiffereWrapperDTO> reglements, DifferePaymentSummaryDTO differePaymentSummary, ReportPeriode reportPeriode) {
         this.getParameters().put(Constant.ITEMS, reglements);
-        this.getParameters().put(Constant.REPORT_TITLE, "Liste des règlements différés du " + DateUtil.format(reportPeriode.from() ) + " au " + DateUtil.format(reportPeriode.to()));
+        this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES REGLEMENTS DIFFERES PERIODE DU " + DateUtil.format(reportPeriode.from() ) + " AU " + DateUtil.format(reportPeriode.to()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differePaymentSummary);
 
         super.getCommonParameters();

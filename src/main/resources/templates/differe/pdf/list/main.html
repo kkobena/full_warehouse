@@ -1,14 +1,14 @@
 <html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-    <title>Relevé de règlement</title>
+    <title>Liste des ventes différées</title>
     <style th:replace="~{common/reglement/css}"></style>
   </head>
   <body>
     <header th:replace="~{differe/pdf/header}"></header>
     <div class="invoice">
       <main>
-        <table th:replace="~{differe/pdf/reglement/body}"></table>
+        <table th:replace="~{differe/pdf/list/body}"></table>
       </main>
     </div>
   </body>

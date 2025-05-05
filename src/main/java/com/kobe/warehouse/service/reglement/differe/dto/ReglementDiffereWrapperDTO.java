@@ -3,9 +3,10 @@ package com.kobe.warehouse.service.reglement.differe.dto;
 
 import com.kobe.warehouse.service.utils.NumberUtil;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-public record ReglementDiffereWrapperDTO(Long id,  String firstName, String lastName, int paidAmount, int solde,
+public record ReglementDiffereWrapperDTO(Long id,  String firstName, String lastName, int paidAmount, Long solde,
                                          List<ReglementDiffereDTO>items) {
 
     public String customerfullName() {
@@ -15,6 +16,9 @@ public record ReglementDiffereWrapperDTO(Long id,  String firstName, String last
         return NumberUtil.formatToString(paidAmount);
     }
     public String formattedSolde() {
+        if(solde == null) {
+            return "";
+        }
         return NumberUtil.formatToString(solde);
     }
 

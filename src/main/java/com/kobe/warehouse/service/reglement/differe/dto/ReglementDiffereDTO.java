@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.reglement.differe.dto;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.NumberUtil;
 
 import java.time.LocalDateTime;
@@ -29,5 +30,13 @@ public record ReglementDiffereDTO(Long id, String firstName, String lastName, Lo
 
     public String user() {
         return String.format("%s.%s", firstName.charAt(0), lastName);
+    }
+
+    public String dateReglement() {
+        return DateUtil.format(mvtDate);
+    }
+    public String solde() {
+        int solde = expectedAmount - paidAmount;
+        return NumberUtil.formatToString(solde>=0 ? solde : 0);
     }
 }

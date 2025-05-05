@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
+import com.kobe.warehouse.service.reglement.differe.dto.Solde;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -140,6 +141,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             .select(
                 cb.construct(
                     DiffereSummary.class,
+                    cb.sumAsLong(root.get(Sales_.salesAmount)),
+                    cb.sumAsLong(root.get(Sales_.payrollAmount)),
                     cb.sumAsLong(root.get(Sales_.restToPay))
                 )
             );
@@ -148,5 +151,10 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         query.where(predicate);
         TypedQuery<DiffereSummary> typedQuery = entityManager.createQuery(query);
        return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public Solde getSolde(Specification<Sales> specification) {
+        return null;
     }
 }

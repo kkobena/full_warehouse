@@ -1,12 +1,11 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.Customer_;
-import com.kobe.warehouse.domain.DifferePayment;
-import com.kobe.warehouse.domain.DifferePayment_;
+import com.kobe.warehouse.domain.*;
 
-import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.service.reglement.differe.dto.CustomerReglementDiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummary;
+import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
+import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -47,7 +46,7 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
 
                 )
             )
-            .groupBy(root.get(DifferePayment_.differeCustomer).get(Customer_.id)) ;
+            .groupBy(root.get(DifferePayment_.differeCustomer).get(Customer_.id));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -68,7 +67,57 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
 
     @Override
     public DifferePaymentSummary getDiffereSummary(Specification<DifferePayment> specification) {
-        return null;
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DifferePaymentSummary> query = cb.createQuery(DifferePaymentSummary.class);
+        Root<DifferePayment> root = query.from(DifferePayment.class);
+
+        query
+            .select(
+                cb.construct(
+                    DifferePaymentSummary.class,
+                    cb.sumAsLong(root.get(DifferePayment_.expectedAmount)),
+                    cb.sumAsLong(root.get(DifferePayment_.paidAmount))
+                )
+            ).orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
+
+        TypedQuery<DifferePaymentSummary> typedQuery = entityManager.createQuery(query);
+
+
+        return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public List<ReglementDiffereDTO> getDifferePaymentsByCustomerId(Specification<DifferePayment> specification) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ReglementDiffereDTO> query = cb.createQuery(ReglementDiffereDTO.class);
+        Root<DifferePayment> root = query.from(DifferePayment.class);
+
+        query
+            .select(
+                cb.construct(
+                    ReglementDiffereDTO.class,
+                    root.get(DifferePayment_.id),
+                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(User_.firstName),
+                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(DifferePayment_.createdAt),
+                    root.get(DifferePayment_.expectedAmount),
+                    root.get(DifferePayment_.montantVerse),
+                    root.get(DifferePayment_.paidAmount),
+                    root.get(DifferePayment_.paymentMode).get(PaymentMode_.code),
+                    root.get(DifferePayment_.paymentMode).get(PaymentMode_.libelle)
+                )
+            ).orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
+
+        TypedQuery<ReglementDiffereDTO> typedQuery = entityManager.createQuery(query);
+
+
+        return typedQuery.getResultList();
     }
 
     private Long count(Specification<DifferePayment> specification) {

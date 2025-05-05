@@ -117,9 +117,7 @@ public class DeliveryReceipt implements Serializable {
     @OneToMany(mappedBy = "deliveryReceipt", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     public Long getId() {
         return id;
@@ -301,14 +299,6 @@ public class DeliveryReceipt implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
-
-    public DeliveryReceipt setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public Long id() {
         return id;

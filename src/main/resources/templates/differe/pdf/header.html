@@ -29,17 +29,7 @@
       <tbody>
         <tr>
           <td colspan="2">
-            <span class="tiers-payant-info">
-              RELEVE DE REGLEMENT DE: <span class="tiers-payant-info" th:text="${entity.organisme.name}"></span
-            ></span>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span th:if="${entity.organisme.telephone ne null}" th:text="${entity.organisme.telephone}"></span>
-          </td>
-          <td style="text-align: right">
-            <span th:text="${'Période '+  entity.periode}"></span>
+            <span th:text="${ entity.reportTitle}"></span>
           </td>
         </tr>
         <tr>

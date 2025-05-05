@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.DifferePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.reglement.differe.dto.*;
@@ -71,11 +70,11 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         LocalDate endDate,
         Set<PaymentStatus> paymentStatuses
     ) {
-        startDate = Objects.requireNonNullElse(startDate, LocalDate.now());
-        endDate = Objects.requireNonNullElse(endDate, LocalDate.now());
-        Specification<Sales> specification = Specification.where(this.salesRepository.filterByPeriode(startDate, endDate));
-        specification = specification.and(this.salesRepository.filterByCustomerId(customerId));
-        specification = specification.and(this.salesRepository.filterNumberTransaction(search));
+        //   startDate = Objects.requireNonNullElse(startDate, LocalDate.now());
+        // endDate = Objects.requireNonNullElse(endDate, LocalDate.now());
+        // Specification<Sales> specification = Specification.where(this.salesRepository.filterByPeriode(startDate, endDate));
+        Specification<Sales> specification = Specification.where(this.salesRepository.filterByCustomerId(customerId));
+        // specification = specification.and(this.salesRepository.filterNumberTransaction(search));
         specification = specification.and(this.salesRepository.filterByPaymentStatus(paymentStatuses));
         return specification;
     }
@@ -192,7 +191,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
 
     @Override
     public DifferePaymentSummary getDifferePaymentSummary(Long customerId, LocalDate startDate, LocalDate endDate) {
-        return null;
+        return this.differePaymentRepository.getDiffereSummary(buildSpecification(customerId, startDate, endDate));
     }
 
     @Override
@@ -215,11 +214,42 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     public Resource printReglementToPdf(Long customerId,
                                         LocalDate startDate,
                                         LocalDate endDate) {
-        return null;
+        DifferePaymentSummary differePaymentSummary = this.getDifferePaymentSummary(customerId, startDate, endDate);
+        List<ReglementDiffereWrapperDTO> list = getReglementsDifferes(customerId, startDate, endDate, Pageable.unpaged()).getContent();
+        return this.reglementDiffereReportService.printReglementToPdf(list, new DifferePaymentSummaryDTO(differePaymentSummary.expectedAmount(),
+            differePaymentSummary.paidAmount(), this.salesRepository.getSolde(Specification.where(salesRepository.filterByCustomerId(customerId))).solde()
+        ), new ReportPeriode(startDate, endDate));
     }
 
     @Override
     public Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Long customerId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return null;
+        return this.differePaymentRepository.getDifferePayments(buildSpecification(customerId, startDate, endDate), pageable)
+            .map(differePayment ->
+                {
+                    List<ReglementDiffereDTO> differePaymentItems = this.differePaymentRepository.getDifferePaymentsByCustomerId(Specification.where(this.differePaymentRepository.filterByCustomerId(differePayment.id())));
+                    return new ReglementDiffereWrapperDTO(
+                        differePayment.id(),
+                        differePayment.firstName(),
+                        differePayment.lastName(),
+                        differePayment.paidAmount(), this.salesRepository.getSolde(Specification.where(salesRepository.filterByCustomerId(differePayment.id()))).solde()
+                        ,
+                        differePaymentItems
+                    );
+                }
+            )
+
+            ;
+    }
+
+    private Specification<DifferePayment> buildSpecification(
+        Long customerId,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        startDate = Objects.requireNonNullElse(startDate, LocalDate.now());
+        endDate = Objects.requireNonNullElse(endDate, LocalDate.now());
+        Specification<DifferePayment> specification = Specification.where(this.differePaymentRepository.filterByCustomerId(customerId));
+        specification = specification.and(this.differePaymentRepository.filterByPeriode(startDate, endDate));
+        return specification;
     }
 }

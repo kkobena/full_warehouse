@@ -15,7 +15,7 @@ public class DeliveryReceiptFilterDTO {
     private Long fournisseurId;
     private Long userId;
     private boolean all;
-    private ReceiptStatut statut = ReceiptStatut.ANY;
+    private ReceiptStatut statut ;
 
     public LocalDate getFromDate() {
         return fromDate;

@@ -1,11 +1,9 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
-import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.reglement.differe.dto.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

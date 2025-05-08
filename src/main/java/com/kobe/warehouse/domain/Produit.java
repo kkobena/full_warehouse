@@ -117,7 +117,7 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
-    private List<PrixRererence> prixReference = new ArrayList<>();
+    private List<PrixReference> prixReference = new ArrayList<>();
 
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
@@ -201,7 +201,7 @@ public class Produit implements Serializable {
     private StockProduit stockProduitPointOfSale;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },orphanRemoval = true)
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
     /* @Type(type = "json")
@@ -209,9 +209,8 @@ public class Produit implements Serializable {
   private List<ParcoursProduit> parcoursProduits = new ArrayList<>();*/
 
     @NotAudited
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "daily_stock_json")
-    private Set<DailyStock> dailyStocks = new HashSet<>();
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE },orphanRemoval = true)
+    private List<DailyStock> dailyStocks = new ArrayList<>();
 
     @ManyToOne
     private Tableau tableau;
@@ -263,7 +262,19 @@ public class Produit implements Serializable {
         this.seuilDeconditionnement = seuilDeconditionnement;
     }
 
-    /*
+    public List<PrixReference> getPrixReference() {
+        return prixReference;
+    }
+
+    public CategorieABC getCategorie() {
+        return categorie;
+    }
+
+    public Produit setCategorie(CategorieABC categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+/*
     public List<ParcoursProduit> getParcoursProduits() {
     return parcoursProduits;
   }
@@ -273,11 +284,8 @@ public class Produit implements Serializable {
     return this;
   }*/
 
-    public List<PrixRererence> prixReference() {
-        return prixReference;
-    }
 
-    public void setPrixReference(List<PrixRererence> prixReference) {
+    public void setPrixReference(List<PrixReference> prixReference) {
         this.prixReference = prixReference;
     }
 
@@ -545,13 +553,12 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public Set<DailyStock> getDailyStocks() {
+    public List<DailyStock> getDailyStocks() {
         return dailyStocks;
     }
 
-    public Produit setDailyStocks(Set<DailyStock> dailyStocks) {
+    public void setDailyStocks(List<DailyStock> dailyStocks) {
         this.dailyStocks = dailyStocks;
-        return this;
     }
 
     public Tableau getTableau() {

@@ -304,10 +304,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
-            SalesLine OldSalesLine = (SalesLine) salesLine.clone();
+            SalesLine oldSalesLine = (SalesLine) salesLine.clone();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
             CashSale cashSale = (CashSale) salesLine.getSales();
-            upddateCashSaleAmounts(cashSale, salesLine, OldSalesLine);
+            upddateCashSaleAmounts(cashSale, salesLine, oldSalesLine);
             cashSaleRepository.save(cashSale);
             return salesLine;
         }

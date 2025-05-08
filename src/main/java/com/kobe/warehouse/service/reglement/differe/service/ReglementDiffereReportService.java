@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ReglementDiffereReportService {
 
-    Resource printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary, ReportPeriode reportPeriode) throws ReportFileExportException;
+    Resource printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException;
+
     Resource printReglementToPdf(List<ReglementDiffereWrapperDTO> reglements, DifferePaymentSummaryDTO differePaymentSummary, ReportPeriode reportPeriode) throws ReportFileExportException;
 }

@@ -20,7 +20,7 @@
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Code<span style="font-weight: 900; color: red">*</span></label>
-        <input autocomplete="off" class="form-control" formControlName="code" name="code" pInputText type="text" />
+        <input autocomplete="off" class="form-control" formControlName="code" name="code" pInputText type="text" pKeyFilter="alphanum"/>
         @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
           <div>
             @if (editForm.get('code')?.errors?.required) {

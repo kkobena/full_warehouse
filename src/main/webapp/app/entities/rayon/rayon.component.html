@@ -144,11 +144,11 @@
 
           <td style="text-align: right">
             <p-button (click)="onEdit(elRow)" [rounded]="true" icon="pi pi-pencil"
-                      pTooltip="Modifier" severity="success" size="small">
+                      pTooltip="Modifier" severity="success" [text]="true" >
             </p-button>
 
             <p-button (click)="delete(elRow)" [rounded]="true" icon="pi pi-trash"
-                      pTooltip="Supprimer" severity="danger" size="small">
+                      pTooltip="Supprimer" severity="danger" [text]="true">
             </p-button>
           </td>
         </tr>

@@ -1,50 +1,43 @@
 <table class="main-table">
   <thead>
+
   <tr>
-    <th colspan="4">Client</th>
-    <th class="text-right">Montant payé</th>
-    <th class="text-right">Solde</th>
-  </tr>
-  <tr>
-    <th>Date</th>
-    <th>Mode de paiement</th>
-    <th>Opérateur</th>
-    <th class="text-right">Montant attendu</th>
-    <th class="text-right">Montant payé</th>
-    <th class="text-right">Solde</th>
+    <th style="width: 15%;">Date</th>
+    <th style="width: 15%;">Mode de paiement</th>
+    <th style="width: 30%;">Opérateur</th>
+    <th style="width: 20%;" class="text-right">Montant attendu</th>
+    <th style="width: 20%;" class="text-right">Montant payé</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="item : ${items}">
-    <td colspan="3">
+    <td colspan="5" class="dt-table">
       <table>
-        <thead>
-        <tr>
-          <th th:text="${item.customerfullName}"></th>
-          <th class="unit" th:text="${item.formattedPaidAmount}"></th>
-          <th class="unit" th:text="${item.formattedSolde}"></th>
-        </tr>
-        </thead>
         <tbody>
         <tr th:each="it : ${item.items}">
-          <td th:text="${it.dateReglement}"></td>
-          <td th:text="${it.libelleMode}"></td>
-          <td th:text="${it.user}"></td>
-          <td class="unit" th:text="${it.formattedExpectedAmount}"></td>
-          <td class="unit" th:text="${it.formattedPaidAmount}"></td>
-          <td class="unit" th:text="${it.solde}"></td>
-
+          <td style="width: 15%;" th:text="${it.dateReglement}"></td>
+          <td style="width: 15%;" th:text="${it.libelleMode}"></td>
+          <td style="width: 30%;" th:text="${it.user}"></td>
+          <td style="width: 20%;"  class="unit" th:text="${it.formattedExpectedAmount}"></td>
+          <td style="width: 20%;"  class="unit" th:text="${it.formattedPaidAmount}"></td>
         </tr>
         </tbody>
+        <tfoot class="datatable-footer">
+        <tr class="tr-footer">
+          <td class="datatable-footer-total-label" colspan="3" th:text="${'TOTAL DE: '+item.customerfullName }"></td>
+          <td class="unit" th:text="${item.formattedPaidAmount}"></td>
+          <td class="unit" th:text="${item.formattedSolde}"></td>
+        </tr>
+        </tfoot>
       </table>
     </td>
   </tr>
   </tbody>
   <tfoot class="datatable-footer">
   <tr class="tr-footer">
-    <td class="datatable-footer-total-label" colspan="4">TOTAL GENERAL</td>
+    <td class="datatable-footer-total-label" colspan="3">TOTAL GENERAL</td>
     <td class="unit" th:text="${reportSummary.paidAmountToString}"></td>
-    <td class="unit" th:text="${reportSummary.restToString}"></td>
+    <td class="unit" th:text="${reportSummary.formattedSolde}"></td>
     <td></td>
   </tr>
   </tfoot>

@@ -109,9 +109,9 @@
               <p-button
                 [hidden]="true"
                 [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
-                rounded="true"
+                [rounded]="true"
+                [text]="true"
                 severity="info"
-                size="small"
                 pTooltip="Voir détails"
                 icon="pi pi-eye"
               >
@@ -120,8 +120,8 @@
               <p-button
                 (click)="editTiersPayant(tiersPayant)"
                 severity="success"
-                size="small"
-                rounded="true"
+                [rounded]="true"
+                [text]="true"
                 icon="pi pi-pencil"
                 data-placement="left"
                 pTooltip="Editer"
@@ -132,8 +132,8 @@
               <p-button
                 (click)="confirmRemove(tiersPayant)"
                 severity="danger"
-                size="small"
-                rounded="true"
+                [rounded]="true"
+                [text]="true"
                 icon="pi pi-trash"
                 data-placement="left"
                 pTooltip="Supprimer"
@@ -142,8 +142,8 @@
               </p-button>
               <p-button
                 (click)="confirmDesactivation(tiersPayant)"
-                rounded="true"
-                size="small"
+                [rounded]="true"
+                [text]="true"
                 severity="warn"
                 pTooltip="Désativer"
                 icon="pi pi-lock"

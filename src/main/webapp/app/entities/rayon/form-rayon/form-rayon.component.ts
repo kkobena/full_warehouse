@@ -10,11 +10,21 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
+import { KeyFilter } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-form-rayon',
   templateUrl: './form-rayon.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, DynamicDialogModule],
+  imports: [
+    WarehouseCommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    DynamicDialogModule,
+    KeyFilter,
+  ],
 })
 export class FormRayonComponent implements OnInit {
   protected entityService = inject(RayonService);

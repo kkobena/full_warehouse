@@ -6,6 +6,11 @@ import { createRequestOptions } from '../../shared/util/request-util';
 import { ClientDiffere } from './model/client-differe.model';
 import { Differe } from './model/differe.model';
 import { DiffereParam } from './model/differe-param.model';
+import { ReglementDiffere } from './model/reglement-differe.model';
+import { ReglementParams, ResponseReglement } from '../reglement/model/reglement.model';
+import { NewReglementDiffere, ReglementDiffereResponse } from './model/new-reglement-differe.model';
+import { DiffereSummary } from './model/differe-summary.model';
+import { ReglementDiffereSummary } from './model/reglement-differe-summary.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,5 +41,42 @@ export class DiffereService {
 
   setParams(searchParams: DiffereParam): void {
     this.differeParams.set(searchParams);
+  }
+  exportListToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
+  }
+
+  getReglementsDifferes(req?: any): Observable<HttpResponse<ReglementDiffere[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<ReglementDiffere[]>(this.resourceUrl + '/reglements', {
+      params: options,
+      observe: 'response',
+    });
+  }
+  printReceipt(id: number): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/print-receipt/${id}`, { observe: 'response' });
+  }
+  getDiffereSummary(req?: any): Observable<HttpResponse<DiffereSummary>> {
+    const options = createRequestOptions(req);
+    return this.http.get<DiffereSummary>(this.resourceUrl + '/summary', {
+      params: options,
+      observe: 'response',
+    });
+  }
+  doReglement(reglementParams: NewReglementDiffere): Observable<HttpResponse<ReglementDiffereResponse>> {
+    return this.http.post<ReglementDiffereResponse>(this.resourceUrl + '/do-reglement', reglementParams, { observe: 'response' });
+  }
+
+  getReglementDiffereSummary(req?: any): Observable<HttpResponse<ReglementDiffereSummary>> {
+    const options = createRequestOptions(req);
+    return this.http.get<ReglementDiffereSummary>(this.resourceUrl + '/reglements/summary', {
+      params: options,
+      observe: 'response',
+    });
+  }
+  exportReglementsToPdf(req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/reglements/pdf`, { params: options, responseType: 'blob' });
   }
 }

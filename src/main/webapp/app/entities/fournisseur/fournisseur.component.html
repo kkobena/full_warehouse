@@ -86,7 +86,7 @@
               icon="pi pi-pencil"
               pTooltip="Editer"
               severity="success"
-              size="small"
+              [text]="true"
               [rounded]="true"
               type="button"
             ></p-button>
@@ -95,8 +95,8 @@
               icon="pi pi-trash"
               pTooltip="Supprimer"
               severity="danger"
-              size="small"
               [rounded]="true"
+              [text]="true"
               type="button"
             ></p-button>
           </td>
@@ -157,6 +157,7 @@
                 formControlName="code"
                 id="field_code"
                 name="code"
+                pKeyFilter="alphanum"
                 pInputText
                 style="width: 100%"
                 type="text"

@@ -35,8 +35,9 @@ public record ReglementDiffereDTO(Long id, String firstName, String lastName, Lo
     public String dateReglement() {
         return DateUtil.format(mvtDate);
     }
+
     public String solde() {
         int solde = expectedAmount - paidAmount;
-        return NumberUtil.formatToString(solde>=0 ? solde : 0);
+        return NumberUtil.formatToString(solde >= 0 ? solde : 0);
     }
 }

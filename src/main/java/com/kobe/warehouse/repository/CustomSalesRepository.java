@@ -13,6 +13,8 @@ public interface CustomSalesRepository {
     Page<DiffereItem> getDiffereItems(Specification<Sales> specification, Pageable pageable);
 
     Page<Differe> getDiffere(Specification<Sales> specification, Pageable pageable);
+
     DiffereSummary getDiffereSummary(Specification<Sales> specification);
+
     Solde getSolde(Specification<Sales> specification);
 }

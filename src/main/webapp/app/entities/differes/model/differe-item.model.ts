@@ -1,6 +1,5 @@
 export class DiffereItem {
-  firsName: string;
-  lastName: string;
+  user: string;
   reference: string;
   amount: number;
   paidAmount: number;

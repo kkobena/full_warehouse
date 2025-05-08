@@ -1,10 +1,7 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.Laboratoire;
-import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StockProduit;
@@ -136,41 +133,7 @@ public interface CustomizedProductService {
         return rayon;
     }
 
-    default Magasin magasinFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Magasin magasin = new Magasin();
-        magasin.setId(id);
-        return magasin;
-    }
 
-    default Laboratoire laboratoireFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Laboratoire laboratoire = new Laboratoire();
-        laboratoire.setId(id);
-        return laboratoire;
-    }
-
-    default FormProduit formeFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        FormProduit formProduit = new FormProduit();
-        formProduit.setId(id);
-        return formProduit;
-    }
-
-    default Produit parentFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Produit produit = new Produit();
-        produit.setId(id);
-        return produit;
-    }
 
     default Tva tvaFromId(Long id) {
         if (id == null) {

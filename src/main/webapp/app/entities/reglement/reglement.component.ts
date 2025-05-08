@@ -28,11 +28,10 @@ import { ReglementFactureDossier } from './model/reglement-facture-dossier.model
   styleUrl: './reglement.component.scss',
 })
 export class ReglementComponent implements OnInit {
-  activatedRoute = inject(ActivatedRoute);
   protected active = 'factures-reglees';
   protected reglementFactureDossiers: ReglementFactureDossier[] = [];
   protected isGroupe = false;
-
+  private readonly activatedRoute = inject(ActivatedRoute);
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ factureDossiers }) => {
       if (factureDossiers?.length > 0) {

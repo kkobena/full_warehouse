@@ -1,8 +1,6 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.Customer_;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
@@ -20,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Repository
 @Transactional(readOnly = true)
@@ -41,8 +41,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             .select(
                 cb.construct(
                     DiffereItem.class,
-                    root.get(Sales_.customer).get(Customer_.firstName),
-                    root.get(Sales_.customer).get(Customer_.lastName),
+                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(User_.firstName),
+                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(User_.lastName),
                     root.get(Sales_.numberTransaction),
                     root.get(Sales_.salesAmount),
                     root.get(Sales_.payrollAmount),
@@ -55,7 +55,10 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             .orderBy(cb.asc(root.get(Sales_.effectiveUpdateDate)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        query.where(predicate);
+        if (nonNull(predicate)) {
+            query.where(predicate);
+        }
+
 
         TypedQuery<DiffereItem> typedQuery = entityManager.createQuery(query);
         if (pageable.isPaged()) {
@@ -96,7 +99,9 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        query.where(predicate);
+        if(nonNull(predicate)) {
+            query.where(predicate);
+        }
 
         TypedQuery<Differe> typedQuery = entityManager.createQuery(query);
         if (pageable.isPaged()) {
@@ -118,7 +123,9 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = countQuery.from(Sales.class);
         countQuery.select(cb.countDistinct(root.get(Sales_.customer)));
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
-        countQuery.where(predicate);
+        if (nonNull(predicate)){
+            countQuery.where(predicate);
+        }
         return entityManager.createQuery(countQuery).getSingleResult();
     }
 
@@ -128,7 +135,11 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = countQuery.from(Sales.class);
         countQuery.select(cb.count(root));
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
-        countQuery.where(predicate);
+        if (nonNull(predicate)){
+            countQuery.where(predicate);
+        }
+
+
         return entityManager.createQuery(countQuery).getSingleResult();
     }
 
@@ -148,13 +159,33 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        query.where(predicate);
+        if(nonNull(predicate)) {
+            query.where(predicate);
+        }
+
         TypedQuery<DiffereSummary> typedQuery = entityManager.createQuery(query);
        return typedQuery.getSingleResult();
     }
 
     @Override
     public Solde getSolde(Specification<Sales> specification) {
-        return null;
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Solde> query = cb.createQuery(Solde.class);
+        Root<Sales> root = query.from(Sales.class);
+        query
+            .select(
+                cb.construct(
+                    Solde.class,
+                    cb.sumAsLong(root.get(Sales_.restToPay))
+                )
+            );
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        if(nonNull(predicate)) {
+            query.where(predicate);
+        }
+
+        TypedQuery<Solde> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getSingleResult();
     }
 }

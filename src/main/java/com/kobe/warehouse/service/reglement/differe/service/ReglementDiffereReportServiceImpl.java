@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +30,11 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     }
 
     @Override
-    public Resource printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary, ReportPeriode reportPeriode) throws ReportFileExportException {
+    public Resource printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException {
         this.templateFile = Constant.LIST_DIFFERE_PDF_TEMPLATE_FILE;
         this.fileName="liste_des_differes";
         try {
-            return this.getResource(print(differe, differeSummary, reportPeriode));
+            return this.getResource(print(differe, differeSummary));
         } catch (Exception e) {
             log.error("printListToPdf", e);
             throw new ReportFileExportException();
@@ -82,9 +83,9 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     protected String getGenerateFileName() {
         return fileName;
     }
-    private String print(List<DiffereDTO> differe, DiffereSummary differeSummary,ReportPeriode reportPeriode) {
+    private String print(List<DiffereDTO> differe, DiffereSummary differeSummary) {
         this.getParameters().put(Constant.ITEMS, differe);
-        this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES DIFFERES PERIODE DU " + DateUtil.format(reportPeriode.from() ) + " AU " + DateUtil.format(reportPeriode.to()));
+        this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES DIFFERES  AU " + DateUtil.format(LocalDateTime.now()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differeSummary);
         super.getCommonParameters();
         return super.printOneReceiptPage(getDestFilePath());

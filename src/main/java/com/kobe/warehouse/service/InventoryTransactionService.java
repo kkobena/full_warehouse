@@ -20,16 +20,13 @@ public class InventoryTransactionService {
 
     private final InventoryTransactionRepository inventoryTransactionRepository;
 
-    private final ProduitRepository produitRepository;
     private final InventoryTransactionSpec inventoryTransactionSpec;
 
     public InventoryTransactionService(
         InventoryTransactionRepository inventoryTransactionRepository,
-        ProduitRepository produitRepository,
         InventoryTransactionSpec inventoryTransactionSpec
     ) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
-        this.produitRepository = produitRepository;
         this.inventoryTransactionSpec = inventoryTransactionSpec;
     }
 

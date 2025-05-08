@@ -61,15 +61,7 @@ import { InputIcon } from 'primeng/inputicon';
   providers: [ConfirmationService, DialogService],
 })
 export class AjustementDetailComponent implements OnInit, AfterViewInit {
-  protected activatedRoute = inject(ActivatedRoute);
-  protected produitService = inject(ProduitService);
-  protected modalService = inject(NgbModal);
-  private errorService = inject(ErrorService);
-  protected ajustementService = inject(AjustementService);
-  protected modifAjustementService = inject(ModifAjustementService);
-  private confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
-
+  readonly comment = viewChild<ElementRef>('comment');
   quantityBox = viewChild.required<ElementRef>('quantityBox');
   protected ajustement: IAjust | null = null;
   protected produitSelected!: IProduit | null;
@@ -78,7 +70,6 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected produits: IProduit[] = [];
   protected motifs: IMotifAjustement[] = [];
   protected items: IAjustement[] = [];
-  readonly comment = viewChild<ElementRef>('comment');
   protected search: string;
   protected context: any;
   protected produitbox = viewChild.required<any>('produitbox');
@@ -89,9 +80,14 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected selectedEl: IAjustement[];
   protected ref?: DynamicDialogRef;
   protected readonly appendTo = APPEND_TO;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly produitService = inject(ProduitService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly ajustementService = inject(AjustementService);
+  private readonly modifAjustementService = inject(ModifAjustementService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly dialogService = inject(DialogService);
 
   constructor() {
     this.search = '';
@@ -156,7 +152,6 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       icon: 'pi pi-times-circle',
       acceptVisible: false,
       rejectButtonProps: rejectWarningButtonProps(),
-      reject() {},
       key: 'warningMessage',
     });
   }
@@ -204,7 +199,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       if (!this.motifSelected) {
         this.showWarningMessage();
       } else {
-        if (this.ajustement.id) {
+        if (this.ajustement?.id) {
           this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
         } else {
           this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
@@ -386,7 +381,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       ...new Ajustement(),
       produitId: produit.id,
       qtyMvt: quantity,
-      ajustId: this.ajustement.id,
+      ajustId: this.ajustement?.id,
       motifAjustementId: this.motifSelected,
     };
   }
@@ -398,16 +393,5 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       el.value = 1;
       el.select();
     }, 100);
-  }
-
-  private updateFromForm(ajustement: IAjustement): IAjustement {
-    return {
-      ...new Ajustement(),
-      produitId: ajustement.produitId,
-      id: ajustement.id,
-      ajustId: ajustement.ajustId,
-      qtyMvt: ajustement.qtyMvt,
-      commentaire: this.comment().nativeElement.value,
-    };
   }
 }

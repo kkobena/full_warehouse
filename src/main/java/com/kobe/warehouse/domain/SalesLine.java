@@ -51,6 +51,10 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
 
+    @Column(name = "prix_unit_assurance", nullable = false, columnDefinition = "int default '0'")
+    private Integer prixUnitAssurance = 0;
+    @Column(name = "assurance_amount", nullable = false, columnDefinition = "int default '0'")
+    private Integer assuranceAmount = 0 ;
     @NotNull
     @Column(name = "discount_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer discountUnitPrice = 0;
@@ -127,9 +131,8 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer taxAmount = 0;
-
-    @Column(name = "cmu_amount", nullable = false, columnDefinition = "int default '0'")
-    private int cmuAmount;
+    @ManyToOne
+    private PrixReference prixAssurance;
 
     public Long getId() {
         return id;
@@ -156,6 +159,15 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
+    public PrixReference getPrixAssurance() {
+        return prixAssurance;
+    }
+
+    public SalesLine setPrixAssurance(PrixReference prixAssurance) {
+        this.prixAssurance = prixAssurance;
+        return this;
+    }
+
     public @NotNull Integer getQuantityUg() {
         return quantityUg;
     }
@@ -165,12 +177,21 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public int getCmuAmount() {
-        return cmuAmount;
+    public Integer getPrixUnitAssurance() {
+        return prixUnitAssurance;
     }
 
-    public SalesLine setCmuAmount(int cmuAmount) {
-        this.cmuAmount = cmuAmount;
+    public SalesLine setPrixUnitAssurance(Integer prixUnitAssurance) {
+        this.prixUnitAssurance = prixUnitAssurance;
+        return this;
+    }
+
+    public Integer getAssuranceAmount() {
+        return assuranceAmount;
+    }
+
+    public SalesLine setAssuranceAmount(Integer assuranceAmount) {
+        this.assuranceAmount = assuranceAmount;
         return this;
     }
 

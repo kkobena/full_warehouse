@@ -16,6 +16,7 @@ public final class DateUtil {
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DD_MM_YYYY = "dd-MM-yyyy";
     private static final String DD_MM_YYYY_FR = "dd/MM/yyyy";
+    private static final String DD_MM_YYYY_HH_MM_SS_FR = "dd/MM/yyyy HH:mm:ss";
     private static final String TIME_FORMAT = "HH:mm";
     private static final String YYYY_MM_DD = "yyyyMMdd";
 
@@ -35,7 +36,7 @@ public final class DateUtil {
         if (date == null) {
             return "";
         }
-        return date.format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
+        return date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY_HH_MM_SS_FR));
     }
 
     public static String format(Timestamp date) {

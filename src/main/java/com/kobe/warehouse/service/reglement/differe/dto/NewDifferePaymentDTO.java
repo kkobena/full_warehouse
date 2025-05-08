@@ -1,11 +1,16 @@
 package com.kobe.warehouse.service.reglement.differe.dto;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-public record NewDifferePaymentDTO(long customerId, Set<Long> saleIds,int expectedAmount, int amount, ModePaimentCode paimentMode) {
+public record NewDifferePaymentDTO(long customerId, Set<Long> saleIds, int expectedAmount, int amount, ModePaimentCode paimentMode,
+                                   LocalDate paymentDate,
+                                   BanqueInfoDTO banqueInfo) {
     public NewDifferePaymentDTO {
         if (amount <= 0) {
             throw new IllegalArgumentException("Le montant doit être supérieur à zéro");
@@ -18,6 +23,9 @@ public record NewDifferePaymentDTO(long customerId, Set<Long> saleIds,int expect
         }
         if (customerId <= 0) {
             throw new IllegalArgumentException("Donnée client invalide");
+        }
+        if (CollectionUtils.isEmpty(saleIds)){
+            throw new IllegalArgumentException("La liste des ventes ne doit pas être vide");
         }
     }
 }

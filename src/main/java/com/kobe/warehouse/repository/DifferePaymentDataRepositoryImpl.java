@@ -42,8 +42,6 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
                     root.get(DifferePayment_.differeCustomer).get(Customer_.firstName),
                     root.get(DifferePayment_.differeCustomer).get(Customer_.lastName),
                     cb.sumAsLong(root.get(DifferePayment_.paidAmount))
-
-
                 )
             )
             .groupBy(root.get(DifferePayment_.differeCustomer).get(Customer_.id));
@@ -75,7 +73,6 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
             .select(
                 cb.construct(
                     DifferePaymentSummary.class,
-                    cb.sumAsLong(root.get(DifferePayment_.expectedAmount)),
                     cb.sumAsLong(root.get(DifferePayment_.paidAmount))
                 )
             ).orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
@@ -109,7 +106,7 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
                     root.get(DifferePayment_.paymentMode).get(PaymentMode_.code),
                     root.get(DifferePayment_.paymentMode).get(PaymentMode_.libelle)
                 )
-            ).orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
+            ).orderBy(cb.asc(root.get(DifferePayment_.createdAt)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

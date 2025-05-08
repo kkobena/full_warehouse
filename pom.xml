@@ -590,7 +590,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <relativePath/>
-        <version>3.4.4</version>
+        <version>3.4.5</version>
         <!-- lookup parent from repository -->
     </parent>
 

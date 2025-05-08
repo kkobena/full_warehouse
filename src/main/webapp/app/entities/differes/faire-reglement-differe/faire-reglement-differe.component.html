@@ -1,1 +1,121 @@
-<p>faire-reglement-differe works!</p>
+
+<div class="row reglement-dossier">
+  <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
+    <p-table
+      [showGridlines]="true"
+      #differeTable
+      [globalFilterFields]="[ 'reference']"
+      [value]="differe.differeItems"
+      dataKey="saleId"
+    >
+      <ng-template #caption>
+        <div class="d-flex justify-content-between">
+          <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
+          <div class="p-0">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                (input)="differeTable.filterGlobal($event.target.value, 'contains')"
+                [style]="{ width: '300px' }"
+                pInputText
+                placeholder="Taper pour filter "
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Référence</th>
+          <th>Date vente</th>
+          <th>Opérateur</th>
+          <th>Montant vente</th>
+          <th>Montant payé</th>
+          <th>Montant Restant</th>
+        </tr>
+      </ng-template>
+      <ng-template let-item let-rowIndex="rowIndex" pTemplate="body">
+        <tr [ngClass]="{ 'table-success0': item.restAmount > 0 }">
+          <td>{{ item.reference }}</td>
+          <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
+          <td>{{ item.user }}</td>
+          <td class="amount-column">
+            {{ item.amount | number }}
+          </td>
+          <td class="amount-column">
+            {{ item.paidAmount | number }}
+          </td>
+          <td class="amount-column">
+            {{ item.restAmount | number }}
+          </td>
+
+        </tr>
+      </ng-template>
+      <ng-template  #footer>
+        <tr>
+          <td class="p-text-left" colspan="3" style="font-weight: 700">TOTAL </td>
+          <td class="amount-column text-right">{{ differe?.saleAmount | number }}</td>
+          <td class="amount-column text-right" >{{ differe?.paidAmount | number }}</td>
+          <td class="amount-column text-right red-400" >{{ differe?.rest | number }}</td>
+
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
+    <p-fieldset>
+      <ng-template #header>
+        <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
+          <span>Formulaire réglement</span>
+
+        </div>
+      </ng-template>
+
+      <jhi-reglement-differe-form
+        (reglementParams)="onSaveReglement($event)"
+        [differe]="differe"
+        [isSaving]="isSaving"
+        (rendu)="onMonnaieChange($event)"
+      >
+      </jhi-reglement-differe-form>
+    </p-fieldset>
+    <p-fieldset [toggleable]="true" legend="Infos client">
+      <ul class="list-group">
+
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Client
+            <span>{{ differe.firstName +' '+differe.lastName }}</span>
+          </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Total achat
+          <span class="montant-total montant text-primary">{{ differe.saleAmount | number }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Total payé
+          <span class="montant-total montant text-primary">{{ differe.paidAmount | number }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Montant à payer
+          <span class="montant-payer montant red-400 font-bold">{{ differe.rest | number }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+         Nombre de dossiers
+          <span class="montant-total montant text-primary">{{ differe.differeItems.length | number }}</span>
+        </li>
+
+        @if (monnaie) {
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Monnaie
+            <span class="montant-total montant text-success">{{ monnaie | number }}</span>
+          </li>
+        }
+      </ul>
+    </p-fieldset>
+
+  </div>
+</div>
+
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"> </p-confirmDialog>
+

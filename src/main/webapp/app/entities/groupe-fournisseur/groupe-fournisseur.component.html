@@ -79,7 +79,7 @@
               icon="pi pi-pencil"
               rounded="true"
               severity="success"
-              pTooltip="Editer"
+              pTooltip="Editer"[text]="true"
             ></p-button>
             <p-button
               (click)="delete(elRow)"
@@ -87,6 +87,7 @@
               severity="danger"
               [rounded]="true"
               pTooltip="Supprimer"
+              [text]="true"
               type="button"
             ></p-button>
           </td>

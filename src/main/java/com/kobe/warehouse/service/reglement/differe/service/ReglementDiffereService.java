@@ -15,8 +15,8 @@ public interface ReglementDiffereService {
     Page<DiffereItem> getDiffereItems(
         Long customerId,
         String search,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDate fromDate,
+        LocalDate toDate,
         Set<PaymentStatus> paymentStatuses,
         Pageable pageable
     );
@@ -25,48 +25,39 @@ public interface ReglementDiffereService {
 
     Page<DiffereDTO> getDiffere(
         Long customerId,
-        String search,
-        LocalDate startDate,
-        LocalDate endDate,
         Set<PaymentStatus> paymentStatuses,
         Pageable pageable
     );
 
     Optional<DiffereDTO> getOne(Long id);
 
-    Long doReglement(NewDifferePaymentDTO differePayment);
+    ReglementDiffereResponse doReglement(NewDifferePaymentDTO differePayment);
 
     void printReceipt(long idReglement);
 
     DiffereSummary getDiffereSummary(
         Long customerId,
-        String search,
-        LocalDate startDate,
-        LocalDate endDate,
         Set<PaymentStatus> paymentStatuses
     );
 
-    DifferePaymentSummary getDifferePaymentSummary(
+    DifferePaymentSummaryDTO getDifferePaymentSummary(
         Long customerId,
-        LocalDate startDate,
-        LocalDate endDate
+        LocalDate fromDate,
+        LocalDate toDate
     );
 
     Resource printListToPdf(Long customerId,
-                            String search,
-                            LocalDate startDate,
-                            LocalDate endDate,
                             Set<PaymentStatus> paymentStatuses);
 
     Resource printReglementToPdf(Long customerId,
-                                 LocalDate startDate,
-                                 LocalDate endDate);
+                                 LocalDate fromDate,
+                                 LocalDate toDate);
 
 
     Page<ReglementDiffereWrapperDTO> getReglementsDifferes(
         Long customerId,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDate fromDate,
+        LocalDate toDate,
         Pageable pageable
     );
 }

@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
 import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
@@ -15,10 +14,8 @@ import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
@@ -38,7 +35,6 @@ public abstract class AbstractReglementService implements ReglementService {
     private final UserService userService;
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-
     private final BanqueRepository banqueRepository;
 
     protected AbstractReglementService(
@@ -84,13 +80,13 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
         InvoicePayment invoice = new InvoicePayment()
-            .setBanque(buildBanque(reglementParam.getBanqueInfo()))
             .setFactureTiersPayant(factureTiersPayant);
         invoice
             .setCashRegister(getCashRegister())
             .setMontantVerse(reglementParam.getAmount())
             .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
         invoice.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
+        invoice .setBanque(buildBanque(reglementParam.getBanqueInfo()));
         return invoice;
     }
 

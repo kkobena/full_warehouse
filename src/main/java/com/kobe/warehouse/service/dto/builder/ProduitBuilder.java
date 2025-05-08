@@ -1,19 +1,6 @@
 package com.kobe.warehouse.service.dto.builder;
 
-import com.kobe.warehouse.domain.DailyStock;
-import com.kobe.warehouse.domain.FamilleProduit;
-import com.kobe.warehouse.domain.FormProduit;
-import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.GammeProduit;
-import com.kobe.warehouse.domain.Laboratoire;
-import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.Rayon;
-import com.kobe.warehouse.domain.RayonProduit;
-import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.Tva;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -22,6 +9,7 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
+import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -212,14 +200,7 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO dailyStocks(ProduitDTO produitDTO, Produit produit) {
-        if (!CollectionUtils.isEmpty(produit.getDailyStocks())) {
-            produitDTO.dailyStocks(
-                produit.getDailyStocks().stream().sorted(Comparator.comparing(DailyStock::getStockDay, Comparator.reverseOrder())).toList()
-            );
-        }
-        return produitDTO;
-    }
+
 
     private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
         FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
@@ -243,7 +224,6 @@ public final class ProduitBuilder {
         stockProduits(produitDTO, produit, magasin.getId());
         stockProduit(produitDTO, stockProduitPointOfSale);
         rayonProduits(produitDTO, produit, magasin.getId());
-        dailyStocks(produitDTO, produit);
         produits(produitDTO, produit);
         fournisseurProduits(produitDTO, produit);
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
@@ -289,9 +269,6 @@ public final class ProduitBuilder {
         }
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
-        if (!CollectionUtils.isEmpty(produit.prixReference())) {
-            produitDTO.setPrixReference(produit.prixReference());
-        }
 
         return produitDTO;
     }
@@ -326,7 +303,6 @@ public final class ProduitBuilder {
         tva(produitDTO, produit);
         stockProduits(produitDTO, produit);
         rayonProduits(produitDTO, produit);
-        dailyStocks(produitDTO, produit);
         produits(produitDTO, produit);
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.setDisplayField(
@@ -338,9 +314,6 @@ public final class ProduitBuilder {
 
     public static ProduitDTO lite(Produit produit) {
         ProduitDTO dto = new ProduitDTO();
-        if (!CollectionUtils.isEmpty(produit.prixReference())) {
-            dto.setPrixReference(produit.prixReference());
-        }
         dto.setId(produit.getId());
         dto.setLibelle(produit.getLibelle());
         dto.setRemiseCode(produit.getCodeRemise().getValue());

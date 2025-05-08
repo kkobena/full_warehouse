@@ -86,7 +86,8 @@ public class PaymentTransaction implements Serializable {
 
     @Column(name = "dtype", insertable = false, updatable = false)
     private String type;
-
+    @ManyToOne
+    private Banque banque;
     public Integer getExpectedAmount() {
         return expectedAmount;
     }
@@ -138,6 +139,14 @@ public class PaymentTransaction implements Serializable {
     public PaymentTransaction setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
         return this;
+    }
+
+    public Banque getBanque() {
+        return banque;
+    }
+
+    public void setBanque(Banque banque) {
+        this.banque = banque;
     }
 
     public String getCommentaire() {

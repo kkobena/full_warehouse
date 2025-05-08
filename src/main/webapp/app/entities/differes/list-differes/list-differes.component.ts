@@ -1,7 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
 import { PrimeNG } from 'primeng/config';
@@ -16,29 +14,16 @@ import { Tooltip } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { Tag } from 'primeng/tag';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { DiffereSummary } from '../model/differe-summary.model';
 
 @Component({
   selector: 'jhi-list-differes',
-  imports: [
-    Button,
-    DatePicker,
-    FloatLabel,
-    FormsModule,
-    Toolbar,
-    CommonModule,
-    SelectModule,
-    CardModule,
-    TableModule,
-    Tooltip,
-    RouterModule,
-    Tag,
-  ],
+  imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
   templateUrl: './list-differes.component.html',
 })
 export class ListDifferesComponent implements OnInit {
@@ -46,12 +31,12 @@ export class ListDifferesComponent implements OnInit {
   protected page = 0;
   protected totalItems = 0;
   protected loading!: boolean;
-  protected today = new Date();
-  protected modelStartDate: Date = new Date();
-  protected modelEndDate: Date = new Date();
+  /* protected modelStartDate: Date = new Date();
+  protected modelEndDate: Date = new Date();*/
   protected loadingBtn = false;
   protected loadingPdf = false;
   protected clients: ClientDiffere[] = [];
+  protected summary: DiffereSummary | null = null;
   protected typesDifferes = [
     {
       id: StatutDiffere.PAYE,
@@ -83,10 +68,10 @@ export class ListDifferesComponent implements OnInit {
     if (params) {
       this.customerId = params.customerId;
       this.statut = params.statut;
-      this.modelStartDate = params.fromDate;
-      this.modelEndDate = params.toDate;
+      // this.modelStartDate = params.fromDate;
+      //  this.modelEndDate = params.toDate;
     }
-    this.loadData();
+    this.onSerch();
   }
 
   onChange(event: any): void {
@@ -98,7 +83,19 @@ export class ListDifferesComponent implements OnInit {
     this.statut = event.value;
     this.onSerch();
   }
-
+  protected exportPdf(): void {
+    this.loadingPdf = true;
+    this.differeService.exportListToPdf(this.buildQueryParams()).subscribe({
+      next: (blob: Blob) => {
+        this.loadingPdf = false;
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl);
+      },
+      error: () => {
+        this.loadingPdf = false;
+      },
+    });
+  }
   protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.loadingBtn = true;
@@ -141,6 +138,7 @@ export class ListDifferesComponent implements OnInit {
 
   protected onSerch(): void {
     this.loadData();
+    this.loadDiffereSummary();
   }
 
   private fetchClients(): void {
@@ -170,18 +168,29 @@ export class ListDifferesComponent implements OnInit {
     if (this.statut) {
       params.paymentStatuses = [this.statut];
     }
-    if (this.modelStartDate) {
+    /* if (this.modelStartDate) {
       params.fromDate = DATE_FORMAT_ISO_DATE(this.modelStartDate);
     }
     if (this.modelEndDate) {
       params.toDate = DATE_FORMAT_ISO_DATE(this.modelEndDate);
-    }
+    }*/
     this.differeService.setParams({
       customerId: this.customerId,
       statut: this.statut,
-      fromDate: this.modelStartDate,
-      toDate: this.modelEndDate,
+      // fromDate: this.modelStartDate,
+      // toDate: this.modelEndDate,
     });
     return params;
+  }
+
+  private loadDiffereSummary(): void {
+    this.differeService.getDiffereSummary(this.buildQueryParams()).subscribe({
+      next: (res: HttpResponse<DiffereSummary>) => {
+        this.summary = res.body;
+      },
+      error: () => {
+        this.summary = null;
+      },
+    });
   }
 }

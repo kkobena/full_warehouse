@@ -383,9 +383,7 @@ public class SaleCommonService {
     }
 
     public int computeCmuAmount(SalesLine salesLine) {
-        if (salesLine.getCmuAmount() > 0) {
-            return salesLine.getCmuAmount() * salesLine.getQuantityRequested();
-        }
+
         return salesLine.getRegularUnitPrice() * salesLine.getQuantityRequested();
     }
 

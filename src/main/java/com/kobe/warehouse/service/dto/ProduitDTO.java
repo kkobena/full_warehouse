@@ -6,8 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
-import com.kobe.warehouse.domain.PrixRererence;
+
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -72,7 +74,7 @@ public class ProduitDTO {
     private String rayonLibelle;
     private long rayonId;
     private long storageId;
-    private List<PrixRererence> prixReference = new ArrayList<>();
+    private List<PrixReferenceDTO> prixReference = new ArrayList<>();
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -96,6 +98,15 @@ public class ProduitDTO {
 
     public ProduitDTO setRemiseCode(String remiseCode) {
         this.remiseCode = remiseCode;
+        return this;
+    }
+
+    public List<PrixReferenceDTO> getPrixReference() {
+        return prixReference;
+    }
+
+    public ProduitDTO setPrixReference(List<PrixReferenceDTO> prixReference) {
+        this.prixReference = prixReference;
         return this;
     }
 
@@ -594,13 +605,7 @@ public class ProduitDTO {
         return this;
     }
 
-    public List<PrixRererence> prixReference() {
-        return prixReference;
-    }
 
-    public void setPrixReference(List<PrixRererence> prixReference) {
-        this.prixReference = prixReference;
-    }
 
     public int getQtyReserve() {
         return qtyReserve;

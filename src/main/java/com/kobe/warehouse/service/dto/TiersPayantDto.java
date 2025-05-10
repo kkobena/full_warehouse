@@ -42,31 +42,12 @@ public class TiersPayantDto implements Serializable {
     private GroupeTiersPayant groupeTiersPayant;
     private String groupeTiersPayantName;
     private Long groupeTiersPayantId;
-    private boolean cmu;
     private String modelFacture;
     private OrdreTrisFacture ordreTrisFacture;
     private List<AssuredCustomerDTO> clients = new ArrayList<>();
-    private boolean useReferencedPrice;
+
 
     public TiersPayantDto() {}
-
-    public boolean isUseReferencedPrice() {
-        return useReferencedPrice;
-    }
-
-    public TiersPayantDto setUseReferencedPrice(boolean useReferencedPrice) {
-        this.useReferencedPrice = useReferencedPrice;
-        return this;
-    }
-
-    public OrdreTrisFacture getOrdreTrisFacture() {
-        return ordreTrisFacture;
-    }
-
-    public TiersPayantDto setOrdreTrisFacture(OrdreTrisFacture ordreTrisFacture) {
-        this.ordreTrisFacture = ordreTrisFacture;
-        return this;
-    }
 
     public String getModelFacture() {
         return modelFacture;
@@ -77,14 +58,6 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public boolean isCmu() {
-        return cmu;
-    }
-
-    public TiersPayantDto setCmu(boolean cmu) {
-        this.cmu = cmu;
-        return this;
-    }
 
     public Long getId() {
         return id;

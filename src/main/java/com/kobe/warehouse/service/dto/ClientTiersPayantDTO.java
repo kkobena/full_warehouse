@@ -27,7 +27,6 @@ public class ClientTiersPayantDTO {
     private TiersPayantCategorie typeTiersPayant;
     private String numBon;
     private long customerId;
-    private boolean cmu;
     private boolean newClientTiersPayant;
 
     public ClientTiersPayantDTO() {}
@@ -54,9 +53,7 @@ public class ClientTiersPayantDTO {
             .setId(cTiersPayant.getId())
             .setFullName(cTiersPayant.getFullName());
         this.customerId = c.getAssuredCustomer().getId();
-        if (cTiersPayant.getCmu() != null) {
-            this.cmu = cTiersPayant.getCmu();
-        }
+
     }
 
     public boolean isNewClientTiersPayant() {
@@ -68,14 +65,7 @@ public class ClientTiersPayantDTO {
         return this;
     }
 
-    public boolean isCmu() {
-        return cmu;
-    }
 
-    public ClientTiersPayantDTO setCmu(boolean cmu) {
-        this.cmu = cmu;
-        return this;
-    }
 
     @Override
     public String toString() {

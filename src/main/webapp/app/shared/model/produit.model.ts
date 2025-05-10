@@ -70,10 +70,11 @@ export interface IProduit {
   expirationDate?: string;
   displayField?: string;
   rayonProduits?: IRayonProduit[];
-  cmuAmount?: number;
   tableau?: ITableau;
   remiseCode?: string;
   etatProduit?: EtatProduit;
+  dciId?: number;
+  categorie?: string; //categorie ABC
 }
 
 export class Produit implements IProduit {
@@ -136,6 +137,10 @@ export class Produit implements IProduit {
     public expirationDate?: string,
     public displayField?: string,
     public rayonProduits?: IRayonProduit[],
-    public cmuAmount?: number,
   ) {}
+}
+export class Dci {
+  id?: number;
+  libelle?: string;
+  code?: string;
 }

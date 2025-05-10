@@ -2,8 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from '../../../shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { CustomerService } from '../customer.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ToastModule } from 'primeng/toast';
@@ -26,6 +24,8 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { CustomerService } from '../customer.service';
 
 @Component({
   selector: 'jhi-customer-tiers-payant',
@@ -54,19 +54,10 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 })
 export class CustomerTiersPayantComponent implements OnInit {
   protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  protected tiersPayantService = inject(TiersPayantService);
-  protected customerService = inject(CustomerService);
-  private messageService = inject(MessageService);
-
-  minLength = 3;
-  plafonds = [
-    { label: 'Non', value: false },
-    { label: 'Oui', value: true },
-  ];
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected ref = inject(DynamicDialogRef);
+  protected minLength = 3;
+  protected editForm = this.fb.group({
     id: [],
     tiersPayant: [null, [Validators.required]],
     taux: [null, [Validators.required, Validators.min(5), Validators.max(100)]],
@@ -75,16 +66,16 @@ export class CustomerTiersPayantComponent implements OnInit {
     plafondJournalier: [],
     plafondAbsolu: [],
   });
-  entity: IClientTiersPayant | null = null;
-  customer: ICustomer | null = null;
-  isSaving = false;
-  isValid = true;
-  tiersPayants: ITiersPayant[] = [];
+  protected entity: IClientTiersPayant | null = null;
+  protected customer: ICustomer | null = null;
+  protected isSaving = false;
+  protected isValid = true;
+  protected tiersPayants: ITiersPayant[] = [];
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly messageService = inject(MessageService);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly customerService = inject(CustomerService);
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

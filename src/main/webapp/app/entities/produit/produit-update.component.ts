@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
-import { IProduit, Produit } from 'app/shared/model/produit.model';
+import { Dci, IProduit, Produit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
@@ -31,6 +31,8 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputMaskModule } from 'primeng/inputmask';
 import { RemiseService } from '../remise/remise.service';
+import { DciService } from '../dci/dci.service';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -45,33 +47,31 @@ import { RemiseService } from '../remise/remise.service';
     InputTextModule,
     KeyFilterModule,
     InputMaskModule,
+    Select,
   ],
 })
 export class ProduitUpdateComponent implements OnInit {
-  isSaving = false;
-  isValid = true;
-  isDeconditionnable = false;
-  isDatePeremptionChecked = false;
-  formeProduits: IFormProduit[] = [];
-  familleProduits: IFamilleProduit[] = [];
-  laboratoires: ILaboratoire[] = [];
-  gammes: IGammeProduit[] = [];
-  tvas: ITva[] = [];
-  fournisseurs: IFournisseur[] = [];
-  rayons: IRayon[] = [];
-  remisesCodes: CodeRemise[] = [];
-  remiseService = inject(RemiseService);
-  private readonly produitService = inject(ProduitService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly rayonService = inject(RayonService);
-  private readonly laboratoireService = inject(LaboratoireProduitService);
-  private readonly formeProduitService = inject(FormeProduitService);
-  private readonly fournisseurService = inject(FournisseurService);
-  private readonly familleService = inject(FamilleProduitService);
-  private readonly gammeProduitService = inject(GammeProduitService);
-  private readonly tvaService = inject(TvaService);
-  private readonly fb = inject(UntypedFormBuilder);
-  editForm = this.fb.group({
+  protected isSaving = false;
+  protected isValid = true;
+  protected isDeconditionnable = false;
+  protected isDatePeremptionChecked = false;
+  protected formeProduits: IFormProduit[] = [];
+  protected familleProduits: IFamilleProduit[] = [];
+  protected laboratoires: ILaboratoire[] = [];
+  protected gammes: IGammeProduit[] = [];
+  protected tvas: ITva[] = [];
+  protected fournisseurs: IFournisseur[] = [];
+  protected rayons: IRayon[] = [];
+  protected remisesCodes: CodeRemise[] = [];
+  protected dcis: Dci[] = [];
+  protected categories = [
+    { code: 'A', libelle: 'Produits à forte rotation', z: 1.96 },
+    { code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65 },
+    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 },
+  ];
+
+  protected readonly fb = inject(UntypedFormBuilder);
+  protected editForm = this.fb.group({
     id: [],
     tvaId: [null, [Validators.required]],
     familleId: [null, [Validators.required]],
@@ -95,8 +95,20 @@ export class ProduitUpdateComponent implements OnInit {
     itemCostAmount: [],
     itemRegularUnitPrice: [],
     expirationDate: [],
-    cmuAmount: [],
+    dciId: [],
+    categorie: [],
   });
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly rayonService = inject(RayonService);
+  private readonly laboratoireService = inject(LaboratoireProduitService);
+  private readonly formeProduitService = inject(FormeProduitService);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly familleService = inject(FamilleProduitService);
+  private readonly gammeProduitService = inject(GammeProduitService);
+  private readonly tvaService = inject(TvaService);
+  private readonly remiseService = inject(RemiseService);
+  private readonly dciService = inject(DciService);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
@@ -127,7 +139,7 @@ export class ProduitUpdateComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<ITva[]>) => {
-        this.tvas = res.body || [];
+        this.tvas = res.body;
       });
 
     this.fournisseurService
@@ -136,7 +148,7 @@ export class ProduitUpdateComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
+        this.fournisseurs = res.body;
       });
     this.rayonService
       .query({
@@ -144,10 +156,10 @@ export class ProduitUpdateComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
-        this.rayons = res.body || [];
+        this.rayons = res.body;
       });
     this.laboratoireService.query().subscribe((res: HttpResponse<ILaboratoire[]>) => {
-      this.laboratoires = res.body || [];
+      this.laboratoires = res.body;
     });
     this.gammeProduitService
       .query({
@@ -163,7 +175,7 @@ export class ProduitUpdateComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
-        this.familleProduits = res.body || [];
+        this.familleProduits = res.body;
       });
     this.formeProduitService
       .query({
@@ -171,10 +183,13 @@ export class ProduitUpdateComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<IFormProduit[]>) => {
-        this.formeProduits = res.body || [];
+        this.formeProduits = res.body;
       });
     this.remiseService.queryCodes().subscribe((res: HttpResponse<CodeRemise[]>) => {
-      this.remisesCodes = res.body || [];
+      this.remisesCodes = res.body;
+    });
+    this.dciService.queryUnpaged().subscribe((res: HttpResponse<Dci[]>) => {
+      this.dcis = res.body;
     });
   }
 
@@ -183,7 +198,6 @@ export class ProduitUpdateComponent implements OnInit {
       id: produit.id,
       libelle: produit.libelle,
       costAmount: produit.costAmount,
-      cmuAmount: produit.cmuAmount,
       regularUnitPrice: produit.regularUnitPrice,
       createdAt: produit.createdAt ? produit.createdAt.format(DATE_TIME_FORMAT) : null,
       itemQty: produit.itemQty,
@@ -204,6 +218,8 @@ export class ProduitUpdateComponent implements OnInit {
       dateperemption: produit.dateperemption,
       expirationDate: produit.expirationDate,
       formeId: produit.formeId,
+      dciId: produit.dciId,
+      categorie: produit.categorie,
     });
   }
 
@@ -312,7 +328,6 @@ export class ProduitUpdateComponent implements OnInit {
       id: this.editForm.get(['id']).value,
       libelle: this.editForm.get(['libelle']).value,
       costAmount: this.editForm.get(['costAmount']).value,
-      cmuAmount: this.editForm.get(['cmuAmount']).value,
       regularUnitPrice: this.editForm.get(['regularUnitPrice']).value,
       createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
       itemQty: this.editForm.get(['itemQty']).value,
@@ -334,6 +349,8 @@ export class ProduitUpdateComponent implements OnInit {
       dateperemption: this.editForm.get(['dateperemption']).value,
       expirationDate: this.editForm.get(['expirationDate']).value,
       formeId: this.editForm.get(['formeId']).value,
+      dciId: this.editForm.get(['dciId']).value,
+      categorie: this.editForm.get(['categorie']).value,
     };
   }
 }

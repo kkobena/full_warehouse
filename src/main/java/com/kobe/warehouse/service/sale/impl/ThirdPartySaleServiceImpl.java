@@ -1,77 +1,32 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.domain.AssuredCustomer;
-import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.ClientTiersPayant;
-import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
-import com.kobe.warehouse.domain.RemiseProduit;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.ThirdPartySaleLine;
-import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.enumeration.NatureVente;
-import com.kobe.warehouse.domain.enumeration.OrigineVente;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
-import com.kobe.warehouse.repository.AssuredCustomerRepository;
-import com.kobe.warehouse.repository.CashSaleRepository;
-import com.kobe.warehouse.repository.ClientTiersPayantRepository;
-import com.kobe.warehouse.repository.PosteRepository;
-import com.kobe.warehouse.repository.RemiseRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleRepository;
-import com.kobe.warehouse.repository.TiersPayantRepository;
-import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.service.PaymentService;
-import com.kobe.warehouse.service.ReferenceService;
-import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.UtilisationCleSecuriteService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
+import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.enumeration.*;
+import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.service.*;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.service.dto.Consommation;
-import com.kobe.warehouse.service.dto.KeyValue;
-import com.kobe.warehouse.service.dto.ResponseDTO;
-import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
-import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
-import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
-import com.kobe.warehouse.service.errors.GenericError;
-import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
-import com.kobe.warehouse.service.errors.PaymentAmountException;
-import com.kobe.warehouse.service.errors.PlafondVenteException;
-import com.kobe.warehouse.service.errors.PrivilegeException;
-import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
-import com.kobe.warehouse.service.errors.StockException;
-import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
+import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.errors.*;
+import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -89,6 +44,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final CashSaleRepository cashSaleRepository;
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
+    private final PrixRererenceService prixRererenceService;
 
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
 
@@ -96,7 +52,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ClientTiersPayantRepository clientTiersPayantRepository,
         TiersPayantRepository tiersPayantRepository,
-        SalesLineService salesLineService,
+        SaleLineServiceFactory saleLineServiceFactory,
         StorageService storageService,
         ThirdPartySaleRepository thirdPartySaleRepository,
         AssuredCustomerRepository assuredCustomerRepository,
@@ -110,14 +66,14 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
-        AfficheurPosService afficheurPosService
+        AfficheurPosService afficheurPosService, PrixRererenceService prixRererenceService
     ) {
         super(
             referenceService,
             warehouseCalendarService,
             storageService,
             userRepository,
-            salesLineService,
+            saleLineServiceFactory,
             cashRegisterService,
             avoirService,
             posteRepository,
@@ -126,7 +82,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.tiersPayantRepository = tiersPayantRepository;
-        this.salesLineService = salesLineService;
+        this.salesLineService = saleLineServiceFactory.getService(TypeVente.ThirdPartySales);
         this.storageService = storageService;
         this.thirdPartySaleRepository = thirdPartySaleRepository;
         this.assuredCustomerRepository = assuredCustomerRepository;
@@ -134,21 +90,28 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.cashSaleRepository = cashSaleRepository;
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
+        this.prixRererenceService = prixRererenceService;
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
         ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
+        List<ClientTiersPayant> clientTiersPayants =
+            this.clientTiersPayantRepository.findAllByIdIn(
+                dto.getTiersPayants().stream().map(ClientTiersPayantDTO::getId).collect(Collectors.toSet())
+            );
+
+        computePrixReference(clientTiersPayants, saleLine);
         thirdPartySales.getSalesLines().add(saleLine);
         computeSaleEagerAmount(thirdPartySales, saleLine.getSalesAmount(), 0);
-        computeSaleCmu(thirdPartySales, saleLine, null);
+
         applRemiseToSale(thirdPartySales);
-        String message = computeAmounts(dto.getTiersPayants(), thirdPartySales);
+        String message = computeAmounts(clientTiersPayants, dto.getTiersPayants(), thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, saleLine, null);
         thirdPartySales.setOrigineVente(OrigineVente.DIRECT);
         ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
@@ -294,12 +257,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 clientTiersPayantId,
                 SalesStatut.CLOSED
             ) >
-            0
+                0
         );
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleId(), dto.getProduitId());
         long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
@@ -328,7 +291,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void deleteSaleLineById(Long id) {
         SalesLine salesLine = salesLineService.getOneById(id);
         ThirdPartySales sales = (ThirdPartySales) salesLine.getSales();
@@ -343,7 +306,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
@@ -365,7 +328,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         SalesLine oldsalesline = (SalesLine) salesLine.clone();
@@ -411,7 +374,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         User user = storageService.getUser();
@@ -448,7 +411,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(dto.getId());
@@ -459,7 +422,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
@@ -481,7 +444,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
@@ -504,7 +467,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId) throws PlafondVenteException {
         thirdPartySaleLineRepository
             .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayantId, saleId)
@@ -537,7 +500,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException {
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(dto.getId());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
@@ -547,7 +510,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
         getAyantDroitFromId(dto.getAyantDroitId()).ifPresent(thirdPartySales::setAyantDroit);
-        String message = computeAmounts(
+        String message = computeAmounts(null,
             dto.getTiersPayants().stream().peek(e -> e.setNewClientTiersPayant(true)).toList(),
             thirdPartySales
         );
@@ -562,7 +525,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales c = new ThirdPartySales();
         c.setSalesAmount(cashSale.getSalesAmount());
         c.setOrigineVente(OrigineVente.DIRECT);
-        c.setCmuAmount(cashSale.getCmuAmount());
+        c.setMontantReferenceAssurance(cashSale.getSalesAmount());
         c.setCostAmount(cashSale.getCostAmount());
         c.setNumberTransaction(cashSale.getNumberTransaction());
         c.setCategorieChiffreAffaire(cashSale.getCategorieChiffreAffaire());
@@ -596,9 +559,33 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         computeUgTvaAmount(c, saleLine, oldSaleLine);
     }
 
+    private List<TiersPayantPrix> computePrixReference(List<ClientTiersPayant> clientTiersPayants, SalesLine salesLine) {
+        List<PrixReference> prixReferences = prixRererenceService.findByProduitIdAndTiersPayantIds(
+            salesLine.getProduit().getId(), clientTiersPayants.stream().map(c -> c.getTiersPayant().getId()).collect(Collectors.toSet())
+        );
+        List<TiersPayantPrix> tiersPayantPrix = new ArrayList<>();
+        if (CollectionUtils.isEmpty(prixReferences)) {
+            return tiersPayantPrix;
+        }
+        int unitPrice = salesLine.getSalesAmount() / salesLine.getQuantitySold();
+        for (PrixReference prixReference : prixReferences) {
+            TiersPayantPrix tiersPayantPrix1 = new TiersPayantPrix();
+            tiersPayantPrix1.setTiersPayant(prixReference.getTiersPayant());
+            tiersPayantPrix1.setPrixReference(prixReference.getPrixReference());
+            tiersPayantPrix1.setProduit(salesLine.getProduit());
+            tiersPayantPrix.add(tiersPayantPrix1);
+        }
+
+
+    }
+
+    private void computePrixReference(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
+
+    }
+
     private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
         computeSaleEagerAmount(thirdPartySales, salesLine.getSalesAmount(), oldsalesline != null ? oldsalesline.getSalesAmount() : 0);
-        computeSaleCmu(thirdPartySales, salesLine, oldsalesline);
+        computePrixReference(thirdPartySales, salesLine, oldsalesline);
         applRemiseToSale(thirdPartySales);
         var message = reComputeAmounts(thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
@@ -607,7 +594,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c, SalesLine saleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount() * (-1), 0);
-        c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
+        c.setMontantReferenceAssurance(c.getMontantReferenceAssurance() - computeCmuAmount(saleLine));
         applRemiseToSale(c);
         reComputeAmounts(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
@@ -637,7 +624,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return Optional.ofNullable(ayantDroit);
     }
 
-    private String computeAmounts(List<ClientTiersPayantDTO> tiersPayantsClts, ThirdPartySales thirdPartySales)
+    private String computeAmounts(List<ClientTiersPayant> clttiersPayants, List<ClientTiersPayantDTO> tiersPayantsClts, ThirdPartySales thirdPartySales)
         throws GenericError, NumBonAlreadyUseException {
         var sb = new StringBuilder();
         int counter = 0;
@@ -650,12 +637,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             throw new GenericError("Veuillez ajouter un tierpayant ", "tierPayantNotFound");
         }
         clientTiersPayants.sort(Comparator.comparing(ClientTiersPayantDTO::getCategorie));
-        Map<Long, List<ClientTiersPayant>> tiersPayants =
+        Map<Long, List<ClientTiersPayant>> tiersPayants = CollectionUtils.isEmpty(clientTiersPayants) ?
             this.clientTiersPayantRepository.findAllByIdIn(
                     clientTiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(Collectors.toSet())
                 )
                 .stream()
-                .collect(Collectors.groupingBy(ClientTiersPayant::getId));
+                .collect(Collectors.groupingBy(ClientTiersPayant::getId)) : clttiersPayants.stream()
+            .collect(Collectors.groupingBy(ClientTiersPayant::getId));
 
         for (ClientTiersPayantDTO tp : clientTiersPayants) {
             if (checkIfNumBonIsAlReadyUse(tp.getNumBon(), tp.getId())) {
@@ -687,19 +675,18 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         boolean isPourcentageGreather100,
         ClientTiersPayant clientTiersPayant
     ) throws NumBonAlreadyUseException, PlafondVenteException {
-        int netAmount = thirdPartySales.getSalesAmount();
-        int cmuAmount = thirdPartySales.getCmuAmount();
+
 
         // si non null  nouvelle creation
         if (
             Objects.nonNull(clientTiersPayantDTO) &&
-            checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId())
+                checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId())
         ) {
             throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
         }
 
         TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
-        int totalAmount = tiersPayant.getCmu() ? netAmount - cmuAmount : netAmount;
+        int totalAmount = thirdPartySales.getMontantReferenceAssurance();
         double montantTp = totalAmount * clientTiersPayant.getTauxValue();
         int montantTiersPayant = (int) Math.ceil(montantTp);
         int partTiersPayantnet = computeThirdPartyPart(clientTiersPayant, montantTiersPayant);
@@ -726,12 +713,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySaleLine thirdPartySaleLine = Objects.nonNull(clientTiersPayantDTO)
             ? createThirdPartySaleLine(clientTiersPayantDTO, clientTiersPayant, partTiersPayantnet)
             : updateThirdPartySaleLine(
-                thirdPartySaleLineRepository
-                    .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayant.getId(), thirdPartySales.getId())
-                    .orElseThrow(),
-                clientTiersPayant,
-                partTiersPayantnet
-            );
+            thirdPartySaleLineRepository
+                .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayant.getId(), thirdPartySales.getId())
+                .orElseThrow(),
+            clientTiersPayant,
+            partTiersPayantnet
+        );
         thirdPartySaleLine.setSale(thirdPartySales);
         thirdPartySaleLine.setTaux(newTaux);
         if (Objects.nonNull(clientTiersPayantDTO)) {
@@ -865,7 +852,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void changeCustomer(KeyValue keyValue) throws GenericError, PlafondVenteException {
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(keyValue.key());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(keyValue.value());
@@ -877,7 +864,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySales.setAyantDroit(assuredCustomer);
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
-        String message = computeAmounts(buildFromCustomer(assuredCustomer), thirdPartySales);
+        String message = computeAmounts(null, buildFromCustomer(assuredCustomer), thirdPartySales);
         ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(sale);
         if (StringUtils.hasLength(message)) {
@@ -902,7 +889,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();

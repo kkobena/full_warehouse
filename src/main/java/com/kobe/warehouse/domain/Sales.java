@@ -20,6 +20,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -249,17 +252,7 @@ public class Sales implements Serializable, Cloneable {
     @NotNull
     private WarehouseCalendar calendar;
 
-    @Column(name = "cmu_amount", nullable = false, columnDefinition = "int default '0'")
-    private int cmuAmount;
 
-    public int getCmuAmount() {
-        return cmuAmount;
-    }
-
-    public Sales setCmuAmount(int cmuAmount) {
-        this.cmuAmount = cmuAmount;
-        return this;
-    }
 
     public Long getId() {
         return id;

@@ -17,6 +17,6 @@ public interface DailyStockRepository extends JpaRepository<DailyStock, Long> {
     Optional<DailyStock> findOneByKeyAndProduitId(LocalDate key, Long produitId);
 
     @Modifying
-    @Query(value = "INSERT INTO daily_stock( date_key, stock, produit_id) SELECT DATE(NOW()) AS date_key, SUM(o.qty_ug+o.qty_stock) AS stock,o.produit_id AS produit_id FROM stock_produit o WHERE o.produit_id NOT IN (SELECT p.produit_id FROM daily_stock p WHERE p.date_key =DATE(NOW())) GROUP BY o.produit_id", nativeQuery = true)
+    @Query(value = "INSERT INTO daily_stock( date_key, stock, produit_id) SELECT DATE(NOW()) AS date_key, SUM(o.qty_ug+o.qty_stock) AS stock,o.produit_id AS produit_id FROM stock_produit o JOIN produit pr ON pr.id=o.produit_id   WHERE pr.status=0 AND o.produit_id NOT IN (SELECT p.produit_id FROM daily_stock p WHERE p.date_key =DATE(NOW())) GROUP BY o.produit_id", nativeQuery = true)
     void updateDailyStock();
 }

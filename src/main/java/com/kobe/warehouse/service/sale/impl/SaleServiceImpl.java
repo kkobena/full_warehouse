@@ -14,6 +14,7 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.CashSaleRepository;
 import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.PosteRepository;
@@ -53,6 +54,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +82,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         StorageService storageService,
         CashSaleRepository cashSaleRepository,
         CashRegisterService cashRegisterService,
-        SalesLineService salesLineService,
+        SaleLineServiceFactory saleLineServiceFactory,
         PaymentService paymentService,
         ReferenceService referenceService,
         WarehouseCalendarService warehouseCalendarService,
@@ -95,7 +97,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             warehouseCalendarService,
             storageService,
             userRepository,
-            salesLineService,
+            saleLineServiceFactory,
             cashRegisterService,
             avoirService,
             posteRepository,
@@ -107,7 +109,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.paymentModeRepository = paymentModeRepository;
         this.storageService = storageService;
         this.cashSaleRepository = cashSaleRepository;
-        this.salesLineService = salesLineService;
+        this.salesLineService = saleLineServiceFactory.getService(TypeVente.CashSale);
         this.paymentService = paymentService;
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
@@ -245,7 +247,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine, SalesLine oldSaleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount(), Objects.nonNull(oldSaleLine) ? oldSaleLine.getSalesAmount() : 0);
-        computeSaleCmu(c, saleLine, oldSaleLine);
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmount(c, saleLine, oldSaleLine);
@@ -425,7 +426,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         copy.setDiscountAmountUg(copy.getDiscountAmountUg() * (-1));
         copy.setDiscountAmountHorsUg(copy.getDiscountAmountHorsUg() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
-        copy.setCmuAmount(copy.getCmuAmount() * (-1));
         copy.setUser(sales.getUser());
         copy.setLastUserEdit(storageService.getUser());
         copy.setPayments(Collections.emptySet());

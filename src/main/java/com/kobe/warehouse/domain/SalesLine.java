@@ -10,9 +10,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /** A SalesLine. */
@@ -131,8 +136,9 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer taxAmount = 0;
-    @ManyToOne
-    private PrixReference prixAssurance;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "prix_assurances")
+    private List<TiersPayantPrix> prixAssurances;
 
     public Long getId() {
         return id;
@@ -159,12 +165,11 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public PrixReference getPrixAssurance() {
-        return prixAssurance;
+    public List<TiersPayantPrix> getPrixAssurances() {
+        return prixAssurances;
     }
-
-    public SalesLine setPrixAssurance(PrixReference prixAssurance) {
-        this.prixAssurance = prixAssurance;
+    public SalesLine setPrixAssurances(List<TiersPayantPrix> prixAssurances) {
+        this.prixAssurances = prixAssurances;
         return this;
     }
 

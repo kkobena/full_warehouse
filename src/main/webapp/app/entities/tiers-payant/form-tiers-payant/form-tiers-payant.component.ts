@@ -41,22 +41,15 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
   ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
-  protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  protected tiersPayantService = inject(TiersPayantService);
-  protected groupeTiersPayantService = inject(GroupeTiersPayantService);
-  private messageService = inject(MessageService);
-
-  name = viewChild.required<ElementRef>('name');
-  entity?: ITiersPayant;
-  categorie?: string | null = null;
-  isSaving = false;
-  isValid = true;
-  groupeTiersPayants: IGroupeTiersPayant[] = [];
-  modelFacture: ModelFacture[] = [];
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected name = viewChild.required<ElementRef>('name');
+  protected entity?: ITiersPayant;
+  protected categorie?: string | null = null;
+  protected isSaving = false;
+  protected isValid = true;
+  protected groupeTiersPayants: IGroupeTiersPayant[] = [];
+  protected modelFacture: ModelFacture[] = [];
+  protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
     fullName: [null, [Validators.required]],
@@ -69,11 +62,16 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     remiseForfaitaire: [],
     plafondConso: [],
     plafondAbsolu: [],
-    cmu: [],
-    useReferencedPrice: [],
     modelFacture: [],
     toBeExclude: [],
   });
+  private readonly errorService = inject(ErrorService);
+
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private readonly messageService = inject(MessageService);
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -100,7 +98,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
 
   loadModelFacture(): void {
     this.tiersPayantService.getModelFacture().subscribe(res => {
-      this.modelFacture = res.body || [];
+      this.modelFacture = res.body;
     });
   }
 
@@ -115,28 +113,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       this.subscribeToSaveResponse(this.tiersPayantService.update(tiersPayant));
     } else {
       this.subscribeToSaveResponse(this.tiersPayantService.create(tiersPayant));
-    }
-  }
-
-  onCmuChange(event: ToggleSwitch): void {
-    if (event.checked()) {
-      if (this.editForm.get('useReferencedPrice').value) {
-        this.editForm.get('useReferencedPrice').setValue(false);
-      }
-      this.editForm.get('useReferencedPrice').disable();
-    } else {
-      this.editForm.get('useReferencedPrice').enable();
-    }
-  }
-
-  onReferencedPriceChange(event: ToggleSwitch): void {
-    if (event.checked()) {
-      if (this.editForm.get('cmu').value) {
-        this.editForm.get('cmu').setValue(false);
-      }
-      this.editForm.get('cmu').disable();
-    } else {
-      this.editForm.get('cmu').enable();
     }
   }
 
@@ -166,7 +142,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       id: tiersPayant.id,
       name: tiersPayant.name,
       fullName: tiersPayant.fullName,
-      groupeTiersPayantId: tiersPayant.groupeTiersPayant.id,
+      groupeTiersPayantId: tiersPayant.groupeTiersPayant?.id,
       codeOrganisme: tiersPayant.codeOrganisme,
       telephone: tiersPayant.telephone,
       montantMaxParFcture: tiersPayant.montantMaxParFcture,
@@ -176,8 +152,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConso: tiersPayant.plafondConso,
       plafondAbsolu: tiersPayant.plafondAbsolu,
       categorie: tiersPayant.categorie,
-      useReferencedPrice: tiersPayant.useReferencedPrice,
-      cmu: tiersPayant.cmu,
       modelFacture: tiersPayant.modelFacture,
       ordreTrisFacture: tiersPayant.ordreTrisFacture,
       toBeExclude: tiersPayant.toBeExclude,
@@ -200,8 +174,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       codeOrganisme: this.editForm.get(['codeOrganisme']).value,
       telephone: this.editForm.get(['telephone']).value,
       groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId']).value,
-      useReferencedPrice: this.editForm.get(['useReferencedPrice']).value,
-      cmu: this.editForm.get(['cmu']).value,
       modelFacture: this.editForm.get(['modelFacture']).value,
       toBeExclude: this.editForm.get(['toBeExclude']).value,
     };

@@ -73,7 +73,7 @@
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
-      [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="true"
       [totalRecords]="totalItems"
@@ -119,7 +119,7 @@
                 [routerLink]="['/customer', customer.id, 'view']"
                 severity="info"
                 [rounded]="true"
-                size="small"
+                [text]="true"
                 icon="pi pi-eye"
                 pTooltip="Voir détails"
                 type="submit"
@@ -130,7 +130,7 @@
                 <p-button
                   (click)="editAssureCustomer(customer)"
                   [rounded]="true"
-                  size="small"
+                  [text]="true"
                   severity="primary"
                   icon="pi pi-pencil"
                   data-placement="left"
@@ -142,7 +142,7 @@
                   <p-button
                     (click)="addAyantDroit(customer)"
                     [rounded]="true"
-                    size="small"
+                    [text]="true"
                     data-placement="left"
                     severity="contrast"
                     icon="pi pi-users"
@@ -164,7 +164,7 @@
                   severity="primary"
                   icon="pi pi-pencil"
                   [rounded]="true"
-                  size="small"
+                  [text]="true"
                   data-placement="left"
                   pTooltip="Editer"
                   type="button"
@@ -178,7 +178,7 @@
                 icon="pi pi-trash"
                 pTooltip="Supprimer"
                 [rounded]="true"
-                size="small"
+                [text]="true"
                 type="button"
               >
               </p-button>
@@ -186,7 +186,7 @@
                 (click)="confirmDesactivation(customer)"
                 pTooltip="Désativer"
                 [rounded]="true"
-                size="small"
+                [text]="true"
                 severity="warn"
                 icon="pi pi-lock"
                 type="button"
@@ -238,7 +238,7 @@
                               <th style="width: 15%; text-align: right">
                                 <p-button
                                   (click)="addAyantDroit(customer)"
-                                  size="small"
+                                  [text]="true"
                                   severity="info"
                                   [rounded]="true"
                                   icon="pi pi-plus"
@@ -260,7 +260,7 @@
                                       (click)="editAyantDroit(customer, ayantDroit)"
                                       class="p-mb-3 mr-1"
                                       icon="pi pi-pencil"
-                                      size="small"
+                                      [text]="true"
                                       severity="success"
                                       [rounded]="true"
                                       pTooltip="Editer"
@@ -268,7 +268,7 @@
                                     <p-button
                                       (click)="confirmRemoveAyantDroit(ayantDroit)"
                                       class="p-mb-3"
-                                      size="small"
+                                      [text]="true"
                                       severity="danger"
                                       [rounded]="true"
                                       icon="pi pi-trash"
@@ -303,7 +303,7 @@
                                   (click)="onAddNewTiersPayant(customer)"
                                   severity="info"
                                   [rounded]="true"
-                                  size="small"
+                                  [text]="true"
                                   icon="pi pi-plus"
                                   pTooltip="Ajouter un tiers-payant"
                                 ></p-button>
@@ -330,7 +330,7 @@
                                       icon="pi pi-pencil"
                                       severity="success"
                                       [rounded]="true"
-                                      size="small"
+                                      [text]="true"
                                       pTooltip="Editer les infos du tierspayant"
                                     ></p-button>
                                     @if (customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants.length > 1) {
@@ -339,7 +339,7 @@
                                         icon="pi pi-trash"
                                         severity="danger"
                                         [rounded]="true"
-                                        size="small"
+                                        [text]="true"
                                         pTooltip="Supprimer"
                                         (click)="onRemoveTiersPayant(tierspayant)"
                                       ></p-button>

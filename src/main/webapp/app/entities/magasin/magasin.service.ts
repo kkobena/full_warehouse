@@ -11,9 +11,8 @@ type EntityArrayResponseType = HttpResponse<IMagasin[]>;
 
 @Injectable({ providedIn: 'root' })
 export class MagasinService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/magasins';
+  private http = inject(HttpClient);
+  private resourceUrl = SERVER_API_URL + 'api/magasins';
 
   create(magasin: IMagasin): Observable<EntityResponseType> {
     return this.http.post<IMagasin>(this.resourceUrl, magasin, { observe: 'response' });

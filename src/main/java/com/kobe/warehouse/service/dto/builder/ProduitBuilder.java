@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto.builder;
 
 import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -67,6 +68,11 @@ public final class ProduitBuilder {
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+        if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())){
+            produit.setCategorie(CategorieABC.valueOf(produitDTO.getCategorie()));
+        }
+        produit.setDci(dciFromId(produitDTO.getDciId()));
+
 
         return produit;
     }
@@ -126,7 +132,19 @@ public final class ProduitBuilder {
         }
         return produitDTO;
     }
+    private static void updateCategorieABC(ProduitDTO produitDTO, Produit produit) {
+        if (produit.getCategorie() != null) {
+            produitDTO.setCategorie(produit.getCategorie().name());
 
+
+        }
+    }
+private static  void updateDci(ProduitDTO produitDTO, Produit produit) {
+        Dci dci = produit.getDci();
+        if (dci != null) {
+            produitDTO.setDciId(dci.getId()).setDciLibelle(dci.getLibelle());
+        }
+    }
     private static ProduitDTO familleProduit(ProduitDTO produitDTO, Produit produit) {
         FamilleProduit familleProduit = produit.getFamille();
         if (familleProduit != null) {
@@ -227,6 +245,8 @@ public final class ProduitBuilder {
         produits(produitDTO, produit);
         fournisseurProduits(produitDTO, produit);
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
+        updateCategorieABC(produitDTO, produit);
+        updateDci(produitDTO, produit);
         return produitDTO;
     }
 
@@ -344,7 +364,14 @@ public final class ProduitBuilder {
 
         return dto;
     }
-
+public static Dci dciFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Dci entity = new Dci();
+        entity.setId(id);
+        return entity;
+    }
     public static Tva tvaFromId(Long tvaId) {
         if (tvaId == null) {
             return null;
@@ -595,4 +622,5 @@ public final class ProduitBuilder {
         setUnitPrice(produitDTO);
         return produitDTO;
     }
+
 }

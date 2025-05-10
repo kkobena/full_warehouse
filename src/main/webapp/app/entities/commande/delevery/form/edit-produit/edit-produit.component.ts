@@ -48,28 +48,18 @@ import { Select } from 'primeng/select';
   ],
 })
 export class EditProduitComponent implements OnInit {
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  private messageService = inject(MessageService);
-  protected produitService = inject(ProduitService);
-  protected errorService = inject(ErrorService);
-  protected rayonService = inject(RayonService);
-  protected tvaService = inject(TvaService);
-  protected typeEtiquetteService = inject(TypeEtiquetteService);
-
-  appendTo = 'body';
-  deliveryItem: IDeliveryItem | null;
-  delivery: IDelivery | null;
-  tvas: ITva[] = [];
-  rayons: IRayon[] = [];
-  etiquettes: ITypeEtiquette[] = [];
-  isSaving = false;
-  isValid = true;
-  disabledFournisseur = false;
-  fournisseurPrduit: IFournisseurProduit | null;
-  produit: IProduit;
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected appendTo = 'body';
+  protected deliveryItem: IDeliveryItem | null;
+  protected delivery: IDelivery | null;
+  protected tvas: ITva[] = [];
+  protected rayons: IRayon[] = [];
+  protected etiquettes: ITypeEtiquette[] = [];
+  protected isSaving = false;
+  protected isValid = true;
+  protected fournisseurPrduit: IFournisseurProduit | null;
+  protected produit: IProduit;
+  protected editForm = this.fb.group({
     id: [],
     tvaId: [null, [Validators.required]],
     typeEtiquetteId: [null, [Validators.required]],
@@ -82,7 +72,14 @@ export class EditProduitComponent implements OnInit {
     cmuAmount: [],
     principal: [],
   });
-
+  protected produitService = inject(ProduitService);
+  protected errorService = inject(ErrorService);
+  protected rayonService = inject(RayonService);
+  protected tvaService = inject(TvaService);
+  protected typeEtiquetteService = inject(TypeEtiquetteService);
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly messageService = inject(MessageService);
   save(): void {
     this.isSaving = true;
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));
@@ -111,7 +108,6 @@ export class EditProduitComponent implements OnInit {
       principal: produitFournisseur.principal,
       codeEan: this.produit.codeEan,
       expirationDate: this.produit.expirationDate,
-      cmuAmount: this.produit.cmuAmount,
       tvaId: this.produit.tvaId,
       rayonId: this.produit.rayonId,
       typeEtiquetteId: this.produit.typeEtiquetteId,
@@ -205,7 +201,6 @@ export class EditProduitComponent implements OnInit {
       produit: {
         codeEan: this.editForm.get(['codeEan']).value,
         expirationDate: this.editForm.get(['expirationDate']).value,
-        cmuAmount: this.editForm.get(['cmuAmount']).value,
         tvaId: this.editForm.get(['tvaId']).value,
         rayonId: this.editForm.get(['rayonId']).value,
         typeEtiquetteId: this.editForm.get(['typeEtiquetteId']).value,

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -19,6 +20,11 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     public PrixRererenceServiceImpl(PrixReferenceRepository prixReferenceRepository) {
         this.prixReferenceRepository = prixReferenceRepository;
+    }
+
+    @Override
+    public List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds) {
+        return   this.prixReferenceRepository.findByProduitIdAndTiersPayantIds(produitId, tiersPayantIds);
     }
 
     @Override

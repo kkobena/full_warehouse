@@ -22,7 +22,7 @@
         <div class="form-group col-md-7">
           <label class="form-control-label" for="field_libelle" jhiTranslate="warehouseApp.produit.libelle">Libelle </label>
           <span style="font-weight: 900; color: red">*</span>
-          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle" name="libelle" type="text" />
+          <input pInputText autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle" name="libelle" type="text" />
           @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
@@ -206,19 +206,43 @@
           />
         </div>
       </div>
+<div class="form-row">
+  <div class="form-group col-sm-6 col-md-6">
+    <label class="form-control-label" for="categorie">Catégorie ABC</label>
+    <p-select
+      formControlName="categorie"
+      id="categorie"
+      name="categorie"
+      [filter]="false"
+      [options]="categories"
+      placeholder="Sélectionner une catégorie"
+      optionLabel="libelle"
+      optionValue="code"
+    >
+    </p-select>
+  </div>
+
+</div>
+    </div>
+    <div class="col-md-6 p-card">
       <div class="form-row">
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="cmuAmount">Montant cmu</label>
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="cmuAmount"
-            id="cmuAmount"
-            name="cmuAmount"
-            pInputText
-            pKeyFilter="int"
-            type="text"
-          />
+          <label class="form-control-label" for="cmuAmount">Dci</label>
+          <p-dropdown
+            [filter]="true"
+            [options]="dcis"
+            [style]="{ width: '100%' }"
+            [virtualScroll]="false"
+            appendTo="body"
+            filterBy="libelle"
+            formControlName="dciId"
+            id="dciId"
+            name="dciId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un dci"
+          >
+          </p-dropdown>
         </div>
         <div class="form-group col-md-4">
           <label class="form-control-label" for="qtyAppro">Quantité réappro</label>
@@ -247,8 +271,6 @@
           />
         </div>
       </div>
-    </div>
-    <div class="col-md-6 p-card">
       <div class="form-row">
         <div class="form-group col-sm-6 col-md-3">
           <label class="form-control-label" for="remiseCode">Remise produit</label>

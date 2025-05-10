@@ -50,7 +50,7 @@
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
         <p-select
           [filter]="false"
@@ -66,7 +66,7 @@
         </p-select>
       </div>
 
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
         <input
           autocomplete="off"
@@ -79,7 +79,7 @@
           type="text"
         />
       </div>
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="montantMaxParFcture">Montant maxi par facture</label>
         <input
           autocomplete="off"
@@ -94,7 +94,7 @@
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="remiseForfaitaire">Remise forfaitaire </label>
         <input
           autocomplete="off"
@@ -107,7 +107,7 @@
           type="text"
         />
       </div>
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="plafondConso">Plafond consommation </label>
         <input
           autocomplete="off"
@@ -120,12 +120,15 @@
           type="text"
         />
       </div>
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label">Le plafond est-il absolu ?</label>
         <p-toggleswitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-toggleswitch>
       </div>
 
-      <div class="form-group col-md-3">
+
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="groupeTiersPayantId">Modèle de facture</label>
         <p-select
           [filter]="false"
@@ -140,34 +143,10 @@
         >
         </p-select>
       </div>
-    </div>
-    <div class="form-row">
-      @if (categorie === 'ASSURANCE') {
-        <div class="form-group col-md-3">
-          <label class="form-control-label">Utlise les prix CMU ?</label>
-          <p-toggleswitch
-            #toggleSwitch
-            (onChange)="onCmuChange(toggleSwitch)"
-            class="form-control"
-            formControlName="cmu"
-            inputId="cmu"
-          ></p-toggleswitch>
-        </div>
-        <div class="form-group col-md-3">
-          <label class="form-control-label">Utlise les prix de référence ?</label>
-          <p-toggleswitch
-            #cmuToogle
-            (onChange)="onReferencedPriceChange(cmuToogle)"
-            class="form-control"
-            formControlName="useReferencedPrice"
-            inputId="useReferencedPrice"
-            name="useReferencedPrice"
-          ></p-toggleswitch>
-        </div>
-      }
+
 
       @if (categorie !== 'DEPOT') {
-        <div class="form-group col-md-3">
+        <div class="form-group col-md-4">
           <label class="form-control-label" for="toBeExclude">Exclure du CA</label>
           <p-toggleswitch
             class="form-control"
@@ -179,7 +158,7 @@
         </div>
       }
 
-      <div class="form-group col-md-3">
+      <div class="form-group col-md-4">
         <label class="form-control-label" for="telephone">Téléphone </label>
         <input
           autocomplete="off"

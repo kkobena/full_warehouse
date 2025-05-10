@@ -37,8 +37,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Service
-@Scope("singleton")
+
 public class ImportationVenteService {
 
     private final Logger log = LoggerFactory.getLogger(ImportationVenteService.class);

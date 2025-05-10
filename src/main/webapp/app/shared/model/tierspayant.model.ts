@@ -14,8 +14,6 @@ export interface ITiersPayant {
   ordreTrisFacture?: string;
   consoMensuelle?: number;
   plafondAbsolu?: boolean;
-  useReferencedPrice?: boolean;
-  cmu?: boolean;
   adresse?: string;
   telephone?: string;
   telephoneFixe?: string;

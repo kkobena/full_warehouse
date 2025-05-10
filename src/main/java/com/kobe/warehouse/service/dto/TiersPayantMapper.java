@@ -29,9 +29,7 @@ public interface TiersPayantMapper {
             .setTelephone(tiersPayant.getTelephone())
             .setTelephoneFixe(tiersPayant.getTelephoneFixe())
             .setToBeExclude(tiersPayant.getToBeExclude())
-            .setCmu(tiersPayant.getCmu())
             .setModelFacture(tiersPayant.getModelFacture())
-            .setUseReferencedPrice(Objects.nonNull(tiersPayant.getUseReferencedPrice()) ? tiersPayant.getUseReferencedPrice() : false)
             .setStatut(tiersPayant.getStatut());
     }
 
@@ -56,9 +54,7 @@ public interface TiersPayantMapper {
             .setTelephone(payantDto.getTelephone())
             .setTelephoneFixe(payantDto.getTelephoneFixe())
             .setToBeExclude(payantDto.getToBeExclude())
-            .setCmu(payantDto.isCmu())
-            .setModelFacture(payantDto.getModelFacture())
-            .setUseReferencedPrice(payantDto.isUseReferencedPrice());
+            .setModelFacture(payantDto.getModelFacture());
     }
 
     default GroupeTiersPayant fromId(Long groupeTiersPayantId) {
@@ -69,12 +65,7 @@ public interface TiersPayantMapper {
     }
 
     default TiersPayant entityFromDto(TiersPayantDto dto, TiersPayant tiersPayant) {
-        if (dto.getCategorie() == TiersPayantCategorie.DEPOT) {
-            dto.setCmu(false).setUseReferencedPrice(false).setToBeExclude(false);
-        }
-        if (dto.getCategorie() == TiersPayantCategorie.CARNET) {
-            dto.setCmu(false).setUseReferencedPrice(false);
-        }
+
         return tiersPayant
             .setAdresse(dto.getAdresse())
             .setCategorie(dto.getCategorie())
@@ -94,8 +85,6 @@ public interface TiersPayantMapper {
             .setTelephone(dto.getTelephone())
             .setTelephoneFixe(dto.getTelephoneFixe())
             .setToBeExclude(dto.getToBeExclude())
-            .setCmu(dto.isCmu())
-            .setModelFacture(dto.getModelFacture())
-            .setUseReferencedPrice(dto.isUseReferencedPrice());
+            .setModelFacture(dto.getModelFacture());
     }
 }

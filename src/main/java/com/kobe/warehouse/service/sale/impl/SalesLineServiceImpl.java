@@ -41,7 +41,7 @@ import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
-public class SalesLineServiceImpl implements SalesLineService {
+public abstract class SalesLineServiceImpl implements SalesLineService {
 
     private final Logger log = LoggerFactory.getLogger(SalesLineServiceImpl.class);
     private final ProduitRepository produitRepository;
@@ -66,7 +66,27 @@ public class SalesLineServiceImpl implements SalesLineService {
         this.logsService = logsService;
         this.suggestionProduitService = suggestionProduitService;
     }
-
+    protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
+        Produit produit = produitRepository.getReferenceById(dto.getProduitId());
+        Tva tva = produit.getTva();
+        SalesLine salesLine = new SalesLine();
+        salesLine.setTaxValue(tva.getTaux());
+        salesLine.setCreatedAt(LocalDateTime.now());
+        salesLine.setUpdatedAt(LocalDateTime.now());
+        salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
+        salesLine.costAmount(produit.getCostAmount());
+        salesLine.setProduit(produit);
+        salesLine.setSalesAmount(dto.getQuantityRequested() * dto.getRegularUnitPrice());
+        salesLine.setNetAmount(salesLine.getSalesAmount());
+        salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setQuantitySold(dto.getQuantitySold());
+        salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
+        salesLine.setQuantityRequested(dto.getQuantityRequested());
+        salesLine.setDiscountAmount(0);
+        salesLine.setDiscountUnitPrice(0);
+        processUg(salesLine, dto, stockageId);
+        return salesLine;
+    }
     @Override
     public Sales createSaleLine(SaleLineDTO saleLine, Sales sale, Long stockageId) throws StockException {
         SalesLine salesLine;
@@ -204,29 +224,8 @@ public class SalesLineServiceImpl implements SalesLineService {
         return salesLineRepository.save(salesLine);
     }
 
-    @Override
-    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Long stockageId) {
-        Produit produit = produitRepository.getReferenceById(dto.getProduitId());
-        Tva tva = produit.getTva();
-        SalesLine salesLine = new SalesLine();
-        salesLine.setTaxValue(tva.getTaux());
-        salesLine.setCreatedAt(LocalDateTime.now());
-        salesLine.setUpdatedAt(LocalDateTime.now());
-        salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
-        salesLine.costAmount(produit.getCostAmount());
-        salesLine.setProduit(produit);
-        salesLine.setSalesAmount(dto.getQuantityRequested() * dto.getRegularUnitPrice());
-        salesLine.setNetAmount(salesLine.getSalesAmount());
-        salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
-        salesLine.setQuantitySold(dto.getQuantitySold());
-        salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
-        salesLine.setQuantityRequested(dto.getQuantityRequested());
-        salesLine.setDiscountAmount(0);
-        salesLine.setDiscountUnitPrice(0);
-        processUg(salesLine, dto, stockageId);
-        // processProductDiscount(salesLine);
-        return salesLine;
-    }
+
+
 
     private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Long stockageId) {
         salesLine.setUpdatedAt(LocalDateTime.now());

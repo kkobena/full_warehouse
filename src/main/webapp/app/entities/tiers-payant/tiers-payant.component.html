@@ -70,7 +70,7 @@
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
-      [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+      [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="true"
       [totalRecords]="totalItems"
@@ -128,7 +128,16 @@
                 type="button"
               >
               </p-button>
-
+              <p-button
+                (click)="confirmDesactivation(tiersPayant)"
+                [rounded]="true"
+                [text]="true"
+                severity="warn"
+                pTooltip="Désativer"
+                icon="pi pi-lock"
+                type="button"
+              >
+              </p-button>
               <p-button
                 (click)="confirmRemove(tiersPayant)"
                 severity="danger"
@@ -140,16 +149,7 @@
                 type="button"
               >
               </p-button>
-              <p-button
-                (click)="confirmDesactivation(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                severity="warn"
-                pTooltip="Désativer"
-                icon="pi pi-lock"
-                type="button"
-              >
-              </p-button>
+
             </div>
           </td>
         </tr>

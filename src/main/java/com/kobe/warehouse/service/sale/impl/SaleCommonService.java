@@ -1,16 +1,10 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
-import com.kobe.warehouse.domain.RemiseProduit;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
@@ -43,18 +37,19 @@ public class SaleCommonService {
     private final WarehouseCalendarService warehouseCalendarService;
     private final StorageService storageService;
     private final UserRepository userRepository;
-    private final SalesLineService salesLineService;
+    private final SaleLineServiceFactory saleLineServiceFactory;
     private final CashRegisterService cashRegisterService;
     private final AvoirService avoirService;
     private final PosteRepository posteRepository;
     private final AfficheurPosService afficheurPosService;
+
 
     public SaleCommonService(
         ReferenceService referenceService,
         WarehouseCalendarService warehouseCalendarService,
         StorageService storageService,
         UserRepository userRepository,
-        SalesLineService salesLineService,
+        SaleLineServiceFactory saleLineServiceFactory,
         CashRegisterService cashRegisterService,
         AvoirService avoirService,
         PosteRepository posteRepository,
@@ -64,7 +59,7 @@ public class SaleCommonService {
         this.warehouseCalendarService = warehouseCalendarService;
         this.storageService = storageService;
         this.userRepository = userRepository;
-        this.salesLineService = salesLineService;
+        this.saleLineServiceFactory = saleLineServiceFactory;
         this.cashRegisterService = cashRegisterService;
         this.avoirService = avoirService;
         this.posteRepository = posteRepository;
@@ -76,13 +71,7 @@ public class SaleCommonService {
         c.setNetAmount(c.getSalesAmount());
     }
 
-    public void computeSaleCmu(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (oldSaleLine != null) {
-            c.setCmuAmount((c.getCmuAmount() - computeCmuAmount(oldSaleLine)) + computeCmuAmount(saleLine));
-        } else {
-            c.setCmuAmount(c.getCmuAmount() + computeCmuAmount(saleLine));
-        }
-    }
+
 
     public void computeSaleLazyAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
         if (oldSaleLine != null) {
@@ -207,7 +196,7 @@ public class SaleCommonService {
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
-        c.setCmuAmount(c.getCmuAmount() - computeCmuAmount(saleLine));
+
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
@@ -352,7 +341,7 @@ public class SaleCommonService {
         c.setCalendar(this.warehouseCalendarService.initCalendar());
         c.setCashRegister(cashRegister);
         Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-        salesLineService.save(c.getSalesLines(), user, id);
+        getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
         c.setStatutCaisse(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
@@ -397,7 +386,7 @@ public class SaleCommonService {
         c.setCalendar(this.warehouseCalendarService.initCalendar());
         c.setCashRegister(cashRegister);
         Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-        salesLineService.save(c.getSalesLines(), user, id);
+        getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
         c.setStatutCaisse(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
@@ -445,7 +434,7 @@ public class SaleCommonService {
                 salesLine.setDiscountAmountUg(0);
                 salesLine.setDiscountAmountHorsUg(0);
                 salesLine.setNetAmount(salesLine.getSalesAmount());
-                this.salesLineService.saveSalesLine(salesLine);
+                getSaleLineService(sales).saveSalesLine(salesLine);
             });
     }
 
@@ -467,7 +456,7 @@ public class SaleCommonService {
         sales
             .getSalesLines()
             .forEach(salesLine -> {
-                salesLineService.processProductDiscount(salesLine);
+                getSaleLineService(sales).processProductDiscount(salesLine);
                 this.processDiscountCommonAmounts(sales);
             });
     }
@@ -507,4 +496,16 @@ public class SaleCommonService {
     protected void displayNet(Integer net) {
         afficheurPosService.displaySaleTotal(Objects.requireNonNullElse(net, 0));
     }
+
+    private SalesLineService getSaleLineService(Sales sales) {
+      return this.saleLineServiceFactory.getService(getTypeVente(sales));
+    }
+     private TypeVente getTypeVente(Sales sales) {
+         if (sales instanceof CashSale) {
+             return TypeVente.CashSale;
+         } else if (sales instanceof ThirdPartySales) {
+             return TypeVente.ThirdPartySales;
+         }
+         return null;
+     }
 }

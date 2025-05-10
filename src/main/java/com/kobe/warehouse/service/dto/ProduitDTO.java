@@ -91,6 +91,10 @@ public class ProduitDTO {
     private int unitPrice;
     private String remiseCode;
     private EtatProduit etatProduit;
+    private Long dciId;
+    private String dciLibelle;
+    private String dciCode;
+    private String categorie;
 
     public String getRemiseCode() {
         return remiseCode;
@@ -140,6 +144,42 @@ public class ProduitDTO {
         return this;
     }
 
+    public Long getDciId() {
+        return dciId;
+    }
+
+    public ProduitDTO setDciId(Long dciId) {
+        this.dciId = dciId;
+        return this;
+    }
+
+    public String getDciLibelle() {
+        return dciLibelle;
+    }
+
+    public ProduitDTO setDciLibelle(String dciLibelle) {
+        this.dciLibelle = dciLibelle;
+        return this;
+    }
+
+    public String getDciCode() {
+        return dciCode;
+    }
+
+    public ProduitDTO setDciCode(String dciCode) {
+        this.dciCode = dciCode;
+        return this;
+    }
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public ProduitDTO setCategorie(String categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+
     public ProduitDTO tvaId(Long tvaId) {
         this.tvaId = tvaId;
         return this;
@@ -150,10 +190,7 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO typeEtiquetteLibelle(String typeEtiquetteLibelle) {
-        this.typeEtiquetteLibelle = typeEtiquetteLibelle;
-        return this;
-    }
+
 
     public ProduitDTO gammeLibelle(String gammeLibelle) {
         this.gammeLibelle = gammeLibelle;

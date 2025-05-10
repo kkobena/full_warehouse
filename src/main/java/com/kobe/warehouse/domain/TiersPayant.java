@@ -116,11 +116,6 @@ public class TiersPayant implements Serializable {
     @Column(columnDefinition = "json", name = "consommation_json")
     private Set<Consommation> consommations = new HashSet<>();
 
-    @Column(name = "is_cmu", nullable = false)
-    private Boolean cmu = Boolean.FALSE;
-
-    @Column(name = "use_referenced_rrice")
-    private Boolean useReferencedPrice = Boolean.FALSE;
 
     @Column(name = "model_facture", length = 20)
     private String modelFacture;
@@ -139,23 +134,8 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Boolean getCmu() {
-        return cmu;
-    }
 
-    public TiersPayant setCmu(Boolean cmu) {
-        this.cmu = cmu;
-        return this;
-    }
 
-    public Boolean getUseReferencedPrice() {
-        return useReferencedPrice;
-    }
-
-    public TiersPayant setUseReferencedPrice(Boolean useReferencedPrice) {
-        this.useReferencedPrice = useReferencedPrice;
-        return this;
-    }
 
     public Long getId() {
         return id;

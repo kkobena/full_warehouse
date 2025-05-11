@@ -10,10 +10,9 @@ import { FormsModule } from '@angular/forms';
   imports: [WarehouseCommonModule, FormsModule],
 })
 export class MenuDeleteDialogComponent {
-  protected privillegeService = inject(PrivillegeService);
   activeModal = inject(NgbActiveModal);
-
   authority?: IAuthority;
+  protected privillegeService = inject(PrivillegeService);
 
   cancel(): void {
     this.activeModal.dismiss();

@@ -1,0 +1,72 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ header }}</h5>
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
+<div class="modal-body">
+  <table class="table table-hover table-striped">
+
+    <thead>
+    <tr>
+      @if (isFromProduit) {
+        <th>Tiers payant</th>
+      } @else {
+        <th>Produit</th>
+        <th>Cip</th>
+      }
+      <th class="text-right">Valeur</th>
+      <th class="text-right">
+        <p-button (click)="onAddNew()" [raised]="true" icon="pi pi-plus-circle"
+                  label="Nouveau"
+                  severity="primary" type="button"></p-button>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (prix of prixReferences; track prix.id) {
+        <tr>
+          @if (isFromProduit) {
+            <td>{{ prix.tiersPayantName }}</td>
+          } @else {
+            <td>{{ prix.produitName }}</td>
+            <td>{{ prix.produitCode }}</td>
+          }
+          @if (prix.type === 'RERERENCE') {
+            <td class="amount-column">{{ prix.valeur | number }}</td>
+          } @else {
+            <td class="amount-column">{{ prix.valeur }}%</td>
+          }
+          <td class="text-right">
+
+            <p-button (click)="onEdit(prix)" icon="pi pi-pencil" pTooltip="Editer"
+                      [rounded]="true" [text]="true"
+                      severity="primary" type="button"></p-button>
+
+            <p-button (click)="onConfirmDelete(prix)" icon="pi pi-trash" pTooltip="Supprimer"
+                      [rounded]="true" [text]="true"
+                      severity="danger" type="button"></p-button>
+            @if (prix.enabled) {
+              <p-button (click)="onCancel(prix)" icon="pi pi-ban" pTooltip="Désactiver"
+                        [rounded]="true" [text]="true"
+                        severity="contrast" type="button"></p-button>
+            } @else {
+              <p-button (click)="onCancel(prix)" icon="pi pi-check" pTooltip="Activer"
+                        [rounded]="true" [text]="true"
+                        severity="info" type="button"></p-button>
+            }
+
+
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+</div>
+<div class="modal-footer">
+
+  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" raised="true" severity="secondary"
+            type="button"></p-button>
+</div>
+<p-confirmDialog [baseZIndex]="10000"></p-confirmDialog>

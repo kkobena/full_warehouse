@@ -116,7 +116,6 @@ public class TiersPayant implements Serializable {
     @Column(columnDefinition = "json", name = "consommation_json")
     private Set<Consommation> consommations = new HashSet<>();
 
-
     @Column(name = "model_facture", length = 20)
     private String modelFacture;
 
@@ -133,9 +132,6 @@ public class TiersPayant implements Serializable {
         this.modelFacture = modelFacture;
         return this;
     }
-
-
-
 
     public Long getId() {
         return id;
@@ -342,6 +338,11 @@ public class TiersPayant implements Serializable {
     public TiersPayant setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "TiersPayant{" + "fullName='" + fullName + '\'' + ", id=" + id + ", name='" + name + '\'' + '}';
     }
 
     public String getModelFilePath() {

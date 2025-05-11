@@ -8,12 +8,12 @@ import { Button } from 'primeng/button';
   selector: 'jhi-order-line-lots',
   imports: [WarehouseCommonModule, Button],
   templateUrl: './order-line-lots.component.html',
-  styles: ``,
 })
 export class OrderLineLotsComponent {
-  private readonly activeModal = inject(NgbActiveModal);
   protected lots: ILot[] = [];
   protected produitLibelle: string | null = null;
+  private readonly activeModal = inject(NgbActiveModal);
+
   cancel(): void {
     this.activeModal.dismiss();
   }

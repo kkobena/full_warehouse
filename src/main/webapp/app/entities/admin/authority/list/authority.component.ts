@@ -1,30 +1,20 @@
-import { Component, NgZone, inject, OnInit } from '@angular/core';
+import { Component, inject, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { combineLatest, filter, Observable, Subscription, tap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
-import { sortStateSignal, SortDirective, SortByDirective, type SortState, SortService } from 'app/shared/sort';
-import { DurationPipe, FormatMediumDatetimePipe, FormatMediumDatePipe } from 'app/shared/date';
+import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { FormsModule } from '@angular/forms';
-import { SORT, ITEM_DELETED_EVENT, DEFAULT_SORT_DATA } from 'app/config/navigation.constants';
+import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
 import { IAuthority } from '../authority.model';
-import { EntityArrayResponseType, AuthorityService } from '../service/authority.service';
+import { AuthorityService, EntityArrayResponseType } from '../service/authority.service';
 import { AuthorityDeleteDialogComponent } from '../delete/authority-delete-dialog.component';
 
 @Component({
   selector: 'jhi-authority',
   templateUrl: './authority.component.html',
-  imports: [
-    RouterModule,
-    FormsModule,
-    SharedModule,
-    SortDirective,
-    SortByDirective,
-    DurationPipe,
-    FormatMediumDatetimePipe,
-    FormatMediumDatePipe,
-  ],
+  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective],
 })
 export class AuthorityComponent implements OnInit {
   subscription: Subscription | null = null;
@@ -56,7 +46,10 @@ export class AuthorityComponent implements OnInit {
   }
 
   delete(authority: IAuthority): void {
-    const modalRef = this.modalService.open(AuthorityDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(AuthorityDeleteDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+    });
     modalRef.componentInstance.authority = authority;
     // unsubscribe not needed because closed completes on modal close
     modalRef.closed

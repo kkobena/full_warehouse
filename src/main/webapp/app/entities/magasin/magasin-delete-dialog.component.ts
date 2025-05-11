@@ -11,10 +11,9 @@ import { FormsModule } from '@angular/forms';
   imports: [WarehouseCommonModule, FormsModule],
 })
 export class MagasinDeleteDialogComponent {
-  protected magasinService = inject(MagasinService);
   activeModal = inject(NgbActiveModal);
-
   magasin?: IMagasin;
+  protected magasinService = inject(MagasinService);
 
   cancel(): void {
     this.activeModal.dismiss();

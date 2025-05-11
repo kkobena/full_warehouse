@@ -11,16 +11,10 @@ import { ButtonModule } from 'primeng/button';
   imports: [WarehouseCommonModule, ButtonModule],
 })
 export class CommandeImportResponseDialogComponent {
-  activeModal = inject(NgbActiveModal);
-  protected commandeService = inject(CommandeService);
-
   responseCommande?: ICommandeResponse;
   hiddenInfo = true;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private activeModal = inject(NgbActiveModal);
+  private commandeService = inject(CommandeService);
 
   cancel(): void {
     this.activeModal.dismiss();

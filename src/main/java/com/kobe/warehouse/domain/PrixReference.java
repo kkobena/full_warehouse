@@ -1,38 +1,68 @@
 package com.kobe.warehouse.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "produit_tiers_payant_prix",  uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id" ,"enabled"}) ,@UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id" ,"prix_type"})})
+@Table(
+    name = "produit_tiers_payant_prix",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "enabled" }),
+        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "prix_type" }),
+    }
+)
 public class PrixReference implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Min(value = 1)
+
+    @Min(value = 5)
     private int valeur;
+
     @NotNull
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private TiersPayant tiersPayant;
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Produit produit;
-    private boolean enabled= true;
+
+    @ColumnDefault(value = "true")
+    private boolean enabled = true;
+
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "prix_type", nullable = false)
     private PrixReferenceType type;
+
+    @ColumnDefault(value = "now()")
+    @Column(name = "created", nullable = false)
     private LocalDateTime created = LocalDateTime.now();
+
+    @Column(name = "updated", nullable = false)
+    @ColumnDefault(value = "now()")
     private LocalDateTime updated = LocalDateTime.now();
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
     public LocalDateTime getUpdated() {
@@ -51,8 +81,6 @@ public class PrixReference implements Serializable {
         this.user = user;
     }
 
-
-
     public LocalDateTime getCreated() {
         return created;
     }
@@ -60,8 +88,6 @@ public class PrixReference implements Serializable {
     public void setCreated(LocalDateTime created) {
         this.created = created;
     }
-
-
 
     public Long getId() {
         return id;
@@ -71,7 +97,6 @@ public class PrixReference implements Serializable {
         this.id = id;
         return this;
     }
-
 
     public TiersPayant getTiersPayant() {
         return tiersPayant;
@@ -104,9 +129,16 @@ public class PrixReference implements Serializable {
         return type;
     }
 
+    public PrixReference setType(PrixReferenceType type) {
+        this.type = type;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PrixReference that = (PrixReference) o;
         return Objects.equals(id, that.id);
     }
@@ -114,11 +146,6 @@ public class PrixReference implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public PrixReference setType(PrixReferenceType type) {
-        this.type = type;
-        return this;
     }
 
     public int getValeur() {
@@ -130,9 +157,9 @@ public class PrixReference implements Serializable {
     }
 
     public float getTaux() {
-        if (type==PrixReferenceType.POURCENTAGE) {
+        if (type == PrixReferenceType.POURCENTAGE) {
             return valeur / 100.0f;
         }
-        return  0.0f;
+        return 0.0f;
     }
 }

@@ -7,7 +7,6 @@ import { GroupeFactureDetailComponent } from './groupe-facture-detail.component'
   selector: 'jhi-groupe-facture-detail-dialog',
   imports: [GroupeFactureDetailComponent],
   templateUrl: './groupe-facture-detail-dialog.component.html',
-  styles: ``,
 })
 export class GroupeFactureDetailDialogComponent {
   modalService = inject(NgbModal);

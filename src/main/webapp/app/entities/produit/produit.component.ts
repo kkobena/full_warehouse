@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
@@ -50,6 +50,8 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.component';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -124,6 +126,7 @@ export type ExpandMode = 'single' | 'multiple';
     InputIcon,
     ToggleSwitch,
     EtaProduitComponent,
+    ButtonGroup,
   ],
 })
 export class ProduitComponent implements OnInit {
@@ -170,6 +173,7 @@ export class ProduitComponent implements OnInit {
   private readonly familleService = inject(FamilleProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
+
   constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -401,10 +405,10 @@ export class ProduitComponent implements OnInit {
   onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
-      this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe(
-        () => {},
-        error => this.onActionError(four, error),
-      );
+      this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
+        next: () => {},
+        error: error => this.onActionError(four, error),
+      });
     }
   }
 
@@ -485,7 +489,30 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  protected onSaveError(): void {
+  protected addPrixReference(produit: IProduit): void {
+    const modalRef = this.modalService.open(ListPrixReferenceComponent, {
+      size: 'xl',
+      scrollable: true,
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.isFromProduit = true;
+    modalRef.componentInstance.produit = produit;
+    modalRef.result.then(
+      () => {
+        this.loadPage();
+      },
+      () => {
+        this.loadPage();
+      },
+    );
+  }
+
+  private onError(): void {
+    this.ngbPaginationPage = this.page ?? 1;
+  }
+
+  private onSaveError(): void {
     this.isSaving = false;
     this.messageService.add({
       severity: 'error',
@@ -494,7 +521,7 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  protected onActionError(el: IFournisseurProduit, error: any): void {
+  private onActionError(el: IFournisseurProduit, error: any): void {
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
         next: translatedErrorMessage => {
@@ -512,7 +539,7 @@ export class ProduitComponent implements OnInit {
     el.principal = false;
   }
 
-  protected onCommonError(error: any): void {
+  private onCommonError(error: any): void {
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
         next: translatedErrorMessage => {
@@ -529,14 +556,14 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
+  private uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.subscribe({
       next: () => this.onPocesJsonSuccess(),
       error: () => this.onSaveError(),
     });
   }
 
-  protected onPocesJsonSuccess(): void {
+  private onPocesJsonSuccess(): void {
     this.jsonDialog = false;
     this.responseDialog = true;
     const interval = setInterval(() => {
@@ -558,7 +585,7 @@ export class ProduitComponent implements OnInit {
     }, 10000);
   }
 
-  protected onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
+  private onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
     if (navigate) {
@@ -574,7 +601,7 @@ export class ProduitComponent implements OnInit {
     this.ngbPaginationPage = this.page;
   }
 
-  protected handleNavigation(): void {
+  private handleNavigation(): void {
     combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
       const page = params.get('page');
       const pageNumber = page !== null ? +page : 1;
@@ -587,9 +614,5 @@ export class ProduitComponent implements OnInit {
         this.loadPage(pageNumber, true);
       }
     }).subscribe();
-  }
-
-  protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
   }
 }

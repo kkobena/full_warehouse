@@ -2,15 +2,23 @@ package com.kobe.warehouse.service.produit_prix.dto;
 
 import com.kobe.warehouse.domain.PrixReference;
 import com.kobe.warehouse.domain.PrixReferenceType;
+import jakarta.validation.constraints.NotNull;
 
 public class PrixReferenceDTO {
+
     private int valeur;
     private long id;
     private boolean enabled;
     private Long tiersPayantId;
     private Long produitId;
+
+    @NotNull
     private PrixReferenceType type;
+
     private float taux;
+    private String tiersPayantName;
+    private String produitName;
+    private String produitCode;
 
     public PrixReferenceDTO(PrixReference prixReference) {
         this.valeur = prixReference.getValeur();
@@ -18,10 +26,48 @@ public class PrixReferenceDTO {
         this.enabled = prixReference.isEnabled();
         this.type = prixReference.getType();
         this.taux = prixReference.getTaux();
-
     }
 
-    public PrixReferenceDTO() {
+    public PrixReferenceDTO() {}
+
+    public String getProduitCode() {
+        return produitCode;
+    }
+
+    public void setProduitCode(String produitCode) {
+        this.produitCode = produitCode;
+    }
+
+    public String getProduitName() {
+        return produitName;
+    }
+
+    public void setProduitName(String produitName) {
+        this.produitName = produitName;
+    }
+
+    public String getTiersPayantName() {
+        return tiersPayantName;
+    }
+
+    public void setTiersPayantName(String tiersPayantName) {
+        this.tiersPayantName = tiersPayantName;
+    }
+
+    public boolean enabled() {
+        return enabled;
+    }
+
+    public String produitName() {
+        return produitName;
+    }
+
+    public String produitCode() {
+        return produitCode;
+    }
+
+    public String tiersPayantName() {
+        return tiersPayantName;
     }
 
     public int getValeur() {
@@ -75,6 +121,7 @@ public class PrixReferenceDTO {
     public float getTaux() {
         return taux;
     }
+
     public void setTaux(float taux) {
         this.taux = taux;
     }

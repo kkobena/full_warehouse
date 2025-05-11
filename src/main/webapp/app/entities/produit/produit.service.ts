@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,12 +16,11 @@ type EntityArrayResponseType = HttpResponse<IProduit[]>;
 
 @Injectable({ providedIn: 'root' })
 export class ProduitService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/produits';
-  public importationResourceUrl = SERVER_API_URL + 'api/importation';
-  public fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
-  public rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
+  private http = inject(HttpClient);
+  private resourceUrl = SERVER_API_URL + 'api/produits';
+  private importationResourceUrl = SERVER_API_URL + 'api/importation';
+  private fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
+  private rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
 
   create(produit: IProduit): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(produit);
@@ -124,14 +123,14 @@ export class ProduitService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  protected convertDateFromClient(produit: IProduit): IProduit {
+  private convertDateFromClient(produit: IProduit): IProduit {
     return Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,
       updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined,
     });
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
@@ -139,7 +138,7 @@ export class ProduitService {
     return res;
   }
 
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((produit: IProduit) => {
         produit.createdAt = produit.createdAt ? moment(produit.createdAt) : undefined;

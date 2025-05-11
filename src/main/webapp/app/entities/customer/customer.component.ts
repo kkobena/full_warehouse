@@ -186,10 +186,6 @@ export class CustomerComponent implements OnInit {
     this.responseDialog = false;
   }
 
-  trackId(index: number, item: ICustomer): number {
-    return item.id;
-  }
-
   delete(customer: ICustomer): void {
     this.customerService.delete(customer.id).subscribe(() => this.loadPage());
   }

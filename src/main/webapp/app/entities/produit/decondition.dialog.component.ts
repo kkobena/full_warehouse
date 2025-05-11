@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IProduit } from '../../shared/model/produit.model';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -15,19 +15,16 @@ import { InputText } from 'primeng/inputtext';
   templateUrl: 'decondition-dialog.component.html',
   imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText],
 })
-export class DeconditionDialogComponent implements OnInit {
-  private fb = inject(FormBuilder);
+export class DeconditionDialogComponent {
   activeModal = inject(NgbActiveModal);
-  protected deconditionService = inject(DeconditionService);
-
   isSaving = false;
   isNotValid = false;
   produit?: IProduit;
+  protected deconditionService = inject(DeconditionService);
+  private fb = inject(FormBuilder);
   editForm = this.fb.group({
     qtyMvt: [null, [Validators.required, Validators.min(1)]],
   });
-
-  ngOnInit(): void {}
 
   save(): void {
     this.isSaving = true;

@@ -14,11 +14,11 @@
         <div class="pt-1">
           <p-floatlabel variant="on">
             <p-datePicker
-              dateFormat="dd/mm/yy"
+              [(ngModel)]="modelStartDate"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
               id="input-label"
-              [(ngModel)]="modelStartDate"
               inputId="input-label"
             />
             <label for="input-label">Du</label>
@@ -28,12 +28,12 @@
         <div class="pt-1">
           <p-floatlabel variant="on">
             <p-datePicker
-              dateFormat="dd/mm/yy"
-              id="au"
               [(ngModel)]="modelEndDate"
-              inputId="au"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="au"
+              inputId="au"
             />
             <label for="au">Au</label>
           </p-floatlabel>
@@ -41,7 +41,8 @@
 
         <div class="p-1">
           <p-floatlabel>
-            <input [style]="{ width: '150px' }" [(ngModel)]="search" id="search" pInputText type="text" />
+            <input [(ngModel)]="search" [style]="{ width: '150px' }" id="search" pInputText
+                   type="text" />
             <label for="search">Rechercher par numéro</label>
           </p-floatlabel>
         </div>
@@ -102,7 +103,8 @@
         />
       </div>
       <div [hidden]="true" class="p-1">
-        <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export" label="Exporter" pTooltip="Exporter" severity="help" />
+        <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
+                       label="Exporter" pTooltip="Exporter" severity="help" />
       </div>
     </ng-template>
   </p-toolbar>
@@ -153,15 +155,18 @@
             <td style="text-align: right">
               <div class="btn-group" role="group">
                 @if (factureGroup) {
-                  <p-button [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail" severity="info" (click)="onOpenGroupeDetail(elRow)" />
+                  <p-button [text]="true" [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail"
+                            severity="info" (click)="onOpenGroupeDetail(elRow)" />
                 } @else {
-                  <p-button [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail" severity="info" (click)="onOpenDetail(elRow)" />
+                  <p-button [text]="true" [rounded]="true" icon="pi pi-eye" pTooltip="Voir détail"
+                            severity="info" (click)="onOpenDetail(elRow)" />
                 }
 
                 @if (!elRow.factureProvisoire && elRow.statut !== 'PAID') {
                   @if (factureGroup) {
                     <p-button
                       [rounded]="true"
+                      [text]="true"
                       icon="pi pi-credit-card"
                       [routerLink]="['/reglement-facture', elRow.factureId, 'groupes', 'faire-reglement']"
                       pTooltip="Régler"
@@ -170,6 +175,7 @@
                   } @else {
                     <p-button
                       [rounded]="true"
+                      [text]="true"
                       [routerLink]="['/reglement-facture', elRow.factureId, 'individuelle', 'faire-reglement']"
                       icon="pi pi-credit-card"
                       pTooltip="Régler"
@@ -179,6 +185,7 @@
                 }
                 <p-button
                   [rounded]="true"
+                  [text]="true"
                   [loading]="exporting"
                   (click)="exportPdf(elRow.factureId)"
                   icon="pi pi-file-pdf"
@@ -189,6 +196,7 @@
                 @if (elRow.statut === 'NOT_PAID') {
                   <p-button
                     [rounded]="true"
+                    [text]="true"
                     icon="pi pi-trash"
                     pTooltip="Supprimer"
                     severity="danger"
@@ -207,4 +215,4 @@
     }
   </div>
 </div>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="delete"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="delete"></p-confirmDialog>

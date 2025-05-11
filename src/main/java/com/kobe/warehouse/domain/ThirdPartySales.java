@@ -34,10 +34,7 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
     private List<ThirdPartySaleLine> thirdPartySaleLines = new ArrayList<>();
-   @NotNull
-   @Comment(value = "Montant prix reference assurance")
-    @Column(name = "mt_ref_ass")
-    private Integer montantReferenceAssurance;
+
 
     public String getNumBon() {
         return numBon;
@@ -45,14 +42,6 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     public ThirdPartySales setNumBon(String numBon) {
         this.numBon = numBon;
-        return this;
-    }
-    public Integer getMontantReferenceAssurance() {
-        return montantReferenceAssurance;
-    }
-
-    public ThirdPartySales setMontantReferenceAssurance(Integer montantReferenceAssurance) {
-        this.montantReferenceAssurance = montantReferenceAssurance;
         return this;
     }
 

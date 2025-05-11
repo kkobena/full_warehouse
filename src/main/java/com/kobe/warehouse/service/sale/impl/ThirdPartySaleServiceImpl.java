@@ -1,12 +1,56 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.*;
-import com.kobe.warehouse.repository.*;
-import com.kobe.warehouse.service.*;
+import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.PrixReference;
+import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.TiersPayantPrix;
+import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.domain.enumeration.OrigineVente;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
+import com.kobe.warehouse.repository.AssuredCustomerRepository;
+import com.kobe.warehouse.repository.CashSaleRepository;
+import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.RemiseRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleRepository;
+import com.kobe.warehouse.repository.TiersPayantPrixRepository;
+import com.kobe.warehouse.repository.TiersPayantRepository;
+import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.service.PaymentService;
+import com.kobe.warehouse.service.ReferenceService;
+import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.UtilisationCleSecuriteService;
+import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.dto.*;
-import com.kobe.warehouse.service.errors.*;
+import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.Consommation;
+import com.kobe.warehouse.service.dto.KeyValue;
+import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
+import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
+import com.kobe.warehouse.service.errors.PaymentAmountException;
+import com.kobe.warehouse.service.errors.PlafondVenteException;
+import com.kobe.warehouse.service.errors.PrivilegeException;
+import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
+import com.kobe.warehouse.service.errors.StockException;
+import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
@@ -25,7 +69,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,8 +96,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
     private final PrixRererenceService prixRererenceService;
-
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
+    private final TiersPayantPrixRepository tiersPayantPrixRepository;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
 
     public ThirdPartySaleServiceImpl(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
@@ -66,7 +117,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
-        AfficheurPosService afficheurPosService, PrixRererenceService prixRererenceService
+        AfficheurPosService afficheurPosService, PrixRererenceService prixRererenceService, TiersPayantPrixRepository tiersPayantPrixRepository
     ) {
         super(
             referenceService,
@@ -91,6 +142,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
         this.prixRererenceService = prixRererenceService;
+        this.tiersPayantPrixRepository = tiersPayantPrixRepository;
     }
 
     @Override
@@ -266,12 +318,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleId(), dto.getProduitId());
         long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-
+        ThirdPartySales thirdPartySales;
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
             SalesLine oldSalesLine = (SalesLine) salesLine.clone();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
-            ThirdPartySales thirdPartySales = (ThirdPartySales) salesLine.getSales();
+            computePrixReference(salesLine);
+            thirdPartySales = (ThirdPartySales) salesLine.getSales();
             var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldSalesLine);
             thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
             if (StringUtils.hasLength(message)) {
@@ -279,8 +332,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             }
             return new SaleLineDTO(salesLine);
         }
-        ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(dto.getSaleId());
+        thirdPartySales = thirdPartySaleRepository.getReferenceById(dto.getSaleId());
         SalesLine salesLine = salesLineService.create(dto, storageId, thirdPartySales);
+        computePrixReference(thirdPartySales.getThirdPartySaleLines().stream().map(ThirdPartySaleLine::getClientTiersPayant).toList(), salesLine);
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, null);
         thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
         if (StringUtils.hasLength(message)) {
@@ -333,6 +387,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         SalesLine oldsalesline = (SalesLine) salesLine.clone();
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        computePrixReferenceUnitPrice(salesLine);
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
@@ -525,7 +580,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales c = new ThirdPartySales();
         c.setSalesAmount(cashSale.getSalesAmount());
         c.setOrigineVente(OrigineVente.DIRECT);
-        c.setMontantReferenceAssurance(cashSale.getSalesAmount());
         c.setCostAmount(cashSale.getCostAmount());
         c.setNumberTransaction(cashSale.getNumberTransaction());
         c.setCategorieChiffreAffaire(cashSale.getCategorieChiffreAffaire());
@@ -559,33 +613,33 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         computeUgTvaAmount(c, saleLine, oldSaleLine);
     }
 
-    private List<TiersPayantPrix> computePrixReference(List<ClientTiersPayant> clientTiersPayants, SalesLine salesLine) {
+    private void computePrixReference(List<ClientTiersPayant> clientTiersPayants, SalesLine salesLine) {
         List<PrixReference> prixReferences = prixRererenceService.findByProduitIdAndTiersPayantIds(
             salesLine.getProduit().getId(), clientTiersPayants.stream().map(c -> c.getTiersPayant().getId()).collect(Collectors.toSet())
         );
-        List<TiersPayantPrix> tiersPayantPrix = new ArrayList<>();
-        if (CollectionUtils.isEmpty(prixReferences)) {
-            return tiersPayantPrix;
-        }
-        int unitPrice = salesLine.getSalesAmount() / salesLine.getQuantitySold();
-        for (PrixReference prixReference : prixReferences) {
-            TiersPayantPrix tiersPayantPrix1 = new TiersPayantPrix();
-            tiersPayantPrix1.setTiersPayant(prixReference.getTiersPayant());
-            tiersPayantPrix1.setPrixReference(prixReference.getPrixReference());
-            tiersPayantPrix1.setProduit(salesLine.getProduit());
-            tiersPayantPrix.add(tiersPayantPrix1);
-        }
 
-
+        if (!CollectionUtils.isEmpty(prixReferences)) {
+            for (PrixReference prixReference : prixReferences) {
+                TiersPayantPrix tiersPayantPrix1 = new TiersPayantPrix();
+                tiersPayantPrix1.setReference(prixReference);
+                tiersPayantPrix1.setSaleLine(salesLine);
+                tiersPayantPrix1.setPrix(prixRererenceService.getSaleLineUnitPrice(prixReference, salesLine.getRegularUnitPrice()));
+                tiersPayantPrix1.setMontant(tiersPayantPrix1.getPrix() * salesLine.getQuantityRequested());
+                salesLine.getPrixAssurances().add(tiersPayantPrix1);
+            }
+        }
     }
 
-    private void computePrixReference(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
-
+    private void computePrixReference(SalesLine salesLine) {
+        salesLine.getPrixAssurances().forEach(prixAssurance -> {
+            prixAssurance.setMontant(prixAssurance.getPrix() * salesLine.getQuantityRequested());
+            this.tiersPayantPrixRepository.save(prixAssurance);
+        });
     }
 
     private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
         computeSaleEagerAmount(thirdPartySales, salesLine.getSalesAmount(), oldsalesline != null ? oldsalesline.getSalesAmount() : 0);
-        computePrixReference(thirdPartySales, salesLine, oldsalesline);
+
         applRemiseToSale(thirdPartySales);
         var message = reComputeAmounts(thirdPartySales);
         upddateThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
@@ -594,7 +648,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c, SalesLine saleLine) {
         computeSaleEagerAmount(c, saleLine.getSalesAmount() * (-1), 0);
-        c.setMontantReferenceAssurance(c.getMontantReferenceAssurance() - computeCmuAmount(saleLine));
         applRemiseToSale(c);
         reComputeAmounts(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
@@ -665,7 +718,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
         return updateTiersPayantAmounts(thirdPartySales, sb, totalMontantTiersPayant);
     }
-
+private int getMontantAssurance(ThirdPartySales thirdPartySales,TiersPayant tiersPayant){
+   int amount=    thirdPartySales.getSalesLines().stream().flatMap(e->e.getPrixAssurances().stream())
+          .filter(pr->pr.getReference().getTiersPayant().equals(tiersPayant)).mapToInt(TiersPayantPrix::getMontant).sum();
+    return amount>0 ? amount : thirdPartySales.getSalesAmount();
+}
     private int processTiersPayantAmount(
         int totalMontantTiersPayant,
         StringBuilder sb,
@@ -686,7 +743,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         }
 
         TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
-        int totalAmount = thirdPartySales.getMontantReferenceAssurance();
+        int totalAmount = getMontantAssurance(thirdPartySales,tiersPayant);
         double montantTp = totalAmount * clientTiersPayant.getTauxValue();
         int montantTiersPayant = (int) Math.ceil(montantTp);
         int partTiersPayantnet = computeThirdPartyPart(clientTiersPayant, montantTiersPayant);
@@ -969,4 +1026,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             thirdPartySales.setPartAssure(thirdPartySales.getPartAssure() - thirdPartySales.getDiscountAmount());
         }
     }
+
+    private void computePrixReferenceUnitPrice(SalesLine salesLine) {
+        salesLine.getPrixAssurances().forEach(prixAssurance -> {
+            prixAssurance.setPrix(prixRererenceService.getSaleLineUnitPrice(prixAssurance.getReference(), salesLine.getRegularUnitPrice()));
+            prixAssurance.setMontant(prixAssurance.getPrix() * salesLine.getQuantityRequested());
+            this.tiersPayantPrixRepository.save(prixAssurance);
+        });
+    }
+
 }

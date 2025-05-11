@@ -48,6 +48,8 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.component';
+import { IFamilleProduit } from '../../shared/model/famille-produit.model';
+import { IRayon } from '../../shared/model/rayon.model';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -125,6 +127,38 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class ProduitComponent implements OnInit {
+  protected selectedFamille: number = null;
+  protected faCut = faCut;
+  protected faPlusCircle = faPlusCircle;
+  protected produits!: IProduit[];
+  protected selectedCriteria = 0;
+  protected selectedRayon = 0;
+  protected filtesProduits: SelectItem[] = [];
+  protected rayons: IRayon[] = [];
+  protected familles: IFamilleProduit[] = [];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page!: number;
+  protected predicate!: string;
+  protected ascending!: boolean;
+  protected ngbPaginationPage = 1;
+  protected search: string;
+  protected package = TypeProduit.PACKAGE;
+  protected detail = TypeProduit.DETAIL;
+  protected fileDialog = false;
+  protected jsonDialog = false;
+  protected responseDialog = false;
+  protected displayDialog = false;
+  protected responsedto!: IResponseDto;
+  protected isSaving = false;
+  protected splitbuttons: MenuItem[];
+  protected criteria: IProduitCriteria;
+  protected onErrorOccur = false;
+  protected ref!: DynamicDialogRef;
+  protected configuration?: IConfiguration | null;
+  protected isMono = true;
+  protected rowExpandMode: ExpandMode = 'single';
+  protected typeImportation: string | null = null;
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -136,39 +170,6 @@ export class ProduitComponent implements OnInit {
   private readonly familleService = inject(FamilleProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
-
-  faCut = faCut;
-  faPlusCircle = faPlusCircle;
-  produits!: IProduit[];
-  selectedCriteria = 0;
-  selectedRayon = 0;
-  filtesProduits: SelectItem[] = [];
-  rayons: SelectItem[] = [];
-  familles: SelectItem[] = [];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page!: number;
-  predicate!: string;
-  ascending!: boolean;
-  ngbPaginationPage = 1;
-  search: string;
-  package = TypeProduit.PACKAGE;
-  detail = TypeProduit.DETAIL;
-  fileDialog = false;
-  jsonDialog = false;
-  responseDialog = false;
-  displayDialog = false;
-  responsedto!: IResponseDto;
-  isSaving = false;
-  splitbuttons: MenuItem[];
-  criteria: IProduitCriteria;
-  onErrorOccur = false;
-  ref!: DynamicDialogRef;
-  configuration?: IConfiguration | null;
-  isMono = true;
-  rowExpandMode: ExpandMode = 'single';
-  protected typeImportation: string | null = null;
-
   constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -229,13 +230,9 @@ export class ProduitComponent implements OnInit {
 
   populate(): void {
     this.familleService.query({ search: '' }).subscribe({
-      next: familleProduitsResponse => {
-        this.familles.push({ label: 'TOUT', value: null });
-        familleProduitsResponse.body.forEach(e => {
-          this.familles.push({ label: e.libelle, value: e.id });
-        });
+      next: res => {
+        this.familles = res.body;
       },
-      error: err => console.log(err),
     });
 
     this.rayonService
@@ -246,12 +243,8 @@ export class ProduitComponent implements OnInit {
       })
       .subscribe({
         next: rayonsResponse => {
-          this.rayons.push({ label: 'TOUT', value: null });
-          rayonsResponse.body.forEach(e => {
-            this.rayons.push({ label: e.libelle, value: e.id });
-          });
+          this.rayons = rayonsResponse.body;
         },
-        error: err => console.log(err),
       });
   }
 

@@ -24,7 +24,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     public List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds) {
-        return   this.prixReferenceRepository.findByProduitIdAndTiersPayantIds(produitId, tiersPayantIds);
+        return this.prixReferenceRepository.findByProduitIdAndTiersPayantIds(produitId, tiersPayantIds);
     }
 
     @Override
@@ -95,14 +95,23 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
             .toList();
     }
 
+
+
     @Override
     @Transactional(readOnly = true)
-    public int getSaleLineUnitPrice(Long id, int incomingPrice) {
-        PrixReference prixReference = this.prixReferenceRepository.findById(id).orElseThrow();
+    public int getSaleLineUnitPrice(PrixReference prixReference, int incomingPrice) {
+        if (prixReference == null) {
+            return incomingPrice;
+        }
         if (prixReference.getType() == PrixReferenceType.POURCENTAGE) {
             return Math.round(incomingPrice * prixReference.getTaux());
         } else {
             return prixReference.getValeur();
         }
+    }
+
+    @Override
+    public void save(PrixReference prixReference) {
+        this.prixReferenceRepository.save(prixReference);
     }
 }

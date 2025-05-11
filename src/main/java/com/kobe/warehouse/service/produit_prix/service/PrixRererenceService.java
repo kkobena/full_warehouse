@@ -24,7 +24,11 @@ public interface PrixRererenceService {
 
     List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Long produitId, Long tiersPayantId);
 
-    int getSaleLineUnitPrice(Long id, int incomingPrice);
+
+    int getSaleLineUnitPrice(PrixReference prixReference, int incomingPrice);
+
     List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
+
+    void save(PrixReference prixReference);
 
 }

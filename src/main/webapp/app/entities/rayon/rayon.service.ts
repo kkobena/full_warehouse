@@ -15,7 +15,7 @@ type EntityArrayResponseType = HttpResponse<IRayon[]>;
 export class RayonService {
   protected http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/rayons';
+  private readonly resourceUrl = SERVER_API_URL + 'api/rayons';
 
   create(rayon: IRayon): Observable<EntityResponseType> {
     return this.http.post<IRayon>(this.resourceUrl, rayon, { observe: 'response' });

@@ -17,12 +17,7 @@ type EntityArrayResponseType = HttpResponse<IFamilleProduit[]>;
 export class FamilleProduitService {
   protected http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/famille-produits';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly resourceUrl = SERVER_API_URL + 'api/famille-produits';
 
   create(familleProduit: IFamilleProduit): Observable<EntityResponseType> {
     return this.http.post<IFamilleProduit>(this.resourceUrl, familleProduit, { observe: 'response' });

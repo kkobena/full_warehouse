@@ -1,17 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,9 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/** A SalesLine. */
+/**
+ * A SalesLine.
+ */
 @Entity
-@Table(name = "sales_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "sales_id" }) })
+@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable, Cloneable {
 
     @Serial
@@ -55,11 +48,6 @@ public class SalesLine implements Serializable, Cloneable {
     @NotNull
     @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
-
-    @Column(name = "prix_unit_assurance", nullable = false, columnDefinition = "int default '0'")
-    private Integer prixUnitAssurance = 0;
-    @Column(name = "assurance_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer assuranceAmount = 0 ;
     @NotNull
     @Column(name = "discount_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer discountUnitPrice = 0;
@@ -136,9 +124,8 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer taxAmount = 0;
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "prix_assurances")
-    private List<TiersPayantPrix> prixAssurances;
+    @OneToMany(mappedBy = "saleLine")
+    private List<TiersPayantPrix> prixAssurances = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -168,6 +155,7 @@ public class SalesLine implements Serializable, Cloneable {
     public List<TiersPayantPrix> getPrixAssurances() {
         return prixAssurances;
     }
+
     public SalesLine setPrixAssurances(List<TiersPayantPrix> prixAssurances) {
         this.prixAssurances = prixAssurances;
         return this;
@@ -182,23 +170,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getPrixUnitAssurance() {
-        return prixUnitAssurance;
-    }
-
-    public SalesLine setPrixUnitAssurance(Integer prixUnitAssurance) {
-        this.prixUnitAssurance = prixUnitAssurance;
-        return this;
-    }
-
-    public Integer getAssuranceAmount() {
-        return assuranceAmount;
-    }
-
-    public SalesLine setAssuranceAmount(Integer assuranceAmount) {
-        this.assuranceAmount = assuranceAmount;
-        return this;
-    }
 
     public @NotNull Integer getQuantityAvoir() {
         return quantityAvoir;
@@ -473,35 +444,35 @@ public class SalesLine implements Serializable, Cloneable {
     }
 
     // prettier-ignore
-  @Override
-  public String toString() {
-    return "SalesLine{"
-        + "id="
-        + getId()
-        + ", quantitySold="
-        + getQuantitySold()
-        + ", regularUnitPrice="
-        + getRegularUnitPrice()
-        + ", discountUnitPrice="
-        + getDiscountUnitPrice()
-        + ", netUnitPrice="
-        + getNetUnitPrice()
-        + ", discountAmount="
-        + getDiscountAmount()
-        + ", salesAmount="
-        + getSalesAmount()
-        + ", netAmount="
-        + getNetAmount()
-        + ", costAmount="
-        + getCostAmount()
-        + ", createdAt='"
-        + getCreatedAt()
-        + "'"
-        + ", updatedAt='"
-        + getUpdatedAt()
-        + "'"
-        + "}";
-  }
+    @Override
+    public String toString() {
+        return "SalesLine{"
+            + "id="
+            + getId()
+            + ", quantitySold="
+            + getQuantitySold()
+            + ", regularUnitPrice="
+            + getRegularUnitPrice()
+            + ", discountUnitPrice="
+            + getDiscountUnitPrice()
+            + ", netUnitPrice="
+            + getNetUnitPrice()
+            + ", discountAmount="
+            + getDiscountAmount()
+            + ", salesAmount="
+            + getSalesAmount()
+            + ", netAmount="
+            + getNetAmount()
+            + ", costAmount="
+            + getCostAmount()
+            + ", createdAt='"
+            + getCreatedAt()
+            + "'"
+            + ", updatedAt='"
+            + getUpdatedAt()
+            + "'"
+            + "}";
+    }
 
     @Override
     public Object clone() {

@@ -1,49 +1,62 @@
 <p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteVente"></p-confirmDialog>
 
-<div class="container-fluid">
+<div class="container">
   <p-toolbar>
     <ng-template #start>
-      <div class="d-flex justify-content-around ws-toolbar-flex">
-        <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes" size="small"></p-select> &nbsp;
+      <div class="d-flex justify-content-between">
+        <div>
+          <p-select size="large" (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes"></p-select> &nbsp;
+        </div>
+        <p-floatlabel variant="on">
+          <p-select size="large" inputId="selectedUserId" id="selectedUserId" #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName"
+                    optionValue="id"></p-select>
+          <label for="selectedUserId">Opérateurs</label>
+        </p-floatlabel>
+        <div>
+          <p-inputgroup>
+            <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text"/>
+            <p-inputgroup-addon>  <p-checkbox pTooltip="Recherche globale" [(ngModel)]="global" [binary]="true"  id="global" inputId="global"></p-checkbox></p-inputgroup-addon>
+          </p-inputgroup>
 
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
-        </p-iconfield>
-        &nbsp;&nbsp;
+        </div>
 
-        <p-checkbox [(ngModel)]="global" [binary]="true" class="mt-2" id="global" inputId="global"></p-checkbox>
-        <label class="ml-2 mt-2" for="global">Global</label>
-        &nbsp;&nbsp;
-        <p-inputgroup>
-          <p-inputgroup-addon>Du</p-inputgroup-addon>
-          <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true" [showButtonBar]="true" dateFormat="dd/mm/yy">
-          </p-datePicker>
-        </p-inputgroup>
-        &nbsp;
-        <p-inputgroup>
-          <p-inputgroup-addon>Au</p-inputgroup-addon>
-          <p-datePicker
-            [(ngModel)]="toDate"
-            [minDate]="fromDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
+        <div>
+          <p-floatlabel variant="on">
+            <p-datePicker id="toDate" [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                          [showButtonBar]="true" dateFormat="dd/mm/yy">
+            </p-datePicker>
+            <label for="toDate">Du</label>
+          </p-floatlabel>
+        </div>
+        <div>   <p-floatlabel variant="on">
+          <p-datePicker id="toDate"
+                        inputId="toDate"
+                        [(ngModel)]="toDate"
+                        [minDate]="fromDate"
+                        [selectOtherMonths]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
           ></p-datePicker>
-        </p-inputgroup>
-        &nbsp;
-        <p-inputgroup>
-          <p-inputgroup-addon>De</p-inputgroup-addon>
-          <p-select [(ngModel)]="fromHour" [options]="hous"></p-select>
-        </p-inputgroup>
-        &nbsp;
-        <p-inputgroup>
-          <p-inputgroup-addon>A</p-inputgroup-addon>
-          <p-select [(ngModel)]="toHour" [options]="hous"></p-select>
-        </p-inputgroup>
-        &nbsp;
+          <label for="toDate">Au</label>
+        </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <p-select [(ngModel)]="fromHour" id="fromHour" [options]="hous"></p-select>
+            <label for="fromHour">De</label>
+          </p-floatlabel>
 
-        <p-select #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName" optionValue="id"></p-select>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <p-select [(ngModel)]="toHour" id="toHour" [options]="hous"></p-select>
+            <label for="hous">A</label>
+          </p-floatlabel>
+
+        </div>
+
+
+
       </div>
     </ng-template>
     <ng-template #end>
@@ -307,33 +320,33 @@
                   <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
                   <table class="table table-bordered">
                     <tbody>
-                      <tr>
-                        <td class="firstColumn">MONTANT ASSURE</td>
-                        <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
+                    <tr>
+                      <td class="firstColumn">MONTANT ASSURE</td>
+                      <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
 
-                        <td class="firstColumn">MONTANT ASSURANCE</td>
-                        <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
-                      </tr>
+                      <td class="firstColumn">MONTANT ASSURANCE</td>
+                      <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
+                    </tr>
 
-                      <tr>
-                        <td class="firstColumn">MONTANT TTC</td>
-                        <td class="secondColumn">{{ elRow?.salesAmount }}</td>
-                        <td class="firstColumn">MONTANT HT</td>
-                        <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
-                      </tr>
+                    <tr>
+                      <td class="firstColumn">MONTANT TTC</td>
+                      <td class="secondColumn">{{ elRow?.salesAmount }}</td>
+                      <td class="firstColumn">MONTANT HT</td>
+                      <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
+                    </tr>
 
-                      <tr>
-                        <td class="firstColumn">MONTANT TAXE</td>
-                        <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
-                        <td class="firstColumn">REMISE</td>
-                        <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
-                      </tr>
-                      <tr>
-                        <td class="firstColumn">MONTANT A PAYER</td>
-                        <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
-                        <td class="firstColumn">RESTE A PAYER</td>
-                        <td class="secondColumn">{{ elRow?.restToPay }}</td>
-                      </tr>
+                    <tr>
+                      <td class="firstColumn">MONTANT TAXE</td>
+                      <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
+                      <td class="firstColumn">REMISE</td>
+                      <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
+                    </tr>
+                    <tr>
+                      <td class="firstColumn">MONTANT A PAYER</td>
+                      <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
+                      <td class="firstColumn">RESTE A PAYER</td>
+                      <td class="secondColumn">{{ elRow?.restToPay }}</td>
+                    </tr>
                       @for (tp of elRow?.thirdPartySaleLines; track tp; let i = $index) {
                         <tr>
                           <td class="firstColumn">

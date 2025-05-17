@@ -52,7 +52,9 @@ export class VoSalesService {
   printReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/assurance/print/receipt/${id}`, { observe: 'response' });
   }
-
+  rePrintReceipt(id: number): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id}`, { observe: 'response' });
+  }
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http

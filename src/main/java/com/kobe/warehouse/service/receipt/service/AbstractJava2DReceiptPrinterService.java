@@ -24,7 +24,14 @@ import java.util.Objects;
 
 @Service
 public abstract class AbstractJava2DReceiptPrinterService implements Printable {
-
+    protected static final String MONTANT_RENDU = "Monnaie";
+    protected static final String MONTANT_TTC = "Montant Ttc";
+    protected static final String REMISE = "Remise";
+    protected static final String TOTAL_TVA = "Total Tva";
+    protected static final String TOTAL_A_PAYER = "Total à payer";
+    protected static final String RESTE_A_PAYER = "Reste à payer";
+    protected static final String TVA = "Taxes";
+    protected static final String REGLEMENT = "Règlement";
     private final AppConfigurationService appConfigurationService;
     private final PrinterRepository printerRepository;
 
@@ -34,6 +41,19 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         this.appConfigurationService = appConfigurationService;
         this.printerRepository = printerRepository;
+    }
+
+    protected int getLineHeight() {
+        return 15;
+    }
+
+    protected Font getHeaderFont() {
+        return new Font("Monospaced", Font.BOLD, 12);
+    }
+
+
+    protected Font getFooterFont() {
+        return getHeaderFont();
     }
 
     //Arial
@@ -51,10 +71,16 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
     protected abstract int getNumberOfCopies();
 
-    protected abstract int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y);
 
-
-    protected abstract int getLineHeight();
+    protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
+        if (StringUtils.hasText(magasin.getWelcomeMessage())) {
+            graphics2D.setFont(getHeaderFont());
+            graphics2D.drawString("*** " + magasin.getWelcomeMessage() + " ***", margin, y);
+            y += getLineHeight();
+            return y;
+        }
+        return y;
+    }
 
     protected abstract List<? extends AbstractItem> getItems();
 
@@ -74,14 +100,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected int getWidth() {
         return this.appConfigurationService.getPrinterWidth();
     }
-
-    protected abstract Font getHeaderFont();
-
-    protected abstract Font getFooterFont();
-
-
-    protected abstract int drawTableHeader(Graphics2D graphics2D, int margin, int y);
-
 
     protected int drawCompagnyInfo(Graphics2D graphics2D, int margin, int y) {
         magasin = appConfigurationService.getMagasin();
@@ -158,9 +176,9 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         return y;
     }
 
-    protected int drawDate(Graphics2D graphics2D,  int margin, int y, int lineHeight) {
+    protected int drawDate(Graphics2D graphics2D, int margin, int y, int lineHeight) {
         graphics2D.setFont(getBodyFont());
-       int x=margin*3;
+        int x = margin * 2;
         graphics2D.drawString("Le " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), x, y);
         graphics2D.drawString("à " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), x + 85, y);
         y += lineHeight;

@@ -47,7 +47,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     public void printReceipt(String hostName, Long saleId, boolean isEdit) {
         this.isEdit = isEdit;
-        thirdPartySale = (ThirdPartySaleDTO) this.saleDataService.getOneSaleDTO(11L);
+        thirdPartySale = (ThirdPartySaleDTO) this.saleDataService.getOneSaleDTO(saleId);
         try {
             print(hostName);
         } catch (PrinterException e) {
@@ -61,7 +61,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         Font font = getBodyFont();
         AssuredCustomerDTO customer = (AssuredCustomerDTO) thirdPartySale.getCustomer();
-        headerItems.add(new HeaderFooterItem("Assuré: " + customer.getFullName() + " | Matricule: " + customer.getTiersPayants().stream().filter(e -> e.getPriorite() == PrioriteTiersPayant.R0).findFirst().map(ClientTiersPayantDTO::getNum).orElse(""), 1, font));
+        headerItems.add(new HeaderFooterItem("Assuré: " + customer.getFullName() + " | Matricule: " + thirdPartySale.getTiersPayants().stream().filter(e -> e.getPriorite() == PrioriteTiersPayant.R0).findFirst().map(ClientTiersPayantDTO::getNum).orElse(""), 1, font));
         if (!customer.getId().equals(thirdPartySale.getAyantDroitId())) {
             headerItems.add(new HeaderFooterItem("Bénéficiaire: " + thirdPartySale.getAyantDroitFirstName().concat(" ") + thirdPartySale.getAyantDroitLastName() + " | Matricule: " + thirdPartySale.getAyantDroitNum(), 1, font));
 
@@ -75,7 +75,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         if (isEdit) {
             return 1;
         }
-        return thirdPartySale.getThirdPartySaleLines().size();
+        return thirdPartySale.getThirdPartySaleLines().size() + 1;
     }
 
     @Override

@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.awt.*;
 import java.awt.print.PageFormat;
@@ -30,14 +29,7 @@ import java.util.List;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
-    protected static final String MONTANT_RENDU = "Monnaie";
-    protected static final String MONTANT_TTC = "Montant Ttc";
-    protected static final String REMISE = "Remise";
-    protected static final String TOTAL_TVA = "Total Tva";
-    protected static final String TOTAL_A_PAYER = "Total à payer";
-    protected static final String RESTE_A_PAYER = "Reste à payer";
-    protected static final String TVA = "Taxes";
-    protected static final String REGLEMENT = "Règlement";
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSaleReceiptService.class);
     protected int avoirCount;
 
@@ -55,37 +47,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     }
 
     @Override
-    protected int getLineHeight() {
-        return 15;
-    }
-
-    @Override
-    protected Font getHeaderFont() {
-        return new Font("Monospaced", Font.BOLD, 12);
-    }
-
-    @Override
-    protected Font getFooterFont() {
-        return getHeaderFont();
-    }
-
-
-    @Override
     protected abstract List<? extends SaleReceiptItem> getItems();
 
 
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
 
-    @Override
-    protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
-        if (StringUtils.hasText(magasin.getWelcomeMessage())) {
-            graphics2D.setFont(getHeaderFont());
-            graphics2D.drawString("*** " + magasin.getWelcomeMessage() + " ***", margin, y);
-            y += getLineHeight();
-            return y;
-        }
-        return y;
-    }
 
     protected void print(String hostName) throws PrinterException {
         int margin = getMargin();
@@ -115,10 +81,10 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         Font font = getBodyFont();
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         if (sale.getCassierId().compareTo(sale.getSellerId()) != 0) {
-            headerItems.add(new HeaderFooterItem("Ticker: " + sale.getNumberTransaction(), 1, font));
+            headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
             headerItems.add(new HeaderFooterItem("Caissier: " + sale.getCassier().getAbbrName() + " | " + "Vendeur: " + sale.getSeller().getAbbrName(), 1, font));
         } else {
-            headerItems.add(new HeaderFooterItem("Ticker: " + sale.getNumberTransaction() + " | " + "Caissier: " + sale.getCassier().getAbbrName(), 1, font));
+            headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction() + " | " + "Caissier: " + sale.getCassier().getAbbrName(), 1, font));
         }
         //add date
         // headerItems.add(new HeaderFooterItem("Date: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), 1, font));
@@ -142,6 +108,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return item;
     }
+
 
     protected int drawTableHeader(Graphics2D graphics2D, int margin, int y) {
         Font font = getBodyFontBold();
@@ -212,7 +179,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             y = drawLineSeparator(graphics2D, margin, y, width);
             y = drawSummary(graphics2D, width, margin, y, lineHeight);
             y = drawReglement(graphics2D, width, margin, y, lineHeight);
-            y = drawCashInfo(graphics2D, width, margin, y, lineHeight);
+            y = drawCashInfo(graphics2D, margin, y, lineHeight);
             y = drawResteToPay(graphics2D, margin, y, lineHeight);
             y = drawTaxeDetail(graphics2D, width, margin, y, lineHeight);
             y = drawFooter(graphics2D, margin, y, lineHeight);
@@ -284,7 +251,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return y;
     }
 
-    protected int drawCashInfo(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
+    protected int drawCashInfo(Graphics2D graphics2D,  int margin, int y, int lineHeight) {
         if (getSale().getMontantRendu() != null && getSale().getMontantRendu() > 0) {
             int rightMargin = getRightMargin();
             Font bodyFont = getBodyFont();

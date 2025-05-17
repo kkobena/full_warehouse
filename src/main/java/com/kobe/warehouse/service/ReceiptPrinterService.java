@@ -28,7 +28,7 @@ public class ReceiptPrinterService {
     }
 
     public void printCashSale(Long saleId, boolean isEdit) {
-        printCashSale2(saleId, isEdit);
+        this.cashSaleReceiptService.printReceipt(null, saleId, isEdit);
        /* Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
@@ -43,7 +43,7 @@ public class ReceiptPrinterService {
     }
 
     public void printVoSale(Long saleId, boolean isEdit) {
-        printCashSale2(saleId, isEdit);
+        this.assuranceSaleReceiptService.printReceipt(null, saleId, isEdit);
      /*   Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();

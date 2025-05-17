@@ -85,7 +85,9 @@ export class SalesService {
   printReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/print/receipt/${id}`, { observe: 'response' });
   }
-
+  rePrintReceipt(id: number): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/re-print/receipt/${id}`, { observe: 'response' });
+  }
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     const copy = this.convertItemDateFromClient(salesLine);
     return this.http

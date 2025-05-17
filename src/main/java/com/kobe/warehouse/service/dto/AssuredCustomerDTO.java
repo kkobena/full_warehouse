@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import jakarta.validation.constraints.PastOrPresent;
@@ -84,12 +85,24 @@ public class AssuredCustomerDTO extends CustomerDTO {
         this.num = customer.getNumAyantDroit();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.datNaiss = customer.getDatNaiss();
-        this.tiersPayants = customer.getClientTiersPayants()
+      /*  this.tiersPayants = customer.getClientTiersPayants()
             .stream().map(ClientTiersPayantDTO::new)
             .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
-            .toList();
+            .toList();*/
     }
+private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer,AssuredCustomer customer){
+    customer.getClientTiersPayants().forEach(c->{
+        var tp=new ClientTiersPayantDTO();
+        TiersPayant tiersPayant = c.getTiersPayant();
+        tp.setId(c.getId());
+        tp.setNum(c.getNum());
+        tp.setTiersPayantFullName(tiersPayant.getFullName());
+        tp.setPriorite(c.getPriorite());
+        assuredCustomer.getTiersPayants().add(tp);
 
+
+    });
+}
     public TiersPayantDto getTiersPayant() {
         return tiersPayant;
     }

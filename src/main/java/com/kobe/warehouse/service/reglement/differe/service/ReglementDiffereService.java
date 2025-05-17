@@ -60,4 +60,5 @@ public interface ReglementDiffereService {
         LocalDate toDate,
         Pageable pageable
     );
+    ReglementDiffereReceiptDTO getReglementDiffereReceipt(Long id);
 }

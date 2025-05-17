@@ -1,40 +1,39 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ISales } from 'app/shared/model/sales.model';
-import { SalesService } from './sales.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import {AfterViewInit, Component, inject, OnInit, viewChild} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {ISales} from 'app/shared/model/sales.model';
+import {SalesService} from './sales.service';
+import {ConfirmationService, LazyLoadEvent, MenuItem} from 'primeng/api';
+import {TranslateService} from '@ngx-translate/core';
+import {Subscription} from 'rxjs';
 import moment from 'moment';
-import { IUser, User } from '../../core/user/user.model';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { UserService } from '../../core/user/user.service';
-import { HOURS, ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { VoSalesService } from './service/vo-sales.service';
-import { HasAuthorityService } from './service/has-authority.service';
-import { SaleToolBarService } from './service/sale-tool-bar.service';
-import { Authority } from '../../shared/constants/authority.constants';
-import { PrimeNG } from 'primeng/config';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import { Select } from 'primeng/select';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { DatePickerModule } from 'primeng/datepicker';
+import {IUser, User} from '../../core/user/user.model';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {UserService} from '../../core/user/user.service';
+import {HOURS, ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {FormsModule} from '@angular/forms';
+import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {RippleModule} from 'primeng/ripple';
+import {TableModule} from 'primeng/table';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {CalendarModule} from 'primeng/calendar';
+import {CheckboxModule} from 'primeng/checkbox';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {VoSalesService} from './service/vo-sales.service';
+import {HasAuthorityService} from './service/has-authority.service';
+import {SaleToolBarService} from './service/sale-tool-bar.service';
+import {Authority} from '../../shared/constants/authority.constants';
+import {PrimeNG} from 'primeng/config';
+import {acceptButtonProps, rejectButtonProps} from '../../shared/util/modal-button-props';
+import {Select} from 'primeng/select';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {DatePickerModule} from 'primeng/datepicker';
+import {FloatLabel} from "primeng/floatlabel";
 
 @Component({
   selector: 'jhi-sales',
@@ -92,11 +91,10 @@ import { DatePickerModule } from 'primeng/datepicker';
     CheckboxModule,
     SplitButtonModule,
     Select,
-    IconField,
-    InputIcon,
     InputGroupModule,
     InputGroupAddonModule,
     DatePickerModule,
+    FloatLabel,
   ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {
@@ -177,7 +175,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
       if (res.body) {
-        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [{id: null, abbrName: 'TOUT'}];
         this.users = [...this.users, ...res.body];
       }
     });
@@ -274,9 +272,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   printSale(sale: ISales): void {
     if (sale.categorie === 'VNO') {
-      this.salesService.printReceipt(sale.id).subscribe();
+      this.salesService.rePrintReceipt(sale.id).subscribe();
     } else {
-      this.assuranceSalesService.printReceipt(sale.id).subscribe();
+      this.assuranceSalesService.rePrintReceipt(sale.id).subscribe();
     }
   }
 

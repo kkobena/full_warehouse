@@ -1,22 +1,15 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.Printer;
 import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
+import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
 import com.kobe.warehouse.service.report.SaleReceiptService;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.io.IOException;
-import java.nio.file.Paths;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.printing.Orientation;
-import org.apache.pdfbox.printing.PDFPageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 
 @Service
 public class ReceiptPrinterService {
@@ -24,14 +17,19 @@ public class ReceiptPrinterService {
     private final SaleReceiptService saleReceiptService;
     private final StorageService storageService;
     private final Logger log = LoggerFactory.getLogger(ReceiptPrinterService.class);
+    private final CashSaleReceiptService cashSaleReceiptService;
+    private final AssuranceSaleReceiptService assuranceSaleReceiptService;
 
-    public ReceiptPrinterService(SaleReceiptService saleReceiptService, StorageService storageService) {
+    public ReceiptPrinterService(SaleReceiptService saleReceiptService, StorageService storageService, CashSaleReceiptService cashSaleReceiptService, AssuranceSaleReceiptService assuranceSaleReceiptService) {
         this.saleReceiptService = saleReceiptService;
         this.storageService = storageService;
+        this.cashSaleReceiptService = cashSaleReceiptService;
+        this.assuranceSaleReceiptService = assuranceSaleReceiptService;
     }
 
-    public void printCashSale(Long saleId) {
-        Runnable runnableTask = () -> {
+    public void printCashSale(Long saleId, boolean isEdit) {
+        printCashSale2(saleId, isEdit);
+       /* Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPrintService(findPrintService());
@@ -41,11 +39,12 @@ public class ReceiptPrinterService {
                 log.error("printCashSale : {}", e.getLocalizedMessage());
             }
         };
-        runnableTask.run();
+        runnableTask.run();*/
     }
 
-    public void printVoSale(Long saleId) {
-        Runnable runnableTask = () -> {
+    public void printVoSale(Long saleId, boolean isEdit) {
+        printCashSale2(saleId, isEdit);
+     /*   Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPrintService(findPrintService());
@@ -55,28 +54,19 @@ public class ReceiptPrinterService {
                 log.debug("printVoSale : {}", e.getLocalizedMessage());
             }
         };
-        runnableTask.run();
+        runnableTask.run();*/
     }
 
     private PrintService findPrintService() {
         // findPrintService("\\\\192.168.1.104\\HP LaserJet P1007");
         User user = storageService.getUser();
         String printerName = null;
-        Printer userPrinter = user.getPrinter();
-        if (userPrinter != null) {
-            printerName = userPrinter.getName();
-        }
 
-        if (StringUtils.isEmpty(printerName)) {
+
+
             return PrintServiceLookup.lookupDefaultPrintService();
-        }
-        PrintService[] printServices = PrinterJob.lookupPrintServices();
-        for (PrintService printService : printServices) {
-            if (printService.getName().equals(printerName)) {
-                return printService;
-            }
-        }
-        return PrintServiceLookup.lookupDefaultPrintService();
+
+
     }
     /*
     common size
@@ -85,4 +75,9 @@ public class ReceiptPrinterService {
   Width: 2.25 inches (57 mm), 3 inches (76 mm)
   Width: 2.25 inches
      */
+
+    public void printCashSale2(Long saleId, boolean isEdit) {
+        this.assuranceSaleReceiptService.printReceipt(null, saleId, isEdit);
+    }
+
 }

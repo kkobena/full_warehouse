@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.reglement.service;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.receipt.AbstractReceiptServiceImpl;
+import com.kobe.warehouse.service.receipt.service.AbstractReceiptServiceImpl;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.report.Constant;
 import java.time.LocalDateTime;

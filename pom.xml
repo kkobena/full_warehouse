@@ -306,7 +306,11 @@
         </plugins>
     </build>
     <dependencies>
-
+    <!--  <dependency>
+        <groupId>org.javapos</groupId>
+        <artifactId>javapos</artifactId>
+        <version>1.15.7</version>
+      </dependency>-->
         <dependency>
             <artifactId>flyway-mysql</artifactId>
             <groupId>org.flywaydb</groupId>

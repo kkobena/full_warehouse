@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import java.time.LocalDateTime;
 
@@ -24,7 +25,7 @@ public class ThirdPartySaleLineDTO {
     private ThirdPartySaleStatut statut;
     private Integer montantRemise;
     private Integer montantNet;
-
+    private  PrioriteTiersPayant priorite;
     public ThirdPartySaleLineDTO() {}
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
@@ -44,6 +45,7 @@ public class ThirdPartySaleLineDTO {
         this.effectiveUpdateDate = thirdPartySaleLine.getEffectiveUpdateDate();
         this.taux = thirdPartySaleLine.getTaux();
         this.statut = thirdPartySaleLine.getStatut();
+        this.priorite= clientTiersPayant.getPriorite();
     }
 
     public Integer getMontantNet() {
@@ -62,6 +64,14 @@ public class ThirdPartySaleLineDTO {
     public ThirdPartySaleLineDTO setMontantRemise(Integer montantRemise) {
         this.montantRemise = montantRemise;
         return this;
+    }
+
+    public PrioriteTiersPayant getPriorite() {
+        return priorite;
+    }
+
+    public void setPriorite(PrioriteTiersPayant priorite) {
+        this.priorite = priorite;
     }
 
     public Long getId() {

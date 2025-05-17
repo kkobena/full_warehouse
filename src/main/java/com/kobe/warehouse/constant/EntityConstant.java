@@ -41,4 +41,7 @@ public final class EntityConstant {
     public static final String SANS_EMPLACEMENT_CODE = "SANS";
     public static final Long DEFAULT_TYPE_ETIQUETTES = 2L;
     public static final String APP_SUGGESTION_RETENTION = "APP_SUGGESTION_RETENTION";
+    public static final String APP_POS_PRINTER_WIDTH = "APP_POS_PRINTER_WIDTH";
+    public static final String APP_POS_PRINTER_MARGIN = "APP_POS_PRINTER_MARGIN";
+    public static final String APP_POS_PRINTER_ITEM_COUNT_PER_PAGE = "APP_POS_PRINTER_ITEM_COUNT_PER_PAGE";
 }

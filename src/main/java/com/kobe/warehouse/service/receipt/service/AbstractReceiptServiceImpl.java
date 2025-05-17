@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.receipt;
+package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Printer;
@@ -121,22 +121,7 @@ public abstract class AbstractReceiptServiceImpl implements ReceiptService {
 
     private PrintService findPrintService() {
         // findPrintService("\\\\192.168.1.104\\HP LaserJet P1007");
-        User user = storageService.getUser();
-        String printerName = null;
-        Printer userPrinter = user.getPrinter();
-        if (userPrinter != null) {
-            printerName = userPrinter.getName();
-        }
 
-        if (StringUtils.isEmpty(printerName)) {
-            return PrintServiceLookup.lookupDefaultPrintService();
-        }
-        PrintService[] printServices = PrinterJob.lookupPrintServices();
-        for (PrintService printService : printServices) {
-            if (printService.getName().equals(printerName)) {
-                return printService;
-            }
-        }
         return PrintServiceLookup.lookupDefaultPrintService();
     }
 }

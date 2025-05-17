@@ -1,0 +1,322 @@
+package com.kobe.warehouse.service.receipt.service;
+
+import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.repository.PrinterRepository;
+import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.PaymentDTO;
+import com.kobe.warehouse.service.dto.PaymentModeDTO;
+import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.TvaEmbeded;
+import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
+import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
+import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
+import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
+import com.kobe.warehouse.service.utils.NumberUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
+    protected static final String MONTANT_RENDU = "Monnaie";
+    protected static final String MONTANT_TTC = "Montant Ttc";
+    protected static final String REMISE = "Remise";
+    protected static final String TOTAL_TVA = "Total Tva";
+    protected static final String TOTAL_A_PAYER = "Total à payer";
+    protected static final String RESTE_A_PAYER = "Reste à payer";
+    protected static final String TVA = "Taxes";
+    protected static final String REGLEMENT = "Règlement";
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSaleReceiptService.class);
+    protected int avoirCount;
+
+    protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
+        super(appConfigurationService, printerRepository);
+    }
+
+    protected abstract SaleDTO getSale();
+
+    protected abstract int drawAssuanceInfo(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
+
+
+    protected int getProductNameWidth() {
+        return 54;
+    }
+
+    @Override
+    protected int getLineHeight() {
+        return 15;
+    }
+
+    @Override
+    protected Font getHeaderFont() {
+        return new Font("Monospaced", Font.BOLD, 12);
+    }
+
+    @Override
+    protected Font getFooterFont() {
+        return getHeaderFont();
+    }
+
+
+    @Override
+    protected abstract List<? extends SaleReceiptItem> getItems();
+
+
+    protected abstract int drawSummary(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
+
+    @Override
+    protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
+        if (StringUtils.hasText(magasin.getWelcomeMessage())) {
+            graphics2D.setFont(getHeaderFont());
+            graphics2D.drawString("*** " + magasin.getWelcomeMessage() + " ***", margin, y);
+            y += getLineHeight();
+            return y;
+        }
+        return y;
+    }
+
+    protected void print(String hostName) throws PrinterException {
+        int margin = getMargin();
+        PrinterJob job = getPrinterJob(hostName);
+        PageFormat pageFormat = job.defaultPage();
+        // int pageHeight= (int) pageFormat.getImageableHeight();
+        int pageWidth = getWidth();
+        int itemSize = getItems().size();
+        int pageHeight = itemSize > getMaximumLinesPerPage() ? 750 : pageWidth;
+        int lineHeight = getLineHeight();
+        Paper paper = new Paper();
+        paper.setSize(getWidth(), pageHeight);
+        paper.setImageableArea(margin, lineHeight, getWidth() - (2 * margin), pageHeight - lineHeight);
+        pageFormat.setPaper(paper);
+        job.setPrintable(this, pageFormat);
+        try {
+            job.setCopies(getNumberOfCopies());
+            job.print();
+
+        } catch (PrinterException e) {
+            LOG.error("Error printing receipt: {}", e.getMessage());
+        }
+    }
+
+    protected List<HeaderFooterItem> getOperateurInfos() {
+        SaleDTO sale = getSale();
+        Font font = getBodyFont();
+        List<HeaderFooterItem> headerItems = new ArrayList<>();
+        if (sale.getCassierId().compareTo(sale.getSellerId()) != 0) {
+            headerItems.add(new HeaderFooterItem("Ticker: " + sale.getNumberTransaction(), 1, font));
+            headerItems.add(new HeaderFooterItem("Caissier: " + sale.getCassier().getAbbrName() + " | " + "Vendeur: " + sale.getSeller().getAbbrName(), 1, font));
+        } else {
+            headerItems.add(new HeaderFooterItem("Ticker: " + sale.getNumberTransaction() + " | " + "Caissier: " + sale.getCassier().getAbbrName(), 1, font));
+        }
+        //add date
+        // headerItems.add(new HeaderFooterItem("Date: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), 1, font));
+        return headerItems;
+    }
+
+    protected SaleReceiptItem fromSaleLine(SaleLineDTO saleLineDTO) {
+        SaleReceiptItem item;
+        if (getSale() instanceof CashSaleDTO) {
+            item = new CashSaleReceiptItem();
+        } else {
+            item = new AssuranceReceiptItem();
+        }
+
+        int productNameWidth = getProductNameWidth();
+        var produitName = saleLineDTO.getProduitLibelle();
+        item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) + " ..." : produitName);
+        item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
+        item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
+        item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
+
+        return item;
+    }
+
+    protected int drawTableHeader(Graphics2D graphics2D, int margin, int y) {
+        Font font = getBodyFontBold();
+        FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
+        graphics2D.setFont(font);
+        //add quantity before product
+        String pu = "Prix";
+        String total = "Total";
+        graphics2D.drawString("Qté", margin, y);//sur 3 chiffres 30pixels //40
+        graphics2D.drawString("Produit", margin + 25, y);//90
+        graphics2D.drawString(pu, margin + 355 - fontMetrics.stringWidth(pu), y);//390 PU sur 6 chiffres 60pixels
+        graphics2D.drawString(total, getRightMargin() - fontMetrics.stringWidth(total), y);
+        y += 10;
+        return y;
+    }
+
+
+    @Override
+    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+        int width = getWidth(); // 80mm in pixels, à parametrer
+        int margin = getMargin(); // margin in pixels
+
+        int lineHeight = getLineHeight();
+        int maximumLinesPerPage = getMaximumLinesPerPage();
+        int itemsSize = getItems().size();
+        int totalPages = (int) Math.ceil((double) itemsSize / maximumLinesPerPage);
+        if (pageIndex >= totalPages) {
+            return NO_SUCH_PAGE;
+        }
+
+        int sartItemIndex = pageIndex * maximumLinesPerPage;
+        int endItemIndex = Math.min(sartItemIndex + maximumLinesPerPage, itemsSize);
+        boolean isLastPage = pageIndex == totalPages - 1;
+        int y = lineHeight;
+        y = drawCompagnyInfo(graphics2D, margin, y);
+        y = drawWelcomeMessage(graphics2D, margin, y);
+        y = drawHeader(graphics2D, margin, y, lineHeight);
+        y = drawAssuanceInfo(graphics2D, width, margin, y, lineHeight);
+        y = drawTableHeader(graphics2D, margin, y);
+        y = drawLineSeparator(graphics2D, margin, y, width);
+        Font font = getBodyFont();
+        graphics2D.setFont(font);
+        FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
+
+        for (int i = sartItemIndex; i < endItemIndex; i++) {
+            SaleReceiptItem item = getItems().get(i);
+            String quantity = item.getQuantity();
+            String produitName = item.getProduitName();
+            String unitPrice = item.getUnitPrice();
+            String totalPrice = item.getTotalPrice();
+            graphics2D.drawString(quantity, margin, y);
+            graphics2D.drawString(produitName, margin + 25, y);
+            graphics2D.drawString(unitPrice, margin + 355 - fontMetrics.stringWidth(unitPrice), y);
+            graphics2D.drawString(totalPrice, getRightMargin() - fontMetrics.stringWidth(totalPrice), y);
+            //check if is last item
+            if (i == endItemIndex - 1) {
+                y += 10;
+            } else {
+                y += lineHeight;
+            }
+
+
+        }
+        //derniere page
+        if (isLastPage) {
+            y = drawLineSeparator(graphics2D, margin, y, width);
+            y = drawSummary(graphics2D, width, margin, y, lineHeight);
+            y = drawReglement(graphics2D, width, margin, y, lineHeight);
+            y = drawCashInfo(graphics2D, width, margin, y, lineHeight);
+            y = drawResteToPay(graphics2D, margin, y, lineHeight);
+            y = drawTaxeDetail(graphics2D, width, margin, y, lineHeight);
+            y = drawFooter(graphics2D, margin, y, lineHeight);
+            y = drawLineSeparator(graphics2D, margin, y, width);
+            y = drawDate(graphics2D, margin, y, lineHeight);
+            drawThanksMessage(graphics2D, margin, y);
+        }
+        return PAGE_EXISTS;
+    }
+
+    protected int drawTaxeDetail(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
+        List<TvaEmbeded> tvaEmbededs = getSale().getTvaEmbededs();
+        if (CollectionUtils.isEmpty(tvaEmbededs)) {
+            return y;
+        }
+        Font bodyFont = getBodyFont();
+        int rightMargin = getRightMargin();
+        graphics2D.setFont(bodyFont);
+        FontMetrics fontMetrics;
+        String tva = TVA;
+        underlineText(graphics2D, tva, width, margin, y);
+        y += 10;
+        drawAndCenterText(graphics2D, tva, width, margin, y);
+        y += 5;
+        underlineText(graphics2D, tva, width, margin, y);
+        y += 10;
+
+        for (TvaEmbeded tvaEmbeded : tvaEmbededs) {
+            graphics2D.setFont(bodyFont);
+            graphics2D.drawString(tvaEmbeded.getTva() + "%", margin, y);
+            fontMetrics = graphics2D.getFontMetrics(bodyFont);
+            String amount = NumberUtil.formatToString(tvaEmbeded.getAmount());
+            graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
+            y += lineHeight;
+        }
+        return y;
+
+    }
+
+    @Override
+    protected int drawReglement(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
+        List<PaymentDTO> payments = getSale().getPayments();
+        if (CollectionUtils.isEmpty(payments)) {
+            return y;
+        }
+        Font bodyFont = getBodyFont();
+        Font bodyFontBold = getBodyFontBold();
+        int rightMargin = getRightMargin();
+        graphics2D.setFont(bodyFont);
+        FontMetrics fontMetrics;
+        String reglement = REGLEMENT;
+        underlineText(graphics2D, reglement, width, margin, y);
+        y += 10;
+        drawAndCenterText(graphics2D, reglement, width, margin, y);
+        y += 5;
+        underlineText(graphics2D, reglement, width, margin, y);
+        y += 10;
+        for (PaymentDTO payment : payments) {
+            PaymentModeDTO paymentMode = payment.getPaymentMode();
+            String libelle = paymentMode.getLibelle();
+            String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name()) ? NumberUtil.formatToString(payment.getMontantVerse()) : NumberUtil.formatToString(payment.getPaidAmount());
+            graphics2D.setFont(bodyFont);
+            graphics2D.drawString(libelle, margin, y);
+            graphics2D.setFont(bodyFontBold);
+            fontMetrics = graphics2D.getFontMetrics(bodyFontBold);
+            graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
+            y += lineHeight;
+        }
+        return y;
+    }
+
+    protected int drawCashInfo(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
+        if (getSale().getMontantRendu() != null && getSale().getMontantRendu() > 0) {
+            int rightMargin = getRightMargin();
+            Font bodyFont = getBodyFont();
+            Font bodyFontBold = getBodyFontBold();
+            graphics2D.setFont(bodyFont);
+            graphics2D.drawString(MONTANT_RENDU, margin, y);
+            graphics2D.setFont(bodyFontBold);
+            FontMetrics fontMetrics = graphics2D.getFontMetrics(bodyFontBold);
+            String amount = NumberUtil.formatToString(getSale().getMontantRendu());
+            graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
+            y += lineHeight;
+        }
+        return y;
+
+    }
+
+    protected int drawResteToPay(Graphics2D graphics2D, int margin, int y, int lineHeight) {
+        if (getSale().getRestToPay() != null && getSale().getRestToPay() > 0) {
+            int rightMargin = getRightMargin();
+            Font bodyFont = getBodyFont();
+            Font bodyFontBold = getBodyFontBold();
+            graphics2D.setFont(bodyFont);
+            graphics2D.drawString(RESTE_A_PAYER, margin, y);
+            graphics2D.setFont(bodyFontBold);
+            FontMetrics fontMetrics = graphics2D.getFontMetrics(bodyFontBold);
+            String amount = NumberUtil.formatToString(getSale().getRestToPay());
+            graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
+            y += lineHeight;
+        }
+        return y;
+
+    }
+
+
+}

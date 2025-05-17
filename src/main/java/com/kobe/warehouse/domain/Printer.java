@@ -10,6 +10,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -17,8 +19,8 @@ import java.util.Objects;
 @Entity
 @Table(
     name = "printer",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
-    indexes = { @Index(columnList = "name", name = "name_index") }
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}),@UniqueConstraint(columnNames = {"name", "poste_id"})},
+    indexes = {@Index(columnList = "name", name = "name_index")}
 )
 public class Printer implements Serializable {
 
@@ -32,19 +34,26 @@ public class Printer implements Serializable {
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
-
+    @ColumnDefault("576")
     @NotNull
     @Column(name = "width", nullable = false)
-    private Integer width;
+    private int width = 576;
 
     @NotNull
     @Column(name = "length", nullable = false)
     private Integer length;
 
     private String address;
-    private Boolean defaultPrinter = Boolean.FALSE;
+    @ColumnDefault("10")
+    @NotNull
+    @Column(name = "margin_left_and_right", nullable = false)
+    private int marginLeftAndRight = 10;
+    @ColumnDefault("15")
+    @NotNull
+    @Column(name = "margin_top", nullable = false)
+    private int marginTop = 15;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Poste poste;
 
     public Long getId() {
@@ -74,14 +83,6 @@ public class Printer implements Serializable {
         return this;
     }
 
-    public Boolean getDefaultPrinter() {
-        return defaultPrinter;
-    }
-
-    public Printer setDefaultPrinter(Boolean defaultPrinter) {
-        this.defaultPrinter = defaultPrinter;
-        return this;
-    }
 
     public Integer getWidth() {
         return width;
@@ -108,6 +109,26 @@ public class Printer implements Serializable {
     public Printer setPoste(Poste poste) {
         this.poste = poste;
         return this;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getMarginLeftAndRight() {
+        return marginLeftAndRight;
+    }
+
+    public void setMarginLeftAndRight(int marginLeftAndRight) {
+        this.marginLeftAndRight = marginLeftAndRight;
+    }
+
+    public int getMarginTop() {
+        return marginTop;
+    }
+
+    public void setMarginTop(int marginTop) {
+        this.marginTop = marginTop;
     }
 
     @Override

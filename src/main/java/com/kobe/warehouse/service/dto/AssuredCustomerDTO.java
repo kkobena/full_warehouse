@@ -76,6 +76,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     public AssuredCustomerDTO() {
         super();
+
     }
 
     public AssuredCustomerDTO(AssuredCustomer customer) {
@@ -83,6 +84,10 @@ public class AssuredCustomerDTO extends CustomerDTO {
         this.num = customer.getNumAyantDroit();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.datNaiss = customer.getDatNaiss();
+        this.tiersPayants = customer.getClientTiersPayants()
+            .stream().map(ClientTiersPayantDTO::new)
+            .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
+            .toList();
     }
 
     public TiersPayantDto getTiersPayant() {

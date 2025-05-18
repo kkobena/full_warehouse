@@ -6,6 +6,8 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
@@ -236,5 +241,24 @@ public Response generatePdf() {
         Magasin magasin = storageService.getUser().getMagasin();
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.FOOTER, "\"" + builderFooter(magasin) + "\"");
+    }
+
+    protected byte[] printByteArray() {
+        // Convertir en PDF
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ITextRenderer renderer = new ITextRenderer();
+        renderer.setDocumentFromString(this.getTemplateAsHtml());
+        renderer.layout();
+        renderer.createPDF(outputStream);
+
+        return outputStream.toByteArray();
+    }
+
+    protected ResponseEntity<byte[]> genererPdf(){
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+ this.getGenerateFileName()+"_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body( printByteArray());
     }
 }

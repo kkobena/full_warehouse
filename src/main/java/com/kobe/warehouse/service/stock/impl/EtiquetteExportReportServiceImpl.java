@@ -1,5 +1,10 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -11,6 +16,8 @@ import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import com.lowagie.text.DocumentException;
+
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -155,4 +162,13 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             .setMagasin(rasionSociale)
             .setLibelle(fournisseurProduit.getProduit().getLibelle());
     }
+
+
+    private String generateBarcodeImage(String code) throws WriterException, IOException {
+        BitMatrix matrix = new MultiFormatWriter().encode(code, BarcodeFormat.CODE_128, 200, 50);
+        File tempFile = File.createTempFile("barcode-" + code, ".png");
+        MatrixToImageWriter.writeToPath(matrix, "PNG", tempFile.toPath());
+        return tempFile.getAbsolutePath();
+    }
+
 }

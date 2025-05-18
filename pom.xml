@@ -306,11 +306,16 @@
         </plugins>
     </build>
     <dependencies>
-    <!--  <dependency>
-        <groupId>org.javapos</groupId>
-        <artifactId>javapos</artifactId>
-        <version>1.15.7</version>
-      </dependency>-->
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>3.5.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>javase</artifactId>
+        <version>3.5.3</version>
+      </dependency>
         <dependency>
             <artifactId>flyway-mysql</artifactId>
             <groupId>org.flywaydb</groupId>

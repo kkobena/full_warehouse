@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -15,10 +14,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Objects;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
@@ -91,9 +88,6 @@ public class DeliveryReceiptItem implements Serializable {
 
     @ManyToOne(optional = false)
     private FournisseurProduit fournisseurProduit;
-
-    @OneToMany(mappedBy = "receiptItem")
-    private List<Lot> lots = new ArrayList<>();
 
     @Column(name = "is_updated")
     private Boolean updated = Boolean.FALSE;
@@ -268,15 +262,6 @@ public class DeliveryReceiptItem implements Serializable {
 
     public DeliveryReceiptItem setFournisseurProduit(FournisseurProduit fournisseurProduit) {
         this.fournisseurProduit = fournisseurProduit;
-        return this;
-    }
-
-    public List<Lot> getLots() {
-        return lots;
-    }
-
-    public DeliveryReceiptItem setLots(List<Lot> lots) {
-        this.lots = lots;
         return this;
     }
 

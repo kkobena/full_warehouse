@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.web.util.HeaderUtil;
 
-/** REST controller for managing {@link com.kobe.warehouse.domain.Commande}. */
+/**
+ * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
+ */
 @RestController
 @RequestMapping("/api")
 public class CommandeResource {
@@ -45,7 +46,7 @@ public class CommandeResource {
 
     @PostMapping("/commandes")
     public ResponseEntity<CommandeLiteDTO> createCommande(@Valid @RequestBody CommandeDTO commandeDTO) throws URISyntaxException {
-        CommandeLiteDTO commande = new CommandeLiteDTO(commandService.createNewCommandeFromCommandeDTO(commandeDTO));
+        CommandeLiteDTO commande = commandService.createNewCommandeFromCommandeDTO(commandeDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + commande.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, commande.getId().toString()))
             .body(commande);
@@ -53,7 +54,7 @@ public class CommandeResource {
 
     @PostMapping("/commandes/add-order-line")
     public ResponseEntity<CommandeLiteDTO> addOrderLine(@Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
-        CommandeLiteDTO result = new CommandeLiteDTO(commandService.createOrUpdateOrderLine(orderLineDTO));
+        CommandeLiteDTO result = commandService.createOrUpdateOrderLine(orderLineDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -62,7 +63,7 @@ public class CommandeResource {
     @PutMapping("/commandes/update-order-line-quantity-requested")
     public ResponseEntity<CommandeLiteDTO> updateQuantityRequested(@Valid @RequestBody OrderLineDTO orderLineDTO)
         throws URISyntaxException {
-        CommandeLiteDTO result = new CommandeLiteDTO(commandService.updateQuantityRequested(orderLineDTO));
+        CommandeLiteDTO result = commandService.updateQuantityRequested(orderLineDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -123,14 +124,6 @@ public class CommandeResource {
     @DeleteMapping("/commandes/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         commandService.deleteById(id);
-        return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
-    }
-
-    @GetMapping("/commandes/close-commande-en-cours/{id}")
-    public ResponseEntity<CommandeDTO> closeCommandeEnCours(@PathVariable Long id) {
-        commandService.closeCommandeEnCours(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();

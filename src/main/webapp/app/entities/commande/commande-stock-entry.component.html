@@ -1,7 +1,9 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-  ><p style="color: white">Traitement en cours...</p></ngx-spinner
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"
+><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printTicket"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="printTicket"></p-confirmDialog>
 
 <div class="commande-entry">
   <div class="row">
@@ -37,12 +39,17 @@
         <div class="card-body">
           <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span style="margin-right: 5px">Grossiste</span>
+              <span class="text-primary fw-bold">{{ delivery?.fournisseurLibelle }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px">Référence bon</span>
               <span class="text-primary fw-bold">{{ delivery?.receiptRefernce }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span style="margin-right: 5px">Date Bon</span>
-              <span class="text-primary fw-bold">{{ delivery?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+              <span
+                class="text-primary fw-bold">{{ delivery?.receiptDate | date: 'dd/MM/yyyy' }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               Montant TTC
@@ -63,7 +70,8 @@
             <ng-template #start>
               <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
-                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="onSearch($event)" pInputText
+                       placeholder="Taper pour rechercher" type="text" />
               </p-iconfield>
               &nbsp;
               <p-select

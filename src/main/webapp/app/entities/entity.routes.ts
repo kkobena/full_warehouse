@@ -94,11 +94,7 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.tva.home.title' },
     loadChildren: () => import('./tva/tva.route'),
   },
-  {
-    path: 'type-etiquette',
-    data: { pageTitle: 'warehouseApp.typeEtiquette.home.title' },
-    loadChildren: () => import('./type-etiquette/type-etiquette.route'),
-  },
+
   {
     path: 'produit',
     data: { pageTitle: 'warehouseApp.produit.home.title' },

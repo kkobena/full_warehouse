@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Suggestion;
@@ -12,12 +13,11 @@ import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
-import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
@@ -70,7 +70,6 @@ public class CommandServiceImpl implements CommandService {
     private final OrderLineService orderLineService;
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
-    private final WarehouseCalendarService warehouseCalendarService;
     private final ImportationEchoueService importationEchoueService;
 
     public CommandServiceImpl(
@@ -79,7 +78,6 @@ public class CommandServiceImpl implements CommandService {
         OrderLineService orderLineService,
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
-        WarehouseCalendarService warehouseCalendarService,
         ImportationEchoueService importationEchoueService
     ) {
         this.commandeRepository = commandeRepository;
@@ -87,7 +85,6 @@ public class CommandServiceImpl implements CommandService {
         this.orderLineService = orderLineService;
         this.referenceService = referenceService;
         this.exportationCsvService = exportationCsvService;
-        this.warehouseCalendarService = warehouseCalendarService;
         this.importationEchoueService = importationEchoueService;
     }
 
@@ -118,15 +115,13 @@ public class CommandServiceImpl implements CommandService {
         );
     }
 
-    @Override
-    public Commande createNewCommande(Commande commande) {
-        commande.setCalendar(warehouseCalendarService.initCalendar());
+    private Commande createNewCommande(Commande commande) {
         return commandeRepository.saveAndFlush(commande);
     }
 
     @Override
-    public Commande createNewCommandeFromCommandeDTO(CommandeDTO commande) {
-        return createNewCommande(buildCommandeFromCommandeDTO(commande));
+    public CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commande) {
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commande)));
     }
 
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
@@ -134,10 +129,7 @@ public class CommandServiceImpl implements CommandService {
         Commande commande = new Commande();
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
-        commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
-        commande.setLastUserEdit(user);
-        commande.setMagasin(user.getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
         OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
@@ -148,7 +140,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Commande createOrUpdateOrderLine(OrderLineDTO orderLineDTO) {
+    public CommandeLiteDTO createOrUpdateOrderLine(OrderLineDTO orderLineDTO) {
         int oldGrossAmount = 0;
         int oldOrderAmount = 0;
         Optional<OrderLine> optionalOrderLine = orderLineService.findOneFromCommande(
@@ -175,13 +167,13 @@ public class CommandServiceImpl implements CommandService {
         }
         updateCommandeAmount(commande, orderLine, oldGrossAmount, oldOrderAmount);
         orderLineService.save(orderLine);
-        return commandeRepository.saveAndFlush(commande);
+        return new CommandeLiteDTO(commandeRepository.saveAndFlush(commande));
     }
 
     @Override
-    public Commande updateQuantityRequested(OrderLineDTO orderLineDTO) {
+    public CommandeLiteDTO updateQuantityRequested(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair = orderLineService.updateOrderLineQuantityRequested(orderLineDTO);
-        return updateCommande(orderLineOrderLinePair);
+        return new CommandeLiteDTO(updateCommande(orderLineOrderLinePair));
     }
 
     @Override
@@ -241,7 +233,6 @@ public class CommandServiceImpl implements CommandService {
         Commande commande = commandeRepository.getReferenceById(id);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUpdatedAt(LocalDateTime.now());
-        commande.setLastUserEdit(storageService.getUser());
         commandeRepository.save(commande);
     }
 
@@ -262,15 +253,6 @@ public class CommandServiceImpl implements CommandService {
                     orderLineService.deleteOrderLine(orderLine);
                 })
         );
-        commandeRepository.save(commande);
-    }
-
-    @Override
-    public void closeCommandeEnCours(Long commandeId) {
-        Commande commande = commandeRepository.getReferenceById(commandeId);
-        commande.setOrderStatus(OrderStatut.PASSED);
-        commande.setUpdatedAt(LocalDateTime.now());
-        commande.setLastUserEdit(storageService.getUser());
         commandeRepository.save(commande);
     }
 
@@ -300,7 +282,6 @@ public class CommandServiceImpl implements CommandService {
                 );
             commandesToDelete.add(commandeSecond);
         });
-        commande.setLastUserEdit(storageService.getUser());
         commande.setUpdatedAt(LocalDateTime.now());
         commandeRepository.save(commande);
         commandeRepository.deleteAll(commandesToDelete);
@@ -359,20 +340,20 @@ public class CommandServiceImpl implements CommandService {
 
     private Commande buildCommande(Long fournisseurId) {
         Commande commande = new Commande();
-        commande.setCalendar(warehouseCalendarService.initCalendar());
+
         commande.setTaxAmount(0);
         commande.setNetAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setLastUserEdit(storageService.getUser());
-        commande.setUser(commande.getLastUserEdit());
+        commande.setReceiptReference(commande.getOrderReference());
+        commande.setUser(storageService.getUser());
         commande.setOrderAmount(0);
         commande.setGrossAmount(0);
         commande.setDiscountAmount(0);
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
-        commande.setMagasin(commande.getUser().getMagasin());
+
         return commande;
     }
 
@@ -566,7 +547,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
@@ -651,7 +632,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
@@ -721,7 +702,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
@@ -802,7 +783,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
@@ -911,13 +892,11 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private void updateCommandeAmount(Commande commande, OrderLine orderLine, Integer oldGrossAmount, Integer oldOrderAmount) {
-        commande.setLastUserEdit(storageService.getUser());
         commande.setGrossAmount(orderLine.getGrossAmount() + commande.getGrossAmount() - oldGrossAmount);
         commande.setOrderAmount(orderLine.getOrderAmount() + commande.getOrderAmount() - oldOrderAmount);
     }
 
     private void updateCommandeAmount(Commande commande, Integer grossAmount, Integer orderAmount) {
-        commande.setLastUserEdit(storageService.getUser());
         commande.setGrossAmount(commande.getGrossAmount() + grossAmount);
         commande.setOrderAmount(commande.getOrderAmount() + orderAmount);
     }
@@ -1184,7 +1163,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
@@ -1273,7 +1252,7 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         if (items.isEmpty()) {
-            commande.setOrderStatus(OrderStatut.PASSED);
+            commande.setOrderStatus(OrderStatut.REQUESTED);
         }
         commandeRepository.save(commande);
         return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
@@ -1291,9 +1270,10 @@ public class CommandServiceImpl implements CommandService {
             orderLine
                 .getLots()
                 .add(
-                    new LotJsonValue()
+                    new Lot()
+                        .setOrderLine(orderLine)
                         .setNumLot(lotNumber)
-                        .setFreeQuantity(freeQuantity)
+                        .setUgQuantityReceived(freeQuantity)
                         .setExpiryDate(expirationDate)
                         .setQuantity(quantity)
                         .setManufacturingDate(manufacturingDate)
@@ -1304,14 +1284,13 @@ public class CommandServiceImpl implements CommandService {
     private Commande buildNew(Suggestion suggestion) {
         User user = storageService.getUser();
         Commande commande = new Commande();
-        commande.setCalendar(warehouseCalendarService.initCalendar());
+
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
-        commande.setLastUserEdit(user);
-        commande.setMagasin(user.getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
+        commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0); //getGrossAmount
         commande.setFournisseur(suggestion.getFournisseur());

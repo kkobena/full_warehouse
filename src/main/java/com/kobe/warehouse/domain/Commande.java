@@ -1,6 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.PaimentStatut;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +15,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -25,7 +28,15 @@ import java.util.Set;
  * A Commande.
  */
 @Entity
-@Table(name = "commande", indexes = { @Index(columnList = "order_status", name = "order_status_index") })
+@Table(
+    name = "commande",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id" }) },
+    indexes = {
+        @Index(columnList = "order_status", name = "order_status_index"),
+        @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
+        @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
+    }
+)
 public class Commande implements Serializable, Cloneable {
 
     @Serial
@@ -48,7 +59,7 @@ public class Commande implements Serializable, Cloneable {
     private LocalDate receiptDate;
 
     @Column(name = "discount_amount", columnDefinition = "int default '0'")
-    private Integer discountAmount = 0;
+    private int discountAmount;
 
     @NotNull
     @Column(name = "order_amount", nullable = false)
@@ -78,14 +89,20 @@ public class Commande implements Serializable, Cloneable {
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "order_status")
-    private OrderStatut orderStatus;
+    private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
     @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<OrderLine> orderLines = new HashSet<>();
 
-    @ManyToOne(optional = false)
     @NotNull
-    private Magasin magasin;
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "paiment_status")
+    private PaimentStatut paimentStatut = PaimentStatut.UNPAID;
+
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "receipt_type")
+    private TypeDeliveryReceipt type = TypeDeliveryReceipt.ORDER;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -93,15 +110,7 @@ public class Commande implements Serializable, Cloneable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User lastUserEdit;
-
-    @ManyToOne(optional = false)
-    @NotNull
     private Fournisseur fournisseur;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
 
     public Long getId() {
         return id;
@@ -227,14 +236,6 @@ public class Commande implements Serializable, Cloneable {
         this.orderLines = orderLines;
     }
 
-    public @NotNull Magasin getMagasin() {
-        return magasin;
-    }
-
-    public void setMagasin(Magasin magasin) {
-        this.magasin = magasin;
-    }
-
     public @NotNull User getUser() {
         return user;
     }
@@ -243,30 +244,12 @@ public class Commande implements Serializable, Cloneable {
         this.user = user;
     }
 
-    public @NotNull User getLastUserEdit() {
-        return lastUserEdit;
-    }
-
-    public Commande setLastUserEdit(User lastUserEdit) {
-        this.lastUserEdit = lastUserEdit;
-        return this;
-    }
-
     public @NotNull Fournisseur getFournisseur() {
         return fournisseur;
     }
 
     public Commande setFournisseur(Fournisseur fournisseur) {
         this.fournisseur = fournisseur;
-        return this;
-    }
-
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
-
-    public Commande setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
         return this;
     }
 
@@ -324,6 +307,22 @@ public class Commande implements Serializable, Cloneable {
         orderLines.add(orderLine);
         orderLine.setCommande(this);
         return this;
+    }
+
+    public PaimentStatut getPaimentStatut() {
+        return paimentStatut;
+    }
+
+    public void setPaimentStatut(PaimentStatut paimentStatut) {
+        this.paimentStatut = paimentStatut;
+    }
+
+    public TypeDeliveryReceipt getType() {
+        return type;
+    }
+
+    public void setType(TypeDeliveryReceipt type) {
+        this.type = type;
     }
 
     public Commande removeOrderLine(OrderLine orderLine) {

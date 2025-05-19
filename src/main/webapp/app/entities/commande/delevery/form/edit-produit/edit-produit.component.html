@@ -5,12 +5,8 @@
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
     <div class="form-row">
-      <div class="form-group col-md-3">
-        <span class="badge bg-info" style="width: 90%; margin-top: 2rem">
-          {{ delivery.fournisseurLibelle }}
-        </span>
-      </div>
-      <div class="form-group col-md-4">
+    
+      <div class="form-group col-md-6">
         <label class="form-control-label" for="field_codeCip">Code cip</label>
         <input
           [pKeyFilter]="'int'"
@@ -26,16 +22,26 @@
         @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
           <div>
             @if (codeCip?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
       </div>
-      <div class="form-group col-md-5" style="padding-left: 1rem; padding-top: 2rem">
-        <div class="form-check form-switch">
-          <input class="form-check-input" formControlName="principal" id="principal" type="checkbox" />
-          <label class="form-check-label" for="principal" style="margin-left: 5px">Est-il le fournisseur principal?</label>
-        </div>
+
+      <div class="form-group col-md-6">
+        <label class="form-control-label" for="field_codeEan">Code Ean </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="codeEan"
+          id="field_codeEan"
+          name="codeEan"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
+
       </div>
     </div>
     <div class="form-row">
@@ -55,7 +61,8 @@
         @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
           <div>
             @if (prixAchat?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -76,7 +83,8 @@
         @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
           <div>
             @if (prixUni?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -100,36 +108,6 @@
     </div>
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_codeEan">Code Ean </label>
-        <input
-          autocomplete="off"
-          class="form-control"
-          formControlName="codeEan"
-          id="field_codeEan"
-          name="codeEan"
-          pInputText
-          pKeyFilter="int"
-          type="text"
-        />
-      </div>
-
-      <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
-        <p-inputmask
-          autocomplete="off"
-          formControlName="expirationDate"
-          id="field_perimeAt"
-          mask="99/99/9999"
-          name="expirationDate"
-          placeholder="01/11/2020"
-          slotChar="dd/mm/yyyy"
-          styleClass="form-control"
-        >
-        </p-inputmask>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-6">
         <label class="form-control-label" for="rayonId">Rayon</label>
         <p-select
           [filter]="true"
@@ -147,26 +125,28 @@
         >
         </p-select>
       </div>
+
       <div class="form-group col-md-6">
-        <label class="form-control-label" for="typeEtiquetteId">Type etiquette</label>
-        <p-select
-          [options]="etiquettes"
-          [style]="{ width: '100%' }"
-          appendTo="body"
-          formControlName="typeEtiquetteId"
-          id="typeEtiquetteId"
-          name="typeEtiquetteId"
-          optionLabel="libelle"
-          optionValue="id"
-          placeholder="Sélectionner une etiquette"
+        <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
+        <p-inputmask
+          autocomplete="off"
+          formControlName="expirationDate"
+          id="field_perimeAt"
+          mask="99/99/9999"
+          name="expirationDate"
+          placeholder="01/11/2020"
+          slotChar="dd/mm/yyyy"
+          styleClass="form-control"
         >
-        </p-select>
+        </p-inputmask>
       </div>
     </div>
+
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button">
+    <p-button (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler"
+              severity="danger" type="button">
     </p-button>
 
     <p-button

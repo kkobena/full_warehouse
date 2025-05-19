@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -9,11 +9,9 @@ import { ProduitService } from '../../../../produit/produit.service';
 import { ErrorService } from '../../../../../shared/error.service';
 import { ITva } from '../../../../../shared/model/tva.model';
 import { IRayon } from '../../../../../shared/model/rayon.model';
-import { ITypeEtiquette } from '../../../../../shared/model/type-etiquette.model';
 import { IDeliveryItem } from '../../../../../shared/model/delivery-item';
 import { RayonService } from '../../../../rayon/rayon.service';
 import { TvaService } from '../../../../tva/tva.service';
-import { TypeEtiquetteService } from '../../../../type-etiquette/type-etiquette.service';
 import { IProduit } from '../../../../../shared/model/produit.model';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
 import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
@@ -54,7 +52,6 @@ export class EditProduitComponent implements OnInit {
   protected delivery: IDelivery | null;
   protected tvas: ITva[] = [];
   protected rayons: IRayon[] = [];
-  protected etiquettes: ITypeEtiquette[] = [];
   protected isSaving = false;
   protected isValid = true;
   protected fournisseurPrduit: IFournisseurProduit | null;
@@ -62,24 +59,22 @@ export class EditProduitComponent implements OnInit {
   protected editForm = this.fb.group({
     id: [],
     tvaId: [null, [Validators.required]],
-    typeEtiquetteId: [null, [Validators.required]],
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
     rayonId: [null, [Validators.required]],
     prixAchat: [null, [Validators.required]],
     prixUni: [null, [Validators.required]],
     codeEan: [],
     expirationDate: [],
-    cmuAmount: [],
-    principal: [],
+    //    principal: [],
   });
   protected produitService = inject(ProduitService);
   protected errorService = inject(ErrorService);
   protected rayonService = inject(RayonService);
   protected tvaService = inject(TvaService);
-  protected typeEtiquetteService = inject(TypeEtiquetteService);
   private readonly ref = inject(DynamicDialogRef);
   private readonly config = inject(DynamicDialogConfig);
   private readonly messageService = inject(MessageService);
+
   save(): void {
     this.isSaving = true;
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));
@@ -110,14 +105,10 @@ export class EditProduitComponent implements OnInit {
       expirationDate: this.produit.expirationDate,
       tvaId: this.produit.tvaId,
       rayonId: this.produit.rayonId,
-      typeEtiquetteId: this.produit.typeEtiquetteId,
     });
   }
 
   populate(): void {
-    this.typeEtiquetteService.query().subscribe((res: HttpResponse<ITypeEtiquette[]>) => {
-      this.etiquettes = res.body || [];
-    });
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
       this.tvas = res.body || [];
     });
@@ -160,7 +151,6 @@ export class EditProduitComponent implements OnInit {
   }
 
   protected onSaveError(error: any): void {
-    console.error(error.error.detail);
     this.isSaving = false;
     if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error?.errorKey).subscribe({
@@ -196,14 +186,13 @@ export class EditProduitComponent implements OnInit {
       prixAchat: this.editForm.get(['prixAchat']).value,
       codeCip: this.editForm.get(['codeCip']).value,
       fournisseurId: this.delivery.fournisseurId,
-      principal: this.editForm.get(['principal']).value,
+      // principal: this.editForm.get(['principal']).value,
       produitId: this.produit.id,
       produit: {
         codeEan: this.editForm.get(['codeEan']).value,
         expirationDate: this.editForm.get(['expirationDate']).value,
         tvaId: this.editForm.get(['tvaId']).value,
         rayonId: this.editForm.get(['rayonId']).value,
-        typeEtiquetteId: this.editForm.get(['typeEtiquetteId']).value,
         id: this.produit.id,
       },
     };

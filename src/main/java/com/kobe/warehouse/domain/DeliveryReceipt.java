@@ -1,7 +1,7 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,7 +36,7 @@ import java.util.Set;
     },
     indexes = {
         @Index(columnList = "receipt_date DESC", name = "receipt_date_index"),
-        @Index(columnList = "receipt_status", name = "receipt_status_index"),
+        @Index(columnList = "order_statut", name = "order_statut_index"),
         @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
         @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
         @Index(columnList = "number_transaction", name = "number_transaction_index"),
@@ -60,11 +60,7 @@ public class DeliveryReceipt implements Serializable {
     @Column(name = "receipt_reference")
     private String receiptReference;
 
-    @Column(name = "order_reference")
-    private String orderReference;
-
-    @NotNull
-    @Column(name = "receipt_date", nullable = false)
+    @Column(name = "receipt_date")
     private LocalDate receiptDate;
 
     @Column(name = "discount_amount", columnDefinition = "int default '0'")
@@ -83,13 +79,10 @@ public class DeliveryReceipt implements Serializable {
     @ManyToOne(optional = false)
     private User createdUser;
 
-    @ManyToOne(optional = false)
-    private User modifiedUser;
-
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "receipt_status")
-    private ReceiptStatut receiptStatut;
+    @Column(name = "order_statut", nullable = false, length = 9)
+    private OrderStatut orderStatut;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -116,8 +109,6 @@ public class DeliveryReceipt implements Serializable {
 
     @OneToMany(mappedBy = "deliveryReceipt", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<DeliveryReceiptItem> receiptItems = new ArrayList<>();
-
-
 
     public Long getId() {
         return id;
@@ -152,15 +143,6 @@ public class DeliveryReceipt implements Serializable {
 
     public DeliveryReceipt setReceiptReference(String receiptReference) {
         this.receiptReference = receiptReference;
-        return this;
-    }
-
-    public String getOrderReference() {
-        return orderReference;
-    }
-
-    public DeliveryReceipt setOrderReference(String orderReference) {
-        this.orderReference = orderReference;
         return this;
     }
 
@@ -218,22 +200,12 @@ public class DeliveryReceipt implements Serializable {
         return this;
     }
 
-    public User getModifiedUser() {
-        return modifiedUser;
+    public OrderStatut getOrderStatut() {
+        return orderStatut;
     }
 
-    public DeliveryReceipt setModifiedUser(User modifiedUser) {
-        this.modifiedUser = modifiedUser;
-        return this;
-    }
-
-    public @NotNull ReceiptStatut getReceiptStatut() {
-        return receiptStatut;
-    }
-
-    public DeliveryReceipt setReceiptStatut(ReceiptStatut receiptStatut) {
-        this.receiptStatut = receiptStatut;
-        return this;
+    public void setOrderStatut(OrderStatut orderStatut) {
+        this.orderStatut = orderStatut;
     }
 
     public @NotNull PaimentStatut getPaimentStatut() {
@@ -298,7 +270,6 @@ public class DeliveryReceipt implements Serializable {
         this.receiptItems = receiptItems;
         return this;
     }
-
 
     public Long id() {
         return id;

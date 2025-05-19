@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,14 +23,12 @@ import java.util.Objects;
 @Entity
 @Table(
     name = "lot",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "receipt_item_id" }) },
-    indexes = {
-        @Index(columnList = "num_lot", name = "num_lot_index"),
-        @Index(columnList = "receipt_reference", name = "lot_receipt_reference_index"),
-    }
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "order_line_id" }) },
+    indexes = { @Index(columnList = "num_lot", name = "num_lot_index") }
 )
 public class Lot implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -40,17 +40,14 @@ public class Lot implements Serializable {
     private String numLot;
 
     @NotNull
-    @Column(name = "receipt_reference", nullable = false)
-    private String receiptReference;
-
-    @ManyToOne(optional = false)
-    private DeliveryReceiptItem receiptItem;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private OrderLine orderLine;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer ugQuantityReceived = 0;
+    private int ugQuantityReceived = 0;
 
     @NotNull
     @Column(name = "created_date", nullable = false)
@@ -65,11 +62,11 @@ public class Lot implements Serializable {
     @OneToMany(mappedBy = "lot")
     private List<LotSold> lotSolds = new ArrayList<>();
 
-    public Integer getUgQuantityReceived() {
+    public int getUgQuantityReceived() {
         return ugQuantityReceived;
     }
 
-    public Lot setUgQuantityReceived(Integer ugQuantityReceived) {
+    public Lot setUgQuantityReceived(int ugQuantityReceived) {
         this.ugQuantityReceived = ugQuantityReceived;
         return this;
     }
@@ -83,15 +80,6 @@ public class Lot implements Serializable {
         return this;
     }
 
-    public String getReceiptReference() {
-        return receiptReference;
-    }
-
-    public Lot setReceiptReference(String receiptReference) {
-        this.receiptReference = receiptReference;
-        return this;
-    }
-
     public String getNumLot() {
         return numLot;
     }
@@ -101,12 +89,12 @@ public class Lot implements Serializable {
         return this;
     }
 
-    public DeliveryReceiptItem getReceiptItem() {
-        return receiptItem;
+    public OrderLine getOrderLine() {
+        return orderLine;
     }
 
-    public Lot setReceiptItem(DeliveryReceiptItem receiptItem) {
-        this.receiptItem = receiptItem;
+    public Lot setOrderLine(OrderLine orderLine) {
+        this.orderLine = orderLine;
         return this;
     }
 
@@ -157,8 +145,12 @@ public class Lot implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Lot lot = (Lot) o;
         return id.equals(lot.id);
     }

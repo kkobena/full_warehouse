@@ -6,9 +6,5 @@ package com.kobe.warehouse.domain.enumeration;
 public enum OrderStatut {
     REQUESTED,
     RECEIVED,
-    PAID,
-    UNPAID,
     CLOSED,
-    SUGGESTION,
-    PASSED,
 }

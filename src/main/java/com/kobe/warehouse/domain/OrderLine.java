@@ -1,24 +1,22 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kobe.warehouse.service.dto.LotJsonValue;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * A OrderLine.
@@ -112,9 +110,11 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "provisional_code")
     private Boolean provisionalCode = Boolean.FALSE;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "lots")
-    private Set<LotJsonValue> lots = new HashSet<>();
+    @OneToMany(mappedBy = "orderLine", cascade = { jakarta.persistence.CascadeType.PERSIST, jakarta.persistence.CascadeType.REMOVE })
+    private List<Lot> lots = new ArrayList<>();
+
+    @Column(name = "is_updated")
+    private Boolean updated = Boolean.FALSE;
 
     public Long getId() {
         return id;
@@ -130,14 +130,6 @@ public class OrderLine implements Serializable, Cloneable {
 
     public void setQuantityReceived(Integer quantityReceived) {
         this.quantityReceived = quantityReceived;
-    }
-
-    public Set<LotJsonValue> getLots() {
-        return lots;
-    }
-
-    public void setLots(Set<LotJsonValue> lots) {
-        this.lots = lots;
     }
 
     public @NotNull Integer getInitStock() {
@@ -298,6 +290,22 @@ public class OrderLine implements Serializable, Cloneable {
     public OrderLine setQuantityUg(Integer quantityUg) {
         this.quantityUg = quantityUg;
         return this;
+    }
+
+    public List<Lot> getLots() {
+        return lots;
+    }
+
+    public void setLots(List<Lot> lots) {
+        this.lots = lots;
+    }
+
+    public Boolean getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Boolean updated) {
+        this.updated = updated;
     }
 
     public FournisseurProduit getFournisseurProduit() {

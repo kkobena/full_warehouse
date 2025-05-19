@@ -15,6 +15,7 @@
         <th>Produit</th>
         <th>Cip</th>
       }
+      <th>Option de prix</th>
       <th class="text-right">Valeur</th>
       <th class="text-right">
         <p-button (click)="onAddNew()" [raised]="true" icon="pi pi-plus-circle"
@@ -32,6 +33,7 @@
             <td>{{ prix.produitName }}</td>
             <td>{{ prix.produitCode }}</td>
           }
+          <td>{{ prix.typeLibelle }}</td>
           @if (prix.type === 'RERERENCE') {
             <td class="amount-column">{{ prix.valeur | number }}</td>
           } @else {

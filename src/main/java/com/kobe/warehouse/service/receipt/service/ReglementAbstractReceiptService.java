@@ -3,22 +3,22 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public abstract class ReglementAbstractReceiptService extends AbstractJava2DReceiptPrinterService {
+
     protected static final String MONTANT_ATTENDU = "Montant attendu";
     protected static final String NOMBRE_DOSSIER = "Nombre de dossiers";
-    protected static final String MONTANT_PAYE = "Montant payé";
     private static final Logger LOG = LoggerFactory.getLogger(ReglementAbstractReceiptService.class);
 
     protected ReglementAbstractReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
@@ -30,21 +30,18 @@ public abstract class ReglementAbstractReceiptService extends AbstractJava2DRece
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
 
     protected void print(String hostName) throws PrinterException {
-        int margin = getMargin();
         PrinterJob job = getPrinterJob(hostName);
         PageFormat pageFormat = job.defaultPage();
-        int pageWidth = getWidth();
-        int pageHeight = pageWidth;
-        int lineHeight = getLineHeight();
+        int pageWidth = DEFAULT_WIDTH;
+        int lineHeight = DEFAULT_LINE_HEIGHT;
         Paper paper = new Paper();
-        paper.setSize(getWidth(), pageHeight);
-        paper.setImageableArea(margin, lineHeight, getWidth() - (2 * margin), pageHeight - lineHeight);
+        paper.setSize(pageWidth, pageFormat.getImageableHeight());
+        paper.setImageableArea(DEFAULT_MARGIN, lineHeight, pageWidth, pageWidth - lineHeight);
         pageFormat.setPaper(paper);
         job.setPrintable(this, pageFormat);
         try {
             job.setCopies(getNumberOfCopies());
             job.print();
-
         } catch (PrinterException e) {
             LOG.error("Error printing receipt: {}", e.getMessage());
         }
@@ -57,11 +54,14 @@ public abstract class ReglementAbstractReceiptService extends AbstractJava2DRece
 
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        if (pageIndex > 0) {
+            return NO_SUCH_PAGE;
+        }
         Graphics2D graphics2D = (Graphics2D) graphics;
         graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-        int width = getWidth(); // 80mm in pixels, à parametrer
-        int margin = getMargin(); // margin in pixels
-        int lineHeight = getLineHeight();
+        int width = DEFAULT_WIDTH; // 80mm in pixels, à parametrer
+        int margin = 0; // margin in pixels
+        int lineHeight = DEFAULT_LINE_HEIGHT;
         int y = lineHeight;
         y = drawCompagnyInfo(graphics2D, margin, y);
         y = drawWelcomeMessage(graphics2D, margin, y);

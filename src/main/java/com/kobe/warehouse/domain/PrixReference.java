@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

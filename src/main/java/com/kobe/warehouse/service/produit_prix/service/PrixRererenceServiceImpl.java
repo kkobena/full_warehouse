@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.produit_prix.service;
 
 import com.kobe.warehouse.domain.PrixReference;
-import com.kobe.warehouse.domain.PrixReferenceType;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
@@ -123,10 +123,13 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
                 dto.setId(prixReference.getId());
                 dto.setValeur(prixReference.getValeur());
                 dto.setEnabled(prixReference.isEnabled());
-                dto.setType(prixReference.getType());
+                PrixReferenceType type = prixReference.getType();
+                dto.setTypeLibelle(type.getLibelle());
+                dto.setType(type);
                 TiersPayant tiersPayant = prixReference.getTiersPayant();
                 dto.setTiersPayantId(tiersPayant.getId());
                 dto.setTiersPayantName(tiersPayant.getFullName());
+
                 return dto;
             })
             .toList();

@@ -8,4 +8,5 @@ export class PrixReference {
   tiersPayantName?: string;
   produitName?: string;
   produitCode?: string;
+  typeLibelle?: string;
 }

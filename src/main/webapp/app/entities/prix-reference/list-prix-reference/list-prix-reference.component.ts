@@ -9,13 +9,12 @@ import { ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { AddPrixFormComponent } from '../add-prix-form/add-prix-form.component';
 import { Button } from 'primeng/button';
-import { ButtonGroup } from 'primeng/buttongroup';
 import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-list-prix-reference',
-  imports: [CommonModule, Button, ButtonGroup, Tooltip, ConfirmDialog],
+  imports: [CommonModule, Button, Tooltip, ConfirmDialog],
   templateUrl: './list-prix-reference.component.html',
   providers: [ConfirmationService],
 })

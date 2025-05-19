@@ -12,6 +12,7 @@ import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.OrganismeDTO;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
+import com.kobe.warehouse.service.receipt.service.InvoiceReceiptService;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
@@ -41,25 +42,25 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final ReglementReceiptService reglementReceiptService;
     private final InvoicePaymentItemRepository invoicePaymentItemRepository;
     private final ReglementReportService reglementReportService;
+    private final InvoiceReceiptService invoiceReceiptService;
 
     public ReglementDataServiceImpl(
         FacturationRepository facturationRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        ReglementReceiptService reglementReceiptService,
         InvoicePaymentItemRepository invoicePaymentItemRepository,
-        ReglementReportService reglementReportService
+        ReglementReportService reglementReportService,
+        InvoiceReceiptService invoiceReceiptService
     ) {
         this.facturationRepository = facturationRepository;
 
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-        this.reglementReceiptService = reglementReceiptService;
         this.invoicePaymentItemRepository = invoicePaymentItemRepository;
         this.reglementReportService = reglementReportService;
+        this.invoiceReceiptService = invoiceReceiptService;
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     @Override
     public void printReceipt(long idReglement) {
-        this.reglementReceiptService.printRecipt(getInvoicePaymentReceipt(idReglement));
+        this.invoiceReceiptService.printReceipt(null, getInvoicePaymentReceipt(idReglement));
     }
 
     @Override

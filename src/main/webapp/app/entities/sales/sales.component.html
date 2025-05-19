@@ -1,103 +1,119 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteVente"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="deleteVente"></p-confirmDialog>
 
-<div class="container">
+<div class="container-fluid">
   <p-toolbar>
     <ng-template #start>
       <div class="d-flex justify-content-between">
         <div>
-          <p-select size="large" (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes"></p-select> &nbsp;
+          <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
+                    [options]="typeVentes"
+                    size="large"></p-select>
         </div>
-        <p-floatlabel variant="on">
-          <p-select size="large" inputId="selectedUserId" id="selectedUserId" #userControl [(ngModel)]="selectedUserId" [options]="users" optionLabel="abbrName"
-                    optionValue="id"></p-select>
-          <label for="selectedUserId">Opérateurs</label>
-        </p-floatlabel>
+        <div>
+
+          <p-select #userControl [(ngModel)]="selectedUserId" [options]="users"
+                    id="selectedUserId"
+                    inputId="selectedUserId" optionLabel="abbrName" optionValue="id"
+                    size="large"></p-select>
+
+
+        </div>
+
         <div>
           <p-inputgroup>
-            <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text"/>
-            <p-inputgroup-addon>  <p-checkbox pTooltip="Recherche globale" [(ngModel)]="global" [binary]="true"  id="global" inputId="global"></p-checkbox></p-inputgroup-addon>
+            <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
+                   type="text" />
+            <p-inputgroup-addon>
+              <p-checkbox [(ngModel)]="global" [binary]="true" id="global"
+                          inputId="global" pTooltip="Recherche globale"></p-checkbox>
+            </p-inputgroup-addon>
           </p-inputgroup>
 
         </div>
 
         <div>
           <p-floatlabel variant="on">
-            <p-datePicker id="toDate" [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
-                          [showButtonBar]="true" dateFormat="dd/mm/yy">
+            <p-datePicker [(ngModel)]="fromDate" [maxDate]="toDate" [selectOtherMonths]="true"
+                          [showButtonBar]="true"
+                          dateFormat="dd/mm/yy" id="toDate">
             </p-datePicker>
             <label for="toDate">Du</label>
           </p-floatlabel>
         </div>
-        <div>   <p-floatlabel variant="on">
-          <p-datePicker id="toDate"
-                        inputId="toDate"
-                        [(ngModel)]="toDate"
-                        [minDate]="fromDate"
-                        [selectOtherMonths]="true"
-                        [showButtonBar]="true"
-                        dateFormat="dd/mm/yy"
-          ></p-datePicker>
-          <label for="toDate">Au</label>
-        </p-floatlabel>
+        <div>
+          <p-floatlabel variant="on">
+            <p-datePicker [(ngModel)]="toDate"
+                          [minDate]="fromDate"
+                          [selectOtherMonths]="true"
+                          [showButtonBar]="true"
+                          dateFormat="dd/mm/yy"
+                          id="toDate"
+                          inputId="toDate"
+            ></p-datePicker>
+            <label for="toDate">Au</label>
+          </p-floatlabel>
         </div>
         <div>
           <p-floatlabel variant="on">
-            <p-select [(ngModel)]="fromHour" id="fromHour" [options]="hous"></p-select>
+            <p-select [(ngModel)]="fromHour" [options]="hous" id="fromHour" size="large"></p-select>
             <label for="fromHour">De</label>
           </p-floatlabel>
 
         </div>
         <div>
           <p-floatlabel variant="on">
-            <p-select [(ngModel)]="toHour" id="toHour" [options]="hous"></p-select>
+            <p-select [(ngModel)]="toHour" [options]="hous" id="toHour" size="large"></p-select>
             <label for="hous">A</label>
           </p-floatlabel>
 
         </div>
-
-
-
       </div>
     </ng-template>
     <ng-template #end>
       <div class="sale d-flex">
-        <!-- @if (isLargeScreen) {
-        <div>
-          <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-          styleClass="p-button-info"></p-button>
-          &lt;!&ndash; <p-splitButton [model]="splitbuttons" icon="pi pi-upload"
-          label="Exporter" styleClass="p-button-raised p-button-help"
-        ></p-splitButton>&ndash;&gt;
-        <p-button [routerLink]="['/sales', false, 'new']"
-          icon="pi pi-plus"
-          label="Nouvelle"
-          styleClass="p-button-raised p-button-success "
-          >
-        </p-button>
-      </div>
-      } -->
+        @if (isLargeScreen) {
+          <div>
+            <p-button [raised]="true" (click)="loadPage()" severity="info" icon="pi pi-search"
+                      label="Rechercher"
+            >
 
-        <p-button
-          (click)="loadPage()"
-          icon="pi pi-search"
-          pTooltip="Rechercher"
-          raised="true"
-          severity="info"
-          tooltipPosition="top"
-        ></p-button>
-        &nbsp;
-        <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
-        pTooltip="Exporter" styleClass="p-button-raised p-button-help"
-      tooltipPosition="top"></p-splitbutton>-->
-        <p-button
-          [routerLink]="['/sales', false, 'new']"
-          icon="pi pi-plus"
-          pTooltip="Nouvelle vente"
-          raised="true"
-          severity="success"
-          tooltipPosition="top"
-        >
-        </p-button>
+            </p-button>
+
+            <p-button [routerLink]="['/sales', false, 'new']"
+                      icon="pi pi-plus"
+                      label="Nouvelle vente"
+                      severity="primary"
+                      [raised]="true"
+
+            >
+            </p-button>
+          </div>
+        } @else {
+          <p-button
+            (click)="loadPage()"
+            icon="pi pi-search"
+            pTooltip="Rechercher"
+            raised="true"
+            severity="info"
+            tooltipPosition="top"
+          ></p-button>
+          &nbsp;
+            <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
+            pTooltip="Exporter" styleClass="p-button-raised p-button-help"
+          tooltipPosition="top"></p-splitbutton>-->
+          <p-button
+            [routerLink]="['/sales', false, 'new']"
+            icon="pi pi-plus"
+            pTooltip="Nouvelle vente"
+            raised="true"
+            severity="success"
+            tooltipPosition="top"
+          >
+          </p-button>
+        }
+
+
       </div>
     </ng-template>
   </p-toolbar>
@@ -263,14 +279,17 @@
                       </tr>
                     </ng-template>
                     <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                      <tr
+                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                         <td style="text-align: left">{{ rowIndex + 1 }}</td>
                         <td>{{ saleLine.code }}</td>
                         <td>{{ saleLine.produitLibelle }}</td>
                         <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                         <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                         <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
+                        <td
+                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                        </td>
                       </tr>
                     </ng-template>
                   </p-table>
@@ -303,14 +322,17 @@
                       </tr>
                     </ng-template>
                     <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                      <tr
+                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                         <td style="text-align: left">{{ rowIndex + 1 }}</td>
                         <td>{{ saleLine.code }}</td>
                         <td>{{ saleLine.produitLibelle }}</td>
                         <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                         <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                         <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
+                        <td
+                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                        </td>
                       </tr>
                     </ng-template>
                   </p-table>

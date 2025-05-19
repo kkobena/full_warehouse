@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.produit_prix.dto;
 
 import com.kobe.warehouse.domain.PrixReference;
-import com.kobe.warehouse.domain.PrixReferenceType;
+import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
 import jakarta.validation.constraints.NotNull;
 
 public class PrixReferenceDTO {
@@ -19,6 +19,7 @@ public class PrixReferenceDTO {
     private String tiersPayantName;
     private String produitName;
     private String produitCode;
+    private String typeLibelle;
 
     public PrixReferenceDTO(PrixReference prixReference) {
         this.valeur = prixReference.getValeur();
@@ -26,6 +27,7 @@ public class PrixReferenceDTO {
         this.enabled = prixReference.isEnabled();
         this.type = prixReference.getType();
         this.taux = prixReference.getTaux();
+        this.typeLibelle = prixReference.getType().getLibelle();
     }
 
     public PrixReferenceDTO() {}
@@ -124,5 +126,13 @@ public class PrixReferenceDTO {
 
     public void setTaux(float taux) {
         this.taux = taux;
+    }
+
+    public String getTypeLibelle() {
+        return typeLibelle;
+    }
+
+    public void setTypeLibelle(String typeLibelle) {
+        this.typeLibelle = typeLibelle;
     }
 }

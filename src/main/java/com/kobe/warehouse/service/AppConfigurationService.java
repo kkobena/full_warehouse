@@ -3,16 +3,14 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.Printer;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -90,26 +88,35 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_WIDTH)
     public int getPrinterWidth() {
-        return appConfigurationRepository.findById(EntityConstant.APP_POS_PRINTER_WIDTH).map(AppConfiguration::getValue).map(Integer::parseInt).orElse(576);
+
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_POS_PRINTER_WIDTH)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(576);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_MARGIN)
     public int getPrinterMargin() {
-        return appConfigurationRepository.findById(EntityConstant.APP_POS_PRINTER_MARGIN).map(AppConfiguration::getValue)
-            .map(Integer::parseInt).orElse(10);
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_POS_PRINTER_MARGIN)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(9);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
     public int getPrinterItemCount() {
-        return appConfigurationRepository.findById(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE).map(AppConfiguration::getValue).map(Integer::parseInt)
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
             .orElse(40);
     }
 
     public Magasin getMagasin() {
         return userService.getUser().getMagasin();
     }
-
-
 }

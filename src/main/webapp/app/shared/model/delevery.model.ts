@@ -4,9 +4,8 @@ import { IDeliveryItem } from './delivery-item';
 export interface IDelivery {
   id?: number;
   numberTransaction?: string;
-  sequenceBon?: string;
   receiptRefernce?: string;
-  receiptDate?: Moment;
+  receiptDate?: string;
   receiptFullDate?: Moment;
   discountAmount?: number;
   receiptAmount?: number;
@@ -28,9 +27,8 @@ export class Delivery implements IDelivery {
   constructor(
     public id?: number,
     public numberTransaction?: string,
-    public sequenceBon?: string,
     public receiptRefernce?: string,
-    public receiptDate?: Moment,
+    public receiptDate?: string,
     public discountAmount?: number,
     public receiptAmount?: number,
     public createdDate?: Moment,

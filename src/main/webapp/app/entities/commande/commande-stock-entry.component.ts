@@ -678,7 +678,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onEditDelivery(): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: { entity: this.delivery, commande: this.commande },
+      data: { commande: this.commande },
       header: 'MODIFICATION DU BON DE LIVRAISON',
       width: '40%',
     });

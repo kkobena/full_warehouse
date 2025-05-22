@@ -11,7 +11,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { IOrderLine, OrderLine, OrderLineLot } from '../../shared/model/order-line.model';
+import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ErrorService } from '../../shared/error.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -156,6 +156,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
+
   constructor() {
     this.selectedEl = [];
     this.filtres = [
@@ -201,6 +202,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.lots = orderLine.lots;
     modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
   }
+
   onEditProduit(produitId: number): void {
     this.commandCommonService.updateCommand(this.commande);
     this.route.navigate(['produit', produitId, 'edit']);
@@ -346,29 +348,24 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   onMettreAttente(): void {
     this.confirmStay();
   }
+
   gotoEntreeStockComponent(delivery: IDelivery): void {
     this.router.navigate(['/commande', delivery.id, 'stock-entry']);
   }
 
   onCreateBon(): void {
-    this.deliveryService.findByOrderReference(this.commande?.orderRefernce).subscribe({
-      next: (res: HttpResponse<IDelivery>) => {
-        this.gotoEntreeStockComponent(res.body);
-      },
-      error: () => {
-        this.ref = this.dialogService.open(DeliveryModalComponent, {
-          data: { entity: null, commande: this.commande },
-          header: 'CREATION DU BON DE LIVRAISON',
-          width: '40%',
-        });
-        this.ref.onClose.subscribe((delivery: IDelivery) => {
-          if (delivery) {
-            this.gotoEntreeStockComponent(delivery);
-          }
-        });
-      },
+    this.ref = this.dialogService.open(DeliveryModalComponent, {
+      data: { commande: this.commande },
+      header: 'CREATION DU BON DE LIVRAISON',
+      width: '40%',
+    });
+    this.ref.onClose.subscribe((delivery: IDelivery) => {
+      if (delivery) {
+        this.gotoEntreeStockComponent(delivery);
+      }
     });
   }
+
   exportCSV(): void {
     this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
   }

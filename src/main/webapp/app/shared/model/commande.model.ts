@@ -10,7 +10,7 @@ export interface ICommande {
   id?: number;
   fournisseurId?: number;
   orderRefernce?: string;
-  receiptDate?: Moment;
+  receiptDate?: string;
   discountAmount?: number;
   orderAmount?: number;
   grossAmount?: number;
@@ -36,7 +36,7 @@ export class Commande implements ICommande {
     public id?: number,
     public fournisseurId?: number,
     public orderRefernce?: string,
-    public receiptDate?: Moment,
+    public receiptDate?: string,
     public discountAmount?: number,
     public orderAmount?: number,
     public grossAmount?: number,

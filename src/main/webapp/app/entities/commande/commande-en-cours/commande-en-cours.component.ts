@@ -1,4 +1,4 @@
-import { Component, OnInit, input, output, inject } from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -45,20 +45,15 @@ export type ExpandMode = 'single' | 'multiple';
   ],
 })
 export class CommandeEnCoursComponent implements OnInit {
+  readonly search = input('');
+  readonly searchCommande = input('');
+  readonly selectionLength = output<number>();
   protected commandeService = inject(CommandeService);
   protected activatedRoute = inject(ActivatedRoute);
   protected router = inject(Router);
   protected modalService = inject(NgbModal);
-  private errorService = inject(ErrorService);
   protected deliveryService = inject(DeliveryService);
   protected produitService = inject(ProduitService);
-  private spinner = inject(NgxSpinnerService);
-  private confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
-
-  readonly search = input('');
-  readonly searchCommande = input('');
-  readonly selectionLength = output<number>();
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;
@@ -75,6 +70,10 @@ export class CommandeEnCoursComponent implements OnInit {
   protected selections: ICommande[];
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
+  private errorService = inject(ErrorService);
+  private spinner = inject(NgxSpinnerService);
+  private confirmationService = inject(ConfirmationService);
+  private dialogService = inject(DialogService);
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -280,22 +279,15 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   onCreateBon(commande: ICommande): void {
-    this.deliveryService.findByOrderReference(commande.orderRefernce).subscribe({
-      next: (res: HttpResponse<IDelivery>) => {
-        this.gotoEntreeStockComponent(res.body);
-      },
-      error: () => {
-        this.ref = this.dialogService.open(DeliveryModalComponent, {
-          data: { entity: null, commande },
-          header: 'CREATION DU BON DE LIVRAISON',
-          width: '40%',
-        });
-        this.ref.onClose.subscribe((delivery: IDelivery) => {
-          if (delivery) {
-            this.gotoEntreeStockComponent(delivery);
-          }
-        });
-      },
+    this.ref = this.dialogService.open(DeliveryModalComponent, {
+      data: { commande },
+      header: 'CREATION DU BON DE LIVRAISON',
+      width: '40%',
+    });
+    this.ref.onClose.subscribe((delivery: IDelivery) => {
+      if (delivery) {
+        this.gotoEntreeStockComponent(delivery);
+      }
     });
   }
 

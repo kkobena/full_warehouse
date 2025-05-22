@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -47,21 +47,12 @@ import { DatePicker } from 'primeng/datepicker';
   ],
 })
 export class DeliveryModalComponent implements OnInit {
-  protected entityService = inject(DeliveryService);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
-  private spinner = inject(NgxSpinnerService);
-  primeNGConfig = inject(PrimeNG);
-  translate = inject(TranslateService);
-
-  isSaving = false;
-  entity?: IDelivery;
   commande: ICommande;
-  maxDate = new Date();
-  minDate = new Date();
-  editForm = this.fb.group({
+  protected isSaving = false;
+  protected fb = inject(FormBuilder);
+  protected maxDate = new Date();
+  protected minDate = new Date();
+  protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     receiptRefernce: new FormControl<string | null>(null, {
       validators: [Validators.required],
@@ -78,12 +69,15 @@ export class DeliveryModalComponent implements OnInit {
       validators: [Validators.required, Validators.min(0)],
       nonNullable: true,
     }),
-    sequenceBon: new FormControl<string | null>(null, {}),
   });
-  protected primngtranslate: Subscription;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private readonly entityService = inject(DeliveryService);
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly messageService = inject(MessageService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly primngtranslate: Subscription;
 
   constructor() {
     this.translate.use('fr');
@@ -94,13 +88,10 @@ export class DeliveryModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.maxDate = new Date();
-    this.entity = this.config.data.entity;
 
     this.commande = this.config.data.commande;
+    this.updateForm(this.commande);
 
-    if (this.entity) {
-      this.updateForm(this.entity);
-    }
     this.minDate = new Date(moment(this.commande.createdAt).format(DATE_FORMAT));
     this.editForm
       .get('receiptAmount')
@@ -108,12 +99,11 @@ export class DeliveryModalComponent implements OnInit {
     this.editForm.get('receiptAmount').updateValueAndValidity();
   }
 
-  updateForm(entity: IDelivery): void {
+  updateForm(entity: ICommande): void {
     this.editForm.patchValue({
       id: entity.id,
       receiptRefernce: entity.receiptRefernce,
-      sequenceBon: entity.sequenceBon,
-      receiptAmount: entity.receiptAmount,
+      receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
       receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
     });
@@ -157,12 +147,12 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   private createFrom(): IDelivery {
+    const receiptDate = this.editForm.get('receiptDate').value;
     return {
       ...new Delivery(),
-      id: this.editForm.get(['id']).value,
+      id: this.commande.id,
       receiptRefernce: this.editForm.get(['receiptRefernce']).value,
-      receiptFullDate: this.buildDate(this.editForm.get(['receiptDate']).value),
-      sequenceBon: this.editForm.get(['sequenceBon']).value,
+      receiptDate: receiptDate ? moment(receiptDate).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
       orderReference: this.commande.orderRefernce,

@@ -1,10 +1,8 @@
-import { Injectable, signal, WritableSignal, inject } from '@angular/core';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import moment from 'moment';
-
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IDelivery } from '../../../shared/model/delevery.model';
@@ -16,18 +14,13 @@ type EntityArrayResponseType = HttpResponse<IDelivery[]>;
 
 @Injectable({ providedIn: 'root' })
 export class DeliveryService {
-  protected http = inject(HttpClient);
-
   deliveryPreviousActiveNav: WritableSignal<string> = signal<string>('pending');
-  public resourceUrl = SERVER_API_URL + 'api/commandes/data/entree-stock';
-  public resourceUrl2 = SERVER_API_URL + 'api/commandes/entree-stock/create';
-  public resourceFinalyse = SERVER_API_URL + 'api/commandes/entree-stock/finalize';
-  public resourceUrlTransac = SERVER_API_URL + 'api/commandes/entree-stock';
+  private readonly http = inject(HttpClient);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly resourceUrl = SERVER_API_URL + 'api/commandes/data/entree-stock';
+  private readonly resourceUrl2 = SERVER_API_URL + 'api/commandes/entree-stock/create';
+  private readonly resourceFinalyse = SERVER_API_URL + 'api/commandes/entree-stock/finalize';
+  private readonly resourceUrlTransac = SERVER_API_URL + 'api/commandes/entree-stock';
 
   updateCommandPreviousActiveNav(nav: string): void {
     this.deliveryPreviousActiveNav.set(nav);
@@ -52,12 +45,6 @@ export class DeliveryService {
 
   update(entity: IDelivery): Observable<EntityResponseType> {
     return this.http.put<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
-  }
-
-  findByOrderReference(orderReference: string): Observable<EntityResponseType> {
-    return this.http
-      .get<IDelivery>(`${this.resourceUrl}/by-order-reference/${orderReference}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   exportToCsv(entityId: number): Observable<Blob> {
@@ -159,17 +146,14 @@ export class DeliveryService {
   }
 
   protected convertDateFromClient(delivery: IDelivery): IDelivery {
-    const copy: IDelivery = Object.assign({}, delivery, {
-      receiptDate: delivery.receiptDate && delivery.receiptDate.isValid() ? delivery.receiptDate.format(DATE_FORMAT) : undefined,
+    return Object.assign({}, delivery, {
       createdAt: delivery.createdDate && delivery.createdDate.isValid() ? delivery.createdDate.toJSON() : undefined,
       updatedAt: delivery.modifiedDate && delivery.modifiedDate.isValid() ? delivery.modifiedDate.toJSON() : undefined,
     });
-    return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.receiptDate = res.body.receiptDate ? moment(res.body.receiptDate) : undefined;
       res.body.createdDate = res.body.receiptDate ? moment(res.body.createdDate) : undefined;
       res.body.modifiedDate = res.body.modifiedDate ? moment(res.body.modifiedDate) : undefined;
     }
@@ -179,7 +163,6 @@ export class DeliveryService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((delivery: IDelivery) => {
-        delivery.receiptDate = delivery.receiptDate ? moment(delivery.receiptDate) : undefined;
         delivery.createdDate = delivery.createdDate ? moment(delivery.createdDate) : undefined;
         delivery.modifiedDate = delivery.modifiedDate ? moment(delivery.modifiedDate) : undefined;
       });

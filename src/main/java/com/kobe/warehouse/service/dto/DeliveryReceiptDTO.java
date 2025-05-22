@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.DeliveryReceipt;
+import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -13,15 +13,11 @@ public class DeliveryReceiptDTO {
 
     private final Long id;
 
-    private final String numberTransaction;
-
-    private final String sequenceBon;
-
     private final String receiptRefernce;
 
     private final LocalDate receiptDate;
 
-    private final Integer discountAmount = 0;
+    private final int discountAmount ;
 
     private final Integer receiptAmount;
 
@@ -30,9 +26,6 @@ public class DeliveryReceiptDTO {
     private final LocalDateTime modifiedDate;
 
     private final String createdUser;
-
-    private final String modifiedUser;
-
     private final Long fournisseurId;
     private final String fournisseurLibelle;
     private final Integer netAmount;
@@ -41,49 +34,39 @@ public class DeliveryReceiptDTO {
 
     private final List<DeliveryReceiptItemDTO> receiptItems;
     private final int itemSize;
-    private final String orderReference;
-    private final ReceiptStatut statut;
 
-    public DeliveryReceiptDTO(DeliveryReceipt deliveryReceipt) {
-        id = deliveryReceipt.getId();
-        numberTransaction = deliveryReceipt.getNumberTransaction();
-        sequenceBon = deliveryReceipt.getSequenceBon();
-        receiptRefernce = deliveryReceipt.getReceiptReference();
-        receiptDate = deliveryReceipt.getReceiptDate();
-        receiptAmount = deliveryReceipt.getReceiptAmount();
-        createdDate = deliveryReceipt.getCreatedDate();
-        modifiedDate = deliveryReceipt.getModifiedDate();
-        User user1 = deliveryReceipt.getCreatedUser();
+
+    public DeliveryReceiptDTO(Commande commande) {
+        id = commande.getId();
+        discountAmount= commande.getDiscountAmount();
+        receiptRefernce = commande.getReceiptReference();
+        receiptDate = commande.getReceiptDate();
+        receiptAmount = commande.getGrossAmount();
+        createdDate = commande.getCreatedAt();
+        modifiedDate = commande.getUpdatedAt();
+        User user1 = commande.getUser();
         createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
-        User user2 = deliveryReceipt.getModifiedUser();
-        modifiedUser = String.format("%s. %s", user2.getFirstName().charAt(0), user2.getLastName());
-        Fournisseur fournisseur = deliveryReceipt.getFournisseur();
+
+        Fournisseur fournisseur = commande.getFournisseur();
         fournisseurId = fournisseur.getId();
         fournisseurLibelle = fournisseur.getLibelle();
-        netAmount = deliveryReceipt.getNetAmount();
-        taxAmount = deliveryReceipt.getTaxAmount();
-        orderReference = deliveryReceipt.getOrderReference();
-        receiptItems = deliveryReceipt
-            .getReceiptItems()
+        netAmount = commande.getHtAmount();
+        taxAmount = commande.getTaxAmount();
+
+        receiptItems = commande
+            .getOrderLines()
             .stream()
             .map(DeliveryReceiptItemDTO::new)
             .sorted(Comparator.comparing(DeliveryReceiptItemDTO::getFournisseurProduitLibelle))
             .toList();
         itemSize = receiptItems.size();
-        statut = deliveryReceipt.getReceiptStatut();
+
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getNumberTransaction() {
-        return numberTransaction;
-    }
-
-    public String getSequenceBon() {
-        return sequenceBon;
-    }
 
     public String getReceiptRefernce() {
         return receiptRefernce;
@@ -113,9 +96,7 @@ public class DeliveryReceiptDTO {
         return createdUser;
     }
 
-    public String getModifiedUser() {
-        return modifiedUser;
-    }
+
 
     public Long getFournisseurId() {
         return fournisseurId;
@@ -141,11 +122,5 @@ public class DeliveryReceiptDTO {
         return itemSize;
     }
 
-    public String getOrderReference() {
-        return orderReference;
-    }
 
-    public ReceiptStatut getStatut() {
-        return statut;
-    }
 }

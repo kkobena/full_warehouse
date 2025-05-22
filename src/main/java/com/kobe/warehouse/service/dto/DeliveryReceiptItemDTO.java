@@ -1,22 +1,23 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
-import java.time.LocalDate;
+import com.kobe.warehouse.domain.Tva;
+import org.apache.commons.lang3.BooleanUtils;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.nonNull;
 
 public class DeliveryReceiptItemDTO {
 
     private final Long id;
-    private final Integer ugQuantity;
+    private final Integer freeQty;
     private final Integer quantityReceived;
     private final Integer initStock;
     private final Integer quantityRequested;
@@ -40,50 +41,54 @@ public class DeliveryReceiptItemDTO {
     private final Integer quantityReceivedTmp;
     private final Integer costAmount;
     private final Integer afterStock;
-    private final Integer tva;
-    private final LocalDate datePeremption;
-    private final String datePeremptionTmp;
+    private Long tvaId;
+    private TvaDTO tva;
 
-    public DeliveryReceiptItemDTO(DeliveryReceiptItem receiptItem) {
-        tva = receiptItem.getTva();
-        datePeremption = receiptItem.getDatePeremption();
-        datePeremptionTmp = Optional.ofNullable(receiptItem.getDatePeremption()).map(LocalDate::toString).orElse(null);
-        id = receiptItem.getId();
-        ugQuantity = receiptItem.getUgQuantity();
-        quantityReceived = receiptItem.getQuantityReceived();
-        initStock = receiptItem.getInitStock();
-        quantityRequested = receiptItem.getQuantityRequested();
-        quantityReturned = receiptItem.getQuantityReturned();
-        discountAmount = receiptItem.getDiscountAmount();
-        netAmount = receiptItem.getNetAmount();
-        taxAmount = receiptItem.getTaxAmount();
-        createdDate = receiptItem.getCreatedDate();
-        orderCostAmount = receiptItem.getOrderCostAmount();
-        effectifGrossIncome = receiptItem.getEffectifGrossIncome();
-        effectifOrderAmount = receiptItem.getEffectifOrderAmount();
-        FournisseurProduit fournisseurProduit = receiptItem.getFournisseurProduit();
+
+    public DeliveryReceiptItemDTO(OrderLine orderLine) {
+        lots = new ArrayList<>();
+        Tva tvaEntity = orderLine.getTva();
+        if (nonNull(tvaEntity)) {
+            tvaId = tvaEntity.getId();
+            tva = new TvaDTO(tvaEntity);
+        }
+
+        id = orderLine.getId();
+        freeQty = orderLine.getFreeQty();
+        quantityReceived = orderLine.getQuantityReceived();
+        initStock = orderLine.getInitStock();
+        quantityRequested = orderLine.getQuantityRequested();
+        quantityReturned = orderLine.getQuantityReturned();
+        discountAmount = orderLine.getDiscountAmount();
+        netAmount = orderLine.getNetAmount();
+        taxAmount = orderLine.getTaxAmount();
+        createdDate = orderLine.getCreatedAt();
+        orderCostAmount = orderLine.getOrderCostAmount();
+        effectifGrossIncome = orderLine.getGrossAmount();
+        effectifOrderAmount = orderLine.getOrderAmount();
+        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
         regularUnitPrice = fournisseurProduit.getPrixUni();
         costAmount = fournisseurProduit.getPrixAchat();
         Produit produit = fournisseurProduit.getProduit();
-        orderUnitPrice = Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0) + receiptItem.getOrderUnitPrice();
+        orderUnitPrice = Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0) + orderLine.getOrderUnitPrice();
         fournisseurProduitId = fournisseurProduit.getId();
         produitId = produit.getId();
         fournisseurProduitCip = fournisseurProduit.getCodeCip();
         fournisseurProduitEan = produit.getCodeEan();
         fournisseurProduitLibelle = produit.getLibelle();
-        updated = receiptItem.getUpdated();
-        afterStock = receiptItem.getAfterStock();
+        updated = orderLine.getUpdated();
+        afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
-        List<Lot> lots1 = receiptItem.getLots();
-        lots = !CollectionUtils.isEmpty(lots1) ? lots1.stream().map(LotDTO::new).toList() : new ArrayList<>();
+
+
     }
 
     public Long getId() {
         return id;
     }
 
-    public Integer getUgQuantity() {
-        return ugQuantity;
+    public Integer getFreeQty() {
+        return freeQty;
     }
 
     public Integer getQuantityReceived() {
@@ -178,15 +183,19 @@ public class DeliveryReceiptItemDTO {
         return afterStock;
     }
 
-    public LocalDate getDatePeremption() {
-        return datePeremption;
+    public Long getTvaId() {
+        return tvaId;
     }
 
-    public Integer getTva() {
+    public void setTvaId(Long tvaId) {
+        this.tvaId = tvaId;
+    }
+
+    public TvaDTO getTva() {
         return tva;
     }
 
-    public String getDatePeremptionTmp() {
-        return datePeremptionTmp;
+    public void setTva(TvaDTO tva) {
+        this.tva = tva;
     }
 }

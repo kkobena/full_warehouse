@@ -43,11 +43,11 @@ public class Lot implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private OrderLine orderLine;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "quantity", nullable = false, columnDefinition = "int(6) default '0'")
     private Integer quantity;
 
-    @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int default '0'")
-    private int ugQuantityReceived = 0;
+    @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int(4) default '0'")
+    private int freeQty;
 
     @NotNull
     @Column(name = "created_date", nullable = false)
@@ -62,12 +62,12 @@ public class Lot implements Serializable {
     @OneToMany(mappedBy = "lot")
     private List<LotSold> lotSolds = new ArrayList<>();
 
-    public int getUgQuantityReceived() {
-        return ugQuantityReceived;
+    public int getFreeQty() {
+        return freeQty;
     }
 
-    public Lot setUgQuantityReceived(int ugQuantityReceived) {
-        this.ugQuantityReceived = ugQuantityReceived;
+    public Lot setFreeQty(int ugQuantityReceived) {
+        this.freeQty = ugQuantityReceived;
         return this;
     }
 

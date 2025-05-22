@@ -24,12 +24,12 @@ public class LotResource {
     }
 
     @PostMapping("/lot/add-to-commande")
-    public ResponseEntity<LotJsonValue> addLotToCommande(@Valid @RequestBody LotJsonValue lot) {
+    public ResponseEntity<LotDTO> addLotToCommande(@Valid @RequestBody LotDTO lot) {
         return ResponseEntity.ok(lotService.addLot(lot));
     }
 
     @PutMapping("/lot/remove-to-commande")
-    public ResponseEntity<Void> removeLotToCommande(@RequestBody LotJsonValue lot) {
+    public ResponseEntity<Void> removeLotToCommande(@RequestBody LotDTO lot) {
         lotService.remove(lot);
         return ResponseEntity.ok().build();
     }

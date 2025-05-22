@@ -3,8 +3,6 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
-import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.dto.EtatProduit;
@@ -17,16 +15,15 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     private final SuggestionLineRepository suggestionLineRepository;
     private final OrderLineRepository orderLineRepository;
-    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
+
 
     public EtatProduitServiceImpl(
         SuggestionLineRepository suggestionLineRepository,
-        OrderLineRepository orderLineRepository,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository
+        OrderLineRepository orderLineRepository
     ) {
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
-        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
+
     }
 
     @Override
@@ -43,11 +40,11 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     @Override
     public boolean canSuggere(Long idProduit) {
         int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        boolean entree = deliveryReceiptItemRepository.existsByFournisseurProduitProduitIdAndDeliveryReceiptReceiptStatut(
+        int entree = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(
             idProduit,
-            ReceiptStatut.PENDING
+            OrderStatut.RECEIVED
         );
-        return commandeCount == 0 && !entree;
+        return commandeCount == 0 && entree==0;
     }
 
     private EtatProduit buildEtatProduit(Long idProduit, int currentStock) {
@@ -56,9 +53,9 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
         int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        boolean entree = deliveryReceiptItemRepository.existsByFournisseurProduitProduitIdAndDeliveryReceiptReceiptStatut(
+        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatus(
             idProduit,
-            ReceiptStatut.PENDING
+            OrderStatut.RECEIVED
         );
         return new EtatProduit(
             stockPositif,

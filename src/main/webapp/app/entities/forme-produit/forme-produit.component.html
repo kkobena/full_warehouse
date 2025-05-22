@@ -41,9 +41,9 @@
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
             <td>{{ elRow.libelle }}</td>
             <td class="text-right">
-              <p-button (click)="onEdit(elRow)" size="small" severity="success" label="Modifier" icon="pi pi-pencil"> </p-button>
+              <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success" pTooltip="Modifier" icon="pi pi-pencil"> </p-button>
 
-              <p-button (click)="delete(elRow)" size="small" severity="danger" label="Supprimer" icon="pi pi-times"> </p-button>
+              <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger" pTooltip="Supprimer" icon="pi pi-trash"> </p-button>
             </td>
           </tr>
         </ng-template>

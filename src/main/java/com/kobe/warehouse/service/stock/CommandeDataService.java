@@ -32,5 +32,5 @@ public interface CommandeDataService {
 
     Resource getRuptureCsv(String reference);
 
-    Optional<CommandeDTO> findOneByOrderReference(String orderReference);
+
 }

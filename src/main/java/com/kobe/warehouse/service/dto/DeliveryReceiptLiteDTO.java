@@ -13,14 +13,13 @@ public class DeliveryReceiptLiteDTO {
 
     private String sequenceBon;
     private String receiptRefernce;
-
+    private Integer htAmount;
     @NotNull
     private Integer taxAmount;
-
     private LocalDate receiptDate;
     private String orderReference;
+    private Integer finalAmount;//montant vente
 
-    private Long commandeId;
     private LocalDateTime receiptFullDate;
 
     public Long getId() {
@@ -29,6 +28,24 @@ public class DeliveryReceiptLiteDTO {
 
     public DeliveryReceiptLiteDTO setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public Integer getHtAmount() {
+        return htAmount;
+    }
+
+    public DeliveryReceiptLiteDTO setHtAmount(Integer htAmount) {
+        this.htAmount = htAmount;
+        return this;
+    }
+
+    public Integer getFinalAmount() {
+        return finalAmount;
+    }
+
+    public DeliveryReceiptLiteDTO setFinalAmount(Integer finalAmount) {
+        this.finalAmount = finalAmount;
         return this;
     }
 
@@ -86,14 +103,6 @@ public class DeliveryReceiptLiteDTO {
         return this;
     }
 
-    public Long getCommandeId() {
-        return commandeId;
-    }
-
-    public DeliveryReceiptLiteDTO setCommandeId(Long commandeId) {
-        this.commandeId = commandeId;
-        return this;
-    }
 
     public LocalDateTime getReceiptFullDate() {
         return receiptFullDate;

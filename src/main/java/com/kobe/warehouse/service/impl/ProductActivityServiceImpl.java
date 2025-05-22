@@ -43,7 +43,7 @@ public class ProductActivityServiceImpl implements ProductActivityService {
     private static final String DECONDITIONNEMENT_QUERY =
         "SELECT SUM(d.qty_mvt) AS qty_mvt,DATE(d.date_mtv) as mvt_date,d.type_deconditionnement AS type_decon,MIN(d.date_mtv) AS min_mvt_date,MAX(d.date_mtv) AS max_mvt_date  FROM decondition d  WHERE  d.produit_id=?1 AND DATE(d.date_mtv) BETWEEN ?2 AND ?3  GROUP BY DATE(d.date_mtv) ,d.type_deconditionnement";
     private static final String ENTRY_QUERY =
-        "SELECT  SUM(it.quantity_received)AS qty_mvt,DATE(d.modified_date) as mvt_date ,MIN(it.updated_date) AS min_mvt_date,MAX(it.updated_date) AS max_mvt_date  FROM delivery_receipt_item it ,delivery_receipt d,fournisseur_produit pf ,produit p WHERE d.id=it.delivery_receipt_id AND it.fournisseur_produit_id=pf.id AND pf.produit_id=p.id AND d.receipt_status <> 'PENDING' AND  p.id=?1 AND DATE(d.modified_date) BETWEEN ?2 AND ?3 GROUP BY  p.id ,DATE(d.modified_date)";
+        "SELECT  SUM(it.quantity_received)AS qty_mvt,DATE(d.updated_at) as mvt_date ,MIN(it.updated_date) AS min_mvt_date,MAX(it.updated_date) AS max_mvt_date  FROM order_line it ,commande d,fournisseur_produit pf ,produit p WHERE d.id=it.commande_id AND it.fournisseur_produit_id=pf.id AND pf.produit_id=p.id AND d.order_status = 'CLOSED' AND  p.id=?1 AND DATE(d.updated_at) BETWEEN ?2 AND ?3 GROUP BY  p.id ,DATE(d.updated_at)";
     private static final String INVENTORY_QUERY =
         """
         SELECT SUM(it.quantity_on_hand) AS qty_mvt, DATE(s.updated_at) as mvt_date,MIN(it.updated) AS min_mvt_date,MAX(it.updated) AS max_mvt_date  FROM  store_inventory_line it, store_inventory s WHERE s.id=it.store_inventory_id
@@ -51,16 +51,16 @@ public class ProductActivityServiceImpl implements ProductActivityService {
         """;
     private static final String RETOUR_BON_QUERY =
         """
-        SELECT SUM(it.qty_mvt) AS qty_mvt, DATE(r.date_mtv) as mvt_date,MIN(it.date_mtv) AS min_mvt_date,MAX(it.date_mtv) AS max_mvt_date FROM retour_bon_item it,retour_bon r,delivery_receipt_item di,
-        fournisseur_produit p WHERE r.id=it.retour_bon_id AND it.delivery_receipt_item_id=di.id AND di.fournisseur_produit_id=p.id AND p.produit_id=?1 AND DATE(r.date_mtv) BETWEEN ?2 AND ?3  GROUP BY DATE(r.date_mtv)
+        SELECT SUM(it.qty_mvt) AS qty_mvt, DATE(r.date_mtv) as mvt_date,MIN(it.date_mtv) AS min_mvt_date,MAX(it.date_mtv) AS max_mvt_date FROM retour_bon_item it,retour_bon r,order_line di,
+        fournisseur_produit p WHERE r.id=it.retour_bon_id AND it.order_line_id=di.id AND di.fournisseur_produit_id=p.id AND p.produit_id=?1 AND DATE(r.date_mtv) BETWEEN ?2 AND ?3  GROUP BY DATE(r.date_mtv)
         """;
 
     private static final String VENTE_STOCK_QUERY =
         "SELECT sl.init_stock AS init_stock,sl.after_stock AS after_stock FROM sales_line sl, sales s WHERE s.id=sl.sales_id AND sl.produit_id=?1  AND  DATE(s.updated_at) = ?2  AND s.statut IN('CLOSED','REMOVE') AND s.imported=0 ORDER BY s.updated_at %s LIMIT 1";
     private static final String RETOUR_BON_STOCK_QUERY =
         """
-        SELECT it.init_stock AS init_stock,it.after_stock AS after_stock FROM retour_bon_item it,retour_bon r,delivery_receipt_item di,
-        fournisseur_produit p WHERE r.id=it.retour_bon_id AND it.delivery_receipt_item_id=di.id AND di.fournisseur_produit_id=p.id AND p.produit_id=?1 AND DATE(r.date_mtv) = ?2   ORDER BY r.date_mtv %s LIMIT 1
+        SELECT it.init_stock AS init_stock,it.after_stock AS after_stock FROM retour_bon_item it,retour_bon r,order_line di,
+        fournisseur_produit p WHERE r.id=it.retour_bon_id AND it.order_line_id=di.id AND di.fournisseur_produit_id=p.id AND p.produit_id=?1 AND DATE(r.date_mtv) = ?2   ORDER BY r.date_mtv %s LIMIT 1
         """;
     private static final String INVENTORY_STOCK_QUERY =
         """
@@ -69,8 +69,8 @@ public class ProductActivityServiceImpl implements ProductActivityService {
         """;
     private static final String ENTRY_STOCK_QUERY =
         """
-          SELECT  it.init_stock AS init_stock,it.after_stock AS after_stock  FROM delivery_receipt_item it ,delivery_receipt d,fournisseur_produit pf ,produit p
-          WHERE d.id=it.delivery_receipt_id AND it.fournisseur_produit_id=pf.id AND pf.produit_id=p.id AND d.receipt_status <> 'PENDING' AND  p.id=?1 AND DATE(d.modified_date) = ?2  ORDER BY d.modified_date %s  LIMIT 1
+          SELECT  it.init_stock AS init_stock,it.final_stock AS after_stock  FROM order_line it ,commande d,fournisseur_produit pf ,produit p
+          WHERE d.id=it.commande_id AND it.fournisseur_produit_id=pf.id AND pf.produit_id=p.id AND d.order_status = 'CLOSED' AND  p.id=?1 AND DATE(d.updated_at) = ?2  ORDER BY d.updated_at %s  LIMIT 1
         """;
     private static final String DECONDITIONNEMENT_STOCK_QUERY =
         """

@@ -35,13 +35,12 @@ public abstract class CommandeWrapperDTO {
         discountAmount = commande.getDiscountAmount();
         orderAmount = commande.getOrderAmount();
         grossAmount = commande.getGrossAmount();
-        netAmount = commande.getNetAmount();
+        netAmount = commande.getHtAmount();
         taxAmount = commande.getTaxAmount();
         createdAt = commande.getCreatedAt();
         updatedAt = commande.getUpdatedAt();
         orderStatus = commande.getOrderStatus();
-        receiptAmount = commande.getReceiptAmount();
-        sequenceBon = commande.getSequenceBon();
+
     }
 
     public CommandeWrapperDTO() {}

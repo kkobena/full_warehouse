@@ -58,7 +58,7 @@ public class Customer implements Serializable {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
 

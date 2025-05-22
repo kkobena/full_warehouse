@@ -18,6 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'jhi-forme-produit',
@@ -37,6 +38,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
     FormsModule,
     ReactiveFormsModule,
     TextareaModule,
+    Tooltip,
   ],
 })
 export class FormeProduitComponent implements OnInit {

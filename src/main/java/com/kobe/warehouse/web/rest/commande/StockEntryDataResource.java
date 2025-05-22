@@ -56,10 +56,7 @@ public class StockEntryDataResource {
         return Utils.printPDF(resource, request);
     }
 
-    @GetMapping("/commandes/data/entree-stock/by-order-reference/{reference}")
-    public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable String reference) {
-        return ResponseUtil.wrapOrNotFound(stockEntryDataServicetryService.findOneByOrderReference(reference));
-    }
+
 
     @GetMapping("/commandes/data/entree-stock/pdf/{id}")
     public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request) throws IOException {

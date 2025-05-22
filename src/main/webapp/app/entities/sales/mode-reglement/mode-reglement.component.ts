@@ -76,7 +76,7 @@ export class ModeReglementComponent implements OnInit {
   }
 
   get manageShowInfosBancaire(): boolean {
-    return this.selectModeReglementService.modeReglements().some((element: IPaymentMode) => this.modes.includes(element.code));
+    return this.selectModeReglementService.modeReglements()?.some((element: IPaymentMode) => this.modes.includes(element?.code));
   }
 
   ngOnInit(): void {

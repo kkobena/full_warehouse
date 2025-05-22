@@ -88,7 +88,6 @@ public class AjustementService extends FileResourceService {
         } else {
             ajust.setStorage(storageService.getDefaultConnectedUserMainStorage());
         }
-        ajust.setCalendar(warehouseCalendarService.initCalendar());
         ajust = ajustRepository.save(ajust);
         create(ajustDto.getAjustements().getFirst(), ajust);
         return new AjustDTO(ajust);

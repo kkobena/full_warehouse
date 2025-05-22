@@ -38,8 +38,8 @@ public class RetourBon implements Serializable {
     private User user;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "statut", nullable = false, length = 1)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", nullable = false)
     private RetourBonStatut statut = RetourBonStatut.PROCESSING;
 
     @Column(name = "commentaire", length = 150)
@@ -50,11 +50,7 @@ public class RetourBon implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private DeliveryReceipt deliveryReceipt;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+    private Commande commande;
 
     @OneToMany(mappedBy = "retourBon")
     private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
@@ -66,6 +62,14 @@ public class RetourBon implements Serializable {
     public RetourBon setId(Long id) {
         this.id = id;
         return this;
+    }
+
+    public Commande getCommande() {
+        return commande;
+    }
+
+    public void setCommande(Commande commande) {
+        this.commande = commande;
     }
 
     public @NotNull LocalDateTime getDateMtv() {
@@ -113,23 +117,7 @@ public class RetourBon implements Serializable {
         return this;
     }
 
-    public @NotNull DeliveryReceipt getDeliveryReceipt() {
-        return deliveryReceipt;
-    }
 
-    public RetourBon setDeliveryReceipt(@NotNull DeliveryReceipt deliveryReceipt) {
-        this.deliveryReceipt = deliveryReceipt;
-        return this;
-    }
-
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
-
-    public RetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public List<ReponseRetourBon> getReponseRetourBons() {
         return reponseRetourBons;

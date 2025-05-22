@@ -85,7 +85,7 @@ public class TiersPayant implements Serializable {
     private Long plafondConso;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 

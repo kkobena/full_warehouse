@@ -66,6 +66,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -413,7 +414,6 @@ public class InventaireServiceImpl implements InventaireService {
     @Override
     public StoreInventoryDTO create(StoreInventoryRecord storeInventoryRecord) {
         StoreInventory storeInventory = new StoreInventory();
-        storeInventory.setCalendar(this.warehouseCalendarService.initCalendar());
         storeInventory.createdAt(LocalDateTime.now());
         storeInventory.updatedAt(storeInventory.getCreatedAt());
         storeInventory.setUser(userService.getUser());
@@ -468,12 +468,17 @@ public class InventaireServiceImpl implements InventaireService {
         Root<StoreInventory> root
     ) {
         List<Predicate> predicates = new ArrayList<>();
-        In<InventoryCategory> inventoryCategoryIn = cb.in(root.get(StoreInventory_.inventoryCategory));
-        storeInventoryFilterRecord.inventoryCategories().forEach(inventoryCategoryIn::value);
-        predicates.add(inventoryCategoryIn);
-        In<InventoryStatut> inventoryStatutIn = cb.in(root.get(StoreInventory_.statut));
-        storeInventoryFilterRecord.statuts().forEach(inventoryStatutIn::value);
-        predicates.add(inventoryStatutIn);
+        if(!CollectionUtils.isEmpty(storeInventoryFilterRecord.inventoryCategories())){
+            In<InventoryCategory> inventoryCategoryIn = cb.in(root.get(StoreInventory_.inventoryCategory));
+            storeInventoryFilterRecord.inventoryCategories().forEach(inventoryCategoryIn::value);
+            predicates.add(inventoryCategoryIn);
+        }
+
+        if(!CollectionUtils.isEmpty(storeInventoryFilterRecord.statuts())){
+           In<InventoryStatut> inventoryStatutIn = cb.in(root.get(StoreInventory_.statut));
+           storeInventoryFilterRecord.statuts().forEach(inventoryStatutIn::value);
+           predicates.add(inventoryStatutIn);
+       }
         if (Objects.nonNull(storeInventoryFilterRecord.rayonId())) {
             predicates.add(cb.equal(root.get(StoreInventory_.rayon).get(Rayon_.id), storeInventoryFilterRecord.rayonId()));
         }

@@ -32,35 +32,35 @@ public class OrderLine implements Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "quantity_received")
+    @Column(name = "quantity_received", columnDefinition = "int(6) ")
     private Integer quantityReceived;
 
     @NotNull
-    @Column(name = "init_stock", nullable = false)
+    @Column(name = "init_stock", nullable = false, columnDefinition = "int(6) ")
     private Integer initStock;
 
+    @Column(name = "final_stock",  columnDefinition = "int(6) ")
+    private Integer   finalStock;
     @NotNull
-    @Column(name = "quantity_requested", nullable = false)
+    @Column(name = "quantity_requested", nullable = false, columnDefinition = "int(6) ")
     private Integer quantityRequested;
 
-    @Column(name = "quantity_returned")
+    @Column(name = "quantity_returned", columnDefinition = "int(6) ")
     private Integer quantityReturned;
 
-    @Column(name = "discount_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer discountAmount = 0;
+    @Column(name = "discount_amount", nullable = false, columnDefinition = "int(6) default '0'")
+    private int discountAmount = 0;
 
-    @NotNull
-    @Column(name = "order_amount", nullable = false)
+    @Formula("quantity_requested*order_unit_price")
     private Integer orderAmount; // montant vente  commande
 
-    @NotNull
-    @Column(name = "gross_amount", nullable = false)
+    @Formula("quantity_requested*order_cost_amount")
     private Integer grossAmount; // montant achat commande
 
-    @Column(name = "net_amount", columnDefinition = "int default '0'")
+    @Column(name = "net_amount", columnDefinition = "int(8) default '0'")
     private Integer netAmount = 0;
 
-    @Column(name = "tax_amount", columnDefinition = "int default '0'")
+    @Column(name = "tax_amount", columnDefinition = "int(6) default '0'")
     private Integer taxAmount = 0;
 
     @NotNull
@@ -74,34 +74,20 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "receipt_date")
     private LocalDateTime receiptDate;
 
-    @NotNull
-    @Column(name = "cost_amount", nullable = false)
-    private Integer costAmount; // prix achat machine ligne de commande
-
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
     private Commande commande;
 
     @NotNull
-    @Column(name = "order_unit_price", nullable = false)
+    @Column(name = "order_unit_price", nullable = false,columnDefinition = "int(8) ")
     private Integer orderUnitPrice; // prix uni commande
 
     @NotNull
-    @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
-    private Integer regularUnitPrice; // prix unitaire machine
-
-    @NotNull
-    @Column(name = "order_cost_amount", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "order_cost_amount", nullable = false, columnDefinition = "int(8) default '0'")
     private Integer orderCostAmount; // prix d'achat commande
 
-    @Formula("quantity_requested*order_cost_amount")
-    private Integer effectifGrossIncome; // montant achat commande
-
-    @Formula("quantity_requested*order_unit_price")
-    private Integer effectifOrderAmount; // montant vente commande
-
-    @Column(name = "quantity_ug", columnDefinition = "int default '0'")
-    private Integer quantityUg = 0;
+    @Column(name = "free_qty", columnDefinition = "int(4) default '0'")
+    private int freeQty ;
 
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
@@ -115,6 +101,16 @@ public class OrderLine implements Serializable, Cloneable {
 
     @Column(name = "is_updated")
     private Boolean updated = Boolean.FALSE;
+    @ManyToOne
+    private Tva tva;
+
+    public Integer getFinalStock() {
+        return finalStock;
+    }
+
+    public void setFinalStock(Integer finalStock) {
+        this.finalStock = finalStock;
+    }
 
     public Long getId() {
         return id;
@@ -157,29 +153,24 @@ public class OrderLine implements Serializable, Cloneable {
         this.quantityReturned = quantityReturned;
     }
 
-    public Integer getDiscountAmount() {
+    public int getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(Integer discountAmount) {
+    public void setDiscountAmount(int discountAmount) {
         this.discountAmount = discountAmount;
     }
 
-    public @NotNull Integer getOrderAmount() {
+    public  Integer getOrderAmount() {
         return orderAmount;
     }
 
-    public void setOrderAmount(Integer orderAmount) {
-        this.orderAmount = orderAmount;
-    }
 
-    public @NotNull Integer getGrossAmount() {
+    public  Integer getGrossAmount() {
         return grossAmount;
     }
 
-    public void setGrossAmount(Integer grossAmount) {
-        this.grossAmount = grossAmount;
-    }
+
 
     public Integer getNetAmount() {
         return netAmount;
@@ -222,13 +213,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull Integer getCostAmount() {
-        return costAmount;
-    }
-
-    public void setCostAmount(Integer costAmount) {
-        this.costAmount = costAmount;
-    }
 
     public Commande getCommande() {
         return commande;
@@ -247,14 +231,7 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull Integer getRegularUnitPrice() {
-        return regularUnitPrice;
-    }
 
-    public OrderLine setRegularUnitPrice(Integer regularUnitPrice) {
-        this.regularUnitPrice = regularUnitPrice;
-        return this;
-    }
 
     public @NotNull Integer getOrderCostAmount() {
         return orderCostAmount;
@@ -265,31 +242,22 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getEffectifGrossIncome() {
-        return effectifGrossIncome;
+
+    public int getFreeQty() {
+        return freeQty;
     }
 
-    public OrderLine setEffectifGrossIncome(Integer effectifGrossIncome) {
-        this.effectifGrossIncome = effectifGrossIncome;
+    public OrderLine setFreeQty(int quantityUg) {
+        this.freeQty = quantityUg;
         return this;
     }
 
-    public Integer getEffectifOrderAmount() {
-        return effectifOrderAmount;
+    public Tva getTva() {
+        return tva;
     }
 
-    public OrderLine setEffectifOrderAmount(Integer effectifOrderAmount) {
-        this.effectifOrderAmount = effectifOrderAmount;
-        return this;
-    }
-
-    public Integer getQuantityUg() {
-        return quantityUg;
-    }
-
-    public OrderLine setQuantityUg(Integer quantityUg) {
-        this.quantityUg = quantityUg;
-        return this;
+    public void setTva(Tva tva) {
+        this.tva = tva;
     }
 
     public List<Lot> getLots() {
@@ -376,11 +344,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-    public OrderLine costAmount(Integer costAmount) {
-        this.costAmount = costAmount;
-        return this;
-    }
-
     public OrderLine commande(Commande commande) {
         this.commande = commande;
         return this;
@@ -430,9 +393,7 @@ public class OrderLine implements Serializable, Cloneable {
             + "'"
             + ", updatedAt='"
             + getUpdatedAt()
-            + "'"
-            + ", costAmount="
-            + getCostAmount()
+
             + "}";
     }
 
@@ -441,7 +402,6 @@ public class OrderLine implements Serializable, Cloneable {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace(System.err);
             return null;
         }
     }

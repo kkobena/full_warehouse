@@ -6,9 +6,9 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.kobe.warehouse.config.FileStorageProperties;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.pdf.EtiquetteBarcodeReplacedElement;
@@ -117,16 +117,16 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         return filePath;
     }
 
-    public Resource print(List<DeliveryReceiptItem> receiptItems, int startAt) throws MalformedURLException {
+    public Resource print(List<OrderLine> orderLines, int startAt) throws MalformedURLException {
         var magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
-        return this.getResource(printEtiquettes(buildEtiquettes(receiptItems, magasin, startAt), startAt));
+        return this.getResource(printEtiquettes(buildEtiquettes(orderLines, magasin, startAt), startAt));
     }
 
-    private List<EtiquetteDTO> buildEtiquettes(List<DeliveryReceiptItem> receiptItems, String rasionSociale, int startAt) {
+    private List<EtiquetteDTO> buildEtiquettes(List<OrderLine> orderLines, String rasionSociale, int startAt) {
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         List<EtiquetteDTO> etiquettes = new ArrayList<>();
 
-        var finalItems = receiptItems.stream().filter(e -> StringUtils.isNotEmpty(e.getFournisseurProduit().getCodeCip())).toList();
+        var finalItems = orderLines.stream().filter(e -> StringUtils.isNotEmpty(e.getFournisseurProduit().getCodeCip())).toList();
         //   int index = 1;
         if (startAt > 1) {
             for (int i = 1; i <= startAt; i++) {
@@ -141,7 +141,7 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
     private List<EtiquetteDTO> getEtiquetteDTOS(
         String rasionSociale,
         String date,
-        List<DeliveryReceiptItem> finalItems,
+        List<OrderLine> finalItems,
         List<EtiquetteDTO> etiquettes
     ) {
         if (etiquettes.isEmpty()) {
@@ -151,12 +151,12 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         return etiquettes;
     }
 
-    private EtiquetteDTO buildEtiquetteDTO(DeliveryReceiptItem item, String date, String rasionSociale) {
+    private EtiquetteDTO buildEtiquetteDTO(OrderLine item, String date, String rasionSociale) {
         FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
 
         return new EtiquetteDTO()
             .setCode(fournisseurProduit.getCodeCip())
-            .setPrix(String.format("%s CFA", NumberUtil.formatToString(item.getRegularUnitPrice())))
+            .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
             .setPrint(true)
             .setDate(date)
             .setMagasin(rasionSociale)

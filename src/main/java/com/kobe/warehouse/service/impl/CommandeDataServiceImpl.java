@@ -50,7 +50,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             orderLine.getFournisseurProduit().getCodeCip().contains(s));
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip = (orderLine, _) -> orderLine.getProvisionalCode();
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) ->
-        orderLine.getOrderCostAmount().compareTo(orderLine.getCostAmount()) != 0;
+        orderLine.getOrderCostAmount().compareTo(orderLine.getFournisseurProduit().getPrixAchat()) != 0;
     private final Comparator<OrderLineDTO> comparingByProduitLibelle = Comparator.comparing(OrderLineDTO::getProduitLibelle);
     private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(OrderLineDTO::getProduitCip);
     private final Comparator<OrderLineDTO> comparingByDateUpdated = Comparator.comparing(
@@ -99,7 +99,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        Set<OrderLine> orderLines = commandeRepository.getReferenceById(commandeFilter.getCommandeId()).getOrderLines();
+        List<OrderLine> orderLines = commandeRepository.getReferenceById(commandeFilter.getCommandeId()).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
             if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
@@ -177,10 +177,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         return exportationCsvService.getRutureFileByOrderReference(reference);
     }
 
-    @Override
-    public Optional<CommandeDTO> findOneByOrderReference(String orderReference) {
-        return this.commandeRepository.getFirstByOrderReference(orderReference).map(CommandeDTO::new);
-    }
+
 
     private Resource getResource(String path) throws MalformedURLException {
         return new UrlResource(Paths.get(path).toUri());

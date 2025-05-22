@@ -43,7 +43,7 @@ public interface OrderLineService {
     void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived);
 
     void updateOrderLineQuantityUG(Long id, int quantityReceived);
-
+    void saveAll(List<OrderLine> orderLines);
     void saveAll(Set<OrderLine> orderLines);
 
     void deleteAll(Set<OrderLine> orderLines);

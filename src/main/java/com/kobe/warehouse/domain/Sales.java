@@ -197,7 +197,7 @@ public class Sales implements Serializable, Cloneable {
     private NatureVente natureVente;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "origine_vente", nullable = false)
     private OrigineVente origineVente;
 
@@ -210,10 +210,6 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
     private boolean differe = false;
 
-    @NotNull
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "statut_caisse", nullable = false)
-    private SalesStatut statutCaisse;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -609,14 +605,7 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull SalesStatut getStatutCaisse() {
-        return statutCaisse;
-    }
 
-    public Sales setStatutCaisse(SalesStatut statutCaisse) {
-        this.statutCaisse = statutCaisse;
-        return this;
-    }
 
     public @NotNull CategorieChiffreAffaire getCategorieChiffreAffaire() {
         return categorieChiffreAffaire;

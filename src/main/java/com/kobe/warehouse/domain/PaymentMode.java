@@ -37,7 +37,7 @@ public class PaymentMode implements Serializable {
     private short order;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_group", nullable = false)
     private PaymentGroup group;
 

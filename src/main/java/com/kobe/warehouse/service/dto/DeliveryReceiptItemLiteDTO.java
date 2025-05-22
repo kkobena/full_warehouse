@@ -18,6 +18,7 @@ public class DeliveryReceiptItemLiteDTO {
     private Integer quantityReceivedTmp;
     private Integer orderUnitPrice;
     private Integer tva;
+    private Long tvaId;
     private LocalDate datePeremption;
     private LocalDate datePeremptionTmp;
 
@@ -45,6 +46,15 @@ public class DeliveryReceiptItemLiteDTO {
 
     public DeliveryReceiptItemLiteDTO setQuantityUG(Integer quantityUG) {
         this.quantityUG = quantityUG;
+        return this;
+    }
+
+    public Long getTvaId() {
+        return tvaId;
+    }
+
+    public DeliveryReceiptItemLiteDTO setTvaId(Long tvaId) {
+        this.tvaId = tvaId;
         return this;
     }
 

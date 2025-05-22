@@ -1,7 +1,7 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.DeliveryReceipt;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import java.time.LocalDate;
@@ -13,24 +13,24 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DeliveryReceiptRepository extends JpaRepository<DeliveryReceipt, Long> {
+public interface DeliveryReceiptRepository extends JpaRepository<Commande, Long> {
     @Query(
-        value = "select a.fournisseur.groupeFournisseur.libelle AS libelle,SUM(a.receiptAmount)  AS montantTtc,SUM(a.netAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from DeliveryReceipt a where FUNCTION('DATE',a.createdDate)  between :fromDate and :toDate AND a.receiptStatut=:receiptStatut GROUP BY a.fournisseur.groupeFournisseur.id ",
-        countQuery = "select count(a.fournisseur.groupeFournisseur.id) from DeliveryReceipt a where FUNCTION('DATE',a.createdDate)  between :fromDate and :toDate AND a.receiptStatut=:receiptStatut "
+        value = "select a.fournisseur.groupeFournisseur.libelle AS libelle,SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:orderStatut GROUP BY a.fournisseur.groupeFournisseur.id ",
+        countQuery = "select count(a.fournisseur.groupeFournisseur.id) from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:receiptStatut "
     )
     Page<GroupeFournisseurAchat> fetchAchats(
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate,
-        @Param("receiptStatut") ReceiptStatut receiptStatut,
+        @Param("orderStatut") OrderStatut orderStatut,
         Pageable pageable
     );
 
     @Query(
-        value = "select SUM(a.receiptAmount)  AS montantTtc,SUM(a.netAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from DeliveryReceipt a where FUNCTION('DATE',a.createdDate)  between :fromDate and :toDate AND a.receiptStatut=:receiptStatut"
+        value = "select SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:orderStatut"
     )
     ChiffreAffaireAchat fetchAchats(
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate,
-        @Param("receiptStatut") ReceiptStatut receiptStatut
+        @Param("orderStatut") OrderStatut orderStatut
     );
 }

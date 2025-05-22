@@ -9,9 +9,9 @@ public final class AchatStatQueryBuilder {
 
     public static final String ACHAT_QUERY =
         """
-        SELECT SUM(d.discount_amount) AS discount_amount, SUM(d.receipt_amount) AS receipt_amount,SUM(d.net_amount) AS net_amount,SUM(d.tax_amount) AS tax_amount,COUNT(d.id) AS achat_count FROM delivery_receipt d
+        SELECT SUM(d.discount_amount) AS discount_amount, SUM(d.gross_amount) AS receipt_amount,SUM(d.ht_amount) AS net_amount,SUM(d.tax_amount) AS tax_amount,COUNT(d.id) AS achat_count FROM commande d
         WHERE d.receipt_date BETWEEN  ?1 AND ?2 AND
-        d.receipt_status IN (?3)
+        d.order_status IN (?3)
         """;
 
     public static AchatRecord build(Tuple tuple) {

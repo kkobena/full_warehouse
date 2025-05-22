@@ -80,9 +80,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final RayonProduitRepository rayonProduitRepository;
     private final StorageService storageService;
     private final EtatProduitService etatProduitService;
-    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
     private final StoreInventoryLineRepository storeInventoryLineRepository;
     private final SalesLineRepository salesLineRepository;
+    private final OrderLineRepository orderLineRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -94,9 +94,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         RayonProduitRepository rayonProduitRepository,
         StorageService storageService,
         EtatProduitService etatProduitService,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
         StoreInventoryLineRepository storeInventoryLineRepository,
-        SalesLineRepository salesLineRepository
+        SalesLineRepository salesLineRepository, OrderLineRepository orderLineRepository
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
@@ -104,9 +103,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.rayonProduitRepository = rayonProduitRepository;
         this.storageService = storageService;
         this.etatProduitService = etatProduitService;
-        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
         this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.salesLineRepository = salesLineRepository;
+        this.orderLineRepository = orderLineRepository;
     }
 
     @Override
@@ -169,7 +168,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Transactional(readOnly = true)
     public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
         return fromLastDateProjection(
-            deliveryReceiptItemRepository.findLastUpdatedAtByFournisseurProduitProduitId(
+            orderLineRepository .findLastUpdatedAtByFournisseurProduitProduitId(
                 produitCriteria.getId(),
                 ReceiptStatut.CLOSE.name()
             )

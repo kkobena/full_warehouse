@@ -99,13 +99,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly CARNET = 'CARNET';
   readonly ASSURANCE = 'ASSURANCE';
   readonly notFoundText = PRODUIT_NOT_FOUND;
-  quantyBox = viewChild.required<ElementRef>('quantyBox');
+  quantyBox = viewChild<ElementRef>('quantyBox');
   comptantComponent = viewChild(ComptantComponent);
   assuranceComponent = viewChild(AssuranceComponent);
   carnetComponent = viewChild(CarnetComponent);
   assuranceDataComponent = viewChild(AssuranceDataComponent);
-  produitbox = viewChild.required<any>('produitbox');
-  userBox = viewChild.required<any>('userBox');
+  produitbox = viewChild<any>('produitbox');
+  userBox = viewChild<any>('userBox');
   protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];

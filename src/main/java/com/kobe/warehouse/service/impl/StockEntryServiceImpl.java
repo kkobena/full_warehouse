@@ -2,8 +2,6 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.DeliveryReceipt;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
@@ -12,12 +10,9 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.repository.CommandeRepository;
-import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
-import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.repository.WarehouseSequenceRepository;
@@ -25,8 +20,8 @@ import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
@@ -40,6 +35,18 @@ import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,17 +60,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -73,47 +69,49 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final CommandeRepository commandeRepository;
 
     private final ProduitService produitService;
-
-    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
+    private final ReferenceService referenceService;
     private final LotService lotService;
     private final StorageService storageService;
-    private final DeliveryReceiptRepository deliveryReceiptRepository;
     private final FournisseurProduitService fournisseurProduitService;
     private final LogsService logsService;
     private final WarehouseSequenceRepository warehouseSequenceRepository;
     private final FournisseurRepository fournisseurRepository;
     private final OrderLineService orderLineService;
 
-    private final WarehouseCalendarService warehouseCalendarService;
+
     private final ImportationEchoueService importationEchoueService;
     private final TvaRepository tvaRepository;
     private final Predicate<OrderLine> isNotEntreeStockIsAuthorize = orderLine -> {
         if (Objects.nonNull(orderLine.getReceiptDate()) && Objects.nonNull(orderLine.getQuantityReceived())) {
             return (
                 (orderLine.getQuantityReceived() < orderLine.getQuantityRequested()) &&
-                orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate()
+                    orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate()
             );
         }
         return false;
     };
-    private final Predicate<DeliveryReceiptItem> canEntreeStockIsAuthorize2 = deliveryReceiptItem -> {
-        if (BooleanUtils.isTrue(deliveryReceiptItem.getUpdated()) && Objects.nonNull(deliveryReceiptItem.getQuantityReceived())) {
-            return (deliveryReceiptItem.getQuantityReceived().compareTo(deliveryReceiptItem.getQuantityRequested()) == 0);
+    private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
+        if (BooleanUtils.isTrue(orderLine.getUpdated()) && Objects.nonNull(orderLine.getQuantityReceived())) {
+            return (orderLine.getQuantityReceived().compareTo(orderLine.getQuantityRequested()) == 0);
         }
         return true;
     };
-    private final Predicate<DeliveryReceiptItem> lotPredicate = deliveryReceiptItem -> {
-        if (BooleanUtils.isTrue(deliveryReceiptItem.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
+
+
+    private final Predicate<OrderLine> lotPredicate = orderLine -> {
+        if (BooleanUtils.isTrue(orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
             return (
-                !CollectionUtils.isEmpty(deliveryReceiptItem.getLots()) &&
-                deliveryReceiptItem.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-                deliveryReceiptItem.getLots().stream().mapToInt(Lot::getQuantity).sum() >= deliveryReceiptItem.getQuantityReceived()
+                !CollectionUtils.isEmpty(orderLine.getLots()) &&
+                    orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+                    orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
             );
         }
         return true;
     };
-    private final Predicate<DeliveryReceiptItem> cipNotSet = deliveryReceiptItem ->
-        org.springframework.util.StringUtils.hasLength(deliveryReceiptItem.getFournisseurProduit().getCodeCip());
+
+
+    private final Predicate<OrderLine> cipNotSet = orderLine ->
+        org.springframework.util.StringUtils.hasLength(orderLine.getFournisseurProduit().getCodeCip());
     private final BiPredicate<OrderLine, List<LotJsonValue>> cannotContinue = (orderLine, lotJsonValueList) -> {
         if (lotJsonValueList.isEmpty()) {
             return false;
@@ -123,76 +121,47 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     public StockEntryServiceImpl(
         CommandeRepository commandeRepository,
-        ProduitService produitService,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
+        ProduitService produitService, ReferenceService referenceService,
         LotService lotService,
         StorageService storageService,
-        DeliveryReceiptRepository deliveryReceiptRepository,
         FournisseurProduitService fournisseurProduitService,
         LogsService logsService,
         WarehouseSequenceRepository warehouseSequenceRepository,
         FournisseurRepository fournisseurRepository,
         OrderLineService orderLineService,
-        WarehouseCalendarService warehouseCalendarService,
         ImportationEchoueService importationEchoueService,
         TvaRepository tvaRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
-        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
+        this.referenceService = referenceService;
         this.lotService = lotService;
         this.storageService = storageService;
-        this.deliveryReceiptRepository = deliveryReceiptRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.logsService = logsService;
         this.warehouseSequenceRepository = warehouseSequenceRepository;
 
         this.fournisseurRepository = fournisseurRepository;
         this.orderLineService = orderLineService;
-
-        this.warehouseCalendarService = warehouseCalendarService;
         this.importationEchoueService = importationEchoueService;
         this.tvaRepository = tvaRepository;
     }
 
-    private Commande updateCommande(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Optional<Commande> commandeOp = commandeRepository.getFirstByOrderReference(deliveryReceiptLite.getOrderReference());
-        return commandeOp
-            .map(commande ->
-                commande
-                    .setReceiptDate(deliveryReceiptLite.getReceiptDate())
-                    .setReceiptAmount(deliveryReceiptLite.getReceiptAmount())
-                    .taxAmount(deliveryReceiptLite.getTaxAmount())
-                    .setReceiptReference(deliveryReceiptLite.getReceiptRefernce())
-                    .setSequenceBon(deliveryReceiptLite.getSequenceBon())
-                    .setLastUserEdit(storageService.getUser())
-                    .orderStatus(OrderStatut.CLOSED)
-                    .updatedAt(LocalDateTime.now())
-            )
-            .orElse(null);
-    }
 
     @Override
     public void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Commande commande = updateCommande(deliveryReceiptLite);
-        DeliveryReceipt deliveryReceipt = finalizeSaisie(deliveryReceiptLite);
-
-        if (Objects.nonNull(commande)) {
-            deliveryReceipt.setOrderReference(commande.getOrderReference());
-            this.commandeRepository.saveAndFlush(commande);
-        }
-        this.deliveryReceiptRepository.saveAndFlush(deliveryReceipt);
+        this.commandeRepository.saveAndFlush(finalizeSaisie(deliveryReceiptLite));
     }
 
-    private DeliveryReceipt finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        DeliveryReceipt deliveryReceipt = this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
+    private Commande finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
+        Commande deliveryReceipt = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
         // TODO: liste des vente en avoir pour envoi possible de notif et de mail
         deliveryReceipt
-            .getReceiptItems()
-            .forEach(deliveryReceiptItem -> {
-                FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
+            .getOrderLines()
+            .forEach(orderLine -> {
+                FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
                 Produit produit = fournisseurProduit.getProduit();
-                if (!cipNotSet.test(deliveryReceiptItem)) {
+                if (!cipNotSet.test(orderLine)) {
                     throw new GenericError(
                         String.format(
                             "%s [%s %s ]",
@@ -203,7 +172,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "codeCipManquant"
                     );
                 }
-                if (!canEntreeStockIsAuthorize2.test(deliveryReceiptItem)) {
+                if (!canEntreeStockIsAuthorize2.test(orderLine)) {
                     throw new GenericError(
                         String.format(
                             "%s produit [%s %s]",
@@ -214,7 +183,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "commandeManquante"
                     );
                 }
-                if (!lotPredicate.test(deliveryReceiptItem)) {
+                if (!lotPredicate.test(orderLine)) {
                     throw new GenericError(
                         String.format(
                             "%s [%s %s ]",
@@ -225,21 +194,21 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "lotManquant"
                     );
                 }
-                updateFournisseurProduit(deliveryReceiptItem, fournisseurProduit, produit);
-                saveItem(deliveryReceiptItem);
+                updateFournisseurProduit(orderLine, fournisseurProduit, produit);
+                saveItem(orderLine);
 
                 StockProduit stockProduit = produitService.updateTotalStock(
                     produit,
-                    deliveryReceiptItem.getQuantityReceived(),
-                    deliveryReceiptItem.getUgQuantity()
+                    orderLine.getQuantityReceived(),
+                    orderLine.getFreeQty()
                 );
 
                 produit.setPrixMnp(
                     produitService.calculPrixMoyenPondereReception(
-                        deliveryReceiptItem.getInitStock(),
-                        deliveryReceiptItem.getCostAmount(),
+                        orderLine.getInitStock(),
+                        fournisseurProduit.getPrixAchat(),
                         getTotalStockQuantity(stockProduit),
-                        deliveryReceiptItem.getOrderCostAmount()
+                        orderLine.getOrderCostAmount()
                     )
                 );
                 produit.setUpdatedAt(LocalDateTime.now());
@@ -248,40 +217,37 @@ public class StockEntryServiceImpl implements StockEntryService {
         logsService.create(
             TransactionType.ENTREE_STOCK,
             "order.entry",
-            new Object[] { deliveryReceipt.getReceiptReference() },
+            new Object[]{deliveryReceipt.getReceiptReference()},
             deliveryReceipt.getId().toString()
         );
-        deliveryReceipt.setReceiptStatut(ReceiptStatut.CLOSE);
-        deliveryReceipt.setModifiedUser(storageService.getUser());
-        deliveryReceipt.setModifiedDate(LocalDateTime.now());
+        deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
+
+        deliveryReceipt.setUpdatedAt(LocalDateTime.now());
 
         return deliveryReceipt;
     }
 
     @Override
     public DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
-        deliveryReceipt.setCreatedDate(LocalDateTime.now());
-        deliveryReceipt.setCreatedUser(storageService.getUser());
-
-        Commande commande = commandeRepository.getFirstByOrderReference(deliveryReceiptLite.getOrderReference()).orElseThrow();
+        Commande commande = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
+        commande.setUpdatedAt(LocalDateTime.now());
+        commande.setUser(storageService.getUser());
         commande.orderStatus(OrderStatut.RECEIVED);
-        deliveryReceipt.setOrderReference(deliveryReceiptLite.getOrderReference());
-        deliveryReceipt.setFournisseur(commande.getFournisseur());
-        deliveryReceipt.setReceiptStatut(ReceiptStatut.PENDING);
-        deliveryReceipt.setNumberTransaction(buildDeliveryReceiptNumberTransaction());
+        commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
         DeliveryReceiptLiteDTO response = fromEntity(
-            deliveryReceiptRepository.save(buildDeliveryReceipt(deliveryReceiptLite, deliveryReceipt))
+            commandeRepository.save(buildDeliveryReceipt(deliveryReceiptLite, commande))
         );
-        commande.getOrderLines().forEach(orderLine -> addItem(orderLine, deliveryReceipt));
+        List<OrderLine> orderLines= commande.getOrderLines();
+        orderLines.forEach(this::updateReceivedQty);
+        this.orderLineService.saveAll( orderLines);
         commandeRepository.saveAndFlush(commande);
         return response;
     }
 
     @Override
     public DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        DeliveryReceipt deliveryReceipt = this.deliveryReceiptRepository.getReferenceById(deliveryReceiptLite.getId());
-        return fromEntity(deliveryReceiptRepository.save(buildDeliveryReceipt(deliveryReceiptLite, deliveryReceipt)));
+        Commande commande = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
+        return fromEntity(commandeRepository.save(buildDeliveryReceipt(deliveryReceiptLite, commande)));
     }
 
     @Override
@@ -289,11 +255,11 @@ public class StockEntryServiceImpl implements StockEntryService {
         throws IOException {
         String extension = FileUtil.getFileExtension(multipartFile.getOriginalFilename());
 
-        DeliveryReceipt deliveryReceipt = importNewBon(uploadDeleiveryReceipt);
+        Commande commande = importNewBon(uploadDeleiveryReceipt);
         CommandeResponseDTO commandeResponse =
             switch (extension) {
-                case FileUtil.CSV -> uploadCSVFormat(deliveryReceipt, uploadDeleiveryReceipt.getModel(), multipartFile);
-                case FileUtil.TXT -> uploadTXTFormat(deliveryReceipt, multipartFile);
+                case FileUtil.CSV -> uploadCSVFormat(commande, uploadDeleiveryReceipt.getModel(), multipartFile);
+                case FileUtil.TXT -> uploadTXTFormat(commande, multipartFile);
                 default -> throw new GenericError(
                     String.format(
                         "Le modèle ===> %s d'importation de commande n'est pas pris en charche",
@@ -302,81 +268,59 @@ public class StockEntryServiceImpl implements StockEntryService {
                     "modelimportation"
                 );
             };
-        saveLignesBonEchouees(commandeResponse, deliveryReceipt.getId());
+        saveLignesBonEchouees(commandeResponse, commande.getId());
         return commandeResponse;
     }
 
     @Override
     public void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
-        receiptItem.setUgQuantity(deliveryReceiptItem.getQuantityUG());
-        updateItem(receiptItem);
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        orderLine.setFreeQty(deliveryReceiptItem.getQuantityUG());
+        updateItem(orderLine);
     }
 
-    private void updateItem(DeliveryReceiptItem receiptItem) {
-        receiptItem.setUpdated(true);
-        receiptItem.setUpdatedDate(LocalDateTime.now());
-        this.deliveryReceiptItemRepository.save(receiptItem);
+    private void updateItem(OrderLine orderLine) {
+        orderLine.setUpdated(true);
+        orderLine.setUpdatedAt(LocalDateTime.now());
+        this.orderLineService.save(orderLine);
     }
 
     @Override
     public void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
-        receiptItem.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
-        updateItem(receiptItem);
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        orderLine.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
+        updateItem(orderLine);
     }
 
-    private DeliveryReceiptItem getDeliveryReceiptItem(Long id) {
-        return this.deliveryReceiptItemRepository.getReferenceById(id);
+    private OrderLine getOrderLine(Long id) {
+        return this.orderLineService.findOneById(id).orElse(null);
     }
 
     @Override
     public void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
-        receiptItem.setOrderUnitPrice(deliveryReceiptItem.getOrderUnitPrice());
-        updateItem(receiptItem);
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        orderLine.setOrderUnitPrice(deliveryReceiptItem.getOrderUnitPrice());
+        updateItem(orderLine);
     }
 
     @Override
     public void updateTva(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
-        receiptItem.setTva(deliveryReceiptItem.getTva());
-        updateItem(receiptItem);
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        orderLine.setTva(new Tva().setId(deliveryReceiptItem.getTvaId()));
+        updateItem(orderLine);
     }
 
     @Override
     public void updateDatePeremption(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        DeliveryReceiptItem receiptItem = getDeliveryReceiptItem(deliveryReceiptItem.getId());
-        receiptItem.setDatePeremption(deliveryReceiptItem.getDatePeremptionTmp());
-        updateItem(receiptItem);
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        //orderLine.setDatePeremption(deliveryReceiptItem.getDatePeremptionTmp());
+        updateItem(orderLine);
     }
 
-    private DeliveryReceiptItem addItem(OrderLine orderLine, DeliveryReceipt deliveryReceipt) {
-        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
-        DeliveryReceiptItem receiptItem = new DeliveryReceiptItem();
-        receiptItem.setDeliveryReceipt(deliveryReceipt);
-        receiptItem.setCreatedDate(deliveryReceipt.getCreatedDate());
-        receiptItem.setQuantityReceived(
+    private void updateReceivedQty(OrderLine orderLine) {
+        orderLine.setQuantityReceived(
             Objects.nonNull(orderLine.getQuantityReceived()) ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested()
         );
-        /*  receiptItem.setInitStock(
-    produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));*/
-        receiptItem.setDiscountAmount(0);
-        receiptItem.setUgQuantity(orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0);
-        receiptItem.setOrderCostAmount(orderLine.getOrderCostAmount());
-        receiptItem.setRegularUnitPrice(orderLine.getRegularUnitPrice());
-        receiptItem.setOrderUnitPrice(orderLine.getOrderUnitPrice());
-        receiptItem.setQuantityRequested(orderLine.getQuantityRequested());
-        receiptItem.setFournisseurProduit(fournisseurProduit);
-        receiptItem.setNetAmount(0);
-        receiptItem.setTaxAmount(0);
-        receiptItem.setQuantityReturned(0);
-        receiptItem.setCostAmount(orderLine.getCostAmount());
-
-        receiptItem = deliveryReceiptItemRepository.save(receiptItem);
-        this.lotService.addLot(orderLine.getLots(), receiptItem);
-
-        return receiptItem;
     }
 
     private String buildDeliveryReceiptNumberTransaction() {
@@ -387,99 +331,74 @@ public class StockEntryServiceImpl implements StockEntryService {
         return num;
     }
 
-    private FournisseurProduit updateFournisseurProduit(DeliveryReceiptItem deliveryReceiptItem) {
-        FournisseurProduit fournisseurProduit = deliveryReceiptItem.getFournisseurProduit();
-        Produit produit = fournisseurProduit.getProduit();
-        int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-        fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
-        fournisseurProduit.setPrixUni(deliveryReceiptItem.getOrderUnitPrice() + montantAdditionel);
-        return fournisseurProduitService.update(fournisseurProduit);
-    }
+
 
     private int getTotalStockQuantity(StockProduit stockProduit) {
         return stockProduit.getQtyStock() + (Objects.nonNull(stockProduit.getQtyUG()) ? stockProduit.getQtyStock() : 0);
     }
 
-    private DeliveryReceipt buildDeliveryReceipt(DeliveryReceiptLiteDTO deliveryReceiptLite, DeliveryReceipt deliveryReceipt) {
-        deliveryReceipt.setReceiptDate(deliveryReceiptLite.getReceiptFullDate().toLocalDate());
-        deliveryReceipt.setModifiedDate(LocalDateTime.now());
-        deliveryReceipt.setModifiedUser(storageService.getUser());
-        deliveryReceipt.setReceiptAmount(deliveryReceiptLite.getReceiptAmount());
-        deliveryReceipt.setDiscountAmount(0);
-        deliveryReceipt.setTaxAmount(deliveryReceiptLite.getTaxAmount());
-        deliveryReceipt.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
-        deliveryReceipt.setSequenceBon(deliveryReceiptLite.getSequenceBon());
-        deliveryReceipt.setNetAmount(ServiceUtil.computeHtaxe(deliveryReceipt.getReceiptAmount(), deliveryReceipt.getTaxAmount()));
-        return deliveryReceipt;
+    private Commande buildDeliveryReceipt(DeliveryReceiptLiteDTO deliveryReceiptLite, Commande commande) {
+        commande.setReceiptDate(deliveryReceiptLite.getReceiptFullDate().toLocalDate());
+        commande.setUpdatedAt(LocalDateTime.now());
+        commande.setGrossAmount(deliveryReceiptLite.getReceiptAmount());
+        commande.setDiscountAmount(0);
+        commande.setTaxAmount(deliveryReceiptLite.getTaxAmount());
+        commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
+        commande.setHtAmount(ServiceUtil.computeHtaxe(commande.getGrossAmount(), commande.getTaxAmount()));
+        return commande;
     }
 
-    private DeliveryReceiptLiteDTO fromEntity(DeliveryReceipt deliveryReceipt) {
+    private DeliveryReceiptLiteDTO fromEntity(Commande commande) {
         return new DeliveryReceiptLiteDTO()
-            .setId(deliveryReceipt.getId())
-            .setReceiptAmount(deliveryReceipt.getReceiptAmount())
-            .setReceiptDate(deliveryReceipt.getReceiptDate())
-            .setReceiptFullDate(deliveryReceipt.getReceiptDate().atStartOfDay())
-            .setOrderReference(deliveryReceipt.getOrderReference())
-            .setSequenceBon(deliveryReceipt.getSequenceBon())
-            .setReceiptRefernce(deliveryReceipt.getReceiptReference())
-            .setTaxAmount(deliveryReceipt.getTaxAmount());
+            .setId(commande.getId())
+            .setHtAmount(commande.getHtAmount())
+            .setReceiptAmount(commande.getGrossAmount())
+            .setFinalAmount(commande.getFinalAmount())
+            .setReceiptDate(commande.getReceiptDate())
+            .setReceiptFullDate(commande.getReceiptDate().atStartOfDay())
+            .setReceiptRefernce(commande.getReceiptReference())
+            .setTaxAmount(commande.getTaxAmount());
     }
 
-    private DeliveryReceipt importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
-        DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
-        deliveryReceipt.setType(TypeDeliveryReceipt.DIRECT);
-        deliveryReceipt.setCreatedDate(LocalDateTime.now());
-        deliveryReceipt.setCreatedUser(storageService.getUser());
-        deliveryReceipt.setFournisseur(this.fournisseurRepository.getReferenceById(uploadDeleiveryReceipt.getFournisseurId()));
-        deliveryReceipt.setReceiptStatut(ReceiptStatut.PENDING);
-        deliveryReceipt.setNumberTransaction(buildDeliveryReceiptNumberTransaction());
-        buildDeliveryReceipt(uploadDeleiveryReceipt.getDeliveryReceipt(), deliveryReceipt);
-        deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptReference());
-        deliveryReceiptRepository.save(deliveryReceipt);
-        return deliveryReceipt;
+    private Commande importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
+        DeliveryReceiptLiteDTO deliveryReceipt= uploadDeleiveryReceipt.getDeliveryReceipt();
+        Commande commande = new Commande();
+        commande.setType(TypeDeliveryReceipt.DIRECT);
+        commande.setCreatedAt(LocalDateTime.now());
+        commande.setUpdatedAt(commande.getCreatedAt());
+        commande.setUser(storageService.getUser());
+        commande.setFournisseur(this.fournisseurRepository.getReferenceById(uploadDeleiveryReceipt.getFournisseurId()));
+        commande.setOrderReference(referenceService.buildNumCommande());
+        commande.setReceiptDate(deliveryReceipt.getReceiptFullDate().toLocalDate());
+        commande.setUpdatedAt(LocalDateTime.now());
+        commande.setGrossAmount(deliveryReceipt.getReceiptAmount());
+        commande.setDiscountAmount(0);
+        commande.setTaxAmount(deliveryReceipt.getTaxAmount());
+        commande.setReceiptReference(deliveryReceipt.getReceiptRefernce());
+        commande.setHtAmount(ServiceUtil.computeHtaxe(commande.getGrossAmount(), commande.getTaxAmount()));
+        // deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptReference());
+        commandeRepository.save(commande);
+        return commande;
     }
 
-    private DeliveryReceiptItem createItemFromFile(OrderLine orderLine, DeliveryReceipt deliveryReceipt) {
-        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
-        DeliveryReceiptItem receiptItem = new DeliveryReceiptItem();
-        receiptItem.setDeliveryReceipt(deliveryReceipt);
-        receiptItem.setCreatedDate(deliveryReceipt.getCreatedDate());
-        receiptItem.setQuantityReceived(
-            Objects.nonNull(orderLine.getQuantityReceived()) ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested()
-        );
-        receiptItem.setInitStock(produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));
-        receiptItem.setDiscountAmount(0);
-        receiptItem.setUgQuantity(orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0);
-        receiptItem.setOrderCostAmount(orderLine.getOrderCostAmount());
-        receiptItem.setRegularUnitPrice(orderLine.getRegularUnitPrice());
-        receiptItem.setOrderUnitPrice(orderLine.getOrderUnitPrice());
-        receiptItem.setQuantityRequested(orderLine.getQuantityRequested());
-        receiptItem.setFournisseurProduit(fournisseurProduit);
-        receiptItem.setNetAmount(0);
-        receiptItem.setTaxAmount(0);
-        receiptItem.setQuantityReturned(0);
-        receiptItem.setCostAmount(orderLine.getCostAmount());
-        receiptItem = deliveryReceiptItemRepository.save(receiptItem);
-        return receiptItem;
-    }
 
-    private Optional<DeliveryReceiptItem> findInMap(Map<Long, DeliveryReceiptItem> longOrderLineMap, Long fourniseurProduitId) {
+    private Optional<OrderLine> findInMap(Map<Long, OrderLine> longOrderLineMap, Long fourniseurProduitId) {
         if (longOrderLineMap.containsKey(fourniseurProduitId)) {
             return Optional.of(longOrderLineMap.get(fourniseurProduitId));
         }
         return Optional.empty();
     }
 
-    private void updateReceiptItemFromRecord(DeliveryReceiptItem receiptItem, int quantityReceived, int quantityUg, int taxAmount) {
-        receiptItem.setUgQuantity(receiptItem.getUgQuantity() + quantityUg);
-        receiptItem.setQuantityReceived(receiptItem.getQuantityReceived() + quantityReceived);
-        receiptItem.setQuantityRequested(receiptItem.getQuantityReceived());
-        receiptItem.setTaxAmount(receiptItem.getTaxAmount() + taxAmount);
+    private void updateReceiptItemFromRecord(OrderLine orderLine, int quantityReceived, int quantityUg, int taxAmount) {
+        orderLine.setFreeQty(orderLine.getFreeQty() + quantityUg);
+        orderLine.setQuantityReceived(orderLine.getQuantityReceived() + quantityReceived);
+        orderLine.setQuantityRequested(orderLine.getQuantityReceived());
+        orderLine.setTaxAmount(orderLine.getTaxAmount() + taxAmount);
     }
 
     private void updateInRecord(
         /* DeliveryReceipt deliveryReceipt,*/
-        DeliveryReceiptItem orderLine,
+        OrderLine orderLine,
         int quantityReceived,
         int taxAmount,
         /* int oldQty,
@@ -491,7 +410,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     oldTaxAmount);*/
     }
 
-    private DeliveryReceiptItem buildDeliveryReceiptItemFromRecord(
+    private OrderLine buildDeliveryReceiptItemFromRecord(
         FournisseurProduit fournisseurProduit,
         int quantityRequested,
         int quantityReceived,
@@ -500,28 +419,26 @@ public class StockEntryServiceImpl implements StockEntryService {
         int quantityUg,
         int stock,
         int taxeAmount,
-        DeliveryReceipt deliveryReceipt
+        Commande commande
     ) {
-        DeliveryReceiptItem receiptItem = new DeliveryReceiptItem();
-        receiptItem.setUgQuantity(quantityUg);
-        receiptItem.setCreatedDate(deliveryReceipt.getCreatedDate());
-        receiptItem.setQuantityReceived(quantityReceived);
-        receiptItem.setQuantityRequested(quantityRequested);
-        receiptItem.setOrderUnitPrice(orderUnitPrice > 0 ? orderUnitPrice : fournisseurProduit.getPrixUni());
-        receiptItem.setOrderCostAmount(orderCostAmount > 0 ? orderCostAmount : fournisseurProduit.getPrixAchat());
-        receiptItem.setCostAmount(fournisseurProduit.getPrixAchat());
-        receiptItem.setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        receiptItem.setInitStock(stock);
-        receiptItem.setFournisseurProduit(fournisseurProduit);
-        receiptItem.setTaxAmount(taxeAmount);
-        deliveryReceipt.addReceiptItem(receiptItem);
+        OrderLine orderLine = new OrderLine();
+        orderLine.setFreeQty(quantityUg);
+        orderLine.setCreatedAt(commande.getCreatedAt());
+        orderLine.setQuantityReceived(quantityReceived);
+        orderLine.setQuantityRequested(quantityRequested);
+        orderLine.setOrderUnitPrice(orderUnitPrice > 0 ? orderUnitPrice : fournisseurProduit.getPrixUni());
+        orderLine.setOrderCostAmount(orderCostAmount > 0 ? orderCostAmount : fournisseurProduit.getPrixAchat());
+        orderLine.setInitStock(stock);
+        orderLine.setFournisseurProduit(fournisseurProduit);
+        orderLine.setTaxAmount(taxeAmount);
+        commande.getOrderLines().add(orderLine);
 
-        return receiptItem;
+        return orderLine;
     }
 
     private void createInRecord(
-        Map<Long, DeliveryReceiptItem> longOrderLineMap,
-        DeliveryReceipt deliveryReceipt,
+        Map<Long, OrderLine> longOrderLineMap,
+        Commande deliveryReceipt,
         FournisseurProduit fournisseurProduit,
         int quantityRequested,
         int quantityReceived,
@@ -531,43 +448,30 @@ public class StockEntryServiceImpl implements StockEntryService {
         int currentStock,
         int taxAmount
     ) {
-        DeliveryReceiptItem orderLineNew =
-            this.deliveryReceiptItemRepository.save(
-                    buildDeliveryReceiptItemFromRecord(
-                        fournisseurProduit,
-                        quantityRequested,
-                        quantityReceived,
-                        orderCostAmount,
-                        orderUnitPrice,
-                        quantityUg,
-                        currentStock,
-                        taxAmount,
-                        deliveryReceipt
-                    )
-                );
+        OrderLine orderLineNew =
+            this.orderLineService.save(
+                buildDeliveryReceiptItemFromRecord(
+                    fournisseurProduit,
+                    quantityRequested,
+                    quantityReceived,
+                    orderCostAmount,
+                    orderUnitPrice,
+                    quantityUg,
+                    currentStock,
+                    taxAmount,
+                    deliveryReceipt
+                )
+            );
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
     }
 
-    private void updateDeliveryReceiptAmountDuringUploading(
-        DeliveryReceipt deliveryReceipt,
-        DeliveryReceiptItem receiptItem,
-        Integer oldQuantityReceived,
-        int oldTaxAmount
-    ) {
-        deliveryReceipt.setReceiptAmount(
-            deliveryReceipt.getReceiptAmount() +
-            (receiptItem.getQuantityReceived() * receiptItem.getOrderCostAmount()) -
-            (oldQuantityReceived * receiptItem.getOrderCostAmount())
-        );
 
-        deliveryReceipt.setTaxAmount(deliveryReceipt.getTaxAmount() + receiptItem.getTaxAmount() - oldTaxAmount);
-    }
 
     private CommandeResponseDTO uploadLaborexModelCSVFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande deliveryReceipt,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) throws IOException {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -597,7 +501,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     );
                     if (fournisseurProduitOptional.isPresent()) {
                         FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
-                        Tva tva = fournisseurProduit.getProduit().getTva();
+                    //    Tva tva = fournisseurProduit.getProduit().getTva();
                         int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
 
                         findInMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
@@ -643,14 +547,14 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private CommandeResponseDTO uploadCOPHARMEDCSVFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) throws IOException {
         int totalItemCount = 0;
         int succesCount = 0;
-        Long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        Long fournisseurId = commande.getFournisseur().getId();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -678,7 +582,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                             () ->
                                 createInRecord(
                                     longOrderLineMap,
-                                    deliveryReceipt,
+                                    commande,
                                     fournisseurProduit,
                                     quantityRequested,
                                     quantityReceived,
@@ -713,18 +617,18 @@ public class StockEntryServiceImpl implements StockEntryService {
             throw e;
         }
 
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount - 1, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
     }
 
     private CommandeResponseDTO uploadDPCICSVFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) throws IOException {
         int totalItemCount = 0;
         int succesCount = 0;
-        Long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        Long fournisseurId = commande.getFournisseur().getId();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -753,7 +657,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         () ->
                             createInRecord(
                                 longOrderLineMap,
-                                deliveryReceipt,
+                                commande,
                                 fournisseurProduit,
                                 quantityRequested,
                                 quantityReceived,
@@ -785,18 +689,18 @@ public class StockEntryServiceImpl implements StockEntryService {
             throw e;
         }
 
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
     }
 
     private CommandeResponseDTO uploadTEDISCSVFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) throws IOException {
         int totalItemCount = 0;
         int succesCount = 0;
-        Long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        Long fournisseurId = commande.getFournisseur().getId();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -824,7 +728,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                             int unitPrice = orderUnitPrice == 0 ? fournisseurProduit.getPrixUni() : orderUnitPrice;
                             createInRecord(
                                 longOrderLineMap,
-                                deliveryReceipt,
+                                commande,
                                 fournisseurProduit,
                                 quantityReceived,
                                 quantityReceived,
@@ -853,19 +757,19 @@ public class StockEntryServiceImpl implements StockEntryService {
             log.debug("{0}", e);
             throw e;
         }
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
     }
 
     private CommandeResponseDTO uploadCipQteFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
         int isFirstLigne;
-        long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        long fournisseurId = commande.getFournisseur().getId();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -892,7 +796,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         () ->
                             createInRecord(
                                 longOrderLineMap,
-                                deliveryReceipt,
+                                commande,
                                 fournisseurProduit,
                                 quantityReceived,
                                 quantityReceived,
@@ -914,19 +818,19 @@ public class StockEntryServiceImpl implements StockEntryService {
             log.debug("{0}", e);
         }
 
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount - 1, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
     }
 
     private CommandeResponseDTO uploadCipQtePrixAchatFormat(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, DeliveryReceiptItem> longOrderLineMap
+        Map<Long, OrderLine> longOrderLineMap
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
         int isFirstLigne;
-        long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        long fournisseurId = commande.getFournisseur().getId();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -955,7 +859,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                             int prixA = prixAchat == 0 ? fournisseurProduit.getPrixAchat() : prixAchat;
                             createInRecord(
                                 longOrderLineMap,
-                                deliveryReceipt,
+                                commande,
                                 fournisseurProduit,
                                 quantityReceived,
                                 quantityReceived,
@@ -983,13 +887,13 @@ public class StockEntryServiceImpl implements StockEntryService {
         } catch (IOException e) {
             log.debug("{0}", e);
         }
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount - 1, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount - 1, succesCount);
     }
 
-    private CommandeResponseDTO uploadTXTFormat(DeliveryReceipt deliveryReceipt, MultipartFile multipartFile) throws IOException {
+    private CommandeResponseDTO uploadTXTFormat(Commande commande, MultipartFile multipartFile) throws IOException {
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, DeliveryReceiptItem> longOrderLineMap = new HashMap<>();
-        Long fournisseurId = deliveryReceipt.getFournisseur().getId();
+        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
+        Long fournisseurId = commande.getFournisseur().getId();
         int totalItemCount = 0;
         int succesCount = 0;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
@@ -1016,7 +920,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         () ->
                             createInRecord(
                                 longOrderLineMap,
-                                deliveryReceipt,
+                                commande,
                                 fournisseurProduit,
                                 quantityReceived,
                                 quantityReceived,
@@ -1044,11 +948,11 @@ public class StockEntryServiceImpl implements StockEntryService {
             throw e;
         }
 
-        return buildCommandeResponseDTO(deliveryReceipt, items, totalItemCount, succesCount);
+        return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
     }
 
     private CommandeResponseDTO buildCommandeResponseDTO(
-        DeliveryReceipt deliveryReceipt,
+        Commande commande,
         List<OrderItem> items,
         int totalItemCount,
         int succesCount
@@ -1056,27 +960,27 @@ public class StockEntryServiceImpl implements StockEntryService {
         return new CommandeResponseDTO()
             .setFailureCount(items.size())
             .setItems(items)
-            .setReference(deliveryReceipt.getReceiptReference())
+            .setReference(commande.getReceiptReference())
             .setSuccesCount(succesCount)
             .setTotalItemCount(totalItemCount);
     }
 
-    private CommandeResponseDTO uploadCSVFormat(DeliveryReceipt deliveryReceipt, CommandeModel commandeModel, MultipartFile multipartFile)
+    private CommandeResponseDTO uploadCSVFormat(Commande commande, CommandeModel commandeModel, MultipartFile multipartFile)
         throws IOException {
         CommandeResponseDTO commandeResponseDTO;
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, DeliveryReceiptItem> longOrderLineMap = new HashMap<>();
+        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
 
         commandeResponseDTO = switch (commandeModel) {
-            case LABOREX -> uploadLaborexModelCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-            case COPHARMED -> uploadCOPHARMEDCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-            case DPCI -> uploadDPCICSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-            case TEDIS -> uploadTEDISCSVFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-            case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
-            case CIP_QTE -> uploadCipQteFormat(deliveryReceipt, multipartFile, items, longOrderLineMap);
+            case LABOREX -> uploadLaborexModelCSVFormat(commande, multipartFile, items, longOrderLineMap);
+            case COPHARMED -> uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap);
+            case DPCI -> uploadDPCICSVFormat(commande, multipartFile, items, longOrderLineMap);
+            case TEDIS -> uploadTEDISCSVFormat(commande, multipartFile, items, longOrderLineMap);
+            case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap);
+            case CIP_QTE -> uploadCipQteFormat(commande, multipartFile, items, longOrderLineMap);
         };
         assert commandeResponseDTO != null;
-        return commandeResponseDTO.setEntity(fromEntity(this.deliveryReceiptRepository.save(deliveryReceipt)));
+        return commandeResponseDTO.setEntity(fromEntity(this.commandeRepository.save(commande)));
     }
 
     private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long deliveryReceiptId) {
@@ -1086,45 +990,31 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.importationEchoueService.save(deliveryReceiptId, false, commandeResponse.getItems());
     }
 
-    private void saveItem(DeliveryReceiptItem receiptItem) {
-        FournisseurProduit fournisseurProduit = receiptItem.getFournisseurProduit();
-        receiptItem.setUpdatedDate(LocalDateTime.now());
-        receiptItem.setQuantityReceived(
-            Objects.nonNull(receiptItem.getQuantityReceived()) ? receiptItem.getQuantityReceived() : receiptItem.getQuantityRequested()
+    private void saveItem(OrderLine orderLine) {
+        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+        orderLine.setUpdatedAt(LocalDateTime.now());
+        orderLine.setQuantityReceived(
+            Objects.nonNull(orderLine.getQuantityReceived()) ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested()
         );
-        receiptItem.setInitStock(produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));
-        receiptItem.setCostAmount(fournisseurProduit.getPrixAchat());
-        receiptItem.setAfterStock(receiptItem.getInitStock() + receiptItem.getQuantityReceived() + receiptItem.getUgQuantity());
-        receiptItem.setDiscountAmount(0);
-        receiptItem.setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        receiptItem.setOrderUnitPrice(receiptItem.getOrderUnitPrice());
-        receiptItem.setNetAmount(0);
-        receiptItem.setTaxAmount(0);
-        receiptItem.setQuantityReturned(0);
-        updateTvaFromLivraison(receiptItem, fournisseurProduit);
-
-        deliveryReceiptItemRepository.saveAndFlush(receiptItem);
-    }
-
-    private void updateTvaFromLivraison(DeliveryReceiptItem deliveryReceiptItem, FournisseurProduit fournisseurProduit) {
+        orderLine.setInitStock(produitService.getProductTotalStock(fournisseurProduit.getProduit().getId()));
+        orderLine.setFinalStock(orderLine.getInitStock() + (orderLine.getQuantityReceived() + orderLine.getFreeQty()));
         Produit produit = fournisseurProduit.getProduit();
-        if (deliveryReceiptItem.getTva() != null) {
-            this.tvaRepository.findFirstByTauxEquals(deliveryReceiptItem.getTva()).ifPresentOrElse(produit::setTva, () -> {
-                    Tva tva = new Tva();
-                    tva.setTaux(deliveryReceiptItem.getTva());
-                    produit.setTva(tvaRepository.save(tva));
-                });
+        if (orderLine.getTva() != null) {
+            produit.setTva(orderLine.getTva());
             produitService.update(produit);
         }
+
+        orderLineService.save(orderLine);
     }
 
-    private void updateFournisseurProduit(DeliveryReceiptItem deliveryReceiptItem, FournisseurProduit fournisseurProduit, Produit produit) {
+
+    private void updateFournisseurProduit(OrderLine orderLine, FournisseurProduit fournisseurProduit, Produit produit) {
         int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;
-        if (deliveryReceiptItem.getOrderCostAmount().compareTo(fournisseurProduit.getPrixAchat()) != 0) {
-            fournisseurProduit.setPrixAchat(deliveryReceiptItem.getOrderCostAmount());
+        if (orderLine.getOrderCostAmount().compareTo(fournisseurProduit.getPrixAchat()) != 0) {
+            fournisseurProduit.setPrixAchat(orderLine.getOrderCostAmount());
         }
-        if ((deliveryReceiptItem.getOrderUnitPrice() + montantAdditionel) != (fournisseurProduit.getPrixUni() + montantAdditionel)) {
-            fournisseurProduit.setPrixUni(deliveryReceiptItem.getOrderCostAmount());
+        if ((orderLine.getOrderUnitPrice() + montantAdditionel) != (fournisseurProduit.getPrixUni() + montantAdditionel)) {
+            fournisseurProduit.setPrixUni(orderLine.getOrderUnitPrice());
         }
 
         fournisseurProduitService.update(fournisseurProduit);

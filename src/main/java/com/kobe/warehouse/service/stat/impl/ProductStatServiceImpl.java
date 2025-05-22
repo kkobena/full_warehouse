@@ -1,11 +1,11 @@
 package com.kobe.warehouse.service.stat.impl;
 
 import com.kobe.warehouse.domain.enumeration.AjustType;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelle;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
@@ -62,24 +62,24 @@ public class ProductStatServiceImpl implements ProductStatService {
     private static final String SALE_LINE_AUDIT_SQL_QUERY =
         "SELECT s.canceled, s.dtype AS sale_type,sl.quantity_requested,sl.quantity_sold,sl.quantity_avoir,sl.init_stock,sl.after_stock,s.updated_at, DATE(s.updated_at) AS mvt_date from  sales s join sales_line sl on s.id = sl.sales_id WHERE sl.produit_id=?1 AND s.statut=?2 AND DATE(s.updated_at) BETWEEN ?3 AND ?4 ORDER BY s.updated_at";
     private static final String INVENTORY_LINE_AUDIT_SQL_QUERY =
-        "SELECT sl.quantity_init,sl.quantity_on_hand, DATE(s.updated_at) AS mvt_date ,s.updated_at AS updated_at FROM  store_inventory_line sl join store_inventory s on sl.store_inventory_id = s.id WHERE s.statut=2 AND sl.produit_id=?1 AND DATE(s.updated_at) BETWEEN ?2 AND ?3 ORDER BY s.updated_at";
+        "SELECT sl.quantity_init,sl.quantity_on_hand, DATE(s.updated_at) AS mvt_date ,s.updated_at AS updated_at FROM  store_inventory_line sl join store_inventory s on sl.store_inventory_id = s.id WHERE s.statut='CLOSED' AND sl.produit_id=?1 AND DATE(s.updated_at) BETWEEN ?2 AND ?3 ORDER BY s.updated_at";
 
     private static final String DECON_AUDIT_SQL_QUERY =
         "SELECT decon.qty_mvt,decon.stock_before,decon.stock_after, DATE(decon.date_mtv) as mvt_date,decon.date_mtv as updated_at ,decon.type_deconditionnement from  decondition decon where decon.produit_id=?1  AND DATE(decon.date_mtv) BETWEEN ?2 AND ?3 ORDER BY decon.date_mtv";
 
     private static final String AJUSTEMENT_AUDIT_SQL_QUERY =
-        "SELECT  DATE(a.date_mtv) as mvt_date, a.type_ajust,a.date_mtv as updated_at,a.stock_after,a.stock_before,a.qty_mvt FROM  ajustement a JOIN ajust a2 on a.ajust_id = a2.id WHERE a2.statut=1 AND a.produit_id=?1  AND DATE(a.date_mtv) BETWEEN ?2 AND ?3 ORDER BY a.date_mtv";
+        "SELECT  DATE(a.date_mtv) as mvt_date, a.type_ajust,a.date_mtv as updated_at,a.stock_after,a.stock_before,a.qty_mvt FROM  ajustement a JOIN ajust a2 on a.ajust_id = a2.id WHERE a2.statut='CLOSED' AND a.produit_id=?1  AND DATE(a.date_mtv) BETWEEN ?2 AND ?3 ORDER BY a.date_mtv";
     private static final String DELEVERY_AUDIT_SQL_QUERY =
         """
-          SELECT d.after_stock,d.init_stock,d.quantity_requested,d.quantity_received,d.quantity_ug,DATE(d.updated_date)  as mvt_date ,d.updated_date as updated_at from delivery_receipt_item d JOIN delivery_receipt dr on d.delivery_receipt_id = dr.id
-          JOIN fournisseur_produit fp on d.fournisseur_produit_id = fp.id join produit p on fp.produit_id = p.id WHERE dr.receipt_status='CLOSE' AND p.id=?1 AND DATE(d.updated_date) BETWEEN ?2 AND ?3 ORDER BY d.updated_date
+          SELECT d.final_stock,d.init_stock,d.quantity_requested,d.quantity_received,d.free_qty AS quantity_ug,DATE(d.updated_at)  as mvt_date ,d.updated_at as updated_at from order_line d JOIN commande dr on d.commande_id = dr.id
+          JOIN fournisseur_produit fp on d.fournisseur_produit_id = fp.id join produit p on fp.produit_id = p.id WHERE dr.order_status='CLOSED' AND p.id=?1 AND DATE(d.updated_at) BETWEEN ?2 AND ?3 ORDER BY d.updated_at
         """;
     private static final String RETOUR_AUDIT_SQL_QUERY =
         """
         SELECT DATE(rt.date_mtv) as mvt_date,rt.date_mtv as updated_at,rt.init_stock,rt.after_stock,rt.qty_mvt FROM retour_bon_item rt JOIN retour_bon rb on rt.retour_bon_id = rb.id
-        join delivery_receipt_item it on rt.delivery_receipt_item_id = it.id
+        join order_line it on rt.order_line_id = it.id
         join fournisseur_produit fp on it.fournisseur_produit_id = fp.id
-        join produit p on fp.produit_id = p.id WHERE p.id=?1 AND rb.statut=1
+        join produit p on fp.produit_id = p.id WHERE p.id=?1 AND rb.statut='CLOSED'
          AND DATE(rt.date_mtv) BETWEEN ?2 AND ?3 ORDER BY rt.date_mtv
         """;
     private static final String PERIME_AUDIT_SQL_QUERY =
@@ -91,25 +91,23 @@ public class ProductStatServiceImpl implements ProductStatService {
     private final EntityManager em;
     private final ProduitAuditingReportSevice produitAuditingReportSevice;
     private final FournisseurProduitRepository fournisseurProduitRepository;
-    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
     private final SalesLineRepository salesLineRepository;
     private final HistoriqueVenteReportReportService historiqueVenteReportReportService;
+    private final OrderLineRepository orderLineRepository;
 
     public ProductStatServiceImpl(
         EntityManager em,
         ProduitAuditingReportSevice produitAuditingReportSevice,
         FournisseurProduitRepository fournisseurProduitRepository,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
         SalesLineRepository salesLineRepository,
-        HistoriqueVenteReportReportService historiqueVenteReportReportService
+        HistoriqueVenteReportReportService historiqueVenteReportReportService, OrderLineRepository orderLineRepository
     ) {
         this.em = em;
         this.produitAuditingReportSevice = produitAuditingReportSevice;
-
         this.fournisseurProduitRepository = fournisseurProduitRepository;
-        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
         this.salesLineRepository = salesLineRepository;
         this.historiqueVenteReportReportService = historiqueVenteReportReportService;
+        this.orderLineRepository = orderLineRepository;
     }
 
     @Override
@@ -146,11 +144,11 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     @Transactional(readOnly = true)
     public List<HistoriqueProduitAchatMensuelleWrapper> getHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique) {
-        List<HistoriqueProduitAchatMensuelle> historiqueProduitAchats = deliveryReceiptItemRepository.getHistoriqueAchatMensuelle(
+        List<HistoriqueProduitAchatMensuelle> historiqueProduitAchats = orderLineRepository.getHistoriqueAchatMensuelle(
             produitHistorique.produitId(),
             produitHistorique.startDate(),
             produitHistorique.endDate(),
-            ReceiptStatut.CLOSE.name()
+            OrderStatut.CLOSED.name()
         );
         return historiqueProduitAchats
             .stream()
@@ -172,11 +170,11 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     @Transactional(readOnly = true)
     public Page<HistoriqueProduitAchats> getHistoriqueAchat(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
-        return this.deliveryReceiptItemRepository.getHistoriqueAchat(
+        return this.orderLineRepository.getHistoriqueAchat(
                 produitHistorique.produitId(),
                 produitHistorique.startDate(),
                 produitHistorique.endDate(),
-                ReceiptStatut.CLOSE.name(),
+            OrderStatut.CLOSED.name(),
                 pageable
             );
     }
@@ -208,11 +206,11 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     @Override
     public HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(ProduitHistoriqueParam produitHistorique) {
-        return this.deliveryReceiptItemRepository.getHistoriqueAchatSummary(
+        return this.orderLineRepository.getHistoriqueAchatSummary(
                 produitHistorique.produitId(),
                 produitHistorique.startDate(),
                 produitHistorique.endDate(),
-                ReceiptStatut.CLOSE.name()
+            OrderStatut.CLOSED.name()
             );
     }
 
@@ -431,9 +429,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     private ProduitAuditing buildProduitDeconditionAuditingFromTuple(Tuple tuple) {
-        TypeDeconditionnement typeDeconditionnement = TypeDeconditionnement.values()[Short.parseShort(
-                tuple.get("type_deconditionnement").toString()
-            )];
+        TypeDeconditionnement typeDeconditionnement = TypeDeconditionnement.valueOf(tuple.get("type_deconditionnement",String.class));
         return new ProduitAuditing(
             AuditType.DECONDITIONNEMENT,
             tuple.get("qty_mvt", Integer.class),
@@ -449,7 +445,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     private ProduitAuditing buildProduitAjustementAuditingFromTuple(Tuple tuple) {
-        AjustType ajustType = AjustType.values()[Short.parseShort(tuple.get("type_ajust").toString())];
+        AjustType ajustType = AjustType.valueOf(tuple.get("type_ajust",String.class));
         return new ProduitAuditing(
             AuditType.AJUSTEMENT,
             tuple.get("qty_mvt", Integer.class),
@@ -469,7 +465,7 @@ public class ProductStatServiceImpl implements ProductStatService {
             AuditType.DELIVERY,
             tuple.get("quantity_received", Integer.class),
             tuple.get("init_stock", Integer.class),
-            tuple.get("after_stock", Integer.class),
+            tuple.get("final_stock", Integer.class),
             tuple.get("updated_at", Timestamp.class).toLocalDateTime(),
             tuple.get("mvt_date", Date.class).toLocalDate(),
             null,
@@ -543,7 +539,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                 }
                 case PERIME -> produitAuditingState.setPerimeQuantity(entry.getValue().stream().mapToInt(ProduitAuditing::qtyMvt).sum());
                 case INVENTORY -> {
-                    ProduitAuditing produitAuditingInven = entry.getValue().get(0);
+                    ProduitAuditing produitAuditingInven = entry.getValue().getFirst();
                     produitAuditingState.setStoreInventoryQuantity(produitAuditingInven.qtyMvt());
                     produitAuditingState.setInventoryGap(produitAuditingInven.beforeStock() - produitAuditingInven.qtyMvt());
                 }
@@ -645,11 +641,11 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     public Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsToPdf(
-                this.deliveryReceiptItemRepository.getHistoriqueAchat(
+                this.orderLineRepository.getHistoriqueAchat(
                         produitHistorique.produitId(),
                         produitHistorique.startDate(),
                         produitHistorique.endDate(),
-                        ReceiptStatut.CLOSE.name(),
+                        OrderStatut.CLOSED.name(),
                         Pageable.unpaged()
                     ).getContent(),
                 this.getHistoriqueAchatSummary(produitHistorique),

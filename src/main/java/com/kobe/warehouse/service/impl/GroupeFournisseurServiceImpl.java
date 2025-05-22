@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
@@ -149,6 +150,6 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
 
     @Override
     public Page<GroupeFournisseurAchat> fetchAchats(LocalDate fromDate, LocalDate toDate, Pageable pageable) {
-        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, ReceiptStatut.CLOSE, pageable);
+        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, OrderStatut.CLOSED, pageable);
     }
 }

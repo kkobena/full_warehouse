@@ -36,7 +36,7 @@ public class Avoir implements Serializable {
     private LocalDateTime dateMtv = LocalDateTime.now();
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private StatutAvoir statut = StatutAvoir.EN_COURS;
 

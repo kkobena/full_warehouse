@@ -58,11 +58,11 @@ public class Magasin implements Serializable {
     private String numComptable;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type=0 AND s.magasin_id=id LIMIT 1)")
+    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type='PRINCIPAL' AND s.magasin_id=id LIMIT 1)")
     private Storage primaryStorage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type=2 AND s.magasin_id=id LIMIT 1)")
+    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type='POINT_DE_VENTE' AND s.magasin_id=id LIMIT 1)")
     private Storage pointOfSale;
 
     @Column(name = "welcome_message")

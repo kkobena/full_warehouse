@@ -15,15 +15,16 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -52,7 +53,8 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void updateOrderLine(OrderLine orderLine) {}
+    public void updateOrderLine(OrderLine orderLine) {
+    }
 
     @Override
     public OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) {
@@ -79,11 +81,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
         orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setRegularUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setFournisseurProduit(fournisseurProduit);
-        orderLine.setOrderAmount(fournisseurProduit.getPrixUni() * orderLineDTO.getQuantityRequested());
-        orderLine.setGrossAmount(fournisseurProduit.getPrixAchat() * orderLineDTO.getQuantityRequested());
         if (ObjectUtils.isNotEmpty(orderLineDTO.getProvisionalCode())) {
             orderLine.setProvisionalCode(orderLineDTO.getProvisionalCode());
         }
@@ -95,8 +93,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
-        orderLine.setOrderAmount(orderLine.getRegularUnitPrice() * orderLine.getQuantityRequested());
-        orderLine.setGrossAmount(orderLine.getCostAmount() * orderLine.getQuantityRequested());
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
@@ -105,8 +101,6 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public void updateOrderLine(OrderLine orderLine, int quantityRequested) {
         orderLine.setQuantityRequested(orderLine.getQuantityRequested() + quantityRequested);
-        orderLine.setOrderAmount(orderLine.getRegularUnitPrice() * orderLine.getQuantityRequested());
-        orderLine.setGrossAmount(orderLine.getCostAmount() * orderLine.getQuantityRequested());
         orderLine.setUpdatedAt(LocalDateTime.now());
     }
 
@@ -120,13 +114,18 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public void updateOrderLineQuantityUG(Long id, int quantityUg) {
         OrderLine orderLine = orderLineRepository.getReferenceById(id);
-        orderLine.setQuantityUg(quantityUg);
+        orderLine.setFreeQty(quantityUg);
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.save(orderLine);
     }
 
     @Override
     public void saveAll(Set<OrderLine> orderLines) {
+        orderLineRepository.saveAll(orderLines);
+    }
+
+    @Override
+    public void saveAll(List<OrderLine> orderLines) {
         orderLineRepository.saveAll(orderLines);
     }
 
@@ -140,7 +139,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderUnitPrice(orderLineDTO.getOrderUnitPrice());
-        orderLine.setOrderAmount(orderLineDTO.getOrderUnitPrice() * orderLine.getQuantityRequested());
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
@@ -151,7 +149,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderCostAmount(orderLineDTO.getOrderCostAmount());
-        orderLine.setGrossAmount(orderLine.getOrderCostAmount() * orderLine.getQuantityRequested());
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineRepository.saveAndFlush(orderLine);
         return Pair.of(oldOrderLine, orderLine);
@@ -163,10 +160,12 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {}
+    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {
+    }
 
     @Override
-    public void rollbackProductState(List<Produit> produits) {}
+    public void rollbackProductState(List<Produit> produits) {
+    }
 
     @Override
     public int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId) {
@@ -260,12 +259,8 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
         orderLine.setOrderUnitPrice(orderLineDTO.getOrderUnitPrice());
         orderLine.setOrderCostAmount(orderLineDTO.getOrderCostAmount());
-        orderLine.setCostAmount(orderLineDTO.getCostAmount());
-        orderLine.setRegularUnitPrice(orderLineDTO.getRegularUnitPrice());
-        orderLine.setOrderAmount(orderLineDTO.getOrderAmount());
-        orderLine.setGrossAmount(orderLineDTO.getGrossAmount());
         orderLine.setProvisionalCode(orderLineDTO.getProvisionalCode());
-        orderLine.setQuantityUg(orderLineDTO.getQuantityUg());
+        orderLine.setFreeQty(orderLineDTO.getQuantityUg());
         orderLine.setTaxAmount(orderLine.getTaxAmount());
         return orderLine;
     }
@@ -287,12 +282,8 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityRequested(suggestionLine.getQuantity());
         orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setOrderAmount(orderLine.getOrderUnitPrice() * suggestionLine.getQuantity());
-        orderLine.setCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        orderLine.setGrossAmount(orderLine.getOrderCostAmount() * suggestionLine.getQuantity());
         orderLine.setProvisionalCode(false);
-        orderLine.setQuantityUg(0);
+        orderLine.setFreeQty(0);
         orderLine.setTaxAmount(0);
         return orderLine;
     }

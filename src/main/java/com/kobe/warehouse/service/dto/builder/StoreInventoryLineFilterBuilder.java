@@ -30,12 +30,12 @@ public class StoreInventoryLineFilterBuilder {
     public static final String SQL_ALL_INSERT_ALL =
         """
            INSERT INTO  store_inventory_line (produit_id,updated_at,updated,store_inventory_id) SELECT p.id,NOW() AS updatedAt
-         ,false AS updated,%d AS storyId FROM produit p WHERE status=0 {famille_close}
+         ,false AS updated,%d AS storyId FROM produit p WHERE p.status='ENABLE' {famille_close}
         """;
     public static final String SQL_ALL_INSERT =
         """
           INSERT INTO  store_inventory_line (produit_id,updated_at,updated,store_inventory_id) SELECT p.id,NOW() AS updatedAt
-           ,false AS updated,%d AS storyId FROM produit p,rayon_produit rp, rayon r, storage s WHERE  status=0 AND p.id=rp.produit_id AND r.id=rp.rayon_id AND s.id=r.storage_id
+           ,false AS updated,%d AS storyId FROM produit p,rayon_produit rp, rayon r, storage s WHERE  p.status='ENABLE' AND p.id=rp.produit_id AND r.id=rp.rayon_id AND s.id=r.storage_id
         """;
     public static final String SUMMARY_SQL =
         """

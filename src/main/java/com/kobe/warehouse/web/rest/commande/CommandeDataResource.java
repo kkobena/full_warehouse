@@ -124,9 +124,5 @@ public class CommandeDataResource {
         return ResponseUtil.wrapOrNotFound(commandeDataService.getCommandeById(id));
     }
 
-    @GetMapping("/commandes/by-reference/{reference}")
-    public ResponseEntity<CommandeDTO> getCommandeByReference(@PathVariable String reference) {
-        log.debug("REST request to get Commande : {}", reference);
-        return ResponseUtil.wrapOrNotFound(commandeDataService.findOneByOrderReference(reference));
-    }
+
 }

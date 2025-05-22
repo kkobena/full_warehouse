@@ -20,7 +20,7 @@ public class Substitut implements Serializable {
     private Produit produit;
     @ManyToOne(optional = false)
     private Produit substitut;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_substitut", nullable = false)
     private TypeSubstitut type;
 

@@ -1,15 +1,18 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Tva;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class OrderLineDTO {
 
+    private  TvaDTO tva;
     private int totalQuantity;
     private int regularUnitPrice;
     private int orderUnitPrice;
@@ -41,13 +44,12 @@ public class OrderLineDTO {
     private Integer quantityUg;
     private Integer quantityReceivedTmp;
     private Integer ugQuantity;
-    private Set<LotJsonValue> lots = new HashSet<>();
+    private Set<LotDTO> lots = new HashSet<>();
 
     public OrderLineDTO() {}
 
     public OrderLineDTO(OrderLine orderLine) {
         initStock = orderLine.getInitStock();
-        regularUnitPrice = orderLine.getRegularUnitPrice();
         orderUnitPrice = orderLine.getOrderUnitPrice();
         id = orderLine.getId();
         quantityReceived = orderLine.getQuantityReceived();
@@ -60,12 +62,9 @@ public class OrderLineDTO {
         taxAmount = orderLine.getTaxAmount();
         createdAt = orderLine.getCreatedAt();
         updatedAt = orderLine.getUpdatedAt();
-        costAmount = orderLine.getCostAmount();
-        Commande commande = orderLine.getCommande();
-        commandeId = commande.getId();
-        commandeOrderRefernce = commande.getOrderReference();
-        commandeReceiptRefernce = commande.getReceiptReference();
+       // costAmount = orderLine.getCostAmount();
         FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+        regularUnitPrice = fournisseurProduit.getPrixUni();
         Produit produit = fournisseurProduit.getProduit();
         produitId = produit.getId();
         fournisseurProduitId = fournisseurProduit.getId();
@@ -74,10 +73,12 @@ public class OrderLineDTO {
         produitCodeEan = produit.getCodeEan();
         orderCostAmount = orderLine.getOrderCostAmount();
         provisionalCode = orderLine.getProvisionalCode();
-        quantityUg = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
-        ugQuantity = orderLine.getQuantityUg() != null ? orderLine.getQuantityUg() : 0;
+        quantityUg = orderLine.getFreeQty() ;
+        ugQuantity = orderLine.getFreeQty() ;
         quantityReceivedTmp = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested();
-        lots = orderLine.getLots();
+        lots = orderLine.getLots().stream().map(LotDTO::new).collect(java.util.stream.Collectors.toSet()) ;
+       Tva tvaEntity = orderLine.getTva();
+        tva = Objects.nonNull(tvaEntity) ?new TvaDTO(tvaEntity): null;
     }
 
     public int getTotalQuantity() {
@@ -359,11 +360,19 @@ public class OrderLineDTO {
         return this;
     }
 
-    public Set<LotJsonValue> getLots() {
+    public TvaDTO getTva() {
+        return tva;
+    }
+
+    public void setTva(TvaDTO tva) {
+        this.tva = tva;
+    }
+
+    public Set<LotDTO> getLots() {
         return lots;
     }
 
-    public OrderLineDTO setLots(Set<LotJsonValue> lots) {
+    public OrderLineDTO setLots(Set<LotDTO> lots) {
         this.lots = lots;
         return this;
     }

@@ -1,27 +1,8 @@
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
   ><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
-<div class="row ajustement">
-  <div class="col-2 col-md-2 col-sm-2">
-    <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
-        <!--<ng-container ngbNavItem="PENDING">
-          <a class="flex-sm-fill nav-link " ngbNavLink>Ajustement en cours</a>
-          <ng-template ngbNavContent>
-            <jhi-ajustement-en-cours></jhi-ajustement-en-cours>
-          </ng-template>
-        </ng-container>-->
-        <ng-container ngbNavItem="CLOSED">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Ajustements</a>
-          <ng-template ngbNavContent>
-            <jhi-list-ajustement></jhi-list-ajustement>
-          </ng-template>
-        </ng-container>
-      </div>
-    </p-card>
-  </div>
-
-  <div class="col-10 col-md-10 col-sm-10 row">
+<div class="container-fluid">
+  <h4>Liste des ajustements</h4>
     <p-toolbar class="ajustement-toolbar">
       <ng-template #start>
         <p-inputgroup class="mr-1">
@@ -80,6 +61,6 @@
       </ng-template>
     </p-toolbar>
 
-    <div [ngbNavOutlet]="nav"></div>
+    <jhi-list-ajustement></jhi-list-ajustement>
   </div>
-</div>
+

@@ -1,16 +1,15 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.DeliveryReceipt;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
-import com.kobe.warehouse.domain.DeliveryReceiptItem_;
-import com.kobe.warehouse.domain.DeliveryReceipt_;
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.User_;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
-import com.kobe.warehouse.repository.DeliveryReceiptItemRepository;
-import com.kobe.warehouse.repository.DeliveryReceiptRepository;
+import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
@@ -41,23 +40,23 @@ import org.springframework.util.StringUtils;
 public class StockEntryDataServiceImpl extends FileResourceService implements StockEntryDataService {
 
     private final EntityManager em;
-    private final DeliveryReceiptRepository deliveryReceiptRepository;
+    private final CommandeRepository commandeRepository;
     private final DeliveryReceiptReportReportService receiptReportService;
-    private final DeliveryReceiptItemRepository deliveryReceiptItemRepository;
+    private final OrderLineRepository orderLineRepository;
     private final EtiquetteExportReportServiceImpl etiquetteExportService;
 
     public StockEntryDataServiceImpl(
         EntityManager em,
-        DeliveryReceiptRepository deliveryReceiptRepository,
+        CommandeRepository commandeRepository,
         DeliveryReceiptReportReportService receiptReportService,
-        DeliveryReceiptItemRepository deliveryReceiptItemRepository,
+        OrderLineRepository orderLineRepository,
         EtiquetteExportReportServiceImpl etiquetteExportService
     ) {
         this.em = em;
-        this.deliveryReceiptRepository = deliveryReceiptRepository;
+        this.commandeRepository = commandeRepository;
 
         this.receiptReportService = receiptReportService;
-        this.deliveryReceiptItemRepository = deliveryReceiptItemRepository;
+        this.orderLineRepository = orderLineRepository;
         this.etiquetteExportService = etiquetteExportService;
     }
 
@@ -77,24 +76,21 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     @Override
     public Optional<DeliveryReceiptDTO> findOneById(Long id) {
-        return deliveryReceiptRepository.findById(id).map(DeliveryReceiptDTO::new);
+        return commandeRepository.findById(id).map(DeliveryReceiptDTO::new);
     }
 
-    @Override
-    public Optional<DeliveryReceiptDTO> findOneByOrderReference(String orderReference) {
-        return deliveryReceiptRepository.getFirstByOrderReference(orderReference).map(DeliveryReceiptDTO::new);
-    }
+
 
     @Override
     public Resource exportToPdf(Long id) throws IOException {
-        return this.getResource(receiptReportService.print(deliveryReceiptRepository.getReferenceById(id)));
+        return this.getResource(receiptReportService.print(commandeRepository.getReferenceById(id)));
     }
 
     private long receiptCount(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<DeliveryReceiptItem> root = cq.from(DeliveryReceiptItem.class);
-        cq.select(cb.countDistinct(root.get(DeliveryReceiptItem_.deliveryReceipt)));
+        Root<OrderLine> root = cq.from(OrderLine.class);
+        cq.select(cb.countDistinct(root.get(OrderLine_.commande)));
         List<Predicate> predicates = predicatesFetch(deliveryReceiptFilterDTO, cb, root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = em.createQuery(cq);
@@ -102,17 +98,17 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         return v != null ? v : 0;
     }
 
-    private List<DeliveryReceipt> fetchDeliveryReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable) {
+    private List<Commande> fetchDeliveryReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<DeliveryReceipt> cq = cb.createQuery(DeliveryReceipt.class);
-        Root<DeliveryReceiptItem> root = cq.from(DeliveryReceiptItem.class);
+        CriteriaQuery<Commande> cq = cb.createQuery(Commande.class);
+        Root<OrderLine> root = cq.from(OrderLine.class);
         cq
-            .select(root.get(DeliveryReceiptItem_.deliveryReceipt))
+            .select(root.get(OrderLine_.commande))
             .distinct(true)
-            .orderBy(cb.desc(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.modifiedDate)));
+            .orderBy(cb.desc(root.get(OrderLine_.commande).get(Commande_.updatedAt)));
         List<Predicate> predicates = predicatesFetch(deliveryReceiptFilterDTO, cb, root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<DeliveryReceipt> q = em.createQuery(cq);
+        TypedQuery<Commande> q = em.createQuery(cq);
         if (!deliveryReceiptFilterDTO.isAll()) {
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
@@ -124,13 +120,13 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     private List<Predicate> predicatesFetch(
         DeliveryReceiptFilterDTO deliveryReceiptFilterDTO,
         CriteriaBuilder cb,
-        Root<DeliveryReceiptItem> root
+        Root<OrderLine> root
     ) {
         List<Predicate> predicates = new ArrayList<>();
-        if (Objects.nonNull(deliveryReceiptFilterDTO.getStatut()) && ReceiptStatut.ANY != deliveryReceiptFilterDTO.getStatut()) {
+        if (Objects.nonNull(deliveryReceiptFilterDTO.getStatut()) ) {
             predicates.add(
                 cb.equal(
-                    root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptStatut),
+                    root.get(OrderLine_.commande).get(Commande_.orderStatus),
                     deliveryReceiptFilterDTO.getStatut()
                 )
             );
@@ -139,11 +135,11 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
             predicates.add(
                 cb.or(
                     cb.like(
-                        cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptReference)),
+                        cb.upper(root.get(OrderLine_.commande).get(Commande_.receiptReference)),
                         deliveryReceiptFilterDTO.getSearchByRef() + "%"
                     ),
                     cb.like(
-                        cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.numberTransaction)),
+                        cb.upper(root.get(OrderLine_.commande).get(Commande_.orderReference)),
                         deliveryReceiptFilterDTO.getSearchByRef() + "%"
                     )
                 )
@@ -153,20 +149,20 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
             String search = deliveryReceiptFilterDTO.getSearch().toUpperCase() + "%";
             predicates.add(
                 cb.or(
-                    cb.like(cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.receiptReference)), search),
-                    cb.like(cb.upper(root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.numberTransaction)), search),
-                    cb.like(cb.upper(root.get(DeliveryReceiptItem_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
+                    cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.receiptReference)), search),
+                    cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.orderReference)), search),
+                    cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
                     cb.like(
-                        cb.upper(root.get(DeliveryReceiptItem_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
+                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
                         search
                     ),
                     cb.like(
-                        cb.upper(root.get(DeliveryReceiptItem_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
+                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
                         search
                     ),
                     cb.like(
                         cb.upper(
-                            root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.fournisseur).get(Fournisseur_.libelle)
+                            root.get(OrderLine_.commande).get(Commande_.fournisseur).get(Fournisseur_.libelle)
                         ),
                         search
                     )
@@ -176,7 +172,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         if (Objects.nonNull(deliveryReceiptFilterDTO.getFournisseurId())) {
             predicates.add(
                 cb.equal(
-                    root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.fournisseur).get(Fournisseur_.id),
+                    root.get(OrderLine_.commande).get(Commande_.fournisseur).get(Fournisseur_.id),
                     deliveryReceiptFilterDTO.getFournisseurId()
                 )
             );
@@ -185,11 +181,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
             predicates.add(
                 cb.or(
                     cb.equal(
-                        root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.createdUser).get(User_.id),
-                        deliveryReceiptFilterDTO.getUserId()
-                    ),
-                    cb.equal(
-                        root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.modifiedUser).get(User_.id),
+                        root.get(OrderLine_.commande).get(Commande_.user).get(User_.id),
                         deliveryReceiptFilterDTO.getUserId()
                     )
                 )
@@ -198,7 +190,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate()) && Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.between(
-                    cb.function("DATE", LocalDate.class, root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.modifiedDate)),
+                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
                     deliveryReceiptFilterDTO.getFromDate(),
                     deliveryReceiptFilterDTO.getToDate()
                 )
@@ -206,14 +198,14 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate())) {
             predicates.add(
                 cb.equal(
-                    cb.function("DATE", LocalDate.class, root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.modifiedDate)),
+                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
                     deliveryReceiptFilterDTO.getFromDate()
                 )
             );
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.equal(
-                    cb.function("DATE", LocalDate.class, root.get(DeliveryReceiptItem_.deliveryReceipt).get(DeliveryReceipt_.modifiedDate)),
+                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
                     deliveryReceiptFilterDTO.getToDate()
                 )
             );
@@ -223,6 +215,6 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     @Override
     public Resource printEtiquette(Long id, int startAt) throws IOException {
-        return this.etiquetteExportService.print(this.deliveryReceiptItemRepository.findAllByDeliveryReceiptId(id), startAt);
+        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeId(id), startAt);
     }
 }

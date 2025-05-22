@@ -32,8 +32,7 @@ public class Tva implements Serializable {
     @Column(name = "taux", nullable = false, unique = true)
     private Integer taux = 0;
 
-    @OneToMany(mappedBy = "tva")
-    private Set<Produit> produits = new HashSet<>();
+
 
     public Long getId() {
         return id;
@@ -57,20 +56,8 @@ public class Tva implements Serializable {
         return this;
     }
 
-    public Set<Produit> getProduits() {
-        return produits;
-    }
 
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
-    }
 
-    public Tva produits(Set<Produit> produits) {
-        this.produits = produits;
-        return this;
-    }
-
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {

@@ -38,7 +38,7 @@ public class InventoryTransaction implements Serializable {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
 
@@ -85,7 +85,7 @@ public class InventoryTransaction implements Serializable {
     private SalesLine saleLine;
 
     @ManyToOne
-    private DeliveryReceiptItem deliveryReceiptItem;
+    private OrderLine orderLine;
 
     @ManyToOne
     private RepartitionStockProduit repartitionStockProduit;
@@ -203,12 +203,12 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
-    public DeliveryReceiptItem getDeliveryReceiptItem() {
-        return deliveryReceiptItem;
+    public OrderLine getOrderLine() {
+        return orderLine;
     }
 
-    public InventoryTransaction setDeliveryReceiptItem(DeliveryReceiptItem deliveryReceiptItem) {
-        this.deliveryReceiptItem = deliveryReceiptItem;
+    public InventoryTransaction setOrderLine(OrderLine orderLine) {
+        this.orderLine = orderLine;
         return this;
     }
 

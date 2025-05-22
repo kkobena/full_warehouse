@@ -44,7 +44,7 @@ public class Ajustement implements Serializable {
     private Integer stockBefore;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_ajust", nullable = false)
     private AjustType type;
 

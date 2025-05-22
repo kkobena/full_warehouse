@@ -51,7 +51,7 @@ public class PrixReference implements Serializable {
     private boolean enabled = true;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "prix_type", nullable = false)
     private PrixReferenceType type;
 

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.activity_summary;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.*;
@@ -25,7 +26,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
 
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final InvoicePaymentRepository invoicePaymentRepository;
-    private final DeliveryReceiptRepository deliveryReceiptRepository;
+    private final CommandeRepository commandeRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final PaymentRepository paymentRepository;
     private final SalesRepository salesRepository;
@@ -34,7 +35,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     public ActivitySummaryServiceImpl(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         InvoicePaymentRepository invoicePaymentRepository,
-        DeliveryReceiptRepository deliveryReceiptRepository,
+        CommandeRepository commandeRepository,
         PaymentTransactionRepository paymentTransactionRepository,
         PaymentRepository paymentRepository,
         SalesRepository salesRepository,
@@ -42,7 +43,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.invoicePaymentRepository = invoicePaymentRepository;
-        this.deliveryReceiptRepository = deliveryReceiptRepository;
+        this.commandeRepository = commandeRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.paymentRepository = paymentRepository;
         this.salesRepository = salesRepository;
@@ -88,11 +89,11 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
 
     @Override
     public Page<GroupeFournisseurAchat> fetchAchats(LocalDate fromDate, LocalDate toDate, Pageable pageable) {
-        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, ReceiptStatut.CLOSE, pageable);
+        return this.commandeRepository.fetchAchats(fromDate, toDate, OrderStatut.CLOSED, pageable);
     }
 
     private ChiffreAffaireAchat fetchAchats(LocalDate fromDate, LocalDate toDate) {
-        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, ReceiptStatut.CLOSE);
+        return this.commandeRepository.fetchAchats(fromDate, toDate, OrderStatut.CLOSED);
     }
 
     @Override

@@ -17,14 +17,13 @@ public class PaymentFournisseur extends PaymentTransaction implements Serializab
     private static final long serialVersionUID = 1L;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = "paymentFournisseurs", allowSetters = true)
-    private DeliveryReceipt deliveryReceipt;
+    private Commande commande;
 
-    public DeliveryReceipt getDeliveryReceipt() {
-        return deliveryReceipt;
+    public Commande getCommande() {
+        return commande;
     }
 
-    public void setDeliveryReceipt(DeliveryReceipt deliveryReceipt) {
-        this.deliveryReceipt = deliveryReceipt;
+    public void setCommande(Commande commande) {
+        this.commande = commande;
     }
 }

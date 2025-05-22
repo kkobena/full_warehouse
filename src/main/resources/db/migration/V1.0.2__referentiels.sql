@@ -37,11 +37,11 @@ VALUES (3, 'ROLE_USER');
 
 
 INSERT IGNORE INTO storage(`id`, `name`, `storage_type`, `magasin_id`)
-VALUES (1, 'ENTREPOT', 0, 1);
+VALUES (1, 'ENTREPOT', 'PRINCIPAL', 1);
 INSERT IGNORE INTO storage(`id`, `name`, `storage_type`, `magasin_id`)
-VALUES (2, 'POINT DE VENTE', 2, 1);
+VALUES (2, 'POINT DE VENTE', 'POINT_DE_VENTE', 1);
 INSERT IGNORE INTO storage(`id`, `name`, `storage_type`, `magasin_id`)
-VALUES (3, 'RESERVE', 1, 1);
+VALUES (3, 'RESERVE', 'SAFETY_STOCK', 1);
 INSERT IGNORE INTO tva (id, taux)
 VALUES (1, 0),
        (2, 18),
@@ -118,28 +118,46 @@ VALUES (5, 'AUTRES', 100);
 
 INSERT IGNORE INTO form_produit(id, libelle)
 VALUES (1, 'Comprimés'),
-       (2, 'Sachets');
+       (2, 'Sachets'),
+       (3, 'Gélules'),
+       (4, 'Ampoules'),
+       (5, 'Flacons'),
+       (6, 'Poudres'),
+       (7, 'Crèmes'),
+       (8, 'Gels'),
+       (9, 'Sprays'),
+       (10, 'Solutions'),
+       (11, 'Pommades'),
+       (12, 'Suppositoires'),
+       (13, 'Inhalateurs'),
+       (14, 'Patchs'),
+       (15, 'Injectables'),
+       (16, 'Collyres'),
+       (17, 'Onguents'),
+       (18, 'Granulés'),
+       (19, 'Sérums'),
+       (20, 'Sachets');
 
 INSERT IGNORE INTO `app_configuration` (`name`, `value`, `description`, `value_type`)
 VALUES ('APP_GESTION_STOCK', '0',
         'Parametre qui permet la gestion du stock ; deux valeurs sont autorisées: 0 ==> pour un seul stockage et 1===> pour un stockage multiple',
         'BOOLEAN');
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('CASH', 'ESPECE', 0, 1, true);
+VALUES ('CASH', 'ESPECE', 'CASH', 1, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('OM', 'ORANGE', 2, 2, true);
+VALUES ('OM', 'ORANGE', 'MOBILE', 2, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('MTN', 'MTN', 2, 3, true);
+VALUES ('MTN', 'MTN', 'MOBILE', 3, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('MOOV', 'MOOV', 2, 4, true);
+VALUES ('MOOV', 'MOOV', 'MOBILE', 4, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('WAVE', 'WAVE', 2, 5, true);
+VALUES ('WAVE', 'WAVE', 'MOBILE', 5, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('CB', 'CARTE BANCAIRE', 3, 6, true);
+VALUES ('CB', 'CARTE BANCAIRE', 'CB', 6, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('VIREMENT', 'VIREMENT', 4, 7, true);
+VALUES ('VIREMENT', 'VIREMENT', 'VIREMENT', 7, true);
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
-VALUES ('CH', 'CHEQUE', 5, 8, true);
+VALUES ('CH', 'CHEQUE', 'CHEQUE', 8, true);
 INSERT IGNORE INTO rayon (id, code, exclude, libelle, storage_id)
 VALUES (1, 'SANS', 0, 'SANS EMPLACEMENT', 2);
 INSERT IGNORE INTO rayon (id, code, exclude, libelle, storage_id)

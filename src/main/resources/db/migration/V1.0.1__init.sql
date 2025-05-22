@@ -1,11 +1,11 @@
-create or replace table authority
+create table authority
 (
   name    varchar(50)  not null
     primary key,
   libelle varchar(100) null
 );
 
-create or replace table banque
+create table banque
 (
   id           bigint auto_increment
     primary key,
@@ -15,7 +15,7 @@ create or replace table banque
   nom          varchar(100) not null
 );
 
-create or replace table categorie
+create table categorie
 (
   id      bigint auto_increment
     primary key,
@@ -25,20 +25,22 @@ create or replace table categorie
     unique (libelle)
 );
 
-create or replace table dci
+create table dci
 (
   id      bigint auto_increment
     primary key,
   code    varchar(20)  not null,
   libelle varchar(255) not null,
   constraint UKe3c6g8lyasluveuhuckir2lod
-    unique (code)
+    unique (code),
+  constraint UKitjoajb16gqh53rhwby9jeoh4
+    unique (libelle)
 );
 
-create or replace index dci_libelle_index
+create index dci_libelle_index
   on dci (libelle);
 
-create or replace table famille_produit
+create table famille_produit
 (
   id           bigint auto_increment
     primary key,
@@ -51,7 +53,7 @@ create or replace table famille_produit
     foreign key (categorie_id) references categorie (id)
 );
 
-create or replace table form_produit
+create table form_produit
 (
   id      bigint auto_increment
     primary key,
@@ -60,7 +62,7 @@ create or replace table form_produit
     unique (libelle)
 );
 
-create or replace table gamme_produit
+create table gamme_produit
 (
   id      bigint auto_increment
     primary key,
@@ -70,7 +72,7 @@ create or replace table gamme_produit
     unique (libelle)
 );
 
-create or replace table groupe_fournisseur
+create table groupe_fournisseur
 (
   id             bigint auto_increment
     primary key,
@@ -84,7 +86,7 @@ create or replace table groupe_fournisseur
     unique (libelle)
 );
 
-create or replace table fournisseur
+create table fournisseur
 (
   id                      bigint auto_increment
     primary key,
@@ -103,7 +105,7 @@ create or replace table fournisseur
     foreign key (groupe_fournisseur_id) references groupe_fournisseur (id)
 );
 
-create or replace table groupe_tiers_payant
+create table groupe_tiers_payant
 (
   id                 bigint auto_increment
     primary key,
@@ -116,7 +118,7 @@ create or replace table groupe_tiers_payant
     unique (name)
 );
 
-create or replace table importation_echouee
+create table importation_echouee
 (
   id          bigint auto_increment
     primary key,
@@ -125,7 +127,7 @@ create or replace table importation_echouee
   object_id   bigint      null
 );
 
-create or replace table importation_echouee_ligne
+create table importation_echouee_ligne
 (
   id                    bigint auto_increment
     primary key,
@@ -146,7 +148,7 @@ create or replace table importation_echouee_ligne
     foreign key (importation_echoue_id) references importation_echouee (id)
 );
 
-create or replace table laboratoire
+create table laboratoire
 (
   id      bigint auto_increment
     primary key,
@@ -155,7 +157,7 @@ create or replace table laboratoire
     unique (libelle)
 );
 
-create or replace table magasin
+create table magasin
 (
   id                  bigint auto_increment
     primary key,
@@ -178,7 +180,7 @@ create or replace table magasin
     unique (full_name)
 );
 
-create or replace table menu
+create table menu
 (
   id               bigint auto_increment
     primary key,
@@ -197,7 +199,7 @@ create or replace table menu
     foreign key (parent_id) references menu (id)
 );
 
-create or replace table authority_menu
+create table authority_menu
 (
   authority_name varchar(50) not null,
   menu_id        bigint      not null,
@@ -208,7 +210,7 @@ create or replace table authority_menu
     foreign key (authority_name) references authority (name)
 );
 
-create or replace table motif_ajustement
+create table motif_ajustement
 (
   id      bigint auto_increment
     primary key,
@@ -217,7 +219,7 @@ create or replace table motif_ajustement
     unique (libelle)
 );
 
-create or replace table motif_retour_produit
+create table motif_retour_produit
 (
   id      bigint auto_increment
     primary key,
@@ -226,21 +228,20 @@ create or replace table motif_retour_produit
     unique (libelle)
 );
 
-create or replace table payment_mode
+create table payment_mode
 (
-  code          varchar(50)  not null
+  code          varchar(50)                                                              not null
     primary key,
-  enable        bit          not null,
-  payment_group tinyint      not null
-    check (`payment_group` between 0 and 6),
-  icon_url      varchar(255) null,
-  libelle       varchar(255) not null,
-  ordre_tri     smallint     not null,
+  enable        bit                                                                      not null,
+  payment_group enum ('CASH', 'CAUTION', 'CB', 'CHEQUE', 'CREDIT', 'MOBILE', 'VIREMENT') not null,
+  icon_url      varchar(255)                                                             null,
+  libelle       varchar(255)                                                             not null,
+  ordre_tri     smallint                                                                 not null,
   constraint UKtfqn29lfkm2lkujuptvoiiyki
     unique (libelle)
 );
 
-create or replace table persistent_audit_event
+create table persistent_audit_event
 (
   event_id   bigint auto_increment
     primary key,
@@ -249,7 +250,7 @@ create or replace table persistent_audit_event
   principal  varchar(255) not null
 );
 
-create or replace table persistent_audit_evt_data
+create table persistent_audit_evt_data
 (
   event_id bigint       not null,
   value    varchar(255) null,
@@ -259,7 +260,7 @@ create or replace table persistent_audit_evt_data
     foreign key (event_id) references persistent_audit_event (event_id)
 );
 
-create or replace table poste
+create table poste
 (
   id           bigint auto_increment
     primary key,
@@ -270,29 +271,32 @@ create or replace table poste
     unique (name)
 );
 
-create or replace index poste_name_index
+create index poste_name_index
   on poste (name);
 
-create or replace table printer
+create table printer
 (
-  id              bigint auto_increment
+  id                    bigint auto_increment
     primary key,
-  address         varchar(255) null,
-  default_printer bit          null,
-  length          int          not null,
-  name            varchar(255) not null,
-  width           int          not null,
-  poste_id        bigint       null,
+  address               varchar(255)    null,
+  length                int             not null,
+  margin_left_and_right int default 10  not null,
+  margin_top            int default 15  not null,
+  name                  varchar(255)    not null,
+  width                 int default 576 not null,
+  poste_id              bigint          not null,
+  constraint UKh8bxb2mqx8w24n0jh4vymkk0
+    unique (name, poste_id),
   constraint UKrr7bfntxwxqe91dsa9458f582
     unique (name),
   constraint FKcip3p5i9uwm6mgqpsnrfk5vcu
     foreign key (poste_id) references poste (id)
 );
 
-create or replace index name_index
+create index name_index
   on printer (name);
 
-create or replace table privilege
+create table privilege
 (
   name    varchar(100) not null
     primary key,
@@ -302,7 +306,7 @@ create or replace table privilege
     foreign key (menu_id) references menu (id)
 );
 
-create or replace table authority_privilege
+create table authority_privilege
 (
   id             bigint auto_increment
     primary key,
@@ -316,7 +320,7 @@ create or replace table authority_privilege
     foreign key (authority_name) references authority (name)
 );
 
-create or replace table reference
+create table reference
 (
   id             bigint auto_increment
     primary key,
@@ -329,7 +333,7 @@ create or replace table reference
     unique (mvt_date, d_type, num)
 );
 
-create or replace table remise
+create table remise
 (
   dtype        varchar(31)          not null,
   id           bigint auto_increment
@@ -339,50 +343,51 @@ create or replace table remise
   remise_value float                null
 );
 
-create or replace table customer
+create table customer
 (
-  dtype               varchar(31)                       not null,
+  dtype               varchar(31)                                     not null,
   id                  bigint auto_increment
     primary key,
-  code                varchar(255)                      not null,
-  created_at          datetime(6)                       not null,
-  email               varchar(255)                      null,
-  first_name          varchar(255)                      not null,
-  last_name           varchar(255)                      not null,
-  phone               varchar(255)                      null,
-  status              tinyint                           not null
-    check (`status` between 0 and 3),
-  type_assure         enum ('AYANT_DROIT', 'PRINCIPAL') not null,
-  updated_at          datetime(6)                       not null,
-  dat_naiss           date                              null,
-  num_ayant_droit     varchar(100)                      null,
-  sexe                varchar(255)                      null,
-  assure_principal_id bigint                            null,
-  remise_id           bigint                            null,
+  code                varchar(255)                                    not null,
+  created_at          datetime(6)                                     not null,
+  email               varchar(255)                                    null,
+  first_name          varchar(255)                                    not null,
+  last_name           varchar(255)                                    not null,
+  phone               varchar(255)                                    null,
+  status              enum ('CLOSED', 'DELETED', 'DISABLE', 'ENABLE') not null,
+  type_assure         enum ('AYANT_DROIT', 'PRINCIPAL')               not null,
+  updated_at          datetime(6)                                     not null,
+  dat_naiss           date                                            null,
+  num_ayant_droit     varchar(100)                                    null,
+  sexe                varchar(255)                                    null,
+  assure_principal_id bigint                                          null,
+  remise_id           bigint                                          null,
+  remise_client_id    bigint                                          null,
   constraint UKrm1bp9bhtiih5foj17t8l500j
     unique (code),
   constraint FK164wkcenb578dvt81hbag6dvp
     foreign key (remise_id) references remise (id),
+  constraint FK8qi44u4eqwuqlvq67cmffahpw
+    foreign key (remise_client_id) references remise (id),
   constraint FKb1cv4y9rq1gego4buaykin5wh
     foreign key (assure_principal_id) references customer (id)
 );
 
-create or replace table customer_account
+create table customer_account
 (
   id           bigint auto_increment
     primary key,
-  account_type tinyint          not null
-    check (`account_type` between 0 and 1),
-  balance      int(8) default 0 not null,
-  created_at   datetime(6)      not null,
-  enabled      bit              not null,
-  updated_at   datetime(6)      not null,
-  customer_id  bigint           not null,
+  account_type enum ('CARNET', 'CAUTION') not null,
+  balance      int(8) default 0           not null,
+  created_at   datetime(6)                not null,
+  enabled      bit                        not null,
+  updated_at   datetime(6)                not null,
+  customer_id  bigint                     not null,
   constraint FK6c5oqutth35p5vmw0svg56msa
     foreign key (customer_id) references customer (id)
 );
 
-create or replace table grille_remise
+create table grille_remise
 (
   id                bigint auto_increment
     primary key,
@@ -398,51 +403,48 @@ create or replace table grille_remise
     foreign key (remise_produit_id) references remise (id)
 );
 
-create or replace table revinfo
+create table revinfo
 (
   rev      int auto_increment
     primary key,
   revtstmp bigint null
 );
 
-create or replace table produit_aud
+create table produit_aud
 (
-  id                      bigint                      not null,
-  rev                     int                         not null,
-  revtype                 tinyint                     null,
-  categorie               tinyint                     null
-    check (`categorie` between 0 and 2),
-  check_expiry_date       tinyint(1) default 0        null,
-  code_ean                varchar(255)                null,
-  code_remise             varchar(6) default 'CODE_0' null comment 'Code de remise qui seront mappés sur les grilles de remises',
-  cost_amount             int                         null,
-  created_at              datetime(6)                 null,
-  deconditionnable        bit                         null,
-  item_cost_amount        int                         null,
-  item_qty                int                         null,
-  item_regular_unit_price int                         null,
-  libelle                 varchar(255)                null,
-  net_unit_price          int                         null,
-  perime_at               date                        null,
-  prix_mnp                int        default 0        null,
-  qty_appro               int        default 0        null,
-  qty_seuil_mini          int        default 0        null,
-  regular_unit_price      int                         null,
-  scheduled               tinyint(1) default 0        null comment 'pour les produits avec une obligation ordonnance',
-  seuil_decond            int                         null,
-  seuil_reassort          int                         null,
-  status                  tinyint                     null
-    check (`status` between 0 and 3),
-  type_produit            tinyint                     null
-    check (`type_produit` between 0 and 1),
-  updated_at              datetime(6)                 null,
-  tableau_id              bigint                      null,
+  id                      bigint                                          not null,
+  rev                     int                                             not null,
+  revtype                 tinyint                                         null,
+  categorie               enum ('A', 'B', 'C')                            null,
+  check_expiry_date       tinyint(1) default 0                            null,
+  code_ean                varchar(255)                                    null,
+  code_remise             varchar(6) default 'CODE_0'                     null comment 'Code de remise qui seront mappés sur les grilles de remises',
+  cost_amount             int                                             null,
+  created_at              datetime(6)                                     null,
+  deconditionnable        bit                                             null,
+  item_cost_amount        int                                             null,
+  item_qty                int                                             null,
+  item_regular_unit_price int                                             null,
+  libelle                 varchar(255)                                    null,
+  net_unit_price          int                                             null,
+  perime_at               date                                            null,
+  prix_mnp                int        default 0                            null,
+  qty_appro               int        default 0                            null,
+  qty_seuil_mini          int        default 0                            null,
+  regular_unit_price      int                                             null,
+  scheduled               tinyint(1) default 0                            null comment 'pour les produits avec une obligation ordonnance',
+  seuil_decond            int                                             null,
+  seuil_reassort          int                                             null,
+  status                  enum ('CLOSED', 'DELETED', 'DISABLE', 'ENABLE') null,
+  type_produit            enum ('DETAIL', 'PACKAGE')                      null,
+  updated_at              datetime(6)                                     null,
+  tableau_id              bigint                                          null,
   primary key (rev, id),
   constraint FKlalyyb5rcjm7w9wu2uhknh61j
     foreign key (rev) references revinfo (rev)
 );
 
-create or replace table stock_produit_aud
+create table stock_produit_aud
 (
   id               bigint      not null,
   rev              int         not null,
@@ -460,21 +462,20 @@ create or replace table stock_produit_aud
     foreign key (rev) references revinfo (rev)
 );
 
-create or replace table storage
+create table storage
 (
   id           bigint auto_increment
     primary key,
-  name         varchar(255) not null,
-  storage_type tinyint      not null
-    check (`storage_type` between 0 and 2),
-  magasin_id   bigint       not null,
+  name         varchar(255)                                         not null,
+  storage_type enum ('POINT_DE_VENTE', 'PRINCIPAL', 'SAFETY_STOCK') not null,
+  magasin_id   bigint                                               not null,
   constraint UK5fe37ity4pov1usxcqr3b03nd
     unique (name),
   constraint FKn1jj5tjhmgepsc4nwqsf1db9r
     foreign key (magasin_id) references magasin (id)
 );
 
-create or replace table rayon
+create table rayon
 (
   id         bigint auto_increment
     primary key,
@@ -490,7 +491,7 @@ create or replace table rayon
     foreign key (storage_id) references storage (id)
 );
 
-create or replace table tableau
+create table tableau
 (
   id     bigint auto_increment
     primary key,
@@ -500,10 +501,10 @@ create or replace table tableau
     unique (code)
 );
 
-create or replace index code_index
+create index code_index
   on tableau (code);
 
-create or replace table tva
+create table tva
 (
   id   bigint auto_increment
     primary key,
@@ -512,50 +513,47 @@ create or replace table tva
     unique (taux)
 );
 
-create or replace table produit
+create table produit
 (
   id                      bigint auto_increment
     primary key,
-  categorie               tinyint                     not null
-    check (`categorie` between 0 and 2),
-  check_expiry_date       tinyint(1) default 0        null,
-  chiffre                 tinyint(1) default 1        null,
-  code_ean                varchar(255)                null,
-  code_remise             varchar(6) default 'CODE_0' null comment 'Code de remise qui seront mappés sur les grilles de remises',
-  cost_amount             int                         not null,
-  created_at              datetime(6)                 not null,
-  deconditionnable        bit                         not null,
-  item_cost_amount        int                         not null
+  categorie               enum ('A', 'B', 'C')                            not null,
+  check_expiry_date       tinyint(1) default 0                            null,
+  chiffre                 tinyint(1) default 1                            null,
+  code_ean                varchar(255)                                    null,
+  code_remise             varchar(6) default 'CODE_0'                     null comment 'Code de remise qui seront mappés sur les grilles de remises',
+  cost_amount             int                                             not null,
+  created_at              datetime(6)                                     not null,
+  deconditionnable        bit                                             not null,
+  item_cost_amount        int                                             not null
     check (`item_cost_amount` >= 0),
-  item_qty                int                         not null
+  item_qty                int                                             not null
     check (`item_qty` >= 0),
-  item_regular_unit_price int                         not null
+  item_regular_unit_price int                                             not null
     check (`item_regular_unit_price` >= 0),
-  libelle                 varchar(255)                not null,
-  net_unit_price          int                         not null,
-  perime_at               date                        null,
-  prix_mnp                int        default 0        not null,
-  qty_appro               int        default 0        null,
-  qty_seuil_mini          int        default 0        null,
-  regular_unit_price      int                         not null,
-  scheduled               tinyint(1) default 0        null comment 'pour les produits avec une obligation ordonnance',
-  seuil_decond            int                         null
+  libelle                 varchar(255)                                    not null,
+  net_unit_price          int                                             not null,
+  perime_at               date                                            null,
+  prix_mnp                int        default 0                            not null,
+  qty_appro               int        default 0                            null,
+  qty_seuil_mini          int        default 0                            null,
+  regular_unit_price      int                                             not null,
+  scheduled               tinyint(1) default 0                            null comment 'pour les produits avec une obligation ordonnance',
+  seuil_decond            int                                             null
     check (`seuil_decond` >= 0),
-  seuil_reassort          int                         null
+  seuil_reassort          int                                             null
     check (`seuil_reassort` >= 0),
-  status                  tinyint                     not null
-    check (`status` between 0 and 3),
-  type_produit            tinyint                     not null
-    check (`type_produit` between 0 and 1),
-  updated_at              datetime(6)                 not null,
-  dci_id                  bigint                      null,
-  famille_id              bigint                      not null,
-  forme_id                bigint                      null,
-  gamme_id                bigint                      null,
-  laboratoire_id          bigint                      null,
-  parent_id               bigint                      null,
-  tableau_id              bigint                      null,
-  tva_id                  bigint                      not null,
+  status                  enum ('CLOSED', 'DELETED', 'DISABLE', 'ENABLE') not null,
+  type_produit            enum ('DETAIL', 'PACKAGE')                      not null,
+  updated_at              datetime(6)                                     not null,
+  dci_id                  bigint                                          null,
+  famille_id              bigint                                          not null,
+  forme_id                bigint                                          null,
+  gamme_id                bigint                                          null,
+  laboratoire_id          bigint                                          null,
+  parent_id               bigint                                          null,
+  tableau_id              bigint                                          null,
+  tva_id                  bigint                                          not null,
   constraint UKhaaprmfc9pf1bp3n5g9dnkx91
     unique (libelle, type_produit),
   constraint FK1a3bimdll1wc7by0ng16rl58y
@@ -576,7 +574,7 @@ create or replace table produit
     foreign key (forme_id) references form_produit (id)
 );
 
-create or replace table daily_stock
+create table daily_stock
 (
   id         bigint auto_increment
     primary key,
@@ -589,7 +587,7 @@ create or replace table daily_stock
     foreign key (produit_id) references produit (id)
 );
 
-create or replace table fournisseur_produit
+create table fournisseur_produit
 (
   id                 bigint auto_increment
     primary key,
@@ -613,22 +611,22 @@ create or replace table fournisseur_produit
     foreign key (produit_id) references produit (id)
 );
 
-create or replace index code_cip_index
+create index code_cip_index
   on fournisseur_produit (code_cip);
 
-create or replace index principal_index
+create index principal_index
   on fournisseur_produit (principal);
 
-create or replace index codeEan_index
+create index codeEan_index
   on produit (code_ean);
 
-create or replace index libelle_index
+create index libelle_index
   on produit (libelle);
 
-create or replace index status_index
+create index status_index
   on produit (status);
 
-create or replace table rayon_produit
+create table rayon_produit
 (
   id         bigint auto_increment
     primary key,
@@ -642,7 +640,7 @@ create or replace table rayon_produit
     foreign key (rayon_id) references rayon (id)
 );
 
-create or replace table stock_produit
+create table stock_produit
 (
   id               bigint auto_increment
     primary key,
@@ -663,7 +661,22 @@ create or replace table stock_produit
     foreign key (storage_id) references storage (id)
 );
 
-create or replace table user
+create table substitut
+(
+  id             bigint auto_increment
+    primary key,
+  type_substitut enum ('GENERIQUE', 'THERAPEUTIQUE') not null,
+  produit_id     bigint                              not null,
+  substitut_id   bigint                              not null,
+  constraint UK3sjp95psbhioyym08o2hh58ww
+    unique (produit_id, substitut_id),
+  constraint FKhko54cwr8duquqk53yxv43qm
+    foreign key (substitut_id) references produit (id),
+  constraint FKpng5sgxh6pebef0amhpns5ndj
+    foreign key (produit_id) references produit (id)
+);
+
+create table user
 (
   id                   bigint auto_increment
     primary key,
@@ -684,18 +697,52 @@ create or replace table user
   reset_date           datetime(6)  null,
   reset_key            varchar(20)  null,
   magasin_id           bigint       not null,
-  printer_id           bigint       null,
   constraint UKew1hvam8uwaknuaellwhqchhb
     unique (login),
   constraint UKob8kqyqqgmefl0aco34akdtpe
     unique (email),
   constraint FK4g7bc724viqykr1u3tjnddf4c
-    foreign key (magasin_id) references magasin (id),
-  constraint FKgyjkk8y07medpp3x0ru5etgno
-    foreign key (printer_id) references printer (id)
+    foreign key (magasin_id) references magasin (id)
 );
 
-create or replace table app_configuration
+create table ajust
+(
+  id          bigint auto_increment
+    primary key,
+  commentaire varchar(255)               null,
+  date_mtv    datetime(6)                not null,
+  statut      enum ('CLOSED', 'PENDING') not null,
+  storage_id  bigint                     not null,
+  user_id     bigint                     not null,
+  constraint FKbkc3o0mx6q4799rpbpgcd0e89
+    foreign key (storage_id) references storage (id),
+  constraint FKg4b7lwwiqkfq8ln82tbslcthu
+    foreign key (user_id) references user (id)
+);
+
+create table ajustement
+(
+  id                  bigint auto_increment
+    primary key,
+  date_mtv            datetime(6)                              not null,
+  qty_mvt             int                                      not null,
+  stock_after         int                                      not null,
+  stock_before        int                                      not null,
+  type_ajust          enum ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT') not null,
+  ajust_id            bigint                                   not null,
+  motif_ajustement_id bigint                                   null,
+  produit_id          bigint                                   not null,
+  constraint UKpl3ledfcmf6v758vp99whh00j
+    unique (ajust_id, produit_id),
+  constraint FKex9228479j8udon2wd8gm5dot
+    foreign key (ajust_id) references ajust (id),
+  constraint FKgem9o7c8roq5g1lb555j4hnlh
+    foreign key (produit_id) references produit (id),
+  constraint FKpstvc4bcssojfv5absxm5vtba
+    foreign key (motif_ajustement_id) references motif_ajustement (id)
+);
+
+create table app_configuration
 (
   name            varchar(50)                                                                                       not null
     primary key,
@@ -710,7 +757,7 @@ create or replace table app_configuration
     foreign key (validated_by_id) references user (id)
 );
 
-create or replace table cash_register
+create table cash_register
 (
   id              bigint auto_increment
     primary key,
@@ -730,7 +777,7 @@ create or replace table cash_register
     foreign key (user_id) references user (id)
 );
 
-create or replace table cash_fund
+create table cash_fund
 (
   id               bigint auto_increment
     primary key,
@@ -752,15 +799,14 @@ create or replace table cash_fund
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table cash_register_item
+create table cash_register_item
 (
   id                bigint auto_increment
     primary key,
-  amount            bigint      null,
-  type_transaction  tinyint     not null
-    check (`type_transaction` between 0 and 10),
-  cash_register_id  bigint      not null,
-  payment_mode_code varchar(50) not null,
+  amount            bigint                                                                                                                                                                                                        null,
+  type_transaction  enum ('CASH_SALE', 'CAUTION', 'CREDIT_SALE', 'ENTREE_CAISSE', 'FONDS_CAISSE', 'REGLEMENT_DIFFERE', 'REGLEMENT_TIERS_PAYANT', 'REGLMENT_FOURNISSEUR', 'SORTIE_CAISSE', 'VENTES_DEPOTS', 'VENTES_DEPOTS_AGREE') not null,
+  cash_register_id  bigint                                                                                                                                                                                                        not null,
+  payment_mode_code varchar(50)                                                                                                                                                                                                   not null,
   constraint UKovfm6oebekfa7449p67yvnnpf
     unique (cash_register_id, payment_mode_code, type_transaction),
   constraint FK27y8m06p8783unjcod1i5p97x
@@ -769,166 +815,148 @@ create or replace table cash_register_item
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table delivery_receipt
+create table commande
 (
-  id                 bigint auto_increment
+  id                bigint auto_increment
     primary key,
-  created_date       datetime(6)                                   not null,
-  discount_amount    int default 0                                 null,
-  modified_date      datetime(6)                                   null,
-  net_amount         int default 0                                 null,
-  number_transaction varchar(255)                                  null,
-  order_reference    varchar(255)                                  null,
-  paiment_status     enum ('NOT_SOLD', 'PAID', 'UNPAID')           not null,
-  receipt_amount     int                                           null,
-  receipt_date       date                                          not null,
-  receipt_reference  varchar(255)                                  null,
-  receipt_status     enum ('ANY', 'CLOSE', 'PENDING', 'REQUESTED') not null,
-  sequence_bon       varchar(255)                                  null,
-  tax_amount         int default 0                                 null,
-  receipt_type       tinyint                                       not null
-    check (`receipt_type` between 0 and 1),
-  created_user_id    bigint                                        not null,
-  fournisseur_id     bigint                                        not null,
-  modified_user_id   bigint                                        not null,
-  constraint UK1cxxd47lha2dwo8ygtb8het8r
+  created_at        datetime(6)                              not null,
+  discount_amount   int default 0                            null,
+  final_amount      int                                      null comment 'montant vente de la commande finalisée',
+  gross_amount      int                                      not null comment 'montant achat de la commande',
+  ht_amount         int default 0                            null,
+  order_amount      int                                      not null comment 'montant vente de la commande en cours de traitement',
+  order_reference   varchar(20)                              null,
+  order_status      enum ('CLOSED', 'RECEIVED', 'REQUESTED') not null,
+  paiment_status    enum ('NOT_SOLD', 'PAID', 'UNPAID')      not null,
+  receipt_date      date                                     null,
+  receipt_reference varchar(20)                              null,
+  tax_amount        int default 0                            null,
+  receipt_type      enum ('DIRECT', 'ORDER')                 not null,
+  updated_at        datetime(6)                              not null,
+  fournisseur_id    bigint                                   not null,
+  user_id           bigint                                   not null,
+  constraint UKaiq6eeql26l3q8gm9k1p810lr
     unique (receipt_reference, fournisseur_id),
-  constraint UKgvydy4ot9g040hfo81yal2ayd
-    unique (number_transaction),
-  constraint FKgag79pbmk0offb9m5o6oecnpv
-    foreign key (created_user_id) references user (id),
-  constraint FKi6f5vhbafbeqku3pjoi2x2t15
-    foreign key (modified_user_id) references user (id),
-  constraint FKkqd2u5k3n47pll89yjockkakf
-    foreign key (fournisseur_id) references fournisseur (id)
+  constraint FKe9u9pamnss31e4pn6twt1yk0q
+    foreign key (fournisseur_id) references fournisseur (id),
+  constraint FKp5deswt3amtfx764raq42rw2o
+    foreign key (user_id) references user (id)
 );
 
-create or replace index number_transaction_index
-  on delivery_receipt (number_transaction);
+create index order_status_index
+  on commande (order_status);
 
-create or replace index receipt_date_index
-  on delivery_receipt (receipt_date desc);
+create index receipt_paiment_status_index
+  on commande (paiment_status);
 
-create or replace index receipt_paiment_status_index
-  on delivery_receipt (paiment_status);
+create index receipt_reference_index
+  on commande (receipt_reference);
 
-create or replace index receipt_reference_index
-  on delivery_receipt (receipt_reference);
-
-create or replace index receipt_status_index
-  on delivery_receipt (receipt_status);
-
-create or replace table delivery_receipt_item
-(
-  id                     bigint auto_increment
-    primary key,
-  after_stock            int           null,
-  cost_amount            int           null,
-  created_date           datetime(6)   not null,
-  date_peremption        date          null,
-  discount_amount        int default 0 not null,
-  init_stock             int           null,
-  net_amount             int default 0 null,
-  order_cost_amount      int default 0 not null,
-  order_unit_price       int           not null,
-  quantity_received      int           not null,
-  quantity_requested     int           not null,
-  quantity_returned      int           null,
-  regular_unit_price     int default 0 not null,
-  tax_amount             int default 0 null,
-  tva                    int           null,
-  quantity_ug            int default 0 null,
-  is_updated             bit           null,
-  updated_date           datetime(6)   null,
-  delivery_receipt_id    bigint        not null,
-  fournisseur_produit_id bigint        not null,
-  constraint UKkyngy84jy82h7e0vx04a2gavw
-    unique (delivery_receipt_id, fournisseur_produit_id),
-  constraint FK5h5m4lc8l68vkbhotus2yn0lp
-    foreign key (fournisseur_produit_id) references fournisseur_produit (id),
-  constraint FKrdnxn65whsrxoprmdefiw3uop
-    foreign key (delivery_receipt_id) references delivery_receipt (id)
-);
-
-create or replace table importation
+create table importation
 (
   id                 bigint auto_increment
     primary key,
-  created_at         datetime(6)                  not null,
-  error_size         int                          not null,
-  importation_status tinyint                      not null
-    check (`importation_status` between 0 and 4),
-  importation_type   tinyint                      not null
-    check (`importation_type` between 0 and 4),
-  ligne_en_erreur    longtext collate utf8mb4_bin null
+  created_at         datetime(6)                                                                 not null,
+  error_size         int                                                                         not null,
+  importation_status enum ('COMPLETED', 'COMPLETED_ERRORS', 'FAIL', 'INTERRUPTED', 'PROCESSING') not null,
+  importation_type   enum ('CLIENTS', 'FICHE_ARTICLE', 'STOCK_PRODUIT', 'TIERS_PAYANT', 'VENTE') not null,
+  ligne_en_erreur    longtext collate utf8mb4_bin                                                null
     check (json_valid(`ligne_en_erreur`)),
-  size               int                          not null,
-  total_zise         int                          not null,
-  updated_at         datetime(6)                  null,
-  user_id            bigint                       not null,
+  size               int                                                                         not null,
+  total_zise         int                                                                         not null,
+  updated_at         datetime(6)                                                                 null,
+  user_id            bigint                                                                      not null,
   constraint FKkdc81pqyi8ddmoxrpxj7yi109
     foreign key (user_id) references user (id)
 );
 
-create or replace index created_at_index
+create index created_at_index
   on importation (created_at);
 
-create or replace index importation_status_index
+create index importation_status_index
   on importation (importation_status);
 
-create or replace index importation_type_index
+create index importation_type_index
   on importation (importation_type);
 
-create or replace table logs
+create table logs
 (
   id               bigint auto_increment
     primary key,
-  comments         varchar(255) not null,
-  created_at       datetime(6)  not null,
-  indentity_key    varchar(255) not null,
-  new_object       varchar(255) null,
-  old_object       varchar(255) null,
-  transaction_type tinyint      not null
-    check (`transaction_type` between 0 and 22),
-  user_id          bigint       not null,
+  comments         varchar(255)                                                                                                                                                                                                                                                                                                                                                                                                                              not null,
+  created_at       datetime(6)                                                                                                                                                                                                                                                                                                                                                                                                                               not null,
+  indentity_key    varchar(255)                                                                                                                                                                                                                                                                                                                                                                                                                              not null,
+  new_object       varchar(255)                                                                                                                                                                                                                                                                                                                                                                                                                              null,
+  old_object       varchar(255)                                                                                                                                                                                                                                                                                                                                                                                                                              null,
+  transaction_type enum ('ACTIVATION_PRIVILEGE', 'AJUSTEMENT_IN', 'AJUSTEMENT_OUT', 'CANCEL_SALE', 'COMMANDE', 'CREATE_PRODUCT', 'DECONDTION_IN', 'DECONDTION_OUT', 'DELETE_PRODUCT', 'DELETE_SALE', 'DISABLE_PRODUCT', 'ENABLE_PRODUCT', 'ENTREE_STOCK', 'FORCE_STOCK', 'INVENTAIRE', 'MODIFICATION_PRIX_PRODUCT', 'MODIFICATION_PRIX_PRODUCT_A_LA_VENTE', 'MOUVEMENT_STOCK_IN', 'MOUVEMENT_STOCK_OUT', 'REAPPRO', 'SALE', 'SUPPRESSION', 'UPDATE_PRODUCT') not null,
+  user_id          bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    not null,
   constraint FK6313q4colhy85u9nyh7c6hy50
     foreign key (user_id) references user (id)
 );
 
-create or replace index createdAt_index
+create index createdAt_index
   on logs (created_at);
 
-create or replace index indentityKey_index
+create index indentityKey_index
   on logs (indentity_key);
 
-create or replace index transaction_type_index
+create index transaction_type_index
   on logs (transaction_type);
 
-create or replace table lot
+create table order_line
+(
+  id                     bigint auto_increment
+    primary key,
+  created_at             datetime(6)      not null,
+  discount_amount        int(6) default 0 not null,
+  final_stock            int(6)           null,
+  free_qty               int(4) default 0 null,
+  init_stock             int(6)           not null,
+  net_amount             int(8) default 0 null,
+  order_cost_amount      int(8) default 0 not null,
+  order_unit_price       int(8)           not null,
+  provisional_code       bit              null,
+  quantity_received      int(6)           null,
+  quantity_requested     int(6)           not null,
+  quantity_returned      int(6)           null,
+  receipt_date           datetime(6)      null,
+  tax_amount             int(6) default 0 null,
+  is_updated             bit              null,
+  updated_at             datetime(6)      not null,
+  commande_id            bigint           not null,
+  fournisseur_produit_id bigint           not null,
+  tva_id                 bigint           null,
+  constraint UKsfcar1lpmp9ytui9cg75le9d5
+    unique (commande_id, fournisseur_produit_id),
+  constraint FKjelph47crh3lyf09c5c7sqjnq
+    foreign key (commande_id) references commande (id),
+  constraint FKkt4tdexu7oo36cobryunswmjh
+    foreign key (fournisseur_produit_id) references fournisseur_produit (id),
+  constraint FKm1m4fkcj2tgcc2m9d0r65v43q
+    foreign key (tva_id) references tva (id)
+);
+
+create table lot
 (
   id                   bigint auto_increment
     primary key,
-  created_date         datetime(6)   not null,
-  expiry_date          date          null,
-  manufacturing_date   date          null,
-  num_lot              varchar(255)  not null,
-  quantity             int           not null,
-  receipt_reference    varchar(255)  not null,
-  quantity_received_ug int default 0 not null,
-  receipt_item_id      bigint        not null,
-  constraint UK8qafssjc0vp90d8q7hvwytw29
-    unique (num_lot, receipt_item_id),
-  constraint FKe8v8jf1io2l4tpnkeji62769g
-    foreign key (receipt_item_id) references delivery_receipt_item (id)
+  created_date         datetime(6)      not null,
+  expiry_date          date             null,
+  quantity_received_ug int(4) default 0 not null,
+  manufacturing_date   date             null,
+  num_lot              varchar(255)     not null,
+  quantity             int(6) default 0 not null,
+  order_line_id        bigint           not null,
+  constraint UKe0v6fopjvn1ms2recdlpftbb0
+    unique (num_lot, order_line_id),
+  constraint FKiwoiokswfe6bx1si74kcni476
+    foreign key (order_line_id) references order_line (id)
 );
 
-create or replace index lot_receipt_reference_index
-  on lot (receipt_reference);
-
-create or replace index num_lot_index
+create index num_lot_index
   on lot (num_lot);
 
-create or replace table persistent_token
+create table persistent_token
 (
   series      varchar(255) not null
     primary key,
@@ -941,7 +969,32 @@ create or replace table persistent_token
     foreign key (user_id) references user (id)
 );
 
-create or replace table repartition_stock_produit
+create table produit_perime
+(
+  id              bigint auto_increment
+    primary key,
+  after_stock     int         not null,
+  created         datetime(6) not null,
+  init_stock      int         not null
+    check (`init_stock` >= 1),
+  peremption_date date        not null,
+  quantity        int         not null
+    check (`quantity` >= 1),
+  lot_id          bigint      null,
+  produit_id      bigint      not null,
+  user_id         bigint      not null,
+  constraint FK3aelnwbpfeqjrtq990unyjs56
+    foreign key (user_id) references user (id),
+  constraint FK7qyne8q37phmm5hld2e6byxco
+    foreign key (lot_id) references lot (id),
+  constraint FKg4s7frhwa9ci11yr77momll5r
+    foreign key (produit_id) references produit (id)
+);
+
+create index produit_perime_index
+  on produit_perime (peremption_date);
+
+create table repartition_stock_produit
 (
   id                           bigint auto_increment
     primary key,
@@ -965,7 +1018,93 @@ create or replace table repartition_stock_produit
     foreign key (stock_produit_destination_id) references stock_produit (id)
 );
 
-create or replace table suggestion
+create table retour_bon
+(
+  id          bigint auto_increment
+    primary key,
+  commentaire varchar(150)                  null,
+  date_mtv    datetime(6)                   not null,
+  statut      enum ('CLOSED', 'PROCESSING') not null,
+  commande_id bigint                        not null,
+  user_id     bigint                        not null,
+  constraint FKgbybxbktf9oy669tyn6rqlaw1
+    foreign key (user_id) references user (id),
+  constraint FKtqs59qxfvlt4nrgq8mqagenga
+    foreign key (commande_id) references commande (id)
+);
+
+create table retour_bon_item
+(
+  id              bigint auto_increment
+    primary key,
+  after_stock     int         null,
+  date_mtv        datetime(6) not null,
+  init_stock      int         not null,
+  qty_mvt         int         not null
+    check (`qty_mvt` >= 1),
+  lot_id          bigint      null,
+  motif_retour_id bigint      not null,
+  order_line_id   bigint      not null,
+  retour_bon_id   bigint      not null,
+  constraint FK7f3y7rovqwt9wygs25l6baqky
+    foreign key (retour_bon_id) references retour_bon (id),
+  constraint FK8kuyifpxr0rjr8y2y5l572mid
+    foreign key (order_line_id) references order_line (id),
+  constraint FK9yua85has78k1itu1pjp8rvyg
+    foreign key (motif_retour_id) references motif_retour_produit (id),
+  constraint FKsq7ju65jlgejnnvj1ep3d1vmo
+    foreign key (lot_id) references lot (id)
+);
+
+create table store_inventory
+(
+  id                         bigint auto_increment
+    primary key,
+  created_at                 datetime(6)                                     not null,
+  gap_amount                 int                                             null,
+  gap_cost                   int                                             null,
+  inventory_amount_after     bigint                                          not null,
+  inventory_amount_begin     bigint                                          not null,
+  inventory_category         enum ('FAMILLY', 'MAGASIN', 'RAYON', 'STORAGE') not null,
+  inventory_type             enum ('MANUEL', 'PROGRAMME')                    not null,
+  inventory_value_cost_after bigint                                          not null,
+  inventory_value_cost_begin bigint                                          not null,
+  statut                     enum ('CLOSED', 'CREATE', 'PROCESSING')         not null,
+  updated_at                 datetime(6)                                     not null,
+  rayon_id                   bigint                                          null,
+  storage_id                 bigint                                          null,
+  user_id                    bigint                                          not null,
+  constraint FK6gntnjhmeu8dahq204wmk1a2r
+    foreign key (user_id) references user (id),
+  constraint FK88teyake2uy873xolysdpwfl7
+    foreign key (storage_id) references storage (id),
+  constraint FKnwue82ru709xwwxkj5if2v6qq
+    foreign key (rayon_id) references rayon (id)
+);
+
+create table store_inventory_line
+(
+  id                   bigint auto_increment
+    primary key,
+  gap                  int         null,
+  inventory_value_cost int         null,
+  last_unit_price      int         null,
+  quantity_init        int         null,
+  quantity_on_hand     int         null,
+  quantity_sold        int         null,
+  updated              bit         not null,
+  updated_at           datetime(6) not null,
+  produit_id           bigint      not null,
+  store_inventory_id   bigint      not null,
+  constraint UKhidvm20io56axybnk34jqvs4c
+    unique (produit_id, store_inventory_id),
+  constraint FKg8d5ld2v2vy7tr54mwar1rh9
+    foreign key (produit_id) references produit (id),
+  constraint FKoe713l7vns3jb1eo2uhniy4q3
+    foreign key (store_inventory_id) references store_inventory (id)
+);
+
+create table suggestion
 (
   id                   bigint auto_increment
     primary key,
@@ -985,10 +1124,10 @@ create or replace table suggestion
     foreign key (last_user_edit_id) references user (id)
 );
 
-create or replace index type_suggession_index
+create index type_suggession_index
   on suggestion (type_suggession);
 
-create or replace table suggestion_line
+create table suggestion_line
 (
   id                     bigint auto_increment
     primary key,
@@ -1005,7 +1144,7 @@ create or replace table suggestion_line
     foreign key (fournisseur_produit_id) references fournisseur_produit (id)
 );
 
-create or replace table ticketing
+create table ticketing
 (
   id                  bigint auto_increment
     primary key,
@@ -1031,13 +1170,12 @@ create or replace table ticketing
     foreign key (cash_register_id) references cash_register (id)
 );
 
-create or replace table tiers_payant
+create table tiers_payant
 (
   id                     bigint auto_increment
     primary key,
   adresse                varchar(200)                          null,
   categorie              enum ('ASSURANCE', 'CARNET', 'DEPOT') not null,
-  is_cmu                 bit                                   not null,
   code_organisme         varchar(100)                          null,
   conso_mensuelle        bigint                                null,
   consommation_json      longtext collate utf8mb4_bin          null
@@ -1053,13 +1191,11 @@ create or replace table tiers_payant
   plafond_absolu         bit                                   null,
   plafond_conso          bigint                                null,
   remise_forfaitaire     bigint                                null,
-  statut                 tinyint                               not null
-    check (`statut` between 0 and 2),
+  statut                 enum ('ACTIF', 'DISABLED', 'LOCK')    not null,
   telephone              varchar(15)                           null,
   telephone_fixe         varchar(15)                           null,
   to_be_exclude          tinyint(1) default 0                  null,
   updated                datetime(6)                           not null,
-  use_referenced_rrice   bit                                   null,
   groupe_tiers_payant_id bigint                                null,
   updated_by_id          bigint                                null,
   constraint UK3moh75ah5g6ce1dm9n28psmvo
@@ -1072,26 +1208,24 @@ create or replace table tiers_payant
     foreign key (updated_by_id) references user (id)
 );
 
-create or replace table client_tiers_payant
+create table client_tiers_payant
 (
   id                  bigint auto_increment
     primary key,
-  conso_mensuelle     bigint                       null,
-  consommation_json   longtext collate utf8mb4_bin null
+  conso_mensuelle     bigint                             null,
+  consommation_json   longtext collate utf8mb4_bin       null
     check (json_valid(`consommation_json`)),
-  created             datetime(6)                  not null,
-  num                 varchar(100)                 not null,
-  plafond_absolu      bit                          null,
-  plafond_conso       bigint                       null,
-  plafond_journalier  bigint                       null,
-  priorite            tinyint                      not null
-    check (`priorite` between 0 and 3),
-  statut              tinyint                      not null
-    check (`statut` between 0 and 2),
-  taux                int                          not null,
-  updated             datetime(6)                  not null,
-  assured_customer_id bigint                       not null,
-  tiers_payant_id     bigint                       not null,
+  created             datetime(6)                        not null,
+  num                 varchar(100)                       not null,
+  plafond_absolu      bit                                null,
+  plafond_conso       bigint                             null,
+  plafond_journalier  bigint                             null,
+  priorite            enum ('R0', 'R1', 'R2', 'R3')      not null,
+  statut              enum ('ACTIF', 'DISABLED', 'LOCK') not null,
+  taux                int                                not null,
+  updated             datetime(6)                        not null,
+  assured_customer_id bigint                             not null,
+  tiers_payant_id     bigint                             not null,
   constraint UK2vls4uc89y3g75n6qnudmn0qs
     unique (tiers_payant_id, num),
   constraint UKmesf3j3moh06oir9mq5fxmmb9
@@ -1102,7 +1236,7 @@ create or replace table client_tiers_payant
     foreign key (tiers_payant_id) references tiers_payant (id)
 );
 
-create or replace table facture_tiers_payant
+create table facture_tiers_payant
 (
   id                             bigint auto_increment
     primary key,
@@ -1131,23 +1265,22 @@ create or replace table facture_tiers_payant
     foreign key (groupe_tiers_payant_id) references groupe_tiers_payant (id)
 );
 
-create or replace index num_facture_index
+create index num_facture_index
   on facture_tiers_payant (num_facture);
 
-create or replace table produit_tiers_payant_prix
+create table produit_tiers_payant_prix
 (
   id              bigint auto_increment
     primary key,
-  created         datetime(6) null,
-  enabled         bit         not null,
-  prix_type       tinyint     not null
-    check (`prix_type` between 0 and 1),
-  updated         datetime(6) null,
-  valeur          int         not null
-    check (`valeur` >= 1),
-  produit_id      bigint      not null,
-  tiers_payant_id bigint      not null,
-  user_id         bigint      not null,
+  created         datetime(6) default current_timestamp(6) not null,
+  enabled         bit         default b'1'                 not null,
+  prix_type       enum ('POURCENTAGE', 'RERERENCE')        not null,
+  updated         datetime(6) default current_timestamp(6) not null,
+  valeur          int                                      not null
+    check (`valeur` >= 5),
+  produit_id      bigint                                   not null,
+  tiers_payant_id bigint                                   not null,
+  user_id         bigint                                   not null,
   constraint UK13e9w8dannsq7dxs809frd99o
     unique (produit_id, tiers_payant_id, enabled),
   constraint UKg0g38ar8rjkvia2ia8syledf9
@@ -1160,7 +1293,7 @@ create or replace table produit_tiers_payant_prix
     foreign key (tiers_payant_id) references tiers_payant (id)
 );
 
-create or replace table user_authority
+create table user_authority
 (
   user_id        bigint      not null,
   authority_name varchar(50) not null,
@@ -1171,7 +1304,7 @@ create or replace table user_authority
     foreign key (user_id) references user (id)
 );
 
-create or replace table utilisation_cle_securite
+create table utilisation_cle_securite
 (
   id                    bigint auto_increment
     primary key,
@@ -1191,7 +1324,7 @@ create or replace table utilisation_cle_securite
     foreign key (privilege_name) references privilege (name)
 );
 
-create or replace table warehouse_calendar
+create table warehouse_calendar
 (
   work_day   date not null
     primary key,
@@ -1199,114 +1332,32 @@ create or replace table warehouse_calendar
   work_year  int  not null
 );
 
-create or replace table ajust
+create table avoir
 (
   id                bigint auto_increment
     primary key,
-  commentaire       varchar(255) null,
-  date_mtv          datetime(6)  not null,
-  statut            tinyint      not null
-    check (`statut` between 0 and 1),
-  calendar_work_day date         not null,
-  storage_id        bigint       not null,
-  user_id           bigint       not null,
-  constraint FKbkc3o0mx6q4799rpbpgcd0e89
-    foreign key (storage_id) references storage (id),
-  constraint FKg4b7lwwiqkfq8ln82tbslcthu
-    foreign key (user_id) references user (id),
-  constraint FKk2bd9m95mgcisluhfs7txg6gv
-    foreign key (calendar_work_day) references warehouse_calendar (work_day)
-);
-
-create or replace table ajustement
-(
-  id                  bigint auto_increment
-    primary key,
-  date_mtv            datetime(6) not null,
-  qty_mvt             int         not null,
-  stock_after         int         not null,
-  stock_before        int         not null,
-  type_ajust          tinyint     not null
-    check (`type_ajust` between 0 and 1),
-  ajust_id            bigint      not null,
-  motif_ajustement_id bigint      null,
-  produit_id          bigint      not null,
-  constraint UKpl3ledfcmf6v758vp99whh00j
-    unique (ajust_id, produit_id),
-  constraint FKex9228479j8udon2wd8gm5dot
-    foreign key (ajust_id) references ajust (id),
-  constraint FKgem9o7c8roq5g1lb555j4hnlh
-    foreign key (produit_id) references produit (id),
-  constraint FKpstvc4bcssojfv5absxm5vtba
-    foreign key (motif_ajustement_id) references motif_ajustement (id)
-);
-
-create or replace table avoir
-(
-  id                bigint auto_increment
-    primary key,
-  date_mtv          datetime(6) not null,
-  statut            tinyint     not null
-    check (`statut` between 0 and 1),
-  calendar_work_day date        not null,
-  user_id           bigint      not null,
+  date_mtv          datetime(6)                not null,
+  statut            enum ('EN_COURS', 'SERVI') not null,
+  calendar_work_day date                       not null,
+  user_id           bigint                     not null,
   constraint FK6m25r6qf4v663pks1s8t7hetv
     foreign key (calendar_work_day) references warehouse_calendar (work_day),
   constraint FKptiih1fwc5n5cafgx8txm93yo
     foreign key (user_id) references user (id)
 );
 
-create or replace table commande
-(
-  id                bigint auto_increment
-    primary key,
-  created_at        datetime(6)   not null,
-  discount_amount   int default 0 null,
-  gross_amount      int           not null,
-  net_amount        int default 0 null,
-  order_amount      int           not null,
-  order_reference   varchar(255)  null,
-  order_status      tinyint       not null
-    check (`order_status` between 0 and 6),
-  receipt_amount    int           null,
-  receipt_date      date          null,
-  receipt_reference varchar(255)  null,
-  sequence_bon      varchar(255)  null,
-  tax_amount        int default 0 null,
-  updated_at        datetime(6)   not null,
-  calendar_work_day date          not null,
-  fournisseur_id    bigint        not null,
-  last_user_edit_id bigint        not null,
-  magasin_id        bigint        not null,
-  user_id           bigint        not null,
-  constraint FK26t90jdsvtpx5gjurwblscma0
-    foreign key (magasin_id) references magasin (id),
-  constraint FK5eo0p8etrff7n4i6m5p3vkx0m
-    foreign key (last_user_edit_id) references user (id),
-  constraint FK75p00n32p02ajl5fi1bj8uilo
-    foreign key (calendar_work_day) references warehouse_calendar (work_day),
-  constraint FKe9u9pamnss31e4pn6twt1yk0q
-    foreign key (fournisseur_id) references fournisseur (id),
-  constraint FKp5deswt3amtfx764raq42rw2o
-    foreign key (user_id) references user (id)
-);
-
-create or replace index order_status_index
-  on commande (order_status);
-
-create or replace table decondition
+create table decondition
 (
   id                     bigint auto_increment
     primary key,
-  date_mtv               datetime(6) not null,
-  qty_mvt                int         not null,
-  stock_after            int         not null,
-  stock_before           int         not null,
-  type_deconditionnement tinyint     not null
-    check (`type_deconditionnement` between 0 and 1),
-  calendar_work_day      date        not null,
-  produit_id             bigint      not null,
-  user_id                bigint      not null,
+  date_mtv               datetime(6)                              not null,
+  qty_mvt                int                                      not null,
+  stock_after            int                                      not null,
+  stock_before           int                                      not null,
+  type_deconditionnement enum ('DECONDTION_IN', 'DECONDTION_OUT') not null,
+  calendar_work_day      date                                     not null,
+  produit_id             bigint                                   not null,
+  user_id                bigint                                   not null,
   constraint FKdmoni6sfl6sh38ej7gngqhg6y
     foreign key (produit_id) references produit (id),
   constraint FKky48vqfjbbchwrwcnl6hnoei5
@@ -1315,7 +1366,7 @@ create or replace table decondition
     foreign key (user_id) references user (id)
 );
 
-create or replace table ligne_avoir
+create table ligne_avoir
 (
   id         bigint auto_increment
     primary key,
@@ -1331,99 +1382,17 @@ create or replace table ligne_avoir
     foreign key (avoir_id) references avoir (id)
 );
 
-create or replace table order_line
-(
-  id                     bigint auto_increment
-    primary key,
-  cost_amount            int                          not null,
-  created_at             datetime(6)                  not null,
-  discount_amount        int default 0                not null,
-  gross_amount           int                          not null,
-  init_stock             int                          not null,
-  lots                   longtext collate utf8mb4_bin null
-    check (json_valid(`lots`)),
-  net_amount             int default 0                null,
-  order_amount           int                          not null,
-  order_cost_amount      int default 0                not null,
-  order_unit_price       int                          not null,
-  provisional_code       bit                          null,
-  quantity_received      int                          null,
-  quantity_requested     int                          not null,
-  quantity_returned      int                          null,
-  quantity_ug            int default 0                null,
-  receipt_date           datetime(6)                  null,
-  regular_unit_price     int default 0                not null,
-  tax_amount             int default 0                null,
-  updated_at             datetime(6)                  not null,
-  commande_id            bigint                       not null,
-  fournisseur_produit_id bigint                       not null,
-  constraint UKsfcar1lpmp9ytui9cg75le9d5
-    unique (commande_id, fournisseur_produit_id),
-  constraint FKjelph47crh3lyf09c5c7sqjnq
-    foreign key (commande_id) references commande (id),
-  constraint FKkt4tdexu7oo36cobryunswmjh
-    foreign key (fournisseur_produit_id) references fournisseur_produit (id)
-);
-
-create or replace table produit_perime
+create table reponse_retour_bon
 (
   id                bigint auto_increment
     primary key,
-  after_stock       int         not null,
-  created           datetime(6) not null,
-  init_stock        int         not null
-    check (`init_stock` >= 1),
-  peremption_date   date        not null,
-  quantity          int         not null
-    check (`quantity` >= 1),
-  calendar_work_day date        not null,
-  lot_id            bigint      null,
-  produit_id        bigint      not null,
-  user_id           bigint      not null,
-  constraint FK3aelnwbpfeqjrtq990unyjs56
-    foreign key (user_id) references user (id),
-  constraint FK71lr6b63m767peqs6nsceiyqq
-    foreign key (calendar_work_day) references warehouse_calendar (work_day),
-  constraint FK7qyne8q37phmm5hld2e6byxco
-    foreign key (lot_id) references lot (id),
-  constraint FKg4s7frhwa9ci11yr77momll5r
-    foreign key (produit_id) references produit (id)
-);
-
-create or replace index produit_perime_index
-  on produit_perime (peremption_date);
-
-create or replace table retour_bon
-(
-  id                  bigint auto_increment
-    primary key,
-  commentaire         varchar(150) null,
-  date_mtv            datetime(6)  not null,
-  statut              tinyint      not null
-    check (`statut` between 0 and 1),
-  calendar_work_day   date         not null,
-  delivery_receipt_id bigint       not null,
-  user_id             bigint       not null,
-  constraint FK8wol7cdf0cme6rieetb0q81fv
-    foreign key (calendar_work_day) references warehouse_calendar (work_day),
-  constraint FKgbybxbktf9oy669tyn6rqlaw1
-    foreign key (user_id) references user (id),
-  constraint FKn7y8mtq6pp8rrln0cugxfu89e
-    foreign key (delivery_receipt_id) references delivery_receipt (id)
-);
-
-create or replace table reponse_retour_bon
-(
-  id                bigint auto_increment
-    primary key,
-  commentaire       varchar(150) null,
-  date_mtv          datetime(6)  not null,
-  modified_date     datetime(6)  not null,
-  statut            tinyint      not null
-    check (`statut` between 0 and 1),
-  calendar_work_day date         not null,
-  retour_bon_id     bigint       not null,
-  user_id           bigint       not null,
+  commentaire       varchar(150)                  null,
+  date_mtv          datetime(6)                   not null,
+  modified_date     datetime(6)                   not null,
+  statut            enum ('CLOSED', 'PROCESSING') not null,
+  calendar_work_day date                          not null,
+  retour_bon_id     bigint                        not null,
+  user_id           bigint                        not null,
   constraint FK45ub257h046pqyss9wujxfvnq
     foreign key (user_id) references user (id),
   constraint FKh846yv5iwq8wslk1598bqi2lj
@@ -1432,30 +1401,7 @@ create or replace table reponse_retour_bon
     foreign key (retour_bon_id) references retour_bon (id)
 );
 
-create or replace table retour_bon_item
-(
-  id                       bigint auto_increment
-    primary key,
-  after_stock              int         null,
-  date_mtv                 datetime(6) not null,
-  init_stock               int         not null,
-  qty_mvt                  int         not null
-    check (`qty_mvt` >= 1),
-  delivery_receipt_item_id bigint      not null,
-  lot_id                   bigint      null,
-  motif_retour_id          bigint      not null,
-  retour_bon_id            bigint      not null,
-  constraint FK7f3y7rovqwt9wygs25l6baqky
-    foreign key (retour_bon_id) references retour_bon (id),
-  constraint FK9yua85has78k1itu1pjp8rvyg
-    foreign key (motif_retour_id) references motif_retour_produit (id),
-  constraint FKlano0peweywbomvctcihup38y
-    foreign key (delivery_receipt_item_id) references delivery_receipt_item (id),
-  constraint FKsq7ju65jlgejnnvj1ep3d1vmo
-    foreign key (lot_id) references lot (id)
-);
-
-create or replace table reponse_retour_bon_item
+create table reponse_retour_bon_item
 (
   id                    bigint auto_increment
     primary key,
@@ -1472,7 +1418,7 @@ create or replace table reponse_retour_bon_item
     foreign key (retour_bon_item_id) references retour_bon_item (id)
 );
 
-create or replace table sales
+create table sales
 (
   dtype                           varchar(31)                                                                          not null,
   id                              bigint auto_increment
@@ -1481,7 +1427,6 @@ create or replace table sales
   amount_to_be_taken_into_account int        default 0                                                                 not null,
   canceled                        tinyint(1) default 0                                                                 not null,
   ca                              enum ('CA', 'CALLEBASE', 'CA_DEPOT', 'TO_IGNORE')                                    not null,
-  cmu_amount                      int        default 0                                                                 not null,
   commentaire                     varchar(255)                                                                         null,
   copy                            tinyint(1) default 0                                                                 not null,
   cost_amount                     int        default 0                                                                 not null,
@@ -1503,15 +1448,12 @@ create or replace table sales
   net_amount                      int        default 0                                                                 not null,
   net_ug_amount                   int        default 0                                                                 not null,
   number_transaction              varchar(255)                                                                         not null,
-  origine_vente                   tinyint                                                                              not null
-    check (`origine_vente` between 0 and 2),
+  origine_vente                   enum ('DIRECT', 'DIVIS', 'IMPORTE')                                                  not null,
   payment_status                  enum ('ALL', 'IMPAYE', 'PAYE')                                                       not null,
   payroll_amount                  int        default 0                                                                 not null,
   rest_to_pay                     int        default 0                                                                 not null,
   sales_amount                    int        default 0                                                                 not null,
   statut                          enum ('ACTIVE', 'CANCELED', 'CLOSED', 'DESABLED', 'PENDING', 'PROCESSING', 'REMOVE') not null,
-  statut_caisse                   tinyint                                                                              not null
-    check (`statut_caisse` between 0 and 6),
   tax_amount                      int        default 0                                                                 not null,
   to_ignore                       tinyint(1) default 0                                                                 not null,
   tva_embeded                     varchar(100)                                                                         null,
@@ -1573,39 +1515,39 @@ create or replace table sales
     foreign key (user_id) references user (id)
 );
 
-create or replace table payment_transaction
+create table payment_transaction
 (
-  dtype                   varchar(31)   not null,
+  dtype                   varchar(31)                                                                                                                                                                                                   not null,
   id                      bigint auto_increment
     primary key,
-  categorie_ca            tinyint       not null
-    check (`categorie_ca` between 0 and 3),
-  commentaire             varchar(255)  null,
-  created_at              datetime(6)   not null,
-  credit                  bit           not null,
-  expected_amount         int           not null,
-  montant_verse           int           not null,
-  paid_amount             int           not null,
-  reel_amount             int           not null,
-  transaction_date        date          not null,
-  type_transaction        tinyint       not null
-    check (`type_transaction` between 0 and 10),
-  grouped                 bit           null,
-  part_assure             int default 0 null,
-  part_tiers_payant       int default 0 null,
-  cash_register_id        bigint        not null,
-  payment_mode_code       varchar(50)   not null,
-  account_id              bigint        null,
-  differe_customer_id     bigint        null,
-  banque_id               bigint        null,
-  facture_tiers_payant_id bigint        null,
-  parent_id               bigint        null,
-  delivery_receipt_id     bigint        null,
-  sale_id                 bigint        null,
+  categorie_ca            enum ('CA', 'CALLEBASE', 'CA_DEPOT', 'TO_IGNORE')                                                                                                                                                             not null,
+  commentaire             varchar(255)                                                                                                                                                                                                  null,
+  created_at              datetime(6)                                                                                                                                                                                                   not null,
+  credit                  bit                                                                                                                                                                                                           not null,
+  expected_amount         int                                                                                                                                                                                                           not null,
+  montant_verse           int                                                                                                                                                                                                           not null,
+  paid_amount             int                                                                                                                                                                                                           not null,
+  reel_amount             int                                                                                                                                                                                                           not null,
+  transaction_date        date                                                                                                                                                                                                          not null,
+  type_transaction        enum ('CASH_SALE', 'CAUTION', 'CREDIT_SALE', 'ENTREE_CAISSE', 'FONDS_CAISSE', 'REGLEMENT_DIFFERE', 'REGLEMENT_TIERS_PAYANT', 'REGLMENT_FOURNISSEUR', 'SORTIE_CAISSE', 'VENTES_DEPOTS', 'VENTES_DEPOTS_AGREE') not null,
+  grouped                 bit                                                                                                                                                                                                           null,
+  part_assure             int default 0                                                                                                                                                                                                 null,
+  part_tiers_payant       int default 0                                                                                                                                                                                                 null,
+  banque_id               bigint                                                                                                                                                                                                        null,
+  cash_register_id        bigint                                                                                                                                                                                                        not null,
+  payment_mode_code       varchar(50)                                                                                                                                                                                                   not null,
+  account_id              bigint                                                                                                                                                                                                        null,
+  differe_customer_id     bigint                                                                                                                                                                                                        null,
+  facture_tiers_payant_id bigint                                                                                                                                                                                                        null,
+  parent_id               bigint                                                                                                                                                                                                        null,
+  commande_id             bigint                                                                                                                                                                                                        null,
+  sale_id                 bigint                                                                                                                                                                                                        null,
   constraint FK6972n014se2yx902jv033f6dc
     foreign key (parent_id) references payment_transaction (id),
   constraint FK823dgt89dnv33jbhorxi0c1q7
     foreign key (account_id) references customer_account (id),
+  constraint FKct30csqexaj2yx31f8q5v7eg3
+    foreign key (commande_id) references commande (id),
   constraint FKgq9ocwvjtdlt49fd0vhibjd4t
     foreign key (cash_register_id) references cash_register (id),
   constraint FKidf4n2nq1dnta4vd5nqfpxolm
@@ -1616,13 +1558,11 @@ create or replace table payment_transaction
     foreign key (differe_customer_id) references customer (id),
   constraint FKllqlbjskwsugxh20pc7h43wd3
     foreign key (payment_mode_code) references payment_mode (code),
-  constraint FKnwya6cuyaa3dmdvqv26at1dn1
-    foreign key (delivery_receipt_id) references delivery_receipt (id),
   constraint FKslxt8smktjygypqgfhkc891gs
     foreign key (facture_tiers_payant_id) references facture_tiers_payant (id)
 );
 
-create or replace table differe_payment_item
+create table differe_payment_item
 (
   id                 bigint auto_increment
     primary key,
@@ -1636,40 +1576,39 @@ create or replace table differe_payment_item
     foreign key (differe_payment_id) references payment_transaction (id)
 );
 
-create or replace index pt_categorie_ca_id_index
+create index pt_categorie_ca_id_index
   on payment_transaction (categorie_ca);
 
-create or replace index vente_created_at_index
+create index vente_created_at_index
   on sales (created_at);
 
-create or replace index vente_effective_update_index
+create index vente_effective_update_index
   on sales (effective_update_date);
 
-create or replace index vente_nature_vente_index
+create index vente_nature_vente_index
   on sales (nature_vente);
 
-create or replace index vente_number_transaction_index
+create index vente_number_transaction_index
   on sales (number_transaction);
 
-create or replace index vente_payment_status_index
+create index vente_payment_status_index
   on sales (payment_status);
 
-create or replace index vente_statut_index
+create index vente_statut_index
   on sales (statut);
 
-create or replace index vente_to_ignore_index
+create index vente_to_ignore_index
   on sales (to_ignore);
 
-create or replace index vente_updated_at_index
+create index vente_updated_at_index
   on sales (updated_at);
 
-create or replace table sales_line
+create table sales_line
 (
   id                              bigint auto_increment
     primary key,
   after_stock                     int           null,
   amount_to_be_taken_into_account int default 0 not null,
-  assurance_amount                int default 0 not null,
   cost_amount                     int default 0 not null,
   created_at                      datetime(6)   not null,
   discount_amount                 int default 0 not null,
@@ -1682,7 +1621,6 @@ create or replace table sales_line
   montant_tva_ug                  int default 0 not null,
   net_amount                      int default 0 not null,
   net_unit_price                  int default 0 not null,
-  prix_unit_assurance             int default 0 not null,
   quantity_avoir                  int default 0 not null,
   quantity_requested              int           not null,
   quantity_sold                   int           not null,
@@ -1693,40 +1631,36 @@ create or replace table sales_line
   tax_value                       int default 0 not null,
   to_ignore                       bit           not null,
   updated_at                      datetime(6)   not null,
-  prix_assurance_id               bigint        null,
   produit_id                      bigint        not null,
   sales_id                        bigint        not null,
   constraint UKony71tc7l1kgdmant1eqockbv
     unique (produit_id, sales_id),
   constraint FK2rpcx9v572xhylfle13e130w6
     foreign key (sales_id) references sales (id),
-  constraint FKaoipd4wgowjlp181k71a13scy
-    foreign key (prix_assurance_id) references produit_tiers_payant_prix (id),
   constraint FKg41n8hm3d58j50hsogv0vv2er
     foreign key (produit_id) references produit (id)
 );
 
-create or replace table inventory_transaction
+create table inventory_transaction
 (
   id                           bigint auto_increment
     primary key,
-  cost_amount                  int         not null,
-  created_at                   datetime(6) not null,
-  quantity                     int         not null,
-  quantity_after               int         not null,
-  quantity_befor               int         not null,
-  regular_unit_price           int         not null,
-  transaction_type             tinyint     not null
-    check (`transaction_type` between 0 and 22),
-  ajustement_id                bigint      null,
-  decondition_id               bigint      null,
-  delivery_receipt_item_id     bigint      null,
-  fournisseur_produit_id       bigint      null,
-  magasin_id                   bigint      not null,
-  produit_id                   bigint      null,
-  repartition_stock_produit_id bigint      null,
-  sale_line_id                 bigint      null,
-  user_id                      bigint      not null,
+  cost_amount                  int                                                                                                                                                                                                                                                                                                                                                                                                                                       not null,
+  created_at                   datetime(6)                                                                                                                                                                                                                                                                                                                                                                                                                               not null,
+  quantity                     int                                                                                                                                                                                                                                                                                                                                                                                                                                       not null,
+  quantity_after               int                                                                                                                                                                                                                                                                                                                                                                                                                                       not null,
+  quantity_befor               int                                                                                                                                                                                                                                                                                                                                                                                                                                       not null,
+  regular_unit_price           int                                                                                                                                                                                                                                                                                                                                                                                                                                       not null,
+  transaction_type             enum ('ACTIVATION_PRIVILEGE', 'AJUSTEMENT_IN', 'AJUSTEMENT_OUT', 'CANCEL_SALE', 'COMMANDE', 'CREATE_PRODUCT', 'DECONDTION_IN', 'DECONDTION_OUT', 'DELETE_PRODUCT', 'DELETE_SALE', 'DISABLE_PRODUCT', 'ENABLE_PRODUCT', 'ENTREE_STOCK', 'FORCE_STOCK', 'INVENTAIRE', 'MODIFICATION_PRIX_PRODUCT', 'MODIFICATION_PRIX_PRODUCT_A_LA_VENTE', 'MOUVEMENT_STOCK_IN', 'MOUVEMENT_STOCK_OUT', 'REAPPRO', 'SALE', 'SUPPRESSION', 'UPDATE_PRODUCT') not null,
+  ajustement_id                bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  decondition_id               bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  fournisseur_produit_id       bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  magasin_id                   bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    not null,
+  order_line_id                bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  produit_id                   bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  repartition_stock_produit_id bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  sale_line_id                 bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    null,
+  user_id                      bigint                                                                                                                                                                                                                                                                                                                                                                                                                                    not null,
   constraint FK30wj3ywp114bifpc3xu7rex3i
     foreign key (produit_id) references produit (id),
   constraint FK6saiavquc76u5a44h5r974v5j
@@ -1737,23 +1671,23 @@ create or replace table inventory_transaction
     foreign key (user_id) references user (id),
   constraint FKa7i5348dxyy1dnnhvo05nr4ve
     foreign key (magasin_id) references magasin (id),
-  constraint FKeao881bm44imwilft8yt4tv9k
-    foreign key (delivery_receipt_item_id) references delivery_receipt_item (id),
   constraint FKjoy3lg6699dgt74famwcquqhm
     foreign key (repartition_stock_produit_id) references repartition_stock_produit (id),
   constraint FKqlsoqqqko7hj9gii5wwfdqhqa
     foreign key (decondition_id) references decondition (id),
   constraint FKst6t2ax1vlhtjk1okwpbx84hf
-    foreign key (sale_line_id) references sales_line (id)
+    foreign key (sale_line_id) references sales_line (id),
+  constraint FKtbn30nahrd1gv1ba9dew8tbki
+    foreign key (order_line_id) references order_line (id)
 );
 
-create or replace index createdAt_index
+create index createdAt_index
   on inventory_transaction (created_at);
 
-create or replace index transaction_type_index
+create index transaction_type_index
   on inventory_transaction (transaction_type);
 
-create or replace table lot_sold
+create table lot_sold
 (
   id           bigint auto_increment
     primary key,
@@ -1769,61 +1703,23 @@ create or replace table lot_sold
     foreign key (sale_line_id) references sales_line (id)
 );
 
-create or replace table store_inventory
+create table sales_line_price
 (
-  id                         bigint auto_increment
+  id           bigint auto_increment
     primary key,
-  created_at                 datetime(6) not null,
-  gap_amount                 int         null,
-  gap_cost                   int         null,
-  inventory_amount_after     bigint      not null,
-  inventory_amount_begin     bigint      not null,
-  inventory_category         tinyint     not null
-    check (`inventory_category` between 0 and 3),
-  inventory_type             tinyint     not null
-    check (`inventory_type` between 0 and 1),
-  inventory_value_cost_after bigint      not null,
-  inventory_value_cost_begin bigint      not null,
-  statut                     tinyint     not null
-    check (`statut` between 0 and 2),
-  updated_at                 datetime(6) not null,
-  calendar_work_day          date        not null,
-  rayon_id                   bigint      null,
-  storage_id                 bigint      null,
-  user_id                    bigint      not null,
-  constraint FK6gntnjhmeu8dahq204wmk1a2r
-    foreign key (user_id) references user (id),
-  constraint FK88teyake2uy873xolysdpwfl7
-    foreign key (storage_id) references storage (id),
-  constraint FKnwue82ru709xwwxkj5if2v6qq
-    foreign key (rayon_id) references rayon (id),
-  constraint FKoaajc2cnjubfvqy0m9lc3elxj
-    foreign key (calendar_work_day) references warehouse_calendar (work_day)
+  montant      int    not null,
+  prix         int    not null,
+  reference_id bigint not null,
+  sale_line_id bigint not null,
+  constraint UK8dss9lmebucxk211x6ps2jegh
+    unique (reference_id, sale_line_id),
+  constraint FK9nmuhva8j8x5ibcuq0ldh829m
+    foreign key (sale_line_id) references sales_line (id),
+  constraint FKgkc3gw2y3mm5v1gbuawnpi9hb
+    foreign key (reference_id) references produit_tiers_payant_prix (id)
 );
 
-create or replace table store_inventory_line
-(
-  id                   bigint auto_increment
-    primary key,
-  gap                  int         null,
-  inventory_value_cost int         null,
-  last_unit_price      int         null,
-  quantity_init        int         null,
-  quantity_on_hand     int         null,
-  quantity_sold        int         null,
-  updated              bit         not null,
-  updated_at           datetime(6) not null,
-  produit_id           bigint      not null,
-  store_inventory_id   bigint      not null,
-  constraint UKhidvm20io56axybnk34jqvs4c
-    unique (produit_id, store_inventory_id),
-  constraint FKg8d5ld2v2vy7tr54mwar1rh9
-    foreign key (produit_id) references produit (id),
-  constraint FKoe713l7vns3jb1eo2uhniy4q3
-    foreign key (store_inventory_id) references store_inventory (id)
-);
-
-create or replace table third_party_sale_line
+create table third_party_sale_line
 (
   id                      bigint auto_increment
     primary key,
@@ -1848,7 +1744,7 @@ create or replace table third_party_sale_line
     foreign key (client_tiers_payant_id) references client_tiers_payant (id)
 );
 
-create or replace table invoice_payment_item
+create table invoice_payment_item
 (
   id                       bigint auto_increment
     primary key,
@@ -1862,10 +1758,11 @@ create or replace table invoice_payment_item
     foreign key (invoice_payment_id) references payment_transaction (id)
 );
 
-create or replace table warehouse_sequence
+create table warehouse_sequence
 (
   name      varchar(255)     not null
     primary key,
   increment int(4) default 1 null,
   seq_value int    default 0 null
 );
+

@@ -63,7 +63,7 @@ public class Produit implements Serializable {
     @Column(name = "libelle", nullable = false)
     private String libelle;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_produit", nullable = false)
     private TypeProduit typeProduit;
 
@@ -175,11 +175,11 @@ public class Produit implements Serializable {
     private Dci dci;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "categorie", nullable = false)
     private CategorieABC categorie= CategorieABC.C;
 

@@ -29,7 +29,7 @@ public class Ajust implements Serializable {
     private User user;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private AjustementStatut statut = AjustementStatut.PENDING;
 
@@ -40,9 +40,7 @@ public class Ajust implements Serializable {
     @Column(name = "commentaire")
     private String commentaire;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     @OneToMany(mappedBy = "ajust", cascade = { CascadeType.REMOVE })
     private List<Ajustement> ajustements = new ArrayList<>();
@@ -64,14 +62,7 @@ public class Ajust implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public Ajust setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public String getCommentaire() {
         return commentaire;

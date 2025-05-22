@@ -32,14 +32,14 @@ public interface TableauPharmacienService extends MvtCommonService {
         """;
     String ACHAT_QUERY =
         """
-        SELECT %s ,SUM(dr.net_amount) as montantNet,
-        SUM(dr.tax_amount) AS montantTaxe,SUM(dr.receipt_amount) as montantTtc,SUM(dr.discount_amount) as montantRemise,
-        gf.id as groupeGrossisteId,gf.libelle as groupeGrossiste,gf.odre as ordreAffichage FROM  delivery_receipt dr
+        SELECT %s ,SUM(dr.ht_amount) as montantNet,
+        SUM(dr.tax_amount) AS montantTaxe,SUM(dr.gross_amount) as montantTtc,SUM(dr.discount_amount) as montantRemise,
+        gf.id as groupeGrossisteId,gf.libelle as groupeGrossiste,gf.odre as ordreAffichage FROM  commande dr
         JOIN fournisseur f ON f.id=dr.fournisseur_id  JOIN  groupe_fournisseur gf ON gf.id=f.groupe_fournisseur_id
-        WHERE DATE(dr.modified_date) BETWEEN ?1 AND ?2 AND dr.receipt_status='CLOSE' group by mvtDate,groupeGrossisteId ORDER BY mvtDate
+        WHERE DATE(dr.updated_at) BETWEEN ?1 AND ?2 AND dr.order_status='CLOSED' group by mvtDate,groupeGrossisteId ORDER BY mvtDate
         """;
-    String ACHAT_GROUP_BY_DATE = " DATE_FORMAT(dr.modified_date, '%Y-%m-%d') AS mvtDate";
-    String ACHAT_GROUP_BY_MONTH = " DATE_FORMAT(dr.modified_date, '%Y-%m') AS mvtDate";
+    String ACHAT_GROUP_BY_DATE = " DATE_FORMAT(dr.updated_at, '%Y-%m-%d') AS mvtDate";
+    String ACHAT_GROUP_BY_MONTH = " DATE_FORMAT(dr.updated_at, '%Y-%m') AS mvtDate";
 
     TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam);
 

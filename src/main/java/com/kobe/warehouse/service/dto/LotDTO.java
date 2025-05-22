@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import com.kobe.warehouse.domain.OrderLine;
 import org.springframework.util.CollectionUtils;
 
 public class LotDTO {
@@ -20,7 +22,7 @@ public class LotDTO {
 
     private Integer quantity;
 
-    private Integer ugQuantityReceived;
+    private Integer freeQty;
 
     private Integer quantityReceived;
 
@@ -35,9 +37,7 @@ public class LotDTO {
     public LotDTO(Lot lot) {
         id = lot.getId();
         numLot = lot.getNumLot();
-        ugQuantityReceived = lot.getUgQuantityReceived();
-        receiptRefernce = lot.getReceiptReference();
-        receiptItemId = lot.getReceiptItem().getId();
+        freeQty = lot.getFreeQty();
         quantity = lot.getQuantity();
         quantityReceived = lot.getQuantity();
         createdDate = lot.getCreatedDate();
@@ -95,12 +95,12 @@ public class LotDTO {
         return this;
     }
 
-    public Integer getUgQuantityReceived() {
-        return ugQuantityReceived;
+    public Integer getFreeQty() {
+        return freeQty;
     }
 
-    public LotDTO setUgQuantityReceived(Integer ugQuantityReceived) {
-        this.ugQuantityReceived = ugQuantityReceived;
+    public LotDTO setFreeQty(Integer freeQty) {
+        this.freeQty = freeQty;
         return this;
     }
 
@@ -150,12 +150,15 @@ public class LotDTO {
     }
 
     public Lot toEntity() {
-        var ug = Optional.ofNullable(ugQuantityReceived).orElse(0);
+        var ug = Optional.ofNullable(freeQty).orElse(0);
+        var orderLine = new OrderLine();
+        orderLine.setId(receiptItemId);
         return new Lot()
             .setNumLot(numLot)
+            .setOrderLine(orderLine)
             .setExpiryDate(expiryDate)
             .setManufacturingDate(manufacturingDate)
             .setQuantity(quantityReceived + ug)
-            .setUgQuantityReceived(ug);
+            .setFreeQty(ug);
     }
 }

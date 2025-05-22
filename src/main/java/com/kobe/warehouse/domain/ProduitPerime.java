@@ -57,9 +57,7 @@ public class ProduitPerime implements Serializable {
     @Column(name = "after_stock", nullable = false)
     private int afterStock;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     public Long getId() {
         return id;
@@ -146,12 +144,5 @@ public class ProduitPerime implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public ProduitPerime setCalendar(@NotNull WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 }

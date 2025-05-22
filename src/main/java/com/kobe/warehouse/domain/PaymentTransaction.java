@@ -67,7 +67,7 @@ public class PaymentTransaction implements Serializable {
     private CashRegister cashRegister;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "categorie_ca", nullable = false)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
 
@@ -78,7 +78,7 @@ public class PaymentTransaction implements Serializable {
     private boolean credit;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_transaction", nullable = false)
     private TypeFinancialTransaction typeFinancialTransaction;
 

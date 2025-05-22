@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.config.FileStorageProperties;
-import com.kobe.warehouse.domain.DeliveryReceipt;
-import com.kobe.warehouse.domain.DeliveryReceiptItem;
+import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
@@ -24,7 +24,7 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
     private final Map<String, Object> variablesMap = new HashMap<>();
     private String templateFile;
 
-    private DeliveryReceipt deliveryReceipt;
+    private Commande deliveryReceipt;
 
     public DeliveryReceiptReportReportService(
         SpringTemplateEngine templateEngine,
@@ -37,8 +37,8 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
     }
 
     @Override
-    protected List<DeliveryReceiptItem> getItems() {
-        return this.deliveryReceipt.getReceiptItems();
+    protected List<OrderLine> getItems() {
+        return this.deliveryReceipt.getOrderLines();
     }
 
     @Override
@@ -67,10 +67,10 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
         return this.deliveryReceipt.getReceiptReference();
     }
 
-    public String print(DeliveryReceipt deliveryReceipt) {
+    public String print(Commande deliveryReceipt) {
         this.deliveryReceipt = deliveryReceipt;
         Magasin magasin = storageService.getUser().getMagasin();
-        List<DeliveryReceiptItem> receiptItems = this.deliveryReceipt.getReceiptItems();
+        List<OrderLine> receiptItems =getItems();
         int itemSize = receiptItems.size();
         receiptItems.sort(Comparator.comparing(el -> el.getFournisseurProduit().getCodeCip()));
         templateFile = Constant.DELIVERY_TEMPLATE_FILE;
@@ -82,7 +82,6 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
         if (itemSize > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.ITEMS, receiptItems.subList(0, Constant.COMMANDE_PAGE_SIZE));
             getParameters().put(Constant.IS_LAST_PAGE, false);
-
             return super.printMultiplesReceiptPage();
         } else {
             getParameters().put(Constant.ITEMS, receiptItems);

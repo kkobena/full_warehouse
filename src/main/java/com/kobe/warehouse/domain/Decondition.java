@@ -54,7 +54,7 @@ public class Decondition implements Serializable {
     private Produit produit;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_deconditionnement", nullable = false)
     private TypeDeconditionnement typeDeconditionnement;
 

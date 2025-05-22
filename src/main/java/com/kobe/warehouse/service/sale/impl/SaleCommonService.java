@@ -313,7 +313,6 @@ public class SaleCommonService {
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
         c.setStatut(SalesStatut.ACTIVE);
-        c.setStatutCaisse(SalesStatut.ACTIVE);
         c.setCalendar(this.warehouseCalendarService.initCalendar());
         this.posteRepository.findFirstByAddress(dto.getCaisseNum()).ifPresent(poste -> {
                 c.setCaisse(poste);
@@ -343,7 +342,6 @@ public class SaleCommonService {
         Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
-        c.setStatutCaisse(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
         c.setLastUserEdit(storageService.getUser());
         c.setCommentaire(dto.getCommentaire());
@@ -388,7 +386,6 @@ public class SaleCommonService {
         Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
-        c.setStatutCaisse(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
         c.setLastUserEdit(storageService.getUser());
         c.setCommentaire(dto.getCommentaire());

@@ -65,7 +65,7 @@ public class StoreInventory implements Serializable {
     private User user;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private InventoryStatut statut = InventoryStatut.CREATE;
 
@@ -76,12 +76,12 @@ public class StoreInventory implements Serializable {
     private Rayon rayon;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "inventory_type", nullable = false)
     private InventoryType inventoryType = InventoryType.MANUEL;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "inventory_category", nullable = false)
     private InventoryCategory inventoryCategory = InventoryCategory.MAGASIN;
 
@@ -91,9 +91,7 @@ public class StoreInventory implements Serializable {
     @Column(name = "gap_amount")
     private Integer gapAmount;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     public Long getId() {
         return id;
@@ -211,14 +209,7 @@ public class StoreInventory implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public StoreInventory setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public Integer getGapCost() {
         return gapCost;

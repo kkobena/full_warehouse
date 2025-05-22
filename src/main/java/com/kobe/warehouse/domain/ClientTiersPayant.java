@@ -64,12 +64,12 @@ public class ClientTiersPayant implements Serializable {
     private LocalDateTime updated = LocalDateTime.now();
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "priorite", nullable = false)
     private PrioriteTiersPayant priorite = PrioriteTiersPayant.R0;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 

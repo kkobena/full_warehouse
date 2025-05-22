@@ -46,7 +46,7 @@ public class ReponseRetourBon implements Serializable {
     private RetourBon retourBon;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 1)
     private RetourBonStatut statut = RetourBonStatut.PROCESSING;
 

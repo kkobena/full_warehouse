@@ -38,7 +38,7 @@ public class RetourBonItem implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private DeliveryReceiptItem deliveryReceiptItem;
+    private OrderLine orderLine;
 
     @ManyToOne
     private Lot lot;
@@ -86,12 +86,12 @@ public class RetourBonItem implements Serializable {
         this.motifRetour = motifRetour;
     }
 
-    public @NotNull DeliveryReceiptItem getDeliveryReceiptItem() {
-        return deliveryReceiptItem;
+    public OrderLine getOrderLine() {
+        return orderLine;
     }
 
-    public void setDeliveryReceiptItem(@NotNull DeliveryReceiptItem deliveryReceiptItem) {
-        this.deliveryReceiptItem = deliveryReceiptItem;
+    public void setOrderLine(OrderLine orderLine) {
+        this.orderLine = orderLine;
     }
 
     public Lot getLot() {

@@ -29,7 +29,7 @@ public class Storage implements Serializable {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "storage_type", nullable = false)
     private StorageType storageType;
 

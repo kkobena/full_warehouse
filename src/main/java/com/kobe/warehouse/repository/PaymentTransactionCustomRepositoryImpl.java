@@ -1,7 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.CashRegister_;
-import com.kobe.warehouse.domain.DeliveryReceipt_;
+import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePayment_;
@@ -67,7 +67,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                     root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.libelle),
                     root.get(PaymentTransaction_.categorieChiffreAffaire),
                     root.get(PaymentTransaction_.transactionDate),
-                    paymentFournisseurPath.get(PaymentFournisseur_.deliveryReceipt).get(DeliveryReceipt_.id),
+                    paymentFournisseurPath.get(PaymentFournisseur_.commande).get(Commande_.id),
                     root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.firstName),
                     root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.lastName),
                     root.get(PaymentTransaction_.reelAmount)

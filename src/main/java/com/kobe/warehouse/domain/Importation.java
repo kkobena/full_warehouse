@@ -40,7 +40,7 @@ public class Importation implements Serializable {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "importation_type", nullable = false)
     private ImportationType importationType;
 
@@ -49,7 +49,7 @@ public class Importation implements Serializable {
     private int errorSize;
 
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "importation_status", nullable = false)
     private ImportationStatus importationStatus;
 

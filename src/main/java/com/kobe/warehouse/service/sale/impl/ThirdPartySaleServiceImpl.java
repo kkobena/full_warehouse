@@ -598,7 +598,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setToIgnore(cashSale.isToIgnore());
         c.setDiffere(cashSale.isDiffere());
         c.setStatut(cashSale.getStatut());
-        c.setStatutCaisse(cashSale.getStatutCaisse());
         c.setCalendar(cashSale.getCalendar());
         c.setCaisse(cashSale.getCaisse());
         c.setLastCaisse(cashSale.getLastCaisse());

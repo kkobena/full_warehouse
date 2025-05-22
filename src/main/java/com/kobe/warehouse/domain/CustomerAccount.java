@@ -41,7 +41,7 @@ public class CustomerAccount implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private UninsuredCustomer customer;
     @NotNull
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 

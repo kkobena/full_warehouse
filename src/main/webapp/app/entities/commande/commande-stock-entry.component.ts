@@ -1,36 +1,35 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CommandeService } from './commande.service';
-import { ProduitService } from '../produit/produit.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { ICommande } from '../../shared/model/commande.model';
-import { IOrderLine } from '../../shared/model/order-line.model';
-import { Observable } from 'rxjs';
-import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { ConfigurationService } from '../../shared/configuration.service';
-import { checkIfRomToBeUpdated, formatNumberToString } from '../../shared/util/warehouse-util';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { Params } from '../../shared/model/enumerations/params.model';
-import { FormLotComponent } from './lot/form-lot.component';
-import { ListLotComponent } from './lot/list/list-lot.component';
-import { DeliveryService } from './delevery/delivery.service';
-import { IDelivery } from '../../shared/model/delevery.model';
-import { IDeliveryItem } from '../../shared/model/delivery-item';
-import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
-import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
-import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { InputTextModule } from 'primeng/inputtext';
-
-import { CommandeBtnComponent } from './btn/commande-btn.component';
-import { ReceiptStatusComponent } from './status/receipt-status.component';
+import {Component, inject, input, OnInit} from '@angular/core';
+import {ConfirmationService} from 'primeng/api';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {CommandeService} from './commande.service';
+import {ProduitService} from '../produit/produit.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {IOrderLine} from '../../shared/model/order-line.model';
+import {Observable} from 'rxjs';
+import {AlertInfoComponent} from '../../shared/alert/alert-info.component';
+import {ConfigurationService} from '../../shared/configuration.service';
+import {checkIfRomToBeUpdated, formatNumberToString} from '../../shared/util/warehouse-util';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {Params} from '../../shared/model/enumerations/params.model';
+import {FormLotComponent} from './lot/form-lot.component';
+import {ListLotComponent} from './lot/list/list-lot.component';
+import {DeliveryService} from './delevery/delivery.service';
+import {IDelivery} from '../../shared/model/delevery.model';
+import {IDeliveryItem} from '../../shared/model/delivery-item';
+import {DeliveryModalComponent} from './delevery/form/delivery-modal.component';
+import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.component';
+import {EtiquetteComponent} from './delevery/etiquette/etiquette.component';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {InputTextModule} from 'primeng/inputtext';
+import {AG_GRID_LOCALE_FR} from '@ag-grid-community/locale';
+import {CommandeBtnComponent} from './btn/commande-btn.component';
+import {ReceiptStatusComponent} from './status/receipt-status.component';
 import {
   AllCommunityModule,
   ClientSideRowModelModule,
@@ -43,22 +42,22 @@ import {
 } from 'ag-grid-community';
 
 import dayjs from 'dayjs';
-import { TvaService } from '../tva/tva.service';
-import { HttpResponse } from '@angular/common/http';
-import { ITva } from '../../shared/model/tva.model';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import { AgGridAngular } from 'ag-grid-angular';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { Select } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
+import {TvaService} from '../tva/tva.service';
+import {HttpResponse} from '@angular/common/http';
+import {ITva} from '../../shared/model/tva.model';
+import {acceptButtonProps, rejectButtonProps} from '../../shared/util/modal-button-props';
+import {AgGridAngular} from 'ag-grid-angular';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {Select} from 'primeng/select';
+import {Toolbar} from 'primeng/toolbar';
+import {AbstractCommande} from "../../shared/model/abstract-commande.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
-provideGlobalGridOptions({ theme: themeAlpine });
+provideGlobalGridOptions({theme: themeAlpine});
 
 @Component({
   selector: 'jhi-commande-stock-entry',
-  styles: [``],
   templateUrl: './commande-stock-entry.component.html',
   providers: [ConfirmationService, DialogService],
   imports: [
@@ -79,63 +78,74 @@ provideGlobalGridOptions({ theme: themeAlpine });
   ],
 })
 export class CommandeStockEntryComponent implements OnInit {
-  commande?: ICommande | null = null;
-  delivery?: IDelivery | null = null;
-  orderLines: IOrderLine[] = [];
-  receiptItems: IDeliveryItem[] = [];
-  rowHeight = 46;
-  selectedFilter = 'ALL';
-  filtres: any[] = [];
-  search?: string;
-  isSaving = false;
-  columnDefs: any[];
-  defaultColDef: any;
-  frameworkComponents: any;
-  context: any;
-  showLotBtn = true;
-  disableActionBtn = false;
-  showEditBtn = true;
-  ref?: DynamicDialogRef;
-  tvaService = inject(TvaService);
-  commandeService = inject(CommandeService);
-  service = inject(DeliveryService);
-  produitService = inject(ProduitService);
-  activatedRoute = inject(ActivatedRoute);
-  modalService = inject(NgbModal);
-  confirmationService = inject(ConfirmationService);
-  configurationService = inject(ConfigurationService);
-  router = inject(Router);
-  dialogService = inject(DialogService);
-  spinner = inject(NgxSpinnerService);
-  rowModelType: RowModelType = 'clientSide';
-  pagination = true;
+  abstractCommande = input<AbstractCommande>(null);
+  protected rowModelType: RowModelType = 'clientSide';
+  protected pagination = true;
   /*   paginationPageSizeSelector = [5, 10, 20, 50, 100];
     paginationPageSize = 5; */
-  protected themeClass = 'ag-theme-quartz';
+  protected readonly themeClass = 'ag-theme-quartz';
   protected readonly animateRows: boolean = true;
+  protected AG_GRID_LOCALE_FR = AG_GRID_LOCALE_FR
+  protected delivery?: IDelivery | null = null;
+  protected orderLines: IOrderLine[] = [];
+  protected receiptItems: IDeliveryItem[] = [];
+  protected rowHeight = 46;
+  protected selectedFilter = 'ALL';
+  protected filtres: any[] = [];
+  protected search?: string;
+  protected isSaving = false;
+  protected columnDefs: any[];
+  protected defaultColDef: any;
+  protected frameworkComponents: any;
+  protected context: any;
+  protected showLotBtn = true;
+  protected disableActionBtn = false;
+  protected showEditBtn = true;
+  private  ref?: DynamicDialogRef;
+  private readonly tvaService = inject(TvaService);
+  private readonly commandeService = inject(CommandeService);
+  private readonly service = inject(DeliveryService);
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly modalService = inject(NgbModal);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly spinner = inject(NgxSpinnerService);
+
   private gridApi!: GridApi<IDeliveryItem>;
   private tvas: number[] = [];
 
   constructor() {
     this.filtres = [
-      { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
-      { label: 'Prix de vente différent', value: 'PU_NOT_EQUAL' },
-      { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
-      { label: 'Tous', value: 'ALL' },
+      {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
+      {label: 'Prix de vente différent', value: 'PU_NOT_EQUAL'},
+      {label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP'},
+      {label: 'Tous', value: 'ALL'},
     ];
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe({
-      next: data => {
-        const delivery = data.delivery;
-        if (delivery.id) {
-          this.delivery = delivery;
-          this.receiptItems = delivery.receiptItems;
-          this.enabledBtnValidate();
-        }
-      },
-    });
+
+    this.delivery = this.abstractCommande();
+    if(this.delivery.id){
+      this.receiptItems = this.delivery.orderLines;
+      this.enabledBtnValidate();
+    }else{
+      this.activatedRoute.data.subscribe({
+        next: data => {
+          const delivery = data.delivery;
+          if (delivery.id) {
+            this.delivery = delivery;
+            this.receiptItems = delivery.receiptItems;
+            this.enabledBtnValidate();
+          }
+        },
+      });
+    }
+
+
 
     this.findParamAddLot();
     this.tvaService.query().subscribe({
@@ -279,7 +289,7 @@ export class CommandeStockEntryComponent implements OnInit {
       btnCellRenderer: CommandeBtnComponent,
       statusCellRenderer: ReceiptStatusComponent,
     };
-    this.context = { componentParent: this };
+    this.context = {componentParent: this};
   }
 
   onSearch(event: any): void {
@@ -366,7 +376,7 @@ export class CommandeStockEntryComponent implements OnInit {
   btnCellStyle(params: any): any {
     const toBeUpdated = false;
     let backgroundColor = '';
-    const padding = { paddingLeft: 0, paddingRight: 0 };
+    const padding = {paddingLeft: 0, paddingRight: 0};
     if (toBeUpdated) {
       backgroundColor = '#b8daff';
       return {
@@ -397,7 +407,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   stockOnHandcellStyle(params: any): any {
     if (params.data.updated) {
-      return { backgroundColor: '#c6c6c6' };
+      return {backgroundColor: '#c6c6c6'};
     }
   }
 
@@ -406,13 +416,13 @@ export class CommandeStockEntryComponent implements OnInit {
       next: res => {
         this.delivery = res.body;
         if (this.selectedFilter === 'PROVISOL_CIP') {
-          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.fournisseurProduitCip.length === 0);
+          this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.fournisseurProduitCip.length === 0);
         } else if (this.selectedFilter === 'NOT_EQUAL') {
-          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
+          this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
         } else if (this.selectedFilter === 'PU_NOT_EQUAL') {
-          this.receiptItems = this.delivery.receiptItems.filter((item: IDeliveryItem) => item.regularUnitPrice !== item.orderUnitPrice);
+          this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.regularUnitPrice !== item.orderUnitPrice);
         } else {
-          this.receiptItems = this.delivery.receiptItems;
+          this.receiptItems = this.delivery.orderLines;
         }
       },
     });
@@ -459,7 +469,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   editLigneInfos(deliveryItem: IDeliveryItem): void {
     this.ref = this.dialogService.open(EditProduitComponent, {
-      data: { deliveryItem, delivery: this.delivery },
+      data: {deliveryItem, delivery: this.delivery},
       width: '70%',
       header: `EDITION DU PRODUIT ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
     });
@@ -474,13 +484,13 @@ export class CommandeStockEntryComponent implements OnInit {
     const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
     if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
       this.ref = this.dialogService.open(ListLotComponent, {
-        data: { deliveryItem },
+        data: {deliveryItem},
         width: '60%',
         header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
       });
     } else {
       this.ref = this.dialogService.open(FormLotComponent, {
-        data: { entity: null, deliveryItem },
+        data: {entity: null, deliveryItem},
         width: '40%',
         header: 'Ajout de lot',
       });
@@ -572,20 +582,6 @@ export class CommandeStockEntryComponent implements OnInit {
     this.disableActionBtn = false;
   }
 
-  onSave(): void {
-    this.showsPinner();
-    console.log('this.delivery', this.commande);
-    this.commandeService.sauvegarderSaisieEntreeStock(this.commande).subscribe({
-      next: res => {
-        this.hidePinner();
-        this.reloadDelivery();
-      },
-      error: error => {
-        this.onCommonError(error);
-        this.hidePinner();
-      },
-    });
-  }
 
   onFinalize(): void {
     this.showsPinner();
@@ -618,7 +614,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   printEtiquette(delivery: IDelivery): void {
     this.ref = this.dialogService.open(EtiquetteComponent, {
-      data: { entity: delivery },
+      data: {entity: delivery},
       width: '40%',
       header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptRefernce} ] `,
     });
@@ -665,12 +661,6 @@ export class CommandeStockEntryComponent implements OnInit {
     this.spinner.hide();
   }
 
-  findCommande(): void {
-    this.commandeService.findByReference(this.delivery.orderReference).subscribe(res => {
-      this.commande = res.body;
-      this.orderLines = this.commande.orderLines;
-    });
-  }
 
   reloadDelivery(): void {
     this.onFilterReceiptItems();
@@ -678,7 +668,7 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onEditDelivery(): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: { commande: this.commande },
+      data: {commande: this.delivery},
       header: 'MODIFICATION DU BON DE LIVRAISON',
       width: '40%',
     });

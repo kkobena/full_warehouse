@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.activity_summary;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.*;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;

@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.AchatRecordParamDTO;
 import com.kobe.warehouse.service.dto.builder.AchatStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
@@ -32,7 +32,7 @@ public class AchatStatServiceImpl implements AchatStatService {
                 (Tuple) this.em.createNativeQuery(AchatStatQueryBuilder.ACHAT_QUERY, Tuple.class)
                     .setParameter(1, java.sql.Date.valueOf(periode.getLeft()))
                     .setParameter(2, java.sql.Date.valueOf(periode.getRight()))
-                    .setParameter(3, achatRecordParam.getReceiptStatuts().stream().map(ReceiptStatut::name).toList())
+                    .setParameter(3, achatRecordParam.getReceiptStatuts().stream().map(OrderStatut::name).toList())
                     .getSingleResult()
             );
         } catch (Exception e) {

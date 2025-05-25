@@ -76,7 +76,7 @@ const commandeRoute: Routes = [
   },
   {
     path: ':id/edit',
-    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
+    loadComponent: () => import('./edition-commande/edition-commande.component').then(m => m.EditionCommandeComponent),
     resolve: {
       commande: CommandeResolve,
     },

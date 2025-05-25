@@ -1,19 +1,20 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
+
 import java.util.Set;
 
 public class AchatRecordParamDTO extends VenteRecordParamDTO {
 
-    private Set<ReceiptStatut> receiptStatuts = Set.of(ReceiptStatut.CLOSE);
+    private Set<OrderStatut> receiptStatuts = Set.of(OrderStatut.CLOSED);
 
     private Long fournisseurId;
 
-    public Set<ReceiptStatut> getReceiptStatuts() {
+    public Set<OrderStatut> getReceiptStatuts() {
         return receiptStatuts;
     }
 
-    public AchatRecordParamDTO setReceiptStatuts(Set<ReceiptStatut> receiptStatuts) {
+    public AchatRecordParamDTO setReceiptStatuts(Set<OrderStatut> receiptStatuts) {
         this.receiptStatuts = receiptStatuts;
         return this;
     }

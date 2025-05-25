@@ -69,6 +69,7 @@
               [showEmptyMessage]="true"
               [style]="{ width: '100%' }"
               [suggestions]="rayons"
+
               optionLabel="libelle"
             ></p-autoComplete>
           </div>
@@ -135,7 +136,8 @@
           [readOnlyEdit]="false"
           [rowData]="storeInventoryLines"
           [singleClickEdit]="true"
-          [theme]="theme"
+          [class]="themeClass"
+          [localeText]="AG_GRID_LOCALE_FR"
           [stopEditingWhenCellsLoseFocus]="false"
           style="width: 100%; height: 100%"
         >

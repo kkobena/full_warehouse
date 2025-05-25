@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.repository.util.Condition;

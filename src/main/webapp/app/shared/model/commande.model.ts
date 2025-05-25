@@ -5,33 +5,14 @@ import { OrderStatut } from 'app/shared/model/enumerations/order-statut.model';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { IUser } from 'app/core/user/user.model';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
+import {AbstractCommande} from "./abstract-commande.model";
+import {AbstractOrderItem} from "./abstract-order-item.model";
 
-export interface ICommande {
-  id?: number;
-  fournisseurId?: number;
-  orderRefernce?: string;
-  receiptDate?: string;
-  discountAmount?: number;
-  orderAmount?: number;
-  grossAmount?: number;
-  netAmount?: number;
-  taxAmount?: number;
-  receiptAmount?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
-  orderStatus?: OrderStatut;
-  paymentFournisseurs?: IPaymentFournisseur[];
-  orderLines?: IOrderLine[];
-  magasin?: IMagasin;
-  user?: IUser;
-  lastUserEdit?: IUser;
-  fournisseur?: IFournisseur;
-  receiptRefernce?: string;
-  itemSize?: number;
-  sequenceBon?: string;
+export interface ICommande extends  AbstractCommande{
+
 }
 
-export class Commande implements ICommande {
+export class Commande  implements ICommande {
   constructor(
     public id?: number,
     public fournisseurId?: number,
@@ -46,14 +27,15 @@ export class Commande implements ICommande {
     public updatedAt?: Moment,
     public orderStatus?: OrderStatut,
     public paymentFournisseurs?: IPaymentFournisseur[],
-    public orderLines?: IOrderLine[],
+    public orderLines?: AbstractOrderItem[],
     public magasin?: IMagasin,
     public user?: IUser,
     public lastUserEdit?: IUser,
     public fournisseur?: IFournisseur,
     public receiptRefernce?: string,
     public itemSize?: number,
-    public sequenceBon?: string,
     public receiptAmount?: number,
-  ) {}
+  ) {
+
+  }
 }

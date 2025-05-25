@@ -1,26 +1,8 @@
-import { Moment } from 'moment';
-import { IDeliveryItem } from './delivery-item';
+import {AbstractCommande} from "./abstract-commande.model";
 
-export interface IDelivery {
-  id?: number;
-  numberTransaction?: string;
-  receiptRefernce?: string;
-  receiptDate?: string;
-  receiptFullDate?: Moment;
-  discountAmount?: number;
-  receiptAmount?: number;
-  createdDate?: Moment;
-  modifiedDate?: Moment;
-  createdUser?: string;
-  modifiedUser?: string;
-  fournisseurId?: number;
-  fournisseurLibelle?: string;
-  orderReference?: string;
-  netAmount?: number;
-  taxAmount?: number;
-  itemSize?: number;
-  receiptItems?: IDeliveryItem[];
-  statut?: string;
+
+export interface IDelivery extends AbstractCommande {
+
 }
 
 export class Delivery implements IDelivery {
@@ -31,18 +13,12 @@ export class Delivery implements IDelivery {
     public receiptDate?: string,
     public discountAmount?: number,
     public receiptAmount?: number,
-    public createdDate?: Moment,
-    public modifiedDate?: Moment,
-    public createdUser?: string,
-    public modifiedUser?: string,
     public fournisseurId?: number,
     public fournisseurLibelle?: string,
     public netAmount?: number,
     public taxAmount?: number,
     public itemSize?: number,
-    public receiptItems?: IDeliveryItem[],
-    public orderReference?: string,
-    public receiptFullDate?: Moment,
     public statut?: string,
-  ) {}
+  ) {
+  }
 }

@@ -1,9 +1,5 @@
 export const enum OrderStatut {
-  REQUESTED = 'REQUESTED',
-
+  CLOSED = 'CLOSED',
   RECEIVED = 'RECEIVED',
-
-  PAID = 'PAID',
-
-  UNPAID = 'UNPAID',
+  REQUESTED = 'REQUESTED',
 }

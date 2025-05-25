@@ -1,0 +1,7 @@
+@let comm = commande();
+
+@if (!comm || comm?.orderStatus === REQUESTED) {
+  <jhi-commande-update [abstractCommande]="comm"></jhi-commande-update>
+} @else if (comm?.orderStatus === RECEIVED) {
+  <jhi-commande-stock-entry></jhi-commande-stock-entry>
+}

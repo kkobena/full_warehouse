@@ -26,21 +26,6 @@ import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.FileUtil;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -57,6 +42,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -133,9 +134,9 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderReference(referenceService.buildNumCommande());
         OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
-        commande.setOrderAmount(orderLine.getOrderUnitPrice()*orderLine.getQuantityRequested());
-        commande.setFinalAmount(orderLine.getOrderUnitPrice()*orderLine.getQuantityRequested());
-        commande.setGrossAmount(orderLine.getOrderCostAmount()*orderLine.getQuantityRequested());
+        commande.setOrderAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());
+        commande.setFinalAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());
+        commande.setGrossAmount(orderLine.getOrderCostAmount() * orderLine.getQuantityRequested());
         commande.setFournisseur(buildFournisseurFromId(commandeDTO.getFournisseurId()));
         return commande;
     }
@@ -143,6 +144,8 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public CommandeLiteDTO createOrUpdateOrderLine(OrderLineDTO orderLineDTO) {
         int oldGrossAmount = 0;
+        int oldOrderAmount = 0;
+
 
         Optional<OrderLine> optionalOrderLine = orderLineService.findOneFromCommande(
             orderLineDTO.getProduitId(),
@@ -160,11 +163,12 @@ public class CommandServiceImpl implements CommandService {
             orderLine.setCommande(commande);
             commande.getOrderLines().add(orderLine);
         } else {
-            oldGrossAmount = orderLine.getQuantityRequested()*orderLine.getOrderCostAmount();
+            oldGrossAmount = orderLine.getQuantityRequested() * orderLine.getOrderCostAmount();
+            oldOrderAmount = orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice();
             orderLine.setQuantityRequested(orderLine.getQuantityRequested() + orderLineDTO.getQuantityRequested());
 
         }
-        updateCommandeAmount(commande, orderLine, oldGrossAmount);
+        updateCommandeAmount(commande, orderLine, oldGrossAmount,oldOrderAmount);
         orderLineService.save(orderLine);
         return new CommandeLiteDTO(commandeRepository.saveAndFlush(commande));
     }
@@ -365,7 +369,8 @@ public class CommandServiceImpl implements CommandService {
             case COPHARMED -> uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case DPCI -> uploadDPCICSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case TEDIS -> uploadTEDISCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-            case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case CIP_QTE_PA ->
+                uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case CIP_QTE -> uploadCipQteFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
         };
         createRuptureFile(commande.getOrderReference(), commandeModel, commandeResponseDTO.getItems());
@@ -889,13 +894,16 @@ public class CommandServiceImpl implements CommandService {
             .findFirst();
     }
 
-    private void updateCommandeAmount(Commande commande, OrderLine orderLine, Integer oldGrossAmount) {
-        commande.setGrossAmount((orderLine.getQuantityRequested()*orderLine.getOrderCostAmount()) + commande.getGrossAmount() - oldGrossAmount);
-
+    private void updateCommandeAmount(Commande commande, OrderLine orderLine, Integer oldGrossAmount, Integer oldOrderAmount) {
+        commande.setGrossAmount((orderLine.getQuantityRequested() * orderLine.getOrderCostAmount()) + commande.getGrossAmount() - oldGrossAmount);
+        commande.setFinalAmount((orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice()) + commande.getFinalAmount() - oldOrderAmount);
+        commande.setOrderAmount(commande.getFinalAmount());
     }
 
     private void updateCommandeAmount(Commande commande, Integer grossAmount, Integer orderAmount) {
         commande.setGrossAmount(commande.getGrossAmount() + grossAmount);
+        commande.setFinalAmount(commande.getFinalAmount() + orderAmount);
+        commande.setOrderAmount(commande.getOrderAmount() + orderAmount);
 
     }
 
@@ -903,7 +911,10 @@ public class CommandServiceImpl implements CommandService {
         OrderLine oldOrderLine = orderLineOrderLinePair.getFirst();
         OrderLine orderLine = orderLineOrderLinePair.getSecond();
         Commande commande = orderLine.getCommande();
-        updateCommandeAmount(commande, orderLine, oldOrderLine.getQuantityRequested()*oldOrderLine.getOrderCostAmount());
+        updateCommandeAmount(commande, orderLine,
+            oldOrderLine.getQuantityRequested() * oldOrderLine.getOrderCostAmount(),
+            oldOrderLine.getQuantityRequested()* oldOrderLine.getOrderUnitPrice()
+            );
         return commandeRepository.saveAndFlush(commande);
     }
 
@@ -1004,7 +1015,8 @@ public class CommandServiceImpl implements CommandService {
                         case NUMERIC:
                             try {
                                 code = String.valueOf(codeCell.getNumericCellValue());
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                            }
                             break;
                         default:
                             break;
@@ -1059,7 +1071,7 @@ public class CommandServiceImpl implements CommandService {
             FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
             if (
                 fournisseurProduit.getCodeCip().contains(codeCipOrCodeEan) ||
-                fournisseurProduit.getProduit().getCodeEan().contains(codeCipOrCodeEan)
+                    fournisseurProduit.getProduit().getCodeEan().contains(codeCipOrCodeEan)
             ) {
                 return Optional.of(orderLine);
             }
@@ -1075,8 +1087,8 @@ public class CommandServiceImpl implements CommandService {
     ) {
         commande.setGrossAmount(
             commande.getGrossAmount() +
-            (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
-            (oldQuantityReceived * orderLine.getOrderCostAmount())
+                (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
+                (oldQuantityReceived * orderLine.getOrderCostAmount())
         );
 
         commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);

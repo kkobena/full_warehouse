@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto.filter;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+
 import java.time.LocalDate;
 
 public class DeliveryReceiptFilterDTO {

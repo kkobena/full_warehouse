@@ -201,7 +201,7 @@ public class Produit implements Serializable {
     private StockProduit stockProduitPointOfSale;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },orphanRemoval = true)
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
     /* @Type(type = "json")

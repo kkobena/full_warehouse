@@ -1,18 +1,16 @@
-import { inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import moment from 'moment';
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOptions } from 'app/shared/util/request-util';
-import { IDelivery } from '../../../shared/model/delevery.model';
-import { ICommandeResponse } from '../../../shared/model/commande-response.model';
-import { IDeliveryItem } from '../../../shared/model/delivery-item';
+import {inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {SERVER_API_URL} from 'app/app.constants';
+import {createRequestOptions} from 'app/shared/util/request-util';
+import {IDelivery} from '../../../shared/model/delevery.model';
+import {ICommandeResponse} from '../../../shared/model/commande-response.model';
+import {IDeliveryItem} from '../../../shared/model/delivery-item';
 
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class DeliveryService {
   deliveryPreviousActiveNav: WritableSignal<string> = signal<string>('pending');
   private readonly http = inject(HttpClient);
@@ -28,31 +26,28 @@ export class DeliveryService {
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
-      .get<IDelivery>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .get<IDelivery>(`${this.resourceUrl}/${id}`, {observe: 'response'});
   }
 
   create(entity: IDelivery): Observable<EntityResponseType> {
-    return this.http.post<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
+    return this.http.post<IDelivery>(this.resourceUrl2, entity, {observe: 'response'});
   }
 
   finalizeSaisieEntreeStock(delivery: IDelivery): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(delivery);
     return this.http
-      .put<IDelivery>(this.resourceFinalyse, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .put<IDelivery>(this.resourceFinalyse, delivery, {observe: 'response'});
   }
 
   update(entity: IDelivery): Observable<EntityResponseType> {
-    return this.http.put<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
+    return this.http.put<IDelivery>(this.resourceUrl2, entity, {observe: 'response'});
   }
 
   exportToCsv(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, {responseType: 'blob'});
   }
 
   exportToPdf(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, {responseType: 'blob'});
   }
 
   printEtiquette(id: number, req: any): Observable<Blob> {
@@ -70,7 +65,7 @@ export class DeliveryService {
         params: options,
         observe: 'response',
       })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+      ;
   }
 
   uploadNew(data: any): Observable<HttpResponse<ICommandeResponse>> {
@@ -143,31 +138,6 @@ export class DeliveryService {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-tva', this.resetdatePeremption(deliveryItem), {
       observe: 'response',
     });
-  }
-
-  protected convertDateFromClient(delivery: IDelivery): IDelivery {
-    return Object.assign({}, delivery, {
-      createdAt: delivery.createdDate && delivery.createdDate.isValid() ? delivery.createdDate.toJSON() : undefined,
-      updatedAt: delivery.modifiedDate && delivery.modifiedDate.isValid() ? delivery.modifiedDate.toJSON() : undefined,
-    });
-  }
-
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdDate = res.body.receiptDate ? moment(res.body.createdDate) : undefined;
-      res.body.modifiedDate = res.body.modifiedDate ? moment(res.body.modifiedDate) : undefined;
-    }
-    return res;
-  }
-
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((delivery: IDelivery) => {
-        delivery.createdDate = delivery.createdDate ? moment(delivery.createdDate) : undefined;
-        delivery.modifiedDate = delivery.modifiedDate ? moment(delivery.modifiedDate) : undefined;
-      });
-    }
-    return res;
   }
 
   private resetdatePeremption(deliveryItem: IDeliveryItem): IDeliveryItem {

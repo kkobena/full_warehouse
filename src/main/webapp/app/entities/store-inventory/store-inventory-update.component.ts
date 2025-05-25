@@ -1,35 +1,40 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
-import { GROUPING_BY, IStoreInventory, ItemsCountRecord, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
-import { StoreInventoryService } from './store-inventory.service';
+import {Component, inject, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, RouterModule} from '@angular/router';
+import {Observable} from 'rxjs';
+import {
+  GROUPING_BY,
+  IStoreInventory,
+  ItemsCountRecord,
+  StoreInventoryExportRecord
+} from 'app/shared/model/store-inventory.model';
+import {StoreInventoryService} from './store-inventory.service';
 
-import { StoreInventoryLineService } from '../store-inventory-line/store-inventory-line.service';
-import { APPEND_TO, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH } from '../../shared/constants/pagination.constants';
-import { RayonService } from '../rayon/rayon.service';
-import { IRayon } from '../../shared/model/rayon.model';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
-import { Storage } from '../storage/storage.model';
-import { StorageService } from '../storage/storage.service';
-import { IStoreInventoryLine } from '../../shared/model/store-inventory-line.model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../shared/error.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { formatNumberToString } from '../../shared/util/warehouse-util';
-import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { AgGridAngular } from 'ag-grid-angular';
+import {StoreInventoryLineService} from '../store-inventory-line/store-inventory-line.service';
+import {APPEND_TO, NOT_FOUND, PRODUIT_COMBO_MIN_LENGTH} from '../../shared/constants/pagination.constants';
+import {RayonService} from '../rayon/rayon.service';
+import {IRayon} from '../../shared/model/rayon.model';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService} from 'primeng/dynamicdialog';
+import {Storage} from '../storage/storage.model';
+import {StorageService} from '../storage/storage.service';
+import {IStoreInventoryLine} from '../../shared/model/store-inventory-line.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ErrorService} from '../../shared/error.service';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {formatNumberToString} from '../../shared/util/warehouse-util';
+import {AlertInfoComponent} from '../../shared/alert/alert-info.component';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {DividerModule} from 'primeng/divider';
+import {DropdownModule} from 'primeng/dropdown';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {ToastModule} from 'primeng/toast';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {AgGridAngular} from 'ag-grid-angular';
 import {
   AllCommunityModule,
   ClientSideRowModelModule,
@@ -39,18 +44,19 @@ import {
   provideGlobalGridOptions,
   themeAlpine,
 } from 'ag-grid-community';
-import { InputTextModule } from 'primeng/inputtext';
-import { Authority } from '../../shared/constants/authority.constants';
-import { HasAuthorityService } from '../sales/service/has-authority.service';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import { Select } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import {InputTextModule} from 'primeng/inputtext';
+import {Authority} from '../../shared/constants/authority.constants';
+import {HasAuthorityService} from '../sales/service/has-authority.service';
+import {acceptButtonProps, rejectButtonProps} from '../../shared/util/modal-button-props';
+import {Select} from 'primeng/select';
+import {Toolbar} from 'primeng/toolbar';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {AG_GRID_LOCALE_FR} from "@ag-grid-community/locale";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
-provideGlobalGridOptions({ theme: themeAlpine });
+provideGlobalGridOptions({theme: themeAlpine});
 
 @Component({
   selector: 'jhi-store-inventory-update',
@@ -79,6 +85,7 @@ provideGlobalGridOptions({ theme: themeAlpine });
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   hasAuthorityService = inject(HasAuthorityService);
+  protected themeClass = 'ag-theme-quartz';
   protected isSaving = false;
   protected defaultColDef: any;
   protected context: any;
@@ -96,11 +103,11 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly NOT_FOUND = NOT_FOUND;
   protected readonly filtres: any = [
-    { name: 'UPDATED', label: 'Mise à jour' },
-    { name: 'NOT_UPDATED', label: 'Pas mise à jour' },
-    { name: 'GAP', label: 'Ecart' },
-    { name: 'GAP_POSITIF', label: 'Ecart positif' },
-    { name: 'GAP_NEGATIF', label: 'Ecart négatif' },
+    {name: 'UPDATED', label: 'Mise à jour'},
+    {name: 'NOT_UPDATED', label: 'Pas mise à jour'},
+    {name: 'GAP', label: 'Ecart'},
+    {name: 'GAP_POSITIF', label: 'Ecart positif'},
+    {name: 'GAP_NEGATIF', label: 'Ecart négatif'},
   ];
   protected selectedfiltres: any | null;
   protected page = 0;
@@ -190,7 +197,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     /* this.frameworkComponents = {
        statusInvCellRenderer: InventoryStatusComponent,
      };*/
-    this.context = { componentParent: this };
+    this.context = {componentParent: this};
   }
 
   ngOnInit(): void {
@@ -199,7 +206,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
       this.itemsPerPage = 10;
     }
 
-    this.activatedRoute.data.subscribe(({ storeInventory }) => {
+    this.activatedRoute.data.subscribe(({storeInventory}) => {
       this.storeInventory = storeInventory;
       if (this.storeInventory) {
         this.loadStorage();
@@ -271,13 +278,13 @@ export class StoreInventoryUpdateComponent implements OnInit {
   cellClass(params: any): any {
     const item: IStoreInventoryLine = params.data as IStoreInventoryLine;
     if (item.updated) {
-      return item.gap >= 0 ? { 'background-color': 'lightgreen' } : { 'background-color': 'lightcoral' };
+      return item.gap >= 0 ? {'background-color': 'lightgreen'} : {'background-color': 'lightcoral'};
     }
   }
 
   stockOnHandcellStyle(params: any): any {
     if (params.data.updated) {
-      return { backgroundColor: '#c6c6c6' };
+      return {backgroundColor: '#c6c6c6'};
     }
   }
 
@@ -462,4 +469,6 @@ export class StoreInventoryUpdateComponent implements OnInit {
       this.storages = res.body || [];
     });
   }
+
+  protected readonly AG_GRID_LOCALE_FR = AG_GRID_LOCALE_FR;
 }

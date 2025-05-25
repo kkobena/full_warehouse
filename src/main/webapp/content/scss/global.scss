@@ -1439,7 +1439,7 @@ menu  de la vente
 }
 
 .amount-td-column {
-  text-align: right;
+  text-align: right !important;
   font-weight: 600;
 }
 
@@ -1871,4 +1871,10 @@ menu  de la vente
 }
 .montant-payer{
   font-size: 1.2rem;
+}
+.edit-table{
+  td {
+    padding: 0.2rem 0.2rem !important;
+  }
+
 }

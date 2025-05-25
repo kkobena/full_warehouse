@@ -8,31 +8,6 @@
 <div class="commande-entry">
   <div class="row">
     <div class="col-sm-2">
-      @if (commande) {
-        <div class="card">
-          <div class="card-header">Information sur la commande</div>
-          <div class="card-body">
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span style="margin-right: 5px">Référence</span>
-                <span class="text-primary">{{ commande?.orderRefernce }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span style="margin-right: 5px">Grossiste</span>
-                <span class="text-primary">{{ commande?.fournisseur?.libelle }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Valeur Achat
-                <span class="text-primary">{{ commande?.grossAmount | number }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Valeur Vente
-                <span class="text-primary">{{ commande?.orderAmount | number }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      }
 
       <div class="card">
         <div class="card-header">Formulaire du bon de livraison</div>
@@ -69,9 +44,9 @@
           <p-toolbar>
             <ng-template #start>
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon styleClass="pi pi-search"/>
                 <input (keyup.enter)="onSearch($event)" pInputText
-                       placeholder="Taper pour rechercher" type="text" />
+                       placeholder="Taper pour rechercher" type="text"/>
               </p-iconfield>
               &nbsp;
               <p-select
@@ -86,18 +61,7 @@
               </p-select>
             </ng-template>
             <ng-template #end>
-              @if (commande) {
-                <p-button
-                  (click)="onSave()"
-                  [disabled]="disableActionBtn"
-                  [raised]="true"
-                  class="mr-1"
-                  icon="pi pi-check"
-                  label="Sauvegarder la saisie"
-                  severity="success"
-                  type="button"
-                ></p-button>
-              }
+
 
               <p-button
                 (click)="onFinalize()"
@@ -146,6 +110,7 @@
             [stopEditingWhenCellsLoseFocus]="false"
             [rowModelType]="rowModelType"
             [class]="themeClass"
+            [localeText]="AG_GRID_LOCALE_FR"
             style="width: 100%; height: 100%"
           >
           </ag-grid-angular>

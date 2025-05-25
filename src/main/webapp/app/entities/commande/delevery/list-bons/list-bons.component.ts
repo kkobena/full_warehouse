@@ -43,7 +43,7 @@ export class ListBonsComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
-  protected selectedFilter = 'CLOSE';
+  protected selectedFilter = 'CLOSED';
   private spinner = inject(NgxSpinnerService);
   private dialogService = inject(DialogService);
 

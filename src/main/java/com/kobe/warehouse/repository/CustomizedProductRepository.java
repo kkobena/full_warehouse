@@ -26,7 +26,7 @@ import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
-import com.kobe.warehouse.domain.enumeration.ReceiptStatut;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -170,7 +170,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return fromLastDateProjection(
             orderLineRepository .findLastUpdatedAtByFournisseurProduitProduitId(
                 produitCriteria.getId(),
-                ReceiptStatut.CLOSE.name()
+                OrderStatut.CLOSED.name()
             )
         );
     }

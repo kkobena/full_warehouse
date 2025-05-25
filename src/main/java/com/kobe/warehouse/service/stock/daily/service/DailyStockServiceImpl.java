@@ -30,8 +30,4 @@ public class DailyStockServiceImpl implements DailyStockService {
         this.dailyStockRepository.updateDailyStock();
     }
 
-    @Override
-    public List<StockRotation> computeStockRotation(Long produitId) {
-        return List.of();
-    }
 }

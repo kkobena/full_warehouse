@@ -338,7 +338,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private Commande buildDeliveryReceipt(DeliveryReceiptLiteDTO deliveryReceiptLite, Commande commande) {
-        commande.setReceiptDate(deliveryReceiptLite.getReceiptFullDate().toLocalDate());
+        commande.setReceiptDate(deliveryReceiptLite.getReceiptDate());
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setGrossAmount(deliveryReceiptLite.getReceiptAmount());
         commande.setDiscountAmount(0);
@@ -355,7 +355,6 @@ public class StockEntryServiceImpl implements StockEntryService {
             .setReceiptAmount(commande.getGrossAmount())
             .setFinalAmount(commande.getFinalAmount())
             .setReceiptDate(commande.getReceiptDate())
-            .setReceiptFullDate(commande.getReceiptDate().atStartOfDay())
             .setReceiptRefernce(commande.getReceiptReference())
             .setTaxAmount(commande.getTaxAmount());
     }
@@ -369,7 +368,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setUser(storageService.getUser());
         commande.setFournisseur(this.fournisseurRepository.getReferenceById(uploadDeleiveryReceipt.getFournisseurId()));
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setReceiptDate(deliveryReceipt.getReceiptFullDate().toLocalDate());
+        commande.setReceiptDate(deliveryReceipt.getReceiptDate());
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setGrossAmount(deliveryReceipt.getReceiptAmount());
         commande.setDiscountAmount(0);

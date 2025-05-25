@@ -33,7 +33,7 @@ export class BonEnCoursComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
-  protected selectedFilter = 'PENDING';
+  protected selectedFilter = 'RECEIVED';
 
   ngOnInit(): void {
     this.onSearch();

@@ -70,7 +70,7 @@ spring:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
   flyway:
-    enabled: true
+    enabled: false
     create-schemas: false
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: warehouse2802

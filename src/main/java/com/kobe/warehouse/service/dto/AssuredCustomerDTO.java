@@ -29,11 +29,11 @@ public class AssuredCustomerDTO extends CustomerDTO {
     private String numAyantDroit;
     private Long remiseId;
     private Long tiersPayantId;
-    private Long plafondConso;
-    private Long plafondJournalier;
+    private Integer plafondConso;
+    private Integer plafondJournalier;
     private PrioriteTiersPayant priorite;
     private Integer taux;
-    private Boolean plafondAbsolu;
+    private boolean plafondAbsolu;
     private List<AssuredCustomerDTO> ayantDroits = new ArrayList<>();
     private List<ClientTiersPayantDTO> tiersPayants = new ArrayList<>();
     private TiersPayantDto tiersPayant;
@@ -65,7 +65,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
                 this.priorite = pr.getPriorite();
                 this.taux = pr.getTaux();
                 this.num = pr.getNum();
-                this.plafondAbsolu = pr.getPlafondAbsolu();
+                this.plafondAbsolu = pr.isPlafondAbsolu();
                 this.tiersPayant = buildTiersPayan(pr);
                 this.typeTiersPayant = pr.getTypeTiersPayant();
             }
@@ -77,7 +77,6 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     public AssuredCustomerDTO() {
         super();
-
     }
 
     public AssuredCustomerDTO(AssuredCustomer customer) {
@@ -85,24 +84,26 @@ public class AssuredCustomerDTO extends CustomerDTO {
         this.num = customer.getNumAyantDroit();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.datNaiss = customer.getDatNaiss();
-      /*  this.tiersPayants = customer.getClientTiersPayants()
+        /*  this.tiersPayants = customer.getClientTiersPayants()
             .stream().map(ClientTiersPayantDTO::new)
             .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
             .toList();*/
     }
-private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer,AssuredCustomer customer){
-    customer.getClientTiersPayants().forEach(c->{
-        var tp=new ClientTiersPayantDTO();
-        TiersPayant tiersPayant = c.getTiersPayant();
-        tp.setId(c.getId());
-        tp.setNum(c.getNum());
-        tp.setTiersPayantFullName(tiersPayant.getFullName());
-        tp.setPriorite(c.getPriorite());
-        assuredCustomer.getTiersPayants().add(tp);
 
+    private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer, AssuredCustomer customer) {
+        customer
+            .getClientTiersPayants()
+            .forEach(c -> {
+                var tp = new ClientTiersPayantDTO();
+                TiersPayant tiersPayant = c.getTiersPayant();
+                tp.setId(c.getId());
+                tp.setNum(c.getNum());
+                tp.setTiersPayantFullName(tiersPayant.getFullName());
+                tp.setPriorite(c.getPriorite());
+                assuredCustomer.getTiersPayants().add(tp);
+            });
+    }
 
-    });
-}
     public TiersPayantDto getTiersPayant() {
         return tiersPayant;
     }
@@ -128,15 +129,6 @@ private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer,AssuredCusto
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
-        return plafondAbsolu;
-    }
-
-    public AssuredCustomerDTO setPlafondAbsolu(Boolean plafondAbsolu) {
-        this.plafondAbsolu = plafondAbsolu;
-        return this;
-    }
-
     public Long getTiersPayantId() {
         return tiersPayantId;
     }
@@ -146,22 +138,28 @@ private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer,AssuredCusto
         return this;
     }
 
-    public Long getPlafondConso() {
+    public boolean isPlafondAbsolu() {
+        return plafondAbsolu;
+    }
+
+    public void setPlafondAbsolu(boolean plafondAbsolu) {
+        this.plafondAbsolu = plafondAbsolu;
+    }
+
+    public Integer getPlafondConso() {
         return plafondConso;
     }
 
-    public AssuredCustomerDTO setPlafondConso(Long plafondConso) {
+    public void setPlafondConso(Integer plafondConso) {
         this.plafondConso = plafondConso;
-        return this;
     }
 
-    public Long getPlafondJournalier() {
+    public Integer getPlafondJournalier() {
         return plafondJournalier;
     }
 
-    public AssuredCustomerDTO setPlafondJournalier(Long plafondJournalier) {
+    public void setPlafondJournalier(Integer plafondJournalier) {
         this.plafondJournalier = plafondJournalier;
-        return this;
     }
 
     public PrioriteTiersPayant getPriorite() {

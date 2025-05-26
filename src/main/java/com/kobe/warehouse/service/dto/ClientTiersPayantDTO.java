@@ -14,15 +14,15 @@ public class ClientTiersPayantDTO {
     private String tiersPayantFullName;
     private Long tiersPayantId;
     private String num;
-    private Long plafondConso;
-    private Long plafondJournalier;
+    private Integer plafondConso;
+    private Integer plafondJournalier;
     private LocalDateTime created;
     private LocalDateTime updated;
     private PrioriteTiersPayant priorite;
     private TiersPayantStatut statut;
     private int categorie;
     private Integer taux;
-    private Boolean plafondAbsolu;
+    private boolean plafondAbsolu;
     private TiersPayantDto tiersPayant;
     private TiersPayantCategorie typeTiersPayant;
     private String numBon;
@@ -37,15 +37,15 @@ public class ClientTiersPayantDTO {
         this.tiersPayantName = cTiersPayant.getName();
         this.tiersPayantFullName = cTiersPayant.getFullName();
         this.num = c.getNum();
-        this.plafondConso = c.getPlafondConso();
-        this.plafondJournalier = c.getPlafondJournalier();
+        this.plafondConso = cTiersPayant.getPlafondConsoClient();
+        this.plafondJournalier = cTiersPayant.getPlafondJournalierClient();
         this.created = c.getCreated();
         this.updated = c.getUpdated();
         this.priorite = c.getPriorite();
         this.categorie = c.getPriorite().getValue();
         this.statut = c.getStatut();
         this.taux = c.getTaux();
-        this.plafondAbsolu = c.getPlafondAbsolu();
+        this.plafondAbsolu = cTiersPayant.isPlafondAbsolu();
         this.tiersPayantId = cTiersPayant.getId();
         this.typeTiersPayant = cTiersPayant.getCategorie();
         this.tiersPayant = new TiersPayantDto()
@@ -53,7 +53,6 @@ public class ClientTiersPayantDTO {
             .setId(cTiersPayant.getId())
             .setFullName(cTiersPayant.getFullName());
         this.customerId = c.getAssuredCustomer().getId();
-
     }
 
     public boolean isNewClientTiersPayant() {
@@ -63,56 +62,6 @@ public class ClientTiersPayantDTO {
     public ClientTiersPayantDTO setNewClientTiersPayant(boolean newClientTiersPayant) {
         this.newClientTiersPayant = newClientTiersPayant;
         return this;
-    }
-
-
-
-    @Override
-    public String toString() {
-        return (
-            "ClientTiersPayantDTO{" +
-            "id=" +
-            id +
-            ", tiersPayantName='" +
-            tiersPayantName +
-            '\'' +
-            ", tiersPayantFullName='" +
-            tiersPayantFullName +
-            '\'' +
-            ", tiersPayantId=" +
-            tiersPayantId +
-            ", num='" +
-            num +
-            '\'' +
-            ", plafondConso=" +
-            plafondConso +
-            ", plafondJournalier=" +
-            plafondJournalier +
-            ", created=" +
-            created +
-            ", updated=" +
-            updated +
-            ", priorite=" +
-            priorite +
-            ", statut=" +
-            statut +
-            ", categorie=" +
-            categorie +
-            ", taux=" +
-            taux +
-            ", plafondAbsolu=" +
-            plafondAbsolu +
-            ", tiersPayant=" +
-            tiersPayant +
-            ", typeTiersPayant=" +
-            typeTiersPayant +
-            ", numBon='" +
-            numBon +
-            '\'' +
-            ", customerId=" +
-            customerId +
-            '}'
-        );
     }
 
     public long getCustomerId() {
@@ -166,24 +115,6 @@ public class ClientTiersPayantDTO {
 
     public ClientTiersPayantDTO setNum(String num) {
         this.num = num;
-        return this;
-    }
-
-    public Long getPlafondConso() {
-        return plafondConso;
-    }
-
-    public ClientTiersPayantDTO setPlafondConso(Long plafondConso) {
-        this.plafondConso = plafondConso;
-        return this;
-    }
-
-    public Long getPlafondJournalier() {
-        return plafondJournalier;
-    }
-
-    public ClientTiersPayantDTO setPlafondJournalier(Long plafondJournalier) {
-        this.plafondJournalier = plafondJournalier;
         return this;
     }
 
@@ -241,13 +172,28 @@ public class ClientTiersPayantDTO {
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
+    public boolean isPlafondAbsolu() {
         return plafondAbsolu;
     }
 
-    public ClientTiersPayantDTO setPlafondAbsolu(Boolean plafondAbsolu) {
+    public void setPlafondAbsolu(boolean plafondAbsolu) {
         this.plafondAbsolu = plafondAbsolu;
-        return this;
+    }
+
+    public Integer getPlafondConso() {
+        return plafondConso;
+    }
+
+    public void setPlafondConso(Integer plafondConso) {
+        this.plafondConso = plafondConso;
+    }
+
+    public Integer getPlafondJournalier() {
+        return plafondJournalier;
+    }
+
+    public void setPlafondJournalier(Integer plafondJournalier) {
+        this.plafondJournalier = plafondJournalier;
     }
 
     public TiersPayantDto getTiersPayant() {

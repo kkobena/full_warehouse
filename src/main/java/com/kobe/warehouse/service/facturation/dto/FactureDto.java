@@ -15,7 +15,7 @@ public class FactureDto extends FactureDtoWrapper {
     private String groupeNumFacture;
     private Integer montantRegle;
     private Long montant;
-    private Long remiseForfetaire;
+    private int remiseForfetaire;
     private Long montantVente;
     private Long montantRemiseVente;
     private Long montantNetVente;
@@ -218,11 +218,11 @@ public class FactureDto extends FactureDtoWrapper {
         return this;
     }
 
-    public Long getRemiseForfetaire() {
+    public int getRemiseForfetaire() {
         return remiseForfetaire;
     }
 
-    public FactureDto setRemiseForfetaire(Long remiseForfetaire) {
+    public FactureDto setRemiseForfetaire(int remiseForfetaire) {
         this.remiseForfetaire = remiseForfetaire;
         return this;
     }

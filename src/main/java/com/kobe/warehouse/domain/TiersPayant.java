@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -50,7 +51,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "full_name", nullable = false, length = 200)
     private String fullName;
 
-    @Column(name = "nbre_bons_max_sur_fact")
+    @Column(name = "nbre_bons_max_sur_fact", columnDefinition = "int(8)")
     private Integer nbreBons;
 
     @Column(name = "montant_max_sur_fact")
@@ -63,8 +64,9 @@ public class TiersPayant implements Serializable {
     @Column(name = "conso_mensuelle")
     private Long consoMensuelle;
 
+    @ColumnDefault("false")
     @Column(name = "plafond_absolu")
-    private Boolean plafondAbsolu = false;
+    private boolean plafondAbsolu;
 
     @Column(name = "adresse", length = 200)
     private String adresse;
@@ -78,8 +80,9 @@ public class TiersPayant implements Serializable {
     @Column(name = "email", length = 50)
     private String email;
 
-    @Column(name = "to_be_exclude", columnDefinition = "boolean default false")
-    private Boolean toBeExclude = Boolean.FALSE;
+    @ColumnDefault("false")
+    @Column(name = "to_be_exclude")
+    private boolean beExclude;
 
     @Column(name = "plafond_conso")
     private Long plafondConso;
@@ -94,11 +97,12 @@ public class TiersPayant implements Serializable {
     @Column(name = "categorie", nullable = false)
     private TiersPayantCategorie categorie;
 
+    @ColumnDefault("0")
     @Column(name = "remise_forfaitaire")
-    private Long remiseForfaitaire;
+    private int remiseForfaitaire;
 
-    @Column(name = "nbre_bordereau", nullable = false, columnDefinition = "int default '1'")
-    private Integer nbreBordereaux = 1;
+    @Column(name = "nbre_bordereau", columnDefinition = "int(6) ")
+    private int nbreBordereaux;
 
     @ManyToOne
     private GroupeTiersPayant groupeTiersPayant;
@@ -109,8 +113,9 @@ public class TiersPayant implements Serializable {
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated = LocalDateTime.now();
 
-    @ManyToOne
-    private User updatedBy;
+    @NotNull
+    @ManyToOne(optional = false)
+    private User user;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "consommation_json")
@@ -118,6 +123,16 @@ public class TiersPayant implements Serializable {
 
     @Column(name = "model_facture", length = 20)
     private String modelFacture;
+
+    @Column(name = "plafond_conso_client")
+    private Integer plafondConsoClient;
+
+    @Column(name = "plafond_journalier_client")
+    private Integer plafondJournalierClient;
+
+    @ColumnDefault("false")
+    @Column(name = "plafond_absolu_client")
+    private boolean plafondAbsoluClient;
 
     @Transient
     private String modelFilePath;
@@ -160,6 +175,24 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
+    public boolean isBeExclude() {
+        return beExclude;
+    }
+
+    public TiersPayant setBeExclude(boolean beExclude) {
+        this.beExclude = beExclude;
+        return this;
+    }
+
+    public boolean isPlafondAbsoluClient() {
+        return plafondAbsoluClient;
+    }
+
+    public TiersPayant setPlafondAbsoluClient(boolean plafondAbsoluClient) {
+        this.plafondAbsoluClient = plafondAbsoluClient;
+        return this;
+    }
+
     public Integer getNbreBons() {
         return nbreBons;
     }
@@ -196,11 +229,11 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
+    public boolean isPlafondAbsolu() {
         return plafondAbsolu;
     }
 
-    public TiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
+    public TiersPayant setPlafondAbsolu(boolean plafondAbsolu) {
         this.plafondAbsolu = plafondAbsolu;
         return this;
     }
@@ -241,15 +274,6 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Boolean getToBeExclude() {
-        return toBeExclude;
-    }
-
-    public TiersPayant setToBeExclude(Boolean toBeExclude) {
-        this.toBeExclude = toBeExclude;
-        return this;
-    }
-
     public Long getPlafondConso() {
         return plafondConso;
     }
@@ -277,20 +301,20 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public Long getRemiseForfaitaire() {
+    public int getRemiseForfaitaire() {
         return remiseForfaitaire;
     }
 
-    public TiersPayant setRemiseForfaitaire(Long remiseForfaitaire) {
+    public TiersPayant setRemiseForfaitaire(int remiseForfaitaire) {
         this.remiseForfaitaire = remiseForfaitaire;
         return this;
     }
 
-    public Integer getNbreBordereaux() {
+    public int getNbreBordereaux() {
         return nbreBordereaux;
     }
 
-    public TiersPayant setNbreBordereaux(Integer nbreBordereaux) {
+    public TiersPayant setNbreBordereaux(int nbreBordereaux) {
         this.nbreBordereaux = nbreBordereaux;
         return this;
     }
@@ -322,12 +346,12 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public User getUpdatedBy() {
-        return updatedBy;
+    public User getUser() {
+        return user;
     }
 
-    public TiersPayant setUpdatedBy(User updatedBy) {
-        this.updatedBy = updatedBy;
+    public TiersPayant setUser(User user) {
+        this.user = user;
         return this;
     }
 
@@ -337,6 +361,24 @@ public class TiersPayant implements Serializable {
 
     public TiersPayant setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
+        return this;
+    }
+
+    public Integer getPlafondConsoClient() {
+        return plafondConsoClient;
+    }
+
+    public TiersPayant setPlafondConsoClient(Integer plafondConsoClient) {
+        this.plafondConsoClient = plafondConsoClient;
+        return this;
+    }
+
+    public Integer getPlafondJournalierClient() {
+        return plafondJournalierClient;
+    }
+
+    public TiersPayant setPlafondJournalierClient(Integer plafondJournalierClient) {
+        this.plafondJournalierClient = plafondJournalierClient;
         return this;
     }
 

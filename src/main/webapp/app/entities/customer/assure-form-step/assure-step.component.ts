@@ -21,7 +21,6 @@ import { ComplementaireStepComponent } from './complementaire-step.component';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -40,7 +39,6 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
-    ToggleSwitch,
   ],
   templateUrl: './assure-step.component.html',
   styles: ``,
@@ -65,7 +63,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     firstName: [null, [Validators.required]],
     lastName: [null, [Validators.required]],
     tiersPayantId: [null, [Validators.required]],
-    taux: [null, [Validators.required, Validators.min(10), Validators.max(100)]],
+    taux: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
     num: [null, [Validators.required]],
     phone: [],
     email: [],
@@ -73,9 +71,6 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     sexe: [],
     datNaiss: [],
     remiseId: [],
-    plafondConso: [],
-    plafondJournalier: [],
-    plafondAbsolu: [],
   });
 
   constructor() {}
@@ -141,9 +136,6 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
       sexe: this.editForm.get(['sexe']).value,
       tiersPayantId: this.editForm.get(['tiersPayantId']).value.id,
-      plafondConso: this.editForm.get(['plafondConso']).value,
-      plafondJournalier: this.editForm.get(['plafondJournalier']).value,
-      plafondAbsolu: this.editForm.get(['plafondAbsolu']).value,
       taux: this.editForm.get(['taux']).value,
       tiersPayant: this.editForm.get(['tiersPayantId']).value,
       tiersPayants: this.buildComplementaires(),
@@ -175,9 +167,6 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,
-      plafondConso: customer.plafondConso,
-      plafondJournalier: customer.plafondJournalier,
-      plafondAbsolu: customer.plafondAbsolu,
       taux: customer.taux,
     });
   }

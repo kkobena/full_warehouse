@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -19,6 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
@@ -38,6 +39,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
     AutoCompleteModule,
     Select,
     ToggleSwitch,
+    InputNumber,
   ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
@@ -64,6 +66,9 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     plafondAbsolu: [],
     modelFacture: [],
     toBeExclude: [],
+    plafondConsoClient: [],
+    plafondJournalierClient: [],
+    plafondAbsoluClient: [],
   });
   private readonly errorService = inject(ErrorService);
 
@@ -83,7 +88,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     this.populate().then(r => {
       this.groupeTiersPayants = r;
     });
-    this.displayDisplayCmu();
   }
 
   ngAfterViewInit(): void {
@@ -155,6 +159,9 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       modelFacture: tiersPayant.modelFacture,
       ordreTrisFacture: tiersPayant.ordreTrisFacture,
       toBeExclude: tiersPayant.toBeExclude,
+      plafondConsoClient: tiersPayant.plafondConsoClient,
+      plafondJournalierClient: tiersPayant.plafondJournalierClient,
+      plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
     });
   }
 
@@ -176,15 +183,9 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId']).value,
       modelFacture: this.editForm.get(['modelFacture']).value,
       toBeExclude: this.editForm.get(['toBeExclude']).value,
+      plafondConsoClient: this.editForm.get(['plafondConsoClient']).value,
+      plafondJournalierClient: this.editForm.get(['plafondJournalierClient']).value,
+      plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
     };
-  }
-
-  private displayDisplayCmu(): void {
-    if (this.editForm.get('useReferencedPrice').value) {
-      this.editForm.get('cmu').disable();
-    }
-    if (this.editForm.get('cmu').value) {
-      this.editForm.get('useReferencedPrice').disable();
-    }
   }
 }

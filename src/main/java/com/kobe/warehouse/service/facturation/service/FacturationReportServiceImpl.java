@@ -122,13 +122,13 @@ public class FacturationReportServiceImpl extends CommonReportService implements
         long montantVente = 0;
         long montantAttendu = 0;
         long montantRemiseVente = 0;
-        long montantRemiseForfaitaire = 0;
+        int montantRemiseForfaitaire = 0;
         for (ThirdPartySaleLine partySaleLine : factureTiersPayant.getFacturesDetails()) {
             ThirdPartySales thirdPartySales = partySaleLine.getSale();
             montantVente += thirdPartySales.getSalesAmount();
             montantAttendu += partySaleLine.getMontant();
             montantRemiseVente += Objects.requireNonNullElse(thirdPartySales.getDiscountAmount(), 0);
-            montantRemiseForfaitaire += Objects.requireNonNullElse(factureTiersPayant.getRemiseForfetaire(), 0L);
+            montantRemiseForfaitaire += factureTiersPayant.getRemiseForfetaire();
         }
         return new Tuple4(montantVente, montantAttendu, montantRemiseVente, montantRemiseForfaitaire);
     }

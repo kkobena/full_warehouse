@@ -188,9 +188,6 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     public AssuredCustomer updateTiersPayant(ClientTiersPayantDTO dto) throws GenericError {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
         clientTiersPayant.setTaux(dto.getTaux());
-        clientTiersPayant.setPlafondAbsolu(dto.getPlafondAbsolu());
-        clientTiersPayant.setPlafondConso(dto.getPlafondConso());
-        clientTiersPayant.setPlafondJournalier(dto.getPlafondJournalier());
         clientTiersPayant.setNum(dto.getNum());
         return clientTiersPayantRepository.save(clientTiersPayant).getAssuredCustomer();
     }

@@ -51,12 +51,6 @@ public class ClientTiersPayant implements Serializable {
     @NotNull
     private String num;
 
-    @Column(name = "plafond_conso")
-    private Long plafondConso;
-
-    @Column(name = "plafond_journalier")
-    private Long plafondJournalier;
-
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
 
@@ -74,16 +68,13 @@ public class ClientTiersPayant implements Serializable {
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 
     @NotNull
-    @Column(name = "taux", nullable = false)
-    private Integer taux;
+    @Column(name = "taux", nullable = false, columnDefinition = "int(3)")
+    private int taux;
 
     @Column(name = "conso_mensuelle")
     private Long consoMensuelle;
 
     private transient double tauxValue;
-
-    @Column(name = "plafond_absolu")
-    private Boolean plafondAbsolu = false;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "consommation_json")
@@ -127,24 +118,6 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
-    public Long getPlafondConso() {
-        return plafondConso;
-    }
-
-    public ClientTiersPayant setPlafondConso(Long plafondConso) {
-        this.plafondConso = plafondConso;
-        return this;
-    }
-
-    public Long getPlafondJournalier() {
-        return plafondJournalier;
-    }
-
-    public ClientTiersPayant setPlafondJournalier(Long plafondJournalier) {
-        this.plafondJournalier = plafondJournalier;
-        return this;
-    }
-
     public LocalDateTime getCreated() {
         return created;
     }
@@ -181,11 +154,11 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
-    public @NotNull Integer getTaux() {
+    public int getTaux() {
         return taux;
     }
 
-    public ClientTiersPayant setTaux(Integer taux) {
+    public ClientTiersPayant setTaux(int taux) {
         this.taux = taux;
         return this;
     }
@@ -199,15 +172,6 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
-        return plafondAbsolu;
-    }
-
-    public ClientTiersPayant setPlafondAbsolu(Boolean plafondAbsolu) {
-        this.plafondAbsolu = plafondAbsolu;
-        return this;
-    }
-
     public Set<Consommation> getConsommations() {
         return consommations;
     }
@@ -218,7 +182,7 @@ public class ClientTiersPayant implements Serializable {
     }
 
     public double getTauxValue() {
-        tauxValue = Double.valueOf(taux) / 100;
+        tauxValue = (double) taux / 100;
         return tauxValue;
     }
 }

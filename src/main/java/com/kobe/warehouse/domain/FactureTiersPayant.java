@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
@@ -41,7 +42,7 @@ public class FactureTiersPayant implements Serializable {
     @Column(name = "num_facture", nullable = false, length = 20)
     private String numFacture;
 
-    private Long remiseForfetaire;
+    private int remiseForfetaire;
 
     @ManyToOne
     private TiersPayant tiersPayant;
@@ -55,8 +56,9 @@ public class FactureTiersPayant implements Serializable {
 
     private LocalDateTime updated = LocalDateTime.now();
 
+    @ColumnDefault("0")
     @Column(name = "montant_regle", columnDefinition = "int default '0'")
-    private Integer montantRegle = 0;
+    private int montantRegle;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -180,12 +182,21 @@ public class FactureTiersPayant implements Serializable {
         return this;
     }
 
-    public Integer getMontantRegle() {
+    public int getMontantRegle() {
         return montantRegle;
     }
 
-    public FactureTiersPayant setMontantRegle(Integer montantRegle) {
+    public FactureTiersPayant setMontantRegle(int montantRegle) {
         this.montantRegle = montantRegle;
+        return this;
+    }
+
+    public int getRemiseForfetaire() {
+        return remiseForfetaire;
+    }
+
+    public FactureTiersPayant setRemiseForfetaire(int remiseForfetaire) {
+        this.remiseForfetaire = remiseForfetaire;
         return this;
     }
 
@@ -204,15 +215,6 @@ public class FactureTiersPayant implements Serializable {
 
     public FactureTiersPayant setNumFacture(String numFacture) {
         this.numFacture = numFacture;
-        return this;
-    }
-
-    public Long getRemiseForfetaire() {
-        return remiseForfetaire;
-    }
-
-    public FactureTiersPayant setRemiseForfetaire(Long remiseForfetaire) {
-        this.remiseForfetaire = remiseForfetaire;
         return this;
     }
 

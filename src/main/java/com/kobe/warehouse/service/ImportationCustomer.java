@@ -192,8 +192,6 @@ public class ImportationCustomer {
                 tiersPayantRepository.findOneByNameOrFullName(c.getTiersPayantName(), c.getTiersPayantFullName()).orElse(null)
             );
             o.setNum(c.getNum());
-            o.setPlafondConso(c.getPlafondConso());
-            o.setPlafondJournalier(c.getPlafondJournalier());
             o.setPriorite(c.getPriorite());
             o.setTaux(c.getTaux());
             o.setStatut(TiersPayantStatut.ACTIF);

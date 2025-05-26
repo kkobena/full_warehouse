@@ -77,7 +77,7 @@ public class TiersPayantServiceImpl implements TiersPayantService {
         }
 
         TiersPayant tiersPayant = entityFromDto(dto, new TiersPayant().setCreated(LocalDateTime.now()));
-        tiersPayant.setUpdatedBy(storageService.getUser());
+        tiersPayant.setUser(storageService.getUser());
         tiersPayant = tiersPayantRepository.save(tiersPayant);
         return fromEntity(tiersPayant);
     }
@@ -105,7 +105,7 @@ public class TiersPayantServiceImpl implements TiersPayantService {
         }
 
         tiersPayant = entityFromDto(dto, tiersPayant);
-        tiersPayant.setUpdatedBy(storageService.getUser());
+        tiersPayant.setUser(storageService.getUser());
         return fromEntity(tiersPayantRepository.save(tiersPayant));
     }
 
@@ -116,7 +116,7 @@ public class TiersPayantServiceImpl implements TiersPayantService {
                 .getReferenceById(id)
                 .setStatut(TiersPayantStatut.DISABLED)
                 .setUpdated(LocalDateTime.now())
-                .setUpdatedBy(storageService.getUser())
+                .setUser(storageService.getUser())
         );
     }
 

@@ -2,9 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public interface TiersPayantMapper {
     default TiersPayantDto fromEntity(TiersPayant tiersPayant) {
@@ -14,13 +12,16 @@ public interface TiersPayantMapper {
             .setCodeOrganisme(tiersPayant.getCodeOrganisme())
             .setConsoMensuelle(tiersPayant.getConsoMensuelle())
             .setPlafondConso(tiersPayant.getPlafondConso())
-            .setPlafondAbsolu(tiersPayant.getPlafondAbsolu())
+            .setPlafondAbsolu(tiersPayant.isPlafondAbsolu())
             .setCreated(tiersPayant.getCreated())
             .setUpdated(tiersPayant.getUpdated())
             .setEmail(tiersPayant.getEmail())
             .setName(tiersPayant.getName())
             .setFullName(tiersPayant.getFullName())
             .setId(tiersPayant.getId())
+            .setPlafondAbsoluClient(tiersPayant.isPlafondAbsoluClient())
+            .setPlafondConsoClient(tiersPayant.getPlafondConsoClient())
+            .setPlafondJournalierClient(tiersPayant.getPlafondJournalierClient())
             .setGroupeTiersPayant(tiersPayant.getGroupeTiersPayant())
             .setMontantMaxParFcture(tiersPayant.getMontantMaxParFcture())
             .setNbreBons(tiersPayant.getNbreBons())
@@ -28,7 +29,7 @@ public interface TiersPayantMapper {
             .setRemiseForfaitaire(tiersPayant.getRemiseForfaitaire())
             .setTelephone(tiersPayant.getTelephone())
             .setTelephoneFixe(tiersPayant.getTelephoneFixe())
-            .setToBeExclude(tiersPayant.getToBeExclude())
+            .setToBeExclude(tiersPayant.isBeExclude())
             .setModelFacture(tiersPayant.getModelFacture())
             .setStatut(tiersPayant.getStatut());
     }
@@ -40,7 +41,10 @@ public interface TiersPayantMapper {
             .setCodeOrganisme(payantDto.getCodeOrganisme())
             .setConsoMensuelle(payantDto.getConsoMensuelle())
             .setPlafondConso(payantDto.getPlafondConso())
-            .setPlafondAbsolu(payantDto.getPlafondAbsolu())
+            .setPlafondAbsolu(payantDto.isPlafondAbsolu())
+            .setPlafondAbsoluClient(payantDto.isPlafondAbsoluClient())
+            .setPlafondConsoClient(payantDto.getPlafondConsoClient())
+            .setPlafondJournalierClient(payantDto.getPlafondJournalierClient())
             .setCreated(LocalDateTime.now())
             .setUpdated(LocalDateTime.now())
             .setEmail(payantDto.getEmail())
@@ -53,7 +57,7 @@ public interface TiersPayantMapper {
             .setRemiseForfaitaire(payantDto.getRemiseForfaitaire())
             .setTelephone(payantDto.getTelephone())
             .setTelephoneFixe(payantDto.getTelephoneFixe())
-            .setToBeExclude(payantDto.getToBeExclude())
+            .setBeExclude(payantDto.isToBeExclude())
             .setModelFacture(payantDto.getModelFacture());
     }
 
@@ -65,14 +69,16 @@ public interface TiersPayantMapper {
     }
 
     default TiersPayant entityFromDto(TiersPayantDto dto, TiersPayant tiersPayant) {
-
         return tiersPayant
             .setAdresse(dto.getAdresse())
             .setCategorie(dto.getCategorie())
             .setCodeOrganisme(dto.getCodeOrganisme())
             .setConsoMensuelle(dto.getConsoMensuelle())
             .setPlafondConso(dto.getPlafondConso())
-            .setPlafondAbsolu(dto.getPlafondAbsolu())
+            .setPlafondAbsolu(dto.isPlafondAbsolu())
+            .setPlafondAbsoluClient(dto.isPlafondAbsoluClient())
+            .setPlafondConsoClient(dto.getPlafondConsoClient())
+            .setPlafondJournalierClient(dto.getPlafondJournalierClient())
             .setUpdated(LocalDateTime.now())
             .setEmail(dto.getEmail())
             .setName(dto.getName())
@@ -84,7 +90,7 @@ public interface TiersPayantMapper {
             .setRemiseForfaitaire(dto.getRemiseForfaitaire())
             .setTelephone(dto.getTelephone())
             .setTelephoneFixe(dto.getTelephoneFixe())
-            .setToBeExclude(dto.getToBeExclude())
+            .setBeExclude(dto.isToBeExclude())
             .setModelFacture(dto.getModelFacture());
     }
 }

@@ -31,6 +31,9 @@ export interface ITiersPayant {
   groupeTiersPayantId?: number;
   encours?: number;
   customers?: ICustomer[];
+  plafondJournalierClient?: number;
+  plafondConsoClient?: number;
+  plafondAbsoluClient?: boolean;
 }
 
 export class TiersPayant implements ITiersPayant {

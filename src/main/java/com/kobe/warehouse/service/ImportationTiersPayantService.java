@@ -114,7 +114,7 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     try {
                         TiersPayant tiersPayant = entityFromDto(p);
-                        tiersPayant.setUpdatedBy(user);
+                        tiersPayant.setUser(user);
                         GroupeTiersPayant groupeTiersPayant = groupeTiersPayantService
                             .getOneByName(p.getGroupeTiersPayantName())
                             .orElse(null);

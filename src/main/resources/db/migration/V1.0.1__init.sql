@@ -1172,40 +1172,43 @@ create table ticketing
 
 create table tiers_payant
 (
-  id                     bigint auto_increment
+  id                        bigint auto_increment
     primary key,
-  adresse                varchar(200)                          null,
-  categorie              enum ('ASSURANCE', 'CARNET', 'DEPOT') not null,
-  code_organisme         varchar(100)                          null,
-  conso_mensuelle        bigint                                null,
-  consommation_json      longtext collate utf8mb4_bin          null
+  adresse                   varchar(200)                          null,
+  to_be_exclude             bit    default b'0'                   null,
+  categorie                 enum ('ASSURANCE', 'CARNET', 'DEPOT') not null,
+  code_organisme            varchar(100)                          null,
+  conso_mensuelle           bigint                                null,
+  consommation_json         longtext collate utf8mb4_bin          null
     check (json_valid(`consommation_json`)),
-  created                datetime(6)                           not null,
-  email                  varchar(50)                           null,
-  full_name              varchar(200)                          not null,
-  model_facture          varchar(20)                           null,
-  montant_max_sur_fact   bigint                                null,
-  name                   varchar(150)                          not null,
-  nbre_bons_max_sur_fact int                                   null,
-  nbre_bordereau         int        default 1                  not null,
-  plafond_absolu         bit                                   null,
-  plafond_conso          bigint                                null,
-  remise_forfaitaire     bigint                                null,
-  statut                 enum ('ACTIF', 'DISABLED', 'LOCK')    not null,
-  telephone              varchar(15)                           null,
-  telephone_fixe         varchar(15)                           null,
-  to_be_exclude          tinyint(1) default 0                  null,
-  updated                datetime(6)                           not null,
-  groupe_tiers_payant_id bigint                                null,
-  updated_by_id          bigint                                null,
+  created                   datetime(6)                           not null,
+  email                     varchar(50)                           null,
+  full_name                 varchar(200)                          not null,
+  model_facture             varchar(20)                           null,
+  montant_max_sur_fact      bigint                                null,
+  name                      varchar(150)                          not null,
+  nbre_bons_max_sur_fact    int(8)                                null,
+  nbre_bordereau            int(6) default 1                      not null,
+  plafond_absolu            bit    default b'0'                   null,
+  plafond_absolu_client     bit    default b'0'                   null,
+  plafond_conso             bigint                                null,
+  plafond_conso_client      int                                   null,
+  plafond_journalier_client int                                   null,
+  remise_forfaitaire        int    default 0                      null,
+  statut                    enum ('ACTIF', 'DISABLED', 'LOCK')    not null,
+  telephone                 varchar(15)                           null,
+  telephone_fixe            varchar(15)                           null,
+  updated                   datetime(6)                           not null,
+  groupe_tiers_payant_id    bigint                                null,
+  user_id                   bigint                                not null,
   constraint UK3moh75ah5g6ce1dm9n28psmvo
     unique (full_name),
   constraint UKsmbw04nasi7yrcjwcg95tsh6t
     unique (name),
   constraint FKeq4f34e6hgun4oad7iuxnnrs7
     foreign key (groupe_tiers_payant_id) references groupe_tiers_payant (id),
-  constraint FKj72u7uuhf7tar5ecub95sr6sa
-    foreign key (updated_by_id) references user (id)
+  constraint FKhp0141pj7prgtctwef8gbnxf7
+    foreign key (user_id) references user (id)
 );
 
 create table client_tiers_payant
@@ -1217,12 +1220,9 @@ create table client_tiers_payant
     check (json_valid(`consommation_json`)),
   created             datetime(6)                        not null,
   num                 varchar(100)                       not null,
-  plafond_absolu      bit                                null,
-  plafond_conso       bigint                             null,
-  plafond_journalier  bigint                             null,
   priorite            enum ('R0', 'R1', 'R2', 'R3')      not null,
   statut              enum ('ACTIF', 'DISABLED', 'LOCK') not null,
-  taux                int                                not null,
+  taux                int(3)                             not null,
   updated             datetime(6)                        not null,
   assured_customer_id bigint                             not null,
   tiers_payant_id     bigint                             not null,
@@ -1246,7 +1246,7 @@ create table facture_tiers_payant
   fin_periode                    date                           null,
   montant_regle                  int         default 0          null,
   num_facture                    varchar(20)                    not null,
-  remise_forfetaire              bigint                         null,
+  remise_forfetaire              int                            not null,
   statut                         varchar(20) default 'NOT_PAID' not null,
   updated                        datetime(6)                    null,
   groupe_facture_tiers_payant_id bigint                         null,
@@ -1765,4 +1765,3 @@ create table warehouse_sequence
   increment int(4) default 1 null,
   seq_value int    default 0 null
 );
-

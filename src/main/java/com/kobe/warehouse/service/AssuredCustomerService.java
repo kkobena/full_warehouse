@@ -15,7 +15,7 @@ import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,11 +57,8 @@ public interface AssuredCustomerService {
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
-        o.setPlafondConso(dto.getPlafondConso());
-        o.setPlafondJournalier(dto.getPlafondJournalier());
         o.setPriorite(PrioriteTiersPayant.R0);
         o.setTaux(dto.getTaux());
-        o.setPlafondAbsolu(dto.getPlafondAbsolu());
         o.setStatut(TiersPayantStatut.ACTIF);
         return o;
     }
@@ -70,10 +67,7 @@ public interface AssuredCustomerService {
         o.setUpdated(LocalDateTime.now());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
-        o.setPlafondConso(dto.getPlafondConso());
-        o.setPlafondJournalier(dto.getPlafondJournalier());
         o.setTaux(dto.getTaux());
-        o.setPlafondAbsolu(dto.getPlafondAbsolu());
         return o;
     }
 
@@ -84,8 +78,6 @@ public interface AssuredCustomerService {
         o.setUpdated(o.getCreated());
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
-        o.setPlafondConso(dto.getPlafondConso());
-        o.setPlafondJournalier(dto.getPlafondJournalier());
         o.setPriorite(dto.getPriorite());
         o.setTaux(dto.getTaux());
         o.setStatut(TiersPayantStatut.ACTIF);
@@ -151,8 +143,6 @@ public interface AssuredCustomerService {
             o.setCreated(LocalDateTime.now());
             o.setTiersPayant(tiersPayant);
             o.setNum(c.getNum());
-            o.setPlafondConso(c.getPlafondConso());
-            o.setPlafondJournalier(c.getPlafondJournalier());
             o.setPriorite(c.getPriorite());
             o.setTaux(c.getTaux());
             o.setStatut(TiersPayantStatut.ACTIF);
@@ -165,8 +155,6 @@ public interface AssuredCustomerService {
     default ClientTiersPayant updateClientTiersPayantFromDto(ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
         o.setUpdated(LocalDateTime.now());
         o.setNum(c.getNum());
-        o.setPlafondConso(c.getPlafondConso());
-        o.setPlafondJournalier(c.getPlafondJournalier());
         o.setPriorite(c.getPriorite());
         o.setTaux(c.getTaux());
         o.setAssuredCustomer(assuredCustomer);

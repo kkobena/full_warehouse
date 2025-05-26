@@ -24,19 +24,20 @@ public class TiersPayantDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     private String codeOrganisme;
 
+    private boolean plafondAbsoluClient;
     private Long consoMensuelle;
-    private Boolean plafondAbsolu;
+    private boolean plafondAbsolu;
     private String adresse;
     private String telephone;
     private String telephoneFixe;
     private String email;
-    private Boolean toBeExclude;
+    private boolean toBeExclude;
     private Long plafondConso;
     private Long plafondClient;
     private TiersPayantStatut statut;
     private TiersPayantCategorie categorie;
-    private Long remiseForfaitaire;
-    private Integer nbreBordereaux;
+    private int remiseForfaitaire;
+    private int nbreBordereaux;
     private LocalDateTime created;
     private LocalDateTime updated;
     private GroupeTiersPayant groupeTiersPayant;
@@ -45,9 +46,18 @@ public class TiersPayantDto implements Serializable {
     private String modelFacture;
     private OrdreTrisFacture ordreTrisFacture;
     private List<AssuredCustomerDTO> clients = new ArrayList<>();
-
+    private Integer plafondJournalierClient;
+    private Integer plafondConsoClient;
 
     public TiersPayantDto() {}
+
+    public OrdreTrisFacture getOrdreTrisFacture() {
+        return ordreTrisFacture;
+    }
+
+    public void setOrdreTrisFacture(OrdreTrisFacture ordreTrisFacture) {
+        this.ordreTrisFacture = ordreTrisFacture;
+    }
 
     public String getModelFacture() {
         return modelFacture;
@@ -57,7 +67,6 @@ public class TiersPayantDto implements Serializable {
         this.modelFacture = modelFacture;
         return this;
     }
-
 
     public Long getId() {
         return id;
@@ -131,11 +140,11 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public Boolean getPlafondAbsolu() {
+    public boolean isPlafondAbsolu() {
         return plafondAbsolu;
     }
 
-    public TiersPayantDto setPlafondAbsolu(Boolean plafondAbsolu) {
+    public TiersPayantDto setPlafondAbsolu(boolean plafondAbsolu) {
         this.plafondAbsolu = plafondAbsolu;
         return this;
     }
@@ -176,11 +185,38 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public Boolean getToBeExclude() {
+    public boolean isPlafondAbsoluClient() {
+        return plafondAbsoluClient;
+    }
+
+    public TiersPayantDto setPlafondAbsoluClient(boolean plafondAbsoluClient) {
+        this.plafondAbsoluClient = plafondAbsoluClient;
+        return this;
+    }
+
+    public Integer getPlafondConsoClient() {
+        return plafondConsoClient;
+    }
+
+    public TiersPayantDto setPlafondConsoClient(Integer plafondConsoClient) {
+        this.plafondConsoClient = plafondConsoClient;
+        return this;
+    }
+
+    public Integer getPlafondJournalierClient() {
+        return plafondJournalierClient;
+    }
+
+    public TiersPayantDto setPlafondJournalierClient(Integer plafondJournalierClient) {
+        this.plafondJournalierClient = plafondJournalierClient;
+        return this;
+    }
+
+    public boolean isToBeExclude() {
         return toBeExclude;
     }
 
-    public TiersPayantDto setToBeExclude(Boolean toBeExclude) {
+    public TiersPayantDto setToBeExclude(boolean toBeExclude) {
         this.toBeExclude = toBeExclude;
         return this;
     }
@@ -221,20 +257,20 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public Long getRemiseForfaitaire() {
+    public int getRemiseForfaitaire() {
         return remiseForfaitaire;
     }
 
-    public TiersPayantDto setRemiseForfaitaire(Long remiseForfaitaire) {
+    public TiersPayantDto setRemiseForfaitaire(int remiseForfaitaire) {
         this.remiseForfaitaire = remiseForfaitaire;
         return this;
     }
 
-    public Integer getNbreBordereaux() {
+    public int getNbreBordereaux() {
         return nbreBordereaux;
     }
 
-    public TiersPayantDto setNbreBordereaux(Integer nbreBordereaux) {
+    public TiersPayantDto setNbreBordereaux(int nbreBordereaux) {
         this.nbreBordereaux = nbreBordereaux;
         return this;
     }

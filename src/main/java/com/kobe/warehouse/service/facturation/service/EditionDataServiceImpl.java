@@ -385,7 +385,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             factureDto.setMontantNet(factureDto.getMontantAttendu()); // TODO: check this
             factureDto.setMontantRestant(factureDto.getMontantAttendu() - factureDto.getMontantRegle()); // TODO: check this
             if (!isGrouped) {
-                Long remiseForfetaire = t.get("remiseForfetaire", Long.class);
+                Integer remiseForfetaire = t.get("remiseForfetaire", Integer.class);
                 factureDto.setRemiseForfetaire(remiseForfetaire);
                 BigDecimal itemMontantRegle = t.get("itemMontantRegle", BigDecimal.class);
                 factureDto.setItemMontantRegle(Objects.isNull(itemMontantRegle) ? 0 : itemMontantRegle.longValue());
@@ -525,12 +525,12 @@ public class EditionDataServiceImpl implements EditionDataService {
             factureDto.getItems().add(buildFromThirdPartySaleLine(thirdPartySaleLine, sales));
         }
         factureDto.setMontantRemiseVente(remiseVente);
-        factureDto.setMontantRegle(Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0));
-        factureDto.setRemiseForfetaire(Objects.requireNonNullElse(factureTiersPayant.getRemiseForfetaire(), 0L));
+        factureDto.setMontantRegle(factureTiersPayant.getMontantRegle());
+        factureDto.setRemiseForfetaire(factureTiersPayant.getRemiseForfetaire());
         int count = thirdPartySaleLines.size();
         factureDto.setItemsCount(count);
         factureDto.setItemMontantRegle(montantPaye);
-        factureDto.setMontantNet(factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getRemiseForfetaire(), 0L));
+        factureDto.setMontantNet(factureDto.getMontant() - factureDto.getRemiseForfetaire());
         factureDto.setMontantRestant(factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getMontantRegle(), 0));
         factureDto.setMontantVente(montantVente);
         factureDto.setMontantAttendu(factureDto.getMontantNet());

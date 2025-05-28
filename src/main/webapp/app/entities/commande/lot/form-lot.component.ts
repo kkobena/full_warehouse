@@ -1,23 +1,23 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable, Subscription } from 'rxjs';
-import { ILot, Lot } from '../../../shared/model/lot.model';
-import { LotService } from './lot.service';
-import { BLOCK_SPACE, DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
-import { IDeliveryItem } from '../../../shared/model/delivery-item';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { RippleModule } from 'primeng/ripple';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputTextModule } from 'primeng/inputtext';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { DatePicker } from 'primeng/datepicker';
+import {HttpResponse} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MessageService} from 'primeng/api';
+import {DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Observable} from 'rxjs';
+import {ILot, Lot} from '../../../shared/model/lot.model';
+import {LotService} from './lot.service';
+import {DATE_FORMAT_YYYY_MM_DD} from '../../../shared/util/warehouse-util';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {ToastModule} from 'primeng/toast';
+import {RippleModule} from 'primeng/ripple';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {InputTextModule} from 'primeng/inputtext';
+import {TranslateService} from '@ngx-translate/core';
+import {PrimeNG} from 'primeng/config';
+import {DatePicker} from 'primeng/datepicker';
+import {AbstractOrderItem} from "../../../shared/model/abstract-order-item.model";
 
 @Component({
   selector: 'jhi-form-lot',
@@ -38,25 +38,17 @@ import { DatePicker } from 'primeng/datepicker';
   ],
 })
 export class FormLotComponent implements OnInit {
-  protected entityService = inject(LotService);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
-  primeNGConfig = inject(PrimeNG);
-  translate = inject(TranslateService);
-
-  primngtranslate: Subscription;
-  isSaving = false;
+protected  ref = inject(DynamicDialogRef);
+  protected fb = inject(FormBuilder);
+  protected isSaving = false;
   entity?: ILot;
-  deliveryItem?: IDeliveryItem;
+  deliveryItem?: AbstractOrderItem;
   commandeId?: number;
-  numLotAlreadyExist = false;
-  maxDate = new Date();
-  minDate = new Date();
-  showUgControl = false;
-  blockSpace = BLOCK_SPACE;
-  editForm = this.fb.group({
+  protected numLotAlreadyExist = false;
+  protected maxDate = new Date();
+  protected minDate = new Date();
+  protected showUgControl = false;
+  protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     numLot: new FormControl<string | null>(null, {
       validators: [Validators.required],
@@ -75,10 +67,15 @@ export class FormLotComponent implements OnInit {
 
     manufacturingDate: new FormControl<Date | null>(null),
   });
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly entityService = inject(LotService);
+  private messageService = inject(MessageService);
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
   }

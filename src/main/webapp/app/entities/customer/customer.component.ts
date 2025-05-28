@@ -37,6 +37,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import {Panel} from "primeng/panel";
 
 @Component({
   selector: 'jhi-customer',
@@ -62,6 +63,7 @@ import { InputIcon } from 'primeng/inputicon';
     Select,
     IconField,
     InputIcon,
+    Panel,
   ],
 })
 export class CustomerComponent implements OnInit {

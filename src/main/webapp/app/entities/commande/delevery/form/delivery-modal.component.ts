@@ -1,28 +1,28 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable, Subscription } from 'rxjs';
-import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
-import { ICommande } from '../../../../shared/model/commande.model';
-import { DeliveryService } from '../delivery.service';
-import moment, { Moment } from 'moment';
-import { DATE_FORMAT } from '../../../../shared/constants/input.constants';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { RouterModule } from '@angular/router';
-import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { CardModule } from 'primeng/card';
-import { ToastModule } from 'primeng/toast';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputTextModule } from 'primeng/inputtext';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { DatePicker } from 'primeng/datepicker';
+import {HttpResponse} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MessageService} from 'primeng/api';
+import {DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Observable} from 'rxjs';
+import {Delivery, IDelivery} from '../../../../shared/model/delevery.model';
+import {ICommande} from '../../../../shared/model/commande.model';
+import {DeliveryService} from '../delivery.service';
+import moment, {Moment} from 'moment';
+import {DATE_FORMAT} from '../../../../shared/constants/input.constants';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {RouterModule} from '@angular/router';
+import {RippleModule} from 'primeng/ripple';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {CardModule} from 'primeng/card';
+import {ToastModule} from 'primeng/toast';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {InputTextModule} from 'primeng/inputtext';
+import {TranslateService} from '@ngx-translate/core';
+import {PrimeNG} from 'primeng/config';
+import {DatePicker} from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-form-delivery',
@@ -48,6 +48,7 @@ import { DatePicker } from 'primeng/datepicker';
 })
 export class DeliveryModalComponent implements OnInit {
   commande: ICommande;
+  isEdit: boolean = false;
   protected isSaving = false;
   protected fb = inject(FormBuilder);
   protected maxDate = new Date();
@@ -77,11 +78,11 @@ export class DeliveryModalComponent implements OnInit {
   private readonly spinner = inject(NgxSpinnerService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
-  private readonly primngtranslate: Subscription;
+
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
   }
@@ -113,11 +114,12 @@ export class DeliveryModalComponent implements OnInit {
     this.isSaving = true;
     const entity = this.createFrom();
     this.spinner.show();
-    if (entity.id) {
+    if (this.isEdit) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
     } else {
       this.subscribeToSaveResponse(this.entityService.create(entity));
     }
+
   }
 
   cancel(): void {

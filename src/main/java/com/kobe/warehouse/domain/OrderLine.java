@@ -13,6 +13,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,8 @@ public class OrderLine implements Serializable, Cloneable {
     private Boolean updated = Boolean.FALSE;
     @ManyToOne
     private Tva tva;
+    @Column(name = "date_peremption")
+    private LocalDate datePeremption;
 
     public Integer getFinalStock() {
         return finalStock;
@@ -110,6 +113,22 @@ public class OrderLine implements Serializable, Cloneable {
 
     public void setFinalStock(Integer finalStock) {
         this.finalStock = finalStock;
+    }
+
+    public void setOrderAmount(Integer orderAmount) {
+        this.orderAmount = orderAmount;
+    }
+
+    public void setGrossAmount(Integer grossAmount) {
+        this.grossAmount = grossAmount;
+    }
+
+    public LocalDate getDatePeremption() {
+        return datePeremption;
+    }
+
+    public void setDatePeremption(LocalDate datePeremption) {
+        this.datePeremption = datePeremption;
     }
 
     public Long getId() {

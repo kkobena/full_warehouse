@@ -19,9 +19,7 @@
     <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
-
-<div>
-  <h3>Liste des grossistes</h3>
+<p-panel header="Menu grossistes">
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-7">
       <p-icon-field>
@@ -108,6 +106,10 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
+</p-panel>
+
+
+
 
   <!-- formulaire de creation et d edition-->
   <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -248,4 +250,4 @@
       </ng-template>
     </p-dialog>
   </form>
-</div>
+

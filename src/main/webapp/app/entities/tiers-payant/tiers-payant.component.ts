@@ -30,6 +30,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import {Panel} from "primeng/panel";
 
 @Component({
   selector: 'jhi-tiers-payant',
@@ -56,6 +57,7 @@ import { InputIcon } from 'primeng/inputicon';
     Select,
     IconField,
     InputIcon,
+    Panel,
   ],
 })
 export class TiersPayantComponent implements OnInit {

@@ -17,28 +17,26 @@
     <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
-<div>
-  <h3>Liste des groupes de grossiste</h3>
-  <p-toolbar>
-    <div class="p-toolbar-group-left p-md-7">
-      <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
-      </p-iconfield>
-    </div>
-    <div class="p-toolbar-group-right">
-      <p-button
-        (click)="showFileDialog()"
-        class="p-mr-2"
-        icon="pi pi-upload"
-        label="Importer"
-        raised="true"
-        severity="help"
-        type="button"
-      ></p-button>
-      <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
-    </div>
-  </p-toolbar>
+<p-panel header="Menu groupe fournisseurs">  <p-toolbar>
+  <div class="p-toolbar-group-left p-md-7">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+      <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
+    </p-iconfield>
+  </div>
+  <div class="p-toolbar-group-right">
+    <p-button
+      (click)="showFileDialog()"
+      class="p-mr-2"
+      icon="pi pi-upload"
+      label="Importer"
+      raised="true"
+      severity="help"
+      type="button"
+    ></p-button>
+    <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
+  </div>
+</p-toolbar>
   @if (entites && entites.length > 0) {
     <p-table
       (onLazyLoad)="lazyLoading($event)"
@@ -98,8 +96,8 @@
     <div class="alert alert-warning" id="no-result">
       <span>Aucune donnée trouvée</span>
     </div>
-  }
-</div>
+  }</p-panel>
+
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <p-dialog

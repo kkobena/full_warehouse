@@ -101,7 +101,7 @@ export class CommandeStockEntryComponent implements OnInit {
   protected showLotBtn = true;
   protected disableActionBtn = false;
   protected showEditBtn = true;
-  private  ref?: DynamicDialogRef;
+  private ref?: DynamicDialogRef;
   private readonly tvaService = inject(TvaService);
   private readonly commandeService = inject(CommandeService);
   private readonly service = inject(DeliveryService);
@@ -129,10 +129,10 @@ export class CommandeStockEntryComponent implements OnInit {
   ngOnInit(): void {
 
     this.delivery = this.abstractCommande();
-    if(this.delivery.id){
+    if (this.delivery && this.delivery.id) {
       this.receiptItems = this.delivery.orderLines;
       this.enabledBtnValidate();
-    }else{
+    } else {
       this.activatedRoute.data.subscribe({
         next: data => {
           const delivery = data.delivery;
@@ -144,7 +144,6 @@ export class CommandeStockEntryComponent implements OnInit {
         },
       });
     }
-
 
 
     this.findParamAddLot();

@@ -234,14 +234,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setUser(storageService.getUser());
         commande.orderStatus(OrderStatut.RECEIVED);
         commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
-        DeliveryReceiptLiteDTO response = fromEntity(
-            commandeRepository.save(buildDeliveryReceipt(deliveryReceiptLite, commande))
-        );
+        buildDeliveryReceipt(deliveryReceiptLite, commande);
         List<OrderLine> orderLines= commande.getOrderLines();
         orderLines.forEach(this::updateReceivedQty);
         this.orderLineService.saveAll( orderLines);
-        commandeRepository.saveAndFlush(commande);
-        return response;
+        return  fromEntity(  commandeRepository.saveAndFlush(commande));
+
     }
 
     @Override
@@ -344,7 +342,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setDiscountAmount(0);
         commande.setTaxAmount(deliveryReceiptLite.getTaxAmount());
         commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
-        commande.setHtAmount(ServiceUtil.computeHtaxe(commande.getGrossAmount(), commande.getTaxAmount()));
+        commande.setHtAmount(deliveryReceiptLite.getReceiptAmount());
         return commande;
     }
 

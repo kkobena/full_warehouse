@@ -65,6 +65,10 @@ import {Panel} from "primeng/panel";
 import {CellEditor} from "primeng/table/table";
 import {DomHandler} from "primeng/dom";
 import {TableEditorDirective} from "../store-inventory/table-editor.directive";
+import {IDeliveryItem} from "../../shared/model/delivery-item";
+import {ListLotComponent} from "./lot/list/list-lot.component";
+import {FormLotComponent} from "./lot/form-lot.component";
+import {OrderStatut} from "../../shared/model/enumerations/order-statut.model";
 
 @Component({
   selector: 'jhi-commande-update',
@@ -137,7 +141,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   @ViewChildren(EditableColumn) editableColumns!: QueryList<EditableColumn>;
   /* @ViewChildren('cellInput', { read: ElementRef }) inputs!: QueryList<ElementRef>;*/
   @ViewChildren('cellInput', {read: ElementRef}) protected inputs!: QueryList<ElementRef<HTMLInputElement>>;
-  protected commandeTable = viewChild<Table<IOrderLine>>('commandeTable');
+  protected readonly RECEIVED=OrderStatut.RECEIVED;
   protected isSaving = false;
   protected produits: IProduit[] = [];
   protected commande?: ICommande | null = null;
@@ -693,54 +697,21 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.spinner.hide(spinnerName);
   }
 
-  moveToNextCell(event: KeyboardEvent) {
-    let currentCell = this.findCell(event.target);
-    if (currentCell) {
-      let targetCell = this.findNextEditableColumn(currentCell);
-
-      if (targetCell) {
-        if (this.commandeTable().isEditingCellValid()) {
-
-        }
-
-        DomHandler.invokeElementMethod(event.target, 'blur');
-        DomHandler.invokeElementMethod(targetCell, 'click');
-        event.preventDefault();
-      } else {
-        if (this.commandeTable().isEditingCellValid()) {
-
-        }
-      }
-    }
-  }
-  findCell(element: any) {
-    if (element) {
-      let cell = element;
-      while (cell && !DomHandler.hasClass(cell, 'p-cell-editing')) {
-        cell = cell.parentElement;
-      }
-
-      return cell;
+  onAddLot(deliveryItem: IOrderLine): void {
+    const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
+    if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
+      this.ref = this.dialogService.open(ListLotComponent, {
+        data: {deliveryItem},
+        width: '60%',
+        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
+      });
     } else {
-      return null;
+      this.ref = this.dialogService.open(FormLotComponent, {
+        data: {entity: null, deliveryItem},
+        width: '40%',
+        header: 'Ajout de lot',
+      });
     }
-  }
-
-  findNextEditableColumn(cell: any): HTMLTableCellElement | null {
-    let nextCell = cell.nextElementSibling;
-
-    if (!nextCell) {
-      let nextRow = cell.parentElement?.nextElementSibling;
-      if (nextRow) {
-        nextCell = nextRow.firstElementChild;
-      }
-    }
-
-    if (nextCell) {
-      if (DomHandler.hasClass(nextCell, 'p-editable-column')) return nextCell;
-      else return this.findNextEditableColumn(nextCell);
-    } else {
-      return null;
-    }
+   // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 }

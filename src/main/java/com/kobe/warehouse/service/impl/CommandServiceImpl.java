@@ -209,7 +209,6 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair = orderLineService.updateOrderLineUnitPrice(orderLineDTO);
-
         return updateCommande(orderLineOrderLinePair);
     }
 

@@ -19,7 +19,7 @@
               type="button"></p-button>
   </ng-template>
 </p-dialog>
-<div>
+
   @if (responseDialog) {
     <div class="mb-2">
       <span
@@ -33,10 +33,7 @@
   <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
                name="importation" size="medium" type="timer">
   </ngx-spinner>
-
-  <h5 id="page-heading">
-    <span>LISTE DES TIERS-PAYANTS</span>
-  </h5>
+<p-panel header="Liste des tiers payants">
   <p-toolbar>
     <ng-template #start>
       <p-select
@@ -169,4 +166,7 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
-</div>
+</p-panel>
+
+
+

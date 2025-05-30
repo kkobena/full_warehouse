@@ -3,16 +3,20 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
-public class OrderLineDTO {
+import static java.util.Objects.nonNull;
 
-    private  TvaDTO tva;
+public class OrderLineDTO {
+    private Long tvaId;
+    private TvaDTO tva;
     private int totalQuantity;
     private int regularUnitPrice;
     private int orderUnitPrice;
@@ -41,16 +45,18 @@ public class OrderLineDTO {
     private String commandeOrderRefernce;
     private String commandeReceiptRefernce;
     private Boolean provisionalCode;
-    private Integer quantityUg;
     private Integer quantityReceivedTmp;
-    private Integer ugQuantity;
     private Set<LotDTO> lots = new HashSet<>();
+    private int freeQty;
+    private Boolean updated;
+    private Integer afterStock;
 
-    public OrderLineDTO() {}
+    public OrderLineDTO() {
+    }
 
     public OrderLineDTO(OrderLine orderLine) {
         initStock = orderLine.getInitStock();
-        orderUnitPrice = orderLine.getOrderUnitPrice();
+        //  orderUnitPrice = orderLine.getOrderUnitPrice();
         id = orderLine.getId();
         quantityReceived = orderLine.getQuantityReceived();
         quantityRequested = orderLine.getQuantityRequested();
@@ -62,7 +68,7 @@ public class OrderLineDTO {
         taxAmount = orderLine.getTaxAmount();
         createdAt = orderLine.getCreatedAt();
         updatedAt = orderLine.getUpdatedAt();
-       // costAmount = orderLine.getCostAmount();
+        // costAmount = orderLine.getCostAmount();
         FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
         regularUnitPrice = fournisseurProduit.getPrixUni();
         Produit produit = fournisseurProduit.getProduit();
@@ -73,12 +79,59 @@ public class OrderLineDTO {
         produitCodeEan = produit.getCodeEan();
         orderCostAmount = orderLine.getOrderCostAmount();
         provisionalCode = orderLine.getProvisionalCode();
-        quantityUg = orderLine.getFreeQty() ;
-        ugQuantity = orderLine.getFreeQty() ;
         quantityReceivedTmp = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested();
-        lots = orderLine.getLots().stream().map(LotDTO::new).collect(java.util.stream.Collectors.toSet()) ;
-       Tva tvaEntity = orderLine.getTva();
-        tva = Objects.nonNull(tvaEntity) ?new TvaDTO(tvaEntity): null;
+        lots = orderLine.getLots().stream().map(LotDTO::new).collect(java.util.stream.Collectors.toSet());
+        Tva tvaEntity = orderLine.getTva();
+        if (nonNull(tvaEntity)) {
+            tvaId = tvaEntity.getId();
+            tva = new TvaDTO(tvaEntity);
+        }
+
+        freeQty = orderLine.getFreeQty();
+        costAmount = fournisseurProduit.getPrixAchat();
+        orderUnitPrice = Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0) + orderLine.getOrderUnitPrice();
+        fournisseurProduitId = fournisseurProduit.getId();
+        produitId = produit.getId();
+        updated = orderLine.getUpdated();
+        afterStock = orderLine.getFinalStock();
+        quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
+
+    }
+
+    public Long getTvaId() {
+        return tvaId;
+    }
+
+    public OrderLineDTO setTvaId(Long tvaId) {
+        this.tvaId = tvaId;
+        return this;
+    }
+
+    public Integer getAfterStock() {
+        return afterStock;
+    }
+
+    public OrderLineDTO setAfterStock(Integer afterStock) {
+        this.afterStock = afterStock;
+        return this;
+    }
+
+    public Boolean getUpdated() {
+        return updated;
+    }
+
+    public OrderLineDTO setUpdated(Boolean updated) {
+        this.updated = updated;
+        return this;
+    }
+
+    public int getFreeQty() {
+        return freeQty;
+    }
+
+    public OrderLineDTO setFreeQty(int freeQty) {
+        this.freeQty = freeQty;
+        return this;
     }
 
     public int getTotalQuantity() {
@@ -333,14 +386,7 @@ public class OrderLineDTO {
         return this;
     }
 
-    public Integer getQuantityUg() {
-        return quantityUg;
-    }
 
-    public OrderLineDTO setQuantityUg(Integer quantityUg) {
-        this.quantityUg = quantityUg;
-        return this;
-    }
 
     public Integer getQuantityReceivedTmp() {
         return quantityReceivedTmp;
@@ -351,14 +397,7 @@ public class OrderLineDTO {
         return this;
     }
 
-    public Integer getUgQuantity() {
-        return ugQuantity;
-    }
 
-    public OrderLineDTO setUgQuantity(Integer ugQuantity) {
-        this.ugQuantity = ugQuantity;
-        return this;
-    }
 
     public TvaDTO getTva() {
         return tva;

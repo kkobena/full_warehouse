@@ -152,13 +152,13 @@ export class CommandeService {
   }
 
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
+    return this.http.put(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
       observe: 'response',
     });
   }
 
-  updateQuantityUG(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-quantity-ug', orderLine, {observe: 'response'});
+  updateQuantityUG(orderLine: IOrderLine): Observable<HttpResponse<{}>> {
+    return this.http.put(this.resourceUrl + '/update-order-line-quantity-ug', orderLine, {observe: 'response'});
   }
 
   updateOrderUnitPriceOnStockEntry(orderLine: IOrderLine): Observable<{}> {
@@ -176,6 +176,12 @@ export class CommandeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
+  changeGrossiste(commande: ICommande): Observable<HttpResponse<{}>> {
+    return this.http
+      .put(`${this.resourceUrl}/change-grossiste`, commande, {observe: 'response'});
+
+  }
+
   finalizeSaisieEntreeStock(commande: ICommande): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(commande);
     return this.http
@@ -189,13 +195,8 @@ export class CommandeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  findByReference(reference: string): Observable<EntityResponseType> {
-    return this.http
-      .get<ICommande>(`${this.resourceUrl}/by-reference/${reference}`, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
 
-  protected convertDateFromClient(commande: ICommande): ICommande {
+  private convertDateFromClient(commande: ICommande): ICommande {
     return Object.assign({}, commande, {
       createdAt: commande.createdAt && commande.createdAt.isValid() ? commande.createdAt.toJSON() : undefined,
       updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined,
@@ -203,7 +204,7 @@ export class CommandeService {
 
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
@@ -212,7 +213,7 @@ export class CommandeService {
   }
 
 
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((commande: ICommande) => {
         commande.createdAt = commande.createdAt ? moment(commande.createdAt) : undefined;

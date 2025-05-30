@@ -168,7 +168,7 @@ public class CommandServiceImpl implements CommandService {
             orderLine.setQuantityRequested(orderLine.getQuantityRequested() + orderLineDTO.getQuantityRequested());
 
         }
-        updateCommandeAmount(commande, orderLine, oldGrossAmount,oldOrderAmount);
+        updateCommandeAmount(commande, orderLine, oldGrossAmount, oldOrderAmount);
         orderLineService.save(orderLine);
         return new CommandeLiteDTO(commandeRepository.saveAndFlush(commande));
     }
@@ -194,7 +194,7 @@ public class CommandServiceImpl implements CommandService {
         orderLineService
             .findOneById(orderLineDTO.getId())
             .ifPresentOrElse(
-                orderLine -> orderLineService.updateOrderLineQuantityUG(orderLineDTO.getId(), orderLineDTO.getUgQuantity()),
+                orderLine -> orderLineService.updateOrderLineQuantityUG(orderLineDTO.getId(), orderLineDTO.getFreeQty()),
                 NullPointerException::new
             );
     }
@@ -872,7 +872,7 @@ public class CommandServiceImpl implements CommandService {
     ) {
         OrderLineDTO orderLineDTO = new OrderLineDTO();
         orderLineDTO.setProvisionalCode(false);
-        orderLineDTO.setQuantityUg(quantityUg);
+        orderLineDTO.setFreeQty(quantityUg);
         orderLineDTO.setQuantityReceived(quantityReceived);
         orderLineDTO.setQuantityRequested(quantityRequested);
         orderLineDTO.setOrderAmount(fournisseurProduit.getPrixUni() * quantityRequested);
@@ -912,8 +912,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande = orderLine.getCommande();
         updateCommandeAmount(commande, orderLine,
             oldOrderLine.getQuantityRequested() * oldOrderLine.getOrderCostAmount(),
-            oldOrderLine.getQuantityRequested()* oldOrderLine.getOrderUnitPrice()
-            );
+            oldOrderLine.getQuantityRequested() * oldOrderLine.getOrderUnitPrice()
+        );
         return commandeRepository.saveAndFlush(commande);
     }
 
@@ -1295,15 +1295,38 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderReference(referenceService.buildNumCommande());
         commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
+        commande.setOrderAmount(0);
         commande.setFournisseur(suggestion.getFournisseur());
         suggestion
             .getSuggestionLines()
             .forEach(suggestionLine -> {
                 OrderLine orderLine = this.orderLineService.buildOrderLine(suggestionLine);
                 orderLine.setCommande(commande);
-                commande.setGrossAmount(commande.getGrossAmount() + orderLine.getGrossAmount());
+                updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
         return commandeRepository.save(commande);
+    }
+
+    @Override
+    public void changeGrossiste(CommandeDTO commandeDTO) {
+        Commande commande = commandeRepository.findById(commandeDTO.getId()).orElseThrow();
+        Fournisseur fournisseur = new Fournisseur().id(commandeDTO.getFournisseurId());
+        commande.setFournisseur(fournisseur);
+        commande.setUpdatedAt(LocalDateTime.now());
+        commande.setGrossAmount(0);
+        commande.setOrderAmount(0);
+        commande.getOrderLines().forEach(orderLine -> {
+            this.orderLineService.changeFournisseurProduit(orderLine, fournisseur.getId());
+            updateCommandeAmount(commande, orderLine);
+
+        });
+        commandeRepository.save(commande);
+    }
+
+    private void updateCommandeAmount(Commande commande, OrderLine orderLine) {
+        commande.setGrossAmount(commande.getGrossAmount() + (orderLine.getOrderCostAmount() * orderLine.getQuantityRequested()));
+        commande.setOrderAmount(commande.getOrderAmount() + (orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested()));
+
     }
 }

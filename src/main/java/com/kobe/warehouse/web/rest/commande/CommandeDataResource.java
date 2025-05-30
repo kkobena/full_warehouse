@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,13 +51,13 @@ public class CommandeDataResource {
         @RequestParam(required = false, name = "typeSuggession") String typeSuggession,
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "searchCommande") String searchCommande,
-        @RequestParam(required = false, name = "orderStatut") OrderStatut orderStatut,
+        @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
         Pageable pageable
     ) {
         Page<CommandeLiteDTO> page = commandeDataService.fetchCommandes(
             new CommandeFilterDTO()
                 .setTypeSuggession(typeSuggession)
-                .setOrderStatut(orderStatut)
+                .setOrderStatuts(orderStatuts)
                 .setSearch(search)
                 .setSearchCommande(searchCommande),
             pageable
@@ -66,7 +68,6 @@ public class CommandeDataResource {
 
     @GetMapping("/commandes/{id}")
     public ResponseEntity<CommandeDTO> getCommande(@PathVariable Long id) {
-        log.debug("REST request to get Commande : {}", id);
         Optional<CommandeDTO> commande = Optional.ofNullable(commandeDataService.findOneById(id));
         return ResponseUtil.wrapOrNotFound(commande);
     }
@@ -76,7 +77,7 @@ public class CommandeDataResource {
         @RequestParam(name = "commandeId") Long commandeId,
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "searchCommande") String searchCommande,
-        @RequestParam(required = false, name = "orderStatut") OrderStatut orderStatut,
+        @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
         @RequestParam(required = false, name = "orderBy") Sort orderBy,
         @RequestParam(required = false, name = "filterCommaneEnCours") FilterCommaneEnCours filterCommaneEnCours
     ) {
@@ -84,7 +85,7 @@ public class CommandeDataResource {
             commandeDataService.filterCommandeLines(
                 new CommandeFilterDTO()
                     .setCommandeId(commandeId)
-                    .setOrderStatut(orderStatut)
+                    .setOrderStatuts(orderStatuts)
                     .setSearchCommande(searchCommande)
                     .setSearch(search)
                     .setOrderBy(orderBy)

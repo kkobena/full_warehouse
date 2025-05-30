@@ -324,7 +324,7 @@
         <dependency>
             <artifactId>libphonenumber</artifactId>
             <groupId>com.googlecode.libphonenumber</groupId>
-            <version>8.13.45</version>
+            <version>8.13.47</version>
         </dependency>
 
 
@@ -351,7 +351,6 @@
         <dependency>
             <artifactId>hibernate-envers</artifactId>
             <groupId>org.hibernate.orm</groupId>
-
         </dependency>
         <dependency>
             <artifactId>flying-saucer-pdf</artifactId>
@@ -599,7 +598,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <relativePath/>
-        <version>3.4.5</version>
+        <version>3.5.0</version>
         <!-- lookup parent from repository -->
     </parent>
 

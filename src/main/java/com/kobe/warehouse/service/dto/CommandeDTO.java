@@ -26,9 +26,7 @@ public class CommandeDTO extends CommandeWrapperDTO {
             .map(OrderLineDTO::new)
             .sorted(Comparator.comparing(OrderLineDTO::getUpdatedAt, Comparator.reverseOrder()))
             .toList();
-
         user = Optional.ofNullable(commande.getUser()).map(UserDTO::new).orElse(null);
-
         setTotalProduits(orderLines.size());
     }
 

@@ -8,10 +8,11 @@ import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import org.springframework.data.util.Pair;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.data.util.Pair;
 
 public interface OrderLineService {
     OrderLine createOrderLine(OrderLine orderLine);
@@ -43,7 +44,9 @@ public interface OrderLineService {
     void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived);
 
     void updateOrderLineQuantityUG(Long id, int quantityReceived);
+
     void saveAll(List<OrderLine> orderLines);
+
     void saveAll(Set<OrderLine> orderLines);
 
     void deleteAll(Set<OrderLine> orderLines);
@@ -65,4 +68,6 @@ public interface OrderLineService {
     int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
 
     OrderLine buildOrderLine(SuggestionLine suggestionLine);
+
+    void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId);
 }

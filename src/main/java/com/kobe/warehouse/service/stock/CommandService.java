@@ -8,8 +8,9 @@ import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
-import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface CommandService {
     CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commande);
@@ -45,4 +46,6 @@ public interface CommandService {
     CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
     void createCommandeFromSuggestion(Suggestion suggestion);
+
+    void changeGrossiste(CommandeDTO commandeDTO);
 }

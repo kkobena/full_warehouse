@@ -67,14 +67,7 @@
             >
             </p-button>
 
-            <p-button
-              (click)="onCreateBon(commande)"
-              text
-              severity="help"
-              icon="pi pi-upload"
-              [rounded]="true"
-              pTooltip="Faire l'entréé en  stock"
-            ></p-button>
+
             <p-button
               text
               (click)="onShowFileDialog(commande)"
@@ -99,8 +92,14 @@
               pTooltip="Exporter en CSV"
             />
 
-            <p-button text (click)="exportPdf(commande)" icon="pi pi-print" severity="secondary" [rounded]="true" pTooltip="Imprimer" />
-            <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger" icon="pi pi-trash" pTooltip="Supprimer" text />
+            <p-button text (click)="exportPdf(commande)" icon="pi pi-print" severity="secondary" [rounded]="true"
+                      pTooltip="Imprimer"/>
+              @if (commande.orderStatus === REQUESTED) {
+                <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger" icon="pi pi-trash"
+                          pTooltip="Supprimer" text/>
+            }
+
+
           </div>
         </td>
       </tr>
@@ -152,7 +151,8 @@
                 <td style="text-align: right">
                   {{ orderLine.quantityRequested | number }}
                 </td>
-                <td style="text-align: right">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}</td>
+                <td style="text-align: right">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}
+                </td>
               </tr>
             </ng-template>
           </p-table>

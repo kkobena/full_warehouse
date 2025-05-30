@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,12 +20,10 @@ public abstract class CommandeWrapperDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private OrderStatut orderStatus;
-
     private Long fournisseurId;
     private int totalProduits;
     private Integer receiptAmount;
     private String sequenceBon;
-
     private FournisseurDTO fournisseur;
 
     public CommandeWrapperDTO(Commande commande) {
@@ -40,10 +39,12 @@ public abstract class CommandeWrapperDTO {
         createdAt = commande.getCreatedAt();
         updatedAt = commande.getUpdatedAt();
         orderStatus = commande.getOrderStatus();
+        receiptAmount = commande.getFinalAmount();
 
     }
 
-    public CommandeWrapperDTO() {}
+    public CommandeWrapperDTO() {
+    }
 
     public Long getId() {
         return id;

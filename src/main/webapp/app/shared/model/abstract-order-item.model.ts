@@ -15,17 +15,10 @@ export interface AbstractOrderItem {
   orderUnitPrice?: number;
   regularUnitPrice?: number;
   orderCostAmount?: number;
-  effectifGrossIncome?: number;
-  effectifOrderAmount?: number;
-  ugQuantity?: number;
   freeQty?: number;
-  quantityUG?: number;
   afterStock?: number;
   fournisseurProduitId?: number;
   produitId?: number;
-  fournisseurProduitLibelle?: string;
-  fournisseurProduitCip?: string;
-  fournisseurProduitEan?: string;
   lots?: ILot[];
   updated?: boolean;
   costAmount?: number;

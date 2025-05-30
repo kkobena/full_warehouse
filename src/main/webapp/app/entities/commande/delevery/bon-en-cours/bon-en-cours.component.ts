@@ -1,15 +1,16 @@
-import { Component, input, OnInit, inject } from '@angular/core';
-import { IDelivery } from '../../../../shared/model/delevery.model';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Router, RouterModule } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { DeliveryService } from '../delivery.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
+import {Component, inject, input, OnInit} from '@angular/core';
+import {IDelivery} from '../../../../shared/model/delevery.model';
+import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
+import {DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {RouterModule} from '@angular/router';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {DeliveryService} from '../delivery.service';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {CommandeService} from "../../commande.service";
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -19,35 +20,42 @@ export type ExpandMode = 'single' | 'multiple';
   imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RouterModule, DynamicDialogModule, TooltipModule],
 })
 export class BonEnCoursComponent implements OnInit {
-  protected router = inject(Router);
-  private spinner = inject(NgxSpinnerService);
-  protected entityService = inject(DeliveryService);
-
+  protected readonly itemsPerPage = ITEMS_PER_PAGE;
   search = input<string>('');
   protected deliveries: IDelivery[] = [];
-  protected rowExpandMode: ExpandMode = 'single';
+  protected readonly rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
   protected selectedEl!: any;
-  protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
-  protected selectedFilter = 'RECEIVED';
+  protected readonly selectedFilter = 'RECEIVED';
+  private readonly commandeService = inject(CommandeService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly entityService = inject(DeliveryService);
 
   ngOnInit(): void {
     this.onSearch();
   }
 
+  onRowExpand(event: any): void {
+    if (!event.data.orderLines) {
+      this.commandeService.fetchOrderLinesByCommandeId(event.data.id).subscribe(res => {
+        event.data.orderLines = res.body;
+      });
+    }
+  }
+
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
     this.loading = true;
-    this.entityService
+    this.commandeService
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
         search: this.search(),
-        statut: this.selectedFilter,
+        orderStatuts: [this.selectedFilter],
       })
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, pageToLoad),

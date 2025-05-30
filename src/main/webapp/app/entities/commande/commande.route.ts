@@ -1,16 +1,15 @@
-import { inject } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
-import { EMPTY, mergeMap, Observable, of } from 'rxjs';
+import {inject} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Router, Routes} from '@angular/router';
+import {EMPTY, mergeMap, Observable, of} from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { Commande, ICommande } from 'app/shared/model/commande.model';
-import { CommandeService } from './commande.service';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {Commande, ICommande} from 'app/shared/model/commande.model';
+import {CommandeService} from './commande.service';
 
 import DeliveryResolver from './delevery/delivery.resolver';
 import SuggestionResolver from './suggestion/suggestion.resolver';
-import { EditSuggestionComponent } from './suggestion/edit-suggestion.component';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
@@ -76,7 +75,7 @@ const commandeRoute: Routes = [
   },
   {
     path: ':id/edit',
-    loadComponent: () => import('./edition-commande/edition-commande.component').then(m => m.EditionCommandeComponent),
+    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     resolve: {
       commande: CommandeResolve,
     },

@@ -86,7 +86,7 @@ protected  ref = inject(DynamicDialogRef);
     this.entity = this.config.data.entity;
     this.deliveryItem = this.config.data.deliveryItem;
     this.commandeId = this.config.data.commandeId;
-    this.showUgControl = Number(this.deliveryItem.ugQuantity) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.ugQuantity);
+    this.showUgControl = Number(this.deliveryItem.freeQty) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.freeQty);
 
     if (this.entity) {
       this.updateForm(this.entity);
@@ -207,7 +207,7 @@ protected  ref = inject(DynamicDialogRef);
   }
 
   private getValidLotUgQuantity(): number {
-    const ugQuantity = this.deliveryItem.ugQuantity;
+    const ugQuantity = this.deliveryItem.freeQty;
     if (this.entity && ugQuantity) {
       return ugQuantity - (this.getLotUgQuantity() - this.entity.ugQuantityReceived);
     }

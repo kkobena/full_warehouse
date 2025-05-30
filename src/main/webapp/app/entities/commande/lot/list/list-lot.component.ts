@@ -13,6 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
+import {IOrderLine} from "../../../../shared/model/order-line.model";
 
 @Component({
   selector: 'jhi-list-lot',
@@ -30,25 +31,21 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
   ],
 })
 export class ListLotComponent implements OnInit {
-  protected entityService = inject(LotService);
+  lots: ILot[] = [];
+  selectedEl!: ILot;
+  deliveryItem?: IOrderLine;
+  commandeId?: number;
+  showUgAddNewBtn = true;
   ref = inject(DynamicDialogRef);
   ref2 = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  private modalService = inject(ConfirmationService);
+  private readonly entityService = inject(LotService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly modalService = inject(ConfirmationService);
 
-  lots: ILot[] = [];
-  selectedEl!: ILot;
-  deliveryItem?: IDeliveryItem;
-  commandeId?: number;
 
-  showUgAddNewBtn = true;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.deliveryItem = this.config.data.deliveryItem;

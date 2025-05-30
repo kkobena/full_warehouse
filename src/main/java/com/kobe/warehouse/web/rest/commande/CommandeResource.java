@@ -8,11 +8,6 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.web.util.HeaderUtil;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
  */
@@ -34,7 +33,7 @@ import tech.jhipster.web.util.HeaderUtil;
 public class CommandeResource {
 
     private static final String ENTITY_NAME = "commande";
-    private final Logger log = LoggerFactory.getLogger(CommandeResource.class);
+
     private final CommandService commandService;
 
     @Value("${jhipster.clientApp.name}")
@@ -154,5 +153,18 @@ public class CommandeResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @PutMapping("/commandes/change-grossiste")
+    public ResponseEntity<Void> changeGrossiste(@RequestBody CommandeDTO commandeDTO) {
+        commandService.changeGrossiste(commandeDTO);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/commandes/update-order-line-quantity-ug")
+    public ResponseEntity<Void> updateQuantityUG(@Valid @RequestBody OrderLineDTO orderLineDTO) {
+        commandService.updateOrderLineQuantityUg(orderLineDTO);
+        return ResponseEntity.accepted().build();
+
     }
 }

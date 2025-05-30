@@ -1,32 +1,32 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
-import { ICommande } from '../../../shared/model/commande.model';
-import { IOrderLine } from '../../../shared/model/order-line.model';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CommandeService } from '../commande.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../../shared/error.service';
-import { DeliveryService } from '../delevery/delivery.service';
-import { ProduitService } from '../../produit/produit.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { saveAs } from 'file-saver';
-import { ICommandeResponse } from '../../../shared/model/commande-response.model';
-import { CommandeImportResponseDialogComponent } from '../commande-import-response-dialog.component';
-import { IResponseCommande } from '../../../shared/model/response-commande.model';
-import { CommandeEnCoursResponseDialogComponent } from '../commande-en-cours-response-dialog.component';
-import { ImportationNewCommandeComponent } from '../importation-new-commande.component';
-import { IDelivery } from '../../../shared/model/delevery.model';
-import { DeliveryModalComponent } from '../delevery/form/delivery-modal.component';
-import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
-import { TooltipModule } from 'primeng/tooltip';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import {Component, inject, input, OnInit, output} from '@angular/core';
+import {ICommande} from '../../../shared/model/commande.model';
+import {IOrderLine} from '../../../shared/model/order-line.model';
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
+import {DialogService, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {CommandeService} from '../commande.service';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ErrorService} from '../../../shared/error.service';
+import {DeliveryService} from '../delevery/delivery.service';
+import {ProduitService} from '../../produit/produit.service';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {saveAs} from 'file-saver';
+import {ICommandeResponse} from '../../../shared/model/commande-response.model';
+import {CommandeImportResponseDialogComponent} from '../commande-import-response-dialog.component';
+import {IResponseCommande} from '../../../shared/model/response-commande.model';
+import {CommandeEnCoursResponseDialogComponent} from '../commande-en-cours-response-dialog.component';
+import {IDelivery} from '../../../shared/model/delevery.model';
+import {DeliveryModalComponent} from '../delevery/form/delivery-modal.component';
+import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {RippleModule} from 'primeng/ripple';
+import {TooltipModule} from 'primeng/tooltip';
+import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
+import {OrderStatut} from "../../../shared/model/enumerations/order-statut.model";
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -48,32 +48,34 @@ export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');
   readonly searchCommande = input('');
   readonly selectionLength = output<number>();
-  protected commandeService = inject(CommandeService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(NgbModal);
-  protected deliveryService = inject(DeliveryService);
-  protected produitService = inject(ProduitService);
+
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  private readonly itemsPerPage = ITEMS_PER_PAGE;
   protected predicate!: string;
   protected ascending!: boolean;
   protected ngbPaginationPage = 1;
   protected index = 0;
-  protected selectedFilter = 'REQUESTED';
-  protected rowExpandMode: ExpandMode;
+  private readonly rowExpandMode: ExpandMode;
   protected loading!: boolean;
   protected page = 0;
   protected selectedtypeSuggession = 'ALL';
   protected selections: ICommande[];
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
+  protected readonly REQUESTED = OrderStatut.REQUESTED;
   private errorService = inject(ErrorService);
   private spinner = inject(NgxSpinnerService);
   private confirmationService = inject(ConfirmationService);
   private dialogService = inject(DialogService);
+  private readonly selectedFilters = ['REQUESTED'];
+  private readonly commandeService = inject(CommandeService);
+
+  private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
+  private readonly deliveryService = inject(DeliveryService);
+
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -92,7 +94,7 @@ export class CommandeEnCoursComponent implements OnInit {
         size: this.itemsPerPage,
         search: this.search(),
         searchCommande: this.searchCommande(),
-        orderStatut: this.selectedFilter,
+        orderStatuts: this.selectedFilters,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
       .subscribe({
@@ -226,23 +228,6 @@ export class CommandeEnCoursComponent implements OnInit {
     modalRef.componentInstance.commande = this.commandeSelected;
   }
 
-  onShowNewCommandeDialog(): void {
-    this.ref = this.dialogService.open(ImportationNewCommandeComponent, {
-      header: 'IMPORTATION DE NOUVELLE COMMANDE',
-      width: '40%',
-    });
-    this.ref.onClose.subscribe((resp: ICommandeResponse) => {
-      if (resp) {
-        if (resp.items.length === 0) {
-          this.selectedFilter = 'PASSED';
-        } else {
-          this.selectedFilter = 'REQUESTED';
-        }
-        this.loadPage(0);
-        this.openImportResponseDialogComponent(resp);
-      }
-    });
-  }
 
   removeAll(): void {
     this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
@@ -280,7 +265,7 @@ export class CommandeEnCoursComponent implements OnInit {
 
   onCreateBon(commande: ICommande): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: { commande },
+      data: {commande},
       header: 'CREATION DU BON DE LIVRAISON',
       width: '40%',
     });
@@ -307,7 +292,7 @@ export class CommandeEnCoursComponent implements OnInit {
           size: event.rows,
           search: this.search(),
           searchCommande: this.searchCommande(),
-          orderStatut: this.selectedFilter,
+          orderStatuts: this.selectedFilters,
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
         .subscribe({
@@ -359,7 +344,7 @@ export class CommandeEnCoursComponent implements OnInit {
         page: this.page,
         size: this.itemsPerPage,
         search: this.search(),
-        orderStatut: this.selectedFilter,
+        orderStatuts: this.selectedFilters,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       },
     });

@@ -1,17 +1,7 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  input,
-  OnInit,
-  QueryList,
-  viewChild,
-  ViewChildren
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, input, OnInit, viewChild} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 
-import {Router, RouterModule} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Commande, ICommande} from 'app/shared/model/commande.model';
 import {CommandeService} from './commande.service';
@@ -37,7 +27,7 @@ import {RippleModule} from 'primeng/ripple';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {TagModule} from 'primeng/tag';
-import {EditableColumn, Table, TableModule} from 'primeng/table';
+import {TableModule} from 'primeng/table';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {AutoCompleteModule} from 'primeng/autocomplete';
 import {FileUploadModule} from 'primeng/fileupload';
@@ -62,49 +52,18 @@ import {OrderLineLotsComponent} from './lot/order-line-lots.component';
 import {AbstractCommande} from "../../shared/model/abstract-commande.model";
 import {ButtonGroup} from "primeng/buttongroup";
 import {Panel} from "primeng/panel";
-import {CellEditor} from "primeng/table/table";
-import {DomHandler} from "primeng/dom";
-import {TableEditorDirective} from "../store-inventory/table-editor.directive";
-import {IDeliveryItem} from "../../shared/model/delivery-item";
 import {ListLotComponent} from "./lot/list/list-lot.component";
 import {FormLotComponent} from "./lot/form-lot.component";
 import {OrderStatut} from "../../shared/model/enumerations/order-statut.model";
+import {EtiquetteComponent} from "./delevery/etiquette/etiquette.component";
+import {FloatLabel} from "primeng/floatlabel";
+import {Params} from "../../shared/model/enumerations/params.model";
+import {ConfigurationService} from "../../shared/configuration.service";
+import {EditProduitComponent} from "./delevery/form/edit-produit/edit-produit.component";
 
 @Component({
   selector: 'jhi-commande-update',
-  styles: [
-    `
-      .table tr:hover {
-        cursor: pointer;
-      }
 
-      .active {
-        background-color: #95caf9 !important;
-      }
-
-      .master {
-        padding: 14px 12px;
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgb(0 0 0 / 16%);
-        justify-content: space-between;
-      }
-
-      .commande-toolbar {
-        margin-bottom: 2px !important;
-      }
-
-      .p-toolbar-group-left .col-md-4,
-      .p-toolbar-group-left .col-sm-2,
-      .p-toolbar-group-left .col-md-6 {
-        padding-right: 0;
-        padding-left: 3px;
-      }
-
-      .p-toolbar-group-left .row {
-        margin-left: 0.1rem;
-      }
-    `,
-  ],
   templateUrl: './commande-update.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
   imports: [
@@ -133,15 +92,13 @@ import {OrderStatut} from "../../shared/model/enumerations/order-statut.model";
     IconField,
     InputIcon,
     ButtonGroup,
-    Panel
+    Panel,
+    FloatLabel
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   abstractCommande = input<AbstractCommande>(null);
-  @ViewChildren(EditableColumn) editableColumns!: QueryList<EditableColumn>;
-  /* @ViewChildren('cellInput', { read: ElementRef }) inputs!: QueryList<ElementRef>;*/
-  @ViewChildren('cellInput', {read: ElementRef}) protected inputs!: QueryList<ElementRef<HTMLInputElement>>;
-  protected readonly RECEIVED=OrderStatut.RECEIVED;
+  protected readonly RECEIVED = OrderStatut.RECEIVED;
   protected isSaving = false;
   protected produits: IProduit[] = [];
   protected commande?: ICommande | null = null;
@@ -156,19 +113,18 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected filtres: any[] = [];
   protected selectedFilter = 'ALL';
   protected tris = 'UPDATE';
-  protected readonly fournisseurDisabled = false;
   protected selectedEl: IOrderLine[];
   protected commandebuttons: MenuItem[];
   protected exportbuttons: MenuItem[];
   protected fileDialog = false;
   protected fournisseurBox = viewChild.required<any>('fournisseurBox');
   protected produitbox = viewChild.required<any>('produitbox');
-
   protected readonly sorts = SORT;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected ref!: DynamicDialogRef;
   protected readonly APPEND_TO = APPEND_TO;
+  protected showLotBtn = false;
   private readonly commandeService = inject(CommandeService);
   private readonly produitService = inject(ProduitService);
   private readonly modalService = inject(NgbModal);
@@ -181,6 +137,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   constructor() {
 
@@ -220,7 +178,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  onShowLots(orderLine: IOrderLine): void {
+  protected onShowLots(orderLine: IOrderLine): void {
     const modalRef = this.modalService.open(OrderLineLotsComponent, {
       backdrop: 'static',
       size: 'lg',
@@ -229,38 +187,42 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
   }
 
-  onEditProduit(produitId: number): void {
+  protected onEditProduit(produitId: number): void {
     this.commandCommonService.updateCommand(this.commande);
     this.router.navigate(['produit', produitId, 'edit']);
   }
 
   ngOnInit(): void {
-    this.commande = this.abstractCommande();
-    // this.activatedRoute.data.subscribe(({ commande }) => {
-    if (this.commande?.id) {
 
-      this.orderLines = this.commande.orderLines;
-      // this.fournisseurDisabled = true;
-      this.selectedProvider = this.commande.fournisseurId;
-    } else if (this.commandCommonService.currentCommand()?.id) {
-      this.commande = this.commandCommonService.currentCommand();
-      this.orderLines = this.commande.orderLines;
-      // this.fournisseurDisabled = true;
-      this.selectedProvider = this.commande.fournisseurId;
-    }
-    // });
+    this.activatedRoute.data.subscribe(({commande}) => {
+      if (commande?.id) {
+
+        this.commande = commande;
+        this.orderLines = this.commande.orderLines;
+        this.selectedProvider = this.commande.fournisseurId;
+      } else if (this.commandCommonService.currentCommand()?.id) {
+        this.commande = this.commandCommonService.currentCommand();
+        this.orderLines = this.commande.orderLines;
+        this.selectedProvider = this.commande.fournisseurId;
+      }
+      if (this.isClosedCommande()) {
+        this.commande = null;
+        this.router.navigate(['/commande']);
+      }
+    });
     this.loadFournisseurs();
+    this.isLotActif();
   }
 
-  filtreFournisseur(event: any): void {
+  protected filtreFournisseur(event: any): void {
     this.loadFournisseurs(event.target.value);
   }
 
-  previousState(): void {
+  protected previousState(): void {
     window.history.back();
   }
 
-  onQuantityBoxAction(event: any): void {
+  protected onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
     if (qytMvt <= 0) {
       return;
@@ -268,7 +230,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.onAddOrderLine(qytMvt);
   }
 
-  onQuantity(): void {
+  protected onQuantity(): void {
     const qytMvt = Number(this.quantityBox().nativeElement.value);
     if (qytMvt <= 0) {
       return;
@@ -276,7 +238,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.onAddOrderLine(qytMvt);
   }
 
-  onAddOrderLine(qytMvt: number): void {
+  protected onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
       if (this.selectedProvider) {
         if (this.commande?.id !== undefined) {
@@ -292,7 +254,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onUpdateQuantityRequested(orderLine: IOrderLine, event: any): void {
+  protected onUpdateQuantityRequested(orderLine: IOrderLine, event: any): void {
     const newQuantityRequested = Number(event.target.value);
     if (newQuantityRequested > 0) {
       orderLine.quantityRequested = newQuantityRequested;
@@ -300,18 +262,17 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onUpdateFreeQtyRequested(orderLine: IOrderLine,  event: any): void {
-
+  protected onUpdateFreeQtyRequested(orderLine: IOrderLine, event: any): void {
     const newfreeQty = Number(event.target.value);
     if (newfreeQty >= 0) {
       orderLine.freeQty = newfreeQty;
-      // this.subscribeToSaveOrderLineResponse(this.commandeService.updateQuantityRequested(orderLine));
+      this.subscribeUpdateOrderLineResponse(this.commandeService.updateQuantityUG(orderLine));
     }
 
 
   }
 
-  onUpdateOrderCostAmount(orderLine: IOrderLine, event: any): void {
+  protected onUpdateOrderCostAmount(orderLine: IOrderLine, event: any): void {
     const newOrderCostAmount = Number(event.target.value);
     if (this.commande && newOrderCostAmount > 0) {
       orderLine.orderCostAmount = newOrderCostAmount;
@@ -319,7 +280,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onUpdateCip(orderLine: IOrderLine, event: any): void {
+  protected onUpdateCip(orderLine: IOrderLine, event: any): void {
     const cip = event.target.value;
     if (this.commande && cip !== '') {
       orderLine.produitCip = cip;
@@ -329,7 +290,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onUpdateOrderUnitPrice(orderLine: IOrderLine, event: any): void {
+  protected onUpdateOrderUnitPrice(orderLine: IOrderLine, event: any): void {
     const newOrderUnitPrice = Number(event.target.value);
     if (this.commande && newOrderUnitPrice > 0) {
       orderLine.orderUnitPrice = newOrderUnitPrice;
@@ -337,7 +298,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onDeleteOrderLineById(orderLine: IOrderLine): void {
+  protected onDeleteOrderLineById(orderLine: IOrderLine): void {
     if (this.commande) {
       this.commandeService.deleteOrderLineById(orderLine.id).subscribe(() => {
         this.refreshCommande();
@@ -345,7 +306,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  save(): void {
+  protected save(): void {
     if (!this.orderLines.some(this.checkQuantityNotSet)) {
       this.isSaving = true;
     } else {
@@ -353,7 +314,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  deleteSelectedOrderLine(): void {
+  protected deleteSelectedOrderLine(): void {
     const ids = this.selectedEl.map(e => e.id);
     this.commandeService.deleteOrderLinesByIds(this.commande.id, ids).subscribe(() => {
       this.refreshCommande();
@@ -362,58 +323,48 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  exportPdf(): void {
+  protected exportPdf(): void {
     this.commandeService.exportToPdf(this.commande.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
   }
 
-  onCloseCurrentCommande(): void {
-    this.spinner.show('commandeEnCourspinner');
-    this.commandeService.closeCommandeEnCours(this.commande.id).subscribe({
-      next: () => {
-        this.spinner.hide('commandeEnCourspinner');
-        this.confirmStay();
-      },
-      error: error => {
-        this.onCommonError(error);
-        this.spinner.hide('commandeEnCour-spinner');
-      },
-    });
-  }
 
-  onMettreAttente(): void {
-    this.confirmStay();
-  }
-
-  gotoEntreeStockComponent(delivery: IDelivery): void {
+  protected gotoEntreeStockComponent(delivery: IDelivery): void {
     this.router.navigate(['/commande', delivery.id, 'stock-entry']);
   }
 
-  onCreateBon(): void {
+  protected onCreateBon(): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
       data: {commande: this.commande},
       header: 'CREATION DU BON DE LIVRAISON',
       width: '40%',
     });
-    this.ref.onClose.subscribe((delivery: IDelivery) => {
-      if (delivery) {
-        this.gotoEntreeStockComponent(delivery);
+    this.ref.onClose.subscribe((commande: ICommande) => {
+      if (commande) {
+        this.reloadCommande();
       }
     });
   }
 
-  exportCSV(): void {
+  private reloadCommande(): void {
+    this.commandeService.find(this.commande.id).subscribe(res => {
+      this.commande = res.body;
+      this.orderLines = this.commande.orderLines;
+    });
+  }
+
+  protected exportCSV(): void {
     this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
   }
 
-  searchFn(event: any): void {
+  protected searchFn(event: any): void {
     this.searchValue = event.query;
     this.loadProduits();
   }
 
-  onSelect(): void {
+  protected onSelect(): void {
     setTimeout(() => {
       const el = this.quantityBox().nativeElement;
       el.focus();
@@ -421,18 +372,23 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  onProviderSelect(): void {
-    this.focusPrdoduitBox();
+  protected onProviderSelect(): void {
+    if (this.commande && this.commande.id) {
+      this.changeGrossiste();
+    } else {
+      this.focusPrdoduitBox();
+    }
+
   }
 
-  focusPrdoduitBox(): void {
+  protected focusPrdoduitBox(): void {
     setTimeout(() => {
       this.produitbox().inputEL.nativeElement.focus();
       this.produitbox().inputEL.nativeElement.select();
     }, 50);
   }
 
-  loadProduits(): void {
+  protected loadProduits(): void {
     this.produitService
       .queryLite({
         page: 0,
@@ -443,7 +399,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
 
-  onFilterCommandeLines(): void {
+  protected onFilterCommandeLines(): void {
     const query = {
       commandeId: this.commande.id,
       search: this.search,
@@ -455,7 +411,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  checkQuantityNotSet(orderLine: IOrderLine): boolean {
+  protected checkQuantityNotSet(orderLine: IOrderLine): boolean {
     return orderLine.quantityRequested === 0;
   }
 
@@ -464,7 +420,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.message = message;
   }
 
-  loadFournisseurs(search?: string): void {
+  protected loadFournisseurs(search?: string): void {
     const query: string = search || '';
     this.fournisseurService
       .query({
@@ -478,7 +434,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       });
   }
 
-  orderLineTableColor(orderLine: IOrderLine): string {
+  protected orderLineTableColor(orderLine: IOrderLine): string {
     if (orderLine) {
       if (orderLine.costAmount !== orderLine.orderCostAmount) {
         return 'table-danger';
@@ -489,7 +445,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     return '';
   }
 
-  confirmDeleteAll(): void {
+  protected confirmDeleteAll(): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer supprimer toutes les lignes ?',
       header: 'SUPPRESSION ',
@@ -504,7 +460,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  confirmDeleteItem(item: IOrderLine): void {
+  protected confirmDeleteItem(item: IOrderLine): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous supprimer de la commande  ce produit ?',
       header: 'SUPPRESSION DE PRODUIT ',
@@ -519,7 +475,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  confirmStay(): void {
+  protected confirmStay(): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous rester sur la page ?',
       header: ' INFORMATION',
@@ -534,11 +490,11 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.fileDialog = false;
   }
 
-  onImporterReponseCommande(event: any): void {
+  protected onImporterReponseCommande(event: any): void {
     const formData: FormData = new FormData();
     const file = event.files[0];
     formData.append('commande', file, file.name);
@@ -559,7 +515,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
+  protected openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
     const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
       size: 'xl',
       scrollable: true,
@@ -569,7 +525,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.commande = this.commande;
   }
 
-  resetAll(): void {
+  protected resetAll(): void {
     this.commande = null;
     this.orderLines = [];
     this.selectedProvider = null;
@@ -600,28 +556,26 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private updateProduitQtyBox(): void {
-    if (this.quantityBox()) {
-      this.quantityBox().nativeElement.value = 1;
+    if (this.isCommandeEnCours()) {
+      if (this.quantityBox()) {
+        this.quantityBox().nativeElement.value = 1;
+      }
+      this.produitSelected = null;
+      this.focusPrdoduitBox();
     }
-    this.produitSelected = null;
-    this.focusPrdoduitBox();
-    if (this.commande && this.commande.id) {
-      //this.fournisseurDisabled = true;
-    }
+
   }
 
   private onSaveSuccess(): void {
     this.isSaving = false;
   }
 
-  private onSaveOrderLineSuccess(commande: ICommande): void {
-    if (commande) {
-      this.commandeService.find(commande.id).subscribe(res => {
-        this.commande = res.body;
-        this.orderLines = this.commande.orderLines;
-        this.updateProduitQtyBox();
-      });
-    }
+  private onSaveOrderLineSuccess(commandeId: number): void {
+    this.commandeService.find(commandeId).subscribe(res => {
+      this.commande = res.body;
+      this.orderLines = this.commande.orderLines;
+      this.updateProduitQtyBox();
+    });
   }
 
   private onSaveError(): void {
@@ -650,7 +604,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body),
+      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body?.id),
       error: (err: any) => this.onCommonError(err),
     });
   }
@@ -697,13 +651,13 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.spinner.hide(spinnerName);
   }
 
-  onAddLot(deliveryItem: IOrderLine): void {
+  protected onAddLot(deliveryItem: IOrderLine): void {
     const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
     if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
       this.ref = this.dialogService.open(ListLotComponent, {
         data: {deliveryItem},
         width: '60%',
-        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
+        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`,
       });
     } else {
       this.ref = this.dialogService.open(FormLotComponent, {
@@ -712,6 +666,119 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         header: 'Ajout de lot',
       });
     }
-   // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
+    // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
+  }
+
+  protected onConfirmFinalize(): void {
+    if (this.isCommandeFinalisee()) {
+      this.confirmationService.confirm({
+        message: "Voullez-vous faire l'entrée en stock ?",
+        header: 'FINALISATION DE LA COMMANDE',
+        icon: 'pi pi-info-circle',
+        rejectButtonProps: rejectButtonProps(),
+        acceptButtonProps: acceptButtonProps(),
+        accept: () => this.onFinalize(),
+
+        key: 'stayThere',
+      });
+    }
+  }
+
+
+  private onFinalize(): void {
+    this.showsPinner('commandeEnCourspinner');
+    this.deliveryService.finalizeSaisieEntreeStock(this.commande).subscribe({
+      next: () => {
+        this.hidePinner('commandeEnCourspinner');
+        this.confirmPrintTicket(this.commande);
+      },
+      error: error => {
+        this.onCommonError(error);
+        this.hidePinner('commandeEnCourspinner');
+      },
+    });
+  }
+
+  protected confirmPrintTicket(commande: ICommande): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous imprimer les étiquettes ?',
+      header: 'IMPRESSION',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => this.printEtiquette(commande),
+      reject: () => {
+        this.commande = null;
+        this.previousState();
+      },
+      key: 'stayThere',
+    });
+  }
+
+  private printEtiquette(commande: ICommande): void {
+    this.ref = this.dialogService.open(EtiquetteComponent, {
+      data: {entity: commande},
+      width: '40%',
+      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptRefernce} ] `,
+    });
+    this.ref.onDestroy.subscribe(() => {
+      this.commande = null;
+      this.previousState();
+    });
+    this.ref.onClose.subscribe(() => {
+      this.commande = null;
+      this.previousState();
+    });
+  }
+
+  protected isLotActif(): void {
+    const paramGestionLot = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
+    if (paramGestionLot) {
+      this.showLotBtn = Number(paramGestionLot.value) === 0;
+    }
+  }
+
+  editLigneInfos(orderLine: IOrderLine): void {
+    this.ref = this.dialogService.open(EditProduitComponent, {
+      data: {deliveryItem: orderLine, delivery: this.commande},
+      width: '70%',
+      header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`,
+    });
+
+    //this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
+  }
+
+  private changeGrossiste(): void {
+    this.commande.fournisseurId = this.selectedProvider;
+    this.commandeService.changeGrossiste(this.commande).subscribe({
+      next: () => {
+        this.onSaveOrderLineSuccess(this.commande.id);
+
+      },
+      error: error => {
+        this.onCommonError(error);
+        this.onSaveOrderLineSuccess(this.commande.id);
+      },
+    });
+  }
+
+  private subscribeUpdateOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
+    result.subscribe({
+      next: () => this.onSaveOrderLineSuccess(this.commande?.id),
+      error: (err: any) => this.onCommonError(err),
+    });
+
+  }
+
+  private isCommandeEnCours(): boolean {
+    return this.commande === null || this.commande.id === undefined || this.commande.id === null || this.commande.orderStatus === OrderStatut.REQUESTED;
+  }
+
+  private isCommandeFinalisee(): boolean {
+    return this.commande && this.commande.orderStatus === OrderStatut.RECEIVED;
+  }
+
+  private isClosedCommande(): boolean {
+    return this.commande && this.commande.orderStatus === OrderStatut.CLOSED;
   }
 }

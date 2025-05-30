@@ -15,12 +15,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -101,8 +103,11 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
         Root<OrderLine> root
     ) {
         List<Predicate> predicates = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
+            predicates.add(root.get(OrderLine_.commande).get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
 
-        predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderStatus), commandeFilterDTO.getOrderStatut()));
+        }
+
 
         if (StringUtils.hasText(commandeFilterDTO.getSearchCommande())) {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
@@ -135,8 +140,11 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
 
     private List<Predicate> predicatesFetchCommandes(CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<Commande> root) {
         List<Predicate> predicates = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
+            predicates.add(root.get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
 
-        predicates.add(cb.equal(root.get(Commande_.orderStatus), commandeFilterDTO.getOrderStatut()));
+        }
+
         if (StringUtils.hasText(commandeFilterDTO.getSearchCommande())) {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
             predicates.add(

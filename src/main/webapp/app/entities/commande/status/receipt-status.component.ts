@@ -29,7 +29,7 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
     const receiptItem = this.params.data as IDeliveryItem;
     const mustBeUpdate =
       receiptItem.orderUnitPrice !== receiptItem.regularUnitPrice ||
-      receiptItem.fournisseurProduitCip.length === 0 ||
+      receiptItem.produitCip.length === 0 ||
       receiptItem.orderCostAmount !== receiptItem.costAmount ||
       (receiptItem.updated && receiptItem.quantityReceived !== receiptItem.quantityRequested);
     if (mustBeUpdate) {

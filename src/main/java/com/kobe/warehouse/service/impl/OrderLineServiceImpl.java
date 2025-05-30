@@ -178,18 +178,23 @@ public class OrderLineServiceImpl implements OrderLineService {
             throw new GenericError("Ce produit n'a pas de fournisseur principal ", "mainProviderNotFound");
         }
         orderLineDTO.setProvisionalCode(Boolean.TRUE);
+        return createNewFromOne(fournisseurProduit, orderLineDTO.getCommande().getFournisseurId(), produit.getId());
+    }
+
+    private FournisseurProduit createNewFromOne(FournisseurProduit fournisseurProduit, Long fournisseurId, Long produitId) {
         return fournisseurProduitService.createNewFournisseurProduit(
             new FournisseurProduitDTO()
                 .setCodeCip(fournisseurProduit.getCodeCip())
                 .setCreatedAt(LocalDateTime.now())
                 .setUpdatedAt(LocalDateTime.now())
-                .setFournisseurId(orderLineDTO.getCommande().getFournisseurId())
+                .setFournisseurId(fournisseurId)
                 .setPrincipal(false)
                 .setPrixAchat(fournisseurProduit.getPrixAchat())
                 .setPrixUni(fournisseurProduit.getPrixUni())
-                .setProduitId(produit.getId())
+                .setProduitId(produitId)
         );
     }
+
 
     @Override
     public Optional<OrderLine> findOneById(Long id) {
@@ -260,7 +265,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setOrderUnitPrice(orderLineDTO.getOrderUnitPrice());
         orderLine.setOrderCostAmount(orderLineDTO.getOrderCostAmount());
         orderLine.setProvisionalCode(orderLineDTO.getProvisionalCode());
-        orderLine.setFreeQty(orderLineDTO.getQuantityUg());
+        orderLine.setFreeQty(orderLineDTO.getFreeQty());
         orderLine.setTaxAmount(orderLine.getTaxAmount());
         return orderLine;
     }
@@ -286,5 +291,28 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setFreeQty(0);
         orderLine.setTaxAmount(0);
         return orderLine;
+    }
+
+    @Override
+    public void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId) {
+        Produit produit = orderLine.getFournisseurProduit().getProduit();
+        this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId)
+            .ifPresentOrElse(newFournisseurProduit -> {
+                orderLine.setFournisseurProduit(newFournisseurProduit);
+                orderLine.setProvisionalCode(false);
+                updateOrderLineAmount(orderLine, newFournisseurProduit);
+            }, () -> {
+
+                FournisseurProduit fournisseurProduit = createNewFromOne(produit.getFournisseurProduitPrincipal(), fournisseurId, produit.getId());
+                orderLine.setFournisseurProduit(fournisseurProduit);
+                orderLine.setProvisionalCode(true);
+                updateOrderLineAmount(orderLine, fournisseurProduit);
+            });
+    }
+
+    private void updateOrderLineAmount(OrderLine orderLine, FournisseurProduit fournisseurProduit) {
+        orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
+        orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
+        orderLineRepository.save(orderLine);
     }
 }

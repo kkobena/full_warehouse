@@ -4,12 +4,14 @@ import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.Sort;
 
+import java.util.Set;
+
 public class CommandeFilterDTO {
 
     private String search;
     private String searchCommande;
     private Long commandeId;
-    private OrderStatut orderStatut;
+    private Set<OrderStatut> orderStatuts;
     private FilterCommaneEnCours filterCommaneEnCours;
     private String typeSuggession;
     private Sort orderBy;
@@ -50,12 +52,12 @@ public class CommandeFilterDTO {
         return this;
     }
 
-    public OrderStatut getOrderStatut() {
-        return orderStatut;
+    public Set<OrderStatut> getOrderStatuts() {
+        return orderStatuts;
     }
 
-    public CommandeFilterDTO setOrderStatut(OrderStatut orderStatut) {
-        this.orderStatut = orderStatut;
+    public CommandeFilterDTO setOrderStatuts(Set<OrderStatut> orderStatuts) {
+        this.orderStatuts = orderStatuts;
         return this;
     }
 
@@ -89,8 +91,8 @@ public class CommandeFilterDTO {
             '\'' +
             ", commandeId=" +
             commandeId +
-            ", orderStatut=" +
-            orderStatut +
+            ", orderStatuts=" +
+            orderStatuts +
             ", filterCommaneEnCours=" +
             filterCommaneEnCours +
             ", typeSuggession='" +

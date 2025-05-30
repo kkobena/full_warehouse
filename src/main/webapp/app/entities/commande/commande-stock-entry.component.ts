@@ -229,7 +229,7 @@ export class CommandeStockEntryComponent implements OnInit {
           {
             headerName: 'Qté Ug',
             flex: 0.3,
-            field: 'ugQuantity',
+            field: 'freeQty',
             editable: true,
             sortable: true,
             type: ['rightAligned', 'numericColumn'],
@@ -415,7 +415,7 @@ export class CommandeStockEntryComponent implements OnInit {
       next: res => {
         this.delivery = res.body;
         if (this.selectedFilter === 'PROVISOL_CIP') {
-          this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.fournisseurProduitCip.length === 0);
+          this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.produitCip.length === 0);
         } else if (this.selectedFilter === 'NOT_EQUAL') {
           this.receiptItems = this.delivery.orderLines.filter((item: IDeliveryItem) => item.orderCostAmount !== item.costAmount);
         } else if (this.selectedFilter === 'PU_NOT_EQUAL') {
@@ -470,7 +470,7 @@ export class CommandeStockEntryComponent implements OnInit {
     this.ref = this.dialogService.open(EditProduitComponent, {
       data: {deliveryItem, delivery: this.delivery},
       width: '70%',
-      header: `EDITION DU PRODUIT ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
+      header: `EDITION DU PRODUIT ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`,
     });
 
     this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
@@ -485,7 +485,7 @@ export class CommandeStockEntryComponent implements OnInit {
       this.ref = this.dialogService.open(ListLotComponent, {
         data: {deliveryItem},
         width: '60%',
-        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.fournisseurProduitLibelle} [${deliveryItem.fournisseurProduitCip}]`,
+        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`,
       });
     } else {
       this.ref = this.dialogService.open(FormLotComponent, {
@@ -530,10 +530,10 @@ export class CommandeStockEntryComponent implements OnInit {
 
   onUpdatequantityUG(params: any): void {
     const deliveryItem = params.data as IDeliveryItem;
-    const newQuantityUG = Number(deliveryItem.ugQuantity);
+    const newQuantityUG = Number(deliveryItem.freeQty);
     if (newQuantityUG > -1) {
-      deliveryItem.quantityUG = newQuantityUG;
-      deliveryItem.ugQuantity = newQuantityUG;
+      deliveryItem.freeQty = newQuantityUG;
+
       this.subscribeOnEditCellResponse(this.service.updateQuantityUG(deliveryItem));
     } else {
       this.reloadDelivery();

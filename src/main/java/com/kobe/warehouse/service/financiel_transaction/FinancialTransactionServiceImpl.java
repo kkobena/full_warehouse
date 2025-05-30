@@ -270,9 +270,9 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private Specification<PaymentTransaction> buildSpecification(TransactionFilterDTO transactionFilter) {
         var from = Objects.requireNonNullElse(transactionFilter.fromDate(), LocalDate.now());
         var to = Objects.requireNonNullElse(transactionFilter.toDate(), LocalDate.now());
-        Specification<PaymentTransaction> specification = Specification.where(
+        Specification<PaymentTransaction> specification =
             paymentTransactionRepository.filterByPeriode(from.atStartOfDay(), to.atTime(LocalTime.MAX))
-        );
+        ;
         if (transactionFilter.userId() != null) {
             specification = specification.and(paymentTransactionRepository.filterByUserId(transactionFilter.userId()));
         }

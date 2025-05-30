@@ -149,9 +149,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         TypeSuggession typeSuggession,
         Pageable pageable
     ) {
-        Specification<Suggestion> specification = Specification.where(
+        Specification<Suggestion> specification =
             suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention())
-        );
+        ;
         if (typeSuggession != null) {
             specification = specification.and(suggestionRepository.filterByType(typeSuggession));
         }
@@ -179,7 +179,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Transactional(readOnly = true)
     public Page<SuggestionLineDTO> getSuggestionLinesById(long suggestionId, String search, Pageable pageable) {
         Storage storage = storageService.getDefaultMagasinMainStorage();
-        Specification<SuggestionLine> specification = Specification.where(suggestionLineRepository.filterBySuggestionId(suggestionId));
+        Specification<SuggestionLine> specification = suggestionLineRepository.filterBySuggestionId(suggestionId);
         if (StringUtils.hasLength(search)) {
             specification = specification.and(suggestionLineRepository.filterByProduit(search));
         }

@@ -144,7 +144,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     @Override
     public void deleteFacture(Set<Long> ids) {
         List<FactureTiersPayant> factureTiersPayants =
-            this.facturationRepository.findAll(Specification.where(this.facturationRepository.fetchByIs(ids)));
+            this.facturationRepository.findAll(this.facturationRepository.fetchByIs(ids));
         factureTiersPayants.forEach(t -> {
             List<ThirdPartySaleLine> thirdPartySaleLines = t.getFacturesDetails();
             thirdPartySaleLines.forEach(thirdPartySaleLine -> {
@@ -217,9 +217,9 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
-        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = Specification.where(
+        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification =
             this.thirdPartySaleLineRepository.canceledCriteria()
-        );
+        ;
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
             this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
         );

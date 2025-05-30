@@ -110,9 +110,9 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         if (invoicePaymentParam.grouped()) {
             sort = Sort.by(Direction.ASC, "createdAt").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
         }
-        Specification<InvoicePayment> invoicePaymentSpecification = Specification.where(
+        Specification<InvoicePayment> invoicePaymentSpecification =
             this.invoicePaymentRepository.periodeCriteria(startDate, endDate)
-        );
+        ;
         invoicePaymentSpecification = invoicePaymentSpecification.and(
             this.invoicePaymentRepository.invoicesTypePredicats(invoicePaymentParam.grouped())
         );

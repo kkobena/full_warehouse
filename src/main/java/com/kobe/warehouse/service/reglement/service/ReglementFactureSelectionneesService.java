@@ -138,7 +138,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {
         return this.thirdPartySaleLineRepository.findAll(
-                Specification.where(this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds())))
+              this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
             );
     }
 }

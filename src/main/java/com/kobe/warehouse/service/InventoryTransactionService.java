@@ -41,17 +41,7 @@ public class InventoryTransactionService {
         return inventoryTransactionRepository.findById(id);
     }
 
-    private Specification<InventoryTransaction> add(
-        Specification<InventoryTransaction> specification,
-        Specification<InventoryTransaction> current
-    ) {
-        if (current == null) {
-            current = Specification.where(specification);
-        } else {
-            current = specification.and(specification);
-        }
-        return current;
-    }
+
 
     @Transactional(readOnly = true)
     public Page<InventoryTransactionDTO> getAllInventoryTransactions(

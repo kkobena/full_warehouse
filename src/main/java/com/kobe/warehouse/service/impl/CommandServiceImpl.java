@@ -339,7 +339,6 @@ public class CommandServiceImpl implements CommandService {
 
     private Commande buildCommande(Long fournisseurId) {
         Commande commande = new Commande();
-
         commande.setTaxAmount(0);
         commande.setHtAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -351,6 +350,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setDiscountAmount(0);
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
+        commande.setOrderAmount(0);
 
         return commande;
     }
@@ -1088,8 +1088,11 @@ public class CommandServiceImpl implements CommandService {
             (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
             (oldQuantityReceived * orderLine.getOrderCostAmount())
         );
-
-        commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
+        commande.setOrderAmount(
+            commande.getOrderAmount() +
+            (orderLine.getQuantityReceived() * orderLine.getOrderUnitPrice()) -
+            (oldQuantityReceived * orderLine.getOrderUnitPrice())
+        );
         commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
     }
 

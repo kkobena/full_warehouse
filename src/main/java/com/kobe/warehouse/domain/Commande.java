@@ -168,7 +168,7 @@ public class Commande implements Serializable, Cloneable {
         this.discountAmount = discountAmount;
     }
 
-    public @NotNull Integer getOrderAmount() {
+    public Integer getOrderAmount() {
         return orderAmount;
     }
 
@@ -176,7 +176,7 @@ public class Commande implements Serializable, Cloneable {
         this.orderAmount = orderAmount;
     }
 
-    public @NotNull Integer getGrossAmount() {
+    public Integer getGrossAmount() {
         return grossAmount;
     }
 
@@ -256,8 +256,6 @@ public class Commande implements Serializable, Cloneable {
         this.fournisseur = fournisseur;
         return this;
     }
-
-
 
     public Commande discountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;

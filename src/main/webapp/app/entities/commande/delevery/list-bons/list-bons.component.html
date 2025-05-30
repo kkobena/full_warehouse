@@ -1,5 +1,6 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-  ><p style="color: white">Traitement en cours...</p></ngx-spinner
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"
+><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
 @if (deliveries && deliveries.length > 0) {
   <p-table
@@ -20,7 +21,6 @@
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 1%"></th>
-        <th style="width: 6%">#</th>
         <th style="width: 13%">Date</th>
         <th style="width: 8%">Date reception</th>
         <th style="width: 9%">Num.Bl</th>
@@ -46,39 +46,29 @@
             type="button"
           />
         </td>
-        <td>{{ row.numberTransaction }}</td>
+
         <td>{{ row.createdDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
         <td>{{ row.receiptReference }}</td>
 
-        <td class="text-right">{{ row.receiptAmount | number }}</td>
-        <td class="text-right">{{ row.netAmount | number }}</td>
-        <td class="text-right">{{ row.taxAmount | number }}</td>
+        <td class="text-right amount-td-column">{{ row.receiptAmount | number }}</td>
+        <td class="text-right amount-td-column">{{ row.netAmount | number }}</td>
+        <td class="text-right amount-td-column">{{ row.taxAmount | number }}</td>
 
-        <td class="text-right">{{ row.itemSize | number }}</td>
+        <td class="text-right amount-td-column">{{ row.itemSize | number }}</td>
         <td>{{ row.fournisseurLibelle }}</td>
-        <td>{{ row.modifiedUser }}</td>
+        <td>{{ row.createdUser }}</td>
 
         <td class="text-right">
           <div class="btn-group">
             @if (row.statut === 'PENDING0') {
-              <p-button text icon="pi pi-pencil" severity="success" [rounded]="true" size="small" pTooltip="Editer"></p-button>
-            }
-            @if (row.statut === 'PENDING') {
-              <p-button
-                text
-                [routerLink]="['/commande', row.id, 'stock-entry']"
-                class="ml-sm-1"
-                icon="pi pi-upload"
-                size="small"
-                [rounded]="true"
-                severity="help"
-                pTooltip="Faire l'entréé en  stock"
-              ></p-button>
+              <p-button [text]="true" icon="pi pi-pencil" severity="success" [rounded]="true"
+                        pTooltip="Editer"></p-button>
             }
 
+
             <p-button
-              text
+              [text]="true"
               (click)="exportPdf(row)"
               [rounded]="true"
               class="ml-sm-1"
@@ -88,7 +78,7 @@
               size="small"
             ></p-button>
             <p-button
-              text
+              [text]="true"
               (click)="printEtiquette(row)"
               [rounded]="true"
               class="ml-sm-1"
@@ -134,7 +124,10 @@
               <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
                 <tr>
                   <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                  <td>{{ receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip }}</td>
+                  <td>{{
+                      receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
+                    }}
+                  </td>
                   <td>{{ receiptItem.fournisseurProduitLibelle }}</td>
                   <td class="text-right">{{ receiptItem.initStock | number }}</td>
                   <td class="text-right">{{ receiptItem.afterStock | number }}</td>

@@ -230,6 +230,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setUser(storageService.getUser());
         commande.orderStatus(OrderStatut.RECEIVED);
         commande.setReceiptReference(deliveryReceiptLite.getReceiptReference());
+
         buildDeliveryReceipt(deliveryReceiptLite, commande);
         List<OrderLine> orderLines = commande.getOrderLines();
         orderLines.forEach(this::updateReceivedQty);
@@ -336,6 +337,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setTaxAmount(deliveryReceiptLite.getTaxAmount());
         commande.setReceiptReference(deliveryReceiptLite.getReceiptReference());
         commande.setHtAmount(deliveryReceiptLite.getReceiptAmount());
+        commande.setFinalAmount(commande.getHtAmount());
         return commande;
     }
 

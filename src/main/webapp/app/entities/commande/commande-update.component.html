@@ -8,7 +8,8 @@
   size="medium"
   type="timer"
 ></ngx-spinner>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteItem"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="deleteItem"></p-confirmDialog>
 
 <p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="stayThere"></p-confirmDialog>
 
@@ -49,7 +50,8 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px">Date Bon</span>
-            <span class="text-primary fw-bold">{{ commande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+            <span
+              class="text-primary fw-bold">{{ commande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Montant HT
@@ -106,7 +108,8 @@
                   <ng-template let-item pTemplate="item">
                     @if (item.totalQuantity > 0) {
                       <div [style]="{ width: '100%' }">
-                        <span style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                        <span
+                          style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
                         ><span> {{ item.libelle }}</span>
                         <span class="float-right">{{ item.regularUnitPrice | number }}</span>
                       </div>
@@ -116,7 +119,8 @@
                         <span class="stockless"
                               style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
                         ><span class="stockless"> {{ item.libelle }}</span>
-                        <span class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
+                        <span
+                          class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
                       </div>
                     }
                   </ng-template>
@@ -184,7 +188,7 @@
               <div class="d-flex justify-content-start flex-fill">
                 <div>
                   <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search"/>
+                    <p-inputicon styleClass="pi pi-search" />
                     <input
                       (keyup.enter)="onFilterCommandeLines()"
                       [(ngModel)]="search"
@@ -230,7 +234,8 @@
               <div class="d-flex justify-content-end flex-fill">
                 <p-buttonGroup>
                   @if (!isReceiption) {
-                    <p-button (click)="onCreateBon()" severity="primary" icon="pi pi-truck" label="Créer le bon"
+                    <p-button (click)="onCreateBon()" severity="primary" icon="pi pi-truck"
+                              label="Créer le bon"
                               [raised]="true"></p-button>
 
                     <p-button
@@ -251,8 +256,9 @@
                     ></p-button>
                   }
 
-                  <p-splitbutton [model]="exportbuttons" icon="pi pi-file-export" label="Exporter" severity="warn"
-                                 [raised]="true"/>
+                  <p-splitbutton [model]="exportbuttons" icon="pi pi-file-export" label="Exporter"
+                                 severity="warn"
+                                 [raised]="true" />
 
                   @if (!isReceiption && selectedEl!.length > 0) {
                     <p-button [raised]="true" label="Supprimer" icon="pi pi-times" severity="danger"
@@ -284,7 +290,7 @@
 
               <th style="width: 6%"></th>
               @if (!isReceiption) {
-                <th  class="text-center" style="width: 2%;">
+                <th class="text-center" style="width: 2%;">
                   <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
               }
@@ -293,7 +299,7 @@
           <ng-template let-orderLine let-rowIndex="rowIndex" #body>
             <tr [ngClass]="orderLineTableColor(orderLine)">
               <td style="text-align: left">{{ rowIndex + 1 }}</td>
-              @if (orderLine.provisionalCode === false) {
+              @if (orderLine.provisionalCode === false || !isReceiption) {
                 <td>{{ orderLine.produitCip }}</td>
               } @else {
                 <td class="table-info" pEditableColumn>
@@ -318,65 +324,84 @@
 
               <td>{{ orderLine.produitLibelle }}</td>
               <td style="text-align: right">{{ orderLine.initStock | number }}</td>
+              @if (!isReceiption) {
+                <td pEditableColumn class="amount-td-column">
+                  <p-cellEditor>
+                    <ng-template pTemplate="input">
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
+                        [value]="orderLine.orderCostAmount"
+                        pInputText
+                        required
+                        style="width: 100%"
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                      {{ orderLine.orderCostAmount | number }}
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+              } @else {
+                <td class="amount-td-column"> {{ orderLine.orderCostAmount | number }}</td>
 
-              <td pEditableColumn class="amount-td-column">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <input
-                      (focus)="$event.target.select()"
-                      (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
-                      [value]="orderLine.orderCostAmount"
-                      pInputText
-                      required
-                      style="width: 100%"
-                      type="number"
-                    />
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    {{ orderLine.orderCostAmount | number }}
-                  </ng-template>
-                </p-cellEditor>
-              </td>
+              }
+
               <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
+              @if (!isReceiption) {
+                <td pEditableColumn class="amount-td-column">
+                  <p-cellEditor>
+                    <ng-template pTemplate="input">
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
+                        [value]="orderLine.orderUnitPrice"
+                        pInputText
+                        required
+                        style="width: 100%"
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                      {{ orderLine.orderUnitPrice | number }}
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+              } @else {
+                <td class="amount-td-column"> {{ orderLine.orderUnitPrice | number }}</td>
 
-              <td pEditableColumn class="amount-td-column">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <input
-                      (focus)="$event.target.select()"
-                      (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
-                      [value]="orderLine.orderUnitPrice"
-                      pInputText
-                      required
-                      style="width: 100%"
-                      type="number"
-                    />
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    {{ orderLine.orderUnitPrice | number }}
-                  </ng-template>
-                </p-cellEditor>
-              </td>
+              }
+
               <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
-              <td pEditableColumn class="amount-td-column">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <input
-                      (focus)="$event.target.select()"
-                      (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
-                      [value]="orderLine.quantityRequested"
-                      pInputText
-                      required
-                      style="width: 100%"
-                      type="number"
-                    />
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    {{ orderLine.quantityRequested | number }}
-                  </ng-template>
-                </p-cellEditor>
-              </td>
-              <td [pEditableColumn]="orderLine.freeQty" pEditableColumnField="freeQty" class="amount-td-column">
+              @if (!isReceiption) {
+                <td pEditableColumn class="amount-td-column">
+                  <p-cellEditor>
+                    <ng-template pTemplate="input">
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
+                        [value]="orderLine.quantityRequested"
+                        pInputText
+                        required
+                        style="width: 100%"
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                      {{ orderLine.quantityRequested | number }}
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+              } @else {
+                <td class="amount-td-column">
+                  {{ orderLine.quantityRequested | number }}
+                </td>
+              }
+
+
+              <td [pEditableColumn]="orderLine.freeQty" pEditableColumnField="freeQty"
+                  class="amount-td-column">
                 <p-cellEditor>
                   <ng-template pTemplate="input">
                     <input
@@ -403,11 +428,11 @@
                   }
                 </td>
 
-              <td>
-                @for (lot of orderLine.lots; track lot.numLot) {
-                  <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
-                }
-              </td>
+                <td>
+                  @for (lot of orderLine.lots; track lot.numLot) {
+                    <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
+                  }
+                </td>
               }
               <td style="text-align: right" class="d-flex justify-content-end">
                 <p-buttonGroup>
@@ -464,8 +489,11 @@
             <ng-template #footer>
               <tr>
                 <td class="p-text-left" colspan="4" style="font-weight: 700">VALEUR ACHAT/VENTE</td>
-                <td class="amount-column text-right red-400">{{ commande.grossAmount | number }}</td>
-                <td class="amount-column text-right red-400" colspan="2">{{ commande.orderAmount | number }}</td>
+                <td class="amount-column text-right red-400">{{ commande.grossAmount | number }}
+                </td>
+                <td class="amount-column text-right red-400"
+                    colspan="2">{{ commande.orderAmount | number }}
+                </td>
                 <td class="amount-column text-right" colspan="3"></td>
                 <td colspan="4"></td>
               </tr>
@@ -476,4 +504,4 @@
     </div>
   </div>
 </p-panel>
-<p-confirmDialog key="deleteAll"/>
+<p-confirmDialog key="deleteAll" />

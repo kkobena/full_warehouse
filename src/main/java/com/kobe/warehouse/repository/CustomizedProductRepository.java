@@ -50,16 +50,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -69,6 +59,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -232,7 +231,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (StringUtils.hasLength(dto.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
-        if(StringUtils.hasLength(dto.getCodeEan())){
+        if (StringUtils.hasLength(dto.getCodeEan())) {
             produit.setCodeEan(dto.getCodeEan());
         }
 
@@ -420,7 +419,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
             q.setMaxResults(1);
             return Optional.ofNullable(q.getSingleResult());
         } catch (Exception e) {
-            LOG.error("getFournisseurProduitByCriteria=====>>>> {}", e);
+            LOG.info("getFournisseurProduitByCriteria=====>>>> ", e);
             return Optional.empty();
         }
     }

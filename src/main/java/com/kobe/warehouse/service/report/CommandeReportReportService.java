@@ -84,6 +84,6 @@ public class CommandeReportReportService extends CommonReportService {
 
     @Override
     protected String getGenerateFileName() {
-        return this.commande.getOrderreference();
+        return this.commande.getOrderReference();
     }
 }

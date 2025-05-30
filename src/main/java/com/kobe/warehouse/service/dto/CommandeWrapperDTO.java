@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public abstract class CommandeWrapperDTO {
 
     private Long id;
-    private String orderreference;
+    private String orderReference;
     private String receiptReference;
     private LocalDate receiptDate;
     private Integer discountAmount;
@@ -25,12 +25,11 @@ public abstract class CommandeWrapperDTO {
     private String sequenceBon;
     private FournisseurDTO fournisseur;
 
-    protected CommandeWrapperDTO() {
-    }
+    protected CommandeWrapperDTO() {}
 
     protected CommandeWrapperDTO(Commande commande) {
         id = commande.getId();
-        orderreference = commande.getOrderReference();
+        orderReference = commande.getOrderReference();
         receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
         discountAmount = commande.getDiscountAmount();
@@ -44,7 +43,6 @@ public abstract class CommandeWrapperDTO {
         receiptAmount = commande.getFinalAmount();
     }
 
-
     public Long getId() {
         return id;
     }
@@ -54,12 +52,12 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public String getOrderreference() {
-        return orderreference;
+    public String getOrderReference() {
+        return orderReference;
     }
 
-    public CommandeWrapperDTO setOrderreference(String orderreference) {
-        this.orderreference = orderreference;
+    public CommandeWrapperDTO setOrderReference(String orderReference) {
+        this.orderReference = orderReference;
         return this;
     }
 
